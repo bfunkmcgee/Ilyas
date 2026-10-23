@@ -46,4 +46,5 @@ and notes on every system. Read it before changing anything. In short:
 
 ## Versions
 
-Each published version is a commit tagged `vNN`. This repository starts at `v63`; the guide's notes say what changed in each version.
+Each published version is one commit whose message starts with its number ("V63: ..."). This repository starts at V63, and the
+guide's notes say what changed in each version.

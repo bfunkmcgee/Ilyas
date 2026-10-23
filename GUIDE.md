@@ -417,8 +417,8 @@ Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https:
 short label "V64 ..." (V63 was the last published; count on from it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
 Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V64: ..." and a line or two of what
-changed), tag it `v64` (`git tag -a v64 -m "V64: ..."`), and push both (`git push origin main --follow-tags`). One commit and one
-tag per published version.
+changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
+access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
 ## Reporting to the user
 They read on a phone. Reports are declarative and matter-of-fact, short, with few em dashes. Say what changed for the player, what
