@@ -1,0 +1,131 @@
+
+/* crowd fights: fighter rows, targets and per-enemy intents */
+.frows{display:flex;flex-direction:column;gap:9px}
+.frow{--c:var(--ink)}
+.frow .fname{color:var(--c)}
+.frow.is-dead{opacity:.5}
+.targets{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 6px}
+.targets .lbl{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.08em;color:var(--dim);margin-right:2px}
+.tgt{appearance:none;font:700 13px/1 var(--ui);letter-spacing:.03em;color:var(--win-lo);background:var(--c);border:0;border-radius:4px;padding:5px 10px;cursor:pointer;opacity:.5;text-shadow:none}
+.tgt[aria-pressed="true"]{opacity:1;box-shadow:0 0 0 2px var(--amber)}
+.tgt:hover:not(:disabled){opacity:.85}
+.tgt:disabled{opacity:.22;cursor:default;text-decoration:line-through}
+.tgt:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.intents{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--dim);line-height:1.35;min-height:18px}
+.intents li{--c:var(--vargo)}
+.intents .who{font-weight:700;color:var(--c)}
+.intents b{color:var(--ink);font-weight:700}
+.intents i{font-style:normal;color:var(--amber);font-weight:600}
+.intents em{font-style:normal;color:var(--hp-low);font-weight:700}
+.count-row{display:flex;align-items:center;gap:10px}
+.count-row>span{font-size:14px;flex:0 0 auto}
+.count-row .seg{flex:1 1 auto}
+.seg.seg3{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* skill techniques: flourishes glow amber, crowd techniques glow in Kael's colour */
+.cmd.flair .tq{color:#ffe3a3;text-shadow:0 0 9px rgba(255,193,99,.55)}
+.cmd.crowd .tq{color:var(--kael);text-shadow:0 0 9px rgba(69,216,200,.5)}
+.cmd.flair .tq::before,.cmd.crowd .tq::before{content:"✦ ";font-size:10px}
+.cmd:disabled.flair .tq,.cmd:disabled.crowd .tq{color:var(--faint);text-shadow:none}
+.lg-sec{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 8px;font-size:14px;padding-left:14px;position:relative}
+.lg-sec::before{content:"";position:absolute;left:3px;top:3px;width:7px;height:8px;border-left:1.5px solid var(--faint);border-bottom:1.5px solid var(--faint)}
+.lg-sec .lg-roll{flex-basis:100%}
+.tech-rank{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.08em;color:var(--amber);margin:2px 0 4px}
+.tech-list{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:0 0 10px;font-size:14px;line-height:1.35}
+.tech-list dt{font-weight:600;color:var(--ink)}
+.tech-list dd{margin:0;color:var(--dim)}
+.tech-note{margin:0 0 8px;font-size:14px;color:var(--dim);line-height:1.4}
+
+/* brawling */
+.op-btns.five{grid-template-columns:repeat(5,minmax(0,1fr))}
+/* on a phone the opening card sits under the stage instead of covering the fighters */
+@media (max-width:520px){.opening{position:static;padding:6px 6px 8px}.op-btns.five{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cmd.brawl .tq{color:#ff9f86;text-shadow:0 0 9px rgba(255,110,80,.45)}
+.cmd:disabled.brawl .tq{color:var(--faint);text-shadow:none}
+.lg-hurt{color:#ff9f9f}
+.gore-row{display:flex;align-items:center;gap:10px}
+.gore-row>span{font-size:14px;flex:0 0 auto}
+.gore-row .seg{flex:1 1 auto}
+
+.lg-fin{color:#ffd36b}.lg-fin b{font-weight:700;letter-spacing:.02em}
+
+.cmd.team .tq{color:#a9e88c;text-shadow:0 0 9px rgba(140,230,110,.4)}
+.cmd:disabled.team .tq{color:var(--faint);text-shadow:none}
+.op-btns.six{grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg.seg2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.count-row>span:empty{display:none}
+.fcfg.ally{border-top-color:rgba(139,220,106,.35)}
+#allyAutoRow .tog{font-size:13px}
+
+/* walls and wreckage */
+.bill{position:absolute;right:10px;top:10px;line-height:1.2;padding:4px 10px;font-weight:600;font-size:13px;letter-spacing:.04em;border-width:1.5px;font-variant-numeric:tabular-nums;color:#ffd36b}
+.bill.bump{animation:billBump .5s ease-out}
+@keyframes billBump{0%{transform:scale(1.18);color:#fff3cf}100%{transform:scale(1);color:#ffd36b}}
+@media (prefers-reduced-motion:reduce){.bill.bump{animation:none}}
+.over-bill{margin:-4px 0 8px;color:#ffd36b;font-size:14px;max-width:46ch}
+.prop-row{flex-wrap:wrap;gap:6px 12px}
+.btn.showcase{width:100%;margin-top:2px}
+
+/* V7: footing pips */
+.cmd .ft,.op-btns .ft{margin-left:6px;font-size:10px;letter-spacing:1px;font-weight:700;vertical-align:2px;white-space:nowrap}
+.cmd .ft.cost,.op-btns .ft.cost{color:#ffb070}.cmd .ft.gain,.op-btns .ft.gain{color:#8fe3a8}
+.cmd:disabled .ft,.op-btns button:disabled .ft{display:none}
+.tag .pips{font-style:normal;letter-spacing:1px;margin-left:4px;font-size:9px;vertical-align:1px}
+.tag .pips b{opacity:.25;font-weight:700}
+
+/* V8 */
+.seg.seg4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.seg.temper button{font-size:12.5px}
+.drives{margin-top:-2px}
+.drv{appearance:none;font:600 12.5px/1 var(--ui);color:var(--ink);background:rgba(6,10,34,.42);border:1px solid rgba(232,235,255,.3);border-radius:4px;padding:5px 9px;cursor:pointer;text-shadow:none}
+.drv[aria-pressed="true"]{background:#ffd9a8;color:var(--win-lo);border-color:#ffd9a8}
+.drv:focus-visible{outline:2px solid var(--amber);outline-offset:1px}
+.cmd.warn small{color:#ffb08a}
+.cmd.answer .tq{color:#9cf0b0;text-shadow:0 0 9px rgba(110,230,150,.45)}
+.cmd.answer .tq::before{content:"✓ ";font-size:10px}
+.cmd.weak .tq{color:#ffb08a}
+.cmd.weak .tq::before{content:"⚠ ";font-size:10px}
+.cmd:disabled.answer .tq,.cmd:disabled.weak .tq{color:var(--faint);text-shadow:none}
+.cmd.move .tq{color:#9fd8ff;text-shadow:0 0 9px rgba(120,190,255,.5)}
+.cmd.move .tq::before{content:"◆ ";font-size:9px}
+.cmd:disabled.move .tq{color:var(--faint);text-shadow:none}
+.cmd.warn small::before{content:"⚠ ";font-size:10px}
+/* phones: the commands sit right under the stage, the status panel after them */
+@media (max-width:700px){
+  .battle .commands{order:-1}
+  .top{margin-bottom:8px}
+  .top p{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .main-col{gap:8px}
+}
+@media (max-width:520px){
+  .wrap{padding-block:10px 30px}
+  .top h1{font-size:24px}
+  .top p{display:none}
+  .commands{padding:9px 10px 10px}
+  .commands h2{margin-bottom:2px}
+  .cmds{grid-template-columns:repeat(3,minmax(0,1fr));gap:0 2px}
+  .cmd{font-size:14.5px;padding:4px 2px 4px 13px}
+  .cmd::before{left:2px;top:7px;border-left-width:7px;border-top-width:5px;border-bottom-width:5px}
+  .cmd .tq{font-size:11px;white-space:nowrap;margin-top:2px}
+  .cmd.answer .tq,.cmd.weak .tq{white-space:normal}
+  .cmd small{font-size:10.5px}
+  .cmd .ft{margin-left:3px;font-size:9px}
+  .intents{font-size:12px;margin-bottom:5px}
+  .targets{margin-bottom:4px;gap:4px}
+  .tgt{padding:4px 8px;font-size:12px}
+  .drv{padding:4px 7px;font-size:11.5px}
+  .preview{font-size:12px;margin-top:6px;padding-top:6px;min-height:0}
+}
+
+/* V9: the kitchen */
+.fgroup{font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:4px 0 -4px;padding-top:2px}
+.lg.lg-phase{border-bottom-color:rgba(255,193,99,.38);padding-top:4px}
+.lg.lg-phase .lg-l{font-size:15.5px}
+#backTog{margin-top:-2px}
+
+/* V10: Kael's arc-blade on his card */
+.seg.kael .sig{grid-column:1/-1;border-color:rgba(127,243,227,.55);letter-spacing:.03em}
+.seg.kael .sig[aria-pressed="true"]{background:#7ff3e3;border-color:#7ff3e3}
+
+/* a run toggle that is locked for now */
+.tog:has(input:disabled){opacity:.5;cursor:default}

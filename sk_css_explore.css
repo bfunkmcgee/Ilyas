@@ -1,0 +1,32 @@
+/* Exploring: the place and the goal at the top, the action for the nearest thing at the bottom right, the jog toggle at the bottom left */
+.ex-goal{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:50%;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;
+  gap:1px;padding:6px 14px 7px;max-width:min(560px,calc(100% - 120px));background:linear-gradient(180deg,rgba(8,7,12,.82),rgba(3,3,6,.76));
+  border:1px solid rgba(226,182,90,.4);border-radius:3px;pointer-events:none;text-align:center;line-height:1.2}
+.ex-where{font:600 11px var(--ui);letter-spacing:.28em;text-transform:uppercase;color:#8a6a2e}
+.ex-what{font:700 15px var(--display);letter-spacing:.04em;color:#f3ead2}
+.ex-hint{font:italic 500 13px var(--ui);color:#cfc4a8;margin-top:2px}
+.ex-hint[hidden]{display:none}
+.ex-act,.ex-jog{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:4;appearance:none;min-height:44px;cursor:pointer;
+  font:700 15px var(--display);letter-spacing:.08em;border-radius:3px;padding:10px 18px;text-shadow:none}
+.ex-act{right:14px;color:#120d05;background:linear-gradient(180deg,#f4d48e,#b98a3c);border:1px solid #f4d48e;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+.ex-act:hover,.ex-act:focus-visible{background:linear-gradient(180deg,#fff0c6,#d8a855);outline:none}
+.ex-jog{left:14px;color:#e2b65a;background:rgba(5,5,10,.72);border:1px solid rgba(226,182,90,.5)}
+.ex-jog[aria-pressed="true"]{color:#120d05;background:linear-gradient(180deg,#f4d48e,#b98a3c);border-color:#f4d48e}
+.ex-hand{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:4;display:flex;align-items:center;gap:8px;
+  min-height:44px;padding:4px 4px 4px 12px;background:rgba(5,5,10,.78);border:1px solid rgba(226,182,90,.4);border-radius:3px;max-width:calc(100% - 300px)}
+.ex-hand-k{font:600 10px var(--ui);letter-spacing:.24em;text-transform:uppercase;color:#8a6a2e}
+.ex-hand-v{font:700 14px var(--display);letter-spacing:.04em;color:#f3ead2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-drop{appearance:none;min-height:36px;cursor:pointer;font:700 13px var(--display);letter-spacing:.06em;color:#e2b65a;background:rgba(226,182,90,.08);
+  border:1px solid rgba(226,182,90,.5);border-radius:3px;padding:6px 10px}
+.ex-drop:hover,.ex-drop:focus-visible{background:rgba(226,182,90,.18);color:#fff0c6;outline:none}
+.ex-drop:disabled{opacity:.45;cursor:default}
+.ex-note{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 70px);z-index:4;pointer-events:none;
+  font:italic 600 15px var(--ui);color:#f3ead2;background:rgba(5,5,10,.8);border:1px solid rgba(226,182,90,.35);border-radius:3px;padding:6px 12px;
+  max-width:min(520px,calc(100% - 28px));text-align:center}
+/* a narrow screen (a phone held upright): the action and Jog on the bottom row, what his hand holds on the row over Jog (named Hand),
+   and the note over that; nothing sits on anything */
+@media (max-width:700px){
+  .ex-act{max-width:calc(100% - 136px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:10px 14px}
+  .ex-hand{left:14px;transform:none;bottom:calc(env(safe-area-inset-bottom,0px) + 68px);max-width:calc(100% - 28px)}
+  .ex-note{bottom:calc(env(safe-area-inset-bottom,0px) + 124px)}}
+.ex-act[hidden],.ex-jog[hidden],.ex-goal[hidden],.ex-hand[hidden],.ex-note[hidden]{display:none}

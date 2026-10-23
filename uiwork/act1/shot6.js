@@ -1,0 +1,22 @@
+// the toll on auto: stills of the pin (once held, a second on, and as he goes down), the end, at a size
+const {chromium}=require('playwright');const fs=require('fs');
+const SEED=+(process.argv[2]||11),OUT=process.argv[3]||'uiwork/act1/v51/pin',W=+(process.argv[4]||1100),H=+(process.argv[5]||620),PAGE=process.env.PAGE||'uiwork/act1/mine6_test.html';
+fs.mkdirSync(OUT,{recursive:true});
+(async()=>{const b=await chromium.launch({executablePath:process.env.SK_CHROMIUM||(require('fs').existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined)}),errs=[];
+  const p=await (await b.newContext({viewport:{width:W,height:H},deviceScaleFactor:1,isMobile:W<700,hasTouch:W<700})).newPage();
+  p.on('pageerror',e=>errs.push(e.message));
+  await p.addInitScript(()=>{window.requestAnimationFrame=cb=>{window.__raf=cb;return 1;};});
+  await p.goto('file://'+process.cwd()+'/'+PAGE);await p.waitForTimeout(400);
+  await p.evaluate(SEED=>{S.soundOn=false;let a=SEED;Math.random=()=>{a=(a*1103515245+12345)&0x7fffffff;return a/0x7fffffff;};S.rng=Math.random;
+    window.__now=performance.now()+1000;window.step=k=>{for(let i=0;i<k;i++){window.__now+=16.7;const f=window.__raf;window.__raf=null;if(f)f(window.__now);}};
+    storyGo('toll');S.storyAuto=true;S.auto=true;step(2);},SEED);
+  const until=async(cond,max)=>p.evaluate(([c,m])=>{const f=new Function('return '+c);let n=0;while(n<m&&!f()){step(1);n++;}return n;},[cond,max]);
+  let k=0;const shot=async name=>{await p.screenshot({path:`${OUT}/${String(k++).padStart(2,'0')}_${name}.png`});};
+  await until("S.story.step==='fight'&&S.game.phase==='input'",20000);await shot('fight');
+  await until("S.act1.toll.gang==='held'",20000);await shot('held');
+  await until("false",50);await shot('held1');
+  await until("false",70);await shot('held2');
+  await until("S.act1.toll.gang!=='held'",20000);await until("false",30);await shot('down');
+  await until("S.story.step==='outro'",30000);await until("false",200);await shot('outro');
+  await until("!!S.say&&/ink/.test(S.say.text)",3000);await until("false",40);await shot('ink');
+  console.log('errors',errs.length,JSON.stringify(errs.slice(0,4)));await b.close();})();

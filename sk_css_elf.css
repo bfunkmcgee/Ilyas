@@ -1,0 +1,21 @@
+/* Kael's magic: the Aether pips and the Magic row under the commands */
+.magic{margin:6px 0 2px;padding:6px 0 0;border-top:1px solid rgba(226,182,90,.28)}
+.mg-head{display:flex;align-items:center;gap:8px;margin:0 0 2px 4px}
+.mg-lbl{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#e2b65a}
+.mg-pips{display:inline-flex;gap:5px}
+.mg-pips i{width:9px;height:9px;transform:rotate(45deg);border:1.5px solid rgba(226,182,90,.6);background:transparent;transition:background .15s,box-shadow .15s}
+.mg-pips i.on{background:#e2b65a;border-color:#ffe299;box-shadow:0 0 7px rgba(255,214,120,.65)}
+.mg-pips i.on.spend{background:#7ff3e3;border-color:#d9fffa;box-shadow:0 0 8px rgba(127,243,227,.7)}
+.mg-note{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.mg-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 6px}
+.cmd.mg kbd{font:600 10px var(--mono);color:#b39350;margin-left:6px;vertical-align:2px}
+.cmd.mg .mg-cost{font-size:9px;letter-spacing:1px;color:#7ff3e3;margin-left:6px;vertical-align:3px;font-weight:400}
+.cmd.mg:disabled .mg-cost{color:var(--faint)}
+.cmd.mg .tq{color:#ffe299;text-shadow:0 0 9px rgba(226,182,90,.5)}
+.cmd.mg::before{border-left-color:#e2b65a}
+.cmd.mg:not(:disabled):hover{background:rgba(226,182,90,.1)}
+.cmd.mg:focus-visible{box-shadow:0 0 0 2px #e2b65a}
+.cmd.mg:disabled .tq{color:var(--faint);text-shadow:none}
+.cmd.mg:disabled kbd{color:var(--faint)}
+@media (max-width:520px){.mg-row{gap:2px 4px}.cmd.mg{font-size:15px;padding-left:18px}.cmd.mg kbd{display:none}.mg-note{display:none}.cmd.mg .tq,.cmd.mg small{white-space:normal}.cmd.mg .mg-cost{margin-left:4px}}
+@media (prefers-reduced-motion: reduce){.mg-pips i{transition:none}}

@@ -1,0 +1,13 @@
+/* ===== the answer window (sk_reactui.js): a blow coming in, in a warmer red than an opening's gold ===== */
+.opening.react .op-card{border-color:#ff8a6a;box-shadow:0 0 0 2px var(--rim-dark),0 0 26px rgba(255,122,92,.38),0 10px 26px rgba(0,0,0,.45)}
+.opening.react .op-title{color:#ffb39a}
+.opening.react .op-btns button.best>span:first-child::after{content:" ✓";color:#8fe3a8;font-weight:800}
+.opening.react .op-btns button.best .tq{color:#8fe3a8}
+.wrap.hud .opening.react .op-tab,.wrap.hud .opening.react .op-dock{border-color:#e98a6e}
+.wrap.hud .opening.react .op-tab{box-shadow:0 -8px 22px rgba(233,122,92,.24)}
+.wrap.hud .opening.react .op-dock{box-shadow:inset 0 0 0 3px var(--gl-panel3),inset 0 0 0 4px rgba(233,122,92,.22),0 0 26px rgba(233,122,92,.3),0 10px 26px rgba(0,0,0,.55)}
+.wrap.hud .opening.react .op-title{background:linear-gradient(180deg,#ffe6dc,#f0967a 55%,#a8503a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wrap.hud .opening.react .op-bar{background:rgba(233,122,92,.2)}
+.wrap.hud .opening.react .op-bar i{background:#f0967a}
+.wrap.hud .opening.react .op-bar i::after{background:#ffd2c2}
+.wrap.hud .opening.react .op-btns button.best .tq{color:#9fe8b4}

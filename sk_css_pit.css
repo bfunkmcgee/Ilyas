@@ -1,0 +1,7 @@
+/* Act I: the Aether tab's last flicker; the chapters under their acts */
+.a1-flick{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:10px;
+  padding:8px 16px;border:1px solid rgba(127,243,227,.6);border-radius:3px;background:rgba(5,10,12,.78);box-shadow:0 0 16px rgba(127,243,227,.35);pointer-events:none}
+.a1-flick[hidden]{display:none}
+.a1-flick-t{font:700 15px var(--display);letter-spacing:.14em;color:#7ff3e3;text-transform:uppercase}
+.a1-flick-p{font:13px var(--ui);color:#7ff3e3;letter-spacing:.2em}
+.st-chaphead{font:600 11px var(--ui);letter-spacing:.3em;text-transform:uppercase;color:#8a6a2e;padding:8px 2px 2px;text-align:left}

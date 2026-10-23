@@ -1,0 +1,23 @@
+# The quick tier on every push to main and every pull request: the build, the static check and the game-logic suites (no browser).
+# The page suites (python3 test.py full) need a headless Chromium and about 13 minutes; they are run before each version is published.
+name: checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  quick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: python3 build.py
+      - run: python3 test.py

@@ -1,0 +1,348 @@
+<div class="wrap hud" id="wrap">
+  <header class="top">
+    <h1>Ragdoll Skirmish Lab</h1>
+
+  </header>
+
+  <div class="layout">
+    <section class="main-col" aria-label="Battle">
+      <div class="win stage" id="stageWrap">
+        <canvas id="cv" aria-label="Fight stage: silhouetted fighters on a floor with depth at dusk"></canvas>
+        <div class="win bill" id="bill" hidden></div>
+        <div class="hud-top" id="hudTop">
+          <button type="button" class="hud-btn" id="menuBtn" aria-label="Menu" aria-controls="sideCol" aria-expanded="false"><svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1H19M4 7H16M1 13H19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+          <div class="frows" id="frows"></div>
+          <div class="win status">
+            <div class="banner" id="banner">Turn 1 · Ilyas</div>
+            <div class="order-row"><span class="order-label" id="orderLabel">Next</span><div class="order" id="order"></div></div>
+            <div class="tempo-line" id="tempoLine"></div>
+            <div class="field-line" id="fieldLine">Lamplight Street</div>
+          </div>
+          <button type="button" class="hud-btn" id="logBtn" aria-label="Exchange log" aria-controls="logPanel" aria-expanded="false"><svg width="18" height="20" viewBox="0 0 18 20" aria-hidden="true"><path d="M3 2H12L15 5V18H3Z M6 8H12 M6 11H12 M6 14H10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
+        </div>
+        <div class="opening" id="opening" hidden>
+          <div class="win op-card" role="dialog" aria-labelledby="opTitle">
+            <div class="op-tab">
+              <div class="op-head"><span class="op-title" id="opTitle">Riposte window</span><span class="op-sub" id="opSub"></span></div>
+              <p class="op-reason" id="opReason"></p>
+              <p class="op-hint" id="opHint"></p>
+            </div>
+            <div class="op-dock">
+              <div class="op-bar"><i id="opBar"></i></div>
+              <div class="op-btns" id="opBtns"></div>
+            </div>
+          </div>
+        </div>
+        <div class="opening finale" id="finalePanel" hidden>
+          <div class="win op-card" role="dialog" aria-labelledby="finTitle">
+            <div class="op-tab">
+              <div class="op-head"><span class="op-title" id="finTitle">Mr. Hallowell</span><span class="op-sub" id="finSub"></span></div>
+              <p class="fin-line">On his knees and unarmed.</p>
+            </div>
+            <div class="op-dock">
+              <div class="op-btns fin-btns"><button type="button" data-c="spare"><span>Spare him</span><kbd>1</kbd></button><button type="button" data-c="behead"><span>Behead him</span><kbd>2</kbd></button></div>
+            </div>
+          </div>
+        </div>
+        <div class="over" id="over" hidden>
+          <div class="win over-card">
+            <p class="over-k" id="overK">Victory</p>
+            <p class="over-t" id="overT">All enemies are down.</p>
+            <p class="over-bill" id="overBill" hidden></p>
+            <button type="button" class="btn" id="rematch">Rematch</button>
+          </div>
+        </div>
+        <div class="win commands" id="commands" data-tab="strike">
+          <h2 id="cmdHead">Ilyas · Command</h2>
+          <div class="cmd-tabs" id="cmdTabs" role="tablist" aria-label="Command groups">
+            <button type="button" role="tab" data-tab="strike" aria-selected="true">Strike</button>
+            <button type="button" role="tab" data-tab="move" aria-selected="false">Move</button>
+            <button type="button" role="tab" data-tab="guard" aria-selected="false">Tactics</button>
+            <button type="button" role="tab" data-tab="room" id="tabRoom" aria-selected="false" hidden>Room</button>
+            <button type="button" role="tab" data-tab="aether" id="tabAether" aria-selected="false">Aether <span class="tab-pips" id="tabPips" aria-hidden="true"></span></button>
+          </div>
+          <div class="targets" id="targets"></div>
+          <div class="targets drives" id="drives" hidden></div>
+          <ul class="intents" id="intents"></ul>
+          <div class="cmds" id="cmds"></div>
+          <p class="preview" id="cmdPreview" aria-live="polite"></p>
+        </div>
+        <div class="win log" id="logPanel" aria-label="Exchange log">
+          <div class="drawer-head"><h2>Exchange log</h2><button type="button" class="drawer-x" id="logClose" aria-label="Close the log"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div>
+          <ol id="log"></ol>
+        </div>
+      </div>
+
+    </section>
+
+    <aside class="side-col" id="sideCol" aria-label="Menu and test bench" data-tab="fight">
+      <div class="drawer-top">
+        <div class="drawer-head"><div class="drawer-titles"><span class="drawer-title">Paused</span><span class="drawer-sub" id="drawerSub"></span></div><button type="button" class="btn-gold" id="resumeBtn"><svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true"><path d="M1 1L9 6L1 11Z" fill="currentColor"/></svg>Resume</button></div>
+        <div class="drawer-tabs" role="tablist" aria-label="Menu sections">
+          <button type="button" role="tab" data-dtab="fight" aria-selected="true">Fight</button>
+          <button type="button" role="tab" data-dtab="arena" aria-selected="false">Arena</button>
+          <button type="button" role="tab" data-dtab="codex" aria-selected="false">Codex</button>
+        </div>
+      </div>
+      <div class="win bench b-fight">
+        <h2>Fighters</h2>
+        <div class="count-row"><span>Ally</span><div class="seg seg2" id="allySeg" role="group" aria-label="Teammate for Ilyas"></div></div>
+        <div class="count-row" id="allyAutoRow" hidden><span></span><label class="tog"><input type="checkbox" id="tAllyAuto"> Amri fights on her own</label></div>
+        <div class="count-row"><span>Enemies</span><div class="seg seg3" id="countSeg" role="group" aria-label="Number of enemies"></div></div>
+        <div class="fcfgs" id="fcfgs"></div>
+      </div>
+      <div class="win bench b-arena">
+        <h2>Arena &amp; view</h2>
+        <div class="seg seg3" id="arenaSeg" role="group" aria-label="Arena"></div>
+        <div class="prop-row"><label class="tog"><input type="checkbox" id="tTable" checked> Table</label><label class="tog"><input type="checkbox" id="tDivs" checked> Dividers</label><button type="button" class="btn btn-small" id="resetTable">Reset props</button></div>
+        <label class="tog" id="backTog"><input type="checkbox" id="tBack" checked> Kitchen after the dining room</label>
+        <label class="tog" id="deepTog"><input type="checkbox" id="tDeep" checked> Then the lobby and the office</label>
+        <button type="button" class="btn showcase" id="showcase">Watch a restaurant brawl</button>
+        <div class="gore-row"><span>Blood</span><div class="seg seg3" id="goreSeg" role="group" aria-label="Blood"></div></div>
+        <div class="togs">
+          <label class="tog"><input type="checkbox" id="tDebug"> Pose targets</label>
+          <label class="tog"><input type="checkbox" id="tSlow"> Slow motion</label>
+          <label class="tog"><input type="checkbox" id="tAuto"> Auto-battle</label>
+          <label class="tog"><input type="checkbox" id="tIntro" checked> Draw weapons first</label>
+          <label class="tog"><input type="checkbox" id="tSound" checked> Sound</label>
+        </div>
+        <p class="legend"><b>Cyan rings</b> are the targets each joint motor is chasing; the bar over each head is motor strength. <em>Amber</em> marks the planned contact point and strike position. The ring under each fighter is their balance bar, a segment a pip (six for a named fighter, four for a crew man, eight for a boss): green when Set, amber when Committed, orange when Off balance, all amber when Broken. Click an enemy to target it, and drag the table anywhere on the floor. Reset props puts the table, the dividers and the restaurant back together.</p>
+      </div>
+      <div class="win bench techs about">
+        <h2>The lab</h2>
+        <p class="tech-note">Turn-based melee on a floor with depth. Take on one, two or three enemies, or a named fighter and his crew, alone or with an ally, or fight up from a restaurant to the office hidden above it: the dice decide each exchange, the fighter picks a technique to suit the moment, and procedurally built ragdolls act it out with joint motors. Skilled fighters add flourishes and read the crowd, and Ilyas carries each takedown straight on to the next. Every blow is answered as it comes, and what lands wears a fighter's balance down until he breaks.</p>
+      </div>
+      <div class="win bench techs">
+        <h2>Answers and balance</h2>
+        <p class="tech-note">Every blow at a standing fighter is answered as it comes. When one comes at a hero you control, time slows, the panel shows what is coming and you pick the answer, with the chance it still lands on each. The enemies answer by their own read: the better the fighter, the more often he reads it right, and a man who bit on a feint reads worse.</p>
+        <dl class="tech-list">
+          <dt>Parry</dt><dd>+4 against a Slash or Thrust, +2 against an Overhead, which breaks it if it lands or is blocked, and +1 against a Sweep, which goes under it. A blow you turn aside costs the attacker two pips of balance and opens a riposte, no read roll.</dd>
+          <dt>Counter</dt><dd>+3 against an Overhead, −1 against a Thrust. A miss costs him two pips and opens a counter, no read roll. A blow that still lands lands 25% harder.</dd>
+          <dt>Slip</dt><dd>+4 against a Thrust, +2 against an Overhead, +1 against a Slash, −1 against a Sweep. A miss leaves him reaching.</dd>
+          <dt>Step back</dt><dd>+4 against a Sweep, +2 against a Slash, +1 against a Thrust or Overhead. A miss steadies you by a pip.</dd>
+          <dt>Turn him</dt><dd>Only with one of his own just behind or beside him. +2 against a Slash or Thrust, +1 against an Overhead, −1 against a Sweep. A blow turned aside sends him into his partner with a shove that cannot fail, and a clean miss puts them both down.</dd>
+          <dt>Cost</dt><dd>An answer costs 5 tempo of your next turn, Turn him 12. If the time runs out, the hero answers by his own read. A fighter on the ground, held in a clinch or Broken has no answer.</dd>
+          <dt>Balance</dt><dd>A bar of pips: six for a named fighter, four for a crew man, eight for a boss. A blow that lands takes two, three for a heavy one. A parried or countered blow costs the attacker two, a blocked or dodged one costs him one, two for an Overhead. The Overhead, Shove, Throw, most room moves and the flourishes spend one of your own. Two pips come back at the start of each of your turns.</dd>
+          <dt>Broken</dt><dd>Knocked to nothing by the other side, a fighter breaks. Time slows, he has no answer to any blow until his own turn, and whoever broke him gets a free move: the Overhead, Weapon control, a shove into his partner or the furniture, or the Sweep. Ilyas can be broken too.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>Skill techniques</h2>
+        <p class="tech-rank">Veteran</p>
+        <dl class="tech-list">
+          <dt>Cleave</dt><dd>Slash with a second enemy beside the target</dd>
+          <dt>Domino shove</dt><dd>Shove with an enemy right behind the target</dd>
+        </dl>
+        <p class="tech-rank">Expert</p>
+        <dl class="tech-list">
+          <dt>Flourishes</dt><dd>Attacks on open ground: Whirling cut, Leaping cleave, Flèche, spear twirls, spinning sweeps and the dagger's Sliding reap</dd>
+          <dt>Whirlwind</dt><dd>Slash with enemies in front and behind</dd>
+          <dt>Break out</dt><dd>Withdraw while surrounded</dd>
+          <dt>Flow</dt><dd>A takedown opens a strike on the next enemy in reach</dd>
+        </dl>
+        <p class="tech-rank">Master</p>
+        <p class="tech-note">Flourishes on nearly every open attack, and Flow without a read roll.</p>
+        <p class="keys">Commands marked ✦ use one this turn: amber for a flourish, teal for a crowd technique. Flourishes and crowd cuts cost one extra pip of balance.</p>
+      </div>
+      <div class="win bench techs">
+        <h2>Brawling</h2>
+        <dl class="tech-list">
+          <dt>Grab</dt><dd>Close enough to touch, Advance becomes Grab. A clinch locks you together and gives a quick choice: headbutt, knee, elbow, throw or push away. The one held can break free.</dd>
+          <dt>Throws</dt><dd>From a clinch, throw them over your hip, slam them down, or put them through the table, into a wall or a divider, onto furniture, onto the curb or into another enemy.</dd>
+          <dt>Down</dt><dd>A Sweep or Overhead on someone off balance, a solid Overhead, a crit with a Sweep, an Overhead or a greataxe, throws and trips over the curb or a body put a fighter down. They stay down until their next turn: −2 DEF and no answer to a blow, though they can still block, and Sweep becomes Stomp. Getting up is quick and leaves them Committed; rolling clear takes a little longer.</dd>
+          <dt>Wounds</dt><dd>Blows land on the head, body, arm or leg. A hurt leg limps and is easier to sweep, a hurt arm sags the weapon (up to −2 to hit), a hard head blow dazes for a turn.</dd>
+          <dt>Disarms</dt><dd>A broken parry, strong Weapon control or a Lash disarm can knock the weapon away, and a Haft cut leaves a spearman with the bare shaft. Fight with fists or pick up a bottle, tankard, table leg, chair leg, stone or any dropped weapon.</dd>
+          <dt>Killing blows</dt><dd>A blow that kills plays out to suit the weapon and the moment: beheadings and cut-downs with sword and axe, run through or impaled on a thrust, cleaved by an overhead, throats cut with a dagger or spear, knockouts with fists and clubs, and finishing blows on the ground. With Blood off, nobody loses their head.</dd>
+          <dt>Stuck weapons</dt><dd>A blade driven through a body or deep into it can stick. A novice leaves it in most often, an expert rarely and a master never. Pulling it free (Hold becomes Pull) takes a turn.</dd>
+          <dt>Sidearm</dt><dd>Ilyas carries a dagger on his hip. Whenever his weapon is gone, Draw dagger appears under Tactics, a quick action. It goes back in the scabbard once he has his own weapon again.</dd>
+          <dt>Off-hand dagger</dt><dd>An Expert or Master Ilyas can draw the hip dagger with his free hand while in a clinch (Advance becomes Dagger stab). Chest to chest he stabs under the ribs, holding someone from behind he drives it into their side (a kill slits the throat), and pinned from behind he stabs back into the holder, which breaks the hold when it lands.</dd>
+          <dt>Gang-ups</dt><dd>Enemies grab Ilyas from behind so the others hit him at +3, and follow up on each other's hits. Twist free or throw the holder over your shoulder. Hold an enemy from the front and you can spin them round as a shield: the others attack you at −4 and near misses land on them.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>Reach and temperament</h2>
+        <dl class="tech-list">
+          <dt>Reach</dt><dd>A weapon at least a hand longer outreaches the other. Coming in on it hands its owner a stop-hit: time slows and they can thrust before your attack lands; a stop-thrust that lands costs you three pips of balance, and with none left your attack never comes. Once inside, the shorter weapon strikes at +2, so whoever holds the longer weapon steps back now and then to make you come in again.</dd>
+          <dt>Accuracy</dt><dd>Spear +1, longsword 0, dagger 0, greataxe −1. The dagger's edge is speed and the +2 it gets once inside a longer weapon, so it has to get in first.</dd>
+          <dt>Jammed</dt><dd>A spear or greataxe with someone inside its reach is forced into butt and haft strikes at −2. Withdraw to get the range back.</dd>
+          <dt>Closing in</dt><dd>An attack from well out of range runs in first, and the run costs up to 30 extra tempo.</dd>
+          <dt>Brute</dt><dd>Qadir charges in, swings Overheads at anyone unsteady and shoves people into things. Counter his Overheads: a Parry only gets broken.</dd>
+          <dt>Keeper</dt><dd>Brask holds the reach of his weapon: he gives ground when you get inside it and waits for you to come onto the point.</dd>
+          <dt>Rusher</dt><dd>Iyla closes fast, grabs whenever she is close, and takes the legs of anyone unsteady.</dd>
+        </dl>
+        <p class="tech-note">Each enemy's temperament can be changed on its card in the menu's Fighters panel.</p>
+      </div>
+      <div class="win bench techs">
+        <h2>Contextual moves</h2>
+        <p class="tech-note">Like the techniques, these come from the command and the moment. The button names the move and marks it ◆ in blue, and the enemies use them too.</p>
+        <dl class="tech-list">
+          <dt>Back thrust</dt><dd>Thrust at a target behind you while another enemy stands in front (Veteran and up, with a sword, dagger or arc-blade). The point goes back under the arm without turning: +1 to hit, ×0.8 damage, and you keep facing the one in front until you act again.</dd>
+          <dt>Beat the point</dt><dd>Advance onto a longer weapon (Trained and up). The stop-hit still comes, but at −4 (−6 for an Expert or Master) and it barely moves you, so you end up inside the reach.</dd>
+          <dt>Haft cut</dt><dd>Slash at a spearman from inside his reach with a sword, greataxe or arc-blade. A hit cuts the head off the spear and leaves him a bare shaft. It does him no damage.</dd>
+          <dt>Set the spear</dt><dd>Hold with a spear when someone is about to close on you. Whoever closes runs onto the point: the stop-thrust is at +3 with twice the knockback.</dd>
+          <dt>Beat and thrust</dt><dd>Thrust into a Parry with a sword, dagger or spear (Veteran and up). The parry adds +2 instead of +4, and a miss gives no riposte.</dd>
+          <dt>Beard hook</dt><dd>Slash into a Parry with a greataxe. On a hit or a block his weapon is pinned (+20 tempo to him), and a block gives him no riposte.</dd>
+          <dt>Murder-stroke</dt><dd>Overhead into a Parry with a sword (Expert and up). The sword is reversed and the crossguard hammers through: parry broken and him dazed, hit or block, at ×0.8 damage.</dd>
+          <dt>Shoulder check</dt><dd>Shove a target who is off balance. It costs 50 tempo instead of 70, and floors him if it lands.</dd>
+          <dt>Recovering cut</dt><dd>Slash while you are off balance with the target in reach. A short cut at ×0.7 damage that buys a pip of balance back instead of spending one, so it works even with no balance left.</dd>
+          <dt>Kick the chair</dt><dd>With a chair, stool or serving cart between you and the target, Shove becomes a kick that sends it into him: −3 balance and +15 tempo to him if it lands, and a crushing kick trips him. One pip of balance.</dd>
+          <dt>Bottle throw</dt><dd>With a bottle or tankard on a table within reach and the target out of reach, Shove throws it off-hand at his head, over a table if need be. A hit does light damage and dazes him. Costs 60 tempo and one pip.</dd>
+          <dt>Pin to the wall</dt><dd>Thrust at a target with his back to a wall, a divider or the table. +20% damage, and a hit leaves him unable to Withdraw or Sidestep on his next turn.</dd>
+          <dt>Lash snare</dt><dd>Sweep with the arc-blade at lash range. The segments wrap his ankle and yank him 40 units in, and a hit floors him if he is Committed or worse.</dd>
+          <dt>Lash disarm</dt><dd>Slash with the arc-blade at lash range against a Parry or a longer weapon (Expert and up). The segments wrap his weapon: a hit or a block becomes a disarm roll with +2 leverage, a crit tears it away, and if he keeps hold he loses 10 tempo. No damage.</dd>
+          <dt>Hamstring</dt><dd>Sweep with a dagger from behind him or from off his line. No knockdown, but a hit leaves him limping.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>Teamwork</h2>
+        <p class="tech-note">Turn on the ally to bring Amri in. You command her on her turns like Ilyas, or tick the box and she fights on her own. Team move and Cover, in the Tactics group, are the team moves.</p>
+        <dl class="tech-list">
+          <dt>Pincer</dt><dd>When your partner is already on an enemy, circle round to its far side. Caught between you, it can face only one of you, and the other attacks from behind at +2.</dd>
+          <dt>Tandem strike</dt><dd>A landed hit can let your partner follow straight up while the enemy reels. Holding an enemy from behind gives your partner a free strike at +3.</dd>
+          <dt>Pull off</dt><dd>When an enemy has hold of your partner, a hit on it makes it let go, and a shove tears it off.</dd>
+          <dt>Cover</dt><dd>Stand guard beside your partner. The next attack aimed at them before your next turn hits you instead.</dd>
+          <dt>Help up</dt><dd>Pull a downed partner to their feet. They are up straight away and keep their own turn.</dd>
+          <dt>The other side</dt><dd>Enemies choose between Ilyas and Amri, pile in on whoever a friend is holding, and break holds on their friends the same way. Enemies are tougher when Ilyas has help. The fight is lost if Ilyas falls; if Amri falls, Ilyas fights on.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>Flow</h2>
+        <p class="tech-note">Ilyas fights in runs. Every kill or knockdown he lands, and every enemy he breaks, puts him in flow and adds to the run. Amri and the enemies keep the ordinary Flow rules.</p>
+        <dl class="tech-list">
+          <dt>The next link</dt><dd>After a takedown, when an upright enemy stands within 110 units of striking distance and 70 units of depth, time slows and Ilyas goes again straight away. He needs at least one pip of balance left. The free move on a man he broke is a link too. A blow that takes down two enemies counts for both.</dd>
+          <dt>Counting</dt><dd>The run counts Ilyas's takedowns and breaks. From the second a callout over Ilyas and a badge in the corner of the stage show the count.</dd>
+          <dt>Bonuses</dt><dd>A link taken one into the run hits at +1 and costs 15% less tempo. Two in, +2 and 30%; three or more, +3 and 45%.</dd>
+          <dt>Balance</dt><dd>A link spends no balance at all.</dd>
+          <dt>Ending</dt><dd>Flow carries from turn to turn. It ends the moment a blow lands on Ilyas, when he goes down, is held or is broken, and when the fight is over. A link that misses, or one he lets pass, keeps the run going.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>The room</h2>
+        <p class="tech-note">Bodies thrown about meet whatever is there, and the moves the room allows come up as commands of their own. The enemies use them too.</p>
+        <dl class="tech-list">
+          <dt>Events</dt><dd>A body knocked flying, alive or dead, that meets a standing man knocks him back two pips of balance, or puts him down if it comes in hard enough for the two men's weights. Fast enough, it bursts a pane it hits and goes through, brings down a hanging lamp, breaks the table it comes down on, or turns the table over from the side. A lamp that comes down on a man hurts him and dazes him. Nothing is planned: the bodies decide. When it happens, time slows for a beat and the room calls it.</dd>
+          <dt>Room moves</dt><dd>Each turn the game reads where everyone stands and offers up to two moves the moment allows, in the Room group (keys R and G). Gold lines in the picture show what is on offer.</dd>
+          <dt>Hurl</dt><dd>One of his own stands just beyond the man in front of you: grab him and hurl him into the other. A throw without a hold, your build and balance against his. On a hit both go down. If he braces, you lose another pip and 10 tempo. 85 tempo, one pip.</dd>
+          <dt>Through the pane</dt><dd>A paper screen, glass, frosted glass, larder slats, a crockery shelf or a fence at his back: put him through it. On a hit it bursts and he lands hard on the far side. 80 tempo, one pip.</dd>
+          <dt>Flip the table</dt><dd>The table between you and him: heave it over onto him. On a hit it comes down on him and he goes down; if he reads it he steps clear. The table goes over either way. 75 tempo, one pip.</dd>
+          <dt>Drop the lamp</dt><dd>A lamp hanging over him and a weapon in your hand: cut it down on him. On a hit it does 5 to 9 damage, dazes him and takes two pips of his balance, and a crushing hit puts him down; if he reads it, it lands beside him. 70 tempo.</dd>
+          <dt>Flow</dt><dd>A man Ilyas puts down with a room move, or with a body he sent flying, counts toward his run.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>Henchmen</h2>
+        <p class="tech-note">Press Crew under Enemies to fight Qadir and his henchmen. With Amri on, the button reads 2 v crew.</p>
+        <dl class="tech-list">
+          <dt>The crew</dt><dd>Six henchmen work for Qadir, all of them human: waiters and floor muscle in black waistcoats and long aprons in the dining room, work jackets, waistcoats and flat caps out in the open. Two start the fight with him and the other four wait their turn.</dd>
+          <dt>Reinforcements</dt><dd>When one falls, the next comes in as that exchange ends. A henchman who is down but still alive counts, so no more than three enemies are in the fight at once.</dd>
+          <dt>Where they come from</dt><dd>Open ground: from beyond the left or right edge, on the side where Ilyas has fewer enemies. Ruin Wall: from the left while the wall stands. Dining room: through the kitchen door. Kitchen: through the back door.</dd>
+          <dt>Frail</dt><dd>A henchman has few hit points and goes down to one or two clean cuts, and his blows land lighter than a named fighter's. Qadir has fewer hit points here than in a plain 1 v 1, because he has company. Most henchmen carry a sword or dagger, the odd one a greataxe, a spear or a table leg. Each has a temperament of his own.</dd>
+          <dt>The end</dt><dd>The fight ends when all seven are down and nobody is left to come in. In the restaurant the kitchen holds Orrin and four more henchmen.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>The restaurant's weapons</h2>
+        <p class="tech-note">Every named elf carries a weapon of his or her own, and the crews carry what their room has to hand. Each fights exactly like its kind (a meat cleaver is a dagger, a roasting spit a spear); the look and the name are its own.</p>
+        <dl class="tech-list">
+          <dt>The dining room</dt><dd>Qadir's Last Orders, a bearded greataxe inlaid in coral; Brask's Reservation, a winged spear with a lavender ribbon; Iyla's Corkscrew, a wavy dagger with a ring pommel. Their crew carry champagne sabres, carving and steak knives, a fire axe, a window pole and table legs.</dd>
+          <dt>The kitchen</dt><dd>Orrin's Butcher's Bill, a great cimeter of pattern-welded steel; Hesk's Cold Cut, a mirror-bright slicing blade with an ice-blue edge; Odile's Eighty-Six, a chef's knife with a hammered black spine. Their crew carry kitchen falchions, boning knives and meat cleavers, a butcher's axe, a roasting spit, rolling pins and skillets.</dd>
+          <dt>The lobby</dt><dd>Sable's Clearance, an elven longsword with a swept silver hilt; Doran's Doorman, a partisan with a red horsehair tassel; Kessa's Skeleton Key, a black stiletto with a key's bow for a pommel. Their guards carry issue swords and daggers stamped with the house's H, a breaching axe, a halberd from the lobby's display and truncheons.</dd>
+          <dt>The office</dt><dd>Kade's Severance, a black longsword with a crimson inlay and hawk-wing quillons. Mr. Hallowell's Fine Print, a sword-cane, leans on his desk. He never reaches for it.</dd>
+          <dt>Outside</dt><dd>In the open arenas Qadir's people carry machetes, flick and trench knives, a felling axe, a boat hook, lead pipes and crowbars.</dd>
+          <dt>Other kinds</dt><dd>Give an elf another kind of weapon on the Fighters panel and it is elven work in his or her colours. A weapon keeps its look and its name when it is dropped, left in a body or picked up by someone else.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>Insurance</h2>
+        <p class="tech-note">Ilyas does not leave a man breathing on the ground behind him.</p>
+        <dl class="tech-list">
+          <dt>On the way past</dt><dd>When Ilyas runs in on a target and passes an enemy who is down but not dead, he drops and drives the weapon into them without stopping, then carries on to his target. The stab adds a fifth of a second to the run. The command line says when an attack will do it.</dd>
+          <dt>When it happens</dt><dd>Ilyas needs a real run with the body on or near his path, and a weapon in his hand. A vault, a detour round the table, a leap, a kick, the lash or a two-target technique never stops for it, and neither does a body that is held or already being finished.</dd>
+          <dt>The blow</dt><dd>It does 70% of a normal roll with his weapon, at least 6, and a henchman dies outright. It is not the attack's own result: it opens no follow-up and changes nothing about the main blow.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>Ilyas's style</h2>
+        <p class="tech-note">Ilyas fights with economy of motion. It changes how he moves, not what the dice, damage, tempo or balance do.</p>
+        <dl class="tech-list">
+          <dt>Short strokes</dt><dd>Small windups and short follow-throughs. Blows land sooner and Ilyas is back in guard quickly. Enemies and Amri keep their wide, loose swings.</dd>
+          <dt>Tight guard</dt><dd>Hands close to the chest and a little high, stance compact. Every weapon is still held the way it always is.</dd>
+          <dt>The glance</dt><dd>After a kill his head checks the room: the nearest enemy still standing, then the other side. With nobody left he looks slowly one way and then the other. Looking behind him, his eye moves to the back of his head.</dd>
+          <dt>Skill</dt><dd>A Novice is too slow for the clipped style. A Trained Ilyas has half of it and a Veteran has all of it. The Unbound lash keeps its full stroke.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>Ilyas's arc-blade</h2>
+        <p class="tech-note">An Elven curved sword that only Ilyas carries. Its nine segments roll up inside the hilt; at the start of a fight he flicks it out, the blade unrolls, and a thread of light locks the segments rigid. The plates are blued steel with gilded edges and the guard is a gold crescent set with a cyan stone; his hip dagger, and a common weapon picked on his card, are made to match. Pick it, or a common weapon, on Ilyas's card.</p>
+        <dl class="tech-list">
+          <dt>Crescent cut</dt><dd>Slash. The curved edge is drawn through the cut instead of chopped, for 10% more damage.</dd>
+          <dt>Hooking thrust</dt><dd>Thrust. The curve carries the point round a Parry, so a Parry counts only +2 against it.</dd>
+          <dt>Falling crescent</dt><dd>Overhead. The heavy blow, unchanged.</dd>
+          <dt>Reaping arc</dt><dd>Sweep. The curve hooks behind the ankle, so a Committed fighter goes down more easily.</dd>
+          <dt>Unbound lash</dt><dd>Slash from out of reach. The segments unlock and the blade lashes out from where Ilyas stands: no run in and no stop-hit, at −1 to hit for a little less damage, a light knock and no drive, and one extra pip of balance.</dd>
+          <dt>Close in</dt><dd>Spine thrust and hilt-ring strike, like a longsword's half-sword and pommel work. Tight crescent cuts in a cramped spot without the usual −1.</dd>
+          <dt>Flourishes</dt><dd>Moonwheel, Falling moon, Silver dart and Crescent reap. The blade cuts as hard as a longsword but is lighter and a little quicker on tempo, and it never sticks in a body: the segments slip free. Nobody else can pick it up.</dd>
+        </dl>
+        <p class="tech-note">Before each fight everyone readies their weapon: swords and daggers come out of their scabbards, spears are twirled and a greataxe comes off the shoulder in a swing at the floor. The kitchen crew does the same as Ilyas walks in. Untick Draw weapons first in Arena &amp; view to skip it.</p>
+      </div>
+      <div class="win bench techs">
+        <h2>The kitchen</h2>
+        <p class="tech-note">In the Restaurant the fight runs on from room to room. Clear the dining room and Ilyas walks through the kitchen door at the back, with Amri if she is still standing; three more wait in the kitchen. Untick Kitchen after the dining room in Arena &amp; view to end the fight after the dining room.</p>
+        <dl class="tech-list">
+          <dt>On the way</dt><dd>Each hero gets back 60% of their max HP (never more than full), full balance and their own weapon, and each wound eases by a level. The turn order starts fresh. If Amri fell in the dining room, Ilyas goes on alone and the kitchen crew is only as tough as a crew for one.</dd>
+          <dt>The crew</dt><dd>Orrin, a Veteran brute with a longsword who runs the kitchen; Hesk, a Trained keeper with a longsword; and Odile, a Trained rusher with a dagger. In crew mode Orrin's henchmen are cooks and porters. The Fighters panel sets them up like the dining room enemies.</dd>
+          <dt>The stove</dt><dd>An iron stove stands against the right-hand wall. Nothing moves it or breaks it, and anyone driven, shoved or thrown into it is burned for 3 extra damage as well as dazed.</dd>
+          <dt>Furniture</dt><dd>Crates, barrels and flour sacks break like the dining room's chairs, and a crate leaves a plank to fight with. A crockery shelf and the larder slats stand in for the dividers; the shelf comes down in a storm of plates that covers the floor in broken china.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>The tower</h2>
+        <p class="tech-note">With Then the lobby and the office ticked, the kitchen is not the end. Once it is clear, a hidden lift opens in its back wall and takes the heroes up to the Hallowell lobby, and from the lobby to the executive's office. The heroes recover more on the way up: three quarters of their max HP before the lobby, and all of it before the office.</p>
+        <dl class="tech-list">
+          <dt>The lobby</dt><dd>The lobby's security: Sable, a Veteran keeper with a longsword, Doran, a Trained brute with a spear, and Kessa, a Trained rusher with a dagger. In crew mode Sable leads four human guards who come out of the lift. The executive's door stays shut through the fight.</dd>
+          <dt>The door</dt><dd>With the lobby clear, Ilyas plants a small charge on the executive's door, steps back and blows it apart.</dd>
+          <dt>The office</dt><dd>Mr. Hallowell sits behind his desk. He is unarmed, he does not fight and nobody can target him. His head of security, Kade, an Expert keeper with a longsword, fights alone: 130 HP, or 190 when Amri is there.</dd>
+          <dt>The end</dt><dd>With Kade down, Ilyas slams the executive's head on his desk and drags him over it onto the floor, where he begs on his knees. The choice is yours: spare him or behead him (keys 1 and 2). On Auto-battle Ilyas makes it himself.</dd>
+        </dl>
+      </div>
+      <div class="win bench techs">
+        <h2>Walls and wreckage</h2>
+        <p class="tech-note">Divider walls stand across part of the floor, and the Restaurant is full of things to break. Every breakage goes on the bill. Watch a restaurant brawl puts Ilyas and Amri against three in the Restaurant on auto-battle.</p>
+        <dl class="tech-list">
+          <dt>Dividers</dt><dd>A paper screen, a glass partition, a plaster booth wall or a plank fence. Nobody walks through one: a knockback, a shove or a throw slams the body into it, and each slam cracks it. A paper screen gives way at once, glass or a fence on the second slam, the booth wall on the third, and a crushing shove or a big hit counts double. Once it gives, the body goes straight through and lands on the far side, down.</dd>
+          <dt>Pinned</dt><dd>With a divider at your back you are pinned like against the table: +2 to hit you and no room to swing wide.</dd>
+          <dt>Through it</dt><dd>An enemy just behind a divider can be attacked straight through it if one blow is enough to break it (−2 to hit; an Overhead or a greataxe counts double). Too far back to reach, the attack goes round the end of it. Too solid to break, the blow lands on the divider instead and cracks it.</dd>
+          <dt>Furniture</dt><dd>Chairs, bistro tables, stools, a serving cart, plants and a coat rack. Bodies and swings knock them about, and a hard enough impact smashes them. Knocked back into a chair, a fighter can trip over it. Throws can land on tables and chairs. Broken chairs leave chair legs to fight with, and wine bottles can be picked up.</dd>
+          <dt>Tableware</dt><dd>Plates, glasses, bottles, candles and vases fall when their table is hit, tipped or broken, and shatter on the floor.</dd>
+          <dt>Lamps</dt><dd>Pendant lamps hang just above head height. Overheads and flying bodies catch them: a hard knock bursts the bulb, and the room gets darker as they go out. Where every lamp overhead is out, the floor lies in shadow: −1 to hit anyone standing there.</dd>
+          <dt>Glass</dt><dd>Broken glass, china and pottery on the floor cost a pip of balance at the start of every turn spent standing in it, and going down on it cuts.</dd>
+          <dt>Slams</dt><dd>A blow or a shove that slams someone into a table, a wall, a divider or a piece of furniture leaves them dazed until after their next action.</dd>
+          <dt>Gaps</dt><dd>A broken divider leaves a gap. Enemies use it to come round at your side, and Advance can take you through it.</dd>
+          <dt>Drive</dt><dd>With something behind your target, the Drive choice beside the commands aims your blows and shoves at it. A light hit carries them a short way and a heavy hit or a crit a long way, and the attack buttons show when a hit would reach.</dd>
+        </dl>
+      </div>
+      <div class="win bench how">
+        <h2>How a turn resolves</h2>
+        <ol>
+          <li>Turn order runs on tempo. Every command costs tempo; skill lowers the cost, heavy weapons raise it, and the bigger side in a fight acts a little slower. Hover a command to see how it shifts the turn order. Each enemy's next move is shown before they make it.</li>
+          <li>Pick your target by clicking an enemy or its plate in the top bar. Ilyas turns to face whoever he fights, so an enemy on his other side attacks his back at +2.</li>
+          <li>The floor has depth. An attack only connects within a band of depth, so fighters line up as they close in. Sidestep moves off the line: until one of you lines up again, the other side attacks at −2 (a Thrust at −4) and you at +1.</li>
+          <li>The command becomes a technique that suits the moment. Inside a weapon's reach a Slash turns into a pommel or butt strike, uphill it becomes a rising cut, a long run turns a Thrust into a passing lunge, and a table in the way gets circled or vaulted. Skill adds flourishes and crowd techniques on top (see Skill techniques).</li>
+          <li>The dice settle the outcome: hit, block, dodge, critical or fumble, plus damage. A critical needs a natural 17 or better and a total 12 over DEF (a natural 20 always crits). Then the ragdolls perform it, with skill setting motor stiffness, timing and accuracy. Dodges slip sideways off the line or step back.</li>
+          <li>Balance is a bar of pips that carries between turns, six for a named fighter, four for a crew man and eight for a boss: 4 or more is Set (+1 to hit), 2 or 3 Committed (−1 DEF), 0 or 1 Off balance (−3 DEF, −2 to hit, lighter blows). The other side wears it down: a blow that lands takes two pips (three for an Overhead, a Sweep, a crit or a slam), a blow that is parried or countered costs the attacker two, and one that is blocked or dodged costs him one (two for an Overhead). The Overhead, Shove, Throw, flourishes and crowd cuts spend a pip of your own. Two pips come back at the start of each of your turns. Knocked to nothing by the other side, a fighter is Broken: no answer until his own turn, and a free move for whoever broke him.</li>
+          <li>Each attack has a job. Thrust is the accurate poke and Slash the measured cut that can carry into a second enemy; their crits stagger instead of floor. Sweep takes the legs and puts down anyone off balance. Overhead is the heavy blow: it puts down anyone off balance or anyone it beats by 6, a Parry only adds +2 against it, and a hit or a block breaks the parry.</li>
+          <li>Rank counts. A fighter two or more ranks below the one he goes for is outclassed: he takes −2 on his attacks, grabs, shoves, throws and attempts to break free for each rank of the gap beyond the first (a Novice against a Master is at −6), his blows and shoves put the better fighter down only with a crit, and a blow of his that lands knocks a pip less balance out of the better fighter, never less than one. When it saves him, the better fighter keeps his feet. It works both ways; fighters of equal or neighbouring rank are untouched.</li>
+          <li>Elves and humans. Every named enemy is an elf and every henchman a human, and an elf is much the stronger. No named elf fights below Trained, and Qadir, Orrin and Sable, who lead the rooms, and Kade, who guards the office, fight at Veteran or better; the Fighters panel's rank sliders stop at those floors. The elves stand 178 to 198 cm and the crews 160 to 176, so the elves have the longer reach. Ilyas and Amri are as they were.</li>
+          <li>Every blow has an answer, picked as it comes: Parry, Counter, Slip, Step back, and Turn him with one of his own just behind or beside him (see Answers and balance). A Thrust at a man who has stepped off the line is at −4. Each enemy's next move is shown, and the tip under the commands says what answers it. A shove that gets braced costs the shover three pips and 15 tempo.</li>
+          <li>Patterns get read. Each time a fighter takes the same attack from the same man in a row, he gets +1 DEF against it, up to +3. A different attack or a feint resets it. It works both ways: the enemies read Ilyas and Ilyas reads them. The odds include it, and the fighters' tags show who has read what.</li>
+          <li>Feint (F) fakes an attack for 40 tempo. Unless he reads it (your d20 and skill against 10 and his skill, with balance and rank counting as on any roll), your next attack on him is at +2 and he is likely to answer it wrong. If he reads it, he is +1 against your next attack.</li>
+          <li>Winning a read roll slows time for a decision, and the choices depend on how it opened: a parry offers a riposte or Weapon control, an evaded Overhead leaves their feet open to a Sweep or Shove, a hit lets you press. A blow you parry or counter, and a fighter Broken, need no roll. Follow-ups cost half tempo and the usual balance, and can chain.</li>
+          <li>The table, the divider walls and the Wall arena's partition are physical, but only for fighters in their line. Slams pin the defender, heavy hits smash the table, and repeated slams crack a wall until it gives way. On the Street, the sidewalk is high ground.</li>
+        </ol>
+        <p class="keys">Keys 1 to 9 and 0 pick commands, F feints, the - and = keys pick Team move and Cover when Amri fights beside you, T switches target, and 1 to 6 pick a follow-up during an opening or the answer when a blow comes. Escape opens and closes the menu, which pauses the fight.</p>
+      </div>
+      <div class="drawer-foot"><button type="button" class="btn" id="restart">Restart fight</button><button type="button" class="btn" id="titleBtn">Title screen</button></div>
+    </aside>
+    <div class="hud-scrim" id="hudScrim" hidden></div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+/* Act I, scene 6: the arc-blade's techniques in the dock, listed and dark (a group and, on a phone, a tab of their own) */
+.wrap.hud:not([data-mode="desk"]) .commands:not([data-tab="arc"]) .cg[data-g="arc"]{display:none}
+.wrap.hud .cg[data-g="arc"][hidden]{display:none!important}
+.wrap.hud #tabArc{color:rgba(159,216,208,.7)}
+.wrap.hud #tabArc[aria-selected="true"]{color:#cfeee9}
+.wrap.hud .cg-dark .cg-head{display:flex;align-items:center;gap:8px}
+.wrap.hud .cg-dark-n{font:600 10px var(--ui);letter-spacing:.24em;text-transform:uppercase;color:rgba(127,243,227,.5);border:1px dashed rgba(127,243,227,.35);border-radius:2px;padding:1px 5px}
+.wrap.hud .cmd.dark,.wrap.hud .cmd.dark:disabled{opacity:1;cursor:default;background:rgba(5,9,12,.4);border:1px dashed rgba(127,243,227,.22)}
+.wrap.hud .cmd.dark>span:first-child{color:rgba(207,238,233,.42);text-decoration:line-through;text-decoration-color:rgba(127,243,227,.35)}
+.wrap.hud .cmd.dark .tq{color:rgba(127,243,227,.55);font-style:italic}
+.wrap.hud .cmd.dark small{color:rgba(207,196,168,.35)}

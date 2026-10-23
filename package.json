@@ -1,0 +1,16 @@
+{
+  "name": "ilyas",
+  "private": true,
+  "description": "Ragdoll Skirmish Lab: a turn-based melee RPG in one HTML page, fought by procedural 2D ragdolls.",
+  "scripts": {
+    "build": "python3 build.py",
+    "check": "python3 check.py",
+    "test": "python3 test.py",
+    "test:full": "python3 test.py full"
+  },
+  "devDependencies": {
+    "eslint": "9.17.0",
+    "globals": "15.14.0",
+    "playwright": "1.56.0"
+  }
+}

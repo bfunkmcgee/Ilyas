@@ -1,0 +1,2 @@
+/* Act I, scene 7: Tamm's fight is watched, not played: no dock, no target buttons */
+.wrap.a1-watch .commands,.wrap.a1-watch #targets{display:none!important}

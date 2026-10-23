@@ -1,0 +1,500 @@
+
+/* ===== The full-screen HUD in black and gold =====
+   The stage fills the screen; the controls float over it. The layout follows the screen (data-mode on the wrap, set by sk_hudui.js):
+   land, a phone held sideways; port, a phone held upright; tab, a tablet; desk, a desktop. What shows follows the game
+   (data-hud: play, cut for a scene of the prologue, title and end for its title menu and end card). */
+.wrap.hud{
+  --gl-panel:rgba(10,8,14,.82);--gl-panel2:rgba(10,8,14,.88);--gl-panel3:rgba(10,8,14,.92);--gl-line:rgba(226,182,90,.45);--gl-line2:rgba(226,182,90,.55);
+  --gl-rule:rgba(226,182,90,.16);--gl-sep:rgba(226,182,90,.2);--gl-tick:#e9c46e;--gl-gold:#e9c46e;--gl-gold2:#e8c77a;--gl-gold3:#f2cf86;--gl-hi:#fff0c6;
+  --gl-cream:#f3ead6;--gl-dim:#b8ad94;--gl-mute:#a99f88;--gl-off:#7d7564;--gl-cyan:#45d8c8;--gl-hp:#7fcf9a;--gl-cost:#f0a868;--gl-warn:#ffb795;
+  --ink:#f3ead6;--dim:#b8ad94;--faint:#857c6a;--amber:#e9c46e;--rim:#e9c46e;--rim-dark:#05050a;--win-lo:#120d05;--block:#9fd8ff;
+  --pad-l:max(10px,env(safe-area-inset-left));--pad-r:max(10px,env(safe-area-inset-right));--pad-t:max(8px,env(safe-area-inset-top));--pad-b:max(10px,env(safe-area-inset-bottom));
+  position:fixed;inset:0;max-width:none;margin:0;padding:0;overflow:hidden;color:var(--gl-cream);font-family:var(--ui);line-height:1.25;
+  -webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#05050a}
+/* until the script has sized the stage and picked a layout, nothing over the picture shows */
+.wrap.hud:not([data-mode]) .stage>:not(canvas){visibility:hidden}
+body{margin:0}
+/* the page's title stays for screen readers */
+.wrap.hud .top{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.wrap.hud .layout,.wrap.hud .main-col{display:block;position:absolute;inset:0;gap:0}
+.wrap.hud .win{background:none;border:0;border-radius:0;box-shadow:none;padding:0;text-shadow:none}
+.wrap.hud .stage{position:absolute;inset:0;background:#05050a;overflow:hidden;line-height:1.25}
+.wrap.hud .stage canvas{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;touch-action:none}
+.wrap.hud button{font-family:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.wrap.hud :focus-visible{outline:2px solid var(--gl-gold);outline-offset:2px}
+/* the dark under the dock, so the commands read over any floor */
+.wrap.hud[data-hud="play"] .stage::after{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(var(--hud-bottom,0px) + 56px);pointer-events:none;z-index:1;
+  background:linear-gradient(180deg,rgba(5,4,9,0),rgba(5,4,9,.62) 52%,rgba(5,4,9,.9))}
+
+/* ---------- the gilt panel: a dark plate, a gold hairline, an inner rule, gold corner ticks ---------- */
+.wrap.hud .hud-btn,.wrap.hud .frow,.wrap.hud .status,.wrap.hud .bill{position:relative;background:var(--gl-panel);border:1px solid var(--gl-line);border-radius:2px;
+  box-shadow:inset 0 0 0 3px var(--gl-panel),inset 0 0 0 4px var(--gl-rule),0 6px 18px rgba(0,0,0,.5)}
+.wrap.hud .hud-btn::before,.wrap.hud .status::before,.wrap.hud #cmdTabs::before{content:"";position:absolute;left:-1px;top:-1px;width:7px;height:7px;border-top:1.5px solid var(--gl-tick);border-left:1.5px solid var(--gl-tick);pointer-events:none}
+.wrap.hud .hud-btn::after,.wrap.hud .status::after,.wrap.hud #cmds::after{content:"";position:absolute;right:-1px;bottom:-1px;width:7px;height:7px;border-bottom:1.5px solid var(--gl-tick);border-right:1.5px solid var(--gl-tick);pointer-events:none}
+
+/* ---------- the top bar ---------- */
+.wrap.hud .hud-top{position:absolute;left:var(--pad-l);right:var(--pad-r);top:var(--pad-t);z-index:3;display:flex;align-items:stretch;gap:6px;pointer-events:none}
+.wrap.hud .hud-top>*,.wrap.hud .frow{pointer-events:auto}
+.wrap.hud .frows{display:contents}
+.wrap.hud .hud-btn{order:0;flex:0 0 44px;width:44px;height:44px;padding:0;display:flex;align-items:center;justify-content:center;color:var(--gl-gold);cursor:pointer;appearance:none}
+.wrap.hud .hud-btn svg{display:block}
+@media (hover:hover){.wrap.hud .hud-btn:hover{background:rgba(30,24,30,.88)}}
+.wrap.hud #logBtn{order:9}
+/* a wide row centres the plates and the turn order between the menu and the log */
+.wrap.hud[data-mode="land"] #logBtn,.wrap.hud[data-mode="desk"] #logBtn,.wrap.hud[data-mode="land"] .hud-top #fr0,.wrap.hud[data-mode="desk"] .hud-top #fr0{margin-left:auto}
+.wrap.hud .hud-btn[aria-expanded="true"]{border-color:var(--gl-gold);box-shadow:inset 0 0 0 3px var(--gl-panel),inset 0 0 0 4px rgba(226,182,90,.2),0 0 16px rgba(233,196,110,.32)}
+
+/* the fighters' plates: name and HP, the HP bar, footing as six pips */
+.wrap.hud .frow{flex:1 1 108px;max-width:150px;min-width:76px;height:44px;padding:5px 9px 6px;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 3px auto;
+  align-content:space-between;column-gap:6px;row-gap:0;--c:var(--gl-cream)}
+.wrap.hud .frow[data-team="0"]{order:1}
+.wrap.hud .frow[data-team="1"]{order:3;cursor:pointer}
+.wrap.hud .frow .fid{display:contents}
+.wrap.hud .frow .fname{grid-column:1;grid-row:1;font:700 15px/1.05 var(--display);letter-spacing:.05em;color:var(--c);white-space:nowrap;overflow:hidden;text-overflow:clip}
+.wrap.hud .frow[data-i="0"] .fname{color:#7ff3e3}
+.wrap.hud .frow .fmeta{display:none}
+.wrap.hud .frow .hp{grid-column:2;grid-row:1;font:600 15px/1.05 var(--ui);font-variant-numeric:tabular-nums;color:var(--gl-cream);white-space:nowrap}
+.wrap.hud .frow .hp small{font-weight:500;font-size:11.5px;color:var(--gl-mute);margin:0}
+.wrap.hud .frow .hpbar{grid-column:1/-1;grid-row:2;height:3px;border-radius:0;background:rgba(243,234,214,.12);box-shadow:none;align-self:center}
+.wrap.hud .frow .hpbar i{background:var(--gl-hp)}
+.wrap.hud .frow .hpbar i[data-level="mid"]{background:#e9c46e}
+.wrap.hud .frow .hpbar i[data-level="low"]{background:#ff7a6e}
+.wrap.hud .fpips{grid-column:1/-1;grid-row:3;display:flex;align-items:center;gap:8px;height:7px;padding-left:2px;--pc:var(--gl-hp)}
+.wrap.hud .fpips i{flex:none;width:5px;height:5px;transform:rotate(45deg);box-sizing:border-box;border:1px solid rgba(226,182,90,.6)}
+.wrap.hud .fpips i.on{background:var(--pc);border-color:var(--pc)}
+.wrap.hud .fpips.p-committed{--pc:#e9c46e}
+.wrap.hud .fpips.p-off{--pc:#ff8a7a}
+.wrap.hud .frow .tags{display:none}
+.wrap.hud .frow.is-target{border-color:var(--gl-cyan);box-shadow:inset 0 0 0 3px var(--gl-panel),inset 0 0 0 4px rgba(69,216,200,.18),0 0 14px rgba(69,216,200,.3),0 6px 18px rgba(0,0,0,.5)}
+.wrap.hud .frow.is-turn{border-color:var(--gl-gold);box-shadow:inset 0 0 0 3px var(--gl-panel),inset 0 0 0 4px rgba(226,182,90,.2),0 0 16px rgba(233,196,110,.32),0 6px 18px rgba(0,0,0,.5)}
+.wrap.hud .frow.is-dead{opacity:.45}
+.wrap.hud .frow.is-dead .fname{text-decoration:line-through;text-decoration-color:rgba(243,234,214,.4)}
+@media (hover:hover){.wrap.hud .frow[data-team="1"]:hover:not(.is-target){border-color:rgba(69,216,200,.6)}}
+/* henchmen down and still to come: a small line beside the enemies */
+.wrap.hud .frow.crew-sum{order:3;flex:0 0 auto;display:flex;align-items:center;height:44px;max-width:92px;padding:4px 8px;font:600 11.5px/1.2 var(--ui);color:var(--gl-dim);
+  letter-spacing:.02em;white-space:normal;cursor:default}
+/* the riposte window fades the enemies' plates while the hero chooses */
+.wrap.hud[data-op="h"] .frow[data-team="1"]{opacity:.38}
+
+/* the status box: the banner (Turn 3 · Kael), the turn order, and on a desktop the tempo line */
+.wrap.hud .status{order:2;flex:1.6 1 194px;min-width:110px;max-width:340px;height:44px;padding:5px 10px 6px;display:flex;flex-direction:column;justify-content:space-between;gap:0;overflow:hidden}
+.wrap.hud .status .banner,.wrap.hud .status .banner[hidden]{position:static;display:flex!important;align-items:center;gap:6px;padding:0;border:0;background:none;box-shadow:none;
+  font:700 10.5px/1.1 var(--display);letter-spacing:.22em;color:var(--gl-gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wrap.hud .status .banner::after{content:"";flex:1 1 0;min-width:8px;height:1px;background:linear-gradient(90deg,rgba(226,182,90,.5),rgba(226,182,90,0))}
+.wrap.hud .order-row{gap:0;min-width:0;overflow:hidden}
+.wrap.hud .order-label{display:none}
+.wrap.hud .order{display:flex;flex-wrap:nowrap;gap:0;align-items:center;min-width:0;overflow:hidden;white-space:nowrap;
+  -webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}
+.wrap.hud .chip{flex:none;font:700 12px/16px var(--display);letter-spacing:.01em;color:var(--c);background:none;padding:0;border-radius:0;box-shadow:none;text-shadow:none}
+.wrap.hud .chip::before{content:"›";display:inline-block;margin:0 4px;font:600 11px/1 var(--ui);color:#8a6a2e}
+.wrap.hud .chip:first-child::before{display:none}
+.wrap.hud .chip.now{padding:0 4px;border:1px solid var(--gl-gold);background:rgba(233,196,110,.14);box-shadow:none}
+.wrap.hud .order.pv .chip{outline:0;font-style:italic;opacity:.88}
+.wrap.hud .tempo-line{display:none;margin:0;font-size:12px;color:var(--gl-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .status .field-line{display:none}
+
+/* the damages, under the top bar on the right */
+.wrap.hud .bill{position:absolute;left:auto;right:var(--pad-r);top:calc(var(--hud-top,56px) + 8px);z-index:2;padding:3px 10px 4px;border-width:1px;
+  font:600 12.5px/1.2 var(--ui);letter-spacing:.03em;color:var(--gl-gold3);box-shadow:inset 0 0 0 2px var(--gl-panel),inset 0 0 0 3px var(--gl-rule),0 6px 18px rgba(0,0,0,.5)}
+@keyframes billBumpG{0%{transform:scale(1.16);color:var(--gl-hi)}100%{transform:scale(1);color:var(--gl-gold3)}}
+.wrap.hud .bill.bump{animation:billBumpG .5s ease-out}
+
+/* ---------- the command dock ---------- */
+.wrap.hud .commands{position:absolute;z-index:3;left:var(--pad-l);right:var(--pad-r);bottom:var(--pad-b);padding:0;margin:0;pointer-events:none;color:var(--gl-cream)}
+.wrap.hud .commands>*{pointer-events:auto}
+.wrap.hud .commands h2{margin:0}
+.wrap.hud #targets,.wrap.hud #intents{display:none!important}
+.wrap.hud #cmdHead{display:none}
+.wrap.hud .dock-foot{display:none}
+/* one group at a time behind the tabs */
+.wrap.hud .cg-head{display:none}
+.wrap.hud:not([data-mode="desk"]) .commands:not([data-tab="strike"]) .cg[data-g="strike"],
+.wrap.hud:not([data-mode="desk"]) .commands:not([data-tab="move"]) .cg[data-g="move"],
+.wrap.hud:not([data-mode="desk"]) .commands:not([data-tab="guard"]) .cg[data-g="guard"],
+.wrap.hud:not([data-mode="desk"]) .commands:not([data-tab="aether"]) .cg[data-g="aether"]{display:none}
+.wrap.hud .magic{margin:0;padding:0;border:0}
+.wrap.hud:not([data-mode="desk"]) .mg-head{display:none}
+
+/* the tabs */
+.wrap.hud #cmdTabs{position:relative;z-index:2;display:flex;gap:2px;padding:0 6px;height:42px;background:rgba(10,8,14,.86);border:1px solid var(--gl-line);border-bottom:0;
+  border-radius:2px 2px 0 0;margin-bottom:-1px}
+.wrap.hud #cmdTabs button{position:relative;appearance:none;height:100%;padding:0 11px;display:flex;align-items:center;gap:7px;background:none;border:0;cursor:pointer;
+  font:700 13.5px/1 var(--display);letter-spacing:.16em;color:var(--gl-dim);white-space:nowrap}
+@media (hover:hover){.wrap.hud #cmdTabs button:hover{color:var(--gl-cream)}}
+.wrap.hud #cmdTabs button[aria-selected="true"]{color:var(--gl-hi)}
+.wrap.hud #cmdTabs button[aria-selected="true"]::after{content:"";position:absolute;left:11px;right:11px;bottom:6px;height:1.5px;background:var(--gl-gold)}
+.wrap.hud .tab-pips{font:400 9px/1 var(--ui);letter-spacing:2px;color:var(--gl-gold)}
+
+/* a command: its name and what it costs in footing, the technique it becomes, the odds and the tempo */
+.wrap.hud .cmd{position:relative;appearance:none;min-width:0;margin:0;padding:1px 6px 1px 18px;text-align:left;display:grid;grid-template-columns:auto minmax(0,1fr);
+  align-content:center;column-gap:4px;row-gap:1px;background:transparent;border:0;border-radius:0;box-shadow:none;color:var(--gl-cream);cursor:pointer;text-shadow:none;
+  font:600 15.5px/16px var(--ui)}
+.wrap.hud .cmd>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wrap.hud .cmd .ft,.wrap.hud .op-btns .ft{margin:0 0 0 2px;font-size:7.5px;letter-spacing:1.5px;font-weight:700;align-self:center;white-space:nowrap;vertical-align:2px}
+.wrap.hud .op-btns .ft{display:inline}
+.wrap.hud .cmd .ft.cost,.wrap.hud .op-btns .ft.cost{color:var(--gl-cost)}
+.wrap.hud .cmd .ft.gain,.wrap.hud .op-btns .ft.gain{color:#8fe3a8}
+.wrap.hud .cmd .tq{grid-column:1/-1;display:block;margin:0;font:italic 500 12.5px/13px var(--ui);color:var(--gl-gold2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:none}
+.wrap.hud .cmd small{grid-column:1/-1;display:block;margin:0;font:500 12px/13px var(--ui);color:var(--gl-dim);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .cmd small:empty{display:none}
+.wrap.hud .cmd kbd.ck{display:none}
+.wrap.hud .cmd::before{content:"";position:absolute;left:6px;top:10px;width:6px;height:6px;border:0;transform:rotate(45deg);background:var(--gl-gold);opacity:0;transition:opacity .12s}
+.wrap.hud .cmd:focus-visible{background:linear-gradient(180deg,rgba(233,196,110,.26),rgba(233,196,110,.08));box-shadow:inset 0 0 0 1px rgba(233,196,110,.9);color:#fff6df;outline:0}
+@media (hover:hover){.wrap.hud .cmd:not(:disabled):hover{background:linear-gradient(180deg,rgba(233,196,110,.26),rgba(233,196,110,.08));box-shadow:inset 0 0 0 1px rgba(233,196,110,.9);color:#fff6df;outline:0}}
+.wrap.hud .cmd:focus-visible::before{opacity:1;transform:rotate(45deg)}
+@media (hover:hover){.wrap.hud .cmd:not(:disabled):hover::before{opacity:1;transform:rotate(45deg)}}
+.wrap.hud .cmd:focus-visible .tq{color:var(--gl-gold3)}
+@media (hover:hover){.wrap.hud .cmd:not(:disabled):hover .tq{color:var(--gl-gold3)}}
+.wrap.hud .cmd:not(:disabled):active{background:linear-gradient(180deg,rgba(233,196,110,.36),rgba(233,196,110,.14))}
+.wrap.hud .cmd:disabled{color:var(--gl-off);cursor:default}
+.wrap.hud .cmd:disabled .tq,.wrap.hud .cmd:disabled small{color:var(--gl-off)}
+.wrap.hud .cmd:disabled .ft{display:none}
+/* what a command becomes in this moment keeps its colour: flourishes gold, crowd techniques cyan, brawling red, teamwork green,
+   the answer to an attack shown on you ✓, a weak one ⚠, a contextual move blue */
+.wrap.hud .cmd.flair .tq{color:#ffe3a3;text-shadow:0 0 9px rgba(255,193,99,.45)}
+.wrap.hud .cmd.crowd .tq{color:#7ff3e3;text-shadow:0 0 9px rgba(69,216,200,.4)}
+.wrap.hud .cmd.brawl .tq{color:#ff9f86}
+.wrap.hud .cmd.team .tq{color:#a9e88c}
+.wrap.hud .cmd.answer .tq{color:#9cf0b0}
+.wrap.hud .cmd.weak .tq{color:#ffb08a}
+.wrap.hud .cmd.move .tq{color:#9fd8ff}
+.wrap.hud .cmd.warn small{color:#ffb08a}
+.wrap.hud .cmd:disabled.flair .tq,.wrap.hud .cmd:disabled.crowd .tq,.wrap.hud .cmd:disabled.brawl .tq,.wrap.hud .cmd:disabled.team .tq,
+.wrap.hud .cmd:disabled.answer .tq,.wrap.hud .cmd:disabled.weak .tq,.wrap.hud .cmd:disabled.move .tq{color:var(--gl-off);text-shadow:none}
+/* Kael's magic: the Aether cost in cyan beside the name */
+.wrap.hud .cmd.mg>span:first-child{display:block}
+.wrap.hud .cmd.mg .mg-cost{font-size:8px;letter-spacing:1px;color:#7ff3e3;margin-left:5px;vertical-align:1px}
+.wrap.hud .cmd.mg kbd{display:none}
+.wrap.hud .cmd.mg::before{border:0}
+.wrap.hud .cmd.mg .tq{color:var(--gl-gold2);text-shadow:none}
+.wrap.hud .cmd.mg:focus-visible{box-shadow:inset 0 0 0 1px rgba(233,196,110,.9)}
+@media (hover:hover){.wrap.hud .cmd.mg:not(:disabled):hover{box-shadow:inset 0 0 0 1px rgba(233,196,110,.9)}}
+
+/* the preview line: footing, the tip of the moment, and what a hovered command would do */
+.wrap.hud .preview{margin:0;padding:0;border:0;min-height:0;font:400 12px/1.35 var(--ui);color:var(--gl-dim)}
+.wrap.hud .preview b{color:var(--gl-cream);font-weight:600}
+.wrap.hud .preview i{font-style:normal;color:var(--gl-gold3);font-weight:600}
+.wrap.hud .preview:empty{display:none}
+/* Drive: where a blow or a shove sends him */
+.wrap.hud #drives{display:flex;align-items:center;gap:4px;margin:0;flex-wrap:nowrap}
+.wrap.hud #drives .lbl{font:700 12px/1 var(--display);letter-spacing:.14em;color:var(--gl-mute);margin:0 2px 0 0}
+.wrap.hud .drv{appearance:none;height:28px;padding:0 10px;font:600 13px/1 var(--ui);color:var(--gl-cream);background:var(--gl-panel);border:1px solid var(--gl-line);border-radius:1px;cursor:pointer;text-shadow:none;white-space:nowrap}
+.wrap.hud .drv[aria-pressed="true"]{color:#120d05;background:linear-gradient(180deg,#f4d48e,#c39443);border-color:#f4d48e;font-weight:700}
+.wrap.hud .commands:not([data-tab="strike"]) #drives{display:none}
+.wrap.hud[data-mode="desk"] .commands #drives{display:flex}
+.wrap.hud[data-mode="desk"] .commands #drives[hidden]{display:none}
+
+/* ---- sideways phone and tablet: tabs over the left of a one-row bar, the tip and Drive over its right ---- */
+.wrap.hud[data-mode="land"] .commands,.wrap.hud[data-mode="tab"] .commands{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tabs pv dv" "bar bar bar";align-items:end}
+.wrap.hud[data-mode="land"] #cmdTabs,.wrap.hud[data-mode="tab"] #cmdTabs{grid-area:tabs}
+.wrap.hud[data-mode="land"] #drives,.wrap.hud[data-mode="tab"] #drives{grid-area:dv;align-self:end;margin:0 0 6px 6px}
+.wrap.hud[data-mode="land"] .preview,.wrap.hud[data-mode="tab"] .preview{grid-area:pv;justify-self:end;align-self:end;margin:0 0 6px 10px;max-width:min(56ch,100%);padding:3px 9px 4px;
+  font-size:11.5px;line-height:1.3;color:#cfc4a8;background:rgba(8,6,12,.76);border:1px solid rgba(226,182,90,.3);border-radius:2px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* there the strip shows only what a hovered command would do (a sideways phone keeps the floor clear: its buttons, the intents over
+   the enemies and the warnings in the picture carry the rest), and on a tablet a tip beyond the footing and the man at your back */
+.wrap.hud[data-mode="land"] .preview .fl-pre,.wrap.hud[data-mode="land"] .preview .fl-back,.wrap.hud[data-mode="tab"] .preview .fl-pre,.wrap.hud[data-mode="tab"] .preview .fl-back{display:none}
+.wrap.hud[data-mode="land"] .preview:not([data-hov="1"]),.wrap.hud[data-mode="tab"] .preview:not([data-vis="1"]){display:none}
+.wrap.hud[data-mode="land"] .cmds,.wrap.hud[data-mode="tab"] .cmds{grid-area:bar;position:relative;display:block;height:58px;padding:4px;background:var(--gl-panel2);border:1px solid var(--gl-line2);
+  border-radius:0 2px 2px 2px;box-shadow:inset 0 0 0 3px var(--gl-panel2),inset 0 0 0 4px var(--gl-rule),0 10px 26px rgba(0,0,0,.55)}
+.wrap.hud[data-mode="land"] .cg,.wrap.hud[data-mode="land"] .cg-grid,.wrap.hud[data-mode="land"] .magic,.wrap.hud[data-mode="land"] .mg-row,
+.wrap.hud[data-mode="tab"] .cg,.wrap.hud[data-mode="tab"] .cg-grid,.wrap.hud[data-mode="tab"] .magic,.wrap.hud[data-mode="tab"] .mg-row{height:100%}
+.wrap.hud[data-mode="land"] .cg-grid,.wrap.hud[data-mode="land"] .mg-row,.wrap.hud[data-mode="tab"] .cg-grid,.wrap.hud[data-mode="tab"] .mg-row{display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:0}
+.wrap.hud[data-mode="land"] .cg-grid>.cmd+.cmd,.wrap.hud[data-mode="land"] .mg-row>.cmd+.cmd,
+.wrap.hud[data-mode="tab"] .cg-grid>.cmd+.cmd,.wrap.hud[data-mode="tab"] .mg-row>.cmd+.cmd{border-left:1px solid var(--gl-sep)}
+.wrap.hud[data-mode="tab"] .cmds{height:62px}
+
+/* ---- upright phone: the tabs over a panel of three columns, the tip under it ---- */
+.wrap.hud[data-mode="port"] .commands{display:flex;flex-direction:column;background:rgba(10,8,14,.9);border:1px solid var(--gl-line2);border-radius:0 0 2px 2px;padding:6px;gap:6px;
+  box-shadow:inset 0 0 0 3px rgba(10,8,14,.9),inset 0 0 0 4px var(--gl-rule),0 10px 26px rgba(0,0,0,.55);pointer-events:auto}
+.wrap.hud[data-mode="port"] .commands::after{content:"";position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border-bottom:1.5px solid var(--gl-tick);border-right:1.5px solid var(--gl-tick);pointer-events:none}
+.wrap.hud[data-mode="port"] #cmdTabs{position:absolute;left:-1px;right:-1px;bottom:100%;height:44px;margin:0;padding:0 4px;display:grid;grid-template-columns:repeat(4,auto);justify-content:space-between;background:rgba(10,8,14,.88)}
+.wrap.hud[data-mode="port"] #cmdTabs button{padding:0 9px;letter-spacing:.14em}
+.wrap.hud[data-mode="port"] #cmdTabs button[aria-selected="true"]::after{left:9px;right:9px;bottom:7px}
+.wrap.hud[data-mode="port"] .cmds{order:1;display:block}
+.wrap.hud[data-mode="port"] #drives{order:2;padding:0 2px}
+.wrap.hud[data-mode="port"] .preview{order:3;padding:0 2px;font-size:13px;line-height:17px;height:34px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wrap.hud[data-mode="port"] .preview:empty{display:-webkit-box}
+/* two lines hold a tip whole: with one, the footing goes (the plates and the rings show it) */
+.wrap.hud[data-mode="port"] .preview:has(.fl-tip) .fl-pre{display:none}
+.wrap.hud[data-mode="port"] .cg-grid,.wrap.hud[data-mode="port"] .mg-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:66px;min-height:133px;gap:0;
+  border-top:1px solid var(--gl-sep);border-bottom:1px solid var(--gl-sep)}
+.wrap.hud[data-mode="port"] .cmd{padding:4px 3px 4px 14px;font-size:15px;line-height:18px}
+.wrap.hud[data-mode="port"] .cmd .tq{font-size:12px;line-height:15px}
+.wrap.hud[data-mode="port"] .cmd small{line-height:15px}
+.wrap.hud[data-mode="port"] .cmd::before{left:4px;top:12px}
+.wrap.hud[data-mode="port"] .cg-grid>.cmd:not(:nth-child(3n+1)),.wrap.hud[data-mode="port"] .mg-row>.cmd:not(:nth-child(3n+1)){border-left:1px solid var(--gl-sep)}
+.wrap.hud[data-mode="port"] .cg-grid>.cmd:nth-child(n+4),.wrap.hud[data-mode="port"] .mg-row>.cmd:nth-child(n+4){border-top:1px solid var(--gl-sep)}
+
+/* ---- desktop: every group at once, keys on the buttons, the preview and the field in the dock's foot ---- */
+.wrap.hud[data-mode="desk"] .commands{left:max(24px,var(--pad-l));right:max(24px,var(--pad-r));bottom:max(20px,var(--pad-b));padding:9px 14px;display:flex;flex-direction:column;gap:6px;
+  background:rgba(10,8,14,.9);border:1px solid var(--gl-line2);border-radius:2px;pointer-events:auto;
+  box-shadow:inset 0 0 0 4px rgba(10,8,14,.9),inset 0 0 0 5px var(--gl-rule),0 12px 30px rgba(0,0,0,.55)}
+.wrap.hud[data-mode="desk"] .commands::before,.wrap.hud[data-mode="desk"] .commands::after{content:"";position:absolute;width:10px;height:10px;pointer-events:none}
+.wrap.hud[data-mode="desk"] .commands::before{left:-1px;top:-1px;border-top:1.5px solid var(--gl-tick);border-left:1.5px solid var(--gl-tick)}
+.wrap.hud[data-mode="desk"] .commands::after{right:-1px;bottom:-1px;border-bottom:1.5px solid var(--gl-tick);border-right:1.5px solid var(--gl-tick)}
+.wrap.hud[data-mode="desk"] #cmdTabs{display:none}
+.wrap.hud[data-mode="desk"] .cmds{display:flex;gap:28px}
+.wrap.hud[data-mode="desk"] .cg{position:relative;display:flex;flex-direction:column;gap:4px;min-width:0;flex:2 1 0}
+.wrap.hud[data-mode="desk"] .cg[data-g="strike"]{flex:3 1 0}
+.wrap.hud[data-mode="desk"] .cg+.cg::before{content:"";position:absolute;left:-14px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,rgba(226,182,90,0),rgba(226,182,90,.4),rgba(226,182,90,0))}
+.wrap.hud[data-mode="desk"] .cg-head,.wrap.hud[data-mode="desk"] .mg-head{display:flex;align-items:center;justify-content:space-between;gap:10px;height:20px;margin:0}
+.wrap.hud[data-mode="desk"] .cg-t,.wrap.hud[data-mode="desk"] #cmdHead,.wrap.hud[data-mode="desk"] .mg-lbl{display:block;font:700 13px/1 var(--display);letter-spacing:.18em;color:var(--gl-gold);text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud[data-mode="desk"] .cg[data-g="strike"] .cg-t{display:none}
+.wrap.hud[data-mode="desk"] .mg-head{justify-content:flex-start;margin:0 0 4px}
+.wrap.hud[data-mode="desk"] .mg-note{font:italic 400 12px/1 var(--ui);color:var(--gl-mute);white-space:nowrap}
+.wrap.hud[data-mode="desk"] #drives .drv{height:20px;padding:0 9px}
+.wrap.hud[data-mode="desk"] .cg-grid,.wrap.hud[data-mode="desk"] .mg-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.wrap.hud[data-mode="desk"] .cg[data-g="strike"] .cg-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.wrap.hud[data-mode="desk"] .cmd{height:52px;padding:3px 8px 3px 27px;font-size:15px;background:rgba(243,234,214,.03);border:1px solid var(--gl-sep);border-radius:1px}
+.wrap.hud[data-mode="desk"] .cmd .tq{font-size:12px;line-height:14px}
+
+.wrap.hud[data-mode="desk"] .cmd small{line-height:14px}
+.wrap.hud[data-mode="desk"] .cmd::before{display:none}
+.wrap.hud[data-mode="desk"] .cmd:disabled{background:transparent;border:1px dashed rgba(226,182,90,.18)}
+.wrap.hud[data-mode="desk"] .cmd kbd.ck,.wrap.hud[data-mode="desk"] .cmd.mg kbd{display:block;position:absolute;left:6px;top:6px;margin:0;min-width:15px;font:600 10px/14px var(--ui);padding:0 3px;
+  text-align:center;color:var(--gl-dim);border:1px solid rgba(226,182,90,.35);border-radius:1px;background:none;vertical-align:0}
+.wrap.hud[data-mode="desk"] .cmd:disabled kbd{color:var(--gl-off);border-color:rgba(226,182,90,.18)}
+.wrap.hud[data-mode="desk"] .cmd:focus-visible kbd{color:#120d05;background:var(--gl-gold);border-color:var(--gl-gold)}
+@media (hover:hover){.wrap.hud[data-mode="desk"] .cmd:not(:disabled):hover kbd{color:#120d05;background:var(--gl-gold);border-color:var(--gl-gold)}}
+.wrap.hud[data-mode="desk"] .dock-foot{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-top:6px;border-top:1px solid rgba(226,182,90,.18);min-height:23px}
+.wrap.hud[data-mode="desk"] .dock-foot .preview{flex:1 1 auto;min-width:0;font-size:13.5px;line-height:17px}
+.wrap.hud[data-mode="desk"] .dock-foot .field-line{flex:0 1 auto;max-width:44%;font:italic 400 12.5px/17px var(--ui);color:var(--gl-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+
+/* ---------- the top bar on the other screens ---------- */
+/* upright phone and tablet: the menu, the turn order and the log in a row, then the plates two by two, the heroes on the left */
+.wrap.hud[data-mode="port"] .hud-top,.wrap.hud[data-mode="tab"] .hud-top{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1fr) 44px;grid-auto-flow:row dense;gap:10px 8px;top:max(12px,env(safe-area-inset-top))}
+.wrap.hud[data-mode="port"] #menuBtn,.wrap.hud[data-mode="tab"] #menuBtn{grid-column:1;grid-row:1}
+.wrap.hud[data-mode="port"] .status,.wrap.hud[data-mode="tab"] .status{grid-column:2/4;grid-row:1;max-width:none}
+.wrap.hud[data-mode="port"] #logBtn,.wrap.hud[data-mode="tab"] #logBtn{grid-column:4;grid-row:1}
+.wrap.hud[data-mode="port"] .frow,.wrap.hud[data-mode="tab"] .frow{height:50px;padding:6px 10px 7px}
+.wrap.hud[data-mode="port"] .frow[data-team="0"],.wrap.hud[data-mode="tab"] .frow[data-team="0"]{grid-column:1/3}
+.wrap.hud[data-mode="port"] .frow[data-team="1"],.wrap.hud[data-mode="tab"] .frow[data-team="1"]{grid-column:3/5}
+.wrap.hud[data-mode="port"] .frow .fname,.wrap.hud[data-mode="port"] .frow .hp,.wrap.hud[data-mode="tab"] .frow .fname,.wrap.hud[data-mode="tab"] .frow .hp{font-size:16px}
+.wrap.hud[data-mode="port"] .fpips,.wrap.hud[data-mode="tab"] .fpips{gap:9px}
+.wrap.hud[data-mode="port"] .frow.crew-sum,.wrap.hud[data-mode="tab"] .frow.crew-sum{height:26px;max-width:none;align-self:start}
+.wrap.hud[data-mode="port"] .chip,.wrap.hud[data-mode="tab"] .chip{font-size:12.5px;letter-spacing:.03em}
+/* an upright phone: one plate a side (the hero whose commands are up, his target), the rest tucked away; dots count each side, the one
+   shown lit in his colour, a chevron on the enemy's for the next one along, the crew still to come as a count */
+.wrap.hud[data-mode="port"] .frow.is-tucked{display:none}
+.wrap.hud[data-mode="port"] .frow{max-width:none}
+.wrap.hud .fpager{display:none}
+.wrap.hud[data-mode="port"] .fpager{display:flex;grid-column:2;grid-row:3;justify-self:end;align-self:center;align-items:center;gap:5px;height:9px;pointer-events:none}
+.wrap.hud[data-mode="port"] .frow:has(.fpager) .fpips{grid-column:1}
+/* a tablet upright: every plate in one row under the turn order, the heroes first (a crew's count wraps them onto a second) */
+.wrap.hud[data-mode="tab"] .frows{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px;grid-column:1/-1;grid-row:2}
+.wrap.hud[data-mode="tab"] .frow,.wrap.hud[data-mode="tab"] .frow[data-team="0"],.wrap.hud[data-mode="tab"] .frow[data-team="1"]{grid-column:auto;flex:1 1 150px;max-width:230px}
+.wrap.hud[data-mode="tab"] .frow.crew-sum{flex:0 0 auto;height:26px;max-width:none;align-self:center}
+.wrap.hud .fpager i{flex:none;width:5px;height:5px;border-radius:50%;background:var(--c);opacity:.32}
+.wrap.hud .fpager i.on{width:7px;height:7px;opacity:1;box-shadow:0 0 6px var(--c)}
+.wrap.hud .fpager b{font:700 15px/9px var(--ui);color:var(--gl-gold);margin-left:1px;transform:translateY(-1px)}
+.wrap.hud .fpager em{font:600 11px/9px var(--ui);font-style:normal;color:var(--gl-dim);letter-spacing:.02em;margin-left:1px}
+/* sideways phone: current HP only, the plates tight; with five plates or more the names smaller and the crew's count in a narrow box */
+.wrap.hud[data-mode="land"] .frow .hp small{display:none}
+.wrap.hud[data-mode="land"] .frow{padding:5px 8px 6px}
+.wrap.hud[data-mode="land"] .hud-top[data-crowd] .frow{min-width:70px;padding:5px 7px 6px}
+.wrap.hud[data-mode="land"] .hud-top[data-crowd] .frow .fname,.wrap.hud[data-mode="land"] .hud-top[data-crowd] .frow .hp{font-size:13px;letter-spacing:.02em}
+.wrap.hud[data-mode="land"] .hud-top[data-crowd] .fpips{gap:6px}
+.wrap.hud[data-mode="land"] .hud-top[data-crowd] .status{min-width:96px}
+.wrap.hud[data-mode="land"] .frow.crew-sum{flex:0 0 auto;max-width:66px;padding:4px 6px;font-size:10.5px;line-height:1.15}
+/* desktop: bigger plates with the weapon and rank, the statuses under them, the tempo line in the status box */
+.wrap.hud[data-mode="desk"] .hud-top{left:max(24px,var(--pad-l));right:max(24px,var(--pad-r));top:max(20px,var(--pad-t));gap:8px}
+.wrap.hud[data-mode="desk"] .hud-btn{flex-basis:54px;width:54px;height:54px;align-self:center}
+.wrap.hud[data-mode="desk"] .hud-btn svg{transform:scale(1.12)}
+.wrap.hud[data-mode="desk"] .frow{flex:0 1 210px;min-width:120px;height:62px;padding:6px 12px 7px;grid-template-rows:auto auto 3px auto}
+.wrap.hud[data-mode="desk"] .frow .fname,.wrap.hud[data-mode="desk"] .frow .hp{font-size:17px}
+.wrap.hud[data-mode="desk"] .frow .hp small{font-size:12px}
+.wrap.hud[data-mode="desk"] .frow .fmeta{display:block;grid-column:1/-1;grid-row:2;font:italic 400 12.5px/1.2 var(--ui);color:var(--gl-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud[data-mode="desk"] .frow .hpbar{grid-row:3}
+.wrap.hud[data-mode="desk"] .fpips{grid-row:4;gap:10px}
+.wrap.hud[data-mode="desk"] .frow .tags{display:flex;position:absolute;left:0;right:0;top:calc(100% + 5px);flex-wrap:wrap;gap:4px;min-height:0;pointer-events:none}
+.wrap.hud[data-mode="desk"] .tag{font:700 10px/14px var(--ui);letter-spacing:.07em;text-transform:uppercase;padding:0 5px;border:1px solid currentColor;border-radius:1px;background:rgba(8,6,12,.8);white-space:nowrap}
+.wrap.hud[data-mode="desk"] .tag:has(.pips){display:none}
+.wrap.hud[data-mode="desk"] .frow.crew-sum{height:62px;max-width:110px;font-size:12.5px}
+.wrap.hud[data-mode="desk"] .status{flex:1 1 388px;max-width:420px;height:62px;padding:6px 12px 7px}
+.wrap.hud[data-mode="desk"] .status .banner{font-size:11.5px;letter-spacing:.24em}
+.wrap.hud[data-mode="desk"] .chip{font-size:13px;letter-spacing:.03em;line-height:17px}
+.wrap.hud[data-mode="desk"] .tempo-line{display:block}
+.wrap.hud[data-mode="tab"] .hud-top{gap:10px}
+.wrap.hud[data-mode="tab"] .status{max-width:none}
+
+/* ---------- the riposte window and the last scene's choice: docked where the commands are ---------- */
+.wrap.hud .opening{position:absolute;z-index:4;left:var(--pad-l);right:var(--pad-r);top:auto;bottom:var(--pad-b);display:block;padding:0;pointer-events:none;line-height:1.2}
+.wrap.hud .op-card{position:relative;width:auto;padding:0;background:none;border:0;box-shadow:none;pointer-events:none}
+.wrap.hud .op-tab,.wrap.hud .op-dock{pointer-events:auto}
+.wrap.hud .op-tab{position:relative;z-index:2;display:inline-flex;flex-direction:column;justify-content:center;gap:1px;max-width:min(600px,100%);min-height:44px;margin-bottom:-2px;padding:5px 14px 4px;
+  background:var(--gl-panel3);border:1.5px solid var(--gl-gold);border-bottom:0;border-radius:2px 2px 0 0;box-shadow:0 -8px 22px rgba(233,196,110,.22)}
+.wrap.hud .op-tab::before{content:"";position:absolute;left:4px;top:4px;width:6px;height:6px;border-top:1px solid var(--gl-gold);border-left:1px solid var(--gl-gold)}
+.wrap.hud .op-head{display:flex;flex-wrap:nowrap;align-items:baseline;gap:10px;white-space:nowrap;min-width:0}
+.wrap.hud .op-title{font:800 19px/1.05 var(--display);letter-spacing:.14em;background:linear-gradient(180deg,#fff0c6,#e2b65a 55%,#a07a33);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+.wrap.hud .op-sub{font-size:13px;color:#cfc4a8;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .op-reason,.wrap.hud .op-hint,.wrap.hud .fin-line{display:block;margin:0;min-height:0;font-size:12px;line-height:1.3;color:var(--gl-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .op-hint:empty{display:none}
+/* on a phone the hint about hovering has nothing to hover: only a chain link's worth stays */
+.wrap.hud[data-mode="land"] .opening:not(.chain) .op-hint,.wrap.hud[data-mode="port"] .opening:not(.chain) .op-hint{display:none}
+.wrap.hud .op-hint b{color:var(--gl-cream);font-weight:600}
+.wrap.hud .op-hint i{font-style:normal;color:var(--gl-gold3)}
+.wrap.hud .fin-line{font-size:13px;color:var(--gl-cream)}
+.wrap.hud .op-dock{position:relative;padding:7px 5px 5px;background:var(--gl-panel3);border:1.5px solid var(--gl-gold);border-radius:0 2px 2px 2px;
+  box-shadow:inset 0 0 0 3px var(--gl-panel3),inset 0 0 0 4px rgba(226,182,90,.2),0 0 26px rgba(233,196,110,.3),0 10px 26px rgba(0,0,0,.55)}
+.wrap.hud .op-bar{position:absolute;left:8px;right:8px;top:4px;height:1.5px;margin:0;border-radius:0;background:rgba(226,182,90,.18);overflow:visible}
+.wrap.hud .op-bar i{position:relative;display:block;height:100%;background:var(--gl-gold)}
+.wrap.hud .op-bar i::after{content:"";position:absolute;right:-3px;top:-2px;width:5px;height:5px;transform:rotate(45deg);background:var(--gl-hi)}
+.wrap.hud .op-btns{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);grid-template-columns:none;gap:0;min-height:46px}
+.wrap.hud .op-btns.five,.wrap.hud .op-btns.six{grid-template-columns:none}
+.wrap.hud .op-btns button{position:relative;appearance:none;min-width:0;margin:0;padding:1px 6px 1px 19px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:0;
+  background:transparent;border:0;border-radius:0;color:var(--gl-cream);cursor:pointer;text-shadow:none;font:700 15px/15px var(--ui)}
+.wrap.hud .op-btns button+button{border-left:1px solid rgba(226,182,90,.22)}
+.wrap.hud .op-btns button>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .op-btns button .tq{display:block;margin:1px 0 0;font:italic 500 12.5px/13px var(--ui);color:var(--gl-gold2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .op-btns button small{display:block;margin:1px 0 0;font:500 12px/13px var(--ui);color:var(--gl-dim);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .op-btns button::before{content:"";position:absolute;left:7px;top:9px;width:6px;height:6px;transform:rotate(45deg);background:var(--gl-gold);opacity:0}
+.wrap.hud .op-btns button:focus-visible,.wrap.hud .op-btns button.picked{background:linear-gradient(180deg,rgba(233,196,110,.26),rgba(233,196,110,.08));
+  box-shadow:inset 0 0 0 1px rgba(233,196,110,.9);color:#fff6df;outline:0}
+@media (hover:hover){.wrap.hud .op-btns button:hover:not(:disabled){background:linear-gradient(180deg,rgba(233,196,110,.26),rgba(233,196,110,.08));box-shadow:inset 0 0 0 1px rgba(233,196,110,.9);color:#fff6df}}
+.wrap.hud .op-btns button:focus-visible::before,.wrap.hud .op-btns button.picked::before{opacity:1}
+@media (hover:hover){.wrap.hud .op-btns button:hover:not(:disabled)::before{opacity:1}}
+.wrap.hud .op-btns button:disabled{opacity:.55;cursor:default}
+.wrap.hud .op-btns button.picked{opacity:1}
+.wrap.hud .fin-btns button{flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:8px;font-size:16px}
+.wrap.hud .fin-btns button::before{display:none}
+.wrap.hud .fin-btns kbd{font:700 11px/1 var(--ui);color:var(--gl-dim);border:1px solid rgba(226,182,90,.4);border-radius:1px;padding:2px 5px;background:none}
+.wrap.hud .fin-btns button[data-c=behead]:focus-visible{box-shadow:inset 0 0 0 1px #ff7a6e;background:linear-gradient(180deg,rgba(255,110,90,.24),rgba(255,110,90,.06))}
+@media (hover:hover){.wrap.hud .fin-btns button[data-c=behead]:hover:not(:disabled){box-shadow:inset 0 0 0 1px #ff7a6e;background:linear-gradient(180deg,rgba(255,110,90,.24),rgba(255,110,90,.06))}}
+/* a kill chain's link: a warmer gold */
+.wrap.hud .opening.chain .op-tab,.wrap.hud .opening.chain .op-dock{border-color:#ffd36b}
+.wrap.hud .opening.chain .op-title{background:linear-gradient(180deg,#fff3cf,#ffd36b 55%,#b98a3c);-webkit-background-clip:text;background-clip:text}
+.wrap.hud .opening.chain .op-hint{color:#ffd36b;font-weight:600}
+.wrap.hud .opening.finale .op-tab,.wrap.hud .opening.finale .op-dock{border-color:#e9a27a}
+.wrap.hud .opening.finale .op-dock{max-width:560px}
+/* the commands step aside while it is up */
+.wrap.hud[data-op="h"] .commands,.wrap.hud[data-op="e"] .commands{visibility:hidden}
+/* on an upright phone the choices come in two rows of three */
+.wrap.hud[data-mode="port"] .op-tab{display:flex;max-width:100%}
+.wrap.hud[data-mode="port"] .op-btns{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:58px;grid-auto-columns:auto}
+.wrap.hud[data-mode="port"] .op-btns button{padding-left:14px}
+.wrap.hud[data-mode="port"] .op-btns button::before{left:4px}
+.wrap.hud[data-mode="port"] .op-btns button+button{border-left:0}
+.wrap.hud[data-mode="port"] .op-btns button:nth-child(2n){border-left:1px solid rgba(226,182,90,.22)}
+.wrap.hud[data-mode="port"] .op-btns button:nth-child(n+3){border-top:1px solid rgba(226,182,90,.22)}
+.wrap.hud[data-mode="port"] .fin-btns{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:56px}
+/* on a desktop it sits over the dock's place, not as wide as the screen */
+.wrap.hud[data-mode="desk"] .opening{left:50%;right:auto;width:min(980px,calc(100% - 48px));transform:translateX(-50%);bottom:max(20px,var(--pad-b))}
+.wrap.hud[data-mode="desk"] .op-btns{min-height:56px}
+.wrap.hud[data-mode="desk"] .op-title{font-size:21px}
+.wrap.hud[data-mode="desk"] .op-reason,.wrap.hud[data-mode="desk"] .op-hint{font-size:13px}
+
+/* ---------- the end of a fight ---------- */
+.wrap.hud .over{position:absolute;z-index:4;left:0;right:0;top:var(--hud-top,0px);bottom:var(--hud-bottom,0px);display:flex;align-items:center;justify-content:center;padding:12px;
+  background:radial-gradient(60% 70% at 50% 50%,rgba(5,4,9,.6),rgba(5,4,9,.1));line-height:1.3}
+.wrap.hud .over-card{position:relative;max-width:min(520px,100%);padding:16px 28px 18px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
+  background:var(--gl-panel3);border:1px solid var(--gl-line2);border-radius:2px;box-shadow:inset 0 0 0 4px var(--gl-panel3),inset 0 0 0 5px var(--gl-rule),0 14px 40px rgba(0,0,0,.6)}
+.wrap.hud .over-k{margin:0;font:800 34px/1.05 var(--display);letter-spacing:.1em;background:linear-gradient(180deg,#fff0c6,#e2b65a 55%,#a07a33);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wrap.hud .over-t{margin:0 0 6px;color:#cfc4a8}
+.wrap.hud .over-bill{margin:-2px 0 6px;color:var(--gl-gold3);font-size:13.5px}
+.wrap.hud #rematch{height:44px;padding:0 22px;font:700 14px var(--display);letter-spacing:.14em;color:#120d05;background:linear-gradient(180deg,#f4d48e,#b98a3c);border:1px solid #f4d48e;border-radius:2px;
+  box-shadow:0 0 16px rgba(233,196,110,.3);cursor:pointer}
+@media (hover:hover){.wrap.hud #rematch:hover{background:linear-gradient(180deg,#fff0c6,#d8a855)}}
+.wrap.hud[data-mode="land"] .over-card{padding:12px 22px 14px;gap:4px}
+.wrap.hud[data-mode="land"] .over-k{font-size:28px}
+.wrap.hud[data-mode="land"] .over-t{font-size:14px;margin-bottom:2px}
+.wrap.hud[data-mode="land"] .over-bill{font-size:12px;line-height:1.3;margin-bottom:4px}
+
+/* ---------- the log drawer, from the right ---------- */
+.wrap.hud .log{position:absolute;z-index:22;top:0;right:0;bottom:0;width:min(400px,100%);display:flex;flex-direction:column;gap:8px;
+  padding:var(--pad-t) var(--pad-r) var(--pad-b) 18px;background:rgba(9,7,13,.97);border-left:1px solid rgba(226,182,90,.6);
+  box-shadow:inset 4px 0 0 rgba(9,7,13,.97),inset 5px 0 0 rgba(226,182,90,.2),-14px 0 34px rgba(0,0,0,.6);transform:translateX(105%);transition:transform .22s ease}
+.wrap.hud[data-log="1"] .log{transform:none}
+.wrap.hud .drawer-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px}
+.wrap.hud .log h2{margin:0;font:800 19px/1 var(--display);letter-spacing:.14em;background:linear-gradient(180deg,#fff0c6,#e2b65a 55%,#a07a33);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wrap.hud .drawer-x{appearance:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--gl-gold);background:transparent;border:1px solid rgba(226,182,90,.45);border-radius:2px;cursor:pointer}
+.wrap.hud .log ol{flex:1 1 auto;max-height:none;overflow-y:auto;overscroll-behavior:contain;padding-right:6px;gap:9px}
+.wrap.hud .lg{border-bottom-color:rgba(226,182,90,.14)}
+.wrap.hud .lg.chain{box-shadow:inset 2px 0 0 var(--gl-gold)}
+.wrap.hud .lg-tag{color:var(--gl-gold)}
+.wrap.hud .lg-tech{color:var(--gl-gold3)}
+.wrap.hud .lg-why{color:var(--gl-dim)}
+.wrap.hud .lg-roll,.wrap.hud .lg-perf,.wrap.hud .lg-read{color:var(--gl-dim)}
+.wrap.hud .lg-roll b,.wrap.hud .lg-read b{color:var(--gl-cream)}
+.wrap.hud .lg-perf{color:#857c6a}
+.wrap.hud .lg-read{color:var(--gl-gold2)}
+.wrap.hud .out{background:rgba(243,234,214,.06);border-radius:1px}
+.wrap.hud .out-hit{color:var(--gl-gold)}
+.wrap.hud .out-crit{color:#ffe08a;background:rgba(255,95,109,.32)}
+.wrap.hud .lg.lg-phase{border-bottom-color:rgba(226,182,90,.4)}
+
+/* ---------- the menu drawer, from the left: the fight's set-up, the arena, the codex ---------- */
+.wrap.hud .side-col{position:fixed;z-index:21;left:0;top:0;bottom:0;width:min(440px,100%);display:flex;flex-direction:column;gap:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:0 18px 0 max(18px,var(--pad-l));background:rgba(9,7,13,.97);border-right:1px solid rgba(226,182,90,.6);
+  box-shadow:inset -4px 0 0 rgba(9,7,13,.97),inset -5px 0 0 rgba(226,182,90,.2),14px 0 34px rgba(0,0,0,.6);transform:translateX(-105%);transition:transform .24s ease}
+.wrap.hud[data-menu="1"] .side-col{transform:none}
+body.story .wrap.hud .side-col{display:flex}
+.wrap.hud .drawer-top{position:sticky;top:0;z-index:3;padding-top:var(--pad-t);background:rgba(9,7,13,.98);display:flex;flex-direction:column;gap:8px}
+.wrap.hud .drawer-titles{display:flex;flex-direction:column;gap:2px;min-width:0}
+.wrap.hud .drawer-title{font:800 21px/22px var(--display);letter-spacing:.16em;background:linear-gradient(180deg,#fff0c6,#e2b65a 55%,#a07a33);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wrap.hud .drawer-sub{font-size:12.5px;color:var(--gl-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .btn-gold{appearance:none;flex:none;height:44px;padding:0 18px;display:flex;align-items:center;gap:8px;font:700 14px/1 var(--display);letter-spacing:.14em;color:#120d05;
+  background:linear-gradient(180deg,#f4d48e,#b98a3c);border:1px solid #f4d48e;border-radius:2px;box-shadow:0 0 16px rgba(233,196,110,.3);cursor:pointer}
+@media (hover:hover){.wrap.hud .btn-gold:hover{background:linear-gradient(180deg,#fff0c6,#d8a855)}}
+.wrap.hud .drawer-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid rgba(226,182,90,.3);border-bottom:1px solid rgba(226,182,90,.3)}
+.wrap.hud .drawer-tabs button{position:relative;appearance:none;height:42px;padding:0;font:700 13.5px/1 var(--display);letter-spacing:.12em;color:var(--gl-dim);background:transparent;border:0;cursor:pointer}
+@media (hover:hover){.wrap.hud .drawer-tabs button:hover{color:var(--gl-cream)}}
+.wrap.hud .drawer-tabs button[aria-selected="true"]{color:var(--gl-hi);background:rgba(233,196,110,.1)}
+.wrap.hud .drawer-tabs button[aria-selected="true"]::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:var(--gl-gold)}
+.wrap.hud .side-col[data-story="1"] .drawer-tabs{grid-template-columns:1fr}
+.wrap.hud .side-col[data-story="1"] .drawer-tabs button:not([data-dtab="codex"]){display:none}
+.wrap.hud .side-col .bench{display:none}
+.wrap.hud .side-col[data-tab="fight"] .b-fight,.wrap.hud .side-col[data-tab="arena"] .b-arena,.wrap.hud .side-col[data-tab="codex"] .techs,.wrap.hud .side-col[data-tab="codex"] .how{display:flex}
+.wrap.hud .drawer-foot{position:sticky;bottom:0;z-index:3;margin-top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:10px 0 var(--pad-b);
+  background:rgba(9,7,13,.98)}
+.wrap.hud .drawer-foot::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:22px;background:linear-gradient(180deg,rgba(9,7,13,0),rgba(9,7,13,.98));pointer-events:none}
+.wrap.hud .side-col[data-story="1"] #restart{display:none}
+.wrap.hud .side-col[data-story="1"] .drawer-foot{grid-template-columns:1fr}
+/* the bench in gold: section titles, segmented buttons, toggles, sliders */
+.wrap.hud .side-col .win.bench{flex-direction:column;gap:10px;padding:16px 0 8px;color:var(--gl-cream)}
+.wrap.hud .side-col .win h2{margin:0 0 2px;font:700 13px/1.2 var(--display);letter-spacing:.16em;color:#c9a95c}
+.wrap.hud .side-col .win.bench+.win.bench{border-top:1px solid rgba(226,182,90,.14)}
+.wrap.hud .seg{gap:4px}
+.wrap.hud .seg button{min-height:40px;padding:4px 2px;font:600 14px/1.1 var(--ui);color:var(--gl-cream);background:transparent;border:1px solid rgba(226,182,90,.4);border-radius:2px;text-shadow:none}
+@media (hover:hover){.wrap.hud .seg button:hover{background:rgba(226,182,90,.08)}}
+.wrap.hud .seg button[aria-pressed="true"]{color:#120d05;background:linear-gradient(180deg,#f4d48e,#c39443);border-color:#f4d48e;font-weight:700}
+.wrap.hud .seg.kael .sig{border-color:rgba(127,243,227,.5)}
+.wrap.hud .seg.kael .sig[aria-pressed="true"]{color:#06201d;background:linear-gradient(180deg,#b5fff4,#5fd9c8);border-color:#b5fff4}
+.wrap.hud .count-row>span,.wrap.hud .gore-row>span,.wrap.hud .skill-row label{font:700 13px/1 var(--display);letter-spacing:.12em;color:#c9a95c}
+.wrap.hud .tog{font-size:14.5px;min-height:32px}
+.wrap.hud .tog input,.wrap.hud input[type="range"]{accent-color:var(--gl-gold)}
+.wrap.hud .tog input{width:18px;height:18px}
+.wrap.hud .side-col .btn,.wrap.hud .drawer-foot .btn{appearance:none;min-height:42px;padding:6px 14px;font:700 13px/1.1 var(--display);letter-spacing:.12em;color:var(--gl-gold);background:transparent;
+  border:1px solid rgba(226,182,90,.6);border-radius:2px;text-shadow:none;cursor:pointer}
+@media (hover:hover){.wrap.hud .side-col .btn:hover,.wrap.hud .drawer-foot .btn:hover{background:rgba(226,182,90,.1);color:var(--gl-hi)}}
+.wrap.hud .side-col .btn-small{min-height:32px;padding:4px 10px;font-size:12px}
+.wrap.hud .fcfg{border-bottom-color:rgba(226,182,90,.16)}
+.wrap.hud .fcfg-head b{font:700 17px/1.1 var(--display);letter-spacing:.06em}
+.wrap.hud .swatch{width:8px;height:8px;border-radius:0;transform:rotate(45deg);box-shadow:none}
+.wrap.hud .bdesc,.wrap.hud .fnote,.wrap.hud .wsig{color:var(--gl-dim)}
+.wrap.hud .fgroup{color:#c9a95c}
+.wrap.hud .legend{color:var(--gl-dim)}
+.wrap.hud .legend b{color:#7ff3e3}
+.wrap.hud .legend em{color:var(--gl-gold)}
+.wrap.hud .tech-rank{color:var(--gl-gold)}
+.wrap.hud .tech-list dt{color:var(--gl-cream)}
+.wrap.hud .tech-list dd,.wrap.hud .tech-note,.wrap.hud .how ol{color:var(--gl-dim)}
+.wrap.hud .how ol li::marker{color:var(--gl-gold)}
+.wrap.hud .keys{color:#857c6a}
+.wrap.hud #fsBtn{width:100%}
+/* the dim over the stage while a drawer is up */
+.hud-scrim{position:fixed;inset:0;z-index:20;background:rgba(5,4,9,.58);-webkit-backdrop-filter:blur(1.5px) saturate(.75);backdrop-filter:blur(1.5px) saturate(.75)}
+
+/* ---------- the prologue over the stage ---------- */
+/* the drawer's Title screen does what the corner's Menu button did */
+.wrap.hud .st-quit{display:none!important}
+.wrap.hud .st-skip{top:var(--pad-t);right:var(--pad-r)}
+.wrap.hud[data-hud="play"] .st-say{bottom:calc(var(--hud-bottom,0px) + 10px)}
+/* in a scene only the menu stays; at the title and the end card none of it */
+.wrap.hud[data-hud="cut"] .hud-top>:not(#menuBtn),.wrap.hud[data-hud="cut"] .frow{visibility:hidden}
+.wrap.hud[data-hud="cut"] .commands,.wrap.hud[data-hud="cut"] .bill{display:none}
+.wrap.hud[data-hud="title"] .hud-top,.wrap.hud[data-hud="title"] .commands,.wrap.hud[data-hud="title"] .bill,
+.wrap.hud[data-hud="end"] .hud-top,.wrap.hud[data-hud="end"] .commands,.wrap.hud[data-hud="end"] .bill{display:none}
+
+@media (prefers-reduced-motion: reduce){.wrap.hud .log,.wrap.hud .side-col,.wrap.hud .cmd::before{transition:none}.wrap.hud .bill.bump{animation:none}}

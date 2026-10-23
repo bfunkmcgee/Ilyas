@@ -1,0 +1,10 @@
+/* the last scene: the choice panel */
+.opening.finale .op-card{width:min(420px,100%);border-color:#ff9c7a;box-shadow:0 0 0 2px var(--rim-dark),0 0 28px rgba(255,120,90,.36),0 10px 26px rgba(0,0,0,.5)}
+.opening.finale .op-title{color:#ffd9a8}
+.fin-line{margin:4px 0 8px;font-size:15px;color:var(--ink);line-height:1.3}
+.fin-btns{grid-template-columns:repeat(2,minmax(0,1fr))}
+.fin-btns button{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 6px;font-size:16px}
+.fin-btns kbd{font:700 11px/1 var(--ui);color:var(--dim);border:1px solid rgba(232,235,255,.35);border-radius:3px;padding:2px 5px;background:rgba(6,10,34,.5)}
+.fin-btns button[data-c=behead]:hover:not(:disabled),.fin-btns button[data-c=behead]:focus-visible{border-color:#ff7a6e;background:rgba(255,90,80,.14)}
+.fin-btns button:disabled{opacity:.5}
+@media (max-width:520px){.opening.finale{padding:6px 6px 8px}.fin-line{font-size:14px;margin:3px 0 6px}.fin-btns button{font-size:15px;padding:8px 4px}}

@@ -1,0 +1,45 @@
+/* The prologue: the title menu, the stage's dialogue and its end cards, in the Noir Gilt of the scenes (black, gold, cyan) */
+:root{--gold:#e2b65a;--gold-hi:#fff0c6;--gold-lo:#8a6a2e;--noir:#05050a;--elfcyan:#7ff3e3}
+.st-menu,.st-end{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;line-height:1.25;z-index:6;padding:16px;
+  background:radial-gradient(70% 80% at 50% 45%,rgba(5,5,10,.72),rgba(3,3,7,.94))}
+.st-menu~.banner,.stage:has(.st-menu:not([hidden])) .banner{visibility:hidden}
+.st-menu-in,.st-end-in{text-shadow:0 1px 0 rgba(0,0,0,.8);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;max-width:min(560px,100%)}
+.st-kick{margin:0;font:600 12px var(--ui);letter-spacing:.42em;text-transform:uppercase;color:var(--gold-lo)}
+.st-menu .st-title{margin:0;font:800 clamp(54px,11vw,96px)/1 var(--display);letter-spacing:.08em;
+  text-shadow:none;background:linear-gradient(180deg,var(--gold-hi),var(--gold) 55%,var(--gold-lo));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.6)) drop-shadow(0 0 18px rgba(226,182,90,.25))}
+.st-sub{margin:2px 0 14px;font:italic 500 17px var(--ui);color:#cfc4a8;letter-spacing:.04em}
+.st-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.st-btn{appearance:none;font:700 15px var(--display);letter-spacing:.12em;color:var(--gold);background:rgba(5,5,10,.6);border:1px solid rgba(226,182,90,.55);
+  border-radius:3px;padding:9px 18px;cursor:pointer;text-shadow:none;transition:background .15s,color .15s,border-color .15s}
+.st-btn:hover,.st-btn:focus-visible{background:rgba(226,182,90,.14);border-color:var(--gold);color:var(--gold-hi);outline:none}
+.st-btn.st-go{background:linear-gradient(180deg,#f4d48e,#b98a3c);color:#120d05;border-color:#f4d48e}
+.st-btn.st-go:hover,.st-btn.st-go:focus-visible{background:linear-gradient(180deg,#fff0c6,#d8a855);color:#120d05}
+.st-chap{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;width:min(440px,100%);max-height:46vh;overflow:auto}
+.st-chapbtn{appearance:none;display:grid;grid-template-columns:2.6em 1fr;grid-template-rows:auto auto;column-gap:10px;width:100%;text-align:left;cursor:pointer;
+  background:rgba(5,5,10,.55);border:1px solid rgba(226,182,90,.25);border-radius:3px;padding:7px 10px;color:var(--ink)}
+.st-chapbtn:hover,.st-chapbtn:focus-visible{border-color:var(--gold);background:rgba(226,182,90,.1);outline:none}
+.st-num{grid-row:span 2;align-self:center;font:700 18px var(--display);color:var(--gold)}
+.st-ct{font:700 15px var(--display);letter-spacing:.06em;color:var(--gold-hi)}
+.st-cs{font:13px var(--ui);color:#a99f88}
+.st-say{position:absolute;left:0;right:0;bottom:4%;display:flex;justify-content:center;padding-inline:12px;z-index:5;line-height:1.3;pointer-events:none}
+.st-say-in{pointer-events:auto;cursor:pointer;width:min(720px,100%);background:linear-gradient(180deg,rgba(8,7,12,.86),rgba(3,3,6,.9));border:1px solid rgba(226,182,90,.45);
+  border-radius:3px;padding:10px 16px 12px;box-shadow:0 8px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:3px;position:relative}
+.st-who{font:700 13px var(--display);letter-spacing:.18em;text-transform:uppercase}
+.st-line{font:500 18px/1.35 var(--ui);color:#f1e9d6;min-height:1.35em;text-shadow:0 1px 0 #000}
+.st-more{position:absolute;right:12px;bottom:8px;color:var(--gold);font-size:13px;opacity:0}
+.st-say.done .st-more{animation:stBlink 1s steps(2) infinite}
+@keyframes stBlink{0%{opacity:0}50%{opacity:1}}
+.st-skip,.st-quit{position:absolute;top:10px;z-index:5;appearance:none;font:600 12px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:#cfc4a8;
+  background:rgba(5,5,10,.6);border:1px solid rgba(226,182,90,.35);border-radius:3px;padding:5px 9px;cursor:pointer;line-height:1.2}
+.st-skip{right:72px}.st-quit{right:10px}
+.st-skip kbd{font:600 10px var(--mono);color:var(--gold-lo);margin-left:4px}
+.st-skip:hover,.st-quit:hover{border-color:var(--gold);color:var(--gold-hi)}
+.st-end-k{margin:0;font:800 clamp(30px,6vw,44px)/1.05 var(--display);letter-spacing:.06em;color:var(--gold)}
+.st-end-t{margin:0 0 12px;color:#cfc4a8;font-size:16px}
+/* while the prologue plays the test bench steps aside */
+body.story .side-col{display:none}
+body.story .layout{grid-template-columns:minmax(0,1fr)}
+body.story .top p{display:none}
+@media (prefers-reduced-motion:reduce){.st-say.done .st-more{animation:none;opacity:1}}
+@media (max-width:520px){.st-line{font-size:15.5px}.st-say-in{padding:8px 11px 10px}.st-skip{right:64px}}

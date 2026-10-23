@@ -1,0 +1,37 @@
+# Built by build.py (python3 build.py makes them again; never edit them)
+/ragdoll-skirmish-lab.html
+/sk_full.js
+/sk_sceneui.js
+/test_page.html
+/build_map.json
+/build_modules.json
+
+# Test and lint output
+/test_out/
+/tools/lint_out.json
+
+# Installed packages, caches
+node_modules/
+__pycache__/
+*.pyc
+
+# The tools under uiwork/ are tracked; what they write there (screenshots, traces) is not
+/uiwork/**
+!/uiwork/**/
+!/uiwork/**/*.js
+!/uiwork/**/*.py
+!/uiwork/**/*.md
+/uiwork/qa_full.*
+/uiwork/qa_test.html
+
+# Screenshots and recordings anywhere
+*.png
+*.jpg
+*.gif
+*.webm
+*.mp4
+
+# Editors and systems
+.DS_Store
+.vscode/
+.idea/

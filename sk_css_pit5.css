@@ -1,0 +1,66 @@
+/* Act I, scene 5: the Pit map, a stall's shop with the purse and the satchel, the satchel alone, and the Map and Satchel buttons */
+.a1-panel{position:absolute;inset:0;z-index:7;display:flex;align-items:center;justify-content:center;padding:14px;
+  background:radial-gradient(70% 80% at 50% 45%,rgba(5,5,10,.72),rgba(3,3,7,.94))}
+.a1-panel[hidden]{display:none}
+.a1-panel-in{display:flex;flex-direction:column;align-items:center;gap:8px;width:min(760px,100%);max-height:100%;overflow:auto;text-shadow:0 1px 0 rgba(0,0,0,.8)}
+.a1-panel-t{margin:0;font:800 clamp(22px,4.4vw,32px)/1.05 var(--display);letter-spacing:.05em;color:#f3ead2;text-align:center}
+/* the map */
+.a1-map-pic{width:100%;max-width:720px}
+.a1m-svg{display:block;width:100%;height:auto;border:1px solid rgba(226,182,90,.35);border-radius:3px}
+.a1m-wall{fill:#1a1614;stroke:#3a3028;stroke-width:1}
+.a1m-tier{stroke:#5a4a36;stroke-width:3}
+.a1m-tname{font:600 11px var(--ui);letter-spacing:.2em;fill:#8a6a2e}
+.a1m-lm{font:600 12px var(--ui);fill:#cfc4a8}
+.a1m-note{font:italic 600 12px var(--ui);fill:#c06a3a}
+.a1m-tower{fill:#121015;stroke:#3a3440}
+.a1m-lad line{stroke:#c06a3a;stroke-width:2;stroke-dasharray:4 4}
+.a1m-lad circle{fill:#0b0a0d;stroke:#c06a3a;stroke-width:2}
+.a1m-lad line.x{stroke-dasharray:none;stroke-width:2.2}
+.a1m-stairs{fill:none;stroke:#7a6a52;stroke-width:4;stroke-linejoin:round}
+.a1m-shelf{stroke:#7a6a52;stroke-width:6}
+.a1m-route{fill:none;stroke:#e2b65a;stroke-width:2;stroke-dasharray:6 5;stroke-linejoin:round}
+.a1m-sump rect,.a1m-sump path{fill:#2a2018;stroke:#e2b65a;stroke-width:1.4}
+.a1m-pump rect{fill:#1c1e22;stroke:#7a8090;stroke-width:1.4}.a1m-pump line{stroke:#7a8090;stroke-width:3}
+.a1m-spike path{fill:#2a2428;stroke:#8a7a70;stroke-width:1.2}
+.a1m-wp circle{fill:#3a3020;stroke:#8a7a5a;stroke-width:1.4}.a1m-wp text{font:600 10.5px var(--ui);fill:#a99f88}
+.a1m-wp.need circle{fill:#e2b65a;stroke:#fff0c6}.a1m-wp.need text{fill:#f3ead2}
+.a1m-you circle{fill:#f3ead2;stroke:#05050a;stroke-width:2}.a1m-you text{font:700 12px var(--display);fill:#f3ead2}
+.a1-map-tip{margin:0;font:italic 500 14px var(--ui);color:#cfc4a8;text-align:center}
+.a1-map-tip[hidden]{display:none}
+/* the shop and the satchel */
+.a1-shop-body{display:flex;gap:14px;width:100%;align-items:flex-start}
+.a1-goods{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:1 1 auto;min-width:0}
+.a1-good{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;column-gap:8px;background:rgba(5,5,10,.55);border:1px solid rgba(226,182,90,.24);border-radius:3px;padding:6px 8px}
+.a1-good.got{opacity:.62}
+.a1-good-n{font:700 15px var(--display);color:#f3ead2;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.a1-onlist{font:600 10px var(--ui);letter-spacing:.18em;text-transform:uppercase;color:#8a6a2e;border:1px solid rgba(226,182,90,.35);border-radius:2px;padding:1px 5px}
+.a1-good-w{grid-column:1;font:italic 500 12.5px var(--ui);color:#a99f88}
+.a1-good-b{grid-column:2;grid-row:1/3;display:flex;gap:6px;align-items:center}
+.a1-buy{appearance:none;min-height:40px;min-width:64px;cursor:pointer;font:700 13px var(--display);letter-spacing:.04em;color:#e2b65a;background:rgba(226,182,90,.08);
+  border:1px solid rgba(226,182,90,.5);border-radius:3px;padding:6px 10px}
+.a1-buy:hover,.a1-buy:focus-visible{background:rgba(226,182,90,.2);color:#fff0c6;outline:none}
+.a1-buy:disabled{opacity:.35;cursor:default}
+.a1-bagbox{flex:0 0 auto;width:min(300px,42vw);display:flex;flex-direction:column;gap:6px}
+.a1-purse{margin:0;font:700 14px var(--display);color:#f3ead2;letter-spacing:.04em}
+.a1-bag{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,52px);gap:4px;padding:6px;background:#2a2116;border:2px solid #4a3b28;border-radius:6px}
+.a1-cell{border:1px dashed rgba(226,182,90,.18);border-radius:3px}
+.a1-item{appearance:none;cursor:pointer;z-index:1;font:700 12px var(--display);color:#f3ead2;background:linear-gradient(180deg,#5a4a32,#3a2e20);
+  border:1px solid #8a6a2e;border-radius:3px;padding:2px 4px;overflow:hidden;text-overflow:ellipsis}
+.a1-item:hover,.a1-item:focus-visible{border-color:#fff0c6;outline:none}
+.a1-wt{margin:0;font:600 12px var(--ui);color:#a99f88;letter-spacing:.06em}
+.a1-handrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.a1-hand-k{font:600 10px var(--ui);letter-spacing:.24em;text-transform:uppercase;color:#8a6a2e}
+.a1-hand-v{font:700 14px var(--display);color:#f3ead2}.a1-hand-v.a1-free{color:#8a8070;font-style:italic}
+.a1-shop-note{margin:0;min-height:1.3em;font:italic 600 14px var(--ui);color:#f3ead2;text-align:center}
+.a1-bagonly .a1-goods{display:none}.a1-bagonly .a1-bagbox{width:min(360px,100%);margin:0 auto}
+@media (max-width:640px){.a1-shop-body{flex-direction:column}.a1-bagbox{width:100%}.a1-bag{grid-template-rows:repeat(2,44px)}}
+@media (max-height:520px){.a1-panel{padding:6px 10px}.a1-panel .st-kick{display:none}.a1-good-w{display:none}.a1-bag{grid-template-rows:repeat(2,36px)}.a1-buy{min-height:34px}
+  .a1-panel-in{gap:5px}.a1-map .a1-panel-t{display:none}.a1-map-pic{max-width:min(720px,104vh)}.a1-map-tip{font-size:12.5px}}
+/* a screen up: the walking-about controls under it are put away */
+.a1-modal .ex-goal,.a1-modal .ex-side,.a1-modal .ex-jog,.a1-modal .ex-hand,.a1-modal .ex-act,.a1-modal .ex-note,.a1-modal .ex-old{visibility:hidden}
+/* the Map and Satchel buttons, at the top right while he walks about */
+.ex-side{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:14px;z-index:4;appearance:none;min-height:40px;cursor:pointer;
+  font:700 14px var(--display);letter-spacing:.08em;color:#e2b65a;background:rgba(5,5,10,.72);border:1px solid rgba(226,182,90,.5);border-radius:3px;padding:8px 14px}
+.ex-side2{top:calc(env(safe-area-inset-top,0px) + 58px)}
+.ex-side:hover,.ex-side:focus-visible{background:rgba(226,182,90,.16);color:#fff0c6;outline:none}
+.ex-side[hidden]{display:none}

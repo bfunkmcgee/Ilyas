@@ -1,0 +1,8 @@
+/* ===== LIGHT: the Effects setting in the menu's Arena panel ===== */
+.fx-row{margin-top:10px}
+.fx-note{margin:6px 0 0;font:500 12.5px/1.35 var(--ui,system-ui,sans-serif);color:#cfc4a8}
+.fx-note[hidden]{display:none}
+.b-arena .gore-row>span{min-width:4.6em}
+/* the vignette over the picture: composited by the browser, so it costs the canvas nothing */
+.wrap.hud[data-fx="full"] .stage::before,.wrap.hud[data-fx="lite"] .stage::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 72% 68% at 50% 54%,rgba(4,2,10,0) 58%,rgba(4,2,10,.14) 76%,rgba(4,2,10,.42) 100%)}

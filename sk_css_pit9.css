@@ -1,0 +1,42 @@
+/* Act I, scene 9: the lesson's box under the top bar, the Styles button, the styles screen */
+.a9-goal{position:absolute;top:calc(var(--hud-top,56px) + 8px);left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;
+  gap:1px;padding:6px 14px 7px;max-width:min(520px,calc(100% - 28px));background:linear-gradient(180deg,rgba(8,7,12,.84),rgba(3,3,6,.78));
+  border:1px solid rgba(226,182,90,.4);border-radius:3px;pointer-events:none;text-align:center;line-height:1.2;transition:border-color .25s,box-shadow .25s}
+.a9-goal[hidden]{display:none}
+.a9-goal.flash{border-color:#f4d48e;box-shadow:0 0 0 1px rgba(244,212,142,.5),0 0 18px rgba(244,212,142,.35)}
+.a9-k{font:600 11px var(--ui);letter-spacing:.24em;text-transform:uppercase;color:#8a6a2e}
+.a9-t{font:700 15px var(--display);letter-spacing:.03em;color:#f3ead2}
+.a9-n{font:700 13px var(--display);letter-spacing:.08em;color:#e2b65a}
+.a9-h{font:italic 500 12.5px var(--ui);color:#cfc4a8;margin-top:2px}
+.a9-goal [hidden]{display:none}
+.a9-sbtn{top:calc(var(--hud-top,56px) + 8px)}
+/* the styles screen: three cards, what he has, what he lost, what comes back */
+.a9-styles .a1-panel-in{width:min(820px,100%)}
+.a9-lead{margin:0;font:italic 500 14px var(--ui);color:#cfc4a8;text-align:center}
+.a9-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%}
+.a9-card{display:flex;flex-direction:column;gap:5px;padding:10px 12px;background:rgba(5,5,10,.6);border:1px solid rgba(226,182,90,.4);border-radius:3px;min-width:0}
+.a9-c-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.a9-card h3{margin:0;font:800 18px/1.1 var(--display);letter-spacing:.03em;color:#f3ead2}
+.a9-now{font:600 10.5px var(--ui);letter-spacing:.16em;text-transform:uppercase;padding:2px 6px;border-radius:2px;border:1px solid rgba(226,182,90,.5);color:#e2b65a;white-space:nowrap}
+.a9-w{margin:0;font:700 13px var(--ui);color:#cfc4a8}
+.a9-o{margin:0;font:italic 500 12.5px/1.35 var(--ui);color:#a99f88}
+.a9-moves{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:3px}
+.a9-moves li{display:flex;justify-content:space-between;gap:8px;font:600 13px var(--ui);color:#8a8070}
+.a9-moves li.got{color:#f3ead2}.a9-moves li.got .a9-l{color:#e2b65a}
+.a9-l{font:italic 500 12px var(--ui);color:#6f6658;white-space:nowrap}
+.a9-card.dark{border-style:dashed;border-color:rgba(127,243,227,.3);background:rgba(5,9,12,.55)}
+.a9-card.dark h3{color:rgba(207,238,233,.6)}.a9-card.dark .a9-now{color:rgba(127,243,227,.7);border-color:rgba(127,243,227,.35);border-style:dashed}
+.a9-card.locked{border-color:rgba(160,150,130,.3);background:repeating-linear-gradient(135deg,rgba(5,5,10,.6) 0 8px,rgba(30,26,20,.6) 8px 10px)}
+.a9-card.locked h3{color:rgba(243,234,210,.55)}.a9-card.locked .a9-now{color:#a99f88;border-color:rgba(160,150,130,.4)}
+@media (max-width:700px){.a9-cards{grid-template-columns:1fr}.a9-card{padding:8px 10px}}
+@media (max-height:520px){.a9-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.a9-o{font-size:11.5px}.a9-moves li{font-size:12px}.a9-lead{display:none}
+  .a9-goal{padding:4px 12px 5px}.a9-goal .a9-k,.a9-goal .a9-h{display:none}.a9-t{font-size:14px}}
+/* the screen up: the fight's controls under it are put away */
+.wrap.a9-modal .commands,.wrap.a9-modal #targets,.wrap.a9-modal .a9-goal,.wrap.a9-modal .ex-side{visibility:hidden}
+
+/* what the lesson asks for: a gold edge and a Lesson tag on the answer in the window and the command in the dock; her coaching in the box */
+.wrap.hud .cmd.sh-lesson,.wrap.hud .op-btns button.sh-lesson,.cmd.sh-lesson,.op-btns button.sh-lesson{position:relative;box-shadow:inset 0 0 0 2px #f4d48e,0 0 14px rgba(244,212,142,.4)}
+.cmd.sh-lesson::after,.op-btns button.sh-lesson::after{content:"Lesson";position:absolute;top:3px;right:4px;font:700 9px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;
+  color:#120d05;background:#f4d48e;padding:2px 4px;border-radius:2px;pointer-events:none}
+.a9-goal.coach .a9-h{color:#f4d48e;font-style:normal;font-weight:700}
+@media (max-height:520px){.a9-goal.coach .a9-h{display:block;font-size:12px}}

@@ -1,0 +1,19 @@
+/* ===== ROOM ===== the room's moves in the dock, the Room tab, and the room's lines in the log */
+.wrap.hud:not([data-mode="desk"]) .commands:not([data-tab="room"]) .cg[data-g="room"]{display:none}
+.wrap.hud .cg[hidden],.wrap.hud[data-mode="desk"] .cg[data-g="room"]{display:none!important}
+.wrap.hud #cmdTabs button[hidden]{display:none}
+/* an upright phone fits five tabs when the room offers something and Kael has his Aether */
+.wrap.hud[data-mode="port"] #cmdTabs{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:auto}
+.wrap.hud[data-mode="port"] #cmdTabs[data-n="5"] button{padding:0 5px;letter-spacing:.08em;font-size:12.5px}
+/* the tab lit while the room offers something and another group is open */
+.wrap.hud #tabRoom.live{color:var(--gl-gold)}
+.wrap.hud #tabRoom.live::before{content:"◆";font-size:9px;margin-right:-3px;color:var(--gl-gold);animation:roomPulse 1.6s ease-in-out infinite}
+@keyframes roomPulse{0%,100%{opacity:.45}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.wrap.hud #tabRoom.live::before{animation:none}}
+/* the room's commands: a gold rule on the left and a gold name */
+.wrap.hud .cmd.room:not(:disabled){box-shadow:inset 2px 0 0 var(--gl-gold)}
+.wrap.hud .cmd.room:not(:disabled)>span:first-child{color:var(--gl-hi)}
+/* the log */
+.lg .lg-tag.lg-room{padding:0 4px;border-radius:1px;background:rgba(226,182,90,.16);color:#f4d48e}
+.lg .lg-event{color:#f4d48e}
+.lg .lg-event.quiet{color:#cbbf9f}
