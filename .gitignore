@@ -35,3 +35,8 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# Built by proto/stances/build_stances.py (it makes them again)
+/proto/stances/stances-test.html
+/proto/stances/stances_full.js
+/proto/stances/stances_test_page.html
