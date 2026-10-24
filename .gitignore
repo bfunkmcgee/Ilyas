@@ -35,3 +35,8 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# Built by proto/strings/build_strings.py (it makes them again)
+/proto/strings/strings-test.html
+/proto/strings/strings_full.js
+/proto/strings/strings_test_page.html
