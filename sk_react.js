@@ -50,7 +50,7 @@ function reactDur(D){return lerp(REACT.durMin,REACT.durMax,D.sk||0);}
 // the attacker draws back for the blow while time slows (.3 s of game time, about as long as the window in the player's own):
 // the window shows it coming
 function tellPose(A,kind,T){
-  const wb=windupBase(T,kind,A.arm,T&&T.amp||1,kind==='thrust'?-.15:.2);
+  const wb=windupBase(T,kind,A.arm,T&&T.amp||1,kind==='thrust'?-.15:.2,A);
   // (a rider keeps his seat: only the arm draws back)
   const T1=.3,body=bodyKeys(A,A.mount?[[0,'now'],[T1,'guard']]:[[0,'now'],[T1,'tell',eOut]]);
   A.action={t0:S.t,end:T1,body,arm:armKeys(A,[[0,'now'],[T1,'tell',{hand:wb.hand,wAng:wb.ang},eOut]])};}

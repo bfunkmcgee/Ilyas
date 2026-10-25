@@ -25,6 +25,19 @@
 //   two      what is different with a weapon held in both hands
 // Whatever a planner aims (a hand on a man's collar, a blade on the line of a blow) it lays over the pose as a change, in world terms.
 const POSE={body:{
+  // ---- the attack's way in and its flourishes (planAttack) ----
+  run:{crouch:.86,lean:.16,sf:.3,sb:-.32,th:.2},        // the run in to strike
+  burst:{crouch:.78,lean:.32,sf:.3,sb:-.32,th:.2},      // ... a burst of speed
+  slideRun:{crouch:.82,lean:.22,sf:.32,sb:-.34,th:.2},  // ... into a slide
+  slideDrop:{crouch:.6,lean:-.3,sf:.52,sb:-.22,th:.95},
+  leapCrouch:{crouch:.66,lean:.18,sf:.3,sb:-.3,th:.95}, // a leaping blow: down, spring, and hang with the weapon raised (lift: the planner's)
+  leapSpring:{crouch:.82,lean:.1,sf:.3,sb:-.3,th:.95,lift:8},
+  leapTop:{crouch:.84,lean:-.14,sf:.3,sb:-.3,th:.95},
+  spin:{crouch:.78,lean:.04,sf:.28,sb:-.28,th:.95},     // a full turn on the spot with the windup held
+  spinLow:{crouch:.62,lean:.04,sf:.28,sb:-.28,th:.95},  // ... for a low blow
+  whirlIn:{crouch:.78,lean:.04,sf:.3,sb:-.3,th:.95},    // the whirlwind: on round to the man behind
+  whirlHit:{crouch:.76,lean:.06,sf:.3,sb:-.3,th:.95},
+  whirlOut:{crouch:.8,lean:.04,sf:.3,sb:-.3,th:.95},
   // ---- answers to a blow (planReaction) ----
   block:{on:'guard',crouch:.84,lean:-.04,th:.3},        // the blade meets it
   blockLow:{on:'guard',crouch:.78,lean:-.04,th:.3},     // ... a low one
@@ -174,6 +187,8 @@ const POSE={body:{
   // ---- the tell (sk_react.js) ----
   tell:{on:'guard',add:{crouch:-.04,lean:.06}},         // the blow drawn back while the answer is chosen
 },arm:{
+  spinHold:{hx:-.12,hy:-.38,w:-2.95,off:[.38,.12],tilt:-.05},  // the windup held through a spin
+  whirl:{hx:.5,hy:-.26,w:-.06,off:[-.04,.34],tilt:0},   // the blade carried round flat
   block:{off:[.3,.05],tilt:-.05},                       // (the hand and the blade are put on the line of the blow)
   slip:{hx:.22,hy:.24,wg:-.2,off:[.12,.36],tilt:-.12},
   evade:{hx:.18,hy:.28,wg:-.25,off:[.1,.4],tilt:-.2},   // stepping back
@@ -246,6 +261,79 @@ const POSE={body:{
   lampCut:{w:-1.2,off:[.2,.1],tilt:-.2},                // (the blade goes up at the chain)
   tell:{off:[.1,.3],tilt:0},                            // (the hand and the blade as the blow's windup)
 }};
+
+// ---------- the attack ----------
+// planAttack (sk_core.js) works out where a blow meets its man and aims the blade there. The shape the body and the arm take on the way,
+// and the times, are here: the attack as data.
+const ATTACK={
+  // seconds, before the weapon's weight and his skill (and a style's moves): the windup, the strike, the hold at the impact (dwell, and
+  // dwellMass more for each unit of the weapon's weight factor), the follow-through and the return to guard. run: the approach, px/s,
+  // from a novice to a master
+  time:{wind:.3,strike:.15,dwell:.05,dwellMass:.03,follow:.22,recover:.34},
+  run:[250,390],
+  // the body, by the form of the blow:
+  //   lean, crouch   at the impact                      reach   the share of the arm out at the impact
+  //   stance         the feet at the impact [front, back], leg lengths
+  //   wind, strike   factors on the windup and the strike times
+  //   wLean, wCrouch the body as the blow is drawn back  fLean   the lean added in the follow-through (the others: fLean below)
+  // passing is a thrust made on a passing step; butt a blow with the butt end or the haft (haft its reach; its lean only on a cut);
+  // ground a blow at a man on the floor (its reach only on a thrust); leap's crouch is a leaping blow's at the landing. kick, stomp
+  // and slide are the kicks: reach the foot's distance off the target in leg lengths, wKick the foot in the windup [forward, down]
+  // from the pelvis in leg lengths, dCrouch the crouch in the hold
+  form:{
+    slash:{lean:.18,crouch:.8,reach:.68,stance:[.44,-.38],wind:1,strike:1,wLean:-.06,wCrouch:.85},
+    thrust:{lean:.24,crouch:.76,reach:.9,stance:[.44,-.38],wind:.8,strike:.85,wLean:-.04,wCrouch:.85},
+    overhead:{lean:.3,crouch:.8,reach:.68,stance:[.44,-.38],wind:1.25,strike:1.15,wLean:-.12,wCrouch:.85,fLean:.12},
+    sweep:{lean:.32,crouch:.64,reach:.6,stance:[.5,-.38],wind:1.1,strike:1,wLean:.08,wCrouch:.72},
+    passing:{lean:.3,crouch:.7,reach:.95,stance:[.62,-.4]},
+    butt:{lean:.2,reach:.78,haft:.62,wind:.7,strike:.8},
+    ground:{lean:.52,crouch:.7,reach:.85},
+    leap:{crouch:.74},
+    kick:{lean:-.12,crouch:.84,reach:.78,wLean:-.1,wCrouch:.84,wKick:[-.12,.62]},
+    stomp:{lean:.08,crouch:.9,reach:.3,wLean:.04,wCrouch:.9,wKick:[.24,.22]},
+    slide:{lean:-.32,crouch:.58,dCrouch:.6,stance:[.56,-.2],wLean:-.3,wCrouch:.6,wStance:[.52,-.22],wKick:[.34,.78]},
+  },
+  wStance:[.3,-.34],          // the feet in the windup
+  drawBack:8,                 // how far the body draws back in the windup, px (times the windup's size)
+  drive:[12,14],kickDrive:[4,5],  // how far past the strike point the body goes at the impact and in the hold, px
+  dLean:.02,                  // the lean added in the hold
+  fCrouch:-.02,fLean:.05,fStance:[.46,-.38],fKick:[.5,.82],  // the follow-through
+  carry:[16,16],              // how far the body carries on after the blow, px: the first, and the second times (1 - his skill)
+  // the arm. windup, by form: the hand drawn back [forward, down] from the shoulder in arm lengths, the blade's angle w (null: already
+  // on the line of the blow); amp: which of the two the windup's size scales (ampCap: no more than that); wAmp: the blade turned on
+  // by this per unit of size; cap: a technique's windCap limits the turn; half: a half-sword thrust's draw
+  windup:{
+    butt:{hand:[-.18,-.02],w:null},
+    sweep:{hand:[-.28,.42],amp:[1,0],w:2.45},
+    thrust:{hand:[-.42,.16],amp:[1,0],w:null,half:.6},
+    overhead:{hand:[-.02,-.98],amp:[0,1],ampCap:1,w:-2.75,wAmp:-.2,cap:true},
+    rising:{hand:[-.18,.4],amp:[1,0],w:2.3},
+    slash:{hand:[-.1,-.62],amp:[1,1],w:-2.35,wAmp:-.15,cap:true},
+  },
+  // follow: where the follow-through carries the hand, and how far the blade turns on from the line of the blow (dodge: more on a miss;
+  // butt: a blocked butt blow's; push: a thrust's hand pushed on past the impact, in arm lengths)
+  follow:{
+    fumble:{hand:[.6,.95],turn:1.5},
+    block:{hand:[.22,.1],turn:-.6,butt:.3},
+    thrust:{push:.12},
+    sweep:{hand:[.55,.66],turn:-.7},
+    overhead:{hand:[.55,.86],turn:.95,dodge:.25},
+    rising:{hand:[.42,-.55],turn:-1.2},
+    slash:{hand:[.5,.62],turn:1.25,dodge:.3},
+  },
+  off:{wind:[.38,.12],impact:[-.22,.38],follow:[-.08,.46]},  // the free hand (on the grip of a weapon in both hands)
+  tilt:{wind:-.05,leap:-.08,impact:.1,follow:.08},           // the head
+  dwellTurn:.12,lashTurn:.03,                                // the blade's turn in the hold (none for a thrust or a butt blow)
+};
+// the attack's numbers for this fighter (a style may change them: sk_style.js)
+function attackTable(A){return ATTACK;}
+// the body's form at the impact, and the windup and strike time factors, for this blow
+function attackForm(K,T,kind,sweep,thrust,butt,gnd){const F=K.form,over=kind==='overhead',pas=T.passing;
+  return{lean:gnd?F.ground.lean:sweep?F.sweep.lean:over?F.overhead.lean:thrust?(pas?F.passing.lean:F.thrust.lean):butt?F.butt.lean:F.slash.lean,
+    crouch:gnd?F.ground.crouch:sweep?F.sweep.crouch:thrust?(pas?F.passing.crouch:F.thrust.crouch):over?F.overhead.crouch:F.slash.crouch,
+    reach:T.reach||(gnd&&thrust?F.ground.reach:thrust?(pas?F.passing.reach:F.thrust.reach):butt?(T.key==='haft'?F.butt.haft:F.butt.reach):sweep?F.sweep.reach:over?F.overhead.reach:F.slash.reach),
+    wind:sweep?F.sweep.wind:over?F.overhead.wind:thrust?F.thrust.wind:butt?F.butt.wind:F.slash.wind,
+    strike:over?F.overhead.strike:thrust?F.thrust.strike:butt?F.butt.strike:sweep?F.sweep.strike:F.slash.strike};}
 
 // ---------- poses for a fighter ----------
 // the named pose (a style may change it: sk_style.js)
