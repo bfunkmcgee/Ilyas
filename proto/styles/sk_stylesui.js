@@ -49,8 +49,9 @@ V11UI.init.push(()=>{
   const panel=document.createElement('div');panel.className='su-panel';panel.hidden=true;wrap.appendChild(panel);
   const cmp=document.createElement('div');cmp.className='su-panel su-cmpsheet';cmp.hidden=true;
   cmp.innerHTML=`<div class="su-in su-cmp-in" role="dialog" aria-label="Side by side"><div class="su-head"><span>Side by side</span><button type="button" class="su-x" aria-label="Close">${SUI_X}</button></div>`+
-    `<p class="su-how">Each row is one style, each column the same moment of the same blow, landing: the guard, the windup, the impact, the follow-through, and back.</p>`+
-    SUI_BLOWS.map(([k,l])=>`<figure class="su-fig"><figcaption>${l}</figcaption><img loading="lazy" alt="${l} in the three styles" src="sheets/${k}.png"></figure>`).join('')+`</div>`;
+    `<p class="su-how">The same blow in each style, landing, at the same moments of it: the guard, the windup, the impact, the follow-through, and back.</p>`+
+    SUI_BLOWS.map(([k,l])=>`<figure class="su-fig"><figcaption>${l}</figcaption><div class="su-scroll"><picture><source media="(max-width: 640px)" srcset="sheets/${k}_tall.jpg">`+
+      `<img loading="lazy" alt="${l} in the three styles" src="sheets/${k}.jpg"></picture></div></figure>`).join('')+`</div>`;
   wrap.appendChild(cmp);
   SUI.el={wrap,btn,again,panel,cmp};
   btn.addEventListener('click',()=>suiShow(!SUI.open));

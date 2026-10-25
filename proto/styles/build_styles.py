@@ -3,7 +3,7 @@
 stage (sk_stylelab.js) after the game's parts, its UI (sk_stylesui.js) after the features' UI parts and its stylesheet after theirs.
 The game's own build and files are not touched.
 
-  python3 proto/styles/build_styles.py         styles-test.html (the page to publish, beside sheets/*.png), styles_full.js (its
+  python3 proto/styles/build_styles.py         styles-test.html (the page to publish, beside sheets/*.jpg), styles_full.js (its
                                                script alone) and styles_test_page.html (the same page with SK_TEST, for the checks)
   python3 proto/styles/build_styles.py --lint  the same, then ESLint over styles_full.js with the game's own rules
 """

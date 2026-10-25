@@ -33,4 +33,6 @@
 .su-cmpsheet .su-cmp-in{max-width:980px}
 .su-cmpsheet .su-fig{margin:10px 0 0}
 .su-cmpsheet figcaption{font:700 12px/1 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--gl-gold);margin:0 0 6px}
-.su-cmpsheet img{display:block;width:100%;height:auto;border:1px solid var(--gl-sep);background:#000}
+.su-cmpsheet .su-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.su-cmpsheet img{display:block;width:100%;min-width:860px;height:auto;border:1px solid var(--gl-sep);background:#000}
+@media (max-width:640px){.su-cmpsheet img{min-width:0}}

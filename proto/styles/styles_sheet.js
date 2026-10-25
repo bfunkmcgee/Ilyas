@@ -1,6 +1,6 @@
 // The side-by-side sheets for the motion styles test: each blow, landing, in each style, photographed at the same moments of its own
 // plan (the guard before it, the windup, the impact, the follow-through and back in guard), cropped round the two men, and written as
-// one picture per blow (rows: the styles; columns: the moments) into proto/styles/sheets/<blow>.png.
+// one picture per blow (rows: the styles; columns: the moments) into proto/styles/sheets/<blow>.jpg.
 // usage: node proto/styles/styles_sheet.js [blow,...] [style,...]      (needs styles_test_page.html: python3 proto/styles/build_styles.py)
 //        then python3 proto/styles/styles_sheet.py   (lays the cells out with their labels)
 const {chromium}=require('playwright'),fs=require('fs'),path=require('path');
@@ -34,7 +34,7 @@ const W=480,H=380;   // a cell, in pixels: the two men cropped to fill it (the p
     if(!plan){console.log('no plan',blow,st);continue;}
     const cells={guard:await p.evaluate(()=>window.__guard)};
     // (the impact a hair before the blade arrives, ahead of the flash of the blow)
-    for(const [k,t] of [['wind',plan.wind],['imp',plan.imp-.01],['fol',plan.fol],['back',plan.end-.02]]){
+    for(const [k,t] of [['wind',plan.wind],['imp',plan.imp-.03],['fol',plan.fol],['back',plan.end-.02]]){
       cells[k]=await p.evaluate(([t0,t])=>{let n=0;while(S.t-t0<t&&n<2000){step(1);n++;}return cellAt(...window.__WH);},[plan.t0,t]);}
     for(const k in cells)fs.writeFileSync(path.join(OUT,`${blow}_${st}_${k}.png`),Buffer.from(cells[k].split(',')[1],'base64'));
     console.log(blow,st,plan.name,plan.out,JSON.stringify({wind:+plan.wind.toFixed(2),imp:+plan.imp.toFixed(2),fol:+plan.fol.toFixed(2),end:+plan.end.toFixed(2)}));}

@@ -28,6 +28,8 @@ function slabStage(){
   D.maxHp=D.hp=999;D.ready=1e6;K.ready=0;
   const z=92,x=330;slabPut(K,x,z,1);slabPut(D,x+engageGap(K,D)+SLAB.gap,z,-1);
   slabHold();warm(90);slabHold();
+  // (his turn, for the HUD too)
+  S.hooks.turn(0);S.hooks.status();
   return{K,D};}
 function slabPut(f,x,z,fa){f.station=x;f.lane=z;f.dep=z;f.stepDep=z;f.vdep=0;f.facing=fa;f.build();}
 function slabHold(){const g=S.game;g.phase='input';g.active=0;g.aiAt=null;S.opening=null;g.ex=null;for(const f of S.F){f.foot=footMaxOf(f);f.intent=null;}}
