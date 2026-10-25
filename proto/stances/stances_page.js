@@ -1,7 +1,8 @@
 // The stance and rise test page in a browser, at a phone held upright (or SIZE=land, desk). It opens on a fight with the stance bar;
 // each stance changes the dock's moves, his guard and (Unbound) the blade; Unbound is a bladed whip that strikes from where he stands,
 // its chain trailing the throw and landing its tip on the blade's tip with a crack, hardest at the tip, curling round a guard, hanging
-// at rest and locking for a relocked blow; a Close blow leaves him in the man's chest, where an axe comes on its haft; a man knocked
+// at rest and locking for a relocked blow; the blow a man shows and how far off he is mark the stance that answers him, and the dice
+// and the tip line follow; a Close blow leaves him in the man's chest, where an axe comes on its haft; a man knocked
 // down rises free at his turn, off balance; struck on the floor, a named man must get up and a crew man is finished; the setup turns
 // each rule off. Stills of each go to the out folder.
 // usage (from the repo, after build_stances.py): node proto/stances/stances_page.js [outdir]
@@ -35,7 +36,7 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
       fit:(bar.querySelector('.stn-b.fit')||{}).dataset||null,match:stanceMatch(K,D),tgt:D&&D.name,wp:D&&D.weaponKey,menu:typeof ST_UI!=='undefined'&&ST_UI.menu?!ST_UI.menu.hidden:null,
       slash:tq('slash'),meta:document.getElementById('meta0').textContent};});
   expect('the page opens on a fight with the stance bar on his turn, Bound held, the story menu put away',r.mine&&r.bar>30&&r.btns===3&&r.on==='bound'&&r.menu===false,JSON.stringify({n:r.n,bar:r.bar,on:r.on}));
-  expect('the stance that answers his target is marked',!!r.fit&&r.fit.s===r.match,JSON.stringify({fit:r.fit&&r.fit.s,match:r.match,tgt:r.tgt,wp:r.wp}));
+  expect('the stance that answers his target is marked',r.match?!!r.fit&&r.fit.s===r.match:!r.fit,JSON.stringify({fit:r.fit&&r.fit.s,match:r.match,tgt:r.tgt,wp:r.wp}));
   expect('his plate names the stance',/^Bound/.test(r.meta),r.meta);
   await shot('1_bound');
   // 2. Close: the four strikes become the hilt, the spine and the hook, and the guard comes in
@@ -83,6 +84,37 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
     while(n<900&&S.game.ex){if(S.opening&&!isAI(S.opening.f.idx))resolveOpening('hold');fast(1);n++;const ex=S.game.ex;if(ex&&ex.A===K&&ex.res)modes[(arcState(K)||{mode:'rigid'}).mode]=1;}
     untilFree(9000);fast(20);return{name,modes:Object.keys(modes),after:(arcState(K)||{}).mode,st:stanceOf(K)};});
   expect('a relocked blow locks the chain into the blade, and it comes loose after',/Relocked/.test(r.name)&&r.modes.length>0&&!r.modes.includes('whip')&&r.after==='whip',JSON.stringify(r));
+  // 4e. what he is gearing up and how far off he is decide the stance that answers him; the dice follow, and the tip line says so
+  r=await p.evaluate(()=>{untilFree(9000);const K=hero();if(!mine())return{none:true};
+    const D=foes().find(f=>f.weaponKey==='spear'&&!f.dead&&!f.downed)||foes().find(f=>!f.dead&&!f.downed&&!stanceHeavy(f)&&!stnShortBlade(f));if(!D)return{none:true};setTgt(K,D.idx);
+    const fa=Math.sign(D.station-K.station)||1,at=g=>{K.station=clampSt(K,D.station-fa*(engageGap(K,D)+g));K.build();
+      // (anyone else is put well away with nothing planned, so the man in front is the only one that counts)
+      for(const o of foes())if(o!==D){o.intent=null;o.station=clampSt(o,K.station-fa*320);o.build();}fast(3);};
+    const show=cmd=>{for(const o of foes())if(o!==D)o.intent=null;D.intent={cmd,tgt:K.idx,gap:Math.abs(D.station-K.station),dz:D.lane-K.lane,pinned:pinned(D),band:D.posture,tband:K.posture,tguard:!!K.guarding,tctr:!!K.counter,changed:false,paid:0};
+      updateStatus();stnUiNow();fast(3);const b=document.querySelector('#stnBar .stn-b.fit');
+      return{fit:b?b.dataset.s:null,why:b?b.querySelector('small').textContent:'',tip:(document.querySelector('.fl-tip')||{}).textContent||''};};
+    at(15);const thrust=show('thrust');at(90);const over=show('overhead');at(15);const close=show('overhead');
+    // the dice, as each stance would meet the blow
+    const as=(st,fn)=>stanceAs(K,st,fn),list=ms=>ms.filter(m=>m[1]).map(m=>m[0]+' '+m[1]).join(', ');
+    const def=(st,kind,far)=>as(st,()=>{D._came={turn:S.game.turnNo,D:K,far};try{return list(computeMods(D,K,kind,false,pickTechnique(D,K,kind)).defMods);}finally{D._came=null;}});
+    const dice={boundThrust:def('bound','thrust',false),unboundThrust:def('unbound','thrust',false),unboundOverFar:def('unbound','overhead',true),unboundOverNear:def('unbound','overhead',false),
+      blade:as('bound',()=>list(computeMods(K,D,'slash',false,pickTechnique(K,D,'slash')).mods))};
+    // the tip line, in Unbound against his thrust
+    stb('unbound').click();fast(4);const tl=show('thrust').tip;
+    // the thrust he showed comes on his turn, and the answer window says what Bound does to it
+    stb('bound').click();fast(2);show('thrust');cmd('wait').click();let win=null,n=0;
+    while(n<4000&&!win){const o=S.opening;if(o&&o.source==='react'&&o.f===K){if(o.opp===D){win={txt:(document.getElementById('opReason')||{}).textContent||'',kind:o.attack};}resolveOpening('parry');}
+      else if(o&&!isAI(o.f.idx))resolveOpening('hold');if(mine())break;fast(1);n++;}
+    return{tgt:D.name,wp:D.weaponKey,thrust,over,close,dice,tl,win};});
+  expect('a thrust he is gearing up at blade\'s length marks Bound, which beats it aside',!r.none&&r.thrust.fit==='bound'&&/beats his thrust/.test(r.thrust.why),JSON.stringify(r.thrust||r));
+  expect('an overhead he has to come in for marks Unbound, which catches his arm; the same overhead in reach marks Close, inside his swing',
+    !r.none&&r.over.fit==='unbound'&&/catches his arm/.test(r.over.why)&&r.close.fit==='close'&&/inside his swing/.test(r.close.why),JSON.stringify({over:r.over,close:r.close}));
+  expect('the dice follow: +2 beating a thrust aside, −2 when it comes inside the chain, +2 catching an overhead coming in (not one in reach), +1 at blade\'s length',
+    !r.none&&/beats the point aside 2/.test(r.dice.boundThrust)&&/inside the chain -2/.test(r.dice.unboundThrust)&&/the chain catches his arm 2/.test(r.dice.unboundOverFar)&&
+    !/catches his arm/.test(r.dice.unboundOverNear)&&/at blade’s length 1/.test(r.dice.blade),JSON.stringify(r.dice));
+  expect('the tip line names the blow he is gearing up, what it does to your stance and the stance that answers it',!r.none&&/gearing up a thrust/.test(r.tl)&&/inside the chain/.test(r.tl)&&/Bound beats it aside/.test(r.tl),r.tl);
+  expect('the blow he showed is the one he throws, and the answer window says what the stance does to it',!r.none&&!!r.win&&r.win.kind==='thrust'&&/Bound: beats the point aside, \+2/.test(r.win.txt),JSON.stringify(r.win));
+  await shot('4e_answer');
   // 5. a Close blow: he strikes from inside the man's reach and stays there, and the axe that answers comes on its haft
   r=await p.evaluate(()=>{let n=untilFree(9000);const K=hero();if(!mine())return{none:true,n};
     const A0=foes().find(f=>f.weaponKey==='axe'&&!f.dead&&!f.downed);if(A0)setTgt(K,A0.idx);const D=targetOf(K);
@@ -111,9 +143,12 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   expect('he rises free at his turn, off balance, and acts in the same turn',r.rose&&r.foot<=1&&r.acted&&r.getups.length===0,JSON.stringify(r));
   // 7. struck on the floor: a named man loses the free rise and must get up
   r=await p.evaluate(()=>{let n=untilFree(9000);const K=hero();const E=foes().find(f=>!f.dead&&!f.downed&&!f.hench);if(!E||!mine())return{none:true};
+    // (he is put in reach, and the blow on the floor is made to land: the rule is what happens after it)
+    {const fa=Math.sign(E.station-K.station)||1;E.station=clampSt(E,K.station+fa*engageGap(K,E));E.build();fast(2);}
     knockDown(E);setTgt(K,E.idx);fast(2);const lbl0=intentLabel(E);let got=null;const getups=[];const c0=command;
     window.command=command=function(i,c){if(S.F[i]===E&&(c==='getup'||c==='roll'))getups.push(c);return c0.apply(this,arguments);};
-    cmd('thrust').click();n=0;while(n<900&&S.game.ex&&S.game.ex.A===K){fast(1);n++;}const struck=E.noRise,dead=E.dead,lbl=intentLabel(E);
+    const oo=outcomeOf;window.outcomeOf=outcomeOf=function(){return S.game.ex&&S.game.ex.A===K?'hit':oo.apply(this,arguments);};
+    try{cmd('thrust').click();n=0;while(n<900&&S.game.ex&&S.game.ex.A===K){fast(1);n++;}}finally{window.outcomeOf=outcomeOf=oo;}const struck=E.noRise,dead=E.dead,lbl=intentLabel(E);
     n=0;while(n<9000&&!E.dead&&E.downed){if(S.opening&&!isAI(S.opening.f.idx))resolveOpening(aiOpening(S.opening));if(mine()){setTgt(K,foes().find(f=>f!==E&&!f.dead)?.idx??E.idx);cmd('wait').click();}fast(1);n++;if(S.game.phase==='over')break;}
     window.command=command=c0;return{lbl0,struck,dead,lbl,getups,up:!E.downed};});
   await shot('7_after');

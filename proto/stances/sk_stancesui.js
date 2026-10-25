@@ -126,11 +126,13 @@ V11UI.init.push(()=>{
 });
 
 // ---------- the stance bar ----------
+// each stance says its strongest reason now, for or against (against in red); the one that answers him best is marked, with its best
+// reason for
 function stnBarHtml(){const K=hero();if(!stanceOn(K)||K.dead)return'';const cur=stanceOf(K),can=stanceCanSwitch(K)&&!isAI(K.idx),D=targetOf(K),m=D?stanceMatch(K,D):null;
   let h=`<span class="stn-lbl">Stance</span><div class="stn-seg" role="group" aria-label="Stance">`;
-  for(const s of STANCE_ORDER){const why=m===s?stanceReason(K,D,s):'';
-    h+=`<button type="button" class="stn-b${s===cur?' on':''}${m===s&&why?' fit':''}" data-s="${s}" aria-pressed="${s===cur}"${can?'':' disabled'} title="${stnEsc(STANCES[s].line)}">`+
-      `<span class="stn-n">${STANCES[s].name}</span><small>${stnEsc(why||STANCES[s].good)}</small></button>`;}
+  for(const s of STANCE_ORDER){const top=!D?null:m===s?{v:1,short:stanceReason(K,D,s)}:stanceTop(K,D,s),txt=top&&top.short?top.short:STANCES[s].good,neg=!!top&&top.v<0;
+    h+=`<button type="button" class="stn-b${s===cur?' on':''}${m===s?' fit':''}" data-s="${s}" aria-pressed="${s===cur}"${can?'':' disabled'} title="${stnEsc(STANCES[s].line)}">`+
+      `<span class="stn-n">${STANCES[s].name}</span><small${neg?' class="neg"':''}>${stnEsc(txt)}</small></button>`;}
   return h+'</div>';}
 function stnUiNow(){STNUI.t=0;}
 function stnPick(s){const K=hero();if(!K||isAI(K.idx))return;ensureAudio();if(setStance(K,s)){updateStatus();stnUiNow();}}
@@ -143,18 +145,29 @@ function stnTip(K,D){if(!K||K.dead)return'';const ob=DOWNF.rise==='off'?', off b
     :D.hench?`${D.name} is down: a blow that lands now finishes him. Leave him and he rises at his turn${ob}.`
     :`${D.name} is down: strike him now and he loses his free rise. Leave him and he rises at his turn${ob}.`;
   const s=stanceOf(K);if(!s||K.clinch)return'';const w=stanceWord(D);
+  // the blow he is gearing up against you: what your stance does to it, and the stance that answers it better
+  {const it=D.intent,kind=it&&it.tgt===K.idx&&ATTACKS.includes(it.cmd)?it.cmd:null;if(kind){const far=comesFar(D,K);
+    const ans=x=>{const T=stanceAs(K,x,()=>pickTechnique(D,K,kind)),a=stnAnswer(x,kind,T,D,far);return a?{s:x,v:a[1]}:null;};
+    const mine=ans(s),best=STANCE_ORDER.map(ans).filter(a=>a&&a.v>0).sort((a,b)=>b.v-a.v)[0],say=a=>`${STN_SAY[a.s][kind]} (${STN_SIGNED(a.v)})`;
+    let t=`${D.name} is gearing up ${STN_KIND[kind]}${far?' from range':''}`+(mine?`: ${say(mine)}.`:'.');
+    if(best&&(!mine||best.s!==mine.s))t+=` ${say(best)}.`;
+    if(mine||best)return t;}}
   // (kept to two lines on a phone: what a whip's Parry and Counter lose is in the answer window and the setup)
   if(s==='unbound'){if(!lashReady(K,D))return`Too close for the whip: your blows relock at ${STN_SIGNED(STN.relock)}. Step back, or change stance.`;
     if(!whipTip(K,D))return'Unbound: he is inside the tip, so the chain lands light. Step back to put him on the tip.';
     return D.weaponKey==='spear'?'Unbound: he is on the tip, so the whip cracks at full weight, and his spear cannot parry it.'
       :'Unbound: he is on the tip, so the whip cracks at full weight. If he closes in, he runs onto it.';}
   if(s==='close'){const others=foes().some(o=>o!==D&&upright(o)&&Math.abs(o.station-K.station)-engageGap(K,o)<90);
-    if(stanceHeavy(D))return`Close: inside the ${w}, his blows come jammed (${STN_SIGNED(-2)}). Hilt and spine +1, grab +2.${others?` ${STN_SIGNED(STN.tied)} DEF to the others.`:''}`;
+    if(stanceHeavy(D))return`Close: inside the ${w}, his swings come jammed (${STN_SIGNED(-2)}) once he is in reach. Hilt and spine +1, grab +2.${others?` ${STN_SIGNED(STN.tied)} DEF to the others.`:''}`;
     return`Close: hilt and spine +1, grab +2. A ${w} is no worse inside.${others?` ${STN_SIGNED(STN.tied)} DEF to the others.`:''}`;}
   if(outreaches(K,D))return`Bound: the ${w} runs onto your point as he closes, and strikes at ${STN_SIGNED(STN.point)}. Grabs on you ${STN_SIGNED(-STN.grabDef)}.`;
   if(D.weaponKey==='spear')return`Bound: the spear outreaches you, so closing in hands him a stop-hit. Unbound outranges it.`;
   if(stanceHeavy(D))return`Bound: the blade at full length. Close gets inside the ${w}.`;
   return'';}
+// what each stance does to each blow, said in the tip line
+const STN_SAY={bound:{thrust:'Bound beats it aside',slash:'Bound takes it on the blade',overhead:'it beats a locked blade'},
+  close:{overhead:'Close gets inside it',slash:'Close gets inside it',thrust:'Close walks onto the point',sweep:'Close stands planted for it'},
+  unbound:{overhead:'Unbound catches his raised arm',thrust:'it comes inside the chain'}};
 // a tip of the stance's or the fall's takes the place of the plain ones, never of the urgent ones (held, disarmed, out of balance)
 {const fl=footingLine;footingLine=function(){const h=fl.apply(this,arguments);const K=cmdHero(),g=S.game;if(!h||!K||K!==hero()||K.dead)return h;
   const human=g.phase==='input'&&!isAI(g.active)&&!S.opening&&S.F[g.active]===K;if(!human)return h;const D=targetOf(K);
@@ -179,7 +192,10 @@ function stnApplyMix(){const m=STN_MIX[STNUI.mix];S.cfg.foes=STN_BASE.map(f=>m?{
 function stnSetupHtml(){const opt=(grp,val,cur,label)=>`<button type="button" class="st-o" data-g="${grp}" data-v="${val}" aria-pressed="${String(cur)===String(val)}">${label}</button>`;
   const nOpt=S.cfg.crew?'crew':S.cfg.n;
   return`<div class="ss-in" role="dialog" aria-label="Test setup"><div class="ss-head"><span>Stance and rise test</span><button type="button" class="ss-x" aria-label="Close">${STN_X}</button></div>`+
-    `<p class="ss-how"><b>Stances.</b> On your turn, before you act, pick Bound, Unbound or Close (or Z, X, C). It is free and holds till your next turn. <b>Bound</b> locks the blade: crescents and two-man strokes, and a dagger strikes at −2 to get past your point. <b>Unbound</b> looses it into a bladed whip that strikes from past your reach. The tip cuts hardest, so keep him at the end of the chain. The cut curls round a guard, a spear cannot parry it, and a man who closes runs onto the tip. Your Parry is at −1 and Counter at −2. <b>Close</b> chokes it up: hilt and spine, grab +2, and an axe that hits you is jammed. The marked stance answers your target.</p>`+
+    `<p class="ss-how"><b>Stances.</b> On your turn, before you act, pick Bound, Unbound or Close (or Z, X, C). It is free and holds till your next turn. Which one answers a man depends on his weapon, how far off he is, and the blow he is gearing up (shown over his head). The marked stance answers him best now, and each button says why.</p>`+
+    `<p class="ss-how"><b>Bound</b> locks the blade. It beats a thrust aside (+2) and takes a cut (+1), but an overhead beats it (−1). It strikes best at blade’s length (+1), and a dagger strikes at −2 until he gets past the point.</p>`+
+    `<p class="ss-how"><b>Unbound</b> is a bladed whip. It cracks hardest from the tip, and it catches the raised arm of a man who comes in with an overhead (+2), but a thrust comes inside the chain (−2). A spear cannot parry it. Your Parry is at −1 and Counter at −2.</p>`+
+    `<p class="ss-how"><b>Close</b> chokes it up. It gets inside an overhead (+2) or a cut (+1) from a man already in reach, but walks onto a point (−1). It strikes best inside his reach (+1), and an axe swung at you in reach is jammed.</p>`+
     `<p class="ss-how"><b>Falls.</b> A man knocked down rises free at his turn, off balance. Strike him on the floor and he loses that rise; a crew man is finished.</p>`+
     `<div class="ss-g"><span>Stances</span>${opt('stance',1,STANCE.on?1:0,'On')}${opt('stance',0,STANCE.on?1:0,'Off (today’s)')}</div>`+
     `<div class="ss-g"><span>Falls</span>${opt('down',1,DOWNF.on?1:0,'Rise free')}${opt('down',0,DOWNF.on?1:0,'Today’s')}</div>`+
@@ -244,6 +260,8 @@ V11UI.init.push(()=>{
   // the answer window says what the stance does to his answers
   const base=S.hooks.opening;
   S.hooks.opening=function(o){base.apply(this,arguments);if(!o||o.source!=='react'||o.f!==hero())return;const s=stanceOf(o.f),r=$('opReason');if(!r)return;
+    const a=o.tech?stnAnswer(s,o.attack,o.tech,o.opp,cameFar(o.opp,o.f)):null;
+    if(a)r.textContent+=` ${STANCES[s].name}: ${a[0]}, ${STN_SIGNED(a[1])}.`;
     if(s==='unbound')r.textContent+=` Unbound: Parry ${STN_SIGNED(STN.parry)}, Counter ${STN_SIGNED(STN.counter)}.`;
     else if(s==='close'&&S.F[getTgt(o.f)]!==o.opp)r.textContent+=` Tied up inside ${S.F[getTgt(o.f)]?S.F[getTgt(o.f)].name:'his man'}: ${STN_SIGNED(STN.tied)}.`;};
   V11UI.tick.push(stnUiFrame);

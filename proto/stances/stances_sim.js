@@ -4,6 +4,7 @@
 // usage (from the repo): node proto/stances/stances_sim.js [fights per setup, default 4] [key=value ...]
 //   down=1|0  rise=off|committed  stance=1|0  policy=match|bound|unbound|close|worst  mix=mixed|brute|keeper|rusher  crew=0|1  n=1,2,3
 //   step= (how often Ilyas on auto steps back to put a man who holds off on the whip's tip), tip= (where the tip starts)
+//   policy=weapon: the first test's match, on the weapon and the crowd alone (match reads the range and the blow he shows too)
 const fs=require('fs'),path=require('path');
 const ROOT=path.join(__dirname,'..','..');process.chdir(ROOT);
 const N=+(process.argv[2]||4),O={down:'1',rise:'off',stance:'1',policy:'match',mix:'mixed',crew:'0',n:'1,2,3'};
@@ -15,7 +16,7 @@ DOWNF.on=O.down==='1';DOWNF.rise=O.rise;STANCE.on=O.stance==='1';STANCE.policy=O
 const MIX={mixed:null,brute:{weapon:'axe',temper:'brute'},keeper:{weapon:'spear',temper:'keeper'},rusher:{weapon:'dagger',temper:'rusher'}};
 const inc=(o,k,n=1)=>{o[k]=(o[k]||0)+n;};
 const R={fights:0,wins:0,hp:0,secs:0,turns:0,heroTurns:0,foeTurns:0,foeFloorTurns:0,heroFloorTurns:0,rises:{hero:0,foe:0},struck:{hero:0,foe:0},crewOut:0,downs:{hero:0,foe:0},
-  stance:{},tech:{},land:{n:0,h:0},byN:{},blowsOnHero:0,heroHits:0,dmgOnHero:0,close:{under30:0,over70:0}};
+  stance:{},tech:{},land:{n:0,h:0},byN:{},blowsOnHero:0,heroHits:0,dmgOnHero:0,close:{under30:0,over70:0},ans:{for:0,against:0,none:0}};
 let curN=0;
 S.hooks.over=w=>{if(w)R.wins++;const b=R.byN[curN]||(R.byN[curN]={f:0,w:0,hp:0});b.f++;if(w)b.w++;b.hp+=hero().hp/hero().maxHp;};
 S.hooks.freeRise=F=>{R.rises[F===hero()?'hero':'foe']++;};
@@ -29,7 +30,8 @@ V11.kill.push(D=>{if(D.hench&&D.downed)R.crewOut++;});
 {const la=launchAttack;launchAttack=function(A,D,kind,ex){const r=la.apply(this,arguments);
   if(ex&&ex.res&&!ex.reactPending){const o=ex.res.out,land=o==='hit'||o==='crit';
     if(A===hero()){R.land.n++;if(land)R.land.h++;const T=ex.res.tech;if(T)inc(R.tech,(T.stance?T.stance+':':'')+T.name);}
-    if(D===hero()&&A.team===1){R.blowsOnHero++;if(land){R.heroHits++;R.dmgOnHero+=ex.res.dmg||0;}}}
+    if(D===hero()&&A.team===1){R.blowsOnHero++;if(land){R.heroHits++;R.dmgOnHero+=ex.res.dmg||0;}
+      const st=stanceOf(D),a=st&&ex.res.tech?stnAnswer(st,kind,ex.res.tech,A,cameFar(A,D)):null;R.ans[!a?'none':a[1]>0?'for':'against']++;}}
   return r;};}
 V11.turnStart.push(i=>{R.turns++;if(i===0)R.heroTurns++;});
 const arenas=Object.keys(ARENAS),ns=O.crew==='1'?[1]:O.n.split(',').map(Number);
@@ -46,5 +48,5 @@ console.log(JSON.stringify({opts:O,fights:R.fights,winPct:pc(R.wins/R.fights),by
   hpLeftPct:pc(R.hp/R.fights),wonUnder30Pct:pc(R.close.under30/R.fights),wonOver70Pct:pc(R.close.over70/R.fights),secsPerFight:r1(R.secs/R.fights),heroTurnsPerFight:r1(R.heroTurns/R.fights),
   foeFloorTurnPct:pc(R.foeFloorTurns/Math.max(1,R.foeTurns)),heroFloorTurnsPerFight:r1(R.heroFloorTurns/R.fights),downsPerFight:{hero:r1(R.downs.hero/R.fights),foe:r1(R.downs.foe/R.fights)},
   freeRisesPerFight:{hero:r1(R.rises.hero/R.fights),foe:r1(R.rises.foe/R.fights)},struckOnFloorPerFight:{hero:r1(R.struck.hero/R.fights),foe:r1(R.struck.foe/R.fights)},crewOutPerFight:r1(R.crewOut/R.fights),
-  heroLandPct:pc(R.land.h/Math.max(1,R.land.n)),blowsOnHeroPerTurn:r1(R.blowsOnHero/Math.max(1,R.heroTurns)),dmgOnHeroPerFight:r1(R.dmgOnHero/R.fights),stanceUse:share(R.stance),heroTech:share(R.tech)}));
+  heroLandPct:pc(R.land.h/Math.max(1,R.land.n)),blowsOnHeroPerTurn:r1(R.blowsOnHero/Math.max(1,R.heroTurns)),dmgOnHeroPerFight:r1(R.dmgOnHero/R.fights),stanceUse:share(R.stance),answered:share(R.ans),heroTech:share(R.tech)}));
 `);

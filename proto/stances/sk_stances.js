@@ -1,9 +1,9 @@
 // ===== STANCES (test) START =====
 // The second rule under test: Ilyas picks the family of his arc-blade's moves, and the engine still picks the move. Three stances:
 //   Bound    the blade locked at its full length: the crescents, and two men in one stroke (the crowd strokes reach further). A man
-//            with a short blade runs onto his point as he closes (the stop-hit the longer weapon has today), strikes at -2 instead
-//            of the +2 a short blade has inside a long one's reach, and a grab on him is at -2. Against a longer weapon he has to
-//            walk onto the point. No lash.
+//            with a short blade runs onto his point as he closes (the stop-hit the longer weapon has today), and until he is inside
+//            it he strikes at -2 instead of the +2 a short blade has inside a long one's reach; a grab on him is at -2. Against a
+//            longer weapon he has to walk onto the point. No lash.
 //   Unbound  the segments loose on their thread: a bladed whip. Every blow is a lash from where he stands, from just outside his
 //            reach to well past it (no run in, no stop-hit on him, and a lash parried out there opens no riposte: the man is too far
 //            off). The tip does the cutting: a man out at the end of the chain (STN.tip past his striking distance and on) takes the
@@ -14,11 +14,13 @@
 //            spear's stop-hit, at the tip's weight. Inside his reach the blade relocks for the blow, at -2. A whip is no guard: his
 //            Parry is at -1 and his Counter at -2 until he changes it.
 //   Close    the blade choked short: the hilt-ring and the spine, a hook from inside, and his free hand at the collar (grab +2). He
-//            stays in a man's chest after a blow. An axe that strikes him meets him inside its head: the blow comes on the haft, at -2
-//            and lighter. Tied up inside one man, he is at -1 DEF to everyone else.
-// Each answers one kind of enemy: Close the brute's axe, Unbound the keeper's spear, Bound the rusher's dagger and a crowd. Switching
-// is free on his own turn, before he acts; it shows in his guard (and in the blade, drawn by the test's UI). STANCE.on false is today's
-// arc-blade, where the engine picks from every family.
+//            stays in a man's chest after a blow. An axe swung at him from in reach meets him inside its head: the blow comes on the
+//            haft, at -2 and lighter. Tied up inside one man, he is at -1 DEF to everyone else.
+// Three things decide which stance answers a man: his weapon (the rules above), how far off he is (each stance has a range for its own
+// blows: Bound at blade's length, Close inside his reach, Unbound out on the tip), and the blow he is gearing up, shown over his head
+// (each stance answers some blows and gives way to others; see "what he is gearing up" below). Switching is free on his own turn,
+// before he acts, and holds till his next; it shows in his guard (and in the blade, drawn by the test's UI). STANCE.on false is
+// today's arc-blade, where the engine picks from every family.
 const STANCE={on:true,policy:'match'};
 const STANCES={
   bound:{name:'Bound',short:'Locked blade',good:'Crowds, daggers',line:'The blade locked at full length: crescents, and two men in one stroke.'},
@@ -48,12 +50,14 @@ function setStance(K,s){if(!STANCES[s]||!stanceCanSwitch(K)||stanceOf(K)===s)ret
 
 // ---------- the moves each stance gives ----------
 // while the hero's technique is picked under a stance, the moment's context is bent: Bound never counts as clinch range, Close always does
-let STN_CTX=null;
+let STN_CTX=null,STN_JAM=null;
 {const tc=techContext;techContext=function(A,D){const c=tc.apply(this,arguments);
   if(STN_CTX&&A===hero()&&STN_CTX.clinch!=null)c.clinch=STN_CTX.clinch;
-  // a heavy weapon (the axe) striking him while he is in Close meets him inside its head
-  else if(D&&D===hero()&&stanceOf(D)==='close'&&A&&A.team!==D.team&&stanceHeavy(A)&&c.gap-engageGap(A,D)<=140)c.clinch=true;
+  else if(STN_JAM&&A===STN_JAM)c.clinch=true;
   return c;};}
+// a heavy weapon (the axe) swung at him from in reach while he is in Close meets him inside its head: the blow comes on the haft
+// (jammed, -2, and lighter). A thrust or a sweep is no swing, and a man who has to come to him picks his distance.
+function stnJams(A,D,kind){return!!A&&!!D&&D===hero()&&stanceOf(D)==='close'&&A.team!==D.team&&stanceHeavy(A)&&!D.downed&&!A.clinch&&(kind==='overhead'||kind==='slash')&&!cameFar(A,D);}
 // the lash is Unbound's, and only Unbound's, and it reaches from just outside his striking distance
 {const lr=lashReady;lashReady=function(A,D){const s=stanceOf(A);if(!s)return lr.apply(this,arguments);if(s!=='unbound')return false;
   if(!D||D.dead||D.downed||A.clinch||A.downed||D.clinch)return false;const g=lashGap(A,D);if(g<STN.unboundMin||g>STN.unboundMax)return false;
@@ -74,6 +78,7 @@ const STN_WHY={
   hook:'From inside his reach the curve of the blade hooks behind his ankle and pulls: a Committed man goes down on a clean hit.',
   hammer:'Too close to cut, so the hilt-ring comes down on his face.'};
 {const pt=pickTechnique;pickTechnique=function(A,D,kind){
+  if(stnJams(A,D,kind)){STN_JAM=A;try{return pt.apply(this,arguments);}finally{STN_JAM=null;}}
   const s=stanceOf(A);if(!s||!D||D.downed||A.clinch||A.blinkBonus)return pt.apply(this,arguments);
   if(s==='bound'){STN_CTX={clinch:false};let T;try{T=pt.apply(this,arguments);}finally{STN_CTX=null;}return{...T,stance:'bound'};}
   if(s==='close'){STN_CTX={clinch:true};let T;try{T=pt.apply(this,arguments);}finally{STN_CTX=null;}T={...T,stance:'close',tags:T.tags.filter(t=>t!=='Clinch range').concat('Close')};
@@ -118,6 +123,33 @@ function isWhip(T){return!!T&&!!T.whip&&T.stance==='unbound';}
   else if(u>=L.b&&u<L.c)len=L.L;
   else if(u>=L.c&&u<L.d)len=lerp(L.L,base,sstep((u-L.c)/Math.max(.01,L.d-L.c)));
   f.sticks[10][2]=len;f.lashLen=len;};}
+// ---------- what he is gearing up, and how far off he is ----------
+// Against the blow a man throws at him (the one he showed), as it lands, by the stance Ilyas holds:
+//   Bound    beats a thrust aside (+2 DEF) and takes a cut on the locked blade (+1), but an overhead beats a single blade (-1)
+//   Close    gets inside an overhead (+2) or a cut (+1) from a man already in reach with more than a dagger (an axe's blows are jammed
+//            instead, above), but walks onto a point (-1) and stands planted for a sweep (-1)
+//   Unbound  catches the raised arm of a man who has to come to him for an overhead (+2), but a thrust comes inside the chain (-2)
+// A blow with the butt, the haft or a choked grip, a kick or a dirty move is none of these. "Has to come to him": he was past his own
+// striking distance when he took his turn (a run-in that a stop-hit held up keeps it). And Ilyas's own blows have a range in each
+// stance, his gap past his own striking distance: Bound at blade's length is +1 to hit and -1 once the man is inside it, Close inside
+// his reach is +1, and Unbound's is the tip's crack.
+const STN_ANS={bound:{thrust:['beats the point aside',2],slash:['on the locked blade',1],overhead:['an overhead beats a single blade',-1]},
+  close:{overhead:['inside his swing',2,'in'],slash:['inside his cut',1,'in'],thrust:['onto his point',-1],sweep:['planted inside',-1]},
+  unbound:{overhead:['the chain catches his arm',2,'far'],thrust:['inside the chain',-2]}};
+function stnShortBlade(A){return!!A&&!!A.wp&&(!!A.wp.unarmed||A.wp.len<40);}
+function stnAnswer(s,kind,T,A,far){const e=STN_ANS[s]&&STN_ANS[s][kind];if(!e||!T||T.kick||T.dirty||['butt','haft','choked','pommel'].includes(T.key))return null;
+  if(e[2]==='far'&&!far)return null;if(e[2]==='in'&&(far||stnShortBlade(A)||jammedTech(A,T)))return null;return e;}
+function stnRange(K,D){const s=stanceOf(K),g=lashGap(K,D);
+  if(s==='bound')return g<STN.unboundMin?['too close for the point',-1]:g<=STN.tip?['at blade\u2019s length',1]:null;
+  if(s==='close')return g<STN.unboundMin?['inside his reach',1]:null;return null;}
+// where a blow comes from, as it stood when he took his turn: from past his own striking distance (far), and from inside the target's
+// (inside); a blow off his turn (a riposte) comes from where he is
+function comesFar(A,D){return Math.abs(A.station-D.station)-engageGap(A,D)>APPROACH_FREE;}
+function comesInside(A,D){return lashGap(D,A)<STN.unboundMin;}
+function cameFar(A,D){const c=A._came;return c&&c.turn===S.game.turnNo&&c.D===D?c.far:comesFar(A,D);}
+function cameInside(A,D){const c=A._came;return c&&c.turn===S.game.turnNo&&c.D===D?c.inside:comesInside(A,D);}
+{const cm=command;command=function(i,cmd,opts){const A=S.F[i],D=A?targetOf(A):null;
+  if(A&&D&&!(opts&&opts.prepaid)&&ATTACKS.includes(cmd))A._came={turn:S.game.turnNo,D,far:comesFar(A,D),inside:comesInside(A,D)};return cm.apply(this,arguments);};}
 // Unbound strikes from where he stands: nothing to close, no stop-hit on the way in
 {const ac=approachCost;approachCost=function(A,D,cmd){if(stanceOf(A)==='unbound'&&ATTACKS.includes(cmd)&&D&&!D.downed&&lashReady(A,D))return 0;return ac.apply(this,arguments);};}
 {const sh=stopHitFor;stopHitFor=function(A,D,cmd,dest){
@@ -159,7 +191,10 @@ function isWhip(T){return!!T&&!!T.whip&&T.stance==='unbound';}
   if(s==='unbound'&&!D.downed){const pen=(D.guarding?STN.parry:0)+(D.counter?STN.counter:0);if(pen){c.def+=pen;c.defMods.push(['unbound blade',pen]);}}
   if(s==='close'&&!D.downed&&A&&A.team!==D.team){const t=S.F[getTgt(D)];if(t&&t!==A&&!t.dead){c.def+=STN.tied;c.defMods.push(['tied up inside',STN.tied]);}}
   // Bound keeps a short blade at the point: instead of the +2 a shorter weapon has inside a long one's reach, he has to get past it
-  if(s==='bound'&&!D.downed&&A&&A.team!==D.team){const m=c.mods.find(x=>x[0]==='inside the reach'&&x[1]>0);if(m){c.bonus-=m[1]-STN.point;m[1]=0;c.mods.push(['kept at the point',STN.point]);}}
+  if(s==='bound'&&!D.downed&&A&&A.team!==D.team&&!cameInside(A,D)){const m=c.mods.find(x=>x[0]==='inside the reach'&&x[1]>0);if(m){c.bonus-=m[1]-STN.point;m[1]=0;c.mods.push(['kept at the point',STN.point]);}}
+  // the stance against the blow he throws, and the range of Ilyas's own blows
+  if(s&&!D.downed&&A&&A.team!==D.team&&ATTACKS.includes(kind)){const a=stnAnswer(s,kind,T,A,cameFar(A,D));if(a){c.def+=a[1];c.defMods.push([a[0],a[1]]);}}
+  if(A&&stanceOf(A)&&D&&!D.downed&&A.team!==D.team&&ATTACKS.includes(kind)){const r=stnRange(A,D);if(r){c.bonus+=r[1];c.mods.push(r);}}
   // a spear's shaft cannot turn a chain: against Unbound's lash his Parry and his Counter hold nothing
   if(A&&stanceOf(A)==='unbound'&&T&&T.lash&&T.stance==='unbound'&&D&&D.weaponKey==='spear'&&!D.downed){
     const pm=c.defMods.find(x=>x[0]==='parry'&&x[1]>0),cm2=c.defMods.find(x=>x[0]==='counter'&&x[1]>0);
@@ -190,22 +225,69 @@ const STANCE_GUARD={unbound:{hx:.6,hy:.52,w:.62,gw:0,off:[.14,.5],crouch:.9,lean
       if(D.posture==='committed'&&ok('sweep')&&r<.5)return'sweep';
       if(!whipTip(A,D)&&D.temper==='keeper'&&r<WHIP_AI.step&&ok('withdraw')&&roomBehind(A)>60&&withdrawInfo(A,D))return'withdraw';}}
   return ac.apply(this,arguments);};}
-// which stance answers the man he faces (STANCE.policy: 'match'; the test's checks also try one stance only, and the worst match)
+// ---------- a blow he shows is the blow he throws ----------
+// The stance answers the blow he is gearing up, so a man who shows Ilyas a blow keeps it until he throws it: a plan he would remake
+// for free (Ilyas moved, his footing changed) keeps that blow if he can still throw it at Ilyas. A re-plan he pays for (a Veteran
+// reading a guard or a counter stance come up) is his own choice and stands.
+{const ei=ensureIntents;ensureIntents=function(){const before=new Map();for(const A of foes())before.set(A,A.intent);ei.apply(this,arguments);
+  const K=hero();if(!STANCE.on||!stanceOn(K))return;
+  for(const A of foes()){const was=before.get(A),it=A.intent;
+    if(!was||!it||it===was||it.paid||!ATTACKS.includes(was.cmd)||was.tgt!==K.idx||it.tgt!==K.idx||it.cmd===was.cmd||A.downed||!cmdValid(A,K,was.cmd))continue;
+    A.intent={...it,cmd:was.cmd};}};}
+// ---------- which stance answers him ----------
+// Each stance is scored against the man he faces: his weapon, how far off he is (the range of Ilyas's own blows in it), what he and the
+// others are gearing up against Ilyas (the answers above, by where each blow would come from) and the crowd round him, each reason at
+// about what it does to the dice. The best is the one the test's UI marks and Ilyas on auto takes (STANCE.policy 'match'); 'weapon' is
+// the first test's match, on the weapon and the crowd alone, 'worst' the worst, and a stance's own name that stance only.
 // a heavy weapon: the axe (an improvised one, the table leg or the bare shaft, does not count)
 function stanceHeavy(A){return!!A&&!!A.wp&&A.wp.fam==='heavy'&&A.wp.len>=60&&!A.wp.improv&&!A.wp.unarmed;}
-function stanceMatch(K,D){if(!D||D.downed||D.dead)return null;
-  const near=foes().filter(o=>o!==D&&upright(o)&&!o.walkIn&&Math.abs(o.station-K.station)-engageGap(K,o)<90).length;
-  if(D.weaponKey==='spear')return near?'bound':Math.abs(D.station-K.station)-engageGap(K,D)<STN.unboundMin?'close':'unbound';
+function stanceWord(D){const k=D.weaponKey;return k==='axe'?'axe':k==='spear'?'spear':D.wp.short.toLowerCase();}
+// the stance bar's words for each answer, short enough for a phone: about the man in front (his) or another man (a)
+const STN_SHORT={bound:{thrust:h=>`beats ${h||'a'} thrust`,slash:h=>`takes ${h||'a'} cut`,overhead:()=>'overhead beats it'},
+  close:{overhead:h=>`inside ${h||'a'} swing`,slash:h=>`inside ${h||'a'} cut`,thrust:h=>`onto ${h||'a'} point`,sweep:()=>'easy to sweep'},
+  unbound:{overhead:h=>`catches ${h||'an'} arm`,thrust:()=>'thrust gets in'}};
+const STN_KIND={slash:'a cut',overhead:'an overhead',thrust:'a thrust',sweep:'a sweep'};
+function stanceAs(K,s,fn){const was=K.stance;K.stance=s;try{return fn();}finally{K.stance=was;}}
+function stanceNear(K,D){return foes().filter(o=>o!==D&&upright(o)&&!o.walkIn&&Math.abs(o.station-K.station)-engageGap(K,o)<90).length;}
+// the reasons for (v>0) and against (v<0) a stance against him now, each with the bar's words and what it is about (k: 3 a blow he
+// shows, 2 the range, 1 his weapon, 0 the crowd; of two reasons as strong, the bar names the one about what he is doing)
+function stanceFactors(K,D,s){const F=[];if(!K||!D||D.dead||D.downed)return F;const add=(v,short,k)=>{if(v)F.push({v,short,k});},w=stanceWord(D),g=lashGap(K,D);
+  // his weapon: the axe in reach (its swings jammed, below), a short blade still outside the point, a spear against the chain
+  if(s==='close'&&stanceHeavy(D)&&!comesFar(D,K))add(1,`inside the ${w}`,1);
+  if(s==='bound'&&outreaches(K,D)&&!comesInside(D,K))add(3,`${w} kept off`,1);
+  if(s==='unbound'&&D.weaponKey==='spear')add(2,`past the ${w}`,1);
+  // how far off he is: the range of Ilyas's own blows
+  if(s==='bound'){if(g<STN.unboundMin)add(-1,'too close',2);else if(g<=STN.tip)add(1,'at blade\u2019s length',2);}
+  if(s==='close'&&g<STN.unboundMin)add(1,'inside his reach',2);
+  if(s==='unbound'){if(g<STN.unboundMin)add(-2,'relocks inside',2);else if(g<STN.tip)add(-1,'inside the tip',2);else if(g<=STN.unboundMax)add(2,'on the tip',2);}
+  // what each man is gearing up against him, from where it would come
+  for(const E of foes()){const it=E.intent;if(!it||it.tgt!==K.idx||E.downed||E.walkIn)continue;const his=E===D?'his':null;
+    if(ATTACKS.includes(it.cmd)){const T=stanceAs(K,s,()=>pickTechnique(E,K,it.cmd)),a=stnAnswer(s,it.cmd,T,E,comesFar(E,K));if(a)add(a[1],STN_SHORT[s][it.cmd](his),3);
+      else if(s==='close'&&stanceAs(K,s,()=>stnJams(E,K,it.cmd)))add(2,`jams ${his||'a'} swing`,3);}
+    if(s==='unbound'&&(ATTACKS.includes(it.cmd)||it.cmd==='advance')){const ai=it.cmd==='advance'?advanceInfo(E,K):null;
+      if((it.cmd!=='advance'||ai)&&stanceAs(K,s,()=>stopHitFor(E,K,it.cmd,ai?ai.x:undefined)))add(1,E===D?'meets him coming':'meets a rush',3);}
+    if(s==='bound'&&it.cmd==='grab')add(2,'keeps hands off',3);}
+  // the crowd
+  const near=stanceNear(K,D);if(s==='bound'&&near)add(2,'two in reach',0);if(s==='close'&&near)add(-near,'tied up inside',0);
+  // what each holds whatever he does: Close's hilt and spine (+1 to hit) once he is in reach; a whip is no guard (Parry -1, Counter
+  // -2), and it holds off one man while the rest come in
+  if(s==='close'&&g<=STN.tip)add(1,'hilt and spine',0);
+  if(s==='unbound'){add(-1,'no guard',0);const others=foes().filter(o=>o!==D&&upright(o)&&!o.walkIn).length;if(others)add(-others,'one at a time',0);}
+  return F;}
+function stanceScore(K,D,s){return stanceFactors(K,D,s).reduce((a,f)=>a+f.v,0);}
+// the best (a tie keeps the one he holds); null when they are all the same
+function stanceMatch(K,D){if(!D||D.downed||D.dead)return null;const cur=stanceOf(K),sc={};for(const s of STANCE_ORDER)sc[s]=stanceScore(K,D,s);
+  const best=Math.max(...STANCE_ORDER.map(s=>sc[s]));if(STANCE_ORDER.every(s=>sc[s]===best))return null;return sc[cur]===best?cur:STANCE_ORDER.find(s=>sc[s]===best);}
+function stanceWorst(K,D){if(!D||D.downed||D.dead)return null;const sc={};for(const s of STANCE_ORDER)sc[s]=stanceScore(K,D,s);
+  const lo=Math.min(...STANCE_ORDER.map(s=>sc[s]));return STANCE_ORDER.find(s=>sc[s]===lo);}
+// the first test's match: the weapon and the crowd alone
+function stanceMatchWeapon(K,D){if(!D||D.downed||D.dead)return null;const near=stanceNear(K,D);
+  if(D.weaponKey==='spear')return near?'bound':lashGap(K,D)<STN.unboundMin?'close':'unbound';
   if(stanceHeavy(D))return near>1?'bound':'close';
   return'bound';}
-function stanceAuto(K){const p=STANCE.policy,D=targetOf(K);if(p==='bound'||p==='unbound'||p==='close')return p;const m=stanceMatch(K,D);if(!m)return null;
-  if(p==='worst')return m==='close'?'unbound':m==='unbound'?'close':'unbound';return m;}
-// why a stance answers this man, in a few words (the test's UI marks it)
-function stanceWord(D){const k=D.weaponKey;return k==='axe'?'axe':k==='spear'?'spear':D.wp.short.toLowerCase();}
-function stanceReason(K,D,s){if(!D||D.downed)return'';const w=stanceWord(D);
-  if(s==='close'&&(stanceHeavy(D)||D.weaponKey==='spear'))return`inside the ${w}`;
-  if(s==='unbound'&&D.weaponKey==='spear')return`past the ${w}`;
-  if(s==='bound'&&foes().filter(o=>o!==D&&upright(o)&&Math.abs(o.station-K.station)-engageGap(K,o)<90).length)return'two in reach';
-  if(s==='bound'&&outreaches(K,D))return`the ${w} runs on`;
-  return'';}
+function stanceAuto(K){const p=STANCE.policy,D=targetOf(K);if(p==='bound'||p==='unbound'||p==='close')return p;
+  return p==='worst'?stanceWorst(K,D):p==='weapon'?stanceMatchWeapon(K,D):stanceMatch(K,D);}
+// the strongest reason now, for or against (the stance bar shows each stance's), and the strongest for (the marked one's)
+function stanceTop(K,D,s){const F=stanceFactors(K,D,s);if(!F.length)return null;F.sort((a,b)=>Math.abs(b.v)-Math.abs(a.v)||b.k-a.k||b.v-a.v);return F[0];}
+function stanceReason(K,D,s){const F=stanceFactors(K,D,s).filter(f=>f.v>0).sort((a,b)=>b.v-a.v||b.k-a.k);return F.length?F[0].short:'';}
 // ===== STANCES (test) END =====
