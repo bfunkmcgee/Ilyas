@@ -2,7 +2,7 @@
 // playing the stances by a policy. It counts wins, how close the fights are, the turns spent on the floor and getting up, the free
 // rises and the blows on the floor, and how each stance is used, and stops on any error.
 // usage (from the repo): node proto/stances/stances_sim.js [fights per setup, default 4] [key=value ...]
-//   down=1|0  rise=off|committed  stance=1|0  policy=match|bound|unbound|close|worst|weapon  jam=2 crowdafter=0  mix=mixed|brute|keeper|rusher  crew=0|1  n=1,2,3
+//   down=1|0  rise=off|committed  stance=1|0  policy=match|bound|unbound|close|worst|weapon  jam=2 crowdafter=0  mix=mixed|brute|keeper|rusher|swords  temper=brute|keeper|rusher|plain (all foes)  crew=0|1  n=1,2,3
 //   step= (how often Ilyas on auto steps back to put a man who holds off on the whip's tip), tip= (where the tip starts)
 //   policy=weapon: the first test's match, on the weapon and the crowd alone (match reads the range and the blow he shows too)
 const fs=require('fs'),path=require('path');
@@ -13,7 +13,7 @@ const core=require(path.join(ROOT,'sk_src.js'))()+fs.readFileSync(path.join(__di
 eval(core+`
 const O=${JSON.stringify(O)};
 DOWNF.on=O.down==='1';DOWNF.rise=O.rise;STANCE.on=O.stance==='1';STANCE.policy=O.policy;if(O.step!=null)WHIP_AI.step=+O.step;if(O.tip!=null)STN.tip=+O.tip;if(O.jam!=null)STN_W.jam=+O.jam;if(O.crowdafter!=null)STN_W.crowdAfter=O.crowdafter==='1';
-const MIX={mixed:null,brute:{weapon:'axe',temper:'brute'},keeper:{weapon:'spear',temper:'keeper'},rusher:{weapon:'dagger',temper:'rusher'}};
+const MIX={mixed:null,brute:{weapon:'axe',temper:'brute'},keeper:{weapon:'spear',temper:'keeper'},rusher:{weapon:'dagger',temper:'rusher'},swords:{weapon:'sword'}};
 const inc=(o,k,n=1)=>{o[k]=(o[k]||0)+n;};
 const R={fights:0,wins:0,hp:0,secs:0,turns:0,heroTurns:0,foeTurns:0,foeFloorTurns:0,heroFloorTurns:0,rises:{hero:0,foe:0},struck:{hero:0,foe:0},crewOut:0,downs:{hero:0,foe:0},
   stance:{},tech:{},land:{n:0,h:0},byN:{},blowsOnHero:0,heroHits:0,dmgOnHero:0,close:{under30:0,over70:0},ans:{for:0,against:0,none:0}};
@@ -38,7 +38,7 @@ const arenas=Object.keys(ARENAS),ns=O.crew==='1'?[1]:O.n.split(',').map(Number);
 for(const ak of arenas)for(const n of ns)for(let seed=1;seed<=${N};seed++){
   Math.random=mulberry32(seed*977+5);S.arenaKey=ak;S.cfg.n=n;S.cfg.crew=O.crew==='1';S.cfg.ally.on=false;S.auto=true;S.tableOn=true;S.rng=mulberry32(seed*31+n);
   const base=[{seed:5113,weapon:'axe',skill:3,temper:'brute'},{seed:7741,weapon:'spear',skill:2,temper:'keeper'},{seed:3190,weapon:'dagger',skill:2,temper:'rusher'}];
-  S.cfg.foes=base.map(f=>MIX[O.mix]?{...f,...MIX[O.mix]}:f);
+  S.cfg.foes=base.map(f=>MIX[O.mix]?{...f,...MIX[O.mix]}:f).map(f=>O.temper?{...f,temper:O.temper}:f);
   S.F=[];rosterBuild();initDuel();curN=n;
   let k=0;while(k<120*500&&S.game.phase!=='over'){simStep();tickOpening(DT);k++;}
   R.fights++;R.secs+=k*DT;const K=hero();R.hp+=K.hp/K.maxHp;if(!K.dead&&K.hp/K.maxHp<.3)R.close.under30++;if(!K.dead&&K.hp/K.maxHp>.7)R.close.over70++;}

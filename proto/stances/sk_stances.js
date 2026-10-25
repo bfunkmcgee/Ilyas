@@ -262,9 +262,10 @@ const STN_SHORT={bound:{thrust:h=>`beats ${h||'a'} thrust`,slash:h=>`takes ${h||
   unbound:{overhead:h=>`catches ${h||'an'} arm`,thrust:()=>'thrust gets in'}};
 const STN_KIND={slash:'a cut',overhead:'an overhead',thrust:'a thrust',sweep:'a sweep'};
 // the blows a man's weapon usually throws, as shares: what else a stance may meet before Ilyas's next turn besides the blow he shows
-// (his riposte, a second turn of his), weighed at a little over half a blow; and the bar's words for the strongest of them
+// (his riposte, a second turn of his), weighed at a little over half a blow; and the bar's words for the strongest of them. A sword's
+// are what swordsmen of the three tempers threw at Ilyas in the sim: a keeper mostly thrusts, a brute and a rusher cut as often.
 const STN_HABIT={axe:{slash:.4,overhead:.35,thrust:.2,sweep:.05},spear:{thrust:.65,slash:.3,overhead:.05},dagger:{slash:.4,thrust:.4,sweep:.15,overhead:.05},
-  sword:{slash:.5,thrust:.4,overhead:.1},other:{slash:.5,thrust:.35,overhead:.15}};
+  sword:{thrust:.4,slash:.3,overhead:.15,sweep:.15},other:{slash:.5,thrust:.35,overhead:.15}};
 const STN_HABIT_W=.6;
 const STN_HABIT_SHORT={bound:{thrust:'beats his thrusts',slash:'takes his cuts',overhead:'his overheads beat it'},
   close:{overhead:'inside his swings',slash:'inside his swings',thrust:'onto his point',sweep:'easy to sweep'},

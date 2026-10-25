@@ -189,7 +189,8 @@ const STN_SAY={bound:{thrust:'Bound beats it aside',slash:'Bound takes it on the
 
 // ---------- the setup ----------
 const STN_ARENAS=[['street','Lamplight Street'],['field','Meadow'],['hill','Hillside'],['ledge','Broken ledge'],['wall','Ruin wall'],['restaurant','The bistro']];
-const STN_MIX={mixed:null,brute:{weapon:'axe',temper:'brute'},keeper:{weapon:'spear',temper:'keeper'},rusher:{weapon:'dagger',temper:'rusher'}};
+// (swords: each man keeps his own way of fighting, so one is a brute, the next a keeper, the third a rusher)
+const STN_MIX={mixed:null,brute:{weapon:'axe',temper:'brute'},keeper:{weapon:'spear',temper:'keeper'},rusher:{weapon:'dagger',temper:'rusher'},swords:{weapon:'sword'}};
 const STN_BASE=[{seed:5113,weapon:'axe',skill:3,temper:'brute'},{seed:7741,weapon:'spear',skill:2,temper:'keeper'},{seed:3190,weapon:'dagger',skill:2,temper:'rusher'}];
 function stnApplyMix(){const m=STN_MIX[STNUI.mix];S.cfg.foes=STN_BASE.map(f=>m?{...f,...m}:{...f});}
 function stnSetupHtml(){const opt=(grp,val,cur,label)=>`<button type="button" class="st-o" data-g="${grp}" data-v="${val}" aria-pressed="${String(cur)===String(val)}">${label}</button>`;
@@ -199,13 +200,14 @@ function stnSetupHtml(){const opt=(grp,val,cur,label)=>`<button type="button" cl
     `<p class="ss-how"><b>Bound</b> locks the blade. It beats a thrust aside (+3) and takes a cut (+2), but an overhead beats it (−1). It strikes best at blade’s length (+1), and a dagger strikes at −2 until he gets past the point.</p>`+
     `<p class="ss-how"><b>Unbound</b> is a bladed whip. It cracks hardest from the tip, and it catches the raised arm of a man who comes in with an overhead (+3), but a thrust comes inside the chain (−2). A spear cannot parry it. Your Parry is at −1 and Counter at −2.</p>`+
     `<p class="ss-how"><b>Close</b> chokes it up. It gets inside an overhead (+3) or a cut (+2) from a man in reach, but walks onto a point (−1). It strikes best inside his reach (+1), and an axe swung at you in reach is jammed. A Close blow leaves you in his chest, so his next blow comes in reach.</p>`+
+    `<p class="ss-how"><b>Swords.</b> Blade to blade, neither of you outreaches the other, so his blow and the distance decide: Bound for his thrust, Close for his cut or overhead in reach, Unbound for an overhead from range.</p>`+
     `<p class="ss-how">A blow your stance answers that misses you costs him a pip of balance.</p>`+
     `<p class="ss-how"><b>Falls.</b> A man knocked down rises free at his turn, off balance. Strike him on the floor and he loses that rise; a crew man is finished.</p>`+
     `<div class="ss-g"><span>Stances</span>${opt('stance',1,STANCE.on?1:0,'On')}${opt('stance',0,STANCE.on?1:0,'Off (today’s)')}</div>`+
     `<div class="ss-g"><span>Falls</span>${opt('down',1,DOWNF.on?1:0,'Rise free')}${opt('down',0,DOWNF.on?1:0,'Today’s')}</div>`+
     `<div class="ss-g"><span>Rise</span>${opt('rise','off',DOWNF.rise,'Off balance')}${opt('rise','committed',DOWNF.rise,'Committed')}</div>`+
     `<div class="ss-g"><span>Enemies</span>${[1,2,3].map(n=>opt('n',n,nOpt,n)).join('')}${opt('n','crew',nOpt,'Crew')}</div>`+
-    `<div class="ss-g ss-wrap"><span>Who</span>${opt('mix','mixed',STNUI.mix,'Mixed')}${opt('mix','brute',STNUI.mix,'Axes (brutes)')}${opt('mix','keeper',STNUI.mix,'Spears (keepers)')}${opt('mix','rusher',STNUI.mix,'Daggers (rushers)')}</div>`+
+    `<div class="ss-g ss-wrap"><span>Who</span>${opt('mix','mixed',STNUI.mix,'Mixed')}${opt('mix','brute',STNUI.mix,'Axes (brutes)')}${opt('mix','keeper',STNUI.mix,'Spears (keepers)')}${opt('mix','rusher',STNUI.mix,'Daggers (rushers)')}${opt('mix','swords',STNUI.mix,'Swords')}</div>`+
     `<div class="ss-g ss-wrap"><span>Arena</span>${STN_ARENAS.map(([k,l])=>opt('arena',k,S.arenaKey,l)).join('')}</div>`+
     `<p class="ss-note">Enemies, who and arena start a new fight. The rules change at once.</p>`+
     `<div class="ss-foot"><button type="button" class="ss-go">New fight</button></div></div>`;}

@@ -2,7 +2,7 @@
 // each stance changes the dock's moves, his guard and (Unbound) the blade; Unbound is a bladed whip that strikes from where he stands,
 // its chain trailing the throw and landing its tip on the blade's tip with a crack, hardest at the tip, curling round a guard, hanging
 // at rest and locking for a relocked blow; the blow a man shows and how far off he is mark the stance that answers him, and the dice
-// and the tip line follow, and an answered blow that misses costs him a pip more; a Close blow leaves him in the man's chest, where an axe comes on its haft; a man knocked
+// and the tip line follow, and an answered blow that misses costs him a pip more; against a swordsman the same three decide; a Close blow leaves him in the man's chest, where an axe comes on its haft; a man knocked
 // down rises free at his turn, off balance; struck on the floor, a named man must get up and a crew man is finished; the setup turns
 // each rule off. Stills of each go to the out folder.
 // usage (from the repo, after build_stances.py): node proto/stances/stances_page.js [outdir]
@@ -138,6 +138,19 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   {const lb=r.log.find(x=>x.st==='bound'),lc=r.log.find(x=>x.st==='close');
     expect('a thrust Bound beats aside costs him a pip of balance more when it misses, named over him; in Close, which it does not answer, the usual',
       !!lb&&!!lc&&lb.out==='block'&&lb.base>0&&lb.lost===lb.base+1&&lb.pop==='Beaten aside'&&lc.base>0&&lc.lost===lc.base&&lc.pop==='',JSON.stringify(r));}
+  // 4g. sword against sword: the setup offers swordsmen, and against a lone one the three things still decide: his thrust marks Bound,
+  // his cut inside marks Close, his overhead from range marks Unbound (each with the bar's reason)
+  r=await p.evaluate(()=>{const opt=(()=>{stnSetup(true);const b=document.querySelector('#stnSetup .st-o[data-g="mix"][data-v="swords"]')||
+      [...document.querySelectorAll('.st-o')].find(x=>x.dataset.g==='mix'&&x.dataset.v==='swords');const t=b?b.textContent:null;stnSetup(false);return t;})();
+    STNUI.mix='swords';S.cfg.n=1;S.cfg.crew=false;stnApplyMix();S.F=[];restart();untilMine(6000);const K=hero(),D=targetOf(K);if(!mine()||!D)return{none:true,opt};
+    const fa=Math.sign(D.station-K.station)||1,at=g=>{K.station=clampSt(K,D.station-fa*(engageGap(K,D)+g));K.build();fast(3);};
+    const show=cmd=>{D.intent={cmd,tgt:K.idx,gap:Math.abs(D.station-K.station),dz:D.lane-K.lane,pinned:pinned(D),band:D.posture,tband:K.posture,tguard:false,tctr:false,changed:false,paid:0};
+      updateStatus();stnUiNow();fast(3);const b=document.querySelector('#stnBar .stn-b.fit');return{fit:b?b.dataset.s:null,why:b?b.querySelector('small').textContent:''};};
+    at(15);const thrust=show('thrust');at(-25);const cut=show('slash');at(110);const over=show('overhead');
+    const out={opt,wp:D.weaponKey,name:D.name,thrust,cut,over};STNUI.mix='mixed';S.cfg.n=2;stnApplyMix();S.F=[];restart();untilMine(6000);return out;});
+  expect('sword against sword: the setup offers swordsmen; his thrust marks Bound, his cut inside marks Close, his overhead from range marks Unbound',
+    !r.none&&r.opt==='Swords'&&r.wp==='sword'&&r.thrust.fit==='bound'&&/beats his thrust/.test(r.thrust.why)&&r.cut.fit==='close'&&/inside his cut/.test(r.cut.why)&&
+    r.over.fit==='unbound'&&/catches his arm/.test(r.over.why),JSON.stringify(r));
   // 5. a Close blow: he strikes from inside the man's reach and stays there, and the axe that answers comes on its haft
   r=await p.evaluate(()=>{let n=untilFree(9000);const K=hero();if(!mine())return{none:true,n};
     const A0=foes().find(f=>f.weaponKey==='axe'&&!f.dead&&!f.downed);if(A0)setTgt(K,A0.idx);const D=targetOf(K);
