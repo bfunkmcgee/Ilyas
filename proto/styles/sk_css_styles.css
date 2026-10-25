@@ -1,0 +1,36 @@
+/* ===== STYLES (test): the Motion button, Again, the panel and the side-by-side sheet ===== */
+.wrap.hud .su-btn,.wrap.hud .su-again{position:absolute;z-index:4;top:calc(var(--hud-top,60px) + 8px);height:34px;padding:0 12px;appearance:none;cursor:pointer;
+  background:rgba(10,8,14,.86);border:1px solid var(--gl-line);border-radius:2px;color:var(--gl-gold);display:flex;align-items:center;gap:8px}
+.wrap.hud .su-btn{left:var(--pad-l)}
+.wrap.hud .su-btn span{font:700 10.5px/1 var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--gl-mute)}
+.wrap.hud .su-btn b{font:700 13px/1 var(--display);letter-spacing:.06em;color:var(--gl-cream);white-space:nowrap}
+.wrap.hud .su-again{right:var(--pad-r,12px);font:700 11px/1 var(--display);letter-spacing:.18em;text-transform:uppercase}
+.wrap.hud .su-again[hidden]{display:none}
+.wrap.hud:not([data-hud="play"]) .su-btn,.wrap.hud:not([data-hud="play"]) .su-again{display:none}
+@media (hover:hover){.wrap.hud .su-btn:hover,.wrap.hud .su-again:hover{border-color:rgba(233,196,110,.8)}}
+.wrap .su-panel{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(4,3,8,.6)}
+.wrap .su-panel[hidden]{display:none}
+.su-panel .su-in{width:100%;max-width:420px;max-height:100%;overflow:auto;padding:12px 14px 14px;background:rgba(10,8,14,.97);border:1px solid var(--gl-line2);border-radius:2px;
+  box-shadow:inset 0 0 0 3px rgba(10,8,14,.97),inset 0 0 0 4px var(--gl-rule),0 14px 34px rgba(0,0,0,.6);color:var(--gl-cream)}
+.su-panel .su-head{display:flex;align-items:center;font:700 13px/1 var(--display);letter-spacing:.2em;text-transform:uppercase;color:var(--gl-gold);margin-bottom:6px}
+.su-panel .su-x{margin-left:auto;appearance:none;background:none;border:0;width:40px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gl-dim)}
+.su-panel .su-x svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+.su-panel .su-how{margin:0 0 8px;font:500 12.5px/1.4 var(--ui);color:var(--gl-dim)}
+.su-panel .su-styles{display:grid;gap:6px;margin:4px 0 6px}
+.su-panel .su-st{appearance:none;display:block;width:100%;text-align:left;padding:8px 10px;border:1px solid var(--gl-sep);border-radius:2px;background:rgba(243,234,214,.03);color:var(--gl-cream);cursor:pointer}
+.su-panel .su-st b{display:block;font:700 14px/1.1 var(--display);letter-spacing:.05em;margin-bottom:3px}
+.su-panel .su-st small{display:block;font:500 12px/1.35 var(--ui);color:var(--gl-dim)}
+.su-panel .su-st[aria-pressed="true"]{border-color:var(--gl-cyan);background:rgba(69,216,200,.12);box-shadow:inset 0 0 0 1px rgba(69,216,200,.3)}
+.su-panel .su-st[aria-pressed="true"] b{color:#dffbf7}
+.su-panel .su-g{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:7px 0;border-top:1px solid var(--gl-sep)}
+.su-panel .su-g>span{flex:0 0 64px;font:600 12.5px/1.2 var(--ui);color:var(--gl-dim)}
+.su-panel .su-o{appearance:none;min-height:36px;padding:0 10px;border:1px solid rgba(226,182,90,.4);border-radius:2px;background:none;color:var(--gl-cream);cursor:pointer;font:600 13px/1 var(--ui)}
+.su-panel .su-o[aria-pressed="true"]{border-color:var(--gl-cyan);background:rgba(69,216,200,.14);color:#dffbf7}
+.su-panel .su-foot{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:10px}
+.su-panel .su-b{appearance:none;height:40px;padding:0 14px;border:1px solid var(--gl-line);border-radius:2px;background:none;color:var(--gl-gold);cursor:pointer;font:700 12px/1 var(--display);letter-spacing:.12em;text-transform:uppercase}
+.su-panel .su-go{appearance:none;height:40px;padding:0 18px;border:0;border-radius:2px;background:var(--gl-gold);color:#140d05;cursor:pointer;font:800 13px/1 var(--display);letter-spacing:.12em;text-transform:uppercase}
+.su-panel button:focus-visible{outline:0;box-shadow:inset 0 0 0 1px rgba(233,196,110,.9)}
+.su-cmpsheet .su-cmp-in{max-width:980px}
+.su-cmpsheet .su-fig{margin:10px 0 0}
+.su-cmpsheet figcaption{font:700 12px/1 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--gl-gold);margin:0 0 6px}
+.su-cmpsheet img{display:block;width:100%;height:auto;border:1px solid var(--gl-sep);background:#000}
