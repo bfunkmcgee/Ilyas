@@ -51,3 +51,9 @@
 .stn-setup .ss-note{margin:8px 0 0;font:500 12px/1.35 var(--ui);color:var(--gl-mute)}
 .stn-setup .ss-foot{display:flex;justify-content:flex-end;margin-top:10px}
 .stn-setup .ss-go{appearance:none;height:40px;padding:0 16px;border:0;border-radius:2px;background:var(--gl-gold);color:#140d05;cursor:pointer;font:800 13px/1 var(--display);letter-spacing:.12em;text-transform:uppercase}
+
+/* the new spells: a button Overdrive opens, and the lit edge */
+.cmd.mg.od .tq{color:#ff9a5c;text-shadow:0 0 9px rgba(255,154,92,.45)}
+.wrap.hud .cmd.mg.od .tq{color:#ff9a5c}
+.cmd.mg.lit{background:rgba(226,182,90,.12)}
+.cmd.mg.lit .tq{color:#fff1c9}

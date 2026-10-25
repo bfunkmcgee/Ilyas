@@ -2,7 +2,8 @@
 // each stance changes the dock's moves, his guard and (Unbound) the blade; Unbound is a bladed whip that strikes from where he stands,
 // its chain trailing the throw and landing its tip on the blade's tip with a crack, hardest at the tip, curling round a guard, hanging
 // at rest and locking for a relocked blow; the blow a man shows and how far off he is mark the stance that answers him, and the dice
-// and the tip line follow, and an answered blow that misses costs him a pip more; against a swordsman the same three decide; a Close blow leaves him in the man's chest, where an axe comes on its haft; a man knocked
+// and the tip line follow, and an answered blow that misses costs him a pip more; against a swordsman the same three decide; the new
+// spells (Glare, Gilt line, Gilt edge, Overdrive, the Ward) each do what their button says; a Close blow leaves him in the man's chest, where an axe comes on its haft; a man knocked
 // down rises free at his turn, off balance; struck on the floor, a named man must get up and a crew man is finished; the setup turns
 // each rule off. Stills of each go to the out folder.
 // usage (from the repo, after build_stances.py): node proto/stances/stances_page.js [outdir]
@@ -151,6 +152,48 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   expect('sword against sword: the setup offers swordsmen; his thrust marks Bound, his cut inside marks Close, his overhead from range marks Unbound',
     !r.none&&r.opt==='Swords'&&r.wp==='sword'&&r.thrust.fit==='bound'&&/beats his thrust/.test(r.thrust.why)&&r.cut.fit==='close'&&/inside his cut/.test(r.cut.why)&&
     r.over.fit==='unbound'&&/catches his arm/.test(r.over.why),JSON.stringify(r));
+  // 4h. the new spells: six buttons in the Aether row (three while the setup says today's three), each reading the moment
+  r=await p.evaluate(()=>{const fresh=(mix,n)=>{STNUI.mix=mix;S.cfg.n=n;S.cfg.crew=false;stnApplyMix();S.F=[];restart();untilMine(6000);};
+    const place=g=>{const K=hero(),D=targetOf(K),fa=Math.sign(D.station-K.station)||1;K.station=clampSt(K,D.station-fa*(engageGap(K,D)+g));K.lane=D.lane;K.build();fast(4);};
+    const btn=k=>document.getElementById('mg-'+k),vis=()=>[...document.querySelectorAll('#mgRow .cmd.mg')].filter(b=>!b.hidden).map(b=>b.dataset.k);
+    const out={};fresh('keeper',1);const K=hero(),D=targetOf(K);K.aether=5;place(15);updateCommands();out.on=vis();
+    STNUI.el.setup.innerHTML='';stnSetupPick('spells','0');updateCommands();out.off=vis();stnSetupPick('spells','1');stnSetup(false);updateCommands();
+    // Glare: his thrust shown at blade's length, then out of the light
+    D.intent={cmd:'thrust',tgt:K.idx,gap:Math.abs(D.station-K.station),dz:0,paid:0};updateCommands();out.glareTq=(btn('glare').querySelector('.tq')||{}).textContent;
+    const T=pickTechnique(D,K,'thrust');btn('glare').click();fast(30);out.dazzled=!!D.glare;out.glareDice=computeMods(D,K,'thrust',false,T).mods.filter(m=>m[0]==='dazzled').map(m=>m[1]).join(',');
+    untilMine(6000);fresh('keeper',1);hero().aether=5;place(150);updateCommands();out.glareFar=btn('glare').disabled&&/Out of the light/.test(btn('glare').textContent);
+    // Gilt line from range in Close: he lands in his chest (or half way if he holds), two pips (one) off balance
+    document.querySelector('#stnBar .stn-b[data-s="close"]').click();fast(2);updateCommands();const K2=hero(),D2=targetOf(K2),g0=lashGap(K2,D2),f0=D2.foot;out.lineOn=!btn('line').disabled;
+    const ly=lineYank;let yank=null;lineYank=function(A,D,roll){const f1=D.foot;ly.apply(this,arguments);yank={ok:roll.ok,lost:f1-D.foot,g1:Math.round(lashGap(A,D))};};
+    try{btn('line').click();fast(80);}finally{lineYank=ly;}
+    out.line={g0:Math.round(g0),g1:yank?yank.g1:null,ok:yank?yank.ok:null,lost:yank?yank.lost:null,pop:S.popups.map(q=>q.text).filter(t=>/Pulled in|Holds the line/.test(t)).join('|')};
+    untilMine(6000);fresh('keeper',1);hero().aether=5;place(15);updateCommands();out.lineNear=btn('line').disabled&&/Too close/.test(btn('line').textContent);
+    // Gilt edge: free (his turn goes on), 1 Aether, Bound's dice +1, gone at his next turn
+    const K3=hero(),D3=targetOf(K3),a0=K3.aether;btn('edge').click();fast(2);out.edge={lit:!!K3.edge,spent:a0-K3.aether,mine:mine(),dice:computeMods(K3,D3,'slash',false,pickTechnique(K3,D3,'slash')).mods.filter(m=>m[0]==='gilt edge').map(m=>m[1]).join(',')};
+    cmd('wait').click();untilMine(6000);out.edge.after=!!hero().edge;
+    // Overdrive: no Aether, and the Glare button burns 8 health for it
+    fresh('keeper',1);const K4=hero(),D4=targetOf(K4);K4.aether=0;place(15);updateCommands();out.od={tq:(btn('glare').querySelector('.tq')||{}).textContent,h:(btn('glare').querySelector('small')||{}).textContent,on:!btn('glare').disabled};
+    const hp0=K4.hp;btn('glare').click();fast(30);out.od.burn=hp0-K4.hp;out.od.dazzled=!!D4.glare;
+    untilMine(6000);STNUI.mix='mixed';S.cfg.n=2;stnApplyMix();S.F=[];restart();untilMine(6000);return out;});
+  expect('the Aether row holds the six spells, and three while the setup says today\'s three',r.on.join()==='bolt,gale,blink,glare,line,edge'&&r.off.join()==='bolt,gale,blink',JSON.stringify({on:r.on,off:r.off}));
+  expect('Glare reads his blow (a thrust at -4), dazzles him at blade\'s length and puts the -4 on his dice; out of reach the light does not carry',
+    /Thrust at .4/.test(r.glareTq)&&r.dazzled&&/-4/.test(r.glareDice)&&r.glareFar,JSON.stringify({tq:r.glareTq,d:r.dazzled,dice:r.glareDice,far:r.glareFar}));
+  expect('Gilt line yanks a man who holds off into Close\'s chest, off balance (half way if he holds); a man in reach is too close for it',
+    r.lineOn&&r.line.g0>=40&&(r.line.ok?r.line.g1<=-12&&r.line.lost>=2&&/Pulled in/.test(r.line.pop):r.line.g1<r.line.g0&&/Holds the line/.test(r.line.pop))&&r.lineNear,JSON.stringify({on:r.lineOn,line:r.line,near:r.lineNear}));
+  expect('Gilt edge is lit for 1 Aether and his turn goes on; Bound\'s blows are +1 while it is lit, and it is gone at his next turn',
+    r.edge.lit&&r.edge.spent===1&&r.edge.mine&&r.edge.dice==='1'&&!r.edge.after,JSON.stringify(r.edge));
+  expect('with no Aether the Glare button reads Overdrive at 8 health, and casting it burns that and dazzles him',r.od.on&&r.od.tq==='Overdrive'&&/8 health/.test(r.od.h)&&r.od.burn===8&&r.od.dazzled,JSON.stringify(r.od));
+  // 4i. the Ward in the answer window: an overhead coming, the Ward among the answers at +5, 1 Aether, and on the blow's dice
+  r=await p.evaluate(()=>{STNUI.mix='keeper';S.cfg.n=1;S.cfg.crew=false;stnApplyMix();S.F=[];restart();untilMine(6000);const K=hero(),D=targetOf(K);K.aether=3;
+    const fa=Math.sign(D.station-K.station)||1;K.station=clampSt(K,D.station-fa*(engageGap(K,D)+15));K.lane=D.lane;K.build();fast(4);
+    D.intent={cmd:'overhead',tgt:K.idx,gap:Math.abs(D.station-K.station),dz:0,pinned:pinned(D),band:D.posture,tband:K.posture,tguard:false,tctr:false,changed:false,paid:0};
+    cmd('wait').click();let n=0,o=null;while(n<4000){o=S.opening;if(o&&o.source==='react'&&o.f===K&&o.opp===D)break;if(o&&!isAI(o.f.idx))resolveOpening('hold');if(mine())break;fast(1);n++;}
+    if(!o||o.source!=='react')return{none:true,n};const ch=openingChoices(o),bon=reactBonus(o,'ward'),a0=K.aether,kind=o.attack;
+    const btn=[...document.querySelectorAll('#opBtns button')].find(b=>b.dataset.c==='ward');resolveOpening('ward');
+    const dm=S.game.ex&&S.game.ex.res?S.game.ex.res.defMods.filter(m=>m[0]==='ward').map(m=>m[1]).join(','):'';const out={ch,bon,kind,spent:a0-K.aether,dm,btn:btn?btn.textContent:null};
+    untilMine(6000);STNUI.mix='mixed';S.cfg.n=2;stnApplyMix();S.F=[];restart();untilMine(6000);return out;});
+  expect('the Ward is an answer in the window: +5 against his Overhead for 1 Aether, and it is on the blow\'s dice',
+    !r.none&&r.ch.includes('ward')&&r.kind==='overhead'&&r.bon===5&&r.spent===1&&r.dm==='5'&&/Ward/.test(r.btn||''),JSON.stringify(r));
   // 5. a Close blow: he strikes from inside the man's reach and stays there, and the axe that answers comes on its haft
   r=await p.evaluate(()=>{let n=untilFree(9000);const K=hero();if(!mine())return{none:true,n};
     const A0=foes().find(f=>f.weaponKey==='axe'&&!f.dead&&!f.downed);if(A0)setTgt(K,A0.idx);const D=targetOf(K);
@@ -166,8 +209,8 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   expect('a Close blow lands from inside the man\'s reach, and he settles there',!r.none&&r.atImpact<=r.close+24&&r.end<r.eng+30,JSON.stringify(r));
   expect('an axe striking him in Close comes on the haft, jammed',r.axe===null||(/choked|haft/.test(r.axe)&&r.jam),JSON.stringify(r));
   await shot('5_close');
-  // 6. a fall: he rises free at his turn, off balance, and the turn is his own
-  r=await p.evaluate(()=>{let n=untilFree(9000);const E=foes().find(f=>!f.dead&&!f.downed&&!f.hench);if(!E)return{none:true};
+  // 6. a fall: he rises free at his turn, off balance, and the turn is his own (in a fresh fight, whatever the checks before left)
+  r=await p.evaluate(()=>{S.F=[];restart();untilMine(6000);let n=untilFree(9000);const E=foes().find(f=>!f.dead&&!f.downed&&!f.hench);if(!E)return{none:true};
     knockDown(E);const lbl=intentLabel(E);let rose=false;const fr=S.hooks.freeRise;S.hooks.freeRise=f=>{if(f===E)rose=true;fr&&fr(f);};
     const getups=[];const c0=command;window.command=command=function(i,c){if(S.F[i]===E&&(c==='getup'||c==='roll'))getups.push(c);return c0.apply(this,arguments);};
     // (Ilyas holds, so nobody strikes him on the floor)
@@ -178,7 +221,7 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   expect('a man knocked down is labelled to rise free',r.lbl==='Rises free',r.lbl);
   expect('he rises free at his turn, off balance, and acts in the same turn',r.rose&&r.foot<=1&&r.acted&&r.getups.length===0,JSON.stringify(r));
   // 7. struck on the floor: a named man loses the free rise and must get up
-  r=await p.evaluate(()=>{let n=untilFree(9000);const K=hero();const E=foes().find(f=>!f.dead&&!f.downed&&!f.hench);if(!E||!mine())return{none:true};
+  r=await p.evaluate(()=>{S.F=[];restart();untilMine(6000);let n=untilFree(9000);const K=hero();const E=foes().find(f=>!f.dead&&!f.downed&&!f.hench);if(!E||!mine())return{none:true};
     // (he is put in reach, and the blow on the floor is made to land: the rule is what happens after it)
     {const fa=Math.sign(E.station-K.station)||1;E.station=clampSt(E,K.station+fa*engageGap(K,E));E.build();fast(2);}
     knockDown(E);setTgt(K,E.idx);fast(2);const lbl0=intentLabel(E);let got=null;const getups=[];const c0=command;
