@@ -247,13 +247,26 @@ const STN_SHORT={bound:{thrust:h=>`beats ${h||'a'} thrust`,slash:h=>`takes ${h||
   close:{overhead:h=>`inside ${h||'a'} swing`,slash:h=>`inside ${h||'a'} cut`,thrust:h=>`onto ${h||'a'} point`,sweep:()=>'easy to sweep'},
   unbound:{overhead:h=>`catches ${h||'an'} arm`,thrust:()=>'thrust gets in'}};
 const STN_KIND={slash:'a cut',overhead:'an overhead',thrust:'a thrust',sweep:'a sweep'};
+// the blows a man's weapon usually throws, as shares: what else a stance may meet before Ilyas's next turn besides the blow he shows
+// (his riposte, a second turn of his), weighed at a little over half a blow; and the bar's words for the strongest of them
+const STN_HABIT={axe:{slash:.4,overhead:.35,thrust:.2,sweep:.05},spear:{thrust:.65,slash:.3,overhead:.05},dagger:{slash:.4,thrust:.4,sweep:.15,overhead:.05},
+  sword:{slash:.5,thrust:.4,overhead:.1},other:{slash:.5,thrust:.35,overhead:.15}};
+const STN_HABIT_W=.6;
+const STN_HABIT_SHORT={bound:{thrust:'beats his thrusts',slash:'takes his cuts',overhead:'his overheads beat it'},
+  close:{overhead:'inside his swings',slash:'inside his swings',thrust:'onto his point',sweep:'easy to sweep'},
+  unbound:{overhead:'catches his arm',thrust:'his thrusts get in'}};
+function stanceHabit(K,D,s){const H=STN_HABIT[D.weaponKey]||STN_HABIT.other,far=comesFar(D,K);let v=0,top=null;
+  for(const kind in H){const T=stanceAs(K,s,()=>pickTechnique(D,K,kind));let a=stnAnswer(s,kind,T,D,far);a=a?a[1]:stanceAs(K,s,()=>stnJams(D,K,kind))?2:0;
+    const c=H[kind]*a;v+=c;if(c&&(!top||Math.abs(c)>Math.abs(top.c)))top={c,kind};}
+  v=Math.round(v*STN_HABIT_W*10)/10;return top&&Math.abs(v)>=.3?{v,short:STN_HABIT_SHORT[s][top.kind]||''}:null;}
 function stanceAs(K,s,fn){const was=K.stance;K.stance=s;try{return fn();}finally{K.stance=was;}}
 function stanceNear(K,D){return foes().filter(o=>o!==D&&upright(o)&&!o.walkIn&&Math.abs(o.station-K.station)-engageGap(K,o)<90).length;}
 // the reasons for (v>0) and against (v<0) a stance against him now, each with the bar's words and what it is about (k: 3 a blow he
 // shows, 2 the range, 1 his weapon, 0 the crowd; of two reasons as strong, the bar names the one about what he is doing)
 function stanceFactors(K,D,s){const F=[];if(!K||!D||D.dead||D.downed)return F;const add=(v,short,k)=>{if(v)F.push({v,short,k});},w=stanceWord(D),g=lashGap(K,D);
-  // his weapon: the axe in reach (its swings jammed, below), a short blade still outside the point, a spear against the chain
-  if(s==='close'&&stanceHeavy(D)&&!comesFar(D,K))add(1,`inside the ${w}`,1);
+  // his weapon: the blows it usually throws (an axe's swings jammed in reach, a spear's thrusts beaten aside...), a short blade still
+  // outside the point, a spear against the chain
+  {const h=stanceHabit(K,D,s);if(h)add(h.v,h.short,1);}
   if(s==='bound'&&outreaches(K,D)&&!comesInside(D,K))add(3,`${w} kept off`,1);
   if(s==='unbound'&&D.weaponKey==='spear')add(2,`past the ${w}`,1);
   // how far off he is: the range of Ilyas's own blows
