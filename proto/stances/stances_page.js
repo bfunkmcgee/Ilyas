@@ -1,7 +1,9 @@
 // The stance and rise test page in a browser, at a phone held upright (or SIZE=land, desk). It opens on a fight with the stance bar;
-// each stance changes the dock's moves, his guard and (Unbound) the blade; an Unbound lash goes from where he stands and a Close blow
-// leaves him in the man's chest, where an axe comes on its haft; a man knocked down rises free at his turn, off balance; struck on the
-// floor, a named man must get up and a crew man is finished; the setup turns each rule off. Stills of each go to the out folder.
+// each stance changes the dock's moves, his guard and (Unbound) the blade; Unbound is a bladed whip that strikes from where he stands,
+// its chain trailing the throw and landing its tip on the blade's tip with a crack, hardest at the tip, curling round a guard, hanging
+// at rest and locking for a relocked blow; a Close blow leaves him in the man's chest, where an axe comes on its haft; a man knocked
+// down rises free at his turn, off balance; struck on the floor, a named man must get up and a crew man is finished; the setup turns
+// each rule off. Stills of each go to the out folder.
 // usage (from the repo, after build_stances.py): node proto/stances/stances_page.js [outdir]
 const {chromium}=require('playwright');const fs=require('fs'),path=require('path');
 const OUT=process.argv[2]||path.join(__dirname,'out'),SZ=process.env.SIZE||'port';fs.mkdirSync(OUT,{recursive:true});
@@ -45,17 +47,42 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   // 3. Unbound: the blade drawn loose, and the strikes are lashes or relocked blows
   r=await p.evaluate(()=>{const K=hero(),D=targetOf(K);stb('unbound').click();fast(30);
     return{st:K.stance,mode:(arcState(K)||{}).mode,ready:lashReady(K,D),gap:Math.round(gapX(K,D)),slash:tq('slash'),over:tq('overhead'),thrust:tq('thrust'),sweep:tq('sweep')};});
-  expect('Unbound draws the blade loose on its thread',r.st==='unbound'&&r.mode==='lash',JSON.stringify(r));
-  expect('Unbound\'s strikes are lashes at range, or relocked blows inside it',r.ready?/Unbound lash/.test(r.slash)&&/Falling lash/.test(r.over)&&/Lash/.test(r.thrust)&&/snare/i.test(r.sweep):/Relocked/.test(r.slash),JSON.stringify(r));
+  expect('Unbound draws the blade as a bladed whip',r.st==='unbound'&&r.mode==='whip',JSON.stringify(r));
+  expect('Unbound\'s strikes are whip blows at range, or relocked blows inside it',r.ready?/Whipcrack|Short lash/.test(r.slash)&&/High crack|Falling lash/.test(r.over)&&/Lash dart|Short dart/.test(r.thrust)&&/Ankle wrap/.test(r.sweep):/Relocked/.test(r.slash),JSON.stringify(r));
   await shot('3_unbound');
-  // 4. a lash from range: he stays where he is, the chain goes out, and nothing runs in
+  // 4. the whip from range: he stays where he is and the chain goes out; drawn, it trails the throw and lands its tip on the blade's
+  // tip (where the game has the blow land) with a crack
   r=await p.evaluate(()=>{const K=hero(),D=targetOf(K),fa=Math.sign(D.station-K.station)||1;
-    // (put him at lash range)
+    // (put him out on the tip)
     K.station=clampSt(K,D.station-fa*(engageGap(K,D)+90));K.build();fast(20);const x0=K.station,ready=lashReady(K,D),slash=tq('slash');
-    cmd('slash').click();let lash=false,n=0,mid=null;while(n<600&&S.game.ex){fast(1);n++;if(K.lash&&K.lashLen>K.wp.len+20){lash=true;if(!mid)mid=n;}if(mid&&n===mid+3)break;}
-    return{ready,slash,x0,x1:K.station,lash,n};});
-  expect('an Unbound lash goes from where he stands: the chain runs out and he does not run in',r.ready&&/Unbound lash/.test(r.slash)&&r.lash&&Math.abs(r.x1-r.x0)<12,JSON.stringify(r));
+    cmd('slash').click();let lash=false,n=0,hold=null,crack=false,thrown=null,mode=null;
+    while(n<600&&S.game.ex){fast(1);n++;const L=K.lash,W=K._whip;if(L&&K.lashLen>K.wp.len+20)lash=true;if(!L||!W)continue;const u=S.t-L.t0,j=W.x.length-1,T=K.p[TIP];
+      if(u>=L.a&&u<L.b&&thrown==null)thrown=Math.hypot(W.x[j]-T.x,W.y[j]-T.y);
+      if(u>=L.b&&u<L.c){hold=Math.hypot(W.x[j]-T.x,W.y[j]-T.y);crack=S.flashes.some(e=>e.color==='#e6fffb'&&Math.hypot(e.x-T.x,e.y-T.y)<40);mode=(arcState(K)||{}).mode;break;}}
+    return{ready,slash,x0,x1:K.station,lash,n,thrown:thrown&&Math.round(thrown),hold:hold&&+hold.toFixed(2),crack,mode};});
+  expect('an Unbound whip goes from where he stands: the chain runs out and he does not run in',r.ready&&/Whipcrack/.test(r.slash)&&r.lash&&Math.abs(r.x1-r.x0)<12,JSON.stringify(r));
+  expect('the drawn chain trails the throw, lands its tip on the blade\'s tip and cracks there',r.mode==='whip'&&r.thrown>8&&r.hold!=null&&r.hold<1.5&&r.crack,JSON.stringify(r));
   await shot('4_lash');
+  // 4b. the tip does the cutting, and the cut curls round a raised guard
+  r=await p.evaluate(()=>{untilFree(9000);const K=hero();if(!mine())return{none:true};const D=foes().find(f=>f.weaponKey==='axe'&&!f.dead&&!f.downed)||foes().find(f=>!f.dead&&!f.downed);setTgt(K,D.idx);
+    stb('unbound').click();fast(4);const fa=Math.sign(D.station-K.station)||1,at=g=>{K.station=clampSt(K,D.station-fa*(engageGap(K,D)+g));K.build();fast(4);};
+    at(100);const far=pickTechnique(K,D,'slash'),dart=pickTechnique(K,D,'thrust'),g0=D.guarding;D.guarding=true;
+    const par=(k,T)=>(computeMods(K,D,k,false,T).defMods.find(m=>m[0]==='parry')||[0,0])[1],pS=par('slash',far),pD=par('thrust',dart);D.guarding=g0;
+    at(20);const near=pickTechnique(K,D,'slash');at(100);
+    return{far:far.name,fd:far.dmg,near:near.name,nd:near.dmg,pS,pD,dart:dart.name,wp:D.weaponKey};});
+  expect('the whip cuts hardest at the tip: the Whipcrack out at the end of the chain, the Short lash inside it',r.far==='Whipcrack'&&r.near==='Short lash'&&r.fd>1&&r.nd<1,JSON.stringify(r));
+  expect('the cut curls round a raised guard: a Parry adds +2 against it, +4 against the dart',r.wp==='spear'||(r.pS===2&&r.pD===4),JSON.stringify(r));
+  // 4c. at rest the chain hangs from the hilt
+  r=await p.evaluate(()=>{fast(150);const K=hero(),W=K._whip;if(!W)return{none:true,st:stanceOf(K)};const j=W.x.length-1,h=K.p[HAF],t=K.p[TIP],ux=t.x-h.x,uy=t.y-h.y,l=Math.hypot(ux,uy)||1;
+    return{drop:Math.round(W.y[j]-W.y[0]),off:Math.round(Math.abs(((W.x[j]-h.x)*uy-(W.y[j]-h.y)*ux)/l)),mode:(arcState(K)||{}).mode};});
+  expect('at rest the chain hangs from the hilt',r.mode==='whip'&&r.drop>25&&r.off>10,JSON.stringify(r));
+  await shot('4c_rest');
+  // 4d. inside his reach the blow relocks: the chain locks into the blade for it and comes loose after
+  r=await p.evaluate(()=>{const K=hero(),D=targetOf(K);if(!mine())return{none:true};const fa=Math.sign(D.station-K.station)||1;
+    K.station=clampSt(K,D.station-fa*(engageGap(K,D)-30));K.build();fast(10);const name=pickTechnique(K,D,'slash').name;cmd('slash').click();const modes={};let n=0;
+    while(n<900&&S.game.ex){if(S.opening&&!isAI(S.opening.f.idx))resolveOpening('hold');fast(1);n++;const ex=S.game.ex;if(ex&&ex.A===K&&ex.res)modes[(arcState(K)||{mode:'rigid'}).mode]=1;}
+    untilFree(9000);fast(20);return{name,modes:Object.keys(modes),after:(arcState(K)||{}).mode,st:stanceOf(K)};});
+  expect('a relocked blow locks the chain into the blade, and it comes loose after',/Relocked/.test(r.name)&&r.modes.length>0&&!r.modes.includes('whip')&&r.after==='whip',JSON.stringify(r));
   // 5. a Close blow: he strikes from inside the man's reach and stays there, and the axe that answers comes on its haft
   r=await p.evaluate(()=>{let n=untilFree(9000);const K=hero();if(!mine())return{none:true,n};
     const A0=foes().find(f=>f.weaponKey==='axe'&&!f.dead&&!f.downed);if(A0)setTgt(K,A0.idx);const D=targetOf(K);

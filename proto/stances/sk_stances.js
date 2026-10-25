@@ -4,11 +4,14 @@
 //            with a short blade runs onto his point as he closes (the stop-hit the longer weapon has today), strikes at -2 instead
 //            of the +2 a short blade has inside a long one's reach, and a grab on him is at -2. Against a longer weapon he has to
 //            walk onto the point. No lash.
-//   Unbound  the segments loose on their thread: every blow is a lash from where he stands, from just outside his reach to well past
-//            it (no run in, no stop-hit on him, and a lash parried out there opens no riposte: the man is too far off): the Unbound
-//            lash, the Falling lash, the Lash dart and the Lash snare. A spear's Parry and Counter hold nothing against a lash (a
-//            shaft cannot turn a chain). A man who closes on him through the chain's reach runs onto
-//            it: a stop-lash, as a spear's stop-hit. Inside his reach the blade relocks for the blow, at -2. A chain is no guard: his
+//   Unbound  the segments loose on their thread: a bladed whip. Every blow is a lash from where he stands, from just outside his
+//            reach to well past it (no run in, no stop-hit on him, and a lash parried out there opens no riposte: the man is too far
+//            off). The tip does the cutting: a man out at the end of the chain (STN.tip past his striking distance and on) takes the
+//            crack, the Whipcrack, the High crack and the Lash dart, at 1.2, 1.1 and .95; a man inside the tip takes the chain's
+//            body, the Short lash, the Falling lash and the Short dart, at .8, .75 and .65. The cut curls round a raised guard (a
+//            Parry adds +2, not +4), and a spear's Parry and Counter hold nothing against the chain (a shaft cannot turn it). The
+//            Ankle wrap is the old snare. A man who closes on him through the chain's reach runs onto the tip: a stop-lash, as a
+//            spear's stop-hit, at the tip's weight. Inside his reach the blade relocks for the blow, at -2. A whip is no guard: his
 //            Parry is at -1 and his Counter at -2 until he changes it.
 //   Close    the blade choked short: the hilt-ring and the spine, a hook from inside, and his free hand at the collar (grab +2). He
 //            stays in a man's chest after a blow. An axe that strikes him meets him inside its head: the blow comes on the haft, at -2
@@ -19,13 +22,22 @@
 const STANCE={on:true,policy:'match'};
 const STANCES={
   bound:{name:'Bound',short:'Locked blade',good:'Crowds, daggers',line:'The blade locked at full length: crescents, and two men in one stroke.'},
-  unbound:{name:'Unbound',short:'The lash',good:'Spears, reach',line:'The segments loose on the thread: lash, dart and snare from past his reach.'},
+  unbound:{name:'Unbound',short:'The whip',good:'Spears, reach',line:'The segments loose on the thread: a bladed whip that cracks from past his reach.'},
   close:{name:'Close',short:'Inside',good:'Axes, one on one',line:'The blade choked short: hilt, spine and the grip, inside the reach.'}};
 const STANCE_ORDER=['bound','unbound','close'];
-// unboundMin/Max: the lash's reach, past his striking distance; relock: a blow inside it; parry/counter: a chain is no guard; tied: Close
-// against everyone but his man; grab/grabDef: Close's grip, Bound's point; closeGap: how close Close stays after a blow; cleave/whirl:
-// how much further Bound's two-man strokes reach; daze: the hilt-ring hammer dazes on a hit
-const STN={unboundMin:-12,unboundMax:LASH.reach+60,relock:-2,parry:-1,counter:-2,tied:-1,grab:2,grabDef:2,point:-2,closeGap:14,cleaveX:84,cleaveZ:58,whirlR:30};
+// unboundMin/Max: the lash's reach, past his striking distance; tip: where the whip's tip starts, past his striking distance (where
+// an ordinary blade's reach ends); stop: the line a man closing on him crosses onto the tip; relock: a blow inside his reach;
+// parry/counter: a whip is no guard; tied: Close against everyone but his man; grab/grabDef: Close's grip, Bound's point; closeGap:
+// how close Close stays after a blow; cleave/whirl: how much further Bound's two-man strokes reach
+const STN={unboundMin:-12,unboundMax:LASH.reach+60,tip:APPROACH_FREE,stop:APPROACH_FREE+16,relock:-2,parry:-1,counter:-2,tied:-1,grab:2,grabDef:2,point:-2,closeGap:14,cleaveX:84,cleaveZ:58,whirlR:30};
+// Unbound's whip, by attack: the blow at the tip and the blow inside it ([key, name, damage]), its knock and where it lands; the cut
+// curls round a raised guard (hook: a Parry adds +2, not +4)
+const WHIP={slash:{tip:['whipcrack','Whipcrack',1.2],near:['shortlash','Short lash',.8],knock:LASH.knock,hook:true},
+  overhead:{tip:['highcrack','High crack',1.1],near:['lashfall','Falling lash',.75],knock:.5},
+  thrust:{tip:['lashdart','Lash dart',.95],near:['shortdart','Short dart',.65],knock:.4,anchor:'chest'}};
+function whipTip(A,D){return!!A&&!!D&&lashGap(A,D)>=STN.tip;}
+// (how Ilyas on auto plays the whip: how often he steps back to put a man who holds off on the tip)
+const WHIP_AI={step:.25};
 function stanceOn(f){return STANCE.on&&!!f&&f===hero()&&f.weaponKey==='elven'&&!f.wp.improv&&!(typeof drained==='function'&&drained(f));}
 function stanceOf(f){return stanceOn(f)?(f.stance||'bound'):null;}
 V11.duelStart.push(()=>{const K=hero();if(K){K.stance='bound';K.stanceT=-9;}});
@@ -51,9 +63,14 @@ function stnLash(A,kind,o){return Object.assign({kind,key:'lash',name:'',why:'',
   kick:false,vault:false,around:null,rising:false,descend:false,windCap:null,passing:false,flair:null,multi:null,knock:1,kdEase:0,lash:true,move:true},o);}
 const STN_SIGNED=n=>(n<0?'\u2212':'+')+Math.abs(n);
 const STN_WHY={
-  lash:'From where he stands the segments shoot out on their thread and the blade cuts at the end of it: no run in and no stop-hit.',
-  fall:'The chain goes up and comes down over his guard: it breaks a Parry, and a man off balance goes down under it.',
-  dart:'The point darts out on the thread straight at him.',
+  whipcrack:'He is out on the tip: the chain rolls out and the tip cracks across him, and it curls round a raised guard (Parry only +2).',
+  shortlash:'He is inside the tip: the chain’s body lands, not its edge, and lighter. Step back and the tip cracks.',
+  highcrack:'The chain loops up high and the tip cracks down on him, over any guard: a man off balance goes down under it.',
+  lashfall:'Inside the tip, the chain comes down over his guard, but lighter.',
+  lashdart:'The chain snaps out straight and the point takes him in the chest from the end of its reach.',
+  shortdart:'Inside the tip, the point darts in short and light.',
+  wrap:'The end of the chain wraps his ankle and yanks him in: Committed or worse, he goes down.',
+  stop:'He runs onto the tip of the chain as he closes.',
   hook:'From inside his reach the curve of the blade hooks behind his ankle and pulls: a Committed man goes down on a clean hit.',
   hammer:'Too close to cut, so the hilt-ring comes down on his face.'};
 {const pt=pickTechnique;pickTechnique=function(A,D,kind){
@@ -63,19 +80,44 @@ const STN_WHY={
     if(kind==='sweep'&&!T.haftCut)T={...T,key:'insidehook',name:'Inside hook',anchor:'shin',along:A.wp.len*.5,amp:.7,acc:1,kdEase:2,why:STN_WHY.hook,stanceWhy:STN_WHY.hook};
     if(kind==='overhead'&&T.key==='pommel')T={...T,stanceWhy:STN_WHY.hammer,why:STN_WHY.hammer};
     return T;}
-  // Unbound: a lash, or inside his reach the blade relocks for the blow
+  // Unbound: the whip, or inside his reach the blade relocks for the blow
   const ready=lashReady(A,D)&&obstacleBehind(A)>=38;
   if(!ready){STN_CTX={clinch:false};let T;try{T=pt.apply(this,arguments);}finally{STN_CTX=null;}
     return{...T,stance:'unbound',relock:true,acc:(T.acc||0)+STN.relock,name:'Relocked '+lowFirst(T.name),tags:[...T.tags,'Relocking'],
-      why:'Too close for the lash: the segments lock again for the blow, and it comes late. '+T.why,stanceWhy:'Too close for the lash: the blade relocks for the blow, at '+STN_SIGNED(STN.relock)+'.'};}
+      why:'Too close for the whip: the segments lock again for the blow, and it comes late. '+T.why,stanceWhy:'Too close for the whip: the blade relocks for the blow, at '+STN_SIGNED(STN.relock)+'.'};}
   let T;
-  if(kind==='slash')T=stnLash(A,kind,{key:'lash',name:'Unbound lash',acc:LASH.acc,dmg:1,knock:LASH.knock,why:STN_WHY.lash,stanceWhy:STN_WHY.lash});
-  else if(kind==='overhead')T=stnLash(A,kind,{key:'lashfall',name:'Falling lash',acc:-1,dmg:.9,knock:.5,why:STN_WHY.fall,stanceWhy:STN_WHY.fall});
-  else if(kind==='thrust')T=stnLash(A,kind,{key:'lashdart',name:'Lash dart',acc:-1,dmg:.8,knock:.4,anchor:'chest',why:STN_WHY.dart,stanceWhy:STN_WHY.dart});
-  else T=pt.apply(this,arguments);
+  // the tip does the cutting: out at the end of the chain it cracks, inside it the chain's body lands
+  if(WHIP[kind]){const W=WHIP[kind],tip=whipTip(A,D),[key,name,dmg]=tip?W.tip:W.near;
+    T=stnLash(A,kind,{key,name,acc:LASH.acc,dmg,knock:W.knock,anchor:W.anchor||null,hook:!!W.hook,whip:true,tip,why:STN_WHY[key],stanceWhy:STN_WHY[key]});
+    T.tags.splice(1,0,tip?'The tip':'Inside the tip');}
+  else{T=pt.apply(this,arguments);if(T.snare)T={...T,name:'Ankle wrap',whip:true,wrap:true,tip:false,why:STN_WHY.wrap,stanceWhy:STN_WHY.wrap};}
   return{...T,stance:'unbound'};};}
+// a man closing on him runs onto the tip: the stop-lash is the tip's blow, wherever he is when it lands
+{const st=stopTech;stopTech=function(T,D,s){const R=st.apply(this,arguments);if(!T||!T.whip||T.stance!=='unbound')return R;
+  const tipT=WHIP.thrust.tip;return{...R,key:'stoplash',name:'Stop-lash',dmg:tipT[2],tip:true,why:`${D.name} runs onto the tip of the chain as he closes.`,stanceWhy:STN_WHY.stop};};}
 // the chain is Unbound's own way to fight, not a trick: its lash spends no extra pip of balance (a heavy blow still spends its own)
 {const fd=footDelta;footDelta=function(A,cmd,T){if(T&&T.lash&&T.stance==='unbound'&&A===hero())return-(FOOT_COST[cmd]||0);return fd.apply(this,arguments);};}
+// ---------- how the whip moves ----------
+// The chain is already loose, so nothing unlocks at the start of a blow and nothing locks at its end: the hand throws, the chain
+// rolls out after it, the tip runs out fastest at the very end (eIn instead of eOut) and cracks at the impact, flash and sound, at
+// the tip or in the air if it missed; the snare wraps instead. Then the chain is reeled in, still loose. The throw is a little
+// slower than a lash, so the roll-out can be seen.
+function isWhip(T){return!!T&&!!T.whip&&T.stance==='unbound';}
+{const to=tacOf;tacOf=function(f,T){const R=to.apply(this,arguments);return isWhip(T)?{...R,strike:R.strike*1.3,follow:R.follow*1.2}:R;};}
+{const pa=planAttack;planAttack=function(A,D,kind,res){const P=pa.apply(this,arguments),T=res&&res.tech,L=A.lash;
+  if(!isWhip(T)||!L||L.t0!==S.t)return P;
+  const a0=L.a,ts=(L.b-L.a)/.65,w1=L.a-.35*ts;L.a=w1+.12*ts;L.whip=true;L.tip=!!T.tip;L.wrap=!!T.wrap;
+  P.events=P.events.filter(e=>!((Math.abs(e.t-(a0-.02))<1e-9&&/'unroll'/.test(String(e.fn)))||(Math.abs(e.t-L.d)<1e-9&&/relockT/.test(String(e.fn)))));
+  P.events.push({t:L.c,fn:()=>{if(!A.dead)S.hooks.sound('reel',.7);}});
+  if(T.tip)P.events.push({t:P.Timp,fn:()=>{if(A.dead)return;const q=A.p[TIP];flash(q,24,'#e6fffb',A.dep);sparks(q,9,'#8ff5e8',A.dep);S.hooks.sound('whipcrack',1);}});
+  return P;};}
+{const ls=lashStep;lashStep=function(f){const L=f.lash;if(!L||!L.whip)return ls.apply(this,arguments);const base=f.wp.len;
+  if(f.dead||f.weaponKey!=='elven'||S.t-L.t0>L.d+.2){f.sticks[10][2]=base;f.lash=null;return;}
+  const u=S.t-L.t0;let len=base;
+  if(u>=L.a&&u<L.b)len=lerp(base,L.L,eIn((u-L.a)/Math.max(.01,L.b-L.a)));
+  else if(u>=L.b&&u<L.c)len=L.L;
+  else if(u>=L.c&&u<L.d)len=lerp(L.L,base,sstep((u-L.c)/Math.max(.01,L.d-L.c)));
+  f.sticks[10][2]=len;f.lashLen=len;};}
 // Unbound strikes from where he stands: nothing to close, no stop-hit on the way in
 {const ac=approachCost;approachCost=function(A,D,cmd){if(stanceOf(A)==='unbound'&&ATTACKS.includes(cmd)&&D&&!D.downed&&lashReady(A,D))return 0;return ac.apply(this,arguments);};}
 {const sh=stopHitFor;stopHitFor=function(A,D,cmd,dest){
@@ -87,7 +129,7 @@ const STN_WHY={
   // Close holds the blade short: no point to run onto
   if(D&&stanceOf(D)==='close')return false;
   return sh.apply(this,arguments);};}
-{const sr=stopRange;stopRange=function(D,A){if(D&&A&&stanceOf(D)==='unbound'&&A.team!==D.team)return engageGap(D,A)+APPROACH_FREE+16;return sr.apply(this,arguments);};}
+{const sr=stopRange;stopRange=function(D,A){if(D&&A&&stanceOf(D)==='unbound'&&A.team!==D.team)return engageGap(D,A)+STN.stop;return sr.apply(this,arguments);};}
 // a lash parried or dodged out past the man's reach opens nothing for him: he is too far off to answer it
 {const co=considerOpening;considerOpening=function(ex,f,opp,src){
   if(opp&&opp===hero()&&ex&&ex.A===opp&&ex.res&&ex.res.tech&&ex.res.tech.lash&&stanceOf(opp)==='unbound'&&['parry','block','counter','dodge','dodgeOver'].includes(src)&&
@@ -140,12 +182,13 @@ const STANCE_GUARD={unbound:{hx:.6,hy:.52,w:.62,gw:0,off:[.14,.5],crouch:.9,lean
     if(D===K&&stanceOf(K)==='unbound'&&!K.downed&&cmdValid(A,D,'advance')){const g=Math.abs(A.station-D.station)-engageGap(A,D),p=A.temper==='rusher'?.7:A.temper==='brute'?.5:.45;
       if(g>APPROACH_FREE&&S.rng()<p)return'advance';
       const c=ac.apply(this,arguments);return c==='wait'&&g>0?'advance':c;}}
-  // Ilyas on auto picks his stance at the start of his choice, and in Unbound uses what the chain is for
+  // Ilyas on auto picks his stance at the start of his choice, and in Unbound uses what the whip is for: the crack from the tip (a
+  // step back to put a man who holds off on it), the overhead on a man off balance, the wrap on a Committed one
   if(A&&A===hero()&&stanceOn(A)&&isAI(i)&&stanceCanSwitch(A)){const s=stanceAuto(A);if(s)setStance(A,s);
     const D=targetOf(A);if(stanceOf(A)==='unbound'&&D&&!D.downed&&!D.dead&&lashReady(A,D)){const ok=c=>cmdValid(A,D,c),r=S.rng();
       if(D.posture==='off'&&ok('overhead')&&A.foot>=4)return'overhead';
       if(D.posture==='committed'&&ok('sweep')&&r<.5)return'sweep';
-      if(ok('thrust')&&r<.35)return'thrust';}}
+      if(!whipTip(A,D)&&D.temper==='keeper'&&r<WHIP_AI.step&&ok('withdraw')&&roomBehind(A)>60&&withdrawInfo(A,D))return'withdraw';}}
   return ac.apply(this,arguments);};}
 // which stance answers the man he faces (STANCE.policy: 'match'; the test's checks also try one stance only, and the worst match)
 // a heavy weapon: the axe (an improvised one, the table leg or the bare shaft, does not count)
