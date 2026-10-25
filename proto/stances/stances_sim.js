@@ -2,7 +2,7 @@
 // playing the stances by a policy. It counts wins, how close the fights are, the turns spent on the floor and getting up, the free
 // rises and the blows on the floor, and how each stance is used, and stops on any error.
 // usage (from the repo): node proto/stances/stances_sim.js [fights per setup, default 4] [key=value ...]
-//   down=1|0  rise=off|committed  stance=1|0  policy=match|bound|unbound|close|worst|weapon  jam=2  mix=mixed|brute|keeper|rusher  crew=0|1  n=1,2,3
+//   down=1|0  rise=off|committed  stance=1|0  policy=match|bound|unbound|close|worst|weapon  jam=2 crowdafter=0  mix=mixed|brute|keeper|rusher  crew=0|1  n=1,2,3
 //   step= (how often Ilyas on auto steps back to put a man who holds off on the whip's tip), tip= (where the tip starts)
 //   policy=weapon: the first test's match, on the weapon and the crowd alone (match reads the range and the blow he shows too)
 const fs=require('fs'),path=require('path');
