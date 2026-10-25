@@ -50,10 +50,10 @@ function reactDur(D){return lerp(REACT.durMin,REACT.durMax,D.sk||0);}
 // the attacker draws back for the blow while time slows (.3 s of game time, about as long as the window in the player's own):
 // the window shows it coming
 function tellPose(A,kind,T){
-  const arm=A.arm,wb=windupBase(T,kind,arm,T&&T.amp||1,kind==='thrust'?-.15:.2),off=A.wp.off?'grip':{sh:[.1*arm,.3*arm]};
+  const wb=windupBase(T,kind,A.arm,T&&T.amp||1,kind==='thrust'?-.15:.2);
   // (a rider keeps his seat: only the arm draws back)
-  const T1=.3,body=A.mount?[{t:0,v:{...A.curBody}},{t:T1,v:()=>A.guardBody()}]:[{t:0,v:{...A.curBody}},{t:T1,v:()=>({...A.guardBody(),crouch:A.guardBody().crouch-.04,lean:A.guardBody().lean+.06}),e:eOut}];
-  A.action={t0:S.t,end:T1,body,arm:[{t:0,v:{...A.curArm}},{t:T1,v:{hand:wb.hand,wAng:wb.ang,off,tilt:0},e:eOut}]};}
+  const T1=.3,body=bodyKeys(A,A.mount?[[0,'now'],[T1,'guard']]:[[0,'now'],[T1,'tell',eOut]]);
+  A.action={t0:S.t,end:T1,body,arm:armKeys(A,[[0,'now'],[T1,'tell',{hand:wb.hand,wAng:wb.ang},eOut]])};}
 // The blow is held for the answer: an enemy (or a hero on auto) answers at once; a hero the player controls gets the window
 {const la=launchAttack;launchAttack=function(A,D,kind,ex,opening,popts){
   if(!ex||ex.reacted||!canReact(A,D,kind))return la.apply(this,arguments);

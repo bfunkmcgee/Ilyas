@@ -206,19 +206,18 @@ function roomFlowOn(ex,A,D){if(A.dead||A.downed||!(D.dead||D.downed))return;cons
 function planHurl(A,D,tr,info){
   const dP=Math.sign(D.station-A.station)||A.facing,arm=A.arm,ex=S.game.ex,T0=.2,dist=Math.abs(info.x-D.p[PEL].x),air=clamp(dist/360,.3,.6),Tl=T0+air,Tend=Tl+.45;
   A.facing=dP;const grip=()=>({x:D.p[CHE].x-dP*D.body.torsoW*.4,y:lerp(D.p[CHE].y,D.p[HEAD].y,.25)});
-  const sx=clampSt(A,D.station-dP*(arm*.6+D.body.torsoW*.5+6)),dash=Math.abs(sx-A.station),gB=()=>A.guardBody(),gA=()=>A.guardArm(),one=!A.wp.off;
-  const reach={hand:one?{sh:[.3*arm,0]}:{fn:grip},wAng:-.9,off:one?{fn:grip}:'grip',tilt:.12};
+  const sx=clampSt(A,D.station-dP*(arm*.6+D.body.torsoW*.5+6)),dash=Math.abs(sx-A.station),one=!A.wp.off;
+  // (the reach and the heave are the beasts' toss: sk_beast.js)
+  const reach=armPose(A,poseA(A,'tossReach'),one?{off:{fn:grip}}:{hand:{fn:grip}});
   if(!tr.ok){const Te=T0+.45;
-    const body=[{t:0,v:{...A.curBody}},{t:T0,v:()=>({...gB(),px:sx,crouch:.76,lean:.3,th:.3}),e:eOut},{t:T0+.26,v:()=>({...gB(),px:sx,crouch:.84,lean:-.06,th:.3})},{t:Te,v:gB,e:sstep}];
-    const armK=[{t:0,v:{...A.curArm}},{t:T0,v:reach,e:eOut},{t:Te,v:gA,e:sstep}];
+    const body=bodyKeys(A,[[0,'now'],[T0,'tossGrab',{px:sx},eOut],[T0+.26,'tossFail',{px:sx}],[Te,'guard',sstep]]);
+    const armK=armKeys(A,[[0,'now'],[T0,reach,eOut],[Te,'guard',sstep]]);
     const events=[{t:T0+.03,fn:()=>{spendFoot(A,1);A.ready+=10;D.station=clampSt(D,D.station+dP*14);for(const q of D.p)q.px-=dP*90*DT;
       popup(D,'Braces','#a5dcff',null,19);S.hooks.sound('thud',220);S.hooks.roomDone(ex,{ok:false,label:'Braced'});S.hooks.status();}}];
     return{att:{t0:S.t,end:Te,body,arm:armK},Tend:Te+.1,events,dash,strikeX:sx,Cfn:grip};}
-  const heave=one?{hand:{sh:[.25*arm,.1*arm]},wAng:-.7,off:{fn:()=>{const c=A.p[CHE];return{x:c.x+dP*.5*arm,y:c.y-.45*arm};}},tilt:.15}
-    :{hand:{fn:()=>{const c=A.p[CHE];return{x:c.x+dP*.5*arm,y:c.y-.45*arm};}},wAng:-1.2,off:'grip',tilt:.15};
-  const body=[{t:0,v:{...A.curBody}},{t:T0,v:()=>({...gB(),px:sx,crouch:.72,lean:.3,th:.9}),e:eOut},
-    {t:T0+air*.4,v:()=>({...gB(),px:sx,crouch:.84,lean:.24,th:.9}),e:sstep},{t:Tl,v:()=>({...gB(),px:sx}),e:sstep},{t:Tend,v:gB,e:sstep}];
-  const armK=[{t:0,v:{...A.curArm}},{t:T0,v:reach,e:eOut},{t:T0+air*.38,v:heave,e:eOut},{t:Tl,v:gA,e:sstep},{t:Tend,v:gA}];
+  const lift={fn:()=>{const c=A.p[CHE];return{x:c.x+dP*.5*arm,y:c.y-.45*arm};}},heave=armPose(A,poseA(A,'tossHeave'),one?{off:lift}:{hand:lift});
+  const body=bodyKeys(A,[[0,'now'],[T0,'hurlLoad',{px:sx},eOut],[T0+air*.4,'hurlTurn',{px:sx},sstep],[Tl,'guard',{px:sx},sstep],[Tend,'guard',sstep]]);
+  const armK=armKeys(A,[[0,'now'],[T0,reach,eOut],[T0+air*.38,heave,eOut],[Tl,'guard',sstep],[Tend,'guard']]);
   const hz=info.hazard,E=hz&&hz.kind==='body'?hz.o:null;
   const events=[{t:T0,fn:()=>{if(D.dead||D.downed)return;startCarry(A,D,info,air);const c=D.carry;if(!c)return;info.started=true;
       c.apex={x:lerp(c.from.x,info.x,.5),y:Math.min(c.from.y,A.p[CHE].y)-(16+dist*.1)};c.spin=-dP*Math.PI*.55;
@@ -234,11 +233,10 @@ function planHurl(A,D,tr,info){
 function planFlip(A,D,tr,m){
   const b=tableBox(),dir=m.dir,T0=.24,T1=.5,Tend=1.05,edge=dir>0?b.l:b.r,ex=S.game.ex;
   const sx=clampStage(edge-dir*(A.arm*.45+A.body.torsoW*.5+6)),dash=Math.abs(sx-A.station);A.facing=dir;
-  const gB=()=>A.guardBody(),gA=()=>A.guardArm(),eY=()=>S.table?tableTopAt(edge)+6:S.arena.ground(edge,A.lane)-30;
-  const low={hand:{fn:()=>({x:edge-dir*2,y:eY()})},wAng:-.3,off:A.wp.off?'grip':{fn:()=>({x:edge-dir*6,y:eY()+4})},tilt:.1};
-  const up={hand:{sh:[.4*A.arm,-.6*A.arm]},wAng:-1.3,off:A.wp.off?'grip':{sh:[.3*A.arm,-.55*A.arm]},tilt:-.1};
-  const body=[{t:0,v:{...A.curBody}},{t:T0,v:()=>({...gB(),px:sx,crouch:.68,lean:.34,th:.6}),e:eOut},{t:T1,v:()=>({...gB(),px:sx,crouch:.95,lean:-.14,th:.3}),e:sstep},{t:Tend,v:gB,e:sstep}];
-  const armK=[{t:0,v:{...A.curArm}},{t:T0,v:low,e:eOut},{t:T1,v:up,e:eOut},{t:Tend,v:gA,e:sstep}];
+  const eY=()=>S.table?tableTopAt(edge)+6:S.arena.ground(edge,A.lane)-30;
+  const low=armPose(A,poseA(A,'flipGrip'),{hand:{fn:()=>({x:edge-dir*2,y:eY()})},...(A.wp.off?null:{off:{fn:()=>({x:edge-dir*6,y:eY()+4})}})});
+  const body=bodyKeys(A,[[0,'now'],[T0,'flipLow',{px:sx},eOut],[T1,'flipHeave',{px:sx},sstep],[Tend,'guard',sstep]]);
+  const armK=armKeys(A,[[0,'now'],[T0,low,eOut],[T1,'flipHeave',eOut],[Tend,'guard',sstep]]);
   const events=[{t:T0+.04,fn:()=>roomFlipTable(dir,D,tr.ok,m.on)},{t:T0+.5,fn:()=>roomFlipLand(A,D,tr,dir,ex,m.on)}];
   S.callouts.push({i:A.idx,text:'Table',age:0,life:1,dx:-A.facing*20});
   return{att:{t0:S.t,end:Tend,body,arm:armK},Tend:Tend+.1,events,dash,strikeX:sx,Cfn:()=>({x:b.cx,y:b.t})};}
@@ -263,11 +261,9 @@ function roomFlipLand(A,D,tr,dir,ex,on){
 // the lamp: a cut up at its chain; it drops on him, or beside him if he reads it and steps out from under it
 function planLamp(A,D,tr,m){
   const L=m.L,T0=.26,Tend=1.05,ex=S.game.ex,arm=A.arm,dP=Math.sign(D.station-A.station)||A.facing;A.facing=dP;
-  const gB=()=>A.guardBody(),gA=()=>A.guardArm(),cut={x:L.p.x,y:L.p.y-26};
-  const wind={hand:{sh:[.1*arm,-.2*arm]},wAng:-2.6,off:A.wp.off?'grip':{sh:[.2*arm,.2*arm]},tilt:-.1};
-  const strike={hand:{fn:()=>({x:lerp(A.p[CHE].x,cut.x,.55),y:A.p[HEAD].y-.4*arm})},wAng:-1.2,off:A.wp.off?'grip':{sh:[.2*arm,.1*arm]},tilt:-.2};
-  const body=[{t:0,v:{...A.curBody}},{t:T0,v:()=>({...gB(),crouch:.95,lean:-.05}),e:eOut},{t:Tend,v:gB,e:sstep}];
-  const armK=[{t:0,v:{...A.curArm}},{t:T0*.6,v:wind,e:eOut},{t:T0,v:strike,e:eIn},{t:Tend,v:gA,e:sstep}];
+  const cut={x:L.p.x,y:L.p.y-26};
+  const body=bodyKeys(A,[[0,'now'],[T0,'lampCut',eOut],[Tend,'guard',sstep]]);
+  const armK=armKeys(A,[[0,'now'],[T0*.6,'lampWind',eOut],[T0,'lampCut',{hand:{fn:()=>({x:lerp(A.p[CHE].x,cut.x,.55),y:A.p[HEAD].y-.4*arm})}},eIn],[Tend,'guard',sstep]]);
   const events=[{t:T0,fn:()=>{if(L.fallen){S.hooks.roomDone(ex,{ok:false,label:'Gone'});return;}
     const h=D.p[HEAD],p=L.p,tx=tr.ok?h.x:h.x+(Math.sign(p.x-h.x)||dP)*30,tf=.3;
     L.fallen=true;L.drop={D,ok:tr.ok,crush:tr.crush,by:A,ex};p.px=p.x-(tx-p.x)/tf*DT;p.py=p.y-.6;

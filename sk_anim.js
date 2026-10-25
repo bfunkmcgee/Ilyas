@@ -13,8 +13,8 @@
 //   lift     the whole body off the floor, px
 //   kick     the front foot's target [forward, down] from the pelvis, in leg lengths; kw how much of the foot goes to it (0..1)
 //   on       'guard': the pose stands on his guard. What it does not say comes from the guard, live, so it breathes and follows his
-//            posture as the guard does; add {field: n} adds n to the guard's own value. A pose without it is fixed when the move is
-//            planned, and says everything (crouch, lean, sf, sb, th).
+//            posture as the guard does; add {field: n} adds n to the guard's own value. 'now': it is laid over where he is when the
+//            move is planned. A pose without it is fixed when the move is planned, and says everything (crouch, lean, sf, sb, th).
 // An arm pose (as GUARD's hx, hy, w, off):
 //   hx, hy   the weapon hand forward and down from the shoulder, in arm lengths
 //   w        the blade's angle in his own frame (0 straight ahead, + down, - up); wg: the weapon's guard angle (GUARD) plus wg
@@ -147,6 +147,32 @@ const POSE={body:{
   tossLoad:{on:'guard',crouch:.7,lean:.32,th:.9},       // down on the legs
   tossTurn:{on:'guard',crouch:.86,lean:.1,th:.9},       // the whole body turned into the throw
   tossOver:{on:'guard',crouch:.86,lean:-.3,th:.9},      // ... over the shoulder when it goes behind him
+  // ---- finishers (sk_fin.js) ----
+  dyingThroat:{on:'now',crouch:.74,lean:.08},           // a dying body: hands to the throat
+  dyingThroatDown:{on:'now',crouch:.46,lean:.42},
+  dyingClutch:{on:'now',crouch:.68,lean:.45},           // ... to the wound
+  dyingClutchDown:{on:'now',crouch:.5,lean:.6},
+  dyingKneel:{on:'now',crouch:.5,lean:.06},             // ... or down on its knees
+  dyingKneelDown:{on:'now',crouch:.42,lean:.22},
+  draw:{on:'guard',add:{lean:.08,crouch:-.03}},         // a sidearm drawn from its sheath
+  insureDip:{sf:.46,sb:-.3,th:.3,lift:0,kw:0},          // the stab on the way through (its crouch and lean are worked out: sk_insure.js)
+  // ---- Short Hand (sk_short.js) ----
+  hingeTurn:{on:'guard',crouch:.68,lean:.34,th:.12},    // the Hinge: the empty side turned into the blow
+  hingeIn:{on:'guard',crouch:.71,lean:.3,th:.32},       // ... and the step in after it
+  hingeJolt:{on:'now',crouch:.66,lean:.2,th:.08},       // a glancing blow that lands: the jolt on the shoulder
+  hingeSettle:{on:'guard',crouch:.71,lean:.3,th:.3},
+  tollLean:{on:'guard',crouch:.74,lean:.06,th:.12},     // the Wrist toll: in over the reaching hand
+  tollGrab:{on:'guard',crouch:.72,lean:.3,th:.12},      // ... the hand that grabs
+  chin:{on:'guard',lean:-.14,crouch:.93,th:.2},         // the knife at his throat: chin up, not a muscle
+  reachCollar:{on:'guard',add:{lean:.1}},               // the reach for the collar that a toll can meet
+  // ---- the room's moves (sk_room.js) ----
+  hurlLoad:{on:'guard',crouch:.72,lean:.3,th:.9},       // into the collar and the whole body turned into the throw
+  hurlTurn:{on:'guard',crouch:.84,lean:.24,th:.9},
+  flipLow:{on:'guard',crouch:.68,lean:.34,th:.6},       // down to the table's edge, both hands under it
+  flipHeave:{on:'guard',crouch:.95,lean:-.14,th:.3},    // and up
+  lampCut:{on:'guard',crouch:.95,lean:-.05},            // a cut up at a lamp's chain
+  // ---- the tell (sk_react.js) ----
+  tell:{on:'guard',add:{crouch:-.04,lean:.06}},         // the blow drawn back while the answer is chosen
 },arm:{
   block:{off:[.3,.05],tilt:-.05},                       // (the hand and the blade are put on the line of the blow)
   slip:{hx:.22,hy:.24,wg:-.2,off:[.12,.36],tilt:-.12},
@@ -199,6 +225,26 @@ const POSE={body:{
   glaiveUp:{hx:.18,hy:-.08,w:-1.42,off:[.08,.22],tilt:.05},  // the glaive held upright and close through a turn
   tossReach:{hx:.3,hy:.0,w:-.9,tilt:.12},               // (a hand on the scruff)
   tossHeave:{hx:.25,hy:.1,w:-.7,tilt:.15,two:{w:-1.2}}, // (the hands carry him round)
+  dyingThroat:{w:1.5,tilt:.25},                         // (both hands at the neck)
+  dyingThroatDown:{w:1.6,tilt:.45},
+  dyingClutch:{w:1.5,tilt:.3},                          // (both hands on the wound)
+  dyingClutchDown:{w:1.5,tilt:.4},
+  dyingKneel:{hx:.12,hy:.86,w:1.4,off:[.04,.86],free:true,tilt:.3},
+  draw:{w:1.9,off:[.32,.12],free:true,tilt:.05},        // (the hand on the hilt in the sheath)
+  insureStab:{off:[-.3,.2],tilt:.15},                   // (the point driven down into the chest)
+  hingeTuck:{hx:.1,hy:.18,w:-1.3,off:[.04,.32],tilt:.32},
+  hingeJolt:{hx:.1,hy:.18,w:-1.3,off:[.04,.32],tilt:.3},
+  tollCut:{w:.75,off:[.1,.32],tilt:-.05},               // (the knife meets the hand that reaches)
+  tollGrab:{w:.8,off:[.1,.32],tilt:-.05},
+  tollAfter:{hx:.22,hy:.24,w:-.9,off:[.1,.32],tilt:0},
+  tollAfterGrab:{hx:.24,hy:.22,w:-.9,off:[.1,.32],tilt:0},
+  chin:{hx:.3,hy:.3,w:.9,off:[.2,.32],tilt:-.3},
+  reachCollar:{hx:-.04,hy:-.1,w:-1.5,off:[.55,.05],free:true,tilt:.05},
+  flipGrip:{w:-.3,tilt:.1},                             // (both hands under the table's edge)
+  flipHeave:{hx:.4,hy:-.6,w:-1.3,off:[.3,-.55],tilt:-.1},
+  lampWind:{hx:.1,hy:-.2,w:-2.6,off:[.2,.2],tilt:-.1},
+  lampCut:{w:-1.2,off:[.2,.1],tilt:-.2},                // (the blade goes up at the chain)
+  tell:{off:[.1,.3],tilt:0},                            // (the hand and the blade as the blow's windup)
 }};
 
 // ---------- poses for a fighter ----------
@@ -249,7 +295,8 @@ function bodyV(f,p,o){
   if(p==='now')return o?{...f.curBody,...o}:{...f.curBody};
   if(p==='guard')return o?liveBody(f,{},o):()=>f.guardBody();
   if(typeof p==='function')return p;
-  if(typeof p==='string'){const P=poseB(f,p);return P.on==='guard'?liveBody(f,P,o):bodyPose(f,P,o);}
+  if(typeof p==='string'){const P=poseB(f,p);
+    return P.on==='guard'?liveBody(f,P,o):P.on==='now'?{...(f.curBody||f.guardBody()),...bodyPose(f,P,o)}:bodyPose(f,P,o);}
   return o?{...p,...o}:p;}
 function armV(f,p,o){
   if(p==='now')return o?{...f.curArm,...o}:{...f.curArm};
