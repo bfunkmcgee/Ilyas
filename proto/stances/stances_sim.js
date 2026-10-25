@@ -2,7 +2,7 @@
 // playing the stances by a policy. It counts wins, how close the fights are, the turns spent on the floor and getting up, the free
 // rises and the blows on the floor, and how each stance is used, and stops on any error.
 // usage (from the repo): node proto/stances/stances_sim.js [fights per setup, default 4] [key=value ...]
-//   down=1|0  rise=off|committed  stance=1|0  policy=match|ev|bound|unbound|close|worst|weapon  evdef=1  mix=mixed|brute|keeper|rusher  crew=0|1  n=1,2,3
+//   down=1|0  rise=off|committed  stance=1|0  policy=match|bound|unbound|close|worst|weapon  jam=2  mix=mixed|brute|keeper|rusher  crew=0|1  n=1,2,3
 //   step= (how often Ilyas on auto steps back to put a man who holds off on the whip's tip), tip= (where the tip starts)
 //   policy=weapon: the first test's match, on the weapon and the crowd alone (match reads the range and the blow he shows too)
 const fs=require('fs'),path=require('path');
@@ -12,7 +12,7 @@ for(const a of process.argv.slice(3)){const m=a.match(/^(\w+)=(.*)$/);if(m)O[m[1
 const core=require(path.join(ROOT,'sk_src.js'))()+fs.readFileSync(path.join(__dirname,'sk_downfork.js'),'utf8')+fs.readFileSync(path.join(__dirname,'sk_stances.js'),'utf8');
 eval(core+`
 const O=${JSON.stringify(O)};
-DOWNF.on=O.down==='1';DOWNF.rise=O.rise;STANCE.on=O.stance==='1';STANCE.policy=O.policy;if(O.step!=null)WHIP_AI.step=+O.step;if(O.tip!=null)STN.tip=+O.tip;if(O.evdef!=null)STN_EV.def=+O.evdef;
+DOWNF.on=O.down==='1';DOWNF.rise=O.rise;STANCE.on=O.stance==='1';STANCE.policy=O.policy;if(O.step!=null)WHIP_AI.step=+O.step;if(O.tip!=null)STN.tip=+O.tip;if(O.jam!=null)STN_W.jam=+O.jam;
 const MIX={mixed:null,brute:{weapon:'axe',temper:'brute'},keeper:{weapon:'spear',temper:'keeper'},rusher:{weapon:'dagger',temper:'rusher'}};
 const inc=(o,k,n=1)=>{o[k]=(o[k]||0)+n;};
 const R={fights:0,wins:0,hp:0,secs:0,turns:0,heroTurns:0,foeTurns:0,foeFloorTurns:0,heroFloorTurns:0,rises:{hero:0,foe:0},struck:{hero:0,foe:0},crewOut:0,downs:{hero:0,foe:0},

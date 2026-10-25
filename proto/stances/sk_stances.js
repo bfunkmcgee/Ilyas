@@ -269,8 +269,17 @@ const STN_HABIT_W=.6;
 const STN_HABIT_SHORT={bound:{thrust:'beats his thrusts',slash:'takes his cuts',overhead:'his overheads beat it'},
   close:{overhead:'inside his swings',slash:'inside his swings',thrust:'onto his point',sweep:'easy to sweep'},
   unbound:{overhead:'catches his arm',thrust:'his thrusts get in'}};
-function stanceHabit(K,D,s){const H=STN_HABIT[D.weaponKey]||STN_HABIT.other,far=comesFar(D,K);let v=0,top=null;
-  for(const kind in H){const T=stanceAs(K,s,()=>pickTechnique(D,K,kind));let a=stnAnswer(s,kind,T,D,far);a=a?a[1]:stanceAs(K,s,()=>stnJams(D,K,kind))?2:0;
+// A man's blow comes after Ilyas's own. A Close blow leaves him in his man's chest, so the blow that man shows (or throws next) comes
+// from in reach whatever the distance now: an axe's swing jammed, a cut or an overhead got inside. A Bound blow leaves him at his
+// striking distance, where Bound's answers hold anyway, and an Unbound lash goes from where he stands.
+function stnStrikes(K,D){return!!K&&!!D&&!K.downed&&!K.clinch&&!D.dead&&!D.downed&&ATTACKS.some(k=>cmdValid(K,D,k));}
+// what stance s does to E's blow of this kind as it would come: {v, jam} or null
+const STN_W={jam:2};
+function stnVs(K,D,E,s,kind){const after=s==='close'&&E===D&&stnStrikes(K,D);
+  if(s==='close'&&stanceHeavy(E)&&(kind==='slash'||kind==='overhead')&&(after||stanceAs(K,s,()=>stnJams(E,K,kind))))return{v:STN_W.jam,jam:true,after};
+  const T=stanceAs(K,s,()=>pickTechnique(E,K,kind)),a=stnAnswer(s,kind,T,E,after?false:comesFar(E,K));return a?{v:a[1],jam:false,after}:null;}
+function stanceHabit(K,D,s){const H=STN_HABIT[D.weaponKey]||STN_HABIT.other;let v=0,top=null;
+  for(const kind in H){const r=stnVs(K,D,D,s,kind),a=r?r.v:0;
     const c=H[kind]*a;v+=c;if(c&&(!top||Math.abs(c)>Math.abs(top.c)))top={c,kind};}
   v=Math.round(v*STN_HABIT_W*10)/10;return top&&Math.abs(v)>=.3?{v,short:STN_HABIT_SHORT[s][top.kind]||''}:null;}
 function stanceAs(K,s,fn){const was=K.stance;K.stance=s;try{return fn();}finally{K.stance=was;}}
@@ -289,8 +298,7 @@ function stanceFactors(K,D,s){const F=[];if(!K||!D||D.dead||D.downed)return F;co
   if(s==='unbound'){if(g<STN.unboundMin)add(-2,'relocks inside',2);else if(g<STN.tip)add(-1,'inside the tip',2);else if(g<=STN.unboundMax)add(2,'on the tip',2);}
   // what each man is gearing up against him, from where it would come
   for(const E of foes()){const it=E.intent;if(!it||it.tgt!==K.idx||E.downed||E.walkIn)continue;const his=E===D?'his':null;
-    if(ATTACKS.includes(it.cmd)){const T=stanceAs(K,s,()=>pickTechnique(E,K,it.cmd)),a=stnAnswer(s,it.cmd,T,E,comesFar(E,K));if(a)add(a[1],STN_SHORT[s][it.cmd](his),3);
-      else if(s==='close'&&stanceAs(K,s,()=>stnJams(E,K,it.cmd)))add(2,`jams ${his||'a'} swing`,3);}
+    if(ATTACKS.includes(it.cmd)){const r=stnVs(K,D,E,s,it.cmd);if(r)add(r.v,r.jam?`jams ${his||'a'} swing`:STN_SHORT[s][it.cmd](his),3);}
     if(s==='unbound'&&(ATTACKS.includes(it.cmd)||it.cmd==='advance')){const ai=it.cmd==='advance'?advanceInfo(E,K):null;
       if((it.cmd!=='advance'||ai)&&stanceAs(K,s,()=>stopHitFor(E,K,it.cmd,ai?ai.x:undefined)))add(1,E===D?'meets him coming':'meets a rush',3);}
     if(s==='bound'&&it.cmd==='grab')add(2,'keeps hands off',3);}
@@ -313,28 +321,7 @@ function stanceMatchWeapon(K,D){if(!D||D.downed||D.dead)return null;const near=s
   if(stanceHeavy(D))return near>1?'bound':'close';
   return'bound';}
 function stanceAuto(K){const p=STANCE.policy,D=targetOf(K);if(p==='bound'||p==='unbound'||p==='close')return p;
-  return p==='worst'?stanceWorst(K,D):p==='weapon'?stanceMatchWeapon(K,D):p==='ev'?stanceMatchEV(K,D):stanceMatch(K,D);}
-// ---------- the dice behind a stance (policy 'ev', under test against the factors) ----------
-// What a blow is worth on average: its chance to land (a crit counts twice) times its mean damage.
-function stnWorth(A,D,kind,T){const c=computeMods(A,D,kind,false,T),dz=T.dice||A.wp.dice;let h=0;
-  for(let r=2;r<=20;r++){const t=r+c.bonus;h+=isCrit(r,t,c.def)?2:(r===20||t>=c.def)?1:0;}
-  return h/20*(dz[0]*(dz[1]+1)/2+dz[2])*ACTIONS[kind].mult*T.dmg*(A.posture==='off'&&!T.recov?.75:1)*(A.hench?CREW.dmg:1);}
-// his best blow on D in stance s, per 100 tempo with the walk in, the second man of a two-man stroke counted and a stop-hit on the
-// way in taken off
-function stnOffense(K,D,s){return stanceAs(K,s,()=>{let best=0;for(const k of ATTACKS){if(!cmdValid(K,D,k))continue;const T=pickTechnique(K,D,k);
-    let v=stnWorth(K,D,k,T);if(T.multi&&T.multi.D2)v+=stnWorth(K,T.multi.D2,k,secondaryTech(T));
-    if(stopHitFor(K,D,k))v-=stnWorth(D,K,'thrust',pickTechnique(D,K,'thrust'));
-    best=Math.max(best,v*100/Math.max(40,actionCost(K,k,moveCost(K,D,k))+approachCost(K,D,k)));}return best;});}
-// what the blows shown on him are worth, each from where it would come, less the stop-hit he meets a man with on the way in
-function stnDefense(K,s){return stanceAs(K,s,()=>{let v=0;for(const E of foes()){const it=E.intent;
-    if(!it||it.tgt!==K.idx||E.downed||E.dead||E.walkIn||!ATTACKS.includes(it.cmd))continue;
-    const was=E._came;E._came={turn:S.game.turnNo,D:K,far:comesFar(E,K),inside:comesInside(E,K)};
-    try{v+=stnWorth(E,K,it.cmd,pickTechnique(E,K,it.cmd));if(stopHitFor(E,K,it.cmd))v-=stnWorth(K,E,'thrust',pickTechnique(K,E,'thrust'));}
-    finally{E._came=was;}}return v;});}
-const STN_EV={def:1};
-function stanceEV(K,D,s){return stnOffense(K,D,s)-STN_EV.def*stnDefense(K,s);}
-function stanceMatchEV(K,D){if(!D||D.downed||D.dead)return null;const cur=stanceOf(K),sc={};for(const s of STANCE_ORDER)sc[s]=stanceEV(K,D,s);
-  const best=Math.max(...STANCE_ORDER.map(s=>sc[s]));if(sc[cur]>=best-.05)return cur;return STANCE_ORDER.find(s=>sc[s]===best);}
+  return p==='worst'?stanceWorst(K,D):p==='weapon'?stanceMatchWeapon(K,D):stanceMatch(K,D);}
 // the strongest reason now, for or against (the stance bar shows each stance's), and the strongest for (the marked one's)
 function stanceTop(K,D,s){const F=stanceFactors(K,D,s);if(!F.length)return null;F.sort((a,b)=>Math.abs(b.v)-Math.abs(a.v)||b.k-a.k||b.v-a.v);return F[0];}
 function stanceReason(K,D,s){const F=stanceFactors(K,D,s).filter(f=>f.v>0).sort((a,b)=>b.v-a.v||b.k-a.k);return F.length?F[0].short:'';}
