@@ -58,14 +58,13 @@ function pincerInfo(A){
   return null;
 }
 function planPincer(A,info){
-  const z0=A.dep,x0=A.station,D=info.D,run=lerp(250,360,A.sk)*(1-.12*A.wounds.leg),st=(x,y)=>({stF:x*A.leg,stB:y*A.leg});
+  const z0=A.dep,x0=A.station,D=info.D,run=lerp(250,360,A.sk)*(1-.12*A.wounds.leg);
   const dir=Math.sign(info.x-x0)||A.facing,w1={x:x0+dir*16,z:info.dz},L1=Math.hypot(16,(info.dz-z0)*.9),L2=Math.abs(info.x-w1.x),L3=Math.abs(info.z-info.dz)*.9;
   const t1=Math.max(.18,L1/run),t2=t1+Math.max(.2,L2/run),t3=t2+Math.max(.16,L3/run),Tend=t3+.35;
   A.station=info.x;A.lane=info.z;A.facing=dir;A.guarding=false;
   if(A===hero())resyncSides();
-  const body=[{t:0,v:{...A.curBody,pz:z0}},{t:t1,v:{px:w1.x,pz:w1.z,crouch:.84,lean:.16,...st(.3,-.32),th:.24}},
-    {t:t2,v:{px:info.x,pz:info.dz,crouch:.84,lean:.12,...st(.3,-.32),th:.24}},{t:t3,v:()=>A.guardBody(),e:sstep},{t:Tend,v:()=>A.guardBody()}];
-  const arm=[{t:0,v:{...A.curArm}},{t:Tend,v:()=>A.guardArm()}];
+  const body=bodyKeys(A,[[0,'now',{pz:z0}],[t1,'pincerRun',{px:w1.x,pz:w1.z}],[t2,'pincerTurn',{px:info.x,pz:info.dz}],[t3,'guard',sstep],[Tend,'guard']]);
+  const arm=armKeys(A,[[0,'now'],[Tend,'guard']]);
   const events=[{t:t2-.04,fn:()=>faceToward(A,D.station)},
     {t:t3,fn:()=>{if(pincered(D))popup(D,'Pincered','#a9e88c',`${info.P.name} and ${A.name}`,19,-30);S.hooks.status();}}];
   S.callouts.push({i:A.idx,text:'Pincer',age:0,life:1,dx:-dir*18});
@@ -88,8 +87,8 @@ function coverInfo(A){
 function planCover(A,info){
   const z0=A.dep,x0=A.station,dist=Math.hypot(info.x-x0,(info.z-z0)*.9),run=lerp(260,380,A.sk)*(1-.12*A.wounds.leg),t1=Math.max(.15,dist/run),Tend=t1+.4;
   A.station=info.x;A.lane=info.z;A.facing=info.side;A.guarding=true;gainFoot(A,FOOT_GAIN.cover);A.circleGuard=false;A.covering=info.P;
-  const body=[{t:0,v:{...A.curBody,pz:z0}},{t:t1,v:()=>({...A.guardBody(),px:info.x,pz:info.z}),e:sstep},{t:Tend,v:()=>A.guardBody()}];
-  const arm=[{t:0,v:{...A.curArm}},{t:t1,v:()=>A.guardArm(),e:sstep},{t:Tend,v:()=>A.guardArm()}];
+  const body=bodyKeys(A,[[0,'now',{pz:z0}],[t1,'guard',{px:info.x,pz:info.z},sstep],[Tend,'guard']]);
+  const arm=armKeys(A,[[0,'now'],[t1,'guard',sstep],[Tend,'guard']]);
   popup(info.P,'Covered','#a9e88c',`by ${A.name}`,18,-30);
   return{att:{t0:S.t,end:Tend,body,arm},Tend:Tend+.05,events:[],dash:Math.round(dist),strikeX:info.x,Cfn:()=>({x:info.x,y:A.gr(info.x)-80})};
 }
@@ -109,14 +108,12 @@ function helpInfo(A){
 }
 function planHelp(A,info){
   const P=info.P,z0=A.dep,x0=A.station,dist=Math.hypot(info.x-x0,(info.z-z0)*.9),run=lerp(260,380,A.sk)*(1-.12*A.wounds.leg);
-  const t1=Math.max(.14,dist/run),Tc=t1+.28,Tend=Tc+.75,a=A.arm;
+  const t1=Math.max(.14,dist/run),Tc=t1+.28,Tend=Tc+.75;
   A.station=info.x;A.lane=info.z;A.facing=Math.sign(P.p[PEL].x-info.x)||A.facing;A.guarding=false;
   const reach=()=>{const c=P.p[CHE],h=P.p[HAF];return{x:lerp(c.x,h.x,.5),y:lerp(c.y,h.y,.5)};};
-  const body=[{t:0,v:{...A.curBody,pz:z0}},{t:t1,v:()=>({...A.guardBody(),px:info.x,pz:info.z,crouch:.8})},
-    {t:Tc,v:()=>({...A.guardBody(),px:info.x,pz:info.z,crouch:.6,lean:.45,th:.9}),e:eOut},
-    {t:Tc+.35,v:()=>({...A.guardBody(),px:info.x,pz:info.z,crouch:.78,lean:-.06,th:.9}),e:eIn},{t:Tend,v:()=>A.guardBody(),e:sstep}];
-  const arm=[{t:0,v:{...A.curArm}},{t:Tc,v:{hand:{sh:[.3*a,.25*a]},wAng:1.2,off:{fn:reach},tilt:.2},e:eOut},
-    {t:Tc+.35,v:{hand:{sh:[.3*a,.05*a]},wAng:.9,off:{sh:[.25*a,-.15*a]},tilt:0}},{t:Tend,v:()=>A.guardArm(),e:sstep}];
+  const at={px:info.x,pz:info.z};
+  const body=bodyKeys(A,[[0,'now',{pz:z0}],[t1,'helpStep',at],[Tc,'helpReach',at,eOut],[Tc+.35,'helpPull',at,eIn],[Tend,'guard',sstep]]);
+  const arm=armKeys(A,[[0,'now'],[Tc,'helpReach',{off:{fn:reach}},eOut],[Tc+.35,'helpPull'],[Tend,'guard',sstep]]);
   const events=[{t:Tc,fn:()=>{if(!P.downed||P.dead)return;standUp(P);P.foot=Math.max(P.foot,FOOT_RISE);
     for(const i of [CHE,HEAD,PEL])P.p[i].py+=(i===PEL?80:140)*DT;
     popup(P,'Back up','#a9e88c',`pulled up by ${A.name}`,19,-30);S.hooks.sound('thud',120);S.hooks.helped(S.game.ex,{A,P});S.hooks.status();}}];
@@ -166,18 +163,14 @@ function planStab(A,D,res,T){
   const short=(fn,u)=>()=>{const X=fn(),c=A.p[CHE],dx=X.x-c.x,dy=X.y-c.y,L=Math.hypot(dx,dy)||1;return{x:X.x-dx/L*len*u,y:X.y-dy/L*len*u};};
   let Cfn=aimPt;
   if(!land){const M=aimPt();Cfn=()=>({x:M.x-dir*(out==='block'?10:5),y:M.y-(out==='dodge'?10:0)});}
-  const gA=()=>A.guardArm(),gB=()=>A.guardBody(),off=(o,tilt)=>()=>{const g=A.guardArm();return{...g,off:o,tilt:tilt??g.tilt};};
-  const armK=[{t:0,v:{...A.curArm}}];
-  if(!drawn)armK.push({t:Tr0,v:off({fn:()=>sheathPts(A).grip}),e:eOut},
-    {t:Tdraw,v:off({fn:()=>{const k=sheathPts(A);return{x:k.grip.x+(k.grip.x-k.tip.x)*.45,y:k.grip.y+(k.grip.y-k.tip.y)*.45};}})});
-  armK.push({t:Tcock,v:off({sh:[-.06*a,.3*a]}),e:eOut},
-    {t:Timp,v:off({fn:short(Cfn,land?(neck?.35:.55):.95)}),e:eIn},
-    {t:Td,v:off({fn:short(aimPt,neck?.05:.5)})},
-    {t:Tret,v:gA,e:sstep},{t:Tend,v:gA});
-  const body=[{t:0,v:{...A.curBody}},{t:Tcock,v:()=>{const g=gB();return{...g,lean:g.lean-.06*ls};}},{t:Timp,v:()=>{const g=gB();return{...g,lean:g.lean+.16*ls,crouch:g.crouch-.03};},e:eIn},
-    {t:Tret,v:gB,e:sstep},{t:Tend,v:gB}];
-  const db={...D.curBody},da={...D.curArm},rk=out==='block'?{t:Timp,v:()=>({...D.guardBody(),lean:-.08})}:out==='dodge'||out==='fumble'?{t:Timp,v:()=>({...D.guardBody(),lean:-.26,crouch:.8})}:{t:Timp,v:()=>D.guardBody()};
-  const react={t0:S.t,end:Timp+.5,body:[{t:0,v:db},{t:Math.max(.02,Timp-.1),v:()=>D.guardBody()},rk,{t:Timp+.5,v:()=>D.guardBody(),e:sstep}],arm:[{t:0,v:da},{t:Timp+.5,v:()=>D.guardArm(),e:sstep}]};
+  // the free hand draws it from the sheath, back to the hip, and in: the hand stops short of where it aims so the blade does the reaching
+  const armK=armKeys(A,[[0,'now'],...(drawn?[]:[[Tr0,'guard',{off:{fn:()=>sheathPts(A).grip}},eOut],
+    [Tdraw,'guard',{off:{fn:()=>{const k=sheathPts(A);return{x:k.grip.x+(k.grip.x-k.tip.x)*.45,y:k.grip.y+(k.grip.y-k.tip.y)*.45};}}}]]),
+    [Tcock,'daggerCock',eOut],[Timp,'guard',{off:{fn:short(Cfn,land?(neck?.35:.55):.95)}},eIn],[Td,'guard',{off:{fn:short(aimPt,neck?.05:.5)}}],[Tret,'guard',sstep],[Tend,'guard']]);
+  const body=bodyKeys(A,[[0,'now'],[Tcock,'stabCock',{flip:ls}],[Timp,'stab',{flip:ls},eIn],[Tret,'guard',sstep],[Tend,'guard']]);
+  const react={t0:S.t,end:Timp+.5,
+    body:bodyKeys(D,[[0,'now'],[Math.max(.02,Timp-.1),'guard'],[Timp,out==='block'?'flinchBlock':out==='dodge'||out==='fumble'?'flinchStab':'guard'],[Timp+.5,'guard',sstep]]),
+    arm:armKeys(D,[[0,'now'],[Timp+.5,'guard',sstep]])};
   const events=[{t:Tcock+.02,fn:()=>S.hooks.sound('swoosh',.5)}];
   if(!drawn)events.push({t:Tdraw-.03,fn:()=>{if(A.sidearm==='sheathed'){A.sidearm='offhand';const g=sheathPts(A).grip;flash(g,10,'#fff3cf',A.dep);sparks(g,4,'#fff3cf',A.dep);S.hooks.sound('clang',.35);}}});
   if(out==='fumble')events.push({t:Td+.05,fn:()=>{spendFoot(A,FOOT_HIT);popup(A,'Fumble','#c9d0f5',null,20);}});

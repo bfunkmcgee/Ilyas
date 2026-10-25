@@ -274,25 +274,21 @@ function shortHookPlan(A,D,res,P){
   return pr.apply(this,arguments);};}
 // (the step in waits for the swing to go past: his station moves where the blow lands, and the body follows it only after)
 function shortHingePose(D,res,Ti,snap){
-  const a=D.arm,gB=()=>D.guardBody(),gA=()=>D.guardArm(),b0=snap?{...D.curBody}:gB,a0=snap?{...D.curArm}:gA,x0=D.station;
-  const Ts=Math.max(.03,Ti-lerp(.16,.28,D.sk)),Tt=Math.max(Ts+.02,Ti-.02),Te=Ti+.8;
-  const turn=()=>({...D.guardBody(),px:x0,crouch:.68,lean:.34,th:.12}),tuck={hand:{sh:[.1*a,.18*a]},wAng:-1.3,off:D.wp.off?'grip':{sh:[.04*a,.32*a]},tilt:.32};
+  const now=snap?'now':'guard',x0=D.station;
+  const Ts=Math.max(.03,Ti-lerp(.16,.28,D.sk)),Tt=Math.max(Ts+.02,Ti-.02),Te=Ti+.8,tuck=armPose(D,poseA(D,'hingeTuck'));
   return{t0:S.t,end:Te,slip:null,evs:[],
-    body:[{t:0,v:b0},{t:Ts,v:gB},{t:Tt,v:turn,e:eOut},{t:Ti+.26,v:turn},{t:Ti+.56,v:()=>({...D.guardBody(),crouch:.71,lean:.3,th:.32}),e:sstep},{t:Te,v:gB,e:sstep}],
-    arm:[{t:0,v:a0},{t:Ts,v:gA},{t:Tt,v:tuck,e:eOut},{t:Ti+.4,v:tuck},{t:Te,v:gA,e:sstep}]};}
+    body:bodyKeys(D,[[0,now],[Ts,'guard'],[Tt,'hingeTurn',{px:x0},eOut],[Ti+.26,'hingeTurn',{px:x0}],[Ti+.56,'hingeIn',sstep],[Te,'guard',sstep]]),
+    arm:armKeys(D,[[0,now],[Ts,'guard'],[Tt,tuck,eOut],[Ti+.4,tuck],[Te,'guard',sstep]])};}
 function shortTollPose(D,A,Ti,snap,fa){
-  const a=D.arm,gB=()=>D.guardBody(),gA=()=>D.guardArm(),b0=snap?{...D.curBody}:gB,a0=snap?{...D.curArm}:gA;
-  const Ts=Math.max(.03,Ti-lerp(.12,.22,D.sk)),Tc=Math.max(Ts+.02,Ti-.01),Te=Ti+.6,off=D.wp.off?'grip':{sh:[.1*a,.32*a]};
-  const cut={hand:{fn:()=>{const h=A.p[HAF];return{x:h.x-fa*2,y:h.y+5};}},wAng:.75,off,tilt:-.05},after={hand:{sh:[.22*a,.24*a]},wAng:-.9,off,tilt:0};
-  const lean=()=>({...D.guardBody(),crouch:.74,lean:.06,th:.12});
+  const now=snap?'now':'guard';
+  const Ts=Math.max(.03,Ti-lerp(.12,.22,D.sk)),Tc=Math.max(Ts+.02,Ti-.01),Te=Ti+.6;
   return{t0:S.t,end:Te,slip:null,evs:[],
-    body:[{t:0,v:b0},{t:Ts,v:gB},{t:Tc,v:lean,e:eOut},{t:Ti+.25,v:lean},{t:Te,v:gB,e:sstep}],
-    arm:[{t:0,v:a0},{t:Ts,v:gA},{t:Tc,v:cut,e:eOut},{t:Ti+.14,v:after,e:eOut},{t:Te,v:gA,e:sstep}]};}
+    body:bodyKeys(D,[[0,now],[Ts,'guard'],[Tc,'tollLean',eOut],[Ti+.25,'tollLean'],[Te,'guard',sstep]]),
+    arm:armKeys(D,[[0,now],[Ts,'guard'],[Tc,'tollCut',{hand:{fn:()=>{const h=A.p[HAF];return{x:h.x-fa*2,y:h.y+5};}}},eOut],[Ti+.14,'tollAfter',eOut],[Te,'guard',sstep]])};}
 // after a glancing blow that landed: a jolt on the shoulder, then the step in
-function shortHingeAfterPose(D,fa){const a=D.arm,gB=()=>D.guardBody(),gA=()=>D.guardArm(),c0={...D.curBody},jolt={...c0,px:c0.px+fa*3,crouch:.66,lean:.2,th:.08};
-  const tuck={hand:{sh:[.1*a,.18*a]},wAng:-1.3,off:D.wp.off?'grip':{sh:[.04*a,.32*a]},tilt:.3};
-  return{t0:S.t,end:.76,body:[{t:0,v:c0},{t:.07,v:jolt,e:eOut},{t:.24,v:jolt},{t:.52,v:()=>({...gB(),crouch:.71,lean:.3,th:.3}),e:sstep},{t:.76,v:gB,e:sstep}],
-    arm:[{t:0,v:{...D.curArm}},{t:.07,v:tuck,e:eOut},{t:.36,v:tuck},{t:.76,v:gA,e:sstep}]};}
+function shortHingeAfterPose(D,fa){const c0={...D.curBody},at={px:c0.px+fa*3},tuck=armPose(D,poseA(D,'hingeJolt'));
+  return{t0:S.t,end:.76,body:bodyKeys(D,[[0,c0],[.07,'hingeJolt',at,eOut],[.24,'hingeJolt',at],[.52,'hingeSettle',sstep],[.76,'guard',sstep]]),
+    arm:armKeys(D,[[0,'now'],[.07,tuck,eOut],[.36,tuck],[.76,'guard',sstep]])};}
 
 // ---------- where it lands ----------
 // the Hinge: inside his reach (the station steps in to the closest the stations allow), and he stays there while the man swinging
@@ -316,15 +312,13 @@ function shortThreatImpact(ex,A,D,res){
   if(D.foot>0)knockBalance(D,D.foot,A);else if(!D.broken&&!D.clinch)breakFighter(D,A);
   if(D.broken)D.broken.paid=true;
   popup(D,'At his throat','#ffd36b','not a muscle',20,-40);
-  const a=D.arm,chin=()=>({...D.guardBody(),lean:-.14,crouch:.93,th:.2});
-  D.action={t0:S.t,end:1e9,quiet:true,body:[{t:0,v:{...D.curBody}},{t:.25,v:chin,e:eOut}],
-    arm:[{t:0,v:{...D.curArm}},{t:.25,v:{hand:{sh:[.3*a,.3*a]},wAng:.9,off:D.wp.off?'grip':{sh:[.2*a,.32*a]},tilt:-.3},e:eOut}]};D.frozen=true;
+  D.action={t0:S.t,end:1e9,quiet:true,body:bodyKeys(D,[[0,'now'],[.25,'chin',eOut]]),arm:armKeys(D,[[0,'now'],[.25,'chin',eOut]])};D.frozen=true;
   S.hooks.perf(ex);S.hooks.short('ladder',{A,D,kind:'thrust',res});S.hooks.status();}
 // the knife comes away: he lowers it and steps back, the man breathes again, and the exchange is allowed to end
 function shortRelease(A){const h=A&&A._threat;if(!h)return false;A._threat=null;A.shortThreat=false;const ex=h.ex,D=h.D;
-  if(!A.dead){A.action={t0:S.t,end:.7,body:[{t:0,v:{...A.curBody}},{t:.7,v:()=>A.guardBody(),e:sstep}],arm:[{t:0,v:{...A.curArm}},{t:.7,v:()=>A.guardArm(),e:sstep}]};
+  if(!A.dead){A.action={t0:S.t,end:.7,body:bodyKeys(A,[[0,'now'],[.7,'guard',sstep]]),arm:armKeys(A,[[0,'now'],[.7,'guard',sstep]])};
     if(D&&!D.dead&&A.curBody)A.station=settleStation(A,D,A.curBody.px);}
-  if(D&&!D.dead){D.frozen=false;D.action={t0:S.t,end:.6,body:[{t:0,v:{...D.curBody}},{t:.6,v:()=>D.guardBody(),e:sstep}],arm:[{t:0,v:{...D.curArm}},{t:.6,v:()=>D.guardArm(),e:sstep}]};}
+  if(D&&!D.dead){D.frozen=false;D.action={t0:S.t,end:.6,body:bodyKeys(D,[[0,'now'],[.6,'guard',sstep]]),arm:armKeys(D,[[0,'now'],[.6,'guard',sstep]])};}
   if(ex){ex._shortHold=false;if(ex.plan)for(const e of ex.plan.events)if(e.held)e.done=true;if(S.game.ex===ex)ex.dur=Math.max(0,S.t-ex.t0)+.75;}
   S.hooks.status();return true;}
 {const ap=applyImpact;applyImpact=function(ex,A,D,res,Cfn,cv,slip,fa,primary){
@@ -361,10 +355,9 @@ function shortRelease(A){const h=A&&A._threat;if(!h)return false;A._threat=null;
   if(use){r.ok=false;r.crush=false;r.toll=true;}return r;};}
 // the knife meets the reaching hand
 {const pg=planGrab;planGrab=function(A,D,gr){const P=pg(A,D,gr);if(!gr||!gr.toll||!P)return P;
-  const Tc=P.events[0]?P.events[0].t:.3,a=D.arm,off=D.wp.off?'grip':{sh:[.1*a,.32*a]};
-  const cut={hand:{fn:()=>{const h=A.oneArm?A.p[HAF]:A.p[HAB];return{x:h.x,y:h.y+5};}},wAng:.8,off,tilt:-.05};
-  P.react={t0:S.t,end:Tc+.6,body:[{t:0,v:{...D.curBody}},{t:Math.max(.04,Tc-.14),v:()=>D.guardBody()},{t:Tc,v:()=>({...D.guardBody(),crouch:.72,lean:.3,th:.12}),e:eOut},{t:Tc+.6,v:()=>D.guardBody(),e:sstep}],
-    arm:[{t:0,v:{...D.curArm}},{t:Math.max(.05,Tc-.05),v:cut,e:eOut},{t:Tc+.16,v:{hand:{sh:[.24*a,.22*a]},wAng:-.9,off,tilt:0},e:eOut},{t:Tc+.6,v:()=>D.guardArm(),e:sstep}]};
+  const Tc=P.events[0]?P.events[0].t:.3;
+  P.react={t0:S.t,end:Tc+.6,body:bodyKeys(D,[[0,'now'],[Math.max(.04,Tc-.14),'guard'],[Tc,'tollGrab',eOut],[Tc+.6,'guard',sstep]]),
+    arm:armKeys(D,[[0,'now'],[Math.max(.05,Tc-.05),'tollGrab',{hand:{fn:()=>{const h=A.oneArm?A.p[HAF]:A.p[HAB];return{x:h.x,y:h.y+5};}}},eOut],[Tc+.16,'tollAfterGrab',eOut],[Tc+.6,'guard',sstep]])};
   return P;};}
 {const dg=doGrab;doGrab=function(A,D,gr,fa){if(!gr||!gr.toll)return dg.apply(this,arguments);
   const ex=S.game.ex;if(A.dead||D.dead){S.hooks.status();return;}
@@ -380,8 +373,7 @@ function shortHoldGrab(i,A,D,opts){const g=S.game;
   g.phase='exchange';g.aiAt=null;const ex={A,D,t0:S.t,cmd:'grab',perf:{},depth:0,tollPending:true,dur:99};g.ex=ex;
   if(!A.downed&&!A.clinch)faceToward(A,D.station);
   // he reaches: the free hand comes up for the collar
-  const a=A.arm,T1=.3;A.action={t0:S.t,end:T1,body:[{t:0,v:{...A.curBody}},{t:T1,v:()=>({...A.guardBody(),lean:A.guardBody().lean+.1}),e:eOut}],
-    arm:[{t:0,v:{...A.curArm}},{t:T1,v:{hand:{sh:[-.04*a,-.1*a]},wAng:-1.5,off:{sh:[.55*a,.05*a]},tilt:.05},e:eOut}]};
+  const T1=.3;A.action={t0:S.t,end:T1,body:bodyKeys(A,[[0,'now'],[T1,'reachCollar',eOut]]),arm:armKeys(A,[[0,'now'],[T1,'reachCollar',eOut]])};
   const dur=reactDur(D);S.opening={f:D,opp:A,ex,depth:0,kind:'toll',source:'toll',attack:'grab',dur,left:dur,aiDelay:.35,cmdIdx:i,cmdOpts:opts||null};
   S.hooks.opening(S.opening);S.hooks.status();return true;}
 function shortResolveToll(choice){const o=S.opening,ex=o.ex,D=o.f,A=o.opp,g=S.game;

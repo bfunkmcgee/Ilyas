@@ -34,7 +34,7 @@ machine has two cores and about 7 GB. GitHub runs `python3 build.py` and the qui
 Live sources (the only files to edit for the game):
 - **build.py**: the module lists, in load order (CORE, FEAT, UI_FIRST, UI_LAST, CSS, SCENES). A new feature `x` is picked up from
   sk_x.js (game), sk_xui.js (UI) and sk_css_x.css once its name is in FEAT/CSS.
-- Game (no DOM; node loads it through sk_src.js): sk_core.js, sk_brawl.js, sk_fin.js, sk_team.js, sk_env.js, sk_phase.js, sk_arc.js,
+- Game (no DOM; node loads it through sk_src.js): sk_core.js, sk_anim.js, sk_brawl.js, sk_fin.js, sk_team.js, sk_env.js, sk_phase.js, sk_arc.js,
   then the features' game parts: crew chain insure style secret lobby breach office finale ctxmoves cast arms guns story beast elf
   (hud and light have UI parts only) react room.
 - UI: sk_envui.js, sk_phaseui.js, sk_arcui.js, the features' UI parts (crewui ... figui lookui castui sceneui armsui gunsui storyui
@@ -115,6 +115,23 @@ figure is drawn translated by (dep*PSX, -dep*PSY) and uses his raw x/y. Canvas p
   Command dock with tabs (strike, move, tactics, room, aether; the tactics tab's key is still `guard`), menu and log drawers. The
   Room tab shows only while the room offers something (sk_roomui.js); on a desktop the room's two buttons sit in the Tactics group.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
+
+**Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,
+lean, stF, stB, th, lift, kick, kw) and arm poses (hand, wAng, off, tilt), sampled by `sample` in controlAndForces and driven into the
+ragdoll by its motors. sk_anim.js names the poses (`POSE.body`, `POSE.arm`) in the body's own units, as GUARD writes the guard: crouch
+and lean, the feet `sf`/`sb` in leg lengths, the hand `hx`/`hy` and the free hand `off` in arm lengths, the blade's angle `w` (or `wg`,
+the weapon's guard angle plus it), the head's `tilt`; `two` is what changes with the weapon in both hands, `free` keeps the free hand
+off the grip. A pose with `on:'guard'` stands on his guard and is sampled live (what it does not say comes from the guard, `add` adds to
+the guard's own values); `on:'now'` is laid over where he is when the move is planned; anything else is fixed at planning. Planners
+write tracks with `bodyKeys(f,[[t,pose,changes,ease],...])` and `armKeys`: a pose is a name, `'guard'` (live), `'now'` (where he is),
+a function or a pose object; changes are laid over it in world terms (px, pz, a hand aimed at a contact point as {fn}), a change that
+is a function is read live, and `flip` (+1/-1) turns the lean or tilt round for a man behind him. `bodyPose`/`armPose` make one pose
+for a fighter. Story scenes (sk_story.js, the Pit's scenes), the finale's driver, the gun aim (AIM in sk_guns.js) and the arc-blade's
+flourishes (sk_arc.js) keep their own choreography. The motion traces prove a refactor moves every body the same: `node
+uiwork/anim/trace.js <repo> <out.json> [quick]` (64 seeded lab fights, every joint hashed every 6 steps, and which planners ran) and
+`--cmp a b`; `node uiwork/anim/suites.js <repo> <out.jsonl>` (the logic suites, their dice seeded) and `node uiwork/anim/cmp_suites.js a b`;
+`node uiwork/anim/trace_page.js <repo> <out.json>` (the prologue on into Act I with each fight played on auto for a while, and the
+restaurant's four rooms, on the page and never drawn) and `--cmp a b`. Trace a build of main (a worktree) and the change, and compare.
 
 **Combat (since V40).** Balance (`f.foot` in the code; the player sees "balance") is a bar of pips: FOOT_MAX 6, a crew man 4, a
 boss 8 (`footMaxOf`). The other side takes it (`knockBalance(D,n,by)`, BAL in sk_core.js); your own heavy moves spend it
@@ -414,9 +431,9 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V64 ..." (V63 was the last published; count on from it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
+short label "V65 ..." (V64 was the last published; count on from it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V64: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V65: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 

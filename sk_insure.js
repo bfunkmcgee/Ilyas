@@ -48,7 +48,7 @@ const insureInv=y=>{let a=0,b=1;for(let i=0;i<24;i++){const m=(a+b)/2;if(sstep(m
 // endV is the run's last pose as planAttack built it. Returns the body and arm keys, the new end of the run (T1) and of the stab (Tland),
 // the path (px, pz) for a flourish that turns on the spot, and the events.
 function insurancePlan(A,E,fa,startX,endV,z0,T1,snap){
-  const arm=A.arm,leg=A.leg,Lx=A.wp.len*.92,w=INS.ang,ds=INS.dur,endX=endV.px,zS=endV.pz,span=Math.abs(endX-startX)||1;
+  const Lx=A.wp.len*.92,w=INS.ang,ds=INS.dur,endX=endV.px,zS=endV.pz,span=Math.abs(endX-startX)||1;
   const zPath=x=>lerp(z0,zS,clamp((x-startX)*fa/span,0,1)),clampX=x=>startX+fa*clamp((x-startX)*fa,14,span-26);
   // where he stands for the stab depends on his depth there, which depends on where he stands: two passes settle it
   let pS=E.p[CHE].x-fa*50,stn,zA;
@@ -63,7 +63,7 @@ function insurancePlan(A,E,fa,startX,endV,z0,T1,snap){
   // A slower body (low skill) answers its motors later, so it starts the dip earlier.
   const sl=1-A.sk,wIn=t=>sstep((t-(tc-.105-.25*sl))/(.09+.25*sl)),wOut=t=>1-sstep((t-(tc+.03))/.1),env=t=>wIn(t)*wOut(t);
   const zOut=clamp(T1n-.03-(tc+.02),.05,.22),envZ=t=>sstep((t-(tc-.26-.2*sl))/(.24+.2*sl))*(1-sstep((t-(tc+.02))/zOut));
-  const dip={crouch:stn.crouch,lean:stn.lean,stF:.46*leg,stB:-.3*leg,th:.3,lift:0,kw:0};
+  const dip=bodyPose(A,poseB(A,'insureDip'),{crouch:stn.crouch,lean:stn.lean});
   const from=snap?{...A.curBody,pz:z0}:null,base=u=>blendBody(A,from||{...A.guardBody(),pz:z0},endV,u);
   const at=t=>{const u=sstep(sOf(t)/T1),wd=env(t),wz=envZ(t);
     return()=>{const b=base(u),o=blendBody(A,b,{...dip,px:b.px,pz:b.pz},wd);o.pz=clamp(b.pz+dzV*wz,DEP_MIN,DEP_MAX);return o;};};
@@ -72,7 +72,7 @@ function insurancePlan(A,E,fa,startX,endV,z0,T1,snap){
   body.push({t:T1n,v:endV,e:LIN});
   // the arm: guard, the point plunges to the chest, holds, comes back to guard; a slow body holds it longer (its arm arrives late)
   const Tland=tc+.13+.08*sl,gA=()=>A.guardArm(),hand={fn:()=>{const s=insureSpot(E,A.dep);return{x:s.x-fa*Math.cos(w)*Lx,y:s.y-Math.sin(w)*Lx};}};
-  const stab={hand,wAng:w,off:A.wp.off?'grip':{sh:[-.3*arm,.2*arm]},tilt:.15};
+  const stab=armPose(A,poseA(A,'insureStab'),{hand,wAng:w});
   const tA=Math.max(.045,tc-.08-.05*sl);
   const arms=[{t:Math.max(.02,Math.min(tc-.15-.05*sl,tA-.025)),v:gA},{t:tA,v:stab,e:eIn},{t:tc+.04+.08*sl,v:stab},{t:Tland,v:gA,e:sstep}];
   const I={A,E,dir:fa,body,arm:arms,T1:T1n,Tland,tc,tImp:tc,dur:ds,done:null,gap:null,pS,dip,
