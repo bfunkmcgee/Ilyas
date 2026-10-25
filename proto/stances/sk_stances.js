@@ -18,9 +18,9 @@
 //            haft, at -2 and lighter. Tied up inside one man, he is at -1 DEF to everyone else.
 // Three things decide which stance answers a man: his weapon (the rules above), how far off he is (each stance has a range for its own
 // blows: Bound at blade's length, Close inside his reach, Unbound out on the tip), and the blow he is gearing up, shown over his head
-// (each stance answers some blows and gives way to others; see "what he is gearing up" below). Switching is free on his own turn,
-// before he acts, and holds till his next; it shows in his guard (and in the blade, drawn by the test's UI). STANCE.on false is
-// today's arc-blade, where the engine picks from every family.
+// (each stance answers some blows and gives way to others, and an answered blow that misses costs the man a pip of balance more;
+// see "what he is gearing up" below). Switching is free on his own turn, before he acts, and holds till his next; it shows in his
+// guard (and in the blade, drawn by the test's UI). STANCE.on false is today's arc-blade, where the engine picks from every family.
 const STANCE={on:true,policy:'match'};
 const STANCES={
   bound:{name:'Bound',short:'Locked blade',good:'Crowds, daggers',line:'The blade locked at full length: crescents, and two men in one stroke.'},
@@ -125,17 +125,31 @@ function isWhip(T){return!!T&&!!T.whip&&T.stance==='unbound';}
   f.sticks[10][2]=len;f.lashLen=len;};}
 // ---------- what he is gearing up, and how far off he is ----------
 // Against the blow a man throws at him (the one he showed), as it lands, by the stance Ilyas holds:
-//   Bound    beats a thrust aside (+2 DEF) and takes a cut on the locked blade (+1), but an overhead beats a single blade (-1)
-//   Close    gets inside an overhead (+2) or a cut (+1) from a man already in reach with more than a dagger (an axe's blows are jammed
-//            instead, above), but walks onto a point (-1) and stands planted for a sweep (-1)
-//   Unbound  catches the raised arm of a man who has to come to him for an overhead (+2), but a thrust comes inside the chain (-2)
+//   Bound    beats a thrust aside (+3 DEF) and takes a cut on the locked blade (+2), but an overhead beats a single blade (-1)
+//   Close    gets inside an overhead (+3) or a cut (+2) from a man already in reach with more than a dagger (an axe's swings are
+//            jammed instead, above), but walks onto a point (-1) and stands planted for a sweep (-1)
+//   Unbound  catches the raised arm of a man who has to come to him for an overhead (+3), but a thrust comes inside the chain (-2)
+// An answered blow that misses him costs the man a pip of balance more, and the answer is named over him.
 // A blow with the butt, the haft or a choked grip, a kick or a dirty move is none of these. "Has to come to him": he was past his own
 // striking distance when he took his turn (a run-in that a stop-hit held up keeps it). And Ilyas's own blows have a range in each
 // stance, his gap past his own striking distance: Bound at blade's length is +1 to hit and -1 once the man is inside it, Close inside
 // his reach is +1, and Unbound's is the tip's crack.
-const STN_ANS={bound:{thrust:['beats the point aside',2],slash:['on the locked blade',1],overhead:['an overhead beats a single blade',-1]},
-  close:{overhead:['inside his swing',2,'in'],slash:['inside his cut',1,'in'],thrust:['onto his point',-1],sweep:['planted inside',-1]},
-  unbound:{overhead:['the chain catches his arm',2,'far'],thrust:['inside the chain',-2]}};
+const STN_ANS={bound:{thrust:['beats the point aside',3],slash:['on the locked blade',2],overhead:['an overhead beats a single blade',-1]},
+  close:{overhead:['inside his swing',3,'in'],slash:['inside his cut',2,'in'],thrust:['onto his point',-1],sweep:['planted inside',-1]},
+  unbound:{overhead:['the chain catches his arm',3,'far'],thrust:['inside the chain',-2]}};
+// what is said over him when an answered blow misses
+const STN_POP={bound:{thrust:'Beaten aside',slash:'On the blade'},close:{overhead:'Inside the swing',slash:'Inside the cut'},unbound:{overhead:'Arm caught'}};
+// The pip goes on the cost the miss already takes from him (blocked, dodged, parried, countered), so a break it makes opens at once.
+let STN_MISS=null;
+{const kb=knockBalance;knockBalance=function(f,n,by){const m=STN_MISS;
+  if(m&&f===m.A&&by===m.D&&n>0){STN_MISS=null;m.paid=true;n+=1;}return kb.call(this,f,n,by);};}
+{const ai=applyImpact;applyImpact=function(ex,A,D,res,Cfn,cv,slip,fa,primary){
+  const s=primary&&D&&D===hero()&&A&&A.team!==D.team&&res&&(res.out==='block'||res.out==='dodge')&&!res.guardBreak&&!D.downed&&!A.dead&&!A.downed&&
+      ATTACKS.includes(res.kind)?stanceOf(D):null,a=s&&res.tech?stnAnswer(s,res.kind,res.tech,A,cameFar(A,D)):null;
+  if(!a||a[1]<=0)return ai.apply(this,arguments);
+  const m={A,D,paid:false};STN_MISS=m;
+  try{return ai.apply(this,arguments);}
+  finally{STN_MISS=null;if(m.paid)popup(A,STN_POP[s][res.kind],'#9fe0ff','\u22121 balance',17,freshBreak(A)?-88:-44);}};}
 function stnShortBlade(A){return!!A&&!!A.wp&&(!!A.wp.unarmed||A.wp.len<40);}
 function stnAnswer(s,kind,T,A,far){const e=STN_ANS[s]&&STN_ANS[s][kind];if(!e||!T||T.kick||T.dirty||['butt','haft','choked','pommel'].includes(T.key))return null;
   if(e[2]==='far'&&!far)return null;if(e[2]==='in'&&(far||stnShortBlade(A)||jammedTech(A,T)))return null;return e;}

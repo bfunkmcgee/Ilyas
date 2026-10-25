@@ -193,9 +193,10 @@ function stnSetupHtml(){const opt=(grp,val,cur,label)=>`<button type="button" cl
   const nOpt=S.cfg.crew?'crew':S.cfg.n;
   return`<div class="ss-in" role="dialog" aria-label="Test setup"><div class="ss-head"><span>Stance and rise test</span><button type="button" class="ss-x" aria-label="Close">${STN_X}</button></div>`+
     `<p class="ss-how"><b>Stances.</b> On your turn, before you act, pick Bound, Unbound or Close (or Z, X, C). It is free and holds till your next turn. Which one answers a man depends on his weapon, how far off he is, and the blow he is gearing up (shown over his head). The marked stance answers him best now, and each button says why.</p>`+
-    `<p class="ss-how"><b>Bound</b> locks the blade. It beats a thrust aside (+2) and takes a cut (+1), but an overhead beats it (−1). It strikes best at blade’s length (+1), and a dagger strikes at −2 until he gets past the point.</p>`+
-    `<p class="ss-how"><b>Unbound</b> is a bladed whip. It cracks hardest from the tip, and it catches the raised arm of a man who comes in with an overhead (+2), but a thrust comes inside the chain (−2). A spear cannot parry it. Your Parry is at −1 and Counter at −2.</p>`+
-    `<p class="ss-how"><b>Close</b> chokes it up. It gets inside an overhead (+2) or a cut (+1) from a man already in reach, but walks onto a point (−1). It strikes best inside his reach (+1), and an axe swung at you in reach is jammed.</p>`+
+    `<p class="ss-how"><b>Bound</b> locks the blade. It beats a thrust aside (+3) and takes a cut (+2), but an overhead beats it (−1). It strikes best at blade’s length (+1), and a dagger strikes at −2 until he gets past the point.</p>`+
+    `<p class="ss-how"><b>Unbound</b> is a bladed whip. It cracks hardest from the tip, and it catches the raised arm of a man who comes in with an overhead (+3), but a thrust comes inside the chain (−2). A spear cannot parry it. Your Parry is at −1 and Counter at −2.</p>`+
+    `<p class="ss-how"><b>Close</b> chokes it up. It gets inside an overhead (+3) or a cut (+2) from a man already in reach, but walks onto a point (−1). It strikes best inside his reach (+1), and an axe swung at you in reach is jammed.</p>`+
+    `<p class="ss-how">A blow your stance answers that misses you costs him a pip of balance.</p>`+
     `<p class="ss-how"><b>Falls.</b> A man knocked down rises free at his turn, off balance. Strike him on the floor and he loses that rise; a crew man is finished.</p>`+
     `<div class="ss-g"><span>Stances</span>${opt('stance',1,STANCE.on?1:0,'On')}${opt('stance',0,STANCE.on?1:0,'Off (today’s)')}</div>`+
     `<div class="ss-g"><span>Falls</span>${opt('down',1,DOWNF.on?1:0,'Rise free')}${opt('down',0,DOWNF.on?1:0,'Today’s')}</div>`+

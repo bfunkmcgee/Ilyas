@@ -2,7 +2,7 @@
 // each stance changes the dock's moves, his guard and (Unbound) the blade; Unbound is a bladed whip that strikes from where he stands,
 // its chain trailing the throw and landing its tip on the blade's tip with a crack, hardest at the tip, curling round a guard, hanging
 // at rest and locking for a relocked blow; the blow a man shows and how far off he is mark the stance that answers him, and the dice
-// and the tip line follow; a Close blow leaves him in the man's chest, where an axe comes on its haft; a man knocked
+// and the tip line follow, and an answered blow that misses costs him a pip more; a Close blow leaves him in the man's chest, where an axe comes on its haft; a man knocked
 // down rises free at his turn, off balance; struck on the floor, a named man must get up and a crew man is finished; the setup turns
 // each rule off. Stills of each go to the out folder.
 // usage (from the repo, after build_stances.py): node proto/stances/stances_page.js [outdir]
@@ -109,12 +109,35 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   expect('a thrust he is gearing up at blade\'s length marks Bound, which beats it aside',!r.none&&r.thrust.fit==='bound'&&/beats his thrust/.test(r.thrust.why),JSON.stringify(r.thrust||r));
   expect('an overhead he has to come in for marks Unbound, which catches his arm; the same overhead in reach marks Close, inside his swing',
     !r.none&&r.over.fit==='unbound'&&/catches his arm/.test(r.over.why)&&r.close.fit==='close'&&/inside his swing/.test(r.close.why),JSON.stringify({over:r.over,close:r.close}));
-  expect('the dice follow: +2 beating a thrust aside, −2 when it comes inside the chain, +2 catching an overhead coming in (not one in reach), +1 at blade\'s length',
-    !r.none&&/beats the point aside 2/.test(r.dice.boundThrust)&&/inside the chain -2/.test(r.dice.unboundThrust)&&/the chain catches his arm 2/.test(r.dice.unboundOverFar)&&
+  expect('the dice follow: +3 beating a thrust aside, −2 when it comes inside the chain, +3 catching an overhead coming in (not one in reach), +1 at blade\'s length',
+    !r.none&&/beats the point aside 3/.test(r.dice.boundThrust)&&/inside the chain -2/.test(r.dice.unboundThrust)&&/the chain catches his arm 3/.test(r.dice.unboundOverFar)&&
     !/catches his arm/.test(r.dice.unboundOverNear)&&/at blade’s length 1/.test(r.dice.blade),JSON.stringify(r.dice));
   expect('the tip line names the blow he is gearing up, what it does to your stance and the stance that answers it',!r.none&&/gearing up a thrust/.test(r.tl)&&/inside the chain/.test(r.tl)&&/Bound beats it aside/.test(r.tl),r.tl);
-  expect('the blow he showed is the one he throws, and the answer window says what the stance does to it',!r.none&&!!r.win&&r.win.kind==='thrust'&&/Bound: beats the point aside, \+2/.test(r.win.txt),JSON.stringify(r.win));
+  expect('the blow he showed is the one he throws, and the answer window says what the stance does to it',!r.none&&!!r.win&&r.win.kind==='thrust'&&/Bound: beats the point aside, \+3/.test(r.win.txt),JSON.stringify(r.win));
   await shot('4e_answer');
+  // 4f. a blow his stance answers that misses him costs the man a pip of balance more, named over him; one it does not answer costs the usual
+  // (each stance in a fresh fight, so the two meet the same man the same way)
+  r=await p.evaluate(()=>{const log=[];let D=null,K=null;
+    const ai=applyImpact;applyImpact=function(ex,A,Dd,res){if(D&&A===D&&Dd===K&&res&&res.kind==='thrust'){A.foot=footMaxOf(A);const f0=A.foot,n0=S.popups.length;let base=0;
+        // (what the miss costs him without the stance: blocked, parried or countered, as it fell)
+        const kb=knockBalance;knockBalance=function(f,n,by){if(f===A&&by===K&&!base)base=n;return kb.apply(this,arguments);};
+        let out;try{out=ai.apply(this,arguments);}finally{knockBalance=kb;}
+        log.push({st:stanceOf(K),out:res.out,base,lost:f0-A.foot,pop:S.popups.slice(n0).filter(q=>q.sub==='\u22121 balance').map(q=>q.text).join('|')});return out;}
+      return ai.apply(this,arguments);};
+    const oo=outcomeOf;window.outcomeOf=outcomeOf=function(){const ex=S.game.ex;return ex&&D&&ex.A===D?'block':oo.apply(this,arguments);};
+    try{for(const st of ['bound','close']){D=null;S.F=[];restart();untilMine(6000);K=hero();if(!mine())break;
+        D=foes().find(f=>f.weaponKey==='spear'&&!f.dead&&!f.downed)||foes().find(f=>!f.dead&&!f.downed&&!stanceHeavy(f)&&!stnShortBlade(f));if(!D)break;
+        setTgt(K,D.idx);stb(st).click();fast(2);const fa=Math.sign(D.station-K.station)||1;
+        K.station=clampSt(K,D.station-fa*(engageGap(K,D)+15));K.build();
+        for(const o of foes())if(o!==D){o.intent=null;o.station=clampSt(o,K.station-fa*320);o.build();}
+        D.foot=footMaxOf(D);D.intent={cmd:'thrust',tgt:K.idx,gap:Math.abs(D.station-K.station),dz:D.lane-K.lane,pinned:pinned(D),band:D.posture,tband:K.posture,tguard:false,tctr:false,changed:false,paid:0};
+        fast(3);const n0=log.length;cmd('wait').click();let n=0;
+        while(n<4000&&log.length===n0){const o=S.opening;if(o&&!isAI(o.f.idx))resolveOpening('hold');if(S.game.phase==='over')break;fast(1);n++;}}}
+    finally{applyImpact=ai;window.outcomeOf=outcomeOf=oo;}
+    const out={tgt:D&&D.name,wp:D&&D.weaponKey,log};D=null;S.F=[];restart();untilMine(6000);return out;});
+  {const lb=r.log.find(x=>x.st==='bound'),lc=r.log.find(x=>x.st==='close');
+    expect('a thrust Bound beats aside costs him a pip of balance more when it misses, named over him; in Close, which it does not answer, the usual',
+      !!lb&&!!lc&&lb.out==='block'&&lb.base>0&&lb.lost===lb.base+1&&lb.pop==='Beaten aside'&&lc.base>0&&lc.lost===lc.base&&lc.pop==='',JSON.stringify(r));}
   // 5. a Close blow: he strikes from inside the man's reach and stays there, and the axe that answers comes on its haft
   r=await p.evaluate(()=>{let n=untilFree(9000);const K=hero();if(!mine())return{none:true,n};
     const A0=foes().find(f=>f.weaponKey==='axe'&&!f.dead&&!f.downed);if(A0)setTgt(K,A0.idx);const D=targetOf(K);
