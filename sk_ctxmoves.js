@@ -24,12 +24,9 @@ function planBackThrust(A,D,res,T){
   const step=Math.min(34,Math.max(0,Math.abs(C0.x-sh.x)-(a*.85+reachIn)));
   const theta=Math.atan2(C0.y-sh.y,fa*(C0.x-(sh.x+dir*step)));
   const impHand={fn:()=>{const C=Cfn();return{x:C.x-fa*Math.cos(theta)*reachIn,y:C.y-Math.sin(theta)*reachIn};}};
-  const offG=wp.off?'grip':{sh:[.24*a,.2*a]},gA=()=>A.guardArm(),gB=()=>A.guardBody();
-  const armK=[{t:0,v:{...A.curArm}},{t:Tc,v:{hand:{sh:[.1*a,.28*a]},wAng:Math.PI-.35,off:offG,tilt:-.05},e:eOut},
-    {t:Timp,v:{hand:impHand,wAng:theta,off:offG,tilt:.05},e:eIn},{t:Td,v:{hand:impHand,wAng:theta,off:offG,tilt:.05}},{t:Tr,v:gA,e:sstep},{t:Tend,v:gA}];
-  const lean=(dl,dc,px)=>()=>{const g=gB();return{...g,px:px==null?g.px:px,lean:g.lean+dl,crouch:g.crouch+dc};};
-  const body=[{t:0,v:{...A.curBody}},{t:Tc,v:lean(.08,-.02),e:eOut},{t:Timp,v:lean(-.22,-.04,A.station+dir*step),e:eIn},{t:Td,v:lean(-.22,-.04,A.station+dir*step)},
-    {t:Tr,v:gB,e:sstep},{t:Tend,v:gB}];
+  const armK=armKeys(A,[[0,'now'],[Tc,'backThrustCock',eOut],[Timp,'backThrust',{hand:impHand,wAng:theta},eIn],[Td,'backThrust',{hand:impHand,wAng:theta}],[Tr,'guard',sstep],[Tend,'guard']]);
+  const at=A.station+dir*step;
+  const body=bodyKeys(A,[[0,'now'],[Tc,'backThrustCock',eOut],[Timp,'backThrust',{px:at},eIn],[Td,'backThrust',{px:at}],[Tr,'guard',sstep],[Tend,'guard']]);
   // the defender sees a blade coming along the line from Kael toward him
   const th2=Math.PI-theta,react=planReaction(D,A,'thrust',res,Timp,Cfn,th2,mulberry32(res.seed),false,dir);
   const tip=A.p[TIP],events=[{t:Tc+.02,fn:()=>S.hooks.sound('swoosh',wp.mass)},...(react.evs||[])];
@@ -59,17 +56,12 @@ function planKick(A,D,sv,r){
   const v=r.ok?(r.crush?540:440):370,tFly=clamp((sv.beyond-24)/v,.06,.42),Thit=Timp+tFly;
   A.station=sx;
   const hitPt=()=>{const b=P.box;return{x:b.cx-fa*((b.r-b.l)*.5-2),y:lerp(b.t,b.b,.55)};};
-  const gB=()=>A.guardBody(),gA=()=>A.guardArm(),kb=v=>()=>({...A.guardBody(),px:sx,pz:zk,...v});
-  const body=[{t:0,v:{...A.curBody,pz:z0}}];
-  if(tApp)body.push({t:tApp,v:kb({}),e:sstep});
-  body.push({t:Tl,v:kb({crouch:.86,lean:-.06,th:.9,kick:{pl:[-.1*leg,.55*leg]},kw:.9}),e:eOut},
-    {t:Timp,v:kb({px:sx+fa*4,crouch:.84,lean:-.16,th:.9,kick:{fn:hitPt},kw:1}),e:eIn},{t:Td,v:kb({px:sx+fa*4,crouch:.84,lean:-.14,th:.9,kick:{fn:hitPt},kw:1})},
-    {t:Tr,v:kb({}),e:sstep},{t:Tend,v:gB,e:sstep});
-  const armK=[{t:0,v:{...A.curArm}},{t:Tl,v:()=>({...A.guardArm(),tilt:-.15}),e:eOut},{t:Tr,v:gA,e:sstep},{t:Tend,v:gA}];
+  const at={px:sx,pz:zk},hit={px:sx+fa*4,pz:zk,kick:{fn:hitPt}};
+  const body=bodyKeys(A,[[0,'now',{pz:z0}],...(tApp?[[tApp,'guard',at,sstep]]:[]),[Tl,'kickCock',at,eOut],[Timp,'kickProp',hit,eIn],[Td,'kickPropHold',hit],[Tr,'guard',at,sstep],[Tend,'guard',sstep]]);
+  const armK=armKeys(A,[[0,'now'],[Tl,'kickProp',eOut],[Tr,'guard',sstep],[Tend,'guard']]);
   // the one in its path: legs taken out from under him, or a quick step that lets it go by
-  const db={...D.curBody},da={...D.curArm};
-  const rk=r.ok?{t:Thit+.04,v:()=>({...D.guardBody(),crouch:.78,lean:.26,th:.4}),e:eOut}:{t:Thit,v:()=>({...D.guardBody(),crouch:.8,lean:-.12,th:.6}),e:eOut};
-  const react={t0:S.t,end:Thit+.6,body:[{t:0,v:db},{t:Math.max(.05,Thit-.18),v:()=>D.guardBody()},rk,{t:Thit+.6,v:()=>D.guardBody(),e:sstep}],arm:[{t:0,v:da},{t:Thit+.6,v:()=>D.guardArm(),e:sstep}]};
+  const react={t0:S.t,end:Thit+.6,body:bodyKeys(D,[[0,'now'],[Math.max(.05,Thit-.18),'guard'],r.ok?[Thit+.04,'legsTaken',eOut]:[Thit,'letItBy',eOut],[Thit+.6,'guard',sstep]]),
+    arm:armKeys(D,[[0,'now'],[Thit+.6,'guard',sstep]])};
   const events=[{t:Tl+.02,fn:()=>S.hooks.sound('swoosh',.8)},{t:Timp,fn:()=>kickLaunch(A,P,fa,v)},{t:Thit,fn:()=>kickHit(A,D,P,fa,r)}];
   S.callouts.push({i:A.idx,text:'Kick the '+PROP[P.type].name,age:0,life:clamp(Timp+.35,.75,1.3),dx:-fa*22});
   return{att:{t0:S.t,end:Tend,body,arm:armK},react,Tend:Math.max(Tend,Thit+.45),events,dash:dist,strikeX:sx,Cfn:hitPt};}
@@ -116,17 +108,13 @@ function planBottleThrow(A,D,it,r){
   const reach=Math.hypot(bx-x0,(bz-z0)*.9),Tg=clamp(reach/300,.16,.4)+.06*sp,Tw=Tg+.22*sp,Trel=Tw+.13*sp;
   const H=D.p[HEAD],dist=Math.hypot(H.x-it.x,H.y-it.y),Tfl=clamp(dist/MOVES.bottleSpeed,.2,.6),Timp=Trel+Tfl,Tend=Math.max(Trel+.55,Timp+.4);
   A.station=bx;
-  const gB=()=>A.guardBody(),gA=()=>A.guardArm(),bb=v=>()=>({...A.guardBody(),px:bx,pz:bz,...v}),off=o=>()=>({...A.guardArm(),off:o});
-  const body=[{t:0,v:{...A.curBody,pz:z0}},{t:Tg,v:bb({crouch:.86,lean:.2}),e:eOut},{t:Tw,v:bb({lean:-.12,th:.3}),e:sstep},
-    {t:Trel,v:bb({px:bx+fa*6,lean:.26,th:.3}),e:eIn},{t:Trel+.2,v:bb({px:bx+fa*6,lean:.18})},{t:Tend,v:gB,e:sstep}];
-  const armK=[{t:0,v:{...A.curArm}},{t:Tg,v:off({fn:()=>({x:it.x,y:it.y})}),e:eOut},{t:Tw,v:off({sh:[-.3*a,-.78*a]}),e:sstep},
-    {t:Trel,v:off({sh:[.66*a,-.46*a]}),e:eIn},{t:Trel+.16,v:off({sh:[.52*a,.1*a]}),e:eOut},{t:Tend,v:gA,e:sstep}];
+  const at={px:bx,pz:bz},out={px:bx+fa*6,pz:bz};
+  const body=bodyKeys(A,[[0,'now',{pz:z0}],[Tg,'bottleReach',at,eOut],[Tw,'bottleWind',at,sstep],[Trel,'bottleThrow',out,eIn],[Trel+.2,'bottleFollow',out],[Tend,'guard',sstep]]);
+  const armK=armKeys(A,[[0,'now'],[Tg,'guard',{off:{fn:()=>({x:it.x,y:it.y})}},eOut],[Tw,'bottleWind',sstep],[Trel,'bottleThrow',eIn],[Trel+.16,'bottleFollow',eOut],[Tend,'guard',sstep]]);
   it.carry={A:A.idx,from:S.t+Tg};
   // the one it is thrown at: a duck under it, or the head snapping back
-  const db={...D.curBody},da={...D.curArm};
-  const rb=r.ok?[{t:Math.max(.05,Timp-.12),v:()=>D.guardBody()},{t:Timp+.05,v:()=>({...D.guardBody(),lean:-.22,crouch:.86}),e:eOut}]
-    :[{t:Math.max(.05,Timp-.24),v:()=>D.guardBody()},{t:Timp,v:()=>({...D.guardBody(),crouch:.68,lean:.3}),e:eOut},{t:Timp+.28,v:()=>({...D.guardBody(),crouch:.7,lean:.24})}];
-  const react={t0:S.t,end:Timp+.6,body:[{t:0,v:db},...rb,{t:Timp+.6,v:()=>D.guardBody(),e:sstep}],arm:[{t:0,v:da},{t:Timp+.6,v:()=>D.guardArm(),e:sstep}]};
+  const rb=r.ok?[[Math.max(.05,Timp-.12),'guard'],[Timp+.05,'bottleHit',eOut]]:[[Math.max(.05,Timp-.24),'guard'],[Timp,'bottleDuck',eOut],[Timp+.28,'bottleDuckHold']];
+  const react={t0:S.t,end:Timp+.6,body:bodyKeys(D,[[0,'now'],...rb,[Timp+.6,'guard',sstep]]),arm:armKeys(D,[[0,'now'],[Timp+.6,'guard',sstep]])};
   const events=[{t:Tg,fn:()=>S.hooks.sound('clang',.15)},
     {t:Trel,fn:()=>{const h=A.p[HAB];it.carry=null;it.x=it.px=h.x;it.y=it.py=h.y;it.fly={t0:S.t,T:Tfl,x0:h.x,y0:h.y,d0:it.dep,hit:r.ok,D:D.idx,h:clamp(dist*.1,10,34),dir:fa};S.hooks.sound('swoosh',.5);}},
     {t:Timp,fn:()=>bottleArrive(A,D,r,it,fa)}];

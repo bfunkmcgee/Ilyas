@@ -173,8 +173,7 @@ function shotHit(A,D,s,fa){const crit=s.out==='crit',C=s.to,down=!!D.downed;
   if(hurt)S.hooks.wound(S.game.ex,D,{zone:s.zone,hurt,primary:true});}
 // a round that hits jerks him back; one that misses close makes him duck his head
 function flinchAction(D,fa,hit){const b0=D.curBody||D.guardBody(),a0=D.curArm||D.guardArm(),back=-fa*D.facing;
-  const peak=()=>({...D.guardBody(),crouch:D.guardBody().crouch-(hit?.04:.08),lean:D.guardBody().lean+(hit?-.22*back:.2)});
-  return{t0:S.t,end:.55,body:[{t:0,v:b0},{t:.08,v:peak,e:eOut},{t:.55,v:()=>D.guardBody(),e:sstep}],arm:[{t:0,v:a0},{t:.55,v:()=>D.guardArm(),e:sstep}]};}
+  return{t0:S.t,end:.55,body:bodyKeys(D,[[0,b0],[.08,hit?'shotHit':'shotDuck',hit?{flip:back}:null,eOut],[.55,'guard',sstep]]),arm:armKeys(D,[[0,a0],[.55,'guard',sstep]])};}
 // the effects records age out (they are drawn by the page)
 V11.step.push(()=>{const t=S.t;
   if(S.muzzles.length)S.muzzles=S.muzzles.filter(m=>t-m.t0<.8);

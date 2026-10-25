@@ -12,7 +12,13 @@ if(process.argv[2]==='--cmp'){const A=JSON.parse(fs.readFileSync(process.argv[3]
   console.log(bad?`traces differ: ${bad} of ${Object.keys(A).length}`:`traces identical: ${Object.keys(A).length} fights`);process.exit(bad?1:0);}
 const ROOT=path.resolve(process.argv[2]||'.'),OUT=process.argv[3]||'trace.json',QUICK=process.argv[4]==='quick';process.chdir(ROOT);
 const core=require(path.join(ROOT,'sk_src.js'))();
+// the planners counted as they run, so a trace is known to have gone through them
+const COVER=['planAttack','planReaction','planShove','planSidestep','planVaultMove','planBreakout','planFlank','planFeint','applyFeint','elfDash','elfEvade',
+  'launchBolt','launchGale','launchBlink','planGrab','planBreak','planPickup','planKick','planBottleThrow','planPincer','planCover','planHelp','planStab','flinchAction',
+  'planTail','planToss','planDraw','insurancePlan','shortLadderPlan','shortHookPlan','launchDirty','launchThrow','planPush','planSwap','launchStab'];
 eval(core+`
+for(const n of ${JSON.stringify(COVER)}){try{const f=eval(n);if(typeof f!=='function')continue;globalThis.__cov=globalThis.__cov||{};__cov[n]=0;
+  eval(n+'=function(){__cov["'+n+'"]++;return f.apply(this,arguments);}');}catch(e){}}
 (()=>{const out={};
 const h32=s=>{let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h.toString(36);};
 const snap=()=>S.F.map(f=>[f.p.map(q=>q.x.toFixed(6)+','+q.y.toFixed(6)).join(';'),f.station.toFixed(6),(f.lane||0).toFixed(6),f.hp,f.foot,f.posture,f.downed?1:0,f.dead?1:0].join('|')).join('#')+'@'+S.game.phase;
@@ -27,6 +33,6 @@ for(const ak of arenas)for(const n of ns)for(const hw of heroW)for(const seed of
 for(const seed of seeds){
   run('crew/'+seed,()=>{Math.random=mulberry32(seed*577+3);S.rng=mulberry32(seed*13+1);S.arenaKey='restaurant';S.cfg.n=1;S.cfg.crew=true;S.cfg.ally.on=false;S.auto=true;S.tableOn=true;S.cfg.hero={...S.cfg.hero,weapon:'elven'};});
   run('ally/'+seed,()=>{Math.random=mulberry32(seed*389+7);S.rng=mulberry32(seed*17+2);S.arenaKey='street';S.cfg.n=2;S.cfg.crew=false;S.cfg.ally.on=true;S.auto=true;S.tableOn=true;S.cfg.hero={...S.cfg.hero,weapon:'elven'};});}
-fs.writeFileSync(OUT,JSON.stringify(out));
+fs.writeFileSync(OUT,JSON.stringify(out));console.log('planners run:',JSON.stringify(globalThis.__cov||{}));
 console.log('traced '+Object.keys(out).length+' fights, '+Object.values(out).reduce((s,o)=>s+o.h.length,0)+' checkpoints; hero won '+Object.values(out).filter(o=>o.winner==='hero').length);})();
 `);
