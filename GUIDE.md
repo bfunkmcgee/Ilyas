@@ -127,7 +127,15 @@ write tracks with `bodyKeys(f,[[t,pose,changes,ease],...])` and `armKeys`: a pos
 a function or a pose object; changes are laid over it in world terms (px, pz, a hand aimed at a contact point as {fn}), a change that
 is a function is read live, and `flip` (+1/-1) turns the lean or tilt round for a man behind him. `bodyPose`/`armPose` make one pose
 for a fighter. Story scenes (sk_story.js, the Pit's scenes), the finale's driver, the gun aim (AIM in sk_guns.js) and the arc-blade's
-flourishes (sk_arc.js) keep their own choreography. The motion traces prove a refactor moves every body the same: `node
+flourishes (sk_arc.js) keep their own choreography. The attack is data (since V65): `ATTACK` in sk_anim.js holds its times, the
+approach speed, the body's form at the impact and in the windup by the form of the blow (`form`: slash, thrust, overhead, sweep, and
+passing, butt, ground, leap and the kicks laid over them), the windup's and follow-through's numbers, the arm's windup and
+follow-through by form, the free hand and the head's tilt; planAttack, windupBase and followBase read it through `attackTable(A)` and
+`attackForm`, and aim at the contact point as before. Styles (since V66): `ANIM_STYLE` in sk_anim.js, one per animation style, and
+`f.animStyle` (default 'tactical' for Kael, sk_style.js, 'regular' for everyone else). A style is its pace (`moves`, faded in with
+skill up to `full`), changes to the guard (`guard`), to named poses (`pose.body`, `pose.arm`), to ATTACK (`attack`, merged a level at a
+time) and its glance after a kill (`look`). `styleMoves`, `styleGuard`, `styleWind` and `styleFollow` apply it; Short Hand's stance wraps
+styleGuard. Animation only: the dice, the tempo, the footing and the AI never read a style. The motion traces prove a refactor moves every body the same: `node
 uiwork/anim/trace.js <repo> <out.json> [quick]` (64 seeded lab fights, every joint hashed every 6 steps, and which planners ran) and
 `--cmp a b`; `uiwork/anim/suites.sh <repo> <out.jsonl>` (the logic suites, their dice seeded) and `node uiwork/anim/cmp_suites.js a b`;
 `node uiwork/anim/trace_page.js <repo> <out.json>` (the prologue on into Act I with each fight played on auto for a while, and the

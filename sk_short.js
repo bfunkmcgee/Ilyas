@@ -108,7 +108,7 @@ function canToll(A,D){return!!(A&&D&&shortKnows(D,'toll')&&A.team!==D.team&&!D.d
 // ---------- the stance ----------
 // low, the weight forward, the knife hand close to the chest and angled up and forward; Committed, the hand still does not reach. A
 // one-armed man's back hand is pinned at his chest (sk_pit.js), so it is left where it is.
-{const tg=tacGuard;tacGuard=function(f){const g=tg(f);if(!shortOn(f))return g;const G=SHORT_HAND.guard;
+{const tg=styleGuard;styleGuard=function(f){const g=tg(f);if(!shortOn(f))return g;const G=SHORT_HAND.guard;
   return{...g,hx:G.hx-(f.posture==='committed'?.14:0),hy:G.hy,w:G.w,crouch:G.crouch,lean:G.lean,sf:G.sf,sb:G.sb,
     off:f.oneArm||!g.off?g.off:[g.off[0]*.55,g.off[1]+.12]};};}
 // short chopping steps, low and quick, and the feet never cross: the front foot lands ahead of the back one and the back foot behind

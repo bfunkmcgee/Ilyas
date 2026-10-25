@@ -1,18 +1,16 @@
 // ===== STYLE START =====
 // Kael's tactical style: economy of motion in the procedural animation. Short windups, a small follow-through, a quick return to a
-// tight guard and a glance round the room after every kill. It is animation only: dice, damage, tempo, footing and the AI never
-// read anything in here. Everyone else keeps the regular, bigger motion.
-const TACTICAL={
-  on:true,
-  // multipliers on the regular planAttack numbers; "regular" is what every other fighter gets (all 1, tail .42 s)
+// tight guard and a glance round the room after every kill. It is an animation style (ANIM_STYLE, sk_anim.js): dice, damage, tempo,
+// footing and the AI never read anything in here. Everyone else keeps the regular, bigger motion.
+const TACTICAL=ANIM_STYLE.tactical={
+  name:'Tactical',on:true,
+  // multipliers on the attack's numbers; the regular ones (ANIM_MOVES) are all 1 and a tail of .42 s
   //   amp: windup size (hand travel back and up)   cock: how far the blade is cocked back, as a share of the regular turn from its
   //   windup angle to the strike angle   wind: windup time   strike: strike time
   //   follow: follow-through time   reach: how much of the follow-through hand travel and blade turn is kept
   //   recover: time to come back to guard   tail: seconds held in guard before the action ends
   // The shorter windup leaves less travel, so the strike time comes down a hair to keep the blade arriving at the speed it had.
-  moves:{
-    regular:{amp:1,cock:1,wind:1,strike:1,follow:1,reach:1,recover:1,tail:.42},
-    tactical:{amp:.8,cock:.8,wind:.8,strike:.85,follow:.75,reach:.7,recover:.7,tail:.3}},
+  moves:{amp:.8,cock:.8,wind:.8,strike:.85,follow:.75,reach:.7,recover:.7,tail:.3},
   // A Novice's arms are too slow to follow a clipped windup, so the profile fades in with skill: none at skill 1, all of it from here.
   full:3,
   // the tight guard, as changes to the weapon's own GUARD entry: hands closer to the chest (x), hands higher (up, in arm lengths),
@@ -23,32 +21,9 @@ const TACTICAL={
   // fore/aft: head tilt in radians toward something ahead / over the shoulder; eye: eye shift ahead (fraction of the head radius)
   look:{fast:{delay:.15,turn:.11,first:.35,second:.25,back:.16},slow:{delay:.3,turn:.24,first:.6,second:.6,back:.3},fore:.12,aft:.34,eye:.1,lift:.06}
 };
-// f.tactical: true for Kael only unless a test or a later feature sets it
+// f.tactical: true for Kael only unless a test or a later feature sets it (his animStyle is 'tactical' while it is)
 Object.defineProperty(Fighter.prototype,'tactical',{configurable:true,get(){return this._tac!==undefined?this._tac:this===S.F[0];},set(v){this._tac=v;}});
-// The lash is not a quick economical stroke: its chain needs the regular time to run out, so it keeps the regular motion.
-function tacOf(f,T){
-  const R=TACTICAL.moves.regular;if(!TACTICAL.on||!f||!f.tactical||(T&&T.lash))return R;
-  const m=clamp((f.skill-1)/(TACTICAL.full-1),0,1),P=TACTICAL.moves.tactical;if(m<=0)return R;if(m>=1)return P;
-  const o={};for(const k in R)o[k]=lerp(R[k],P[k],m);return o;}
-
-// ---------- the tight guard ----------
-function tacGuard(f){
-  const g=GUARD[f.weaponKey];if(!TACTICAL.on||!f.tactical)return g;
-  const k=TACTICAL.guard;
-  return{...g,hx:g.hx*k.hand,hy:g.hy-k.up,off:g.off?[g.off[0]*k.off,g.off[1]-k.offUp]:g.off,crouch:g.crouch+k.crouch,lean:g.lean+k.lean,sf:g.sf*k.stance,sb:g.sb*k.stance};}
-
-// ---------- the windup ----------
-// W is the regular windup {hand,ang}: the blade is cocked back less, so the windup stays short (strikes with no turn keep theirs)
-function tacWind(A,T,W,theta){
-  const k=tacOf(A,T).cock;if(k>=1||!W)return W;
-  return{hand:W.hand,ang:theta+(W.ang-theta)*k};}
-
-// ---------- the follow-through ----------
-// F is the regular follow-through {hand,ang}: a tactical fighter's hand covers only part of the way from the impact hand to it, and the
-// blade turns less. A fumble stays as sloppy as ever.
-function tacFollow(A,T,F,theta,impHand,out){
-  const k=tacOf(A,T).reach;if(k>=1||out==='fumble')return F;
-  return{hand:{fn:()=>{const a=A.resolve(impHand),b=A.resolve(F.hand);return{x:lerp(a.x,b.x,k),y:lerp(a.y,b.y,k)};}},ang:theta+(F.ang-theta)*k};}
+// (the windup's cock, the follow-through's reach and the tight guard are worked by sk_anim.js: styleWind, styleFollow, styleGuard)
 
 // ---------- the glance ----------
 // f.look={t0,end,keys:[[t,w],...]} with w the world side of the look: +1 right, -1 left, 0 straight on. Sampled smoothly; relative to the
@@ -80,7 +55,7 @@ function tacGlance(A,D){
   A.look={t0:S.t,end:t5,keys:[[0,w0],[P.delay,w0],[t1,w1],[t2,w1],[t3,-w1],[t4,-w1],[t5,0]],slow:!E};}
 V11.kill.push((D,dir)=>{
   const ex=S.game.ex,A=ex&&ex.A;
-  if(TACTICAL.on&&A&&A.tactical&&!A.dead&&!A.downed&&A.team!==D.team)tacGlance(A,D);});
+  if(A&&animStyleOf(A).look&&!A.dead&&!A.downed&&A.team!==D.team)tacGlance(A,D);});
 // a new fight starts with no look left over
 V11.turnStart.push(i=>{if(S.game.turnNo===1)for(const f of S.F)f.look=null;});
 // ===== STYLE END =====

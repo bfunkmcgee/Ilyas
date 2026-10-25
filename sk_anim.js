@@ -1,5 +1,5 @@
 // ===== ANIM START =====
-// The animation's vocabulary: named poses, and moves written as keyframes of them.
+// The animation's vocabulary: named poses, moves written as keyframes of them, the attack as data, and the styles that change them.
 // A move is a track of body poses (where the pelvis goes, how low it sits, the lean, the feet) and a track of arm poses (the weapon
 // hand, the blade's angle, the free hand, the head's tilt), sampled by controlAndForces (sk_core.js) and driven into the ragdoll by its
 // motors. The poses are named here, in the body's own units, so one pose fits every body; the planners give the times, and aim the
@@ -325,8 +325,9 @@ const ATTACK={
   tilt:{wind:-.05,leap:-.08,impact:.1,follow:.08},           // the head
   dwellTurn:.12,lashTurn:.03,                                // the blade's turn in the hold (none for a thrust or a butt blow)
 };
-// the attack's numbers for this fighter (a style may change them: sk_style.js)
-function attackTable(A){return ATTACK;}
+// the attack's numbers for this fighter: ATTACK with his style's changes
+function attackTable(A){const st=animStyleOf(A);if(!st.attack)return ATTACK;
+  if(st._atkFrom!==st.attack){st._atk=animMerge(ATTACK,st.attack);st._atkFrom=st.attack;}return st._atk;}
 // the body's form at the impact, and the windup and strike time factors, for this blow
 function attackForm(K,T,kind,sweep,thrust,butt,gnd){const F=K.form,over=kind==='overhead',pas=T.passing;
   return{lean:gnd?F.ground.lean:sweep?F.sweep.lean:over?F.overhead.lean:thrust?(pas?F.passing.lean:F.thrust.lean):butt?F.butt.lean:F.slash.lean,
@@ -335,10 +336,47 @@ function attackForm(K,T,kind,sweep,thrust,butt,gnd){const F=K.form,over=kind==='
     wind:sweep?F.sweep.wind:over?F.overhead.wind:thrust?F.thrust.wind:butt?F.butt.wind:F.slash.wind,
     strike:over?F.overhead.strike:thrust?F.thrust.strike:butt?F.butt.strike:sweep?F.sweep.strike:F.slash.strike};}
 
+// ---------- styles ----------
+// An animation style is its own pace and a set of changes to the guard, the named poses and the attack. A fighter has one: f.animStyle,
+// a key of ANIM_STYLE ('tactical' for Kael, sk_style.js; 'regular' for everyone else) unless a feature or a test sets it. It is
+// animation only: the dice, the damage, the tempo, the footing and the AI never read it.
+//   moves   multipliers on the attack's numbers (each one explained with the tactical style, sk_style.js); full: the skill at which the
+//           style's moves are all there (below it they fade back toward the regular ones, which a novice's arms keep)
+//   guard   changes to the weapon's GUARD entry: hand (hx times this), up (hy less this, in arm lengths), off and offUp (the free hand,
+//           the same way), crouch and lean (added), stance (sf and sb times this), w and gw (the blade's angles, added)
+//   pose    {body:{name:changes}, arm:{name:changes}}: fields laid over the named poses (POSE)
+//   attack  changes laid over ATTACK, merged a level at a time ({form:{slash:{lean:.24}}} changes the cut's lean and nothing else)
+//   look    the glance round the room after a kill (sk_style.js)
+const ANIM_MOVES={amp:1,cock:1,wind:1,strike:1,follow:1,reach:1,recover:1,tail:.42};
+const ANIM_STYLE={regular:{name:'Regular',moves:ANIM_MOVES}};
+Object.defineProperty(Fighter.prototype,'animStyle',{configurable:true,get(){return this._anim!==undefined?this._anim:this.tactical?'tactical':'regular';},set(v){this._anim=v;}});
+function animStyleOf(f){const st=f&&ANIM_STYLE[f.animStyle];return st&&st.on!==false?st:ANIM_STYLE.regular;}
+function animMerge(a,b){if(b===null||typeof b!=='object'||Array.isArray(b)||a===null||typeof a!=='object'||Array.isArray(a))return b;
+  const o={...a};for(const k in b)o[k]=k in a?animMerge(a[k],b[k]):b[k];return o;}
+function stylePose(f,part,name){const p=animStyleOf(f).pose;return p&&p[part]&&p[part][name]||null;}
+// the style's pace for this blow: its moves, faded toward the regular ones below its full skill. The lash is not a quick economical
+// stroke: its chain needs the regular time to run out, so it keeps the regular pace.
+function styleMoves(f,T){const R=ANIM_MOVES,st=animStyleOf(f),P=st.moves;if(!P||P===R||!f||(T&&T.lash))return R;
+  if(!st.full||st.full<=1)return P;
+  const m=clamp((f.skill-1)/(st.full-1),0,1);if(m<=0)return R;if(m>=1)return P;
+  const o={};for(const k in R)o[k]=lerp(R[k],P[k]??R[k],m);return o;}
+// the guard: the weapon's GUARD entry with the style's changes
+function styleGuard(f){const g=GUARD[f.weaponKey],k=animStyleOf(f).guard;if(!k)return g;
+  const o={...g,hx:g.hx*(k.hand??1),hy:g.hy-(k.up??0),off:g.off?[g.off[0]*(k.off??1),g.off[1]-(k.offUp??0)]:g.off,crouch:g.crouch+(k.crouch??0),lean:g.lean+(k.lean??0),
+    sf:g.sf*(k.stance??1),sb:g.sb*(k.stance??1)};
+  if(k.w!=null)o.w=g.w+k.w;if(k.gw!=null)o.gw=g.gw+k.gw;return o;}
+// the windup: W is the form's {hand,ang}; a style with less cock turns the blade back less from the strike angle theta
+function styleWind(A,T,W,theta){const k=styleMoves(A,T).cock;if(k===1||!W)return W;
+  return{hand:W.hand,ang:theta+(W.ang-theta)*k};}
+// the follow-through: F is the form's {hand,ang}; the hand covers only reach of the way from the impact hand to it, and the blade turns
+// that much as far. A fumble stays as sloppy as ever.
+function styleFollow(A,T,F,theta,impHand,out){const k=styleMoves(A,T).reach;if(k===1||out==='fumble')return F;
+  return{hand:{fn:()=>{const a=A.resolve(impHand),b=A.resolve(F.hand);return{x:lerp(a.x,b.x,k),y:lerp(a.y,b.y,k)};}},ang:theta+(F.ang-theta)*k};}
+
 // ---------- poses for a fighter ----------
-// the named pose (a style may change it: sk_style.js)
-function poseB(f,name){const P=POSE.body[name];if(!P)throw new Error('no body pose '+name);return P;}
-function poseA(f,name){const P=POSE.arm[name];if(!P)throw new Error('no arm pose '+name);return P;}
+// the named pose, with his style's changes
+function poseB(f,name){const P=POSE.body[name];if(!P)throw new Error('no body pose '+name);const c=stylePose(f,'body',name);return c?{...P,...c}:P;}
+function poseA(f,name){const P=POSE.arm[name];if(!P)throw new Error('no arm pose '+name);const c=stylePose(f,'arm',name);return c?{...P,...c}:P;}
 // A change flip (+1 or -1) turns the pose's lean (an arm pose's tilt) round: the poses are written facing the man he acts on, and
 // flip -1 is for the man at his back.
 // a body pose P made for f, with the changes o laid over it
