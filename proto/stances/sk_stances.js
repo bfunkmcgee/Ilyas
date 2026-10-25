@@ -270,12 +270,13 @@ const STN_HABIT_SHORT={bound:{thrust:'beats his thrusts',slash:'takes his cuts',
   close:{overhead:'inside his swings',slash:'inside his swings',thrust:'onto his point',sweep:'easy to sweep'},
   unbound:{overhead:'catches his arm',thrust:'his thrusts get in'}};
 // A man's blow comes after Ilyas's own. A Close blow leaves him in his man's chest, so the blow that man shows (or throws next) comes
-// from in reach whatever the distance now: an axe's swing jammed, a cut or an overhead got inside. A Bound blow leaves him at his
-// striking distance, where Bound's answers hold anyway, and an Unbound lash goes from where he stands.
+// from in reach whatever the distance now: an axe's swing jammed, a cut or an overhead got inside. (Not with others near: in one man's
+// chest the rest come at him freely.) A Bound blow leaves him at his striking distance, where Bound's answers hold anyway, and an
+// Unbound lash goes from where he stands.
 function stnStrikes(K,D){return!!K&&!!D&&!K.downed&&!K.clinch&&!D.dead&&!D.downed&&ATTACKS.some(k=>cmdValid(K,D,k));}
 // what stance s does to E's blow of this kind as it would come: {v, jam} or null
-const STN_W={jam:2};
-function stnVs(K,D,E,s,kind){const after=s==='close'&&E===D&&stnStrikes(K,D);
+const STN_W={jam:2,crowdAfter:false};
+function stnVs(K,D,E,s,kind){const after=s==='close'&&E===D&&stnStrikes(K,D)&&(STN_W.crowdAfter||!stanceNear(K,D));
   if(s==='close'&&stanceHeavy(E)&&(kind==='slash'||kind==='overhead')&&(after||stanceAs(K,s,()=>stnJams(E,K,kind))))return{v:STN_W.jam,jam:true,after};
   const T=stanceAs(K,s,()=>pickTechnique(E,K,kind)),a=stnAnswer(s,kind,T,E,after?false:comesFar(E,K));return a?{v:a[1],jam:false,after}:null;}
 function stanceHabit(K,D,s){const H=STN_HABIT[D.weaponKey]||STN_HABIT.other;let v=0,top=null;
