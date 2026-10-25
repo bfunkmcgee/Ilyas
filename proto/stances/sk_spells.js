@@ -10,8 +10,8 @@
 //   Gilt edge  free on his turn, once a turn: the gilt runs down the blade till his next turn, shaped by the stance (Bound +1 and
 //              through a guard, Unbound's tip burns, Close's hilt sears). 1 Aether.
 //   Overdrive  a spell cast on his turn may go one or two Aether short: the gilt burns 8 health for each point missing.
-// SPELL2.on false leaves today's three spells and no Overdrive.
-const SPELL2={on:true};
+// SPELL2.on false leaves today's three spells and no Overdrive; SPELL2.off names any of the new ones (or 'ward', 'overdrive') left out.
+const SPELL2={on:true,off:[]};
 const SPELL_NEW=['glare','line','edge'];
 SPELLS.glare={name:'Glare',cost:1,tempo:50,foot:0,key:'r'};
 SPELLS.line={name:'Gilt line',cost:2,tempo:80,foot:1,key:'l'};
@@ -32,14 +32,14 @@ REACT_NAME.ward='Ward';
 
 // ---------- Overdrive: the gilt burned for the Aether he does not have ----------
 function aetherShort(A,k){const s=SPELLS[k];return s&&A?Math.max(0,s.cost-(A.aether||0)):0;}
-function overdriveOK(A,k){const n=aetherShort(A,k);return SPELL2.on&&n>0&&n<=OVERDRIVE.max&&!!A&&A.hp>n*OVERDRIVE.hp;}
+function overdriveOK(A,k){const n=aetherShort(A,k);return SPELL2.on&&!SPELL2.off.includes('overdrive')&&n>0&&n<=OVERDRIVE.max&&!!A&&A.hp>n*OVERDRIVE.hp;}
 function overdriveBurn(A,n){const hp=n*OVERDRIVE.hp;A.hp=Math.max(1,A.hp-hp);A.flare=1.8;A.overdriveT=S.t;
   popup(A,'Overdrive','#ff9a5c',`−${hp} health`,19,-70);
   if(!S.warming){const c=A.p[CHE];addMotes(c.x,c.y,A.dep,12,{spread:70,vy:-60,cyan:0});flash({x:c.x,y:c.y},30,'#ff9a5c',A.dep);}
   if(S.hooks.overdrive)S.hooks.overdrive(A,hp);S.hooks.status();}
 // the store is checked as if it held the spell's cost when Overdrive covers the rest; every other rule stands as it is
 {const so=spellOK;spellOK=function(A,D,k){
-  if(SPELL_NEW.includes(k)&&!SPELL2.on)return false;
+  if(SPELL_NEW.includes(k)&&(!SPELL2.on||SPELL2.off.includes(k)))return false;
   if(!A||!SPELLS[k])return so.apply(this,arguments);
   const a=A.aether||0;if(overdriveOK(A,k))A.aether=SPELLS[k].cost;
   try{if(!so.apply(this,arguments))return false;}finally{A.aether=a;}
@@ -110,7 +110,7 @@ function lineYank(A,D,roll,fa,ex){const L=(S.lines||[]).find(l=>l.A===A&&l.D===D
 
 // ---------- Gilt edge ----------
 function edgeStance(A){return stanceOf(A)||'bound';}
-function edgeOK(A){return SPELL2.on&&!!A&&A===hero()&&mage(A)&&!A.edge&&!A.downed&&!A.clinch&&!A.dead&&!(A.wp&&A.wp.gun)&&A.weaponKey==='elven'&&
+function edgeOK(A){return SPELL2.on&&!SPELL2.off.includes('edge')&&!!A&&A===hero()&&mage(A)&&!A.edge&&!A.downed&&!A.clinch&&!A.dead&&!(A.wp&&A.wp.gun)&&A.weaponKey==='elven'&&
   ((A.aether||0)>=SPELLS.edge.cost||overdriveOK(A,'edge'));}
 // lit on his turn, before he acts: free, and it lasts till his next turn
 function lightEdge(A){const g=S.game;if(!edgeOK(A)||g.phase!=='input'||g.active!==A.idx||S.opening)return false;const short=aetherShort(A,'edge');
@@ -146,7 +146,7 @@ V11.duelStart.push(()=>{for(const f of S.F){f.edge=null;f.glare=null;f.wardT=nul
 
 // ---------- Gilt ward: an answer of its own in the window ----------
 let SPELL_NOWARD=false;
-function wardOK(D){return SPELL2.on&&!SPELL_NOWARD&&!!D&&mage(D)&&(D.aether||0)>=WARD.cost&&!(D.wp&&D.wp.gun);}
+function wardOK(D){return SPELL2.on&&!SPELL2.off.includes('ward')&&!SPELL_NOWARD&&!!D&&mage(D)&&(D.aether||0)>=WARD.cost&&!(D.wp&&D.wp.gun);}
 {const rc=reactChoices;reactChoices=function(D,A){const ch=rc.apply(this,arguments);return wardOK(D)?[...ch,'ward']:ch;};}
 {const ar=applyReaction;applyReaction=function(D,k,A){ar.apply(this,arguments);
   if(k==='ward'){D.aether=Math.max(0,(D.aether||0)-WARD.cost);D.wardT=S.t;D.flare=Math.max(D.flare||0,1.1);if(!S.warming)glyphAt(D,HAB,.3);}};}
