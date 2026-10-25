@@ -592,9 +592,9 @@ class Fighter{
   }
   setWeapon(k){this.weaponKey=k;this.wdes=S.hooks.arms(this,k);const wp=this.wp,t=this.p[TIP],h=this.p[HAF];this.sticks[10][2]=wp.len;t.m=wp.mass;t.im=1/wp.mass;
     t.x=t.px=h.x+this.facing*wp.len*.3;t.y=t.py=h.y-wp.len*.95;}
-  guardBody(){const g=tacGuard(this),b=this.body,leg=this.leg,br=Math.sin(S.t*2.1+this.idx*1.7),gd=this.guarding,us=this.posture==='off',cm=this.posture==='committed',w=us?1.25:cm?1.1:1;
+  guardBody(){const g=styleGuard(this),b=this.body,leg=this.leg,br=Math.sin(S.t*2.1+this.idx*1.7),gd=this.guarding,us=this.posture==='off',cm=this.posture==='committed',w=us?1.25:cm?1.1:1;
     return brawlBody(this,{px:this.station,pz:this.lane,crouch:g.crouch-(gd?.07:0)-(us?.05:cm?.02:0)+br*.006,lean:g.lean+b.posture+(gd?.05:0)+(us?-.16+.05*Math.sin(S.t*4.3+this.idx):cm?.13:0),stF:(g.sf+(cm?.08:0))*leg*b.stance*w,stB:g.sb*leg*b.stance*w,th:.2});}
-  guardArm(){const g=tacGuard(this),a=this.arm,br=Math.sin(S.t*2.1+this.idx*1.7),gd=this.guarding,us=this.posture==='off',cm=this.posture==='committed',cg=gd&&this.circleGuard;
+  guardArm(){const g=styleGuard(this),a=this.arm,br=Math.sin(S.t*2.1+this.idx*1.7),gd=this.guarding,us=this.posture==='off',cm=this.posture==='committed',cg=gd&&this.circleGuard;
     return brawlArm(this,{hand:{sh:[(g.hx+(cm?.14:0)-(cg?.14:0))*a,(g.hy-(gd?.18:0)-(cg?.3:0)+(us?.1:0))*a+br*.8]},wAng:cg?-1.85+br*.025:g.w+(gd?g.gw:0)+(us?.35:cm?.18:0)+br*.025,
       off:g.off?{sh:us?[.45*a,.15*a]:[g.off[0]*a,(g.off[1]-(gd?.22:0))*a]}:'grip',tilt:0});}
   resolve(s){if(s.sh){const c=this.p[CHE];return{x:c.x+this.facing*s.sh[0],y:c.y+s.sh[1]};}if(s.w)return s.w;if(s.fn)return s.fn();return s;}
@@ -1171,7 +1171,7 @@ function impactAngle(T,kind,aim){
   if(T.descend)return aim+.7;
   return aim+.45;
 }
-function windupFor(T,kind,arm,amp,theta,A){return tacWind(A,T,windupBase(T,kind,arm,amp,theta,A),theta);}
+function windupFor(T,kind,arm,amp,theta,A){return styleWind(A,T,windupBase(T,kind,arm,amp,theta,A),theta);}
 // the hand and the blade drawn back, by the form of the blow (ATTACK.windup, sk_anim.js); amp is the windup's size
 function windupBase(T,kind,arm,amp,theta,A){
   const W=attackTable(A).windup,P=T.along!==null&&T.along<0?W.butt:kind==='sweep'?W.sweep:kind==='thrust'||T.key==='halfsword'?W.thrust:kind==='overhead'?W.overhead:T.rising?W.rising:W.slash;
@@ -1182,7 +1182,7 @@ function windupBase(T,kind,arm,amp,theta,A){
   if(P.cap&&T.windCap!==null)a=Math.max(a,T.windCap);
   return{hand:{sh:[x,y]},ang:a};
 }
-function followFor(T,kind,out,arm,theta,impHand,A,fa){return tacFollow(A,T,followBase(T,kind,out,arm,theta,impHand,A,fa),theta,impHand,out);}
+function followFor(T,kind,out,arm,theta,impHand,A,fa){return styleFollow(A,T,followBase(T,kind,out,arm,theta,impHand,A,fa),theta,impHand,out);}
 // where the follow-through carries the hand and the blade (ATTACK.follow, sk_anim.js)
 function followBase(T,kind,out,arm,theta,impHand,A,fa){
   const butt=T.along!==null&&T.along<0,F=attackTable(A).follow,sh=P=>({sh:[P.hand[0]*arm,P.hand[1]*arm]});
@@ -1242,7 +1242,7 @@ function planAttack(A,D,kind,res,opts){
   if(multi&&!whirl){const bn=band(kind,A)-4;zS=clamp(D.lane+clamp((D2.lane-D.lane)*.5,-bn,bn),DEP_MIN,DEP_MAX);}
   const grS=x=>S.arena.ground(x,zS);
   A.lane=zS;
-  const massF=clamp(Math.sqrt(wp.mass/1.4),.72,1.55),spd=lerp(1.28,.8,sk),tac=tacOf(A,T),amp=lerp(1.22,.86,sk)*(quick?.85:1)*T.amp*tac.amp;
+  const massF=clamp(Math.sqrt(wp.mass/1.4),.72,1.55),spd=lerp(1.28,.8,sk),tac=styleMoves(A,T),amp=lerp(1.22,.86,sk)*(quick?.85:1)*T.amp*tac.amp;
   const jit=(1-sk)*10+2,jx=(rnd()*2-1)*jit,jy=(rnd()*2-1)*jit,ja=(rnd()*2-1)*(.04+.18*(1-sk));
   let {Cfn,C0}=contactFor(A,D,T,kind,out,fa,jx,jy);
   if(T.into){const w=T.into,nf=fa>0?divL(w):divR(w),Cw={x:nf-fa*1.5,y:S.arena.ground(nf,zS)-A.leg*.95-A.body.torso*.5+jy*.3};C0=Cw;Cfn=()=>Cw;}

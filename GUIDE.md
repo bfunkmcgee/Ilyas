@@ -131,7 +131,11 @@ flourishes (sk_arc.js) keep their own choreography. The attack is data (since V6
 approach speed, the body's form at the impact and in the windup by the form of the blow (`form`: slash, thrust, overhead, sweep, and
 passing, butt, ground, leap and the kicks laid over them), the windup's and follow-through's numbers, the arm's windup and
 follow-through by form, the free hand and the head's tilt; planAttack, windupBase and followBase read it through `attackTable(A)` and
-`attackForm`, and aim at the contact point as before. The motion traces prove a refactor moves every body the same: `node
+`attackForm`, and aim at the contact point as before. Styles (since V66): `ANIM_STYLE` in sk_anim.js, one per animation style, and
+`f.animStyle` (default 'tactical' for Kael, sk_style.js, 'regular' for everyone else). A style is its pace (`moves`, faded in with
+skill up to `full`), changes to the guard (`guard`), to named poses (`pose.body`, `pose.arm`), to ATTACK (`attack`, merged a level at a
+time) and its glance after a kill (`look`). `styleMoves`, `styleGuard`, `styleWind` and `styleFollow` apply it; Short Hand's stance wraps
+styleGuard. Animation only: the dice, the tempo, the footing and the AI never read a style. The motion traces prove a refactor moves every body the same: `node
 uiwork/anim/trace.js <repo> <out.json> [quick]` (64 seeded lab fights, every joint hashed every 6 steps, and which planners ran) and
 `--cmp a b`; `node uiwork/anim/suites.js <repo> <out.jsonl>` (the logic suites, their dice seeded) and `node uiwork/anim/cmp_suites.js a b`;
 `node uiwork/anim/trace_page.js <repo> <out.json>` (the prologue on into Act I with each fight played on auto for a while, and the
@@ -435,9 +439,9 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V66 ..." (V65 was the last published; count on from it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
+short label "V67 ..." (V66 was the last published; count on from it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V66: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V67: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
