@@ -107,10 +107,12 @@ STAGES.push({key:'tamm',act:1,num:'7',title:'Tamm',sub:'The same stair',arena:'s
     yield* riseUp([B,C],.7);
     // (whoever has to pass her to get down the stair goes behind her, on a deeper line than hers, and comes back to the stair's line
     // past her; nobody walks through her or through Ilyas on the steps)
-    const away=f=>(function*(){const z0=f.lane,by=[T,K].filter(o=>o&&o.station<f.station+10);
-      if(by.length){const zb=clamp(Math.max(...by.map(o=>o.lane))+40,40,148);
+    // (and the bigger one keeps a line of his own, apart from the smaller one's the whole way, so neither walks through the other)
+    const lineOf=f=>f===C?C.lane:Math.min(148,B.lane+16),apart=z=>{const zc=C.lane;if(Math.abs(z-zc)>=22)return z;const up=zc+22,dn=zc-22;return up<=148?up:dn;};
+    const away=f=>(function*(){const z0=f===C?f.lane:apart(lineOf(f)),by=[T,K].filter(o=>o&&o.station<f.station+10);
+      if(by.length){const zr=clamp(Math.max(...by.map(o=>o.lane))+40,40,148),zb=f===C?zr:apart(zr);
         yield* goTo(f,f.station-8,zb,70);yield* goTo(f,Math.min(...by.map(o=>o.station))-60,zb,f===C?90:80);}
-      yield* goTo(f,-60,f===C?z0:Math.min(148,z0+16),f===C?90:80);})();
+      yield* goTo(f,-60,z0,f===C?90:80);})();
     yield* all(away(C),(function*(){yield* wait(.4);yield* away(B);})());
     for(const f of [B,C]){f.hidden=true;f.offstage=true;}
     // then the rice

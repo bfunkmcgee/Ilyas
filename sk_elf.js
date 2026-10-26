@@ -33,6 +33,7 @@ function compressEx(ex){if(!ex||!ex.A||ex._r)return;const r=elfRate(ex.A);if(r<=
   const P=ex.plan;
   if(P&&!P._r){P._r=r;for(const k of ['Timp','Td','Tend'])if(typeof P[k]==='number')P[k]/=r;
     for(const e of P.events||[])e.t/=r;
+    if(P.combo)for(const h of P.combo.hits)h.IL/=r;
     if(P.sec)for(const k of ['Timp','Td'])if(typeof P.sec[k]==='number')P.sec[k]/=r;
     act(P.att);act(P.react);if(P.sec)act(P.sec.react);}
   if(typeof ex.dur==='number')ex.dur/=r;
@@ -128,7 +129,8 @@ function elfEvade(ex){const A=ex.A,D=ex.D,P=ex.plan,res=ex.res;
     ev.push({t:Ti,fn:()=>{popup(D,'Spins away','#ffe299',null,20,-34);S.hooks.sound('vault',.5);}},{t:Ti+.3,fn:()=>{D.lane=to;}});
     ex.perf.slip=slip;}
   else return;   // a blur keeps the ordinary slip, with the afterimages (D.blur) over it
-  const act={t0:S.t,end,body,arm:armK,quiet:true};D.action=act;
+  // (the leads of a combo are parried first: sk_anim.js)
+  let act={t0:S.t,end,body,arm:armK,quiet:true};if(P.combo)act=comboReact(D,A,P.combo,act,true);D.action=act;
   if(P.react){const rev=new Set(P.react.evs||[]);P.events=P.events.filter(e=>!rev.has(e));}
   P.react=act;P.events.push(...ev);P.slip=slip;ex.evade={style:st.style,D};}
 {const rt=recordTrail;recordTrail=function(f){rt(f);const tr=S.trails[f.idx];if(tr&&tr.length&&f.action&&f.action.quiet&&tr[tr.length-1].t===S.t)tr.pop();};}

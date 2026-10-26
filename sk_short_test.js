@@ -57,7 +57,7 @@ setup([['club',2]]);K=S.F[0];V=S.F[1];
   K.foot=3;const gc=styleGuard(K);K.foot=6;
   expect('Stance: committed, the knife hand still does not reach (the guard takes back what a committed guard pushes out)',Math.abs(gc.hx+.14-G.hx)<1e-9,gc.hx);
   K.style=null;const g0=styleGuard(K);K.style='shorthand';
-  expect('a fighter without the style keeps his own guard',g0.crouch===d.crouch+TACTICAL.guard.crouch&&styleGuard(V)===GUARD.club,g0.crouch);
+  expect('a fighter without the style keeps his own guard (his weapon\'s at his rank)',g0.crouch===skillGuard(K).crouch+TACTICAL.guard.crouch&&styleGuard(V)===skillGuard(V),g0.crouch);
   K.oneArm=true;K.build();const g1=styleGuard(K);K.style=null;const g2=styleGuard(K);K.style='shorthand';K.oneArm=false;K.build();
   expect('Stance: a one-armed man\'s back hand is left where it is pinned',JSON.stringify(g1.off)===JSON.stringify(g2.off),JSON.stringify(g1.off));}
 // the steps: two advances, every step as it starts, and the feet whenever both are down

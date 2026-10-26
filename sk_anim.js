@@ -1,5 +1,6 @@
 // ===== ANIM START =====
-// The animation's vocabulary: named poses, moves written as keyframes of them, the attack as data, and the styles that change them.
+// The animation's vocabulary: named poses, moves written as keyframes of them, the attack as data, the styles that change them, a
+// fighter's rank in his motion, the variants of each blow, and the combos.
 // A move is a track of body poses (where the pelvis goes, how low it sits, the lean, the feet) and a track of arm poses (the weapon
 // hand, the blade's angle, the free hand, the head's tilt), sampled by controlAndForces (sk_core.js) and driven into the ragdoll by its
 // motors. The poses are named here, in the body's own units, so one pose fits every body; the planners give the times, and aim the
@@ -186,6 +187,22 @@ const POSE={body:{
   lampCut:{on:'guard',crouch:.95,lean:-.05},            // a cut up at a lamp's chain
   // ---- the tell (sk_react.js) ----
   tell:{on:'guard',add:{crouch:-.04,lean:.06}},         // the blow drawn back while the answer is chosen
+  // ---- the answers acted out (planReaction) ----
+  counterCock:{on:'guard',add:{lean:-.08,crouch:-.03},th:.3},  // a Counter: drawn back as the blow comes
+  counterCut:{on:'guard',add:{lean:.18,crouch:-.05},th:.3},    // ... and the cut thrown into it
+  turnTake:{on:'guard',crouch:.8,lean:-.1,th:.3},       // Turn him: the blow taken at an angle, the body turned off its line
+  turnRoll:{on:'guard',crouch:.82,lean:.16,th:.3},      // ... and rolled on round past him
+  hopBack:{on:'guard',crouch:.84,lean:-.18,th:.95},     // back over a low blow (its lift is the planner's)
+  hopLand:{on:'guard',crouch:.74,lean:.04,th:.95,lift:0},
+  lateSlip:{on:'guard',crouch:.82,lean:-.1},            // an answer that comes too late: the slip
+  lateBack:{on:'guard',crouch:.84,lean:-.28},           // ... and the step back
+  // ---- more blows taken (hitReaction) ----
+  hitHeadTurn:{on:'guard',lean:-.16,crouch:.8,th:.04},  // the head knocked round, away from it
+  hitHeadDrop:{on:'guard',crouch:.56,lean:.28,th:.05},  // a big one: down onto a knee for a moment
+  hitHeadRise:{on:'guard',crouch:.76,lean:.1,th:.06},
+  hitBodyBack:{on:'guard',lean:-.3,crouch:.8,th:.05},   // driven back, the arms out
+  hitBodyClutch:{on:'guard',lean:.42,crouch:.74,th:.05},  // a hand to the wound
+  hitLegHop:{on:'guard',crouch:.72,lean:.06,th:.06},    // off the hurt leg, a hop on the other
 },arm:{
   spinHold:{hx:-.12,hy:-.38,w:-2.95,off:[.38,.12],tilt:-.05},  // the windup held through a spin
   whirl:{hx:.5,hy:-.26,w:-.06,off:[-.04,.34],tilt:0},   // the blade carried round flat
@@ -260,6 +277,16 @@ const POSE={body:{
   lampWind:{hx:.1,hy:-.2,w:-2.6,off:[.2,.2],tilt:-.1},
   lampCut:{w:-1.2,off:[.2,.1],tilt:-.2},                // (the blade goes up at the chain)
   tell:{off:[.1,.3],tilt:0},                            // (the hand and the blade as the blow's windup)
+  counterCock:{hx:.34,hy:-.34,w:-2,off:[.2,.3],tilt:-.04},
+  counterCut:{off:[-.08,.38],tilt:.06},                 // (the hand and the blade thrown at the point the blow arrives)
+  turnTake:{off:[.3,.05],tilt:-.08},                    // (the blade put across the blow's line at an angle)
+  turnGuide:{off:[.3,.1],tilt:-.12},                    // (the blade carried on past, the free hand on his arm)
+  hopBack:{hx:.3,hy:-.1,wg:-.25,off:[.22,-.14],tilt:-.14},
+  hitHeadTurn:{hx:.12,hy:-.24,w:-1.6,off:[.24,-.2],tilt:-.34},
+  hitHeadDrop:{hx:.22,hy:.36,w:.7,off:[.34,.48],tilt:.34},
+  hitBodyBack:{hx:.34,hy:-.34,w:-1.5,off:[.44,-.34],tilt:-.22},
+  hitBodyClutch:{hx:.2,hy:.3,w:.8,off:[.08,.5],free:true,tilt:.26},  // (the free hand at the belly)
+  hitLegHop:{hx:.38,hy:-.04,w:-.5,off:[.46,-.14],tilt:-.04},
 }};
 
 // ---------- the attack ----------
@@ -292,6 +319,14 @@ const ATTACK={
     kick:{lean:-.12,crouch:.84,reach:.78,wLean:-.1,wCrouch:.84,wKick:[-.12,.62]},
     stomp:{lean:.08,crouch:.9,reach:.3,wLean:.04,wCrouch:.9,wKick:[.24,.22]},
     slide:{lean:-.32,crouch:.58,dCrouch:.6,stance:[.56,-.2],wLean:-.3,wCrouch:.6,wStance:[.52,-.22],wKick:[.34,.78]},
+    // the variants' own (ATTACK.variant): what they do not say is the blow's own
+    flat:{lean:.14,crouch:.8,stance:[.46,-.4],wLean:-.1,wCrouch:.84},                       // a level cut, the shoulders turned through it
+    snap:{lean:.12,crouch:.82,reach:.74,wind:.7,strike:.8,wLean:-.03,wCrouch:.85},          // a short cut off the wrist
+    lunge:{lean:.34,crouch:.66,reach:.95,stance:[.68,-.48],wind:.9,strike:.95,wLean:-.06,wCrouch:.84},  // a thrust on a long lunge
+    lowThrust:{lean:.38,crouch:.66,stance:[.5,-.4],wLean:0,wCrouch:.76},                   // under the guard, from low
+    highThrust:{lean:.12,crouch:.86,wLean:-.1,wCrouch:.87},                                // over it, from a high hand
+    slant:{lean:.26,crouch:.78,wLean:-.1,fLean:.1},                                        // an overhead from the shoulder
+    drop:{lean:.42,crouch:.52,stance:[.56,-.32],wLean:.12,wCrouch:.66},                     // a low cut from down on a knee
   },
   wStance:[.3,-.34],          // the feet in the windup
   drawBack:8,                 // how far the body draws back in the windup, px (times the windup's size)
@@ -309,6 +344,13 @@ const ATTACK={
     overhead:{hand:[-.02,-.98],amp:[0,1],ampCap:1,w:-2.75,wAmp:-.2,cap:true},
     rising:{hand:[-.18,.4],amp:[1,0],w:2.3},
     slash:{hand:[-.1,-.62],amp:[1,1],w:-2.35,wAmp:-.15,cap:true},
+    // the variants'
+    flat:{hand:[-.22,-.3],amp:[1,0],w:-2.95,wAmp:-.1,cap:true},
+    snap:{hand:[.06,-.44],w:-1.8},
+    highThrust:{hand:[-.36,-.44],amp:[1,0],w:null},
+    lowThrust:{hand:[-.42,.36],amp:[1,0],w:null},
+    slant:{hand:[-.22,-.86],amp:[0,1],ampCap:1,w:-2.45,wAmp:-.2,cap:true},
+    hook:{hand:[-.08,.5],w:2.7},
   },
   // follow: where the follow-through carries the hand, and how far the blade turns on from the line of the blow (dodge: more on a miss;
   // butt: a blocked butt blow's; push: a thrust's hand pushed on past the impact, in arm lengths)
@@ -320,21 +362,75 @@ const ATTACK={
     overhead:{hand:[.55,.86],turn:.95,dodge:.25},
     rising:{hand:[.42,-.55],turn:-1.2},
     slash:{hand:[.5,.62],turn:1.25,dodge:.3},
+    // the variants'
+    flat:{hand:[.46,.12],turn:1.05,dodge:.3},
+    snap:{hand:[.34,.3],turn:.6},
+    draw:{hand:[.02,.42],turn:.75},     // the curved edge drawn back through the cut toward the hip
+    slant:{hand:[.58,.72],turn:1.1,dodge:.25},
+    hook:{hand:[.36,.72],turn:-.45},
   },
   off:{wind:[.38,.12],impact:[-.22,.38],follow:[-.08,.46]},  // the free hand (on the grip of a weapon in both hands)
   tilt:{wind:-.05,leap:-.08,impact:.1,follow:.08},           // the head
   dwellTurn:.12,lashTurn:.03,                                // the blade's turn in the hold (none for a thrust or a butt blow)
+  // The ways each blow can come. planAttack picks one by the animation's own dice (blowVariant): the first is the blow as it always
+  // was. key; w its weight; windup, follow, form: the entries above it uses (the blow's own where it names none); ang: the blade's
+  // angle at the impact turned by this; from and end: where it starts and where it leaves the blade (high, mid, low), so a blow
+  // straight after another goes on from where that one ended; sk: from this skill up; fam: for these weapon families only; curved:
+  // for a curved blade only; wsk: its weight for a Novice and for a Master, times this
+  variant:{
+    slash:[{key:'diag',w:1,from:'high',end:'low'},
+      {key:'flat',w:.8,windup:'flat',follow:'flat',form:'flat',ang:-.3,from:'mid',end:'mid'},
+      {key:'rise',w:.4,windup:'rising',follow:'rising',ang:-.95,from:'low',end:'high'},
+      {key:'snap',w:.6,sk:3,windup:'snap',follow:'snap',form:'snap',ang:-.12,from:'mid',end:'mid',wsk:[.2,1.6]},
+      {key:'draw',w:1.1,follow:'draw',from:'high',end:'mid',curved:true}],
+    thrust:[{key:'line',w:1,from:'mid',end:'mid'},
+      {key:'low',w:.6,windup:'lowThrust',form:'lowThrust',from:'low',end:'low'},
+      {key:'high',w:.5,windup:'highThrust',form:'highThrust',from:'high',end:'mid'},
+      {key:'lunge',w:.6,sk:3,form:'lunge',from:'mid',end:'mid',wsk:[.4,1.4]}],
+    overhead:[{key:'vert',w:1,from:'high',end:'low'},
+      {key:'slant',w:.8,windup:'slant',follow:'slant',form:'slant',ang:-.25,from:'high',end:'low'}],
+    sweep:[{key:'low',w:1,from:'mid',end:'low'},
+      {key:'drop',w:.45,sk:3,form:'drop',from:'mid',end:'low'},
+      {key:'hook',w:.5,windup:'hook',follow:'hook',ang:.15,from:'low',end:'low',fam:['blade','heavy','short']}]},
+  // A combo: a lead or two that the man parries, then the blow itself, whose dice it is (blowCombo, comboPlan). chance: by skill, a
+  // Novice's to a Master's; more: the chance of a second lead. lead: its windup and strike as shares of the blow's own (next: the
+  // windup of a lead after the first, as a share of the first's), the beat it rebounds off the parry, the gap before what follows,
+  // its windup's size, and how far short of the blow's own spot he strikes it from (px, for each lead still to come). leads: what can
+  // lead into each kind of blow, [kind, variant]
+  combo:{chance:[0,.1,.25,.4,.52],more:[0,0,.1,.3,.45],quick:.7,
+    lead:{wind:.55,next:.75,strike:.85,rebound:.1,gap:.03,amp:.8,back:7},
+    // Beat and thrust's beat on his blade: its windup and strike as shares of the blow's own
+    beat:{wind:.35,strike:.7},
+    leads:{slash:[['slash','rise'],['thrust','line'],['slash','flat']],thrust:[['slash','diag'],['slash','flat'],['overhead','vert']],
+      overhead:[['thrust','line'],['slash','flat']],sweep:[['overhead','vert'],['slash','diag'],['thrust','high']]}},
+  // the blow's context: a man off balance is pressed (the body drives further in and leans into him); a man off balance himself
+  // overbalances after it (carried on further, leaning, lower); a man badly hurt is slower to draw back and to come back; a Master's
+  // flick of the blade after a kill (its time after the follow-through, the hand [forward, down] in arm lengths, the blade's angle)
+  press:{drive:6,lean:.05},stumble:{carry:12,lean:.12,crouch:-.05},hurt:{wind:1.12,recover:1.15},
+  flick:{t:.13,hand:[.42,.34],w:1.25,tilt:.06},
 };
-// the attack's numbers for this fighter: ATTACK with his style's changes
-function attackTable(A){const st=animStyleOf(A);if(!st.attack)return ATTACK;
-  if(st._atkFrom!==st.attack){st._atk=animMerge(ATTACK,st.attack);st._atkFrom=st.attack;}return st._atk;}
-// the body's form at the impact, and the windup and strike time factors, for this blow
-function attackForm(K,T,kind,sweep,thrust,butt,gnd){const F=K.form,over=kind==='overhead',pas=T.passing;
-  return{lean:gnd?F.ground.lean:sweep?F.sweep.lean:over?F.overhead.lean:thrust?(pas?F.passing.lean:F.thrust.lean):butt?F.butt.lean:F.slash.lean,
+// the attack's numbers for this fighter: ATTACK with his rank's changes (skillAttack) and his style's over them
+function attackTable(A){const st=animStyleOf(A),B=skillAttack(A);if(!st.attack)return B;
+  if(st._atkFrom!==st.attack){st._atk={};st._atkFrom=st.attack;}const k=B===ATTACK?'':skillMix(A).key;
+  return st._atk[k]||(st._atk[k]=animMerge(B,st.attack));}
+// the body's form at the impact, and the windup and strike time factors, for this blow (V: its variant, whose own form, if it has one,
+// is laid over the blow's: variantForm)
+function attackForm(K,T,kind,sweep,thrust,butt,gnd,V){const F=K.form,over=kind==='overhead',pas=T.passing;
+  const r={lean:gnd?F.ground.lean:sweep?F.sweep.lean:over?F.overhead.lean:thrust?(pas?F.passing.lean:F.thrust.lean):butt?F.butt.lean:F.slash.lean,
     crouch:gnd?F.ground.crouch:sweep?F.sweep.crouch:thrust?(pas?F.passing.crouch:F.thrust.crouch):over?F.overhead.crouch:F.slash.crouch,
     reach:T.reach||(gnd&&thrust?F.ground.reach:thrust?(pas?F.passing.reach:F.thrust.reach):butt?(T.key==='haft'?F.butt.haft:F.butt.reach):sweep?F.sweep.reach:over?F.overhead.reach:F.slash.reach),
     wind:sweep?F.sweep.wind:over?F.overhead.wind:thrust?F.thrust.wind:butt?F.butt.wind:F.slash.wind,
-    strike:over?F.overhead.strike:thrust?F.thrust.strike:butt?F.butt.strike:sweep?F.sweep.strike:F.slash.strike};}
+    strike:over?F.overhead.strike:thrust?F.thrust.strike:butt?F.butt.strike:sweep?F.sweep.strike:F.slash.strike};
+  if(V&&V.form){const X=variantForm(K,kind,V);r.lean=X.lean;r.crouch=X.crouch;if(!T.reach&&X.reach!=null)r.reach=X.reach;r.wind=X.wind;r.strike=X.strike;}
+  return r;}
+// A variant's form over the blow's own: the regular variant's difference from the regular blow (ATTACK), laid over his own numbers for
+// the blow, so a Novice's level cut is still a Novice's. (A style changes the blow's own forms; the variants' are everyone's.)
+function variantForm(K,kind,V){const own=K.form[kind];if(!V||!V.form)return own;const X0=ATTACK.form[V.form],B0=ATTACK.form[kind];if(!X0)return own;
+  const o={...own};
+  for(const k in X0){const x=X0[k],a=own[k],b=B0[k];
+    if(typeof x==='number')o[k]=typeof a==='number'&&typeof b==='number'?a+(x-b):x;
+    else if(Array.isArray(x))o[k]=Array.isArray(a)&&Array.isArray(b)?a.map((v,i)=>v+(x[i]-b[i])):x;}
+  return o;}
 
 // ---------- styles ----------
 // An animation style is its own pace and a set of changes to the guard, the named poses and the attack. A fighter has one: f.animStyle,
@@ -354,14 +450,16 @@ function animStyleOf(f){const st=f&&ANIM_STYLE[f.animStyle];return st&&st.on!==f
 function animMerge(a,b){if(b===null||typeof b!=='object'||Array.isArray(b)||a===null||typeof a!=='object'||Array.isArray(a))return b;
   const o={...a};for(const k in b)o[k]=k in a?animMerge(a[k],b[k]):b[k];return o;}
 function stylePose(f,part,name){const p=animStyleOf(f).pose;return p&&p[part]&&p[part][name]||null;}
-// the style's pace for this blow: its moves, faded toward the regular ones below its full skill. The lash is not a quick economical
-// stroke: its chain needs the regular time to run out, so it keeps the regular pace.
-function styleMoves(f,T){const R=ANIM_MOVES,st=animStyleOf(f),P=st.moves;if(!P||P===R||!f||(T&&T.lash))return R;
-  if(!st.full||st.full<=1)return P;
-  const m=clamp((f.skill-1)/(st.full-1),0,1);if(m<=0)return R;if(m>=1)return P;
-  const o={};for(const k in R)o[k]=lerp(R[k],P[k]??R[k],m);return o;}
-// the guard: the weapon's GUARD entry with the style's changes
-function styleGuard(f){const g=GUARD[f.weaponKey],k=animStyleOf(f).guard;if(!k)return g;
+// the style's pace for this blow: its moves, faded toward the regular ones below its full skill, and his rank's over them where the
+// style is not all in (skillMix). The lash is not a quick economical stroke: its chain needs the regular time to run out, so it keeps
+// the regular pace.
+function styleMoves(f,T){const R=ANIM_MOVES;if(!f||(T&&T.lash))return R;
+  const st=animStyleOf(f),P=st.moves;let o=R;
+  if(P&&P!==R){if(!st.full||st.full<=1)o=P;else{const m=clamp((f.skill-1)/(st.full-1),0,1);if(m>=1)o=P;else if(m>0){o={};for(const k in R)o[k]=lerp(R[k],P[k]??R[k],m);}}}
+  const sm=skillMix(f);if(!sm.w)return o;const SP=ANIM_SKILL[sm.k].moves,r={};
+  for(const k in R)r[k]=o[k]*lerp(1,SP[k]??1,sm.w);return r;}
+// the guard: the weapon's GUARD entry at his rank (skillGuard) with the style's changes
+function styleGuard(f){const g=skillGuard(f),k=animStyleOf(f).guard;if(!k)return g;
   const o={...g,hx:g.hx*(k.hand??1),hy:g.hy-(k.up??0),off:g.off?[g.off[0]*(k.off??1),g.off[1]-(k.offUp??0)]:g.off,crouch:g.crouch+(k.crouch??0),lean:g.lean+(k.lean??0),
     sf:g.sf*(k.stance??1),sb:g.sb*(k.stance??1)};
   if(k.w!=null)o.w=g.w+k.w;if(k.gw!=null)o.gw=g.gw+k.gw;return o;}
@@ -373,10 +471,74 @@ function styleWind(A,T,W,theta){const k=styleMoves(A,T).cock;if(k===1||!W)return
 function styleFollow(A,T,F,theta,impHand,out){const k=styleMoves(A,T).reach;if(k===1||out==='fumble')return F;
   return{hand:{fn:()=>{const a=A.resolve(impHand),b=A.resolve(F.hand);return{x:lerp(a.x,b.x,k),y:lerp(a.y,b.y,k)};}},ang:theta+(F.ang-theta)*k};}
 
+// ---------- skill ----------
+// His rank in the motion. The regular motion is a Veteran's (skill 3); a Novice's changes are all there at skill 1 and half at 2, a
+// Master's half at 4 and all at 5, and a style's own motion takes the rank's place as it comes in (a man in a style moves as the style
+// has it). The planners already scale the times and the windup's size with skill (planAttack's spd and amp) and the motors answer
+// sooner and steadier the better he is (controlAndForces); this is the shape. A Novice swings with his arm and not his body, cocks the
+// blade far back, lets the free hand fly and the head drop, overswings and stumbles on after it, and holds his guard high, stiff and
+// square; he flinches back from a blow he blocks, and a blow he takes knocks him about more and for longer. A Master loads the hips and
+// drives the blow from them, keeps the free hand up and the head still, stops the blade and is back on guard at once, low and wide.
+// Animation only: the dice, the tempo, the footing and the AI never read it.
+//   moves   multipliers on the pace, as a style's (ANIM_MOVES): cock and reach are the windup's and the follow-through's size
+//   guard   changes to his weapon's guard, as a style's: hand (hx times), up (hy less, arm lengths), off and offUp (the free hand the
+//           same way), crouch and lean (added), stance (sf and sb times), w (the blade's angle, added)
+//   pose    {body:{name:{field:value}}, arm:{...}}: the named poses' fields move toward these
+//   attack  ATTACK's numbers move toward these (the same shape: only numbers ATTACK has)
+//   hit     a blow taken: time, the reaction's length times this
+const ANIM_SKILL={
+  novice:{
+    moves:{cock:1.15,follow:1.15,reach:1.22,recover:1.2,tail:1.35},
+    guard:{hand:.9,up:.1,w:-.28,off:.75,offUp:-.14,crouch:.035,lean:-.05,stance:.8},
+    pose:{body:{block:{lean:-.16,crouch:.88},blockLow:{lean:-.12},blockGive:{lean:-.1},slip:{lean:-.16,crouch:.84},stepBack:{lean:-.5},duck:{crouch:.56,lean:.4},
+        hitHead:{lean:-.5},hitHeadStagger:{lean:-.34},hitBody:{lean:.74,crouch:.64},hitLeg:{crouch:.44},hitSide:{lean:-.3},hitHeadTurn:{lean:-.24},
+        hitBodyBack:{lean:-.4},run:{lean:.22,crouch:.9}},
+      arm:{block:{tilt:-.3},slip:{off:[.34,-.24],tilt:-.25},evade:{off:[.36,-.3],tilt:-.32},duck:{off:[.3,-.1]},hitHead:{off:[.4,-.5]}}},
+    attack:{form:{slash:{lean:.08,crouch:.85,wLean:0},thrust:{lean:.14,crouch:.82},overhead:{lean:.18,crouch:.84,wLean:-.06},sweep:{lean:.24,crouch:.7}},
+      drawBack:3,drive:[6,8],fLean:.17,fCrouch:-.07,carry:[30,22],
+      off:{wind:[.5,-.32],impact:[.24,.66],follow:[.46,.22]},tilt:{wind:.14,impact:.26,follow:.22}},
+    hit:{time:1.2}},
+  master:{
+    moves:{cock:.95,follow:.9,reach:.86,recover:.88,tail:.8},
+    guard:{hand:1.05,up:-.03,off:1.2,offUp:.14,crouch:-.03,lean:.03,stance:1.12},
+    pose:{body:{block:{lean:.02,crouch:.8},slip:{lean:-.02,crouch:.78},stepBack:{lean:-.26},duck:{crouch:.64,lean:.26},
+        hitHead:{lean:-.28},hitHeadStagger:{lean:-.16},hitBody:{lean:.5,crouch:.76},hitLeg:{crouch:.58},hitSide:{lean:-.14},run:{lean:.12,crouch:.82}},
+      arm:{block:{tilt:0},slip:{off:[.1,.14],tilt:-.04},evade:{off:[.1,.12],tilt:-.08}}},
+    attack:{form:{slash:{lean:.25,crouch:.76,wLean:-.12},thrust:{lean:.3,crouch:.72,wLean:-.1},overhead:{lean:.36,crouch:.76,wLean:-.18},sweep:{lean:.36,crouch:.6}},
+      drawBack:12,drive:[16,17],fLean:.02,carry:[12,4],
+      off:{wind:[.34,0],impact:[.04,.12],follow:[.06,.16]},tilt:{wind:-.07,impact:.03,follow:.02}},
+    hit:{time:.85}}};
+// how much of a style's own motion is in: none for the regular motion, all of it from the style's full skill
+function styleMix(f){const st=animStyleOf(f);if(st===ANIM_STYLE.regular)return 0;return st.full>1?clamp(((f.skill??3)-1)/(st.full-1),0,1):1;}
+// the rank's share in his motion: k the end it leans to, w how far (0 for a Veteran, or for a man in his own style), key for the caches
+function skillMix(f){const s=f&&f.skill!=null?f.skill:3,k=s<3?'novice':'master',w=f?clamp(Math.abs(s-3)/2,0,1)*(1-styleMix(f)):0;
+  return{k,w,key:w?k+':'+w.toFixed(3):''};}
+// a's numbers moved w of the way toward b's (b: any part of a's shape; what a does not have is left out)
+function animLerp(a,b,w){
+  if(typeof b==='number')return typeof a==='number'?a+(b-a)*w:a;
+  if(Array.isArray(b))return Array.isArray(a)?a.map((x,i)=>typeof b[i]==='number'&&typeof x==='number'?x+(b[i]-x)*w:x):a;
+  if(b&&typeof b==='object'&&a&&typeof a==='object'&&!Array.isArray(a)){const o={...a};for(const k in b)if(k in a)o[k]=animLerp(a[k],b[k],w);return o;}
+  return a;}
+const SKILL_C={guard:{},body:{},arm:{},atk:{}};
+// the weapon's guard at his rank (kept: the same object every time for the same weapon and rank)
+function skillGuard(f){const g=GUARD[f.weaponKey]||GUARD.sword,m=skillMix(f);if(!m.w)return g;
+  const key=f.weaponKey+'|'+m.key,c=SKILL_C.guard[key];if(c&&c.g===g)return c.v;
+  const k=ANIM_SKILL[m.k].guard,w=m.w,v={...g,hx:g.hx*lerp(1,k.hand??1,w),hy:g.hy-(k.up??0)*w,off:g.off?[g.off[0]*lerp(1,k.off??1,w),g.off[1]-(k.offUp??0)*w]:g.off,
+    crouch:g.crouch+(k.crouch??0)*w,lean:g.lean+(k.lean??0)*w,sf:g.sf*lerp(1,k.stance??1,w),sb:g.sb*lerp(1,k.stance??1,w)};
+  if(k.w!=null)v.w=g.w+k.w*w;if(k.gw!=null)v.gw=g.gw+k.gw*w;
+  SKILL_C.guard[key]={g,v};return v;}
+// the named pose at his rank
+function skillPose(f,part,name,P){const m=skillMix(f);if(!m.w)return P;const ch=ANIM_SKILL[m.k].pose[part][name];if(!ch)return P;
+  const C=SKILL_C[part],key=name+'|'+m.key;return C[key]||(C[key]=animLerp(P,ch,m.w));}
+// ATTACK at his rank
+function skillAttack(A){const m=skillMix(A);if(!m.w)return ATTACK;return SKILL_C.atk[m.key]||(SKILL_C.atk[m.key]=animLerp(ATTACK,ANIM_SKILL[m.k].attack,m.w));}
+// a blow taken: how long the reaction lasts at his rank, as a factor
+function hitTime(f){const m=skillMix(f);return m.w?lerp(1,ANIM_SKILL[m.k].hit.time,m.w):1;}
+
 // ---------- poses for a fighter ----------
-// the named pose, with his style's changes
-function poseB(f,name){const P=POSE.body[name];if(!P)throw new Error('no body pose '+name);const c=stylePose(f,'body',name);return c?{...P,...c}:P;}
-function poseA(f,name){const P=POSE.arm[name];if(!P)throw new Error('no arm pose '+name);const c=stylePose(f,'arm',name);return c?{...P,...c}:P;}
+// the named pose, at his rank (skillPose) and with his style's changes
+function poseB(f,name){const P0=POSE.body[name];if(!P0)throw new Error('no body pose '+name);const P=skillPose(f,'body',name,P0),c=stylePose(f,'body',name);return c?{...P,...c}:P;}
+function poseA(f,name){const P0=POSE.arm[name];if(!P0)throw new Error('no arm pose '+name);const P=skillPose(f,'arm',name,P0),c=stylePose(f,'arm',name);return c?{...P,...c}:P;}
 // A change flip (+1 or -1) turns the pose's lean (an arm pose's tilt) round: the poses are written facing the man he acts on, and
 // flip -1 is for the man at his back.
 // a body pose P made for f, with the changes o laid over it
@@ -430,4 +592,112 @@ function armV(f,p,o){
   if(typeof p==='function')return p;
   if(typeof p==='string'){const P=poseA(f,p);return P.on==='guard'?liveArm(f,P,o):armPose(f,P,o);}
   return o?{...p,...o}:p;}
+
+// ---------- variety ----------
+// The animation's own dice, drawn from the seed the blow was thrown with (res.seed): picking a variant, a combo or a way of taking a
+// blow never touches the game's dice (Math.random, S.rng), so it changes nothing the rules or the AI read, and the same blow plays the
+// same however it is watched. S.animForce {variant, combo} sets them for a check or a still (sk_anim_test.js, uiwork/anim/moves.js).
+function animDice(res,salt){return mulberry32((hash32(salt+'|'+((res&&res.seed)|0))^0x6a09e667)>>>0);}
+// a blow started this soon (seconds) after his last one ended goes on from where that one left the blade
+const ANIM_CHAIN=.7;
+// the techniques whose motion is the blow's own, which can come in its variants and open with a combo (the others have a shape of
+// their own: the butt and the pommel, the lash, the kicks, the flourishes, the two-target strokes, a blow at a man on the floor ...)
+const VARIANT_KEYS=['std','running','lowcut','hook','shaftsweep'];
+function variantOK(A,D,kind,T){return!!(A&&T&&ATTACK.variant[kind]&&VARIANT_KEYS.includes(T.key)&&!T.lash&&!T.kick&&!T.multi&&!T.flair&&!T.ground&&
+  !T.into&&!T.passing&&!(T.along!=null&&T.along<0)&&!A.mount&&!(A.wp&&A.wp.gun));}
+// where his last blow left the blade ('high', 'mid', 'low'), while it is still close enough to go on from
+function lastEnd(A){const L=A.animLast;if(!L||!L.act)return null;return A.action===L.act||S.t-(L.act.t0+L.act.end)<ANIM_CHAIN?L.end:null;}
+function variantWeight(A,kind,v,last,chain){
+  let w=v.w;const wp=A.wp;
+  if(v.sk&&(A.skill||1)<v.sk)return 0;
+  if(v.fam&&!v.fam.includes(wp.fam))return 0;
+  if(v.curved&&!wp.curved)return 0;
+  if(v.wsk)w*=lerp(v.wsk[0],v.wsk[1],A.sk);
+  // the same one again straight after: seldom; one that starts where the last left the blade: often
+  if(last&&last.kind===kind&&last.key===v.key)w*=.35;
+  if(chain&&v.from)w*=v.from===chain?3.5:.6;
+  return Math.max(0,w);}
+// the blow's variant (null: a technique with a shape of its own)
+function blowVariant(A,D,kind,T,res){
+  const L=ATTACK.variant[kind];if(!L||!variantOK(A,D,kind,T))return null;
+  const F=S.animForce;if(F&&F.variant){const v=L.find(x=>x.key===F.variant);if(v&&variantWeight(A,kind,v,null,null)>0)return v;}
+  const last=A.animLast,chain=lastEnd(A),ws=L.map(v=>variantWeight(A,kind,v,last,chain)),sum=ws.reduce((s,x)=>s+x,0);if(sum<=0)return L[0];
+  let r=animDice(res,'variant')()*sum;for(let i=0;i<L.length;i++){r-=ws[i];if(r<=0)return L[i];}return L[L.length-1];}
+// where a blow leaves the blade, for the next to go on from
+function blowEnd(kind,T,V){return V&&V.end?V.end:T&&T.rising?'high':kind==='thrust'?'mid':'low';}
+
+// ---------- combos ----------
+// A skilled man's way into a guard: a lead or two that the man parries, then the blow itself. The exchange's dice are the blow's; the
+// leads are only motion (the man always gets his blade to them), so a combo changes nothing the rules read.
+function comboRoom(A,D,opts){return!!(A&&D&&!D.dead&&!D.downed&&!D.broken&&!D.clinch&&!A.clinch&&!A.mount&&!D.mount&&!D.npc&&!(D.wp&&D.wp.gun)&&
+  D.react!=='hinge'&&D.react!=='toll'&&!(typeof shortOn==='function'&&(shortOn(A)||shortOn(D))));}
+// a blow of the blow's own shape, or a spin (the lead parried, he turns on round out of it into the blow)
+function comboOK(A,D,kind,T,opts){return!!(ATTACK.combo.leads[kind]&&(variantOK(A,D,kind,T)||(T&&T.flair==='spin'&&!T.multi&&!T.lash&&!T.kick&&!T.ground&&!A.mount))&&comboRoom(A,D,opts));}
+// the leads, [{kind, V, beat}] (null: none). Beat and thrust is always one: the beat on his blade that it is named for.
+function blowCombo(A,D,kind,T,res,opts){
+  const C=ATTACK.combo,F=S.animForce,find=(k,v)=>(ATTACK.variant[k]||[]).find(x=>x.key===v)||null;
+  if(T&&T.beat&&T.key==='beatthrust'&&kind==='thrust')return comboRoom(A,D,opts)?[{kind:'slash',V:find('slash','snap'),beat:true}]:null;
+  if(!comboOK(A,D,kind,T,opts))return null;
+  if(F&&F.combo)return F.combo.map(s=>{const p=String(s).split(':');return{kind:p[0],V:find(p[0],p[1]||'')};}).filter(l=>ATTACK.variant[l.kind]);
+  // (a follow-up straight off an opening is quicker: a lead less often, and never two)
+  const r=animDice(res,'combo'),s=clamp(Math.round(A.skill||1),1,5)-1,q=opts&&opts.quick;if(r()>=C.chance[s]*(q?C.quick:1))return null;
+  const n=!q&&r()<C.more[s]?2:1,L=C.leads[kind],out=[];
+  for(let i=0;i<n;i++){const p=L[Math.floor(r()*L.length)];out.push({kind:p[0],V:find(p[0],p[1])});}
+  return out;}
+// The leads' motion, from Tw0 (where the blow's own windup would have started): each one's windup, its strike at the point where his
+// parry meets it, and the rebound off the parry; after the last the blow's own windup starts. c: the blow's plan so far (planAttack)
+function comboPlan(A,D,leads,c){
+  const C=ATTACK.combo.lead,fa=c.fa,arm=A.arm,K=c.K,n=leads.length,hits=[],body=[],armK=[],events=[],r=c.rnd,len=A.wp.len;
+  let t=c.Tw0;
+  for(let j=0;j<n;j++){
+    const {kind,V,beat}=leads[j],thrust=kind==='thrust',sweep=kind==='sweep',Bt=beat?ATTACK.combo.beat:null;
+    const LT={kind,key:'std',along:null,rising:false,descend:false,windCap:null,amp:1,lash:false,ang:null,anchor:null,kick:false};
+    const fm=variantForm(K,kind,V),WL=t+c.tWind*(Bt?Bt.wind:C.wind*(j?C.next:1)),IL=WL+c.tStrike*(Bt?Bt.strike:C.strike*(thrust?.9:1)),RB=IL+C.rebound,px=c.strikeX-fa*C.back*(n-j);
+    // where his parry meets it: in front of him, at the height it goes for (fixed where it will be once he is on his spot); a beat goes
+    // for his blade itself, near the hilt
+    const sdx=D.station-D.p[PEL].x,an=anchorFor(D,LT,kind)(),hf=D.p[HAF],tp=D.p[TIP];
+    const B=beat?{x:lerp(hf.x,tp.x,.35)+sdx,y:lerp(hf.y,tp.y,.35)}:{x:an.x+sdx-fa*(14+D.body.bulk*4)+(r()*2-1)*3,y:an.y-(sweep?0:2)+(r()*2-1)*4};
+    const th=thetaAt(A,LT,kind,B,fa,px,fm.lean,fm.crouch,c.zS)+(V&&V.ang||0),at=len*(thrust?.9:.62),hand={w:{x:B.x-fa*Math.cos(th)*at,y:B.y-Math.sin(th)*at}};
+    const W=windupFor(LT,kind,arm,c.amp*C.amp,th,A,V);
+    body.push({t:WL,v:{px:px-fa*K.drawBack*.5,crouch:fm.wCrouch,lean:fm.wLean,...c.stn(K.wStance),th:.2},e:eOut},
+      {t:IL,v:{px,crouch:fm.crouch,lean:fm.lean,...c.stn(fm.stance),th:.12},e:eIn},
+      {t:RB,v:{px:px-fa*3,crouch:fm.crouch+.02,lean:fm.lean-.06,...c.stn(fm.stance),th:.12}});
+    armK.push({t:WL,v:{hand:W.hand,wAng:W.ang,off:c.offW,tilt:c.KA.wind},e:eOut},
+      {t:IL,v:{hand,wAng:th,off:c.offI,tilt:c.KA.impact},e:eIn},
+      {t:RB,v:{hand:{w:{x:hand.w.x-fa*.14*arm,y:hand.w.y-.06*arm}},wAng:th-.4,off:c.offW,tilt:c.KA.wind},e:eOut});
+    hits.push({IL,B,theta:th,kind,beat:!!beat});
+    const seed=(c.seed+j*7919)>>>0;
+    events.push({t:WL+c.tStrike*C.strike*.2,fn:()=>S.hooks.sound('swoosh',A.wp.mass*.8)},{t:IL,fn:()=>leadClash(A,D,B,fa,seed)});
+    t=RB+C.gap;}
+  return{span:t-c.Tw0,body,arm:armK,hits,events,fa,leads:leads.map(l=>l.kind+(l.V?':'+l.V.key:''))};}
+// The man parries each lead where it meets him, then answers the blow itself as he was going to (R: that answer, from planReaction or
+// an elf's evasion): his keys from the last lead on.
+function comboReact(D,A,P,R,snap){
+  if(!P||!R||!P.hits||!P.hits.length||D.dead||D.downed)return R;
+  const fa=P.fa,H=P.hits,L=D.wp.len*.55,body=bodyKeys(D,[[0,snap?'now':'guard']]),arm=armKeys(D,[[0,snap?'now':'guard']]);
+  let prev=0;
+  for(let i=0;i<H.length;i++){const h=H[i],nx=H[i+1];
+    const u={x:fa*Math.cos(h.theta),y:Math.sin(h.theta)};let pv={x:-u.y,y:u.x};if(pv.y>0)pv={x:-pv.x,y:-pv.y};if(h.B.y>D.p[PEL].y-4)pv={x:-pv.x,y:-pv.y};
+    const wl=Math.atan2(pv.y,D.facing*pv.x),Ts=Math.max(prev+.03,h.IL-lerp(.16,.26,D.sk)),at={x:h.B.x-pv.x*L,y:h.B.y-pv.y*L},Tg=nx?Math.min(h.IL+.1,nx.IL-.16):h.IL+.1;
+    if(Ts<h.IL-.04){body.push(...bodyKeys(D,[[Ts,'guard']]));arm.push(...armKeys(D,[[Ts,'guard']]));}
+    if(h.beat){const a=D.arm,g=()=>D.guardArm();
+      // a beat: his blade held where it is and knocked down and aside, then brought back up for the blow
+      body.push(...bodyKeys(D,[[h.IL,'guard'],[h.IL+.1,'blockGive',sstep]]));
+      arm.push(...armKeys(D,[[h.IL-.01,'guard'],[h.IL+.07,()=>{const G=g(),hh=D.resolve(G.hand);return{...G,hand:{w:{x:hh.x+fa*.12*a,y:hh.y+.22*a}},wAng:G.wAng+.75};},eOut]]));
+      prev=h.IL+.12;continue;}
+    body.push(...bodyKeys(D,[[h.IL,h.kind==='sweep'?'blockLow':'block',eOut],[Math.max(h.IL+.04,Tg+.02),'blockGive',sstep]]));
+    arm.push(...armKeys(D,[[h.IL-.01,'block',{hand:{w:at},wAng:wl},eOut],[Math.max(h.IL+.03,Tg),'block',{hand:{w:{x:at.x+fa*5,y:at.y+2}},wAng:wl+.08},eOut]]));
+    prev=Math.max(h.IL+.04,Tg+.02);}
+  const tEnd=prev+.04,keep=k=>k.t>tEnd+1e-6;
+  body.push(...bodyKeys(D,[[tEnd,'guard',sstep]]),...R.body.filter(keep));arm.push(...armKeys(D,[[tEnd,'guard',sstep]]),...R.arm.filter(keep));
+  body.sort((a,b)=>a.t-b.t);arm.sort((a,b)=>a.t-b.t);
+  return{...R,body,arm,end:Math.max(R.end||0,tEnd+.2)};}
+// a lead meets his parry: the ring of it, the blades knocked apart, a beat of hit-stop (the sparks from the animation's dice)
+function leadClash(A,D,B,fa,seed){if(A.dead||D.dead||D.downed||S.warming)return;
+  const r=mulberry32(seed);flash(B,16,'#cfeaff',D.dep);sparksBy(B,8,'#fff3cf',D.dep,r);
+  for(const i of [TIP,HAF]){const q=A.p[i],k=(i===TIP?170:80)*DT;q.px+=fa*k;q.py+=k*.3;}
+  for(const i of [TIP,HAF]){const q=D.p[i];q.px-=fa*60*DT;}
+  S.freeze=Math.max(S.freeze,.022);S.shake=Math.max(S.shake,1.6);S.hooks.sound('clang',.55);}
+function sparksBy(c,n,color,d,r){for(let i=0;i<n;i++){const a=-Math.PI/2+(r()-.5)*2.9,s=140+r()*320;
+  S.sparks.push({x:c.x,y:c.y,d:d||0,vx:Math.cos(a)*s,vy:Math.sin(a)*s,age:0,life:.22+r()*.3,color});}}
 // ===== ANIM END =====

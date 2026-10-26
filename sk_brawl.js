@@ -26,23 +26,43 @@ function hitZone(res){
   if(k==='overhead')return(res.seed&2)?'arm':'head';
   return(res.seed&2)?'arm':'body';
 }
-// fa is the direction the blow travels (attacker toward defender)
+// fa is the direction the blow travels (attacker toward defender). How he takes it comes from the blow's own seed (the animation's
+// dice, sk_anim.js: animDice), and his rank says how long it shakes him (hitTime: a Novice longer, a Master shorter)
 function hitReaction(D,zone,fa,res){
   if(D.dead||D.downed||res.kd||!D.curBody)return;
-  const st=D.station,big=res.out==='crit'||res.dmg>=18;
+  const st=D.station,big=res.out==='crit'||res.dmg>=18,u=S.animForce&&S.animForce.hit!=null?S.animForce.hit:animDice(res,'hit')(),k=hitTime(D),hand=!D.wp.off&&!D.oneArm&&!D.pocketHand;
   let body,arm,end;
-  if(zone==='head'){end=big?1:.85;   // the head snaps back and the feet stumble under it
-    body=bodyKeys(D,[[0,'now'],[.07,'hitHead',{px:st+fa*6},eOut],[.3,'hitHeadStagger',{px:st-fa*3}],[.52,'hitHeadSettle',{px:st+fa*2}],[end,'guard',sstep]]);
-    arm=armKeys(D,[[0,'now'],[.07,'hitHead',eOut],[.36,'hitHeadSettle'],[end,'guard',sstep]]);}
-  else if(zone==='body'){end=big?1.1:.88;   // doubled over
-    body=bodyKeys(D,[[0,'now'],[.08,'hitBody',{px:st+fa*4},eOut],[big?.58:.42,'hitBodyHold'],[end,'guard',sstep]]);
-    arm=armKeys(D,[[0,'now'],[.08,'hitBody',eOut],[big?.58:.42,'hitBodyHold'],[end,'guard',sstep]]);}
-  else if(zone==='leg'){end=.92;   // the knee buckles
-    body=bodyKeys(D,[[0,'now'],[.07,'hitLeg',eOut],[.42,'hitLegHold'],[end,'guard',sstep]]);
-    arm=armKeys(D,[[0,'now'],[.1,'hitLeg',eOut],[end,'guard',sstep]]);}
+  if(zone==='head'){
+    if(big&&u<.4){end=1.15;   // a big one: down onto a knee for a moment, and up again
+      body=bodyKeys(D,[[0,'now'],[.09,'hitHead',{px:st+fa*5},eOut],[.3,'hitHeadDrop',{px:st+fa*3},sstep],[.64,'hitHeadRise',{px:st+fa*2},sstep],[end,'guard',sstep]]);
+      arm=armKeys(D,[[0,'now'],[.09,'hitHead',eOut],[.32,'hitHeadDrop',sstep],[.66,'hitHeadSettle'],[end,'guard',sstep]]);}
+    else if(u<.45){end=big?.95:.8;   // the head knocked round, away from it
+      body=bodyKeys(D,[[0,'now'],[.07,'hitHeadTurn',{px:st+fa*5},eOut],[.34,'hitHeadSettle',{px:st+fa*2}],[end,'guard',sstep]]);
+      arm=armKeys(D,[[0,'now'],[.07,'hitHeadTurn',eOut],[.36,'hitHeadSettle'],[end,'guard',sstep]]);}
+    else{end=big?1:.85;   // the head snaps back and the feet stumble under it
+      body=bodyKeys(D,[[0,'now'],[.07,'hitHead',{px:st+fa*6},eOut],[.3,'hitHeadStagger',{px:st-fa*3}],[.52,'hitHeadSettle',{px:st+fa*2}],[end,'guard',sstep]]);
+      arm=armKeys(D,[[0,'now'],[.07,'hitHead',eOut],[.36,'hitHeadSettle'],[end,'guard',sstep]]);}}
+  else if(zone==='body'){
+    if(u<.35){end=big?1.05:.86;   // driven back, the arms out
+      body=bodyKeys(D,[[0,'now'],[.08,'hitBodyBack',{px:st+fa*9},eOut],[.36,'hitBody',{px:st+fa*6},sstep],[end,'guard',sstep]]);
+      arm=armKeys(D,[[0,'now'],[.08,'hitBodyBack',eOut],[.38,'hitBodyHold'],[end,'guard',sstep]]);}
+    else if(u<.6&&hand){end=big?1.15:.95;   // a hand to the wound
+      body=bodyKeys(D,[[0,'now'],[.08,'hitBody',{px:st+fa*4},eOut],[.4,'hitBodyClutch',{px:st+fa*3}],[end,'guard',sstep]]);
+      arm=armKeys(D,[[0,'now'],[.08,'hitBody',eOut],[.3,'hitBodyClutch'],[end*.8,'hitBodyClutch'],[end,'guard',sstep]]);}
+    else{end=big?1.1:.88;   // doubled over
+      body=bodyKeys(D,[[0,'now'],[.08,'hitBody',{px:st+fa*4},eOut],[big?.58:.42,'hitBodyHold'],[end,'guard',sstep]]);
+      arm=armKeys(D,[[0,'now'],[.08,'hitBody',eOut],[big?.58:.42,'hitBodyHold'],[end,'guard',sstep]]);}}
+  else if(zone==='leg'){
+    if(u<.4){end=.9;   // off the hurt leg, a hop on the other
+      body=bodyKeys(D,[[0,'now'],[.07,'hitLeg',eOut],[.26,'hitLegHop',{lift:3},eOut],[.44,'hitLegHold',eIn],[end,'guard',sstep]]);
+      arm=armKeys(D,[[0,'now'],[.1,'hitLegHop',eOut],[end,'guard',sstep]]);}
+    else{end=.92;   // the knee buckles
+      body=bodyKeys(D,[[0,'now'],[.07,'hitLeg',eOut],[.42,'hitLegHold'],[end,'guard',sstep]]);
+      arm=armKeys(D,[[0,'now'],[.1,'hitLeg',eOut],[end,'guard',sstep]]);}}
   else{end=.78;   // a cut across the arm or ribs twists the body away
     body=bodyKeys(D,[[0,'now'],[.07,'hitSide',{px:st+fa*5},eOut],[.32,'hitSideSettle'],[end,'guard',sstep]]);
     arm=armKeys(D,[[0,'now'],[.07,'hitSide',eOut],[end,'guard',sstep]]);}
+  if(k!==1){for(const q of body)q.t*=k;for(const q of arm)q.t*=k;end*=k;}
   D.action={t0:S.t,end,body,arm};
 }
 // a big knockback can carry a fighter over the curb or over someone already on the ground

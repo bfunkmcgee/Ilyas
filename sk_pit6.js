@@ -146,9 +146,11 @@ STAGES.push({key:'toll',act:1,num:'6',title:'The Toll',sub:'A stair-street below
     yield* wait(.8);
     // the bigger one kneels on him; the smaller one crouches at his arm and looks at the ink on it
     yield* riseUp([Bg,Sm]);
-    // (the smaller one, on the bigger one's side of him, goes round in front of them both to his arm, not through them)
+    // (the smaller one, on the bigger one's side of him, goes round them both to his arm, not through them: round the near side of
+    // them, or the far side if he stands on the far side of the bigger one, so he never crosses the bigger one's line)
     const fa=Math.sign(Bg.station-K.station)||1,sx=K.station-fa*52,sz=K.lane-6;
-    const smTo=(function*(){if((Sm.station-K.station)*fa>0){const zb=clamp(Math.min(K.lane,Bg.lane,Sm.lane)-40,44,146);
+    const smTo=(function*(){if((Sm.station-K.station)*fa>0){const far=Sm.lane>Bg.lane,
+        zb=far?clamp(Math.max(K.lane,Bg.lane,Sm.lane)+40,44,146):clamp(Math.min(K.lane,Bg.lane,Sm.lane)-40,44,146);
         yield* goTo(Sm,Sm.station,zb,60);yield* goTo(Sm,sx,zb,60);}
       yield* goTo(Sm,sx,sz,60);})();
     yield* all(goTo(Bg,K.station+fa*26,K.lane+3,60),smTo);

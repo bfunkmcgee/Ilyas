@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The checks, in tiers. Every run builds first and starts with the static check (check.py, seconds).
 
-  python3 test.py              quick: the static check and the eight game-logic suites (about two minutes)
+  python3 test.py              quick: the static check and the game-logic suites (about two minutes)
   python3 test.py affected     the static check, then the suites that cover what changed since the last full run that passed
                                (a change to the game's rules runs everything; a change to the drawing, the page suites it touches)
   python3 test.py full         every suite (two at a time: the machine has two cores), then the timing checks alone
@@ -33,6 +33,7 @@ SUITES = {
     'react':      (['node', 'sk_react_test.js'], 'logic', 'answers to blows, balance, breaks and Kael\'s flow'),
     'room':       (['node', 'sk_room_test.js'], 'logic', 'the room: bodies, panes, lamps and the table, and the room moves'),
     'short':      (['node', 'sk_short_test.js'], 'logic', 'Short Hand: the stance, the Hinge, the Wrist toll, the Short ladder, the check and the hook'),
+    'anim':       (['node', 'sk_anim_test.js'], 'logic', 'the motion: rank, every variant of every blow, combos, the answers acted out, blows taken'),
     'dom':        (['node', 'sk_dom.js'], 'page', 'the whole UI on a stub page: scripted play in every arena'),
     'lookpage':   (['node', 'sk_look_page.js'], 'page', "Kael's look: coat, tears, every arena and state"),
     'castpage':   (['node', 'sk_cast_page.js'], 'page', 'the cast and the crews drawn'),
@@ -53,10 +54,10 @@ PAGES = [n for n, s in SUITES.items() if s[1] == 'page']
 # (seconds each in a full run, the other lane busy: drawfree 205, arms 195, look 185, cast 185, dom 180, light 150, finale 130,
 # sktest 50, hud 35, v12 30, v12finale 20, brawl 10, team 10, arc 10, live 5, env 5)
 ORDER = ['drawfree', 'armspage', 'lookpage', 'castpage', 'dom', 'lightpage', 'finalepage', 'sktest', 'act1page', 'hudpage', 'v12',
-         'v12finale', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'arcpage', 'live', 'env']
+         'v12finale', 'anim', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'arcpage', 'live', 'env']
 
 # ---------- what covers what ----------
-GAME = r'^sk_(core|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|explore|pit|pit2|pit5|short|pit6|pit7|pit8|pit9|pitmenu)\.js$'
+GAME = r'^sk_(core|anim|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|explore|pit|pit2|pit5|short|pit6|pit7|pit8|pit9|pitmenu)\.js$'
 COVERS = [
     (GAME, 'ALL'),                                                     # the rules: everything
     (r'^build\.py$|^sk_src\.js$', 'ALL'),

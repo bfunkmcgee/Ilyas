@@ -135,7 +135,25 @@ follow-through by form, the free hand and the head's tilt; planAttack, windupBas
 `f.animStyle` (default 'tactical' for Kael, sk_style.js, 'regular' for everyone else). A style is its pace (`moves`, faded in with
 skill up to `full`), changes to the guard (`guard`), to named poses (`pose.body`, `pose.arm`), to ATTACK (`attack`, merged a level at a
 time) and its glance after a kill (`look`). `styleMoves`, `styleGuard`, `styleWind` and `styleFollow` apply it; Short Hand's stance wraps
-styleGuard. Animation only: the dice, the tempo, the footing and the AI never read a style. The motion traces prove a refactor moves every body the same: `node
+styleGuard. Animation only: the dice, the tempo, the footing and the AI never read a style. The library (since V67): his rank shows in
+his motion (`ANIM_SKILL`: a Novice's changes all there at skill 1 and half at 2, a Master's half at 4 and all at 5, through `skillGuard`,
+`skillPose`, `skillAttack`, the pace in `styleMoves` and `hitTime`; a style's own motion takes the rank's place as it comes in, so Ilyas
+moves as his style has it). A blow of the blow's own shape (`VARIANT_KEYS`: not the butt, the pommel, the lash, a kick, a flourish ...)
+comes in one of its variants (`ATTACK.variant`: the cut diagonal, level, rising, short or drawn; the thrust in line, low, high or on a
+lunge; the overhead straight down or from the shoulder; the low cut, from a knee or hooked), picked by `blowVariant` by weight, skill and
+weapon, seldom the same twice running, and a blow straight after one goes on from where that left the blade (`A.animLast`,
+`ANIM_CHAIN`). A skilled man's blow may open with a combo (`ATTACK.combo`, `blowCombo`, `comboPlan`): a lead or two (one off an opening)
+that the man parries (`comboReact`, `leadClash`), then the blow, whose dice it is; Beat and thrust always opens with its beat on the
+blade, and a spin with a lead parried first. The answers are acted out (planReaction): a Counter cuts into the blow, Turn him carries it
+on past with a hand on his arm, an Expert's parry rolls onto the other's blade, a Parry or Counter that sends a blow wide beats it aside,
+Step back over a low blow is a hop, and an answer to a blow that lands comes a beat late; a blow taken comes in more ways (hitReaction).
+In context: from behind the free hand takes his shoulder, a stab down at a man on the floor has the free hand on the pommel, a man off
+balance is pressed, a man attacking off balance overbalances, a badly hurt man is slower, and a Master flicks the blade after a kill. The
+animation's own dice are `animDice(res, salt)`, from the seed the blow was thrown with: a variant or a combo throws none of the game's
+and moves nobody the rules read (checked). `S.animForce` {variant, combo, hit} sets them for a check or a still. Suite: `anim`
+(sk_anim_test.js). `node tools/cmp/anim_probe.js` counts the variants and combos by rank over the auto fights; `FX=off node
+uiwork/anim/moves.js <outdir> <shots.json>` photographs single blows as strips of frames (a shot names the attacker, the man struck,
+the blow, its outcome, the answer, the variant and the combo). The motion traces prove a refactor moves every body the same: `node
 uiwork/anim/trace.js <repo> <out.json> [quick]` (64 seeded lab fights, every joint hashed every 6 steps, and which planners ran) and
 `--cmp a b`; `node uiwork/anim/suites.js <repo> <out.jsonl>` (the logic suites, their dice seeded) and `node uiwork/anim/cmp_suites.js a b`;
 `node uiwork/anim/trace_page.js <repo> <out.json>` (the prologue on into Act I with each fight played on auto for a while, and the
@@ -398,6 +416,8 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
    and never drawn must come out the same. The page suites rely on it to skip drawing.
 2. **Two sets of dice.** The game's dice are `Math.random` and its own handle to it, `S.rng` (the checks seed both). The UI's are
    `uiRand()` (sk_envui.js, its own seeded generator). No Math.random in a UI file (check.py enforces it), except the bench's "new body" seed line.
+   The animation's choices (a blow's variant, a combo, the way a blow is taken) use neither: `animDice` (sk_anim.js) draws them from the
+   seed the blow was thrown with, so they change nothing the rules read.
 3. Respect `reduceMotion` (shake, flashes, camera punches) and `S.gore` ('off' | 'ink' | 'red').
 4. Phones first: paint still things once; no per-frame gradients in loops, no shadowBlur, no big particle counts. sk_perf_page.js
    holds the costs (Kael under 1.5 ms, each cast figure under 1.2, each weapon under .3, the arc-blade's limits).
@@ -439,9 +459,9 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V67 ..." (V66 was the last published; count on from it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
+short label "V68 ..." (V67 was the last published; count on from it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V67: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V68: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
