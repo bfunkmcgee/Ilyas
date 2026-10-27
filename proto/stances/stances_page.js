@@ -25,7 +25,10 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
     // his turn on his feet and free (a turn on the floor goes on getting up, a hold is broken), and the fight kept going
     window.untilFree=max=>{let n=0;const K=hero();K.hp=Math.max(K.hp,K.maxHp*.8);
       while(n<max){if(S.game.phase==='over')break;if(mine()&&!K.downed&&!K.clinch)break;if(S.opening&&!isAI(S.opening.f.idx))resolveOpening(aiOpening(S.opening));
-        if(mine()&&K.downed)humanCommand('guard');else if(mine()&&K.clinch)humanCommand(K.clinch.a===K?'shove':'shove');fast(1);n++;}return n;};
+        if(mine()&&K.downed)humanCommand('guard');else if(mine()&&K.clinch)humanCommand(K.clinch.a===K?'shove':'shove');fast(1);n++;}
+      // (a fight that has run out of men on their feet starts again: the check wants one to face)
+      if(S.game.phase==='over'||!foes().some(f=>!f.dead&&!f.downed&&!f.walkIn)){S.F=[];restart();n+=untilMine(6000);}
+      return n;};
     window.cmd=k=>document.getElementById('cmd-'+k);window.tq=k=>(document.getElementById('t-'+k)||{}).textContent||'';
     window.stb=s=>document.querySelector(`#stnBar .stn-b[data-s="${s}"]`);
     window.gapX=(A,D)=>Math.abs(A.station-D.station)-engageGap(A,D);
@@ -103,10 +106,15 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
     // the tip line, in Unbound against his thrust
     stb('unbound').click();fast(4);const tl=show('thrust').tip;
     // the thrust he showed comes on his turn, and the answer window says what Bound does to it
-    stb('bound').click();fast(2);show('thrust');cmd('wait').click();let win=null,n=0;
-    while(n<4000&&!win){const o=S.opening;if(o&&o.source==='react'&&o.f===K){if(o.opp===D){win={txt:(document.getElementById('opReason')||{}).textContent||'',kind:o.attack};}resolveOpening('parry');}
-      else if(o&&!isAI(o.f.idx))resolveOpening('hold');if(mine())break;fast(1);n++;}
-    return{tgt:D.name,wp:D.weaponKey,thrust,over,close,dice,tl,win};});
+    stb('bound').click();fast(2);show('thrust');const it0=D.intent&&{cmd:D.intent.cmd,tgt:D.intent.tgt};cmd('wait').click();let win=null,n=0;const seen=[];
+    // (another man may act before him, and his turn come round again first: then Ilyas waits again, in Bound, up to three turns)
+    let turns=0;
+    while(n<12000&&!win&&!D.dead&&!D.downed){const o=S.opening;if(o&&seen.length<12&&!seen.some(x=>x.o===o))seen.push({o,src:o.source,f:o.f&&o.f.name,opp:o.opp&&o.opp.name,att:o.attack,ex:S.game.ex&&S.game.ex.cmd});
+      if(o&&o.source==='react'&&o.f===K){if(o.opp===D){win={txt:(document.getElementById('opReason')||{}).textContent||'',kind:o.attack};}resolveOpening('parry');}
+      else if(o&&!isAI(o.f.idx))resolveOpening('hold');
+      if(mine()){if(++turns>3||K.downed||K.clinch)break;if(stanceOf(K)!=='bound')stb('bound').click();setTgt(K,D.idx);fast(1);cmd('wait').click();}
+      fast(1);n++;}
+    return{tgt:D.name,wp:D.weaponKey,thrust,over,close,dice,tl,win,dbg:win?null:{n,it0,seen:seen.map(({o,...x})=>x),log:S.game.lastActs||null}};});
   expect('a thrust he is gearing up at blade\'s length marks Bound, which beats it aside',!r.none&&r.thrust.fit==='bound'&&/beats his thrust/.test(r.thrust.why),JSON.stringify(r.thrust||r));
   expect('an overhead he has to come in for marks Unbound, which catches his arm; the same overhead in reach marks Close, inside his swing',
     !r.none&&r.over.fit==='unbound'&&/catches his arm/.test(r.over.why)&&r.close.fit==='close'&&/inside his swing/.test(r.close.why),JSON.stringify({over:r.over,close:r.close}));
@@ -114,7 +122,7 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
     !r.none&&/beats the point aside 3/.test(r.dice.boundThrust)&&/inside the chain -2/.test(r.dice.unboundThrust)&&/the chain catches his arm 3/.test(r.dice.unboundOverFar)&&
     !/catches his arm/.test(r.dice.unboundOverNear)&&/at blade’s length 1/.test(r.dice.blade),JSON.stringify(r.dice));
   expect('the tip line names the blow he is gearing up, what it does to your stance and the stance that answers it',!r.none&&/gearing up a thrust/.test(r.tl)&&/inside the chain/.test(r.tl)&&/Bound beats it aside/.test(r.tl),r.tl);
-  expect('the blow he showed is the one he throws, and the answer window says what the stance does to it',!r.none&&!!r.win&&r.win.kind==='thrust'&&/Bound: beats the point aside, \+3/.test(r.win.txt),JSON.stringify(r.win));
+  expect('the blow he showed is the one he throws, and the answer window says what the stance does to it',!r.none&&!!r.win&&r.win.kind==='thrust'&&/Bound: beats the point aside, \+3/.test(r.win.txt),JSON.stringify(r.win||r.dbg));
   await shot('4e_answer');
   // 4f. a blow his stance answers that misses him costs the man a pip of balance more, named over him; one it does not answer costs the usual
   // (each stance in a fresh fight, so the two meet the same man the same way)

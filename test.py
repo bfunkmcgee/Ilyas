@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The checks, in tiers. Every run builds first and starts with the static check (check.py, seconds).
 
-  python3 test.py              quick: the static check and the eight game-logic suites (about two minutes)
+  python3 test.py              quick: the static check and the game-logic suites (about two minutes)
   python3 test.py affected     the static check, then the suites that cover what changed since the last full run that passed
                                (a change to the game's rules runs everything; a change to the drawing, the page suites it touches)
   python3 test.py full         every suite (two at a time: the machine has two cores), then the timing checks alone
@@ -33,6 +33,7 @@ SUITES = {
     'react':      (['node', 'sk_react_test.js'], 'logic', 'answers to blows, balance, breaks and Kael\'s flow'),
     'room':       (['node', 'sk_room_test.js'], 'logic', 'the room: bodies, panes, lamps and the table, and the room moves'),
     'short':      (['node', 'sk_short_test.js'], 'logic', 'Short Hand: the stance, the Hinge, the Wrist toll, the Short ladder, the check and the hook'),
+    'anim':       (['node', 'sk_anim_test.js'], 'logic', 'the motion: rank, every variant of every blow, combos, the answers acted out, blows taken'),
     'dom':        (['node', 'sk_dom.js'], 'page', 'the whole UI on a stub page: scripted play in every arena'),
     'lookpage':   (['node', 'sk_look_page.js'], 'page', "Kael's look: coat, tears, every arena and state"),
     'castpage':   (['node', 'sk_cast_page.js'], 'page', 'the cast and the crews drawn'),
@@ -43,7 +44,7 @@ SUITES = {
     'lightpage':  (['node', 'sk_light_page.js'], 'page', 'the lighting and effects'),
     'drawfree':   (['node', 'probes/draw_free.js'], 'page', 'the prologue and Act I played through and seven fights, the same drawn or not'),
     'act1page':   (['node', 'sk_act1_page.js'], 'page', 'Act I: every scene on auto, their lines, cards and rules, walking about by hand, the Pit look'),
-    'soundpage':  (['node', 'sk_sound_page.js'], 'page', 'the held sounds heard: the bike\'s engine while it runs, and silent once the bike part is over'),
+    'soundpage':  (['node', 'sk_sound_page.js'], 'page', 'the held sounds heard: the bike\'s engine while it runs, and silent once the bike part is over; the prologue\'s song, from a file and over http; the recorded sounds over http (loading, the calls, the held ones, the sound switch, footsteps)'),
     'live':       (['node', 'figwork/livecheck.js'], 'live', 'the published page runs its own loop without errors'),
     'perf':       (['node', 'sk_perf_page.js'], 'perf', 'what drawing costs a frame (timing: run alone)'),
 }
@@ -53,10 +54,10 @@ PAGES = [n for n, s in SUITES.items() if s[1] == 'page']
 # (seconds each in a full run, the other lane busy: drawfree 205, arms 195, look 185, cast 185, dom 180, light 150, finale 130,
 # sktest 50, hud 35, v12 30, v12finale 20, brawl 10, team 10, arc 10, live 5, env 5)
 ORDER = ['drawfree', 'armspage', 'lookpage', 'castpage', 'dom', 'lightpage', 'finalepage', 'sktest', 'act1page', 'hudpage', 'v12',
-         'v12finale', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'arcpage', 'live', 'env']
+         'v12finale', 'anim', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'arcpage', 'live', 'env']
 
 # ---------- what covers what ----------
-GAME = r'^sk_(core|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|explore|pit|pit2|pit5|short|pit6|pit7|pit8|pit9|pitmenu)\.js$'
+GAME = r'^sk_(core|anim|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|explore|pit|pit2|pit5|short|pit6|pit7|pit8|pit9|pitmenu)\.js$'
 COVERS = [
     (GAME, 'ALL'),                                                     # the rules: everything
     (r'^build\.py$|^sk_src\.js$', 'ALL'),
@@ -68,7 +69,8 @@ COVERS = [
     (r'^sk_(hudui|chainui|crewui|insureui|ctxmovesui)\.js$|^sk_css_.*\.css$|^sk_body\.html$|^sk_head\.txt$', ['hudpage', 'finalepage', 'lightpage', 'dom']),
     (r'^sk_(finaleui|officeui|breachui|secretui|lobbyui)\.js$', ['finalepage', 'hudpage', 'dom']),
     (r'^sk_(storyui|beastui|elfui|styleui|reactui|roomui|shortui)\.js$', ['finalepage', 'hudpage', 'dom', 'act1page']),
-    (r'^sk_storyui\.js$', ['soundpage']),
+    (r'^sk_storyui\.js$|^music/|^sfx/', ['soundpage']),
+    (r'^sk_sfxui\.js$', ['soundpage', 'dom']),
     (r'^sk_lightui\.js$', ['lightpage', 'lookpage', 'dom']),
     (r'^sk_(exploreui|pitui|pitcastui|pit2ui|pit5ui|pit6ui|pit7ui|pit8ui|pit9ui|pitmenuui)\.js$|^sk_css_(explore|pit|pit2|pit5|pit6|pit7|pit8|pit9|pitmenu)\.css$', ['act1page', 'hudpage', 'dom']),
     (r'^sk_(lookui|armsui|storyui)\.js$', ['act1page']),
@@ -87,6 +89,9 @@ def tracked():
     scenes = re.search(r"SCENES = \[(.*?)\]", src, re.S)
     if scenes: fs += ['envx/%s.js' % s for s in re.findall(r"'(\w+)'", scenes.group(1))]
     fs += [s[0][1] for s in SUITES.values()]
+    # (the song and the recorded sounds are published beside the page: the page suites play them)
+    for d in ('music', 'sfx'):
+        if os.path.isdir(path(d)): fs += ['%s/%s' % (d, f) for f in os.listdir(path(d)) if f.endswith('.mp3')]
     return sorted(set(f for f in fs if os.path.exists(path(f))))
 
 def digest(fs):

@@ -50,15 +50,15 @@ let K,V,B;
 
 // ---------- the stance ----------
 setup([['club',2]]);K=S.F[0];V=S.F[1];
-{const g=tacGuard(K),G=SHORT_HAND.guard,d=GUARD.dagger;
+{const g=styleGuard(K),G=SHORT_HAND.guard,d=GUARD.dagger;
   expect('Stance: the guard is low with the weight forward, the knife tight to the chest and angled up and forward',
     g.crouch===G.crouch&&g.lean===G.lean&&g.hx<d.hx&&g.hy<=d.hy&&g.w<d.w,JSON.stringify({crouch:g.crouch,lean:g.lean,hx:g.hx,hy:g.hy,w:g.w}));
   const b=K.guardBody();expect('Stance: his body takes it (crouch and lean)',Math.abs(b.crouch-G.crouch)<.02&&b.lean>=G.lean-.01,b.crouch.toFixed(3)+' '+b.lean.toFixed(3));
-  K.foot=3;const gc=tacGuard(K);K.foot=6;
+  K.foot=3;const gc=styleGuard(K);K.foot=6;
   expect('Stance: committed, the knife hand still does not reach (the guard takes back what a committed guard pushes out)',Math.abs(gc.hx+.14-G.hx)<1e-9,gc.hx);
-  K.style=null;const g0=tacGuard(K);K.style='shorthand';
-  expect('a fighter without the style keeps his own guard',g0.crouch===d.crouch+TACTICAL.guard.crouch&&tacGuard(V)===GUARD.club,g0.crouch);
-  K.oneArm=true;K.build();const g1=tacGuard(K);K.style=null;const g2=tacGuard(K);K.style='shorthand';K.oneArm=false;K.build();
+  K.style=null;const g0=styleGuard(K);K.style='shorthand';
+  expect('a fighter without the style keeps his own guard (his weapon\'s at his rank)',g0.crouch===skillGuard(K).crouch+TACTICAL.guard.crouch&&styleGuard(V)===skillGuard(V),g0.crouch);
+  K.oneArm=true;K.build();const g1=styleGuard(K);K.style=null;const g2=styleGuard(K);K.style='shorthand';K.oneArm=false;K.build();
   expect('Stance: a one-armed man\'s back hand is left where it is pinned',JSON.stringify(g1.off)===JSON.stringify(g2.off),JSON.stringify(g1.off));}
 // the steps: two advances, every step as it starts, and the feet whenever both are down
 function stepStats(style){setup([['club',2]],{at:{1:900},style});const A=S.F[0],seen=new Set(),st={n:0,max:0,dur:0,cross:0,leg:A.leg};

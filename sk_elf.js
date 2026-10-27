@@ -33,6 +33,7 @@ function compressEx(ex){if(!ex||!ex.A||ex._r)return;const r=elfRate(ex.A);if(r<=
   const P=ex.plan;
   if(P&&!P._r){P._r=r;for(const k of ['Timp','Td','Tend'])if(typeof P[k]==='number')P[k]/=r;
     for(const e of P.events||[])e.t/=r;
+    if(P.combo)for(const h of P.combo.hits)h.IL/=r;
     if(P.sec)for(const k of ['Timp','Td'])if(typeof P.sec[k]==='number')P.sec[k]/=r;
     act(P.att);act(P.react);if(P.sec)act(P.sec.react);}
   if(typeof ex.dur==='number')ex.dur/=r;
@@ -66,11 +67,10 @@ function agileOn(f){if(elfRate(f)<=1||f.cutWalk||f.mount)return false;if(f.scene
 {const sm=shotMods;shotMods=function(A,D,kind,i){const c=sm(A,D,kind,i);if(D&&elfRate(D)>1&&!D.downed){c.def+=2;c.defMods.push(['elven reflexes',2]);}return c;};}
 // the elf's run: low, the blade trailing, gone almost before the eye has him
 function elfDash(A,x0,z0,ex){if(elfRate(A)<=1||A.downed||A.clinch||A.mount)return;const x1=A.station,z1=A.lane,dist=Math.hypot(x1-x0,(z1-z0)*.8);if(dist<30)return;
-  const fwd=(x1-x0)*A.facing>0,arm=A.arm,T=clamp(dist/ELVEN.dash,.16,.42),Tm=T*.5,g=GUARD[A.weaponKey]||GUARD.sword;
-  const body=[{t:0,v:{...A.curBody}},{t:Tm,v:()=>({...A.guardBody(),px:lerp(x0,x1,.62),pz:lerp(z0,z1,.62),crouch:fwd?.74:.8,lean:fwd?.36:-.06,th:.42}),e:eOut},
-    {t:T,v:()=>({...A.guardBody(),th:.3}),e:sstep},{t:T+.25,v:()=>A.guardBody()}];
-  const run={hand:{sh:[(fwd?-.04:.2)*arm,.36*arm]},wAng:fwd?2.45:g.w,off:A.wp.off?'grip':{sh:[(fwd?.44:.3)*arm,(fwd?.02:.22)*arm]},tilt:fwd?.18:-.05};
-  const armK=[{t:0,v:{...A.curArm}},{t:Tm*.8,v:run,e:eOut},{t:T,v:run},{t:T+.25,v:()=>A.guardArm(),e:sstep}];
+  const fwd=(x1-x0)*A.facing>0,T=clamp(dist/ELVEN.dash,.16,.42),Tm=T*.5;
+  const body=bodyKeys(A,[[0,'now'],[Tm,fwd?'elfDash':'elfDashBack',{px:lerp(x0,x1,.62),pz:lerp(z0,z1,.62)},eOut],[T,'elfDashLand',sstep],[T+.25,'guard']]);
+  const run=armPose(A,poseA(A,fwd?'elfDash':'elfDashBack'));
+  const armK=armKeys(A,[[0,'now'],[Tm*.8,run,eOut],[T,run],[T+.25,'guard',sstep]]);
   A.action={t0:ex.t0,end:T+.25,body,arm:armK,quiet:true};A.blur=S.t+T/elfRate(A)+.04;
   if(!S.warming)dust(A.p[FTB].x,A.gr(A.p[FTB].x),.6,A.dep);}
 
@@ -97,29 +97,25 @@ function evadeStyle(ex){const A=ex.A,D=ex.D,P=ex.plan,res=ex.res,T=(res&&res.tec
 function elfEvade(ex){const A=ex.A,D=ex.D,P=ex.plan,res=ex.res;
   if(!D||!A||!res||res.out!=='dodge'||elfRate(D)<=1||!P)return;
   const st=evadeStyle(ex);if(!st)return;
-  const Ti=P.Timp,leg=D.leg,arm=D.arm,b0={...(D.curBody||D.guardBody())},a0={...(D.curArm||D.guardArm())},gB=()=>D.guardBody(),gA=()=>D.guardArm(),ev=[];
-  const sw=(x,y)=>({stF:x*leg,stB:y*leg}),off=D.wp.off?'grip':null;let body,armK,end,slip=null;
+  const Ti=P.Timp,leg=D.leg,b0={...(D.curBody||D.guardBody())},a0={...(D.curArm||D.guardArm())},ev=[];let body,armK,end,slip=null;
   D.blur=S.t+Ti+.45;if(D===S.F[0])D.flare=Math.max(D.flare||0,.9);
   // an opening that comes of the miss waits until he is back on his feet
   const holdOpen=Tl=>ev.push({t:Ti+.01,fn:()=>{const e=S.game.ex;if(e&&e.openAt!=null&&e.openFor===D)e.openAt=Math.max(e.openAt,S.t+(Tl-Ti-.01)/(e.rate||1)+.02);}});
   if(st.style==='leap'){
     // down onto the legs, up with the knees tucked as the blow goes under, and down again
     const T0=Math.max(.03,Ti-.17),Tu=Math.max(T0+.05,Ti-.03),Tl=Ti+.17,Te=Tl+.32,L=leg*.4;
-    body=[{t:0,v:b0},{t:T0,v:()=>({...gB(),crouch:.7,lean:.22,th:.3}),e:eOut},{t:Tu,v:()=>({...gB(),crouch:.86,lean:.06,th:.95,lift:L}),e:eOut},{t:Ti+.06,v:()=>({...gB(),crouch:.86,lean:.08,th:.95,lift:L*.85})},
-      {t:Tl,v:()=>({...gB(),crouch:.7,lean:.2,th:.95,lift:0}),e:eIn},{t:Te,v:gB,e:sstep}];
-    armK=[{t:0,v:a0},{t:Tu,v:{hand:{sh:[.32*arm,-.48*arm]},wAng:-1.15,off:off||{sh:[-.22*arm,-.42*arm]},tilt:-.05},e:eOut},{t:Te,v:gA,e:sstep}];end=Te;
+    body=bodyKeys(D,[[0,b0],[T0,'leapGather',eOut],[Tu,'leapTuck',{lift:L},eOut],[Ti+.06,'leapHang',{lift:L*.85}],[Tl,'leapLand',eIn],[Te,'guard',sstep]]);
+    armK=armKeys(D,[[0,a0],[Tu,'leap',eOut],[Te,'guard',sstep]]);end=Te;
     ev.push({t:Ti,fn:()=>{popup(D,'Leaps it','#ffe299',null,20,-34);S.hooks.sound('vault',.6);}},{t:Tl,fn:()=>dust(D.p[FTF].x,D.gr(D.p[FTF].x),.8,D.dep)});holdOpen(Tl);}
   else if(st.style==='vault'){
     // a step in, a hand on his shoulder, up over the top with the knees tucked, turning in the air, and down at his back
     const {land,dir}=st,sx=P.strikeX,T0=Math.max(.03,Ti-.36),Tp=Math.max(T0+.08,Ti-.16),Tm=Ti+.05,Tl=Ti+.32,Te=Tl+.36;
     const L=Math.max(46,heightOf(A)+10-leg*.86+leg*.45);
     const shoulder=()=>{const c=A.p[CHE];return{x:c.x,y:c.y-5};};
-    body=[{t:0,v:b0},{t:T0,v:()=>({...gB(),crouch:.72,lean:.3,th:.3}),e:eOut},
-      {t:Tp,v:{px:lerp(D.station,sx,.55),pz:D.lane,crouch:.8,lean:.34,...sw(.3,-.3),th:.95,lift:L*.5},e:eOut},
-      {t:Tm,v:{px:sx,pz:D.lane,crouch:.86,lean:.04,...sw(.3,-.3),th:.95,lift:L},e:sstep},
-      {t:Tl,v:{px:land,pz:D.lane,crouch:.66,lean:.24,...sw(.32,-.3),th:.95,lift:0},e:eIn},{t:Te,v:()=>({...gB(),px:land}),e:sstep}];
-    const plant={hand:{sh:[.12*arm,-.3*arm]},wAng:-1.7,off:off||{fn:shoulder},tilt:.1};
-    armK=[{t:0,v:a0},{t:Tp,v:plant,e:eOut},{t:Tm,v:{...plant,tilt:-.2}},{t:Tl,v:gA,e:sstep},{t:Te,v:gA}];end=Te;
+    body=bodyKeys(D,[[0,b0],[T0,'overSet',eOut],[Tp,'overSpring',{px:lerp(D.station,sx,.55),pz:D.lane,lift:L*.5},eOut],[Tm,'overTop',{px:sx,pz:D.lane,lift:L},sstep],
+      [Tl,'overLand',{px:land,pz:D.lane},eIn],[Te,'guard',{px:land},sstep]]);
+    const plant=armPose(D,poseA(D,'overPlant'),{off:D.wp.off?'grip':{fn:shoulder}});
+    armK=armKeys(D,[[0,a0],[Tp,plant,eOut],[Tm,plant,{tilt:-.2}],[Tl,'guard',sstep],[Te,'guard']]);end=Te;
     ev.push({t:Tp,fn:()=>S.hooks.sound('vault',1)},
       {t:Tm,fn:()=>{if(D.dead||D.downed)return;D.facing=-dir;D.station=land;resyncSides();wow(A.p[CHE].x,A.dep,'Vaulted over',{i:A.idx,z:.18,slow:.45});}},
       {t:Tl,fn:()=>{if(D.dead)return;D.station=clampSt(D,land);D.facing=Math.sign(A.station-D.station)||-dir;resyncSides();resolveStations();dust(D.p[FTF].x,D.gr(D.p[FTF].x),1,D.dep);S.hooks.sound('thud',160);}});
@@ -127,13 +123,14 @@ function elfEvade(ex){const A=ex.A,D=ex.D,P=ex.plan,res=ex.res;
   else if(st.style==='spin'){
     // a full turn off the line of the point, out to one side of it
     const c=[D.lane+40,D.lane-40].filter(z=>laneOK(D,z)),to=c.length?c[(res.seed>>>5)%c.length]:D.lane,T0=Math.max(.03,Ti-.15),Te=Ti+.5;
-    body=[{t:0,v:b0},{t:T0,v:()=>({...gB(),pz:D.lane,crouch:.8}),e:eOut},{t:Ti+.03,v:()=>({...gB(),pz:to,crouch:.78,lean:-.04,th:.95}),e:eOut},{t:Te,v:()=>({...gB(),pz:to}),e:sstep}];
-    armK=[{t:0,v:a0},{t:Ti,v:{hand:{sh:[.1*arm,.1*arm]},wAng:-1.5,off:off||{sh:[.04*arm,.3*arm]},tilt:0},e:eOut},{t:Te,v:gA,e:sstep}];end=Te;
+    body=bodyKeys(D,[[0,b0],[T0,'spinSet',{pz:()=>D.lane},eOut],[Ti+.03,'spinOff',{pz:to},eOut],[Te,'guard',{pz:to},sstep]]);
+    armK=armKeys(D,[[0,a0],[Ti,'spinOff',eOut],[Te,'guard',sstep]]);end=Te;
     D.spin={t0:S.t+T0,t1:S.t+Ti+.16};slip=to!==D.lane?to:null;D.laneT=S.t;
     ev.push({t:Ti,fn:()=>{popup(D,'Spins away','#ffe299',null,20,-34);S.hooks.sound('vault',.5);}},{t:Ti+.3,fn:()=>{D.lane=to;}});
     ex.perf.slip=slip;}
   else return;   // a blur keeps the ordinary slip, with the afterimages (D.blur) over it
-  const act={t0:S.t,end,body,arm:armK,quiet:true};D.action=act;
+  // (the leads of a combo are parried first: sk_anim.js)
+  let act={t0:S.t,end,body,arm:armK,quiet:true};if(P.combo)act=comboReact(D,A,P.combo,act,true);D.action=act;
   if(P.react){const rev=new Set(P.react.evs||[]);P.events=P.events.filter(e=>!rev.has(e));}
   P.react=act;P.events.push(...ev);P.slip=slip;ex.evade={style:st.style,D};}
 {const rt=recordTrail;recordTrail=function(f){rt(f);const tr=S.trails[f.idx];if(tr&&tr.length&&f.action&&f.action.quiet&&tr[tr.length-1].t===S.t)tr.pop();};}
@@ -230,9 +227,10 @@ function launchBolt(A,D,ex){const T=boltTech(A,D),rd=D.reads&&D.reads[A.idx]?{..
   const r=elfRate(A),fa=Math.sign(D.station-A.station)||A.facing,arm=A.arm,Tc=.22,dist=Math.hypot(D.station-A.station,(D.lane-A.lane)*.6),fl=dist/BOLT.speed,Tend=Tc+.5;A.facing=fa;
   // the cast plays at his pace, the bolt flies at its own: the answer is timed to the bolt (compressEx divides it again)
   const Ti=Tc+fl*r;
-  const g=GUARD[A.weaponKey]||GUARD.sword,cock={hand:{sh:[.12*arm,.12*arm]},wAng:g.w,off:{sh:[-.12*arm,-.34*arm]},tilt:-.06},flick={hand:{sh:[.06*arm,.18*arm]},wAng:g.w+.3,off:{sh:[.8*arm,-.18*arm]},tilt:.1};
-  const body=[{t:0,v:{...A.curBody}},{t:Tc*.6,v:()=>({...A.guardBody(),crouch:.84,lean:A.guardBody().lean-.1})},{t:Tc,v:()=>({...A.guardBody(),crouch:.8,lean:.3,stF:.44*A.leg,stB:-.36*A.leg}),e:eOut},{t:Tend,v:()=>A.guardBody(),e:sstep}];
-  const armK=[{t:0,v:{...A.curArm}},{t:Tc*.6,v:cock,e:eOut},{t:Tc,v:flick,e:eOut},{t:Tc+.2,v:flick},{t:Tend,v:()=>A.guardArm(),e:sstep}];
+  // the left hand drawn back and flicked out
+  const flick=armPose(A,poseA(A,'boltFlick'));
+  const body=bodyKeys(A,[[0,'now'],[Tc*.6,'boltCock'],[Tc,'boltFlick',eOut],[Tend,'guard',sstep]]);
+  const armK=armKeys(A,[[0,'now'],[Tc*.6,'boltCock',eOut],[Tc,flick,eOut],[Tc+.2,flick],[Tend,'guard',sstep]]);
   const chest=()=>{const P=D.p[PEL],C=D.p[CHE];return{x:lerp(P.x,C.x,.66),y:lerp(P.y,C.y,.66)};};
   const rnd=mulberry32(res.seed),react=res.out==='hit'||res.out==='crit'?null:planReaction(D,A,'thrust',res,Ti,chest,0,rnd,false,fa);
   const events=[{t:Tc-.08,fn:()=>glyphAt(A,HAB,.34)},{t:Tc,fn:()=>spawnBolt(A,D,res,ex)}];
@@ -267,6 +265,7 @@ function boltStep(){const B0=S.bolts;if(!B0.length)return;
   S.bolts=B0.filter(B=>B.state!=='gone'||S.t-B.goneT<.45);}
 function boltImpact(B){const {A,D,res,ex}=B,fa=Math.sign(B.vx)||A.facing,C={x:B.x,y:B.y};B.burst={x:C.x,y:C.y,d:D.dep,ang:Math.atan2(B.vy,B.vx),t0:S.t,kind:res.out==='block'?'block':'hit'};
   if(D.dead)return;
+  S.hooks.sound('bolt_hit',1,{D});
   if(res.out==='block'){
     // it breaks on the weapon and spins away, burning out
     sparks(C,12,'#fff3cf',D.dep);flash(C,24,'#ffe299',D.dep);for(const i of [TIP,HAF]){const q=D.p[i];q.px-=fa*130*DT;q.py+=40*DT;}
@@ -301,11 +300,10 @@ function galeRoll(A,D){return rollVs(galeMods(A,D),{kind:'gale'});}
 function galeHitTime(d){return(1-Math.cbrt(Math.max(0,1-clamp(d/GALE.range,0,.999))))*GALE.life;}
 function launchGale(A,D,ex){const fa=galeDir(A,D),arm=A.arm,Tc=.26,Tend=Tc+.6,r=elfRate(A),palmX=A.station+fa*arm*.9;A.facing=fa;
   const tg=galeTargets(A,D),rolls=tg.map(o=>({o,r:galeRoll(A,o),d:Math.max(0,(o.station-fa*o.body.torsoW*.5-palmX)*fa)}));
-  const g=GUARD[A.weaponKey]||GUARD.sword;
-  const gather={hand:{sh:[-.12*arm,.06*arm]},wAng:g.w-.2,off:{sh:[-.08*arm,-.18*arm]},tilt:-.1},palm={hand:{sh:[-.16*arm,.12*arm]},wAng:g.w+.2,off:{sh:[.95*arm,-.08*arm]},tilt:.12};
-  const body=[{t:0,v:{...A.curBody}},{t:Tc*.65,v:()=>({...A.guardBody(),crouch:.8,lean:-.08})},{t:Tc,v:()=>({...A.guardBody(),crouch:.76,lean:.34,stF:.52*A.leg,stB:-.42*A.leg,th:.9}),e:eOut},
-    {t:Tc+.3,v:()=>({...A.guardBody(),crouch:.78,lean:.3,stF:.52*A.leg,stB:-.42*A.leg,th:.9})},{t:Tend,v:()=>A.guardBody(),e:sstep}];
-  const armK=[{t:0,v:{...A.curArm}},{t:Tc*.65,v:gather,e:eOut},{t:Tc,v:palm,e:eOut},{t:Tc+.32,v:palm},{t:Tend,v:()=>A.guardArm(),e:sstep}];
+  // the wind gathered at the hip, then the palm thrown out on a long step
+  const palm=armPose(A,poseA(A,'galePalm'));
+  const body=bodyKeys(A,[[0,'now'],[Tc*.65,'galeGather'],[Tc,'galeThrow',eOut],[Tc+.3,'galeHold'],[Tend,'guard',sstep]]);
+  const armK=armKeys(A,[[0,'now'],[Tc*.65,'galeGather',eOut],[Tc,palm,eOut],[Tc+.32,palm],[Tend,'guard',sstep]]);
   const events=[{t:Tc-.09,fn:()=>glyphAt(A,HAB,.42)},{t:Tc,fn:()=>{const h=A.p[HAB];S.gales.push({x:h.x,y:h.y,ground:A.gr(h.x),fa,range:GALE.range,dz:GALE.dz,t0:S.t,life:GALE.life,d:A.dep});
     S.hooks.sound('gale',1);S.shake=Math.max(S.shake,5);dust(A.p[FTF].x,A.gr(A.p[FTF].x),1,A.dep);}}];
   // the wave travels at its own pace whatever his: the hits are timed so (compressEx divides them again)
@@ -375,7 +373,7 @@ function launchBlink(A,D,ex){const info=blinkInfo(A,D);if(!info){ex.dur=.3;retur
   // he crouches, the light gathers where he is going while his own place opens up, and at the moment the far slit is widest he is in it
   const r=elfRate(A),Tout=.3,Tg=Tout*.35,c0={x:(A.p[PEL].x+A.p[CHE].x)/2,y:A.p[PEL].y,top:A.p[HEAD].y-A.body.headR,d:A.dep};
   const g0=A.gr(A.p[PEL].x),hTop=g0-c0.top,hPel=g0-c0.y;
-  A.action={t0:S.t,end:Tout+.05,body:[{t:0,v:{...A.curBody}},{t:Tout,v:()=>({...A.guardBody(),crouch:.8,lean:.26})}],arm:[{t:0,v:{...A.curArm}},{t:Tout,v:()=>A.guardArm()}],spell:true};
+  A.action={t0:S.t,end:Tout+.05,body:bodyKeys(A,[[0,'now'],[Tout,'blinkCrouch']]),arm:armKeys(A,[[0,'now'],[Tout,'guard']]),spell:true};
   A.blur=S.t+.45;
   const events=[{t:.01,fn:()=>{glyphAt(A,HAB,.3);S.hooks.sound('blink',1);}},
     {t:Tg,fn:()=>{S.blinks.push({x:c0.x,y:c0.y,top:c0.top,ground:A.gr(c0.x),d:c0.d,t0:S.t,dur:.3,mode:'out',fa:A.facing});

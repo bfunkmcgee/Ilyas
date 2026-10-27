@@ -15,10 +15,10 @@ import os, sys, json
 
 # ---------- the modules ----------
 # the rules, the physics and the systems of the game (no DOM: the node checks load these through sk_src.js)
-CORE = ['core', 'brawl', 'fin', 'team', 'env', 'phase', 'arc']
+CORE = ['core', 'anim', 'brawl', 'fin', 'team', 'env', 'phase', 'arc']
 # the features, each with a game part (sk_<f>.js) and a UI part (sk_<f>ui.js) where it has one
 FEAT = ['crew', 'chain', 'insure', 'style', 'secret', 'lobby', 'breach', 'office', 'finale', 'ctxmoves', 'fig', 'look', 'cast',
-        'scene', 'arms', 'guns', 'story', 'beast', 'elf', 'hud', 'light', 'react', 'room', 'explore', 'pit', 'pitcast', 'pit2', 'pit5', 'short', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu']
+        'scene', 'arms', 'guns', 'story', 'beast', 'elf', 'hud', 'light', 'react', 'room', 'explore', 'pit', 'pitcast', 'pit2', 'pit5', 'short', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu', 'sfx']
 # the UI parts that come before the features' UI parts, and the main UI script that comes last (its frame loop starts the game)
 UI_FIRST = ['envui', 'phaseui', 'arcui']
 UI_LAST = 'ui'

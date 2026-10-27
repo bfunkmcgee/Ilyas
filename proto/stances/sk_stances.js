@@ -108,7 +108,7 @@ const STN_WHY={
 // the tip or in the air if it missed; the snare wraps instead. Then the chain is reeled in, still loose. The throw is a little
 // slower than a lash, so the roll-out can be seen.
 function isWhip(T){return!!T&&!!T.whip&&T.stance==='unbound';}
-{const to=tacOf;tacOf=function(f,T){const R=to.apply(this,arguments);return isWhip(T)?{...R,strike:R.strike*1.3,follow:R.follow*1.2}:R;};}
+{const sm=styleMoves;styleMoves=function(f,T){const R=sm.apply(this,arguments);return isWhip(T)?{...R,strike:R.strike*1.3,follow:R.follow*1.2}:R;};}
 {const pa=planAttack;planAttack=function(A,D,kind,res){const P=pa.apply(this,arguments),T=res&&res.tech,L=A.lash;
   if(!isWhip(T)||!L||L.t0!==S.t)return P;
   const a0=L.a,ts=(L.b-L.a)/.65,w1=L.a-.35*ts;L.a=w1+.12*ts;L.whip=true;L.tip=!!T.tip;L.wrap=!!T.wrap;
@@ -222,7 +222,7 @@ function cameInside(A,D){const c=A._came;return c&&c.turn===S.game.turnNo&&c.D==
 // ---------- the guard shows it ----------
 const STANCE_GUARD={unbound:{hx:.6,hy:.52,w:.62,gw:0,off:[.14,.5],crouch:.9,lean:.02,sf:.25,sb:-.33},
   close:{hx:.3,hy:.2,w:-.18,gw:-.2,off:[.4,.12],crouch:.82,lean:.15,sf:.32,sb:-.27}};
-{const tg=tacGuard;tacGuard=function(f){const s=stanceOf(f);if(s&&s!=='bound'&&!f.clinch&&!f.mount&&!f.downed&&!f.carry)return STANCE_GUARD[s];return tg.apply(this,arguments);};}
+{const sg=styleGuard;styleGuard=function(f){const s=stanceOf(f);if(s&&s!=='bound'&&!f.clinch&&!f.mount&&!f.downed&&!f.carry)return STANCE_GUARD[s];return sg.apply(this,arguments);};}
 
 // ---------- the enemies ----------
 // a man lashed at from out of his reach closes in instead of waiting for him (a keeper holds his reach, as he always does)

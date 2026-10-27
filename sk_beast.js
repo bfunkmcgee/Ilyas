@@ -70,7 +70,7 @@ function tailTech(A,D,kind){const low=kind==='sweep',dn=D?D.name:'him';
     tags:['Tail'],acc:low?0:-1,dmg:low?1.25:1,along:null,ang:null,amp:1,overlap:0,reach:null,anchor:low?'shin':'belly',kick:false,vault:false,around:null,rising:false,descend:false,
     windCap:null,passing:false,flair:'tail',multi:null,knock:low?1:1.9,kdEase:low?3:0,tail:true,low,dice:low?[2,8,10]:[2,6,8],zone:low?'leg':'body'};}
 function planTail(A,D,kind,res,opts){
-  const T=res.tech,low=!!T.low,fa=Math.sign(D.station-A.station)||A.facing,out=res.out,sk=A.sk,leg=A.leg,arm=A.arm,snap=!!opts.snap;
+  const T=res.tech,low=!!T.low,fa=Math.sign(D.station-A.station)||A.facing,out=res.out,sk=A.sk,snap=!!opts.snap;
   A.facing=fa;
   const z0=A.dep,zS=strikeLane(A,D,kind);A.lane=zS;
   const rnd=mulberry32(res.seed),jit=4,{Cfn}=contactFor(A,D,T,kind,out,fa,(rnd()*2-1)*jit,(rnd()*2-1)*jit);
@@ -83,18 +83,15 @@ function planTail(A,D,kind,res,opts){
   const dist=Math.hypot(strikeX-startX,(zS-z0)*.9),run=lerp(240,330,sk),T1=dist>=14?clamp(dist/run,.16,1.1):0;
   const tW=.24*lerp(1.2,.85,sk)*(opts.quick?.75:1),tS=lerp(.62,.5,sk);
   const Ts0=T1+tW,Timp=Ts0+tS*.5,Td=Timp+.06,Ts1=Ts0+tS,Tr=Ts1+.3,Tend=Tr+.25;
-  const st=(x,y)=>({stF:x*leg,stB:y*leg}),gB=()=>A.guardBody(),gA=()=>A.guardArm(),cr=low?.6:.72;
-  const body=[{t:0,v:snap?{...A.curBody,pz:z0}:()=>({...A.guardBody(),pz:z0})}];
-  if(T1>0)body.push({t:T1,v:{px:strikeX-fa*4,pz:zS,crouch:.84,lean:.16,...st(.3,-.32),th:.2}});
-  body.push({t:Ts0,v:{px:strikeX,pz:zS,crouch:cr+.07,lean:.28,...st(.36,-.36),th:.95},e:eOut},
-    {t:Timp,v:{px:strikeX+fa*6,pz:zS,crouch:cr,lean:.06,...st(.42,-.42),th:.95},e:sstep},
-    {t:Ts1,v:{px:strikeX+fa*8,pz:zS,crouch:cr+.08,lean:.08,...st(.38,-.38),th:.95},e:sstep},
-    {t:Tr,v:()=>({...A.guardBody(),px:strikeX+fa*8}),e:sstep},{t:Tend,v:gB,e:sstep});
+  const cr=low?.6:.72;
+  const body=bodyKeys(A,[[0,snap?'now':'guard',{pz:z0}],...(T1>0?[[T1,'beastRun',{px:strikeX-fa*4,pz:zS}]]:[]),
+    [Ts0,'tailWind',{px:strikeX,pz:zS,crouch:cr+.07},eOut],[Timp,'tailSwing',{px:strikeX+fa*6,pz:zS,crouch:cr},sstep],
+    [Ts1,'tailRecover',{px:strikeX+fa*8,pz:zS,crouch:cr+.08},sstep],[Tr,'guard',{px:strikeX+fa*8},sstep],[Tend,'guard',sstep]]);
   // the glaive is held upright and close through the turn
-  const tuck={hand:{sh:[.18*arm,-.08*arm]},wAng:-1.42,off:A.wp.off?'grip':{sh:[.08*arm,.22*arm]},tilt:.05};
-  const armK=[{t:0,v:snap?{...A.curArm}:gA},{t:Math.max(.05,Ts0-.04),v:tuck,e:eOut},{t:Ts1,v:tuck},{t:Tr,v:gA,e:sstep},{t:Tend,v:gA}];
+  const tuck=armPose(A,poseA(A,'glaiveUp'));
+  const armK=armKeys(A,[[0,snap?'now':'guard'],[Math.max(.05,Ts0-.04),tuck,eOut],[Ts1,tuck],[Tr,'guard',sstep],[Tend,'guard']]);
   const react=planReaction(D,A,kind,res,Timp,Cfn,0,rnd,snap,fa);
-  const events=[{t:Math.max(0,Ts0-.03),fn:()=>S.hooks.sound('tail',1)},{t:Timp-.07,fn:()=>S.hooks.sound('swoosh',4.4)}];
+  const events=[{t:Math.max(0,Ts0-.03),fn:()=>S.hooks.sound('tail',1)},{t:Timp-.07,fn:()=>S.hooks.sound('swoosh',4.4,{skip:'tail_swing'})}];
   if(out!=='hit'&&out!=='crit')events.push({t:Timp+.005,fn:()=>stallTurn(A,D)});
   events.push({t:Tr,fn:()=>{if(!A.dead&&!A.downed)A.station=settleStation(A,D,clampSt(A,A.p[PEL].x));}});
   events.push(...(react.evs||[]));
@@ -136,8 +133,8 @@ function launchTailCut(A,D,ex){
   const plan=planAttack(A,D,'overhead',res,{snap:true,quick:true});
   {const rev=new Set(plan.react&&plan.react.evs||[]);plan.events=plan.events.filter(e=>!rev.has(e));}
   // he only flinches round: it is his tail, not his body, the blade goes for
-  const db={...D.curBody},da={...D.curArm};D.action={t0:S.t,end:plan.Timp+.5,body:[{t:0,v:db},{t:plan.Timp,v:()=>D.guardBody()},{t:plan.Timp+.12,v:()=>({...D.guardBody(),crouch:.8,lean:.2}),e:eOut},{t:plan.Timp+.5,v:()=>D.guardBody(),e:sstep}],
-    arm:[{t:0,v:da},{t:plan.Timp+.5,v:()=>D.guardArm()}]};
+  D.action={t0:S.t,end:plan.Timp+.5,body:bodyKeys(D,[[0,'now'],[plan.Timp,'guard'],[plan.Timp+.12,'tailFlinch',eOut],[plan.Timp+.5,'guard',sstep]]),
+    arm:armKeys(D,[[0,'now'],[plan.Timp+.5,'guard']])};
   A.action=plan.att;ex.res=res;ex.plan=plan;ex.dur=plan.Tend;ex.perf={dash:Math.round(plan.dash),windup:plan.tWind};
   // a miss: the tail snaps away from the blade
   if(res.out!=='hit'&&res.out!=='crit')plan.events.push({t:plan.Timp-.04,fn:()=>{const q=D.tail&&D.tail.q;if(!q)return;const fa=Math.sign(D.station-A.station)||A.facing;
@@ -151,7 +148,7 @@ function cutTail(D,fa){if(!tailIntact(D)||!D.tail)return null;const k=TAIL.cut,q
   const e=q[k];if(S.gore!=='off'&&!S.warming){bleed(e,-fa,26,D.dep,1.15);bleed(e,fa,10,D.dep,.8);stain(e.x,D.dep,4,.7,18);}
   sparks(e,8,'#ffd9a8',D.dep);flash(e,30,'#fff1c9',D.dep);
   popup(D,'Tail severed','#ff8a5c','no more tail blows',22,-74);
-  S.hooks.sound('roar',1);S.slowT=Math.max(S.slowT,.6);S.freeze=Math.max(S.freeze,.08);S.shake=Math.max(S.shake,6);
+  S.hooks.sound('roar',1);S.hooks.sound('tail_writhe',1,{delay:.35});S.slowT=Math.max(S.slowT,.6);S.freeze=Math.max(S.freeze,.08);S.shake=Math.max(S.shake,6);
   // the shock of it takes his footing and slows him
   if(!D.dead){spendFoot(D,2);D.ready+=20;D.motor=Math.min(D.motor,.5);}
   return bit;}
@@ -220,7 +217,7 @@ function halvesStep(){if(S.gore==='off'||S.warming)return;
   S.callouts.push({i:A.idx,text:F.name,age:0,life:1.4,dx:-A.facing*8,big:true});
   S.slowT=Math.max(S.slowT,.6);S.freeze=Math.max(S.freeze,.08);if(!S.warming)S.punch={x:prjX(C.x,D.dep),t:0};
   if(!halve(D,fa,F.cut)){const s=(res.seed&2)?1:-1;D.vdep+=s*95;for(const i of [CHE,HEAD,ELF,ELB])D.p[i].px-=fa*90*DT;}
-  S.hooks.sound('crit',30);S.hooks.sound('splat',1);
+  S.hooks.sound('crit',30,{skip:'splat'});S.hooks.sound('splat',1);
   S.hooks.fin(ex,{A,D,F});};}
 
 // ---------- goblins thrown about ----------
@@ -266,22 +263,22 @@ function planToss(A,D,tr,info){
   A.facing=dP;
   const grip=()=>({x:D.p[CHE].x-dP*D.body.torsoW*.4,y:lerp(D.p[CHE].y,D.p[HEAD].y,.25)});
   const sx=clampSt(A,D.station-dP*(arm*.6+D.body.torsoW*.5+6)),dash=Math.abs(sx-A.station);
-  const gB=()=>A.guardBody(),gA=()=>A.guardArm(),one=!A.wp.off;
-  const reach={hand:one?{sh:[.3*arm,.0*arm]}:{fn:grip},wAng:-.9,off:one?{fn:grip}:'grip',tilt:.12};
+  const one=!A.wp.off;
+  // one hand on the scruff (in both hands, the weapon's hand)
+  const reach=armPose(A,poseA(A,'tossReach'),one?{off:{fn:grip}}:{hand:{fn:grip}});
   if(!tr.ok){
     const Te=T0+.45;
-    const body=[{t:0,v:{...A.curBody}},{t:T0,v:()=>({...A.guardBody(),px:sx,crouch:.76,lean:.3,th:.3}),e:eOut},{t:T0+.26,v:()=>({...A.guardBody(),px:sx,crouch:.84,lean:-.06,th:.3})},{t:Te,v:gB,e:sstep}];
-    const armK=[{t:0,v:{...A.curArm}},{t:T0,v:reach,e:eOut},{t:Te,v:gA,e:sstep}];
+    const body=bodyKeys(A,[[0,'now'],[T0,'tossGrab',{px:sx},eOut],[T0+.26,'tossFail',{px:sx}],[Te,'guard',sstep]]);
+    const armK=armKeys(A,[[0,'now'],[T0,reach,eOut],[Te,'guard',sstep]]);
     const events=[{t:T0+.03,fn:()=>{spendFoot(A,1);A.ready+=10;D.station=clampSt(D,D.station+dP*18);for(const q of D.p)q.px-=dP*110*DT;
       popup(D,'Twists free','#a5dcff',null,19);S.hooks.sound('squeal',.6);if(ex)considerOpening(ex,D,A,'brace');S.hooks.status();}}];
     return{att:{t0:S.t,end:Te,body,arm:armK},Tend:Te+.1,events,dash,strikeX:sx,Cfn:grip};}
   const tl=Math.sign(info.x-D.station)||dP,over=tl!==dP;
   // into the scruff, down on the legs, then the whole body turned into the throw (over the shoulder when it goes behind him)
-  const heave=one?{hand:{sh:[.25*arm,.1*arm]},wAng:-.7,off:{fn:()=>{const c=A.p[CHE];return{x:c.x+tl*.38*arm,y:c.y-(over?.95:.62)*arm};}},tilt:over?-.25:.15}
-    :{hand:{fn:()=>{const c=A.p[CHE];return{x:c.x+tl*.4*arm,y:c.y-(over?.9:.6)*arm};}},wAng:-1.2,off:'grip',tilt:over?-.25:.15};
-  const body=[{t:0,v:{...A.curBody}},{t:T0,v:()=>({...A.guardBody(),px:sx,crouch:.7,lean:.32,th:.9}),e:eOut},
-    {t:T0+air*.4,v:()=>({...A.guardBody(),px:sx,crouch:.86,lean:over?-.3:.1,th:.9}),e:sstep},{t:Tl,v:()=>({...A.guardBody(),px:sx}),e:sstep},{t:Tend,v:gB,e:sstep}];
-  const armK=[{t:0,v:{...A.curArm}},{t:T0,v:reach,e:eOut},{t:T0+air*.38,v:heave,e:eOut},{t:Tl,v:gA,e:sstep},{t:Tend,v:gA}];
+  const heave=armPose(A,poseA(A,'tossHeave'),{...(one?{off:{fn:()=>{const c=A.p[CHE];return{x:c.x+tl*.38*arm,y:c.y-(over?.95:.62)*arm};}}}
+    :{hand:{fn:()=>{const c=A.p[CHE];return{x:c.x+tl*.4*arm,y:c.y-(over?.9:.6)*arm};}}}),...(over?{tilt:-.25}:null)});
+  const body=bodyKeys(A,[[0,'now'],[T0,'tossLoad',{px:sx},eOut],[T0+air*.4,over?'tossOver':'tossTurn',{px:sx},sstep],[Tl,'guard',{px:sx},sstep],[Tend,'guard',sstep]]);
+  const armK=armKeys(A,[[0,'now'],[T0,reach,eOut],[T0+air*.38,heave,eOut],[Tl,'guard',sstep],[Tend,'guard']]);
   const events=[{t:T0,fn:()=>startToss(A,D,info,air)},{t:Tl,fn:()=>{if(info.started)landThrow(A,D,tr,info);}}];
   S.callouts.push({i:A.idx,text:info.hazard&&info.hazard.kind==='body'?'Goblin bowling':'Toss',age:0,life:1.1,dx:-A.facing*20});
   return{att:{t0:S.t,end:Tend,body,arm:armK},Tend:Tend+.1,events,dash,strikeX:sx,Cfn:()=>({x:info.x,y:S.arena.ground(info.x,A.lane)-30})};}

@@ -1,0 +1,1226 @@
+[
+ {
+  "key": "swing_light",
+  "spec": "0.25 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "A light weapon swung: fists, a dagger, a bottle, a goblin's spike or hook.",
+  "prompt": "Quick close whoosh of a short knife slashing through the air, thin, fast and sharp, no impact, dry."
+ },
+ {
+  "key": "swing_mid",
+  "spec": "0.35 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "A sword, spear, club, chair leg, femur club or the arc-blade swung; Kael's passing stab on a man who is down.",
+  "prompt": "A sword swung through the air, a clean medium whoosh with a faint blade hum, no impact, dry, close."
+ },
+ {
+  "key": "swing_heavy",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "A greataxe or Ixet's glaive swung; a big weapon spun up as a fighter readies; the beheading stroke.",
+  "prompt": "A heavy greataxe swung hard, a deep low rushing whoosh of a big blade cutting the air, no impact, dry."
+ },
+ {
+  "key": "hit_cut",
+  "spec": "0.3 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "A cut or stab lands: sword, dagger, axe, spear, arc-blade, glaive, spike, hook. One hit sound serves every weapon now; this splits it.",
+  "prompt": "A blade cutting into a body through heavy clothing, a quick slice with a dull meaty thud, short, close, not gory."
+ },
+ {
+  "key": "hit_blunt",
+  "spec": "0.3 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "A club, fist or bottle lands; a body hits junk in the fall at lower speed.",
+  "prompt": "A heavy club blow to a man's body, a dull deep meaty thump through cloth, short, close, dry."
+ },
+ {
+  "key": "hit_bullet",
+  "spec": "0.3 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "A round hits a man: the officers' handguns, Kael's rifle.",
+  "prompt": "A bullet striking a man's body through clothing, a sharp quick thump with a short cloth tear, close, dry."
+ },
+ {
+  "key": "crit_cut",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "A critical cut; a killing blow with gore off.",
+  "prompt": "A brutal sword chop into a body, a deep heavy impact with a bone crunch and a short wet slice, close, punchy."
+ },
+ {
+  "key": "crit_blunt",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "A critical blunt blow; a table brought down on a man; a hard hit in the fall.",
+  "prompt": "A crushing blow with a heavy club, a deep thud with a crack of bone, close, punchy, dry."
+ },
+ {
+  "key": "finish_through",
+  "spec": "0.7 s \u00b7 \u00d72",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "New. A killing thrust driven through the body. Gore on.",
+  "prompt": "A blade driven all the way through a body, a wet piercing thrust and a crunch, then steel sliding out, close, grim."
+ },
+ {
+  "key": "finish_neck",
+  "spec": "0.6 s \u00b7 \u00d72",
+  "sec": "Fights",
+  "sub": "Swings and blows",
+  "desc": "New. A killing cut at the neck, and the beheading in the office's last scene. Gore on.",
+  "prompt": "One clean heavy sword cut through a neck, a fast chop with a wet crunch, abrupt end, close."
+ },
+ {
+  "key": "clang",
+  "spec": "0.6 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "A block or parry, a guard broken, a disarm, a weapon hooked, two blades meeting in a combo.",
+  "prompt": "Two steel swords clashing hard, a bright ringing impact with a short scrape, metallic, close, dry."
+ },
+ {
+  "key": "clang_light",
+  "spec": "0.35 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "Small metal knocks: a weapon picked up, the stove's pot struck, a dagger drawn from the belt.",
+  "prompt": "A light knock of steel on brass, a small bright tink with a short ring, close, dry."
+ },
+ {
+  "key": "shing",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "A sword or dagger drawn as a fight begins.",
+  "prompt": "A sword drawn fast from a leather scabbard with a metal throat, a bright scraping ring, close, dry."
+ },
+ {
+  "key": "crack",
+  "spec": "0.4 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "Wood snapping: a spear's haft cut through, a lamp torn down.",
+  "prompt": "A thick wooden pole snapping in half, a sharp loud crack with splinters, close, dry."
+ },
+ {
+  "key": "bottle_smash",
+  "spec": "0.6 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "New. A bottle used as a weapon breaks on a man (the wood crack now).",
+  "prompt": "A glass bottle smashed over a man's head, a sharp shatter with tinkling shards falling, close."
+ },
+ {
+  "key": "drop_blade",
+  "spec": "0.6 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "New. A sword or dagger knocked from a hand lands on the floor.",
+  "prompt": "A sword dropped on a stone floor, a metallic clatter with a couple of short bounces, close."
+ },
+ {
+  "key": "drop_gun",
+  "spec": "0.6 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "New. A gun dropped: Kael's rifle in the street, the guards' empty guns on the lobby's marble.",
+  "prompt": "A heavy handgun dropped on a stone floor, a solid clatter of metal and polymer with a short bounce, close."
+ },
+ {
+  "key": "thud_light",
+  "spec": "0.3 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "A man landing on his feet: from a vault, a leap or a short drop; a man pulled back up.",
+  "prompt": "A man landing on his feet from a short jump, a soft body thump with a cloth rustle, close, dry."
+ },
+ {
+  "key": "thud",
+  "spec": "0.4 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "A man knocked down, thrown or tripped.",
+  "prompt": "A man falling flat onto a hard floor, a heavy body thud with a cloth rustle, no voice, close, dry."
+ },
+ {
+  "key": "thud_heavy",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "A man slammed down hard: into the floor or a wall, or from high up.",
+  "prompt": "A body slammed down very hard onto a floor, a deep heavy impact with a low boom and a rattle, no voice, close."
+ },
+ {
+  "key": "thud_dirt",
+  "spec": "0.4 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "New. Bodies falling in the field's dirt and stubble.",
+  "prompt": "A man falling onto dry dirt and corn stubble, a soft heavy thud with crunching dry stalks, no voice, close."
+ },
+ {
+  "key": "thud_metal",
+  "spec": "0.4 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Blocks, weapons and bodies",
+  "desc": "New. Bodies falling on the flatcar's iron deck on the line.",
+  "prompt": "A man falling onto an iron train deck, a hollow metallic boom with a ringing plate, no voice, close."
+ },
+ {
+  "key": "arc_unroll",
+  "spec": "0.55 s \u00b7 \u00d72",
+  "sec": "Fights",
+  "sub": "Kael's arc-blade",
+  "desc": "The nine segments roll out of the hilt as a fight begins, and unlock for the lash.",
+  "prompt": "A segmented steel blade unfolding fast from its hilt, a rapid run of nine tiny precise metal clicks rising in pitch, jewel-like, close."
+ },
+ {
+  "key": "arc_lock",
+  "spec": "0.8 s \u00b7 \u00d72",
+  "sec": "Fights",
+  "sub": "Kael's arc-blade",
+  "desc": "The segments lock into one rigid blade.",
+  "prompt": "A blade locking rigid, one solid metal clack followed by a soft bright ring of high bell tones fading out, elegant, close."
+ },
+ {
+  "key": "arc_reroll",
+  "spec": "0.7 s \u00b7 \u00d72",
+  "sec": "Fights",
+  "sub": "Kael's arc-blade",
+  "desc": "The blade rolls back up into its hilt: after most of the stage fights (silent there now), and when Kael spares Hallowell.",
+  "prompt": "A segmented blade folding back into its hilt, a quick run of tiny metal clicks falling in pitch, ending in one soft seated click, close."
+ },
+ {
+  "key": "arc_lash",
+  "spec": "0.45 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Kael's arc-blade",
+  "desc": "New. The lash: the segments fly out past striking distance and crack at full length (a plain swing now).",
+  "prompt": "A whip made of steel links lashing out, a fast rattling whir ending in a sharp whip crack, close, dry."
+ },
+ {
+  "key": "bolt",
+  "spec": "0.45 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Kael's magic and elven speed",
+  "desc": "The Gilt Bolt: a leaf-blade of light flies from a rune circle at his hand.",
+  "prompt": "A blade of golden magic light fired from a hand, a bright crystalline shimmer rising fast into a thin airy whoosh, elegant, not a laser."
+ },
+ {
+  "key": "bolt_hit",
+  "spec": "0.4 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Kael's magic and elven speed",
+  "desc": "New. The bolt bursts on what it meets.",
+  "prompt": "A small burst of magic light against a body, a bright glassy pop with a soft sizzle and a tiny chime, close."
+ },
+ {
+  "key": "gale",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "Fights",
+  "sub": "Kael's magic and elven speed",
+  "desc": "The Gale: a wave of air rolls out of his palm with leaves and dust, and throws men down.",
+  "prompt": "A sudden blast of magic wind pushed out from a palm, a deep rushing whoosh with swirling leaves and dust, a low thump under it."
+ },
+ {
+  "key": "blink",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Kael's magic and elven speed",
+  "desc": "The Glimmer Step, out of the world and back in: in fights, out through the office glass, onto the roof.",
+  "prompt": "A magical teleport, a soft glassy inward whoosh that vanishes, then a bright shimmering pop as it reappears, airy, crystalline."
+ },
+ {
+  "key": "vault",
+  "spec": "0.35 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Kael's magic and elven speed",
+  "desc": "An elf leaps a sweep, spins off a thrust or goes up over a man; Kael over a barrier; his run at the office glass.",
+  "prompt": "A fast acrobatic leap over someone, a quick rush of air with a coat flutter, light, close, dry."
+ },
+ {
+  "key": "wow",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "Fights",
+  "sub": "Kael's magic and elven speed",
+  "desc": "The camera's punch-in and slow motion on a big moment: a vault over a man, a kill out of a blink, two kills at once.",
+  "prompt": "A short cinematic slow motion swell, a deep soft boom with a warm shimmering golden tail, subtle, no melody."
+ },
+ {
+  "key": "shot_pistol",
+  "spec": "0.8 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "The officers' Guardian Nine handguns at the checkpoint.",
+  "prompt": "A single 9mm pistol shot on a wet city street at night, a sharp crack with a short slap of echo off the buildings."
+ },
+ {
+  "key": "shot_rifle",
+  "spec": "1.2 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "Kael's elven rifle: the round into the bike's tank, and his shots at the checkpoint.",
+  "prompt": "A powerful rifle shot in a city street at night, a hard cracking report with a muzzle brake bark, a faint crystalline ring, echo off buildings."
+ },
+ {
+  "key": "shot_smg",
+  "spec": "0.35 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "One round of the guards' Skyline PDX as all three empty them at the lift (about 75 rounds).",
+  "prompt": "A single submachine gun shot inside a marble hall, a snappy compact crack with a hard bright reflection, short."
+ },
+ {
+  "key": "shot_mg",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "One round of the carrier's roof gun (14 rounds at about 12 a second).",
+  "prompt": "A single heavy machine gun shot outdoors, a deep powerful thump and crack, short, city street."
+ },
+ {
+  "key": "gun_dryfire",
+  "spec": "0.15 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "A jammed or empty gun: a police jam, the guards running dry (two clicks each).",
+  "prompt": "A pistol dry fire, a small hollow metallic click of a hammer falling on an empty chamber, close, dry."
+ },
+ {
+  "key": "ricochet",
+  "spec": "0.6 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "A round that misses a man at a barrier chips the concrete.",
+  "prompt": "A bullet striking a concrete barrier, a sharp chip of stone with a whining ricochet, outdoors."
+ },
+ {
+  "key": "bullet_ground",
+  "spec": "0.3 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "New. A miss into the road; the machine gun's rounds walking up the road to the bike.",
+  "prompt": "A bullet hitting wet asphalt, a sharp thwack with a spray of grit and water, outdoors."
+ },
+ {
+  "key": "bullet_metal",
+  "spec": "0.25 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "New. Rounds striking Kael's mithril coat in the lobby.",
+  "prompt": "A bullet striking chain mail armor, a sharp metallic spang and zing, short, close."
+ },
+ {
+  "key": "casing",
+  "spec": "0.4 s \u00b7 \u00d74",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "New. Optional. Spent brass landing on asphalt or marble.",
+  "prompt": "A spent brass shell casing dropping and bouncing on stone, small bright tinkles, close."
+ },
+ {
+  "key": "bullet_whiz",
+  "spec": "0.3 s \u00b7 \u00d73",
+  "sec": "Fights",
+  "sub": "Guns",
+  "desc": "New. Optional. A near miss past a man's head (he flinches in silence now).",
+  "prompt": "A bullet whizzing past close to the ear, a fast sharp zip, dry."
+ },
+ {
+  "key": "glass_small",
+  "spec": "0.6 s \u00b7 \u00d74",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "A glass, bottle, jar, carafe or tumbler breaks; a hanging lamp's glass bursts.",
+  "prompt": "A wine glass shattering on a wooden floor, a bright delicate smash with tinkling shards, close."
+ },
+ {
+  "key": "glass_large",
+  "spec": "1.3 s \u00b7 \u00d73",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "The dining room's glass partition; the lobby's glass orb on its plinth.",
+  "prompt": "A large glass panel shattering, a loud crash with heavy shards falling and tinkling, indoors."
+ },
+ {
+  "key": "glass_crunch",
+  "spec": "0.3 s \u00b7 \u00d73",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "New. A man steps on broken glass and loses his footing (a faint glass break now).",
+  "prompt": "A boot stepping on broken glass, a gritty crunch of shards, close, dry."
+ },
+ {
+  "key": "china",
+  "spec": "0.5 s \u00b7 \u00d74",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "Plates and bowls; the lobby's orchid pots.",
+  "prompt": "A ceramic plate smashing on a wooden floor, a sharp crash with ringing ceramic shards, close."
+ },
+ {
+  "key": "paper",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "A body into or through the dining room's paper screen.",
+  "prompt": "A body crashing through a paper screen, crisp tearing paper and a thin wooden lattice snapping, close."
+ },
+ {
+  "key": "plaster",
+  "spec": "0.6 s \u00b7 \u00d73",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "A body into or through the dining room's booth wall.",
+  "prompt": "A body slammed into a plaster wall, a heavy thud with cracking plaster and crumbling dust, close."
+ },
+ {
+  "key": "door_swing",
+  "spec": "0.8 s \u00b7 \u00d72",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "New. Kael goes through the swing door from the dining room into the kitchen.",
+  "prompt": "A restaurant kitchen swing door pushed open and flapping shut, a wooden whump and the creak of a spring hinge."
+ },
+ {
+  "key": "table_topple",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "New. The dining table kicked or knocked over (a thud now).",
+  "prompt": "A heavy restaurant table toppling onto a wooden floor, a crash with plates and cutlery rattling."
+ },
+ {
+  "key": "table_break",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "The dining table smashed by a body.",
+  "prompt": "A wooden table smashed in half by a falling body, a loud crack and splintering, a heavy crash, close."
+ },
+ {
+  "key": "prop_tumble",
+  "spec": "0.6 s \u00b7 \u00d73",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "New. Chairs, stools, crates, barrels and trolleys knocked over, or a chair kicked into a man (a thud now).",
+  "prompt": "A wooden chair knocked over, tumbling and clattering across a hard floor, close."
+ },
+ {
+  "key": "prop_break",
+  "spec": "0.9 s \u00b7 \u00d73",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "New. A chair, crate or barrel smashed by a body (a crack and a thud now).",
+  "prompt": "A wooden chair smashed to pieces by a falling body, a loud splintering crash and clattering pieces, close."
+ },
+ {
+  "key": "lamp_knock",
+  "spec": "0.6 s \u00b7 \u00d73",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "A hanging lamp struck and set swinging: the bistro's lanterns, the kitchen's enamel shades, the lobby's rings, the office's chandeliers.",
+  "prompt": "A hanging metal lamp knocked and swinging, a light metallic clank and the creak of its chain."
+ },
+ {
+  "key": "lamp_fall",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "A lamp torn down or cut from its chain lands on the floor or on a man.",
+  "prompt": "A heavy brass lamp crashing to the floor, a metal clang, glass breaking, a rolling rattle of brass."
+ },
+ {
+  "key": "range_slam",
+  "spec": "0.8 s \u00b7 \u00d72",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "A body thrown against the kitchen's iron range.",
+  "prompt": "A body slammed against a cast iron stove, a heavy iron clang with rattling copper pots and pans."
+ },
+ {
+  "key": "sizzle",
+  "spec": "0.8 s \u00b7 \u00d72",
+  "sec": "Rooms and props",
+  "sub": null,
+  "desc": "The hot range burns the man thrown onto it.",
+  "prompt": "Skin pressed onto a hot iron stove, a loud sizzling hiss with a puff of steam, close."
+ },
+ {
+  "key": "amb_sundown_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "Sundown and the Field",
+  "sub": null,
+  "desc": "Under the whole opening; it fades with the picture. A synth wind plays now.",
+  "prompt": "Warm evening wind over dry grass on a hilltop at sunset, a farm valley below, a few distant birds, calm and steady, seamless loop."
+ },
+ {
+  "key": "bike_start",
+  "spec": "2 s",
+  "sec": "Sundown and the Field",
+  "sub": null,
+  "desc": "He starts the bike at sundown and again in the field.",
+  "prompt": "A sleek cafe racer motorcycle starting, the starter whirring and the engine catching into a deep throaty idle, a faint crystalline hum under it."
+ },
+ {
+  "key": "bike_loop_low",
+  "spec": "6 s loop",
+  "sec": "Sundown and the Field",
+  "sub": null,
+  "desc": "Kael's bike idling and at low speed. The game pitches it by speed and blends it with the high loop.",
+  "prompt": "A cafe racer motorcycle idling, a deep throaty rumble with a soft crystalline turbine hum under it, steady, seamless loop."
+ },
+ {
+  "key": "bike_loop_high",
+  "spec": "6 s loop",
+  "sec": "Sundown and the Field",
+  "sub": null,
+  "desc": "Kael's bike at speed: over the brow, up the avenue, flat out at the checkpoint.",
+  "prompt": "A cafe racer motorcycle cruising fast, a smooth hard engine roar with a high crystalline turbine whine, steady, seamless loop."
+ },
+ {
+  "key": "bike_rev_dirt",
+  "spec": "1.5 s \u00b7 \u00d72",
+  "sec": "Sundown and the Field",
+  "sub": null,
+  "desc": "He opens it up on the dirt: the back wheel throws dirt and the front comes up.",
+  "prompt": "A motorcycle revving hard and pulling away on a dirt road, a rising throttle roar, the rear tire spitting dirt and gravel."
+ },
+ {
+  "key": "amb_field_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "Sundown and the Field",
+  "sub": null,
+  "desc": "New. The field at night, under its scenes and its fight.",
+  "prompt": "Night at the edge of a maize field, wind running through tall dry maize leaves, crickets, a distant windmill creaking, a faint city hum, seamless loop."
+ },
+ {
+  "key": "maize_push",
+  "spec": "1.5 s \u00b7 \u00d73",
+  "sec": "Sundown and the Field",
+  "sub": null,
+  "desc": "New. Men come out of the standing maize: three at the start, three more as the first ones fall.",
+  "prompt": "Men pushing through tall dry maize stalks, heavy rustling and snapping leaves, close."
+ },
+ {
+  "key": "amb_avenue_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "New. Riding the wet avenue at speed, under the whole stage.",
+  "prompt": "Riding fast down a wet city avenue at night, rushing wind, tires hissing on wet asphalt, passing traffic and a city hum, seamless loop."
+ },
+ {
+  "key": "bike_rival_loop",
+  "spec": "6 s loop",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "New. Each of the three riders' street bikes (one engine voice serves all four bikes now).",
+  "prompt": "A street motorcycle at speed, a rough aggressive four-stroke growl, steady, seamless loop."
+ },
+ {
+  "key": "bike_rev",
+  "spec": "1.5 s \u00b7 \u00d72",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "A bike opened up on asphalt: the riders coming up behind him, Kael away up the avenue, his run at the checkpoint.",
+  "prompt": "A motorcycle revving hard on wet asphalt, a sharp throttle blip rising into a roar, tires hissing."
+ },
+ {
+  "key": "bike_crash",
+  "spec": "2 s \u00b7 \u00d73",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "A rider put down: his bike goes over and slides away behind.",
+  "prompt": "A motorcycle crashing at speed on wet asphalt, an impact crunch, then metal scraping and sliding along the road with sparks."
+ },
+ {
+  "key": "road_tumble",
+  "spec": "1.5 s \u00b7 \u00d72",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "New. The thrown rider tumbling down the road after it (single thuds now).",
+  "prompt": "A body tumbling along asphalt at speed, heavy thumps and cloth scraping, rolling away, no voice."
+ },
+ {
+  "key": "amb_checkpoint_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "New. The checkpoint after rain, under the whole stage.",
+  "prompt": "A police checkpoint on a city street at night after rain, light drizzle, a floodlight's electric hum, steam hissing from a manhole, faint police radio chatter, seamless loop."
+ },
+ {
+  "key": "apc_idle_loop",
+  "spec": "6 s loop",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "New. The armoured carrier idling until the blast.",
+  "prompt": "A heavy armored truck's diesel engine idling, a deep rumble and clatter, steady, seamless loop."
+ },
+ {
+  "key": "rifle_draw",
+  "spec": "0.5 s",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "New. He pulls the rifle from its saddle scabbard in mid-air (the sword draw now).",
+  "prompt": "A rifle pulled fast from a leather saddle scabbard, a leather slide, then a solid metal clack as it is shouldered."
+ },
+ {
+  "key": "bike_into_apc",
+  "spec": "1.5 s",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "New. The riderless bike hits the carrier's nose (the road crash now).",
+  "prompt": "A motorcycle slamming into the steel nose of an armored truck, a heavy metal crunch and boom, parts scattering."
+ },
+ {
+  "key": "boom_fuel",
+  "spec": "3.5 s \u00b7 stereo",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "The bike's tank goes up under the carrier: it lifts and burns, its gunner is thrown, the officers go flat.",
+  "prompt": "A motorcycle fuel tank exploding under an armored truck, a huge fiery whoomp, tearing metal, debris and glass raining down, a rolling echo between city buildings."
+ },
+ {
+  "key": "fire_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "New. The carrier burning for the rest of the stage.",
+  "prompt": "A vehicle fire burning, roaring flames, crackling, occasional pops and hot metal ticking, steady, seamless loop."
+ },
+ {
+  "key": "concrete_slam",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "New. A body thrown against a concrete barrier (the plaster wall now).",
+  "prompt": "A body thrown hard against a concrete road barrier, a heavy dull thud with a gritty scrape, outdoors."
+ },
+ {
+  "key": "grenade_unclip",
+  "spec": "0.3 s",
+  "sec": "The Avenue and the Checkpoint",
+  "sub": null,
+  "desc": "He takes the grenade off the dead gunner's belt, and later out of his coat.",
+  "prompt": "A metal hand grenade unclipped from a webbing belt, a small sharp metallic snap, close."
+ },
+ {
+  "key": "amb_street_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "New. Lamplight Street after rain, under the stage.",
+  "prompt": "A quiet city street at night after rain, water dripping from gutters, gas lamps hissing softly, distant traffic, a far tram bell, seamless loop."
+ },
+ {
+  "key": "grenade_pin",
+  "spec": "0.4 s",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "The pin pulled (a high ping now).",
+  "prompt": "A grenade pin pulled, a crisp metal ring scraping free and a tiny spring ping, close."
+ },
+ {
+  "key": "grenade_bounce",
+  "spec": "0.5 s \u00b7 \u00d72",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "The grenade lands on the bistro's step and skips.",
+  "prompt": "A metal grenade landing on stone steps, a heavy metallic clink, a skip and a short roll."
+ },
+ {
+  "key": "boom_grenade",
+  "spec": "3 s \u00b7 stereo",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "It goes off on the step and blows the front door in.",
+  "prompt": "A hand grenade exploding on a restaurant's front steps, a sharp powerful blast, a wooden door and glass windows blown apart, debris clattering, an echo in a narrow wet street."
+ },
+ {
+  "key": "amb_dining_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "New. The dining room after the blast.",
+  "prompt": "An empty upscale restaurant dining room at midnight, quiet room tone, a soft hum of lanterns, a faint crackle of smoldering debris by a blown-in door, the street muffled outside, seamless loop."
+ },
+ {
+  "key": "amb_kitchen_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "New. Orrin's kitchen with the range alight.",
+  "prompt": "A restaurant kitchen at night, gas burners roaring softly under copper pots, simmering and bubbling, a cold draft at a barred back door, seamless loop."
+ },
+ {
+  "key": "wall_latch",
+  "spec": "0.4 s",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "The click in the tiled wall once the kitchen is clear.",
+  "prompt": "A hidden latch releasing inside a tiled wall, a heavy mechanical clunk and click, close."
+ },
+ {
+  "key": "wall_slide",
+  "spec": "1.2 s",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "The section of wall slides aside on the family's lift.",
+  "prompt": "A section of tiled wall grinding aside on hidden rails, a low stone and metal grind, smooth, ending with a soft thud."
+ },
+ {
+  "key": "lift_bell",
+  "spec": "1.5 s \u00b7 \u00d72",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "The lift's bell: its doors parting in the kitchen, arriving at the platform, opening on the lobby.",
+  "prompt": "An elegant two-note brass elevator bell, soft and clear, ringing out in a quiet room."
+ },
+ {
+  "key": "lift_doors",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "Lamplight Street and the Lantern Bistro",
+  "sub": null,
+  "desc": "New. The lift's steel doors sliding open and shut: the kitchen, the platform, the lobby.",
+  "prompt": "Smooth steel elevator doors sliding open with a soft pneumatic hiss and a gentle thud at the end."
+ },
+ {
+  "key": "amb_station_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. The stations at both ends of the line: the platform scene and the deep station's fight.",
+  "prompt": "A deep underground railway station, a cavernous tiled vault, a low electric hum of crystal lamps, distant dripping water, faint wind from the tunnels, seamless loop."
+ },
+ {
+  "key": "train_idle_loop",
+  "spec": "6 s loop",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. The crystal engine waiting at the platform.",
+  "prompt": "A small locomotive with a crystal engine idling, a deep warm humming drone with soft mechanical ticking, no steam, seamless loop."
+ },
+ {
+  "key": "train_depart",
+  "spec": "4 s \u00b7 stereo",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. The train pulls out for the tower with him on the flatcar.",
+  "prompt": "A small locomotive pulling away from a platform, couplings clanking taut, wheels starting to turn, a humming engine rising, no whistle."
+ },
+ {
+  "key": "rail_loop",
+  "spec": "12 s loop \u00b7 stereo",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "The train at speed through the whole of the line. The game sets its level and pitch by speed (a synth rumble now).",
+  "prompt": "Riding an open flatcar through a brick tunnel at speed, deep rumbling iron wheels on rails, rushing air, no rhythmic clacks, seamless loop."
+ },
+ {
+  "key": "rail_clack",
+  "spec": "0.3 s \u00b7 \u00d74",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "The wheels over a rail joint; the game plays it by the distance travelled.",
+  "prompt": "Train wheels knocking over a rail joint, a double metallic clack, close, in a tunnel."
+ },
+ {
+  "key": "goblin_chitter",
+  "spec": "3 s \u00b7 stereo",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. Eyes in the dark over the car, before the goblins drop.",
+  "prompt": "Feral goblins chittering and hissing in a dark tunnel, small raspy voices and clicking teeth, unsettling, near and far."
+ },
+ {
+  "key": "goblin_drop",
+  "spec": "0.5 s \u00b7 \u00d73",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. A goblin drops out of the dark onto the deck or the platform (a thud now).",
+  "prompt": "A small creature dropping from above onto an iron deck, a hollow metallic thump with a scrabble of claws."
+ },
+ {
+  "key": "goblin_squeal",
+  "spec": "0.5 s \u00b7 \u00d74",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "A goblin picked up by the scruff and thrown, or twisting free.",
+  "prompt": "A goblin shrieking, a thin raspy high-pitched squeal, short, close."
+ },
+ {
+  "key": "goblin_snarl",
+  "spec": "0.4 s \u00b7 \u00d74",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. Optional. A goblin lunging in.",
+  "prompt": "A small goblin snarling as it lunges, a quick raspy hiss and snarl, close."
+ },
+ {
+  "key": "goblin_death",
+  "spec": "0.6 s \u00b7 \u00d73",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. Optional. A goblin killed.",
+  "prompt": "A small goblin's dying screech, raspy and cut short, close."
+ },
+ {
+  "key": "splat",
+  "spec": "0.4 s \u00b7 \u00d73",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "A goblin cut in half.",
+  "prompt": "A small creature cut in half by a blade, a wet heavy splat with a short tearing squelch, close."
+ },
+ {
+  "key": "brake",
+  "spec": "2.5 s \u00b7 \u00d72",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "The train braking at the end of the line and into the deep station.",
+  "prompt": "Train brakes squealing, a long high metallic screech of steel wheels braking with a hiss of air, in a tunnel."
+ },
+ {
+  "key": "ixet_roar",
+  "spec": "1.5 s \u00b7 \u00d72",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "Ixet roars when his tail is cut off.",
+  "prompt": "A huge lizard creature roaring in pain, a deep ragged guttural bellow with a reptilian hiss, echoing in a tiled vault."
+ },
+ {
+  "key": "ixet_hiss",
+  "spec": "1 s \u00b7 \u00d73",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. Optional. Ixet attacking.",
+  "prompt": "A huge reptile's low threatening hiss and growl, deep, close."
+ },
+ {
+  "key": "tail_swing",
+  "spec": "0.5 s \u00b7 \u00d72",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "Ixet's tail coming round at the shins or the body.",
+  "prompt": "A heavy scaly tail whipping through the air, a deep rushing whoosh ending in a leathery slap."
+ },
+ {
+  "key": "tail_writhe",
+  "spec": "2 s",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. The cut-off tail writhing on the floor.",
+  "prompt": "A severed reptile tail writhing on a tile floor, wet slapping and scraping, twitching, close."
+ },
+ {
+  "key": "cage_gate",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "The freight lift's folding gate opened, then shut behind him.",
+  "prompt": "An old freight elevator's folding steel gate scissoring open with a rattle and a clang."
+ },
+ {
+  "key": "freight_start",
+  "spec": "1 s",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "The cage lurches into motion (a short motor burst now).",
+  "prompt": "An old freight elevator starting, a heavy clunk, a lurch, and an electric motor kicking in."
+ },
+ {
+  "key": "freight_loop",
+  "spec": "6 s loop",
+  "sec": "The Line and the Deep Station",
+  "sub": null,
+  "desc": "New. The cage going up out of the deep, about four seconds before the dark takes it.",
+  "prompt": "An old freight elevator cage rising, a heavy electric motor whine, cables and chains clanking, the cage rattling, seamless loop."
+ },
+ {
+  "key": "amb_lobby_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "New. The lobby on the executive floor.",
+  "prompt": "A luxurious high-rise lobby at midnight, a hushed marble hall, a soft ventilation hum, the faint electric hum of lighting, the city far below, seamless loop."
+ },
+ {
+  "key": "coat_sweep",
+  "spec": "0.5 s",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "New. He sweeps the coat round in front of him as the guards open up.",
+  "prompt": "A heavy long coat swept up in front of the body, a weighty cloth whoosh with a fine metallic shimmer of mail."
+ },
+ {
+  "key": "coat_throw",
+  "spec": "0.8 s",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "New. The shredded coat thrown off over his shoulder (a plain swing now).",
+  "prompt": "A heavy shredded coat flung off, a big cloth flap and whoosh with a jingle of torn metal mail."
+ },
+ {
+  "key": "charge_plant",
+  "spec": "0.4 s",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "The charge pressed between the executive's doors.",
+  "prompt": "A small explosive charge pressed onto a wooden door, a magnetic clack and an arming click, close."
+ },
+ {
+  "key": "charge_beep",
+  "spec": "0.12 s",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "The charge's six beeps over 1.8 seconds; the game raises the pitch of each.",
+  "prompt": "A single short electronic beep from a small explosive timer, sharp and high, close."
+ },
+ {
+  "key": "boom_breach",
+  "spec": "3 s \u00b7 stereo",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "The charge blows the doors apart.",
+  "prompt": "A breaching charge blowing open heavy wooden double doors inside a marble lobby, a sharp concussive blast, splintering hardwood, a deep boom ringing in the hall, dust settling."
+ },
+ {
+  "key": "debris_rattle",
+  "spec": "1.6 s",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "The pieces of the doors coming down and skittering over the floor.",
+  "prompt": "Small wooden and metal debris falling and rattling on a marble floor after an explosion, scattered pieces settling."
+ },
+ {
+  "key": "wood_clack",
+  "spec": "0.2 s \u00b7 \u00d74",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "Single pieces of the doors bouncing on the marble.",
+  "prompt": "A chunk of hardwood bouncing on a marble floor, a light wooden clack, close."
+ },
+ {
+  "key": "amb_office_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "New. Mr. Hallowell's office at the top of the tower.",
+  "prompt": "A quiet executive office at the top of a skyscraper at night, soft room tone, wind pressing faintly on a glass wall, embers crackling at a blown-in door, a distant airliner, seamless loop."
+ },
+ {
+  "key": "chair_topple",
+  "spec": "1.2 s",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "New. Hallowell's chair goes back from under him.",
+  "prompt": "A heavy leather office chair shoved back and toppling over, castors rolling, a dull crash on a wooden floor."
+ },
+ {
+  "key": "desk_slam",
+  "spec": "0.6 s",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "New. His face meets the desk (a heavy thud and a crit now).",
+  "prompt": "A man's head slammed down onto a heavy wooden desk, a brutal thud with a crack, objects on the desk jumping."
+ },
+ {
+  "key": "over_desk",
+  "spec": "1.2 s",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "New. He is hauled over the desk onto the floor (a thud now).",
+  "prompt": "A man dragged over a desk and dropped on a wooden floor, papers and objects swept off, a heavy fall."
+ },
+ {
+  "key": "window_crash",
+  "spec": "2 s \u00b7 stereo",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "New. Kael goes through the office's wall of glass (a glass break and a crack now).",
+  "prompt": "A man crashing through a huge plate glass window high on a skyscraper, an enormous shatter, glass bursting outward into the night, wind rushing in."
+ },
+ {
+  "key": "wind_in",
+  "spec": "3 s \u00b7 stereo",
+  "sec": "Hallowell Tower: the lobby and the office",
+  "sub": null,
+  "desc": "New. The night wind in through the hole once he is gone.",
+  "prompt": "High altitude night wind howling in through a broken window, papers fluttering, then easing off."
+ },
+ {
+  "key": "amb_roof_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. High wind on the tower's roof, under the whole scene.",
+  "prompt": "Strong high altitude wind on a skyscraper roof at night, a gusting howl, a windsock snapping, a faint electric hum from a beacon, the city far below, seamless loop."
+ },
+ {
+  "key": "heli_approach",
+  "spec": "6 s \u00b7 stereo",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. The helicopter comes in low over the city and settles into a hover over the pad.",
+  "prompt": "A helicopter approaching from far over a city and slowing into a close hover, a rising rotor thump and turbine whine, strong downwash."
+ },
+ {
+  "key": "heli_loop",
+  "spec": "8 s loop \u00b7 stereo",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "The helicopter hovering through the rest of the scene (a few noise puffs now).",
+  "prompt": "An executive twin turbine helicopter hovering close, a turbine whine, a heavy rotor thump and downwash wind, steady, seamless loop."
+ },
+ {
+  "key": "heli_door",
+  "spec": "1.2 s",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. The cabin door slides back on the man in white.",
+  "prompt": "A helicopter's sliding cabin door rolling open, a smooth heavy slide ending in a latch clunk."
+ },
+ {
+  "key": "hex_charge",
+  "spec": "1.2 s",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "He charges the old pistol's one round.",
+  "prompt": "An eerie magical charge building in an old pistol, a rising humming whine with crackling dark energy, tense, ending at a peak."
+ },
+ {
+  "key": "hex_shot",
+  "spec": "2 s \u00b7 stereo",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "The round fired.",
+  "prompt": "An old ornate pistol fired with a magical charge, a deep heavy gunshot fused with a dark ringing magical discharge and a falling eerie sweep, on a windy rooftop."
+ },
+ {
+  "key": "hex_wound",
+  "spec": "0.6 s",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. The round goes through his chest.",
+  "prompt": "A heavy round punching through a man's chest, a dull deep impact with a short wet tear, no voice, close."
+ },
+ {
+  "key": "aether_drain",
+  "spec": "2 s",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. The magic goes out of him; the gilt in his tattoos goes dark over 1.6 seconds.",
+  "prompt": "Magic draining out of a body, a long descending crystalline shimmer and hum fading to nothing, like a light going out."
+ },
+ {
+  "key": "over_edge",
+  "spec": "1.5 s \u00b7 stereo",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. He goes back over the edge.",
+  "prompt": "A body falling backward off a skyscraper's edge, a rush of wind sweeping away and down, no voice."
+ },
+ {
+  "key": "fall_wind_loop",
+  "spec": "20 s loop \u00b7 stereo",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. The fall down the face while he thinks (about 40 seconds), and on down the Pit.",
+  "prompt": "Free falling past a skyscraper at night, a roaring rush of wind, clothes flapping violently, steady, seamless loop."
+ },
+ {
+  "key": "pit_steel",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. He hits the girder (a clang now).",
+  "prompt": "A falling body slamming onto a steel girder, a heavy metallic clang with a deep resonant boom."
+ },
+ {
+  "key": "pit_wood",
+  "spec": "0.8 s \u00b7 \u00d72",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. He hits the floor of a hut sticking out of the wall.",
+  "prompt": "A falling body crashing onto old wooden planks, a hollow heavy thud with creaking boards."
+ },
+ {
+  "key": "pit_wood_break",
+  "spec": "1.2 s",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. The hut's floor gives way under him.",
+  "prompt": "Old wooden planks smashed apart by a falling body, a loud splintering crack, boards breaking and tumbling."
+ },
+ {
+  "key": "pit_car",
+  "spec": "1.2 s \u00b7 \u00d72",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. He hits the car wedged in the wall.",
+  "prompt": "A body landing hard on the roof of a junked car, crunching sheet metal, the windows shattering."
+ },
+ {
+  "key": "pit_pipe",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. He hits the pipes and they burst.",
+  "prompt": "A body hitting old metal pipes, a hollow metallic bonk, a pipe bursting with a spray of water."
+ },
+ {
+  "key": "pit_neon",
+  "spec": "1.4 s \u00b7 \u00d72",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. He goes through the neon sign.",
+  "prompt": "A falling body smashing through a neon sign, glass tubes bursting, an electric buzz and sizzling sparks."
+ },
+ {
+  "key": "pit_rock",
+  "spec": "0.8 s \u00b7 \u00d73",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. He hits the rubble, the cliff or the Pit's wall.",
+  "prompt": "A falling body slamming into a rocky ledge, a heavy thud, stones breaking loose."
+ },
+ {
+  "key": "gravel",
+  "spec": "1 s \u00b7 \u00d72",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "Grit and small stones going down after a hard hit on rock.",
+  "prompt": "Small stones and grit scattering and tumbling down a rock face."
+ },
+ {
+  "key": "spike_impale",
+  "spec": "1 s",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "His forearm comes down on the spike; it goes through and he stops dead.",
+  "prompt": "A forearm impaled on an iron spike during a fall, a sudden sickening wet puncture with a crunch of bone, a body jerking to a stop."
+ },
+ {
+  "key": "arm_tear",
+  "spec": "0.4 s \u00b7 \u00d75",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "The arm giving at the shoulder, five times, each worse. Gore on.",
+  "prompt": "Flesh and sinew tearing under strain, a short wet rip, close."
+ },
+ {
+  "key": "sleeve_tear",
+  "spec": "0.4 s \u00b7 \u00d75",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "The same with gore off: the sleeve giving, then tearing through.",
+  "prompt": "Strong fabric tearing under strain, a short coarse cloth rip, close."
+ },
+ {
+  "key": "arm_rip",
+  "spec": "1 s",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "The arm comes away. Gore on.",
+  "prompt": "An arm torn off at the shoulder, a violent wet tearing rip with a crunch, a body dropping away."
+ },
+ {
+  "key": "hay_land",
+  "spec": "1.5 s",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "Into the hay on the Sump's roof.",
+  "prompt": "A body crashing into a heap of hay on a tin roof, a big soft whump, hay bursting and scattering, the roof creaking."
+ },
+ {
+  "key": "birds_up",
+  "spec": "3 s \u00b7 stereo",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "The birds on the roof go up in a cloud.",
+  "prompt": "A flock of roosting pigeons bursting into flight all at once, loud flapping wings and startled coos, rising away."
+ },
+ {
+  "key": "eye_light",
+  "spec": "2 s",
+  "sec": "The Roof and the Fall",
+  "sub": null,
+  "desc": "New. Optional. The faint light coming back into his eye, and the look up at the arm on the spike, its lines still glowing.",
+  "prompt": "A faint magical hum swelling very softly, a thin high crystalline shimmer, distant and fragile."
+ },
+ {
+  "key": "step_dirt",
+  "spec": "0.3 s \u00b7 \u00d76",
+  "sec": "Footsteps",
+  "sub": null,
+  "desc": "The field's track and stubble.",
+  "prompt": "A man's boot step on dry dirt and corn stubble, a soft crunch, close, dry."
+ },
+ {
+  "key": "step_wet_stone",
+  "spec": "0.3 s \u00b7 \u00d76",
+  "sec": "Footsteps",
+  "sub": null,
+  "desc": "The checkpoint's asphalt and Lamplight Street's wet flagstones.",
+  "prompt": "A man's boot step on wet stone pavement, a firm heel with a light splash, close."
+ },
+ {
+  "key": "step_wood",
+  "spec": "0.3 s \u00b7 \u00d76",
+  "sec": "Footsteps",
+  "sub": null,
+  "desc": "The dining room's parquet and the office's oak.",
+  "prompt": "A man's boot step on a polished wooden floor, a firm heel-toe knock, close, indoors."
+ },
+ {
+  "key": "step_tile",
+  "spec": "0.3 s \u00b7 \u00d76",
+  "sec": "Footsteps",
+  "sub": null,
+  "desc": "The kitchen's quarry tiles and the stations' mosaic.",
+  "prompt": "A man's boot step on a ceramic tile floor, a hard clicking heel, close, indoors."
+ },
+ {
+  "key": "step_iron",
+  "spec": "0.3 s \u00b7 \u00d76",
+  "sec": "Footsteps",
+  "sub": null,
+  "desc": "The flatcar's iron deck.",
+  "prompt": "A man's boot step on an iron train deck, a hollow metallic clank, close."
+ },
+ {
+  "key": "step_marble",
+  "spec": "0.3 s \u00b7 \u00d76",
+  "sec": "Footsteps",
+  "sub": null,
+  "desc": "The lobby's marble and the roof's granite.",
+  "prompt": "A man's boot step on polished marble, a crisp hard heel with a slight ring, close."
+ },
+ {
+  "key": "scuff",
+  "spec": "0.25 s \u00b7 \u00d74",
+  "sec": "Footsteps",
+  "sub": null,
+  "desc": "Fight footwork on any floor: a quick shuffle or pivot.",
+  "prompt": "A quick boot scuff and pivot on a hard floor, a short scrape, close."
+ },
+ {
+  "key": "step_goblin",
+  "spec": "0.2 s \u00b7 \u00d74",
+  "sec": "Footsteps",
+  "sub": null,
+  "desc": "Optional. The goblins' bare clawed feet on the deck and the platform.",
+  "prompt": "Small bare clawed feet skittering on an iron deck, quick light scratches, close."
+ }
+]

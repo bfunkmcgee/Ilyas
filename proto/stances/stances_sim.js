@@ -1,6 +1,7 @@
 // The test's rules, headless: auto fights over six arenas and one to three enemies (or a crew), with the two rules on or off, and Ilyas
 // playing the stances by a policy. It counts wins, how close the fights are, the turns spent on the floor and getting up, the free
-// rises and the blows on the floor, and how each stance is used, and stops on any error.
+// rises and the blows on the floor, and how each stance is used, and stops on any error. motion: the game's motion (V67) as it comes
+// in these fights: each blow's variant by who throws it and in which stance, the combos, and how Ilyas's answers are acted out.
 // usage (from the repo): node proto/stances/stances_sim.js [fights per setup, default 4] [key=value ...]
 //   down=1|0  rise=off|committed  stance=1|0  policy=match|bound|unbound|close|worst|weapon  jam=2 crowdafter=0  mix=mixed|brute|keeper|rusher|swords  temper=brute|keeper|rusher|plain (all foes)  spells=1|0 (the new spells and Overdrive)  nospell=edge,ward,glare,line,overdrive (any left out)  crew=0|1  n=1,2,3
 //   step= (how often Ilyas on auto steps back to put a man who holds off on the whip's tip), tip= (where the tip starts)
@@ -39,6 +40,15 @@ V11.turnStart.push(i=>{R.turns++;if(i===0)R.heroTurns++;});
 {const ar=applyReaction;applyReaction=function(D,k,A){if(k==='ward'&&D===hero())inc(R.spell,'ward');return ar.apply(this,arguments);};}
 S.hooks.overdrive=(A,hp)=>{inc(R.spell,'overdrive');R.odHp+=hp;};
 S.hooks.spell2=(ex,i)=>{inc(R.spellOut,ex.cmd+': '+i.label);};
+// the motion: variants, combos and the answers acted out (animation only: none of it reads or throws the game's dice)
+const MO={variant:{},combo:{hero:0,heroOK:0,foe:0,foeOK:0},react:{}};
+{const bv=blowVariant;blowVariant=function(A,D,kind){const V=bv.apply(this,arguments);if(A===hero()||D===hero())inc(MO.variant,(A===hero()?(stanceOf(A)||'off'):'on him')+' '+kind+':'+(V?V.key:'none'));return V;};}
+{const bc=blowCombo;blowCombo=function(A,D){const L=bc.apply(this,arguments),n=L&&L.length?1:0;if(A===hero()){MO.combo.heroOK++;MO.combo.hero+=n;}else if(D===hero()){MO.combo.foeOK++;MO.combo.foe+=n;}return L;};}
+{const pr=planReaction;planReaction=function(D,A,kind,res){const r=pr.apply(this,arguments);if(D!==hero()||!res)return r;const ans=D.react||null,o=res.out;let t;
+  if(o==='block')t=D.counter?'counter':ans==='turn'?'turn him':D.skill>=RANK.expert?'parry, bind':'parry';
+  else if(o==='dodge'||o==='fumble')t=o==='dodge'&&kind==='sweep'&&ans==='back'?'hop over':o==='dodge'&&(ans==='parry'||ans==='counter')?'beat aside':r.slip!=null?'slip':'step back';
+  else if(['parry','counter','turn','slip','back'].includes(ans))t='late '+ans;else t=o==='hit'||o==='crit'?'takes it':o;
+  inc(MO.react,(stanceOf(D)||'off')+' '+t);return r;};}
 const arenas=Object.keys(ARENAS),ns=O.crew==='1'?[1]:O.n.split(',').map(Number);
 for(const ak of arenas)for(const n of ns)for(let seed=1;seed<=${N};seed++){
   Math.random=mulberry32(seed*977+5);S.arenaKey=ak;S.cfg.n=n;S.cfg.crew=O.crew==='1';S.cfg.ally.on=false;S.auto=true;S.tableOn=true;S.rng=mulberry32(seed*31+n);
@@ -53,5 +63,6 @@ console.log(JSON.stringify({opts:O,fights:R.fights,winPct:pc(R.wins/R.fights),by
   hpLeftPct:pc(R.hp/R.fights),wonUnder30Pct:pc(R.close.under30/R.fights),wonOver70Pct:pc(R.close.over70/R.fights),secsPerFight:r1(R.secs/R.fights),heroTurnsPerFight:r1(R.heroTurns/R.fights),
   foeFloorTurnPct:pc(R.foeFloorTurns/Math.max(1,R.foeTurns)),heroFloorTurnsPerFight:r1(R.heroFloorTurns/R.fights),downsPerFight:{hero:r1(R.downs.hero/R.fights),foe:r1(R.downs.foe/R.fights)},
   freeRisesPerFight:{hero:r1(R.rises.hero/R.fights),foe:r1(R.rises.foe/R.fights)},struckOnFloorPerFight:{hero:r1(R.struck.hero/R.fights),foe:r1(R.struck.foe/R.fights)},crewOutPerFight:r1(R.crewOut/R.fights),
-  heroLandPct:pc(R.land.h/Math.max(1,R.land.n)),blowsOnHeroPerTurn:r1(R.blowsOnHero/Math.max(1,R.heroTurns)),dmgOnHeroPerFight:r1(R.dmgOnHero/R.fights),stanceUse:share(R.stance),answered:share(R.ans),spellsPerFight:Object.fromEntries(Object.entries(R.spell).map(([k,v])=>[k,r1(v/R.fights)])),spellOut:R.spellOut,overdriveHpPerFight:r1(R.odHp/R.fights),heroTech:share(R.tech)}));
+  heroLandPct:pc(R.land.h/Math.max(1,R.land.n)),blowsOnHeroPerTurn:r1(R.blowsOnHero/Math.max(1,R.heroTurns)),dmgOnHeroPerFight:r1(R.dmgOnHero/R.fights),stanceUse:share(R.stance),answered:share(R.ans),spellsPerFight:Object.fromEntries(Object.entries(R.spell).map(([k,v])=>[k,r1(v/R.fights)])),spellOut:R.spellOut,overdriveHpPerFight:r1(R.odHp/R.fights),heroTech:share(R.tech),
+  motion:{variants:Object.fromEntries(Object.entries(MO.variant).sort()),combos:MO.combo,answers:Object.fromEntries(Object.entries(MO.react).sort())}}));
 `);

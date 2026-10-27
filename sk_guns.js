@@ -147,7 +147,7 @@ function missPoint(A,D,s,M){const T=aimPoint(D),dx=T.x-M.x,dy=T.y-M.y,L=Math.hyp
 function shotLands(A,D,s,last){if(s.out==='jam')return;const fa=Math.sign(D.station-A.station)||A.facing;
   if(s.out==='hit'||s.out==='crit')shotHit(A,D,s,fa);
   else{if(!S.warming&&s.into==='ground')S.impacts.push({x:s.to.x,y:s.to.y,dep:s.toDep,t0:S.t,kind:'ground',ang:Math.atan2(s.to.y-s.from.y,s.to.x-s.from.x)});
-    popup(D,D.guarding&&!D.downed?'Into cover':'Miss','#c9d0f5',null,21);
+    popup(D,D.guarding&&!D.downed?'Into cover':'Miss','#c9d0f5',null,21);if(!S.warming&&!s.cover)S.hooks.sound(s.into==='ground'?'bullet_ground':'bullet_whiz',1);
     // close by his head: he ducks
     if(!D.dead&&!D.downed&&!D.action)D.action=flinchAction(D,fa,false);}
   if(last){S.hooks.perf(S.game.ex);}
@@ -169,12 +169,11 @@ function shotHit(A,D,s,fa){const crit=s.out==='crit',C=s.to,down=!!D.downed;
   else if(crit)knockBalance(D,hitFoot(A,D),A);
   if(!D.dead&&!D.downed&&!D.action)D.action=flinchAction(D,fa,true);
   impactFeel(A,{dmg:s.dmg,out:s.out},fa,'hit');
-  S.hooks.sound(crit?'crit':'hit',s.dmg);
+  S.hooks.sound(crit?'crit':'hit',s.dmg,{A,D});
   if(hurt)S.hooks.wound(S.game.ex,D,{zone:s.zone,hurt,primary:true});}
 // a round that hits jerks him back; one that misses close makes him duck his head
 function flinchAction(D,fa,hit){const b0=D.curBody||D.guardBody(),a0=D.curArm||D.guardArm(),back=-fa*D.facing;
-  const peak=()=>({...D.guardBody(),crouch:D.guardBody().crouch-(hit?.04:.08),lean:D.guardBody().lean+(hit?-.22*back:.2)});
-  return{t0:S.t,end:.55,body:[{t:0,v:b0},{t:.08,v:peak,e:eOut},{t:.55,v:()=>D.guardBody(),e:sstep}],arm:[{t:0,v:a0},{t:.55,v:()=>D.guardArm(),e:sstep}]};}
+  return{t0:S.t,end:.55,body:bodyKeys(D,[[0,b0],[.08,hit?'shotHit':'shotDuck',hit?{flip:back}:null,eOut],[.55,'guard',sstep]]),arm:armKeys(D,[[0,a0],[.55,'guard',sstep]])};}
 // the effects records age out (they are drawn by the page)
 V11.step.push(()=>{const t=S.t;
   if(S.muzzles.length)S.muzzles=S.muzzles.filter(m=>t-m.t0<.8);

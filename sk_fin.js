@@ -82,7 +82,8 @@ function finisherImpact(ex,A,D,res,C,fa){
     case'knockout':{const s=(res.seed&2)?1:-1;h.px-=fa*280*DT;h.py+=70*DT;D.vdep+=s*80;
       sparks(h,10,'#fff3cf',D.dep);break;}
   }
-  S.hooks.sound('crit',30);
+  const fsnd=!gore?null:['behead','execution','throatcut'].includes(F.type)?'finish_neck':['runthrough','impale','heartstab','pin','knifed'].includes(F.type)?'finish_through':null;
+  S.hooks.sound('crit',30,fsnd?{s:fsnd}:{A,D});
   S.hooks.fin(ex,{A,D,F});
 }
 // the neck gives way: the head is free and the stump spurts
@@ -106,16 +107,16 @@ function impaleOn(D,A,F,ex){
 // a dying body keeps a little strength for a moment: hands to the throat, to the wound, or down on its knees
 function dyingPose(D,kind){
   D.motor=Math.max(D.motor,.85);D.dyingUntil=S.t+(kind==='kneel'?.8:.7);
-  const cb={...(D.curBody||D.guardBody())},ca={...(D.curArm||D.guardArm())},a=D.arm,back=kind==='kneel'?0:-D.facing*16,lb=v=>({...cb,px:cb.px+back,...v});
+  const cb={...(D.curBody||D.guardBody())},ca={...(D.curArm||D.guardArm())},back=kind==='kneel'?0:-D.facing*16,at={px:cb.px+back};
   const neck=()=>{const c=D.p[CHE],h=D.p[HEAD];return{x:lerp(c.x,h.x,.45)+D.facing*3,y:lerp(c.y,h.y,.45)};};
   const gut=()=>{const c=D.p[CHE],p=D.p[PEL];return{x:lerp(p.x,c.x,.6)+D.facing*5,y:lerp(p.y,c.y,.6)};};
   let body,arm;
-  if(kind==='throat'){body=[{t:0,v:cb},{t:.2,v:lb({crouch:.74,lean:.08})},{t:.68,v:lb({crouch:.46,lean:.42})}];
-    arm=[{t:0,v:ca},{t:.13,v:{hand:{fn:neck},wAng:1.5,off:{fn:neck},tilt:.25},e:eOut},{t:.68,v:{hand:{fn:neck},wAng:1.6,off:{fn:neck},tilt:.45}}];}
-  else if(kind==='clutch'){body=[{t:0,v:cb},{t:.22,v:lb({crouch:.68,lean:.45})},{t:.68,v:lb({crouch:.5,lean:.6})}];
-    arm=[{t:0,v:ca},{t:.15,v:{hand:{fn:gut},wAng:1.5,off:{fn:gut},tilt:.3},e:eOut},{t:.68,v:{hand:{fn:gut},wAng:1.5,off:{fn:gut},tilt:.4}}];}
-  else{body=[{t:0,v:cb},{t:.28,v:lb({crouch:.5,lean:.06})},{t:.75,v:lb({crouch:.42,lean:.22})}];
-    arm=[{t:0,v:ca},{t:.3,v:{hand:{sh:[.12*a,.86*a]},wAng:1.4,off:{sh:[.04*a,.86*a]},tilt:.3},e:eOut}];}
+  if(kind==='throat'){body=bodyKeys(D,[[0,cb],[.2,'dyingThroat',at],[.68,'dyingThroatDown',at]]);const h={hand:{fn:neck},off:{fn:neck}};
+    arm=armKeys(D,[[0,ca],[.13,'dyingThroat',h,eOut],[.68,'dyingThroatDown',h]]);}
+  else if(kind==='clutch'){body=bodyKeys(D,[[0,cb],[.22,'dyingClutch',at],[.68,'dyingClutchDown',at]]);const h={hand:{fn:gut},off:{fn:gut}};
+    arm=armKeys(D,[[0,ca],[.15,'dyingClutch',h,eOut],[.68,'dyingClutchDown',h]]);}
+  else{body=bodyKeys(D,[[0,cb],[.28,'dyingKneel',at],[.75,'dyingKneelDown',at]]);
+    arm=armKeys(D,[[0,ca],[.3,'dyingKneel',eOut]]);}
   D.action={t0:S.t,end:.9,body,arm};
 }
 // every step: the bodies on blades, the releases, the fountains. A body further than IMPALE_GAP from the blade is not hung on it,
@@ -200,9 +201,9 @@ function sheathPts(f){
 }
 function canDraw(A){return A.sidearm==='sheathed'&&!A.dead&&!A.downed&&!A.clinch&&(A.wp.unarmed||A.wp.improv);}
 function planDraw(A){
-  const a=A.arm,T1=.17,T2=.44,Tend=.72,grip=()=>sheathPts(A).grip;
-  const body=[{t:0,v:{...A.curBody}},{t:T1,v:()=>({...A.guardBody(),lean:A.guardBody().lean+.08,crouch:A.guardBody().crouch-.03})},{t:Tend,v:()=>A.guardBody(),e:sstep}];
-  const arm=[{t:0,v:{...A.curArm}},{t:T1,v:{hand:{fn:grip},wAng:1.9,off:{sh:[.32*a,.12*a]},tilt:.05},e:eOut},{t:T2,v:()=>A.guardArm(),e:eOut},{t:Tend,v:()=>A.guardArm()}];
+  const T1=.17,T2=.44,Tend=.72,grip=()=>sheathPts(A).grip;
+  const body=bodyKeys(A,[[0,'now'],[T1,'draw'],[Tend,'guard',sstep]]);
+  const arm=armKeys(A,[[0,'now'],[T1,'draw',{hand:{fn:grip}},eOut],[T2,'guard',eOut],[Tend,'guard']]);
   return{att:{t0:S.t,end:Tend,body,arm},Tend:Tend+.05,events:[{t:T1+.02,fn:()=>drawSidearm(A)}],dash:0,strikeX:A.station,Cfn:grip};
 }
 function drawSidearm(A){

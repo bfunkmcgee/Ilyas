@@ -1,7 +1,7 @@
 // ===== STORY UI =====
 // (loaded ahead of the main UI script; everything here runs only once the UI is up)
 // The prologue on the page: the title menu, the stage cards, the letterbox and the lines of dialogue over the stage, the scene's
-// camera, the vehicles, and the sounds the scenes need. The fights use the game's own panels.
+// camera, the vehicles, the sounds the scenes need and the prologue's song. The fights use the game's own panels.
 
 // ---------- the page around the story ----------
 const ST_UI={};
@@ -417,10 +417,50 @@ V11UI.init.push(()=>{const sd=S.hooks.sound;S.hooks.sound=(k,v)=>{
       for(let i=0;i<5;i++)setTimeout(()=>{try{const f=520+uiRand()*380;tone(.12,'sawtooth',f,f*.82,.025);tone(.1,'triangle',f*2,f*1.6,.02);}catch(e){}},200+uiRand()*1300);}
     else sd(k,v);}catch(e){}};});
 
+// ---------- the prologue's song ----------
+// "Lepers Ascent" begins with the prologue's first scene, the road at sundown, and plays through once: about five minutes, on into
+// the fights after it (it fades in by itself). It is a file published beside the page (music/lepers_ascent.mp3; GUIDE.md,
+// "Publishing"). Over http(s) it goes through a gain of its own straight to the speakers, not through the effects' master, so its
+// level (MUSIC.lvl) holds on a phone, where an audio element's own volume is fixed. If it will not load that way (a server handing
+// it over from another origin without leave), it plays as a plain element at that volume, from where it had got to; so does the
+// page opened as a local file, where the audio graph would hear only silence. Sound off or the page hidden holds it where it is;
+// leaving the story fades it out and lets it go; beginning the prologue again starts it from the top. A chapter picked from the
+// menu does not start it.
+const MUSIC={src:'music/lepers_ascent.mp3',lvl:.5,fade:1,el:null,node:null,g:null,plain:true,on:false,lv:-1,offAt:0,t:0,trying:false,blocked:false};
+function musicDrop(){const M=MUSIC,el=M.el;M.el=null;if(M.node){try{M.node.disconnect();}catch(e){}M.node=null;}
+  if(el){el.pause();el.removeAttribute('src');try{el.load();}catch(e){}}}
+// a new element for the song: through the audio graph where it can be heard there, else plain
+function musicLoad(plain){const M=MUSIC;musicDrop();
+  const graph=!plain&&!!AC&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol),el=new Audio();
+  el.preload='auto';if(graph)el.crossOrigin='anonymous';el.src=M.src;M.el=el;M.plain=true;M.lv=-1;M.trying=false;
+  el.addEventListener('ended',()=>{if(M.el===el)M.on=false;});
+  // (it will not load for the graph: again as a plain element, from where it had got to)
+  el.addEventListener('error',()=>{if(M.el!==el||M.plain)return;const t=el.currentTime||0;musicLoad(true);try{M.el.currentTime=t;}catch(e){}musicSync();});
+  if(graph)try{if(!M.g){M.g=AC.createGain();M.g.connect(AC.destination);}M.g.gain.value=0;M.node=AC.createMediaElementSource(el);M.node.connect(M.g);M.plain=false;}
+    catch(e){M.node=null;}}
+function musicStart(){if(typeof Audio!=='function')return;const M=MUSIC;ensureAudio();
+  if(!M.el)musicLoad(false);else try{M.el.currentTime=0;}catch(e){}
+  M.on=true;M.blocked=false;musicSync();}
+// each frame, and at the moments that change it: the level, playing or held, and let go once the story is left or the song is over
+function musicSync(){const M=MUSIC,el=M.el;if(!el)return;const now=performance.now()/1000,dt=Math.min(.1,Math.max(0,now-M.t)),
+    hidden=typeof document!=='undefined'&&!!document.hidden,hear=M.on&&S.soundOn&&!hidden,lv=hear?M.lvl:0;M.t=now;
+  if(lv!==M.lv){M.lv=lv;M.offAt=now;if(!M.plain&&M.g&&AC)M.g.gain.setTargetAtTime(lv,AC.currentTime,hear?.02:M.fade/4);}
+  if(M.plain)el.volume=hear?lv:Math.max(0,Math.min(el.volume,M.lvl)-dt*M.lvl/M.fade);
+  if(hear){if(el.paused&&!el.ended&&!M.trying&&!M.blocked){M.trying=true;let p=null;try{p=el.play();}catch(e){p=null;}
+      if(p&&p.then)p.then(()=>{M.trying=false;},()=>{M.trying=false;M.blocked=true;});else M.trying=false;}
+    return;}
+  // quiet: held where it is once it has faded (at once while the page is hidden); let go if the story is left or the song is over
+  if(hidden||now-M.offAt>=M.fade){if(!el.paused)el.pause();if(!M.on)musicDrop();}}
+{const sh=S.hooks.story;S.hooks.story=(k,a)=>{sh(k,a);if(k==='stage'&&a&&a.key===STAGES[0].key)musicStart();else if(k==='quit')MUSIC.on=false;};}
+// a browser lets sound start only from a press: a start it held back tries again at the next one
+if(typeof window!=='undefined'&&window.addEventListener)for(const ev of ['click','keydown','touchend'])
+  window.addEventListener(ev,()=>{if(MUSIC.blocked){MUSIC.blocked=false;musicSync();}},true);
+if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('visibilitychange',()=>musicSync());
+
 // ---------- every frame ----------
 V11UI.screen.push(drawStoryScreen);
 V11UI.world.push(storyDust);
-// (each frame, drawn or not: the engine and the rails follow the scene, and a chapter card that has faded out is done)
+// (each frame, drawn or not: the engine, the rails and the song follow the scene, and a chapter card that has faded out is done)
 // the wind over the rise at sundown: a held voice, soft, rising and falling slowly, while the opening is on the outskirts (the sand that
 // blows past his bike makes no sound of its own: the wind goes on just as it was)
 let WIND=null;
@@ -430,7 +470,7 @@ function windVoice(){if(!AC||AC.state!=='running')return null;if(WIND)return WIN
 function windFrame(){const on=!!S.story&&S.arenaKey==='outskirts'&&S.soundOn;if(!on){if(WIND)WIND.g.gain.setTargetAtTime(0,WIND.a.currentTime,.4);return;}
   const V=windVoice();if(!V)return;const t=V.a.currentTime,sw=.5+.5*Math.sin(S.t*.37)*Math.sin(S.t*.23+1);
   V.g.gain.setTargetAtTime((.025+.03*sw)*(1-.8*clamp(S.fade,0,1)),t,.5);V.f.frequency.setTargetAtTime(300+sw*260,t,.5);}
-V11UI.tick.push(()=>{engineFrame();railFrame();windFrame();const C=S.card;if(C&&C.out!=null&&S.t-C.out>.6)S.card=null;});
+V11UI.tick.push(()=>{engineFrame();railFrame();windFrame();musicSync();const C=S.card;if(C&&C.out!=null&&S.t-C.out>.6)S.card=null;});
 // the fall's junk is painted in pieces while it lasts; away from it, they are let go
 V11UI.tick.push(()=>{if(S.arenaKey!=='fall'&&typeof EnvLook!=='undefined'&&EnvLook.S&&EnvLook.S.fall&&EnvLook.S.fall.free)EnvLook.S.fall.free();});
 // the sand at sundown: a few grains blowing past his bike while he talks about the wire (sk_story.js, the opening), a fine gold run of

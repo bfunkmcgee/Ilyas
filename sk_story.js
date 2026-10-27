@@ -299,7 +299,7 @@ V11.step.push(riderStep);
     if(!final||i===TIP)continue;M+=q.m;mv+=q.m*(q.x-q.px);if(q.y<g-.6)continue;n++;
     const vr=q.x-q.px+gv,v2=Math.sign(vr)*Math.max(0,Math.abs(vr)-ROAD_MU*.6);q.px=q.x-(v2-gv);
     if(q.vy0>0){q.py=q.y+q.vy0*.16;const spd=q.vy0/DT;
-      if(spd>240&&S.t-f.lastDust[i]>.25){f.lastDust[i]=S.t;dust(q.x,g+q.r,clamp(spd/600,.4,1.3),f.dep);if(spd>300)S.hooks.sound('thud',spd);}}}
+      if(spd>240&&S.t-f.lastDust[i]>.25){f.lastDust[i]=S.t;dust(q.x,g+q.r,clamp(spd/600,.4,1.3),f.dep);if(spd>300)S.hooks.sound('thud',spd,{tumble:f});}}}
   if(final&&n){const vr=mv/M+gv,dv=Math.sign(vr)*Math.min(Math.abs(vr),ROAD_MU*Math.min(1,n/2.5));for(const q of p)q.px+=dv;}};}
 {const gp=groundPt;groundPt=function(q,final,fr,dep){if(!S.arena||!S.arena.scroll){gp(q,final,fr,dep);return;}
   const g=S.arena.ground(q.x,dep)-q.r;if(q.y>g)q.y=g;
@@ -483,7 +483,7 @@ STAGES.push({key:'field',num:'I',title:'The Field',sub:'The Sprawl’s farm edge
     // the men are still in the maize
     for(const f of S.F)if(f.team===1){f.homeX=f.station;f.homeZ=f.lane;f.station=990+f.idx*40;f.offstage=true;f.facing=-1;standEasy(f);f.build();}
     // and three more behind them, who come out on the right as the first ones fall (the crew's rules: three on their feet at most)
-    storyCrew({room:'field',beast:null,names:['Reaper','Ditcher','Picker'],colors:['#b89a68','#8fa2b4','#c07e66'],hp:14,ward:'field',arms:'street',sides:[1],queue:FIELD_CREW});},
+    storyCrew({room:'field',beast:null,names:['Reaper','Ditcher','Picker'],colors:['#b89a68','#8fa2b4','#c07e66'],hp:14,ward:'field',arms:'street',sides:[1],queue:FIELD_CREW,arrive:()=>S.hooks.sound('maize_push',1)});},
   *intro(st){const K=hero(),fs=S.F.filter(f=>f.team===1);
     letter(1);camTo(560,560,0);yield* wait(.4);camTo(470,820,1.1);
     // Kael looks out at the city a moment, then turns back toward the bike
@@ -492,7 +492,7 @@ STAGES.push({key:'field',num:'I',title:'The Field',sub:'The Sprawl’s farm edge
     yield* speak(HERO_NAME,'Every floor lit. Hallowell knows I’m coming. Good.',{dur:3});
     camTo(480,900,1.6);
     // the maize parts: three of them, spread out
-    yield* all(...fs.map((f,i)=>(function*(){yield* wait(i*.35);yield* goTo(f,f.homeX,f.homeZ,96);f.offstage=false;f.facing=-1;})()));
+    yield* all(...fs.map((f,i)=>(function*(){yield* wait(i*.35);S.hooks.sound('maize_push',1,{g:i?.75:1});yield* goTo(f,f.homeX,f.homeZ,96);f.offstage=false;f.facing=-1;})()));
     K.facing=1;
     yield* speak('Driver','Turn the bike around, elf. Hallowell’s paying, and there’s six of us.',{dur:3.2});
     yield* speak(HERO_NAME,'I counted.',{dur:1.4});
@@ -588,7 +588,7 @@ S.fires=[];
 // a fire burns on the ground it was lit on: every new fight, stage or lab bout starts without the last one's fires and blasts
 V11.duelStart.push(()=>{S.fires=[];S.booms=[];});
 function boom(x,y,dep,size,kind,o={}){const b={x,y,dep,t0:S.t,size,seed:(S.rng()*1e9)|0,kind:kind||'fuel'};S.booms.push(b);
-  S.shake=Math.max(S.shake,18*size);S.freeze=Math.max(S.freeze,.07);S.hooks.sound('boom',size);if(!S.warming)S.punch={x:prjX(x,dep),t:0};
+  S.shake=Math.max(S.shake,18*size);S.freeze=Math.max(S.freeze,.07);S.hooks.sound('boom',size,{kind:kind||'fuel'});if(!S.warming)S.punch={x:prjX(x,dep),t:0};
   // the living are knocked flat close in and staggered further out; the dead go where the blast sends them
   for(const f of S.F){if(f.gone||(o.spare||[]).includes(f))continue;const P0=f.p[PEL],dx=P0.x-x,dz=(f.dep-dep)*.8,d=Math.hypot(dx,dz,P0.y-y)||1,k=clamp(1-d/(260*size),0,1);if(k<=0)continue;
     const live=!f.dead,s=live?.45:1,vx=dx/d*700*k*s,vy=-(240+360*k)*k*s;
@@ -729,7 +729,7 @@ STAGES.push({key:'roadblock',num:'III',title:'The Checkpoint',sub:'The Tower Dis
     A.gunT=.06;
     const mg=(function*(){let n=0;while(!B.wrecked&&n<14){const M=apcGun(A),T={x:B.x+(Math.random()-.3)*120,y:S.arena.ground(B.x,B.dep)};
       S.muzzles.push({x:M.x,y:M.y,dep:A.dep,ang:M.ang,kind:'mg',t0:S.t});S.tracers.push({a:{x:M.x,y:M.y,dep:A.dep},b:{x:T.x,y:T.y,dep:B.dep},dep:A.dep,dep1:B.dep,t0:S.t,kind:'mg',dur:.05});
-      S.impacts.push({x:T.x,y:T.y,dep:B.dep+(Math.random()-.5)*20,t0:S.t+.05,kind:'ground',ang:Math.PI-.3});A.muzzle=1;S.hooks.sound('shot','mg');n++;yield* wait(.085);}})();
+      S.impacts.push({x:T.x,y:T.y,dep:B.dep+(Math.random()-.5)*20,t0:S.t+.05,kind:'ground',ang:Math.PI-.3});A.muzzle=1;S.hooks.sound('shot','mg');S.hooks.sound('bullet_ground',.8,{delay:.05});n++;yield* wait(.085);}})();
     let jumped=false;
     // when the bike is where it has to be, he goes: up off it with the rifle, and the bike goes on into the carrier
     const box=apcBox(A),x1=st.spawn[0][0],z1=st.spawn[0][1];
@@ -737,11 +737,11 @@ STAGES.push({key:'roadblock',num:'III',title:'The Checkpoint',sub:'The Tower Dis
       const tank=()=>bikeAt(B,18,76);
       const a0=rideArm(K);dismount(K);K.offstage=true;K.rideFight=false;B.ctl='script';K.station=x1;K.lane=z1;
       K.action=jumpOffAction(K,B,S.t,x1,z1,()=>B.wrecked?{x:apcBox(A).l+20,y:S.arena.ground(0,0)-70}:tank(),a0);
-      yield* wait(.1);K.setWeapon('rifle');B.holster='empty';S.hooks.sound('shing',.5);
+      yield* wait(.1);K.setWeapon('rifle');B.holster='empty';S.hooks.sound('shing',.5,{s:'rifle_draw'});
       yield* wait(.1);S.slowT=Math.max(S.slowT,1.1);
       // the bike meets the carrier's nose
       yield* until(()=>bikeAt(B,90,30).x>=apcBox(A).l+6,2);
-      B.vx=0;B.wrecked=true;B.wreck=.5;B.run=0;B.pitchT=-.02;A.jolt=.4;sparks(bikeAt(B,80,50),22,'#ffd27a',B.dep);S.hooks.sound('crash',1);S.shake=Math.max(S.shake,8);
+      B.vx=0;B.wrecked=true;B.wreck=.5;B.run=0;B.pitchT=-.02;A.jolt=.4;sparks(bikeAt(B,80,50),22,'#ffd27a',B.dep);S.hooks.sound('crash',1,{s:'bike_into_apc'});S.shake=Math.max(S.shake,8);
       yield* until(()=>S.t>=K.action.t0+.45,1);
       // one round into the tank
       const T=tank();fireAt(K,T,{dep:B.dep});
@@ -778,7 +778,7 @@ STAGES.push({key:'roadblock',num:'III',title:'The Checkpoint',sub:'The Tower Dis
     // the rifle goes into the street: he has no more use for it
     yield* wait(.3);K.facing=-1;
     yield* act(K,{t0:S.t,end:.55,body:[{t:0,v:()=>K.guardBody()}],arm:[{t:0,v:K.curArm||K.guardArm()},{t:.3,v:{hand:{sh:[-.3*K.arm,.3*K.arm]},wAng:1.3,off:{sh:[.1*K.arm,.5*K.arm]},tilt:0},e:eOut},{t:.55,v:easyArm(K)}]});
-    dropWeapon(K,-1,false);K.setWeapon('elven');stowBlade(K);standEasy(K);K.facing=1;S.hooks.sound('thud',120);
+    dropWeapon(K,-1,false);K.setWeapon('elven');stowBlade(K);standEasy(K);K.facing=1;S.hooks.sound('thud',120,{s:'drop_gun',take:2});
     yield* wait(.5);
     // over the concrete, down the street, past the wreck, and down on one knee by the man thrown off its roof (on this side of him,
     // unless a barrier stands there)
@@ -788,7 +788,7 @@ STAGES.push({key:'roadblock',num:'III',title:'The Checkpoint',sub:'The Tower Dis
     K.action={t0:S.t,end:1.5,body:[{t:0,v:()=>easyBody(K)},{t:.4,v:low,e:sstep},{t:1.0,v:low},{t:1.5,v:()=>easyBody(K),e:sstep}],
       arm:[{t:0,v:easyArm(K)},{t:.5,v:belt,e:eOut},{t:.75,v:belt},{t:1.05,v:{hand:{sh:[.36*a,.2*a]},wAng:-.4,off:{sh:[.1*a,.6*a]},tilt:.25},e:sstep},{t:1.5,v:{hand:{sh:[.36*a,.2*a]},wAng:-.4,off:{sh:[.1*a,.6*a]},tilt:.1}}]};
     // the pin's ring on his finger, the body of it in his palm: it comes off the belt
-    yield* wait(.66);G.grenade=null;K.grenade='hand';S.hooks.sound('click',1);
+    yield* wait(.66);G.grenade=null;K.grenade='hand';S.hooks.sound('click',1,{s:'grenade_unclip'});
     yield* until(()=>!K.action,2);yield* wait(.2);
     // into the coat: he opens it with the other hand and the grenade goes in an inside pocket
     K.action={t0:S.t,end:1,body:[{t:0,v:()=>easyBody(K)}],arm:[{t:0,v:K.curArm},{t:.35,v:{hand:{sh:[.12*a,.28*a]},wAng:1.4,off:{sh:[.3*a,.2*a]},tilt:.12},e:eOut},{t:.6,v:{hand:{sh:[.06*a,.3*a]},wAng:1.4,off:{sh:[.3*a,.22*a]},tilt:.12}},{t:1,v:easyArm(K),e:sstep}]};
@@ -851,9 +851,9 @@ STAGES.push({key:'vargo',num:'IV',title:'Lamplight Street',sub:'Outside the Lant
     yield* wait(.4);
     // the coat open, the grenade out of the inside pocket, the pin pulled with the other hand
     yield* act(K,{t0:S.t,end:.9,body:[{t:0,v:()=>easyBody(K)}],arm:[{t:0,v:easyArm(K)},{t:.3,v:{hand:{sh:[.06*a,.28*a]},wAng:1.4,off:{sh:[.3*a,.22*a]},tilt:.1},e:eOut},{t:.55,v:{hand:{sh:[.08*a,.3*a]},wAng:1.4,off:{sh:[.3*a,.22*a]},tilt:.1}},{t:.9,v:{hand:{sh:[.3*a,.1*a]},wAng:-.3,off:{sh:[.2*a,.4*a]},tilt:.05},e:sstep}]});
-    K.grenade='hand';S.hooks.sound('click',1);
+    K.grenade='hand';S.hooks.sound('click',1,{s:'grenade_unclip'});
     yield* act(K,{t0:S.t,end:.45,body:[{t:0,v:()=>easyBody(K)}],arm:[{t:0,v:K.curArm},{t:.25,v:{hand:{sh:[.3*a,.1*a]},wAng:-.3,off:{sh:[.32*a,.06*a]},tilt:.05},e:eOut},{t:.45,v:{hand:{sh:[.3*a,.1*a]},wAng:-.3,off:{sh:[-.1*a,.5*a]},tilt:.05},e:sstep}]});
-    S.hooks.sound('ping',1);
+    S.hooks.sound('ping',1,{s:'grenade_pin'});
     // an easy underarm toss, high, onto the step, and he turns away from it
     const T={x:D.x,y:S.arena.ground(D.x,D.dep-8)-4,dep:D.dep-8};
     const thr={t0:S.t,end:.7,body:[{t:0,v:()=>easyBody(K)},{t:.3,v:()=>({...easyBody(K),lean:.12})},{t:.7,v:()=>easyBody(K),e:sstep}],
@@ -945,11 +945,11 @@ STAGES.push({key:'platform',num:'',title:'',sub:'',arena:'station',next:'line',n
     yield* until(()=>{S.fade=Math.max(0,S.fade-DT*1.3);return S.fade<=0;},1.2);
     yield* wait(.3);
     // the chime, the doors, and out onto the platform
-    S.hooks.sound('ding',1);yield* wait(.45);
+    S.hooks.sound('ding',1);yield* wait(.45);S.hooks.sound('lift_doors',1,{take:0});
     yield* until(()=>{S.kitLift=Math.min(1,S.kitLift+DT*1.3);return S.kitLift>=1;},1.2);
     K.hidden=false;yield* goTo(K,kl.x+40,T.dep-8,70);K.offstage=false;
     // the family's own railway, and the train with its lamp low, waiting; the lift's doors close behind him
-    lookAt(K,1,1.6);yield* all(wait(1.3),until(()=>{S.kitLift=Math.max(0,S.kitLift-DT*1.1);return S.kitLift<=0;},1.3));
+    lookAt(K,1,1.6);S.hooks.sound('lift_doors',1,{take:1});yield* all(wait(1.3),until(()=>{S.kitLift=Math.max(0,S.kitLift-DT*1.1);return S.kitLift<=0;},1.3));
     const D=trainDeck(T,0);
     yield* goTo(K,clamp(D.x0+170,D.x0+40,D.x1-40),T.dep-8,84);K.facing=1;T.riders.push(K);K.pitClip=T.dep;
     yield* wait(.35);
@@ -957,7 +957,7 @@ STAGES.push({key:'platform',num:'',title:'',sub:'',arena:'station',next:'line',n
     camTo(470,860,.7);
     yield* until(()=>{T.lamp=Math.min(1,T.lamp+DT*1.5);return T.lamp>=1;},1);
     const out=(function*(){yield* wait(2.7);const t0=S.t;while(S.t<t0+1.5){S.fade=(S.t-t0)/1.5;yield;}S.fade=1;})();
-    yield* all(trainTo(T,PLATFORM_NOSE+470,4.4,eIn),out);
+    S.hooks.sound('train_depart',1);yield* all(trainTo(T,PLATFORM_NOSE+470,4.4,eIn),out);
     T.riders.length=0;},
   introSkip(st){S.fade=1;}});
 
@@ -978,7 +978,7 @@ function dropIn(f,h){const x=f.station,z=f.lane;f.dustCol=S.arenaKey==='tunnel'|
   for(const q of f.p){q.y-=h;q.py-=h;}for(const q of f.scarf||[]){q.y-=h;q.py-=h;}
   const g=()=>f.guardBody(),a=()=>f.guardArm();
   f.action={t0:S.t,end:.95,body:[{t:0,v:()=>({...g(),lift:h})},{t:.42,v:()=>({...g(),lift:0,crouch:.66,lean:.3}),e:eIn},{t:.95,v:g,e:sstep}],arm:[{t:0,v:a},{t:.95,v:a}]};
-  f.arriveAt=S.t+.9;S.hooks.sound('thud',220);
+  f.arriveAt=S.t+.9;S.hooks.sound('thud',220,{s:'goblin_drop'});
   // on its feet on the deck it belongs to the stage again
   f.dropT=S.t+.5;}
 V11.step.push(()=>{for(const f of S.F)if(f.dropT&&S.t>=f.dropT){f.dropT=null;f.offstage=false;dust(f.p[FTF].x,f.gr(f.p[FTF].x),.8,f.dep,f.dustCol||undefined);}});
@@ -1023,7 +1023,7 @@ STAGES.push({key:'line',num:'VII',title:'The Line',sub:'Under the city, the fami
     letter(1);camTo(450,900,0);
     yield* wait(1.2);
     // eyes in the dark over the car
-    S.story.eyes={t0:S.t,n:9};
+    S.story.eyes={t0:S.t,n:9};S.hooks.sound('goblin_chitter',1);
     yield* wait(1.4);
     yield* speak(HERO_NAME,'Hallowell keeps pets.',{dur:1.8});
     // and down they come
@@ -1088,11 +1088,11 @@ STAGES.push({key:'deep',num:'VIII',title:'The Deep Station',sub:'Under Hallowell
     const SL=stationLook(),CG=SL&&SL.LAYOUT&&SL.LAYOUT.CAGE||{d0:198},fz=CG.d0-14;
     K.zMax=290;yield* goTo(K,L.x-36,150,92);yield* goTo(K,L.x,fz,70);
     // the gate folds back and he steps in through it (the car's front stands by its depth: once he is past it, it is in front of him)
-    yield* until(()=>{S.lift=Math.min(1,S.lift+DT*1.6);return S.lift>=1;},2);S.hooks.sound('gate',1);
+    yield* until(()=>{S.lift=Math.min(1,S.lift+DT*1.6);return S.lift>=1;},2);S.hooks.sound('gate',1,{take:0});
     yield* goTo(K,L.x,L.dep,60);K.offstage=true;
     // in the car he turns round, and stands; the gate shuts, and the car goes up out of the deep
     yield* wait(.12);K.facing=-1;yield* wait(.4);
-    yield* until(()=>{S.lift=Math.max(0,S.lift-DT*1.6);return S.lift<=0;},2);S.hooks.sound('gate',1);
+    yield* until(()=>{S.lift=Math.max(0,S.lift-DT*1.6);return S.lift<=0;},2);S.hooks.sound('gate',1,{take:1});
     K.rideLift=true;S.hooks.sound('lift',1);camTo(clamp(L.x-120,300,600),880,.5);
     // up out of the deep, carried on the cage's floor all the way (his ground goes up with it, and so does he); the dark takes the
     // picture near the top, and the lobby is where the cage stops
@@ -1123,19 +1123,19 @@ STAGES.push({key:'lobby',num:'IX',title:'The Lobby',sub:'Hallowell Tower, the ex
     yield* until(()=>{S.fade=Math.max(0,S.fade-DT*2.2);return S.fade<=0;},1);
     yield* wait(.15);
     // the lift opens
-    S.liftT0=S.t-.2;S.hooks.sound('chime',1);yield* wait(.7);
+    S.liftT0=S.t-.2;S.hooks.sound('chime',1);S.hooks.sound('lift_doors',1,{take:0,delay:.15});yield* wait(.7);
     yield* goTo(K,st.spawn[0][0],st.spawn[0][1],80);K.offstage=false;K.facing=1;
     yield* wait(.25);
     yield* speak('Guard A','Cage is up! Light it!',{dur:1.4,gap:.05});
     // they open up, all three, and he sweeps the coat round in front of him
-    K.coatShield=0;
+    K.coatShield=0;S.hooks.sound('coat_sweep',1);
     const swing=(function*(){const t0=S.t;while(S.t<t0+.32){K.coatShield=sstep((S.t-t0)/.32);yield;}K.coatShield=1;})();
     K.action={t0:S.t,end:4.2,body:[{t:0,v:()=>easyBody(K)},{t:.3,v:()=>({...easyBody(K),crouch:.84,lean:.28}),e:eOut},{t:4.2,v:()=>({...easyBody(K),crouch:.84,lean:.28})}],
       arm:[{t:0,v:easyArm(K)},{t:.3,v:{hand:{sh:[.62*a,-.18*a]},wAng:-1.2,off:{sh:[.5*a,.36*a]},tilt:.3},e:eOut},{t:4.2,v:{hand:{sh:[.6*a,-.16*a]},wAng:-1.2,off:{sh:[.48*a,.38*a]},tilt:.32}}]};
     const fire=(f,i)=>(function*(){yield* wait(.08+i*.11);let n=0;const N=22+i*3;
       while(n<N){const T={x:K.p[CHE].x+K.facing*(14+Math.random()*10),y:lerp(K.p[CHE].y,K.p[PEL].y,Math.random()*1.4)};
         if(!f.action||S.t>f.action.t0+f.action.end-.1)f.action={t0:S.t,end:4,body:[{t:0,v:()=>aimBody(f)}],arm:[{t:0,v:()=>aimArmAt(f,aimPoint(K),0)},{t:4,v:()=>aimArmAt(f,aimPoint(K),0)}]};
-        fireAt(f,T,{dep:K.dep});S.impacts.push({x:T.x,y:T.y,dep:K.dep-2,t0:S.t+.03,kind:'metal',ang:Math.PI});
+        fireAt(f,T,{dep:K.dep});S.impacts.push({x:T.x,y:T.y,dep:K.dep-2,t0:S.t+.03,kind:'metal',ang:Math.PI});if(!(n&1))S.hooks.sound('bullet_metal',1,{delay:.03});
         K.coatShred=Math.min(1,K.coatShred+.016);n++;yield* wait(.07+Math.random()*.03);}
       // empty
       S.hooks.sound('click',1);yield* wait(.12);S.hooks.sound('click',1);})();
@@ -1149,10 +1149,10 @@ STAGES.push({key:'lobby',num:'IX',title:'The Lobby',sub:'Hallowell Tower, the ex
     // up and back over his shoulder, a little away from the camera, and the air takes it
     if(typeof KaelLook!=='undefined'&&KaelLook.coatCloth){try{const C=KaelLook.coatCloth(K);C.shred=K.coatShred;C.dep=K.dep;
       for(const q of C.pts||[]){q.px=q.x+K.facing*260*DT;q.py=q.y+380*DT;if(q.z!=null)q.pz=q.z-60*DT;}S.cloths.push(C);}catch(e){}}
-    K.coatOff=true;K.charge='belt';S.story.flags.coatOff=true;S.hooks.sound('swoosh',2);
+    K.coatOff=true;K.charge='belt';S.story.flags.coatOff=true;S.hooks.sound('swoosh',2,{s:'coat_throw'});
     yield* wait(.9);
     // empty guns on the marble; out come the batons
-    for(const f of gs){f.action=null;dropWeapon(f,-1,false);f.setWeapon('club');}
+    gs.forEach((f,i)=>{f.action=null;dropWeapon(f,-1,false);f.setWeapon('club');S.hooks.sound('drop_gun',.9,{delay:.2+i*.14});});
     yield* speak('Sable','Ranger mithril. That coat was worth more than all three of them.',{dur:3.2});
     yield* speak(HERO_NAME,'Send Hallowell the bill.',{dur:1.8});
     standEasy(Sb,false);
@@ -1217,7 +1217,7 @@ STAGES.push({key:'office',num:'X',title:'The Office',sub:'The top of Hallowell T
     S.streaks.push({a:{x:bx,y:P0.y-20},b:{x:bx+14,y:P0.y-760},d0:d,d1:d,t0:S.t,life:.5,w:14,clip:K.clipRect});
     if(typeof addMotes==='function')addMotes(bx,P0.y-30,d,14,{spread:60,vy:-220,life:.6});
     // the night wind in through the hole, a moment, and the dark
-    yield* wait(1.2);
+    S.hooks.sound('wind_in',1);yield* wait(1.2);
     const t0=S.t;while(S.t<t0+.7){S.fade=(S.t-t0)/.7;yield;}S.fade=1;},
   outroSkip(st){}});
 // ---------- out through the glass ----------
@@ -1260,7 +1260,7 @@ function glassBreak(f,pane){const OG=OFFICE_GLASS,g=S.arena.ground(pane.x0,OG.d)
     Gl.frag.push({x,y,vx:(x-C.x)*(1.4+R()*2)+(R()-.5)*50,vy:-40-R()*150-(near?70:0),a:R()*TAU,va:(R()-.5)*26,s:1.6+R()*(near?4.4:3),ph:R()*TAU,d:OG.d+3+R()*24});}
   for(let i=0;i<22;i++)shard('glass',lerp(pane.x0+4,pane.x1-4,R()),lerp(Gl.y0+20,Gl.y1-4,R()),OG.d-6,0,.7,{d:OG.d-3-R()*16,vx:(R()-.5)*110,vy:-30-R()*90});
   flash({x:C.x,y:cy},42,'#e8fbff',OG.d);sparks({x:C.x,y:cy},12,'#ffffff',OG.d);
-  S.hooks.sound('glass',1.6);S.hooks.sound('crack',1);S.shake=Math.max(S.shake,8);S.freeze=Math.max(S.freeze,.06);S.slowT=Math.max(S.slowT,.85);
+  S.hooks.sound('glass',1.6,{s:'window_crash'});S.hooks.sound('crack',1,{skip:'window_crash'});S.shake=Math.max(S.shake,8);S.freeze=Math.max(S.freeze,.06);S.slowT=Math.max(S.slowT,.85);
   if(!S.warming)S.punch={x:prjX(C.x,OG.d),t:0,z:.16};}
 // the glass that went out falls away past the sill, down the face of the tower
 V11.step.push(()=>{const Gl=S.story&&S.story.glass;if(!Gl||!Gl.frag.length)return;
@@ -1325,7 +1325,7 @@ STAGES.push({key:'roof',num:'XI',title:'The Roof',sub:'Midnight, at the top of t
     S.hooks.sound('heli',1);K.facing=-1;H.xT=430;H.yT=150;H.spot={x:K.station,dep:K.dep};
     yield* wait(2.6);H.yT=72;yield* wait(1.5);
     // the door slides back: a man in white
-    M.station=heliDoor(H).x;M.build();M.heliAt=null;M.hidden=false;
+    M.station=heliDoor(H).x;M.build();M.heliAt=null;M.hidden=false;S.hooks.sound('heli_door',1);
     yield* until(()=>{H.door=Math.min(1,H.door+DT*1.4);M.station=heliDoor(H).x;return H.door>=1;},2);
     yield* speak(WHITE,'Ilyas. Clean work tonight. The family is grateful.',{dur:2.8,col:'#f2ece0'});
     yield* speak(HERO_NAME,'Then take me home.',{dur:1.8});
@@ -1343,12 +1343,12 @@ STAGES.push({key:'roof',num:'XI',title:'The Roof',sub:'Midnight, at the top of t
     const T=aimPoint(K);fireAt(M,T,{dep:K.dep});M.charge=0;S.hooks.sound('hex',1);
     yield* wait(.22);
     const fa=Math.sign(K.station-M.station)||1;
-    S.impacts.push({x:T.x,y:T.y,dep:K.dep,t0:S.t,kind:'flesh',ang:0});bleed(T,fa,30,K.dep,1.3);flash(T,60,'#d8c8ff',K.dep);
+    S.impacts.push({x:T.x,y:T.y,dep:K.dep,t0:S.t,kind:'flesh',ang:0});S.hooks.sound('hex_wound',1);bleed(T,fa,30,K.dep,1.3);flash(T,60,'#d8c8ff',K.dep);
     // out through his back, still burning
     S.tracers.push({a:{x:T.x,y:T.y,dep:K.dep},b:{x:T.x+fa*700,y:T.y-60,dep:K.dep},dep:K.dep,dep1:K.dep,t0:S.t,kind:'hex',dur:.25});
     for(let i=0;i<K.p.length;i++){if(i===TIP)continue;const q=K.p[i];q.px-=fa*(i===CHE?260:120)*DT;q.py+=40*DT;}
     K.drain=0;K.hp=Math.max(1,Math.round(K.hp*.15));S.hooks.status();
-    const drain=(function*(){const t0=S.t;while(S.t<t0+1.6){K.drain=sstep((S.t-t0)/1.6);yield;}K.drain=1;})();
+    S.hooks.sound('aether_drain',1);const drain=(function*(){const t0=S.t;while(S.t<t0+1.6){K.drain=sstep((S.t-t0)/1.6);yield;}K.drain=1;})();
     // he goes back, a step at a time, to the edge
     standEasy(K);const x0=K.station,edge=ROOF_EDGE+14;
     K.action={t0:S.t,end:2.2,body:[{t:0,v:()=>({...easyBody(K),px:x0,lean:-.2,crouch:.86})},{t:.6,v:()=>({...easyBody(K),px:lerp(x0,edge,.3),lean:-.05,crouch:.8}),e:eOut},
@@ -1357,7 +1357,7 @@ STAGES.push({key:'roof',num:'XI',title:'The Roof',sub:'Midnight, at the top of t
     K.offstage=true;K.facing=-fa;
     yield* all(drain,(function*(){yield* wait(2.1);})());
     // and over: nothing under him but the city
-    K.motor=.05;K.knockUntil=S.t+99;for(const q of K.p){q.px-=fa*90*DT;q.py+=60*DT;}
+    K.motor=.05;K.knockUntil=S.t+99;for(const q of K.p){q.px-=fa*90*DT;q.py+=60*DT;}S.hooks.sound('over_edge',1);
     yield* wait(.9);
     S.fade=1;yield* wait(.5);},
   introSkip:null});
@@ -1592,7 +1592,7 @@ function pitImpact(f,b){const P=S.pit,it=b.h.it,mat=it?it.mat:'wall',sp=b.sp,q=b
   if(P.vt>PIT.vt&&sp>300)P.vt=PIT.vt;
   S.shake=Math.max(S.shake,clamp(sp/70,2,13));S.shakeDir={x:b.h.nx,y:b.h.ny};
   if(big){S.freeze=Math.max(S.freeze,.04+.045*k);S.slowT=Math.max(S.slowT,P.firstBig?.16:.5);P.firstBig=true;}
-  S.hooks.sound(sp>480?'crit':'hit',sp);
+  S.hooks.sound(sp>480?'crit':'hit',sp,{pit:true});
   if(sp>300)bleed(C,dir,Math.round(5+9*k),PIT_DEP,.7+.5*k);
   if(sp>360&&P.rips<10&&typeof addMark==='function'){const zone=PIT_ZONE(b.i),mk=addMark(f,zone,true);
     if(S.hooks.rip)S.hooks.rip(null,f,{dmg:Math.round(10+sp/60),kind:'slash',out:big?'crit':'hit',tech:{}},C,zone,true,mk);P.rips++;}
@@ -1600,19 +1600,19 @@ function pitImpact(f,b){const P=S.pit,it=b.h.it,mat=it?it.mat:'wall',sp=b.sp,q=b
 function pitBit(o){const P=S.pit;P.bits.push(Object.assign({x:0,y:0,vx:0,vy:0,a:0,va:0,w:4,h:2,age:0,life:2.6,k:'rock'},o));if(P.bits.length>140)P.bits.splice(0,P.bits.length-140);}
 function pitMatFx(it,mat,C,sp,h,dir,k){const P=S.pit,R=P.R,pc=pitFromW(C.x,C.y),snd=S.hooks.sound;
   const burst=(n,kind,o)=>{for(let i=0;i<n;i++){const a=-Math.PI/2+(R()-.5)*2.6,v=(80+R()*260)*k;pitBit(Object.assign({k:kind,x:pc.x+(R()-.5)*16,y:pc.y+(R()-.5)*8,vx:Math.cos(a)*v+dir*40,vy:Math.sin(a)*v,a:R()*6.28,va:(R()-.5)*18},o?o(R):{}));}};
-  if(mat==='steel'){snd('clang',1);if(sp>500)snd('crack',1);sparks(C,Math.round(8+sp/45),'#ffd27a',PIT_DEP);flash(C,16+10*k,'#ffd27a',PIT_DEP);dust(C.x,C.y+4,.6*k,PIT_DEP,'rgba(120,96,80,.5)');burst(5,'rock',r=>({w:2+r()*2,h:1.5+r()*1.5,col:'#4a3226'}));}
-  else if(mat==='wood'){snd('wood',1.5);dust(C.x,C.y+4,.8*k,PIT_DEP,'rgba(130,104,74,.5)');burst(8,'splinter',r=>({w:3+r()*6,h:1,col:r()<.5?'#6a4a30':'#8a6440'}));
+  if(mat==='steel'){snd('clang',1,{s:'pit_steel'});if(sp>500)snd('crack',1,{skip:'pit_steel'});sparks(C,Math.round(8+sp/45),'#ffd27a',PIT_DEP);flash(C,16+10*k,'#ffd27a',PIT_DEP);dust(C.x,C.y+4,.6*k,PIT_DEP,'rgba(120,96,80,.5)');burst(5,'rock',r=>({w:2+r()*2,h:1.5+r()*1.5,col:'#4a3226'}));}
+  else if(mat==='wood'){snd('wood',1.5,{s:'pit_wood'});dust(C.x,C.y+4,.8*k,PIT_DEP,'rgba(130,104,74,.5)');burst(8,'splinter',r=>({w:3+r()*6,h:1,col:r()<.5?'#6a4a30':'#8a6440'}));
     if(it&&it.brk&&!it.broken&&sp>it.brk)pitBreak(it,pc,dir,k);}
-  else if(mat==='car'){snd('crash',1);snd('clang',.7);sparks(C,10,'#ffcf86',PIT_DEP);dust(C.x,C.y+4,.7*k,PIT_DEP,'rgba(110,100,96,.5)');
-    if(it&&!it.glass){it.glass=S.t;snd('glass',1.4);const g=pitToW(it.hx??pc.x,pc.y+20);void g;burst(22,'glass',r=>({w:2+r()*3,h:1.2+r()*1.6,col:r()<.5?'#a8d8e8':'#d8f4ff',life:2}));}}
-  else if(mat==='pipe'){snd('clang',.9);snd('hit',300);sparks(C,6,'#ffcf86',PIT_DEP);
+  else if(mat==='car'){snd('crash',1,{s:'pit_car'});snd('clang',.7,{skip:'pit_car'});sparks(C,10,'#ffcf86',PIT_DEP);dust(C.x,C.y+4,.7*k,PIT_DEP,'rgba(110,100,96,.5)');
+    if(it&&!it.glass){it.glass=S.t;snd('glass',1.4,{skip:'pit_car'});const g=pitToW(it.hx??pc.x,pc.y+20);void g;burst(22,'glass',r=>({w:2+r()*3,h:1.2+r()*1.6,col:r()<.5?'#a8d8e8':'#d8f4ff',life:2}));}}
+  else if(mat==='pipe'){snd('clang',.9,{s:'pit_pipe'});snd('hit',300,{skip:'pit_pipe'});sparks(C,6,'#ffcf86',PIT_DEP);
     for(let i=0;i<14;i++){const a=-Math.PI/2+(R()-.5)*2.4,v=(60+R()*200)*k;pitBit({k:'drop',x:pc.x,y:pc.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,w:1.4,h:1.4,col:'#9fc8e0',life:1.4});}}
-  else if(mat==='neon'){snd('glass',1.2);snd('sizzle',1.4);sparks(C,26,'#ff5ad8',PIT_DEP);sparks(C,12,'#7ff3e3',PIT_DEP);flash(C,40,'#ff5ad8',PIT_DEP);
+  else if(mat==='neon'){snd('glass',1.2,{s:'pit_neon'});snd('sizzle',1.4,{skip:'pit_neon'});sparks(C,26,'#ff5ad8',PIT_DEP);sparks(C,12,'#7ff3e3',PIT_DEP);flash(C,40,'#ff5ad8',PIT_DEP);
     if(it&&!it.dead){it.dead=S.t;it.swingV=dir*2.6;burst(18,'glass',r=>({w:3+r()*5,h:1.4,col:r()<.6?'#ff7ae0':'#ffd0f4',life:2}));}}
-  else{snd('plaster',clamp(k,.5,1.4));if(sp>420)snd('gravel',1);dust(C.x,C.y+4,1.1*k,PIT_DEP,'rgba(120,108,100,.55)');dust(C.x+dir*10,C.y,.8*k,PIT_DEP,'rgba(96,86,80,.45)');
+  else{snd('plaster',clamp(k,.5,1.4),{s:'pit_rock'});if(sp>420)snd('gravel',1);dust(C.x,C.y+4,1.1*k,PIT_DEP,'rgba(120,108,100,.55)');dust(C.x+dir*10,C.y,.8*k,PIT_DEP,'rgba(96,86,80,.45)');
     burst(10,'rock',r=>({w:2+r()*4,h:2+r()*3,col:r()<.5?'#3a3236':'#4c4246'}));}}
 // the hut's floor gives way under him: the planks go down with him
-function pitBreak(it,pc,dir,k){const P=S.pit,R=P.R;it.broken=S.t;S.hooks.sound('crack',1.2);S.hooks.sound('wood',1.6);
+function pitBreak(it,pc,dir,k){const P=S.pit,R=P.R;it.broken=S.t;S.hooks.sound('crack',1.2,{s:'pit_wood_break'});S.hooks.sound('wood',1.6,{skip:'pit_wood_break'});
   const c=it.caps[0];for(let i=0;i<9;i++){const u=.25+R()*.75,x=c[0]+(c[2]-c[0])*u,y=c[1]+(c[3]-c[1])*u;
     pitBit({k:'plank',x,y,vx:(R()-.5)*160+dir*30,vy:-40-R()*120,a:Math.atan2(c[3]-c[1],c[2]-c[0])+(R()-.5)*.6,va:(R()-.5)*7,w:22+R()*26,h:5,col:R()<.5?'#5a3e28':'#6e4c30',life:3});}
   for(let i=0;i<4;i++)pitBit({k:'plank',x:it.caps[0][2]+40+i*36,y:c[1]-30,vx:(R()-.5)*100,vy:-30-R()*60,a:Math.PI/2+(R()-.5)*.4,va:(R()-.5)*5,w:30,h:3,col:'#4a3220',life:3});}
@@ -1625,14 +1625,14 @@ function pitCatch(f,u,s,forced){const P=S.pit,p=f.p,R=P.R;if(P.pin)return;
   P.pin=pn;P.stage='pinned';P.pinT0=S.t;P.pops=0;P.spurt=null;
   for(const q of p){q.px=q.x-(q.x-q.px)*.5;q.py=q.y-(q.y-q.py)*.5;}
   S.freeze=Math.max(S.freeze,.12);S.slowT=Math.max(S.slowT,.8);S.shake=Math.max(S.shake,11);S.shakeDir={x:0,y:1};
-  S.hooks.sound('impale',1);S.hooks.sound('crit',600);
+  S.hooks.sound('impale',1);S.hooks.sound('crit',600,{skip:'spike_impale'});
   const C=pitSpikeW(pn.s);bleed(C,1,24,PIT_DEP,1.1);flash(C,24,'#ffb08a',PIT_DEP);
   if(typeof addMark==='function'){const mk=addMark(f,'arm',true);if(mk){mk.a=ELF;mk.b=HAF;mk.u=pn.u;}}
   const cl=P.items.find(it=>it.key==='cliff');if(cl){cl.hitT=S.t;cl.hits++;}}
 // the arm gives a little more: a tear at the shoulder, the body drops a little on it
 function pitGive(f,i){const P=S.pit,gore=S.gore!=='off',R=P.R;
   f.sticks[2][2]+=gore?3.4:1.2;
-  S.hooks.sound(gore?'tear':'cloth',.6+i*.15);
+  S.hooks.sound(gore?'tear':'cloth',.6+i*.15,{take:i});
   for(const [k,q] of f.p.entries()){if(k===ELF||k===HAF||k===TIP)continue;q.py-=(26+i*6)*DT;}
   if(gore){const C=pitShoulder(f);bleed(C,f.facing,4+i*2,PIT_DEP,.4);}
   S.shake=Math.max(S.shake,2+i);}
@@ -1645,7 +1645,7 @@ function pitRip(f){const P=S.pit,gore=S.gore!=='off',p=f.p;P.stage='drop';P.vt=P
     P.arm={pts:[mk({x:Sh.x,y:Sh.y,px:Sh.x,py:Sh.y}),mk(E),mk(H)],L:[Math.hypot(E.x-Sh.x,E.y-Sh.y),f.body.fa],u:P.pin.u,s:P.pin.s,fa:f.facing,t0:S.t,coatOff:!!f.coatOff};
     f.sticks[2][3]=1;f.sticks[3][3]=1;f.sticks[10][3]=1;P.armGone=true;f.armOff=true;f.armTear=0;
     bleed(Sh,-f.facing,22,PIT_DEP,1.2);P.spurt={t0:S.t,until:S.t+1.1};
-    S.hooks.sound('rip',1);S.hooks.sound('crit',700);}
+    S.hooks.sound('rip',1);S.hooks.sound('crit',700,{skip:'arm_rip'});}
   else{
     // (no blood) the sleeve tears through and the arm slides off the spike; a strip of the coat stays on it
     P.scrap={s:P.pin.s,t0:S.t};f.armTear=0;f.sticks[2][2]=f.body.ua;
@@ -1659,7 +1659,7 @@ function pitRip(f){const P=S.pit,gore=S.gore!=='off',p=f.p;P.stage='drop';P.vt=P
 function pitLand(f){const P=S.pit;if(P.stage==='landed')return;P.stage='landed';P.landT=S.t;const R=P.R,H=PIT.hay;
   // he comes to rest face up, toward the sky, where the light that comes back into his eye can be seen
   {const h=f.p[HEAD],c=f.p[CHE],ux=h.x-c.x;if((f.facing>0?ux:-ux)>0)f.facing=-f.facing;}
-  S.hooks.sound('hay',1);S.hooks.sound('thud',420);S.hooks.sound('birds',1);
+  S.hooks.sound('hay',1);S.hooks.sound('thud',420,{skip:'hay_land'});S.hooks.sound('birds',1);
   S.shake=Math.max(S.shake,7);S.shakeDir={x:0,y:1};S.slowT=Math.max(S.slowT,.4);
   const c=pitFromW(f.p[PEL].x,f.p[PEL].y);
   for(let i=0;i<170;i++){const a=-Math.PI/2+(R()-.5)*2.5,v=60+R()*380,x=c.x+(R()-.5)*H.w*1.3;
@@ -1701,7 +1701,7 @@ STAGES.push({key:'fall',num:'',title:'',sub:'',arena:'fall',next:null,noFight:tr
     yield* wait(2.4);
     // still alive: a faint light comes back into his eye, though every line of gilt on him stays dark (K.eyeLit is the eye's own; the
     // drain that keeps his tattoos scars stays whole)
-    const t1=S.t;yield* until(()=>{K.eyeLit=FALL_EYE*sstep(clamp((S.t-t1)/1.4,0,1));return S.t>t1+1.4;},2);
+    S.hooks.sound('eye_light',1);const t1=S.t;yield* until(()=>{K.eyeLit=FALL_EYE*sstep(clamp((S.t-t1)/1.4,0,1));return S.t>t1+1.4;},2);
     yield* wait(1.1);
     // up on the spike the lines in the severed arm still glow: the picture climbs the wall to it (with no blood there is no arm on it)
     if(P.arm){pitLookUp(P);yield* until(()=>S.t>=P.look.t0+P.look.dur,PIT.lookDur+1);yield* wait(2);}
