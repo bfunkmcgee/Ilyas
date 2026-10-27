@@ -265,6 +265,7 @@ function boltStep(){const B0=S.bolts;if(!B0.length)return;
   S.bolts=B0.filter(B=>B.state!=='gone'||S.t-B.goneT<.45);}
 function boltImpact(B){const {A,D,res,ex}=B,fa=Math.sign(B.vx)||A.facing,C={x:B.x,y:B.y};B.burst={x:C.x,y:C.y,d:D.dep,ang:Math.atan2(B.vy,B.vx),t0:S.t,kind:res.out==='block'?'block':'hit'};
   if(D.dead)return;
+  S.hooks.sound('bolt_hit',1,{D});
   if(res.out==='block'){
     // it breaks on the weapon and spins away, burning out
     sparks(C,12,'#fff3cf',D.dep);flash(C,24,'#ffe299',D.dep);for(const i of [TIP,HAF]){const q=D.p[i];q.px-=fa*130*DT;q.py+=40*DT;}

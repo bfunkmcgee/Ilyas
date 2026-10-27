@@ -96,7 +96,7 @@ function roomLampHit(L,O,by,dr){
   const crush=!!(dr&&dr.crush),dmg=5+Math.floor(S.rng()*5)+(crush?3:0),foe=by&&by.team!==O.team?by:null;
   O.hp=Math.max(0,O.hp-dmg);O.daze=1;O.motor=Math.min(O.motor,.5);
   const p=L.p;flash(p,32,'#fff3cf',L.dep);sparks(p,14,'#ffd9a8',L.dep);for(let i=0;i<8;i++)shard('glass',p.x,p.y+4,L.dep,0,.7);
-  S.hooks.sound('glass',.9);S.hooks.sound('thud',320);popup(O,String(dmg),'#ffffff','The lamp',22);
+  S.hooks.sound('glass',.9,{s:'lamp_fall'});S.hooks.sound('thud',320);popup(O,String(dmg),'#ffffff','The lamp',22);
   if(L.lit){L.lit=false;L.dead=S.t;bill('lamp');}
   // the shade glances off him and drops beside him
   p.px=p.x-(Math.sign(p.x-O.p[HEAD].x)||1)*1.4;
@@ -105,7 +105,7 @@ function roomLampHit(L,O,by,dr){
   if(dr)roomEvent('lamp',O,by,'Down comes the lamp',O,{L,hit:true,dmg});
   else if(roomLive())S.hooks.roomEvent({kind:'lamp',f:O,by,text:'Under the lamp',at:O,L,hit:true,dmg,quiet:true});
   roomTakedown(by,O);if(dr&&dr.ex)S.hooks.roomDone(dr.ex,{ok:true,label:'The lamp',dmg});}
-function roomLampMiss(L,O){popup(O,'Clear','#c9d0f5','the lamp just misses',17);S.hooks.sound('glass',.6);const dr=L.drop;if(dr&&dr.ex)S.hooks.roomDone(dr.ex,{ok:false,label:'Missed'});}
+function roomLampMiss(L,O){popup(O,'Clear','#c9d0f5','the lamp just misses',17);S.hooks.sound('glass',.6,{s:'lamp_fall'});const dr=L.drop;if(dr&&dr.ex)S.hooks.roomDone(dr.ex,{ok:false,label:'Missed'});}
 
 // a flying body that comes down on the table hard breaks it; one that hits its side hard tips it over
 {const otc=onTableContact;onTableContact=function(f,q,spd){
@@ -247,7 +247,7 @@ function roomFlipTable(dir,D,ok,on){const T=S.table;if(!T||T.state!=='intact')re
   const aim=on?cx+dir*(ok?70:40):D.p[PEL].x-dir*(ok?14:64),vx=clamp((aim-cx)/.5,-430,430)*DT,vy=-250*DT,w=dir*5.2*DT;
   for(const q of P){q.px=q.x-(vx-(q.y-cy)*w);q.py=q.y-(vy+(q.x-cx)*w);}
   if(on&&!D.dead){if(ok)for(const q of D.p){q.px-=dir*230*DT;q.py+=200*DT;}else for(const q of D.p){q.px+=dir*130*DT;q.py+=60*DT;}}
-  kickProps(dir,1.6);T.flipT=S.t;T.tipBy=null;S.hooks.sound('thud',260);}
+  kickProps(dir,1.6);T.flipT=S.t;T.tipBy=null;S.hooks.sound('thud',260,{s:'table_topple'});}
 function roomFlipLand(A,D,tr,dir,ex,on){
   const T=S.table;if(T&&T.state==='intact'){T.state='toppled';S.hooks.status();}
   if(T){const b=tableBox();dust(b.cx,S.arena.ground(b.cx,T.dep),1.3,T.dep);S.shake=Math.max(S.shake,9);S.hooks.sound('thud',420);}

@@ -537,7 +537,7 @@ function breakTable(){
   piece(lp(P[0],P[1],.08),P[3],4.5,.6,-TD+4);piece(lp(P[0],P[1],.92),P[2],4.5,.6,TD-4);
   piece(lp(P[0],P[1],.1),lp(P[3],P[3],0),4.5,.5,TD-4);piece(lp(P[0],P[1],.9),P[2],4.5,.5,-TD+4);
   sparks(mid,26,'#d9a06a',T.dep);dust(mid.x,S.arena.ground(mid.x,T.dep),1.5,T.dep);S.shake=Math.max(S.shake,12);S.freeze=Math.max(S.freeze,.06);
-  kickProps(dir,1.6);S.hooks.sound('crack',1);bill(S.room==='kitchen'?'preptable':S.room==='lobby'?'lobbytable':'table');
+  kickProps(dir,1.6);S.hooks.sound('crack',1,{s:'table_break'});bill(S.room==='kitchen'?'preptable':S.room==='lobby'?'lobbytable':'table');
   const ex=S.game.ex;if(ex&&ex.tableDmg&&!ex.tableShown){ex.tableShown=true;S.popups.push({x:mid.x,y:mid.y-22,d:T.dep,text:'+'+ex.tableDmg+' table',color:'#ffc163',sub:'Crash',size:20,age:0});}
 }
 function breachWall(){
@@ -768,7 +768,7 @@ function collide(f,final){
       const isFoot=i===FTF||i===FTB,planted=isFoot&&!f.steps[i===FTF?0:1].active&&f.motor>=.45;
       const vx=q.x-q.px,fr=planted?1:isFoot?.6:.32;q.px=q.x-vx*(1-fr);
       if(q.vy0>0){q.py=q.y+q.vy0*.1;const spd=q.vy0/DT;
-        if(spd>(isFoot?560:250)&&S.t-f.lastDust[i]>.3){f.lastDust[i]=S.t;dust(q.x,g+q.r,clamp(spd/600,.4,1.4),f.dep);if(!isFoot&&i!==TIP&&spd>300)S.hooks.sound('thud',spd);}}
+        if(spd>(isFoot?560:250)&&S.t-f.lastDust[i]>.3){f.lastDust[i]=S.t;dust(q.x,g+q.r,clamp(spd/600,.4,1.4),f.dep);if(!isFoot&&i!==TIP&&spd>300)S.hooks.sound('thud',spd,{body:f});}}
     }
     if(wx&&wallSolid()&&q.x>=wx-q.r-.5&&q.vx0>0){const spd=q.vx0/DT;q.px=q.x+q.vx0*.25;
       if(spd>180&&i!==TIP&&S.t-f.lastDust[i]>.3){f.lastDust[i]=S.t;onWallHit(f,q,spd);}}
@@ -1375,12 +1375,12 @@ function planAttack(A,D,kind,res,opts){
     }
     const react2=planReaction(D2,A,kind,res2,Timp2,Cfn2,th2,r2,false,fa2);
     sec={D:D2,res:res2,Cfn:Cfn2,Timp:Timp2,Td:Td2,dir:fa2,react:react2,slip:react2.slip??null,theta:th2,timed:whirl};
-    events.push({t:Timp2-tStrike*.8,fn:()=>S.hooks.sound('swoosh',wp.mass)});
+    events.push({t:Timp2-tStrike*.8,fn:()=>S.hooks.sound('swoosh',wp.mass,{A})});
   }
   const Tf=whirl?Tpost:Tpost+tFollow,Tr=Tf+tRecover,Tend=Tr+tac.tail;
   // the blade swings forward whole, and the segments shoot out along the line of aim for the last part of the stroke
   if(T.lash){const La=Tw1+tStrike*.35;A.lash={t0:S.t,a:La,b:Timp,c:Td+.03,d:Tf+.06,L:along};S.callouts.push({i:A.idx,text:T.name,age:0,life:clamp(Timp+.04,.75,1.4),dx:-fa*24});
-    events.push({t:La-.02,fn:()=>S.hooks.sound('unroll',.55)},{t:Tf+.06,fn:()=>{S.hooks.sound('lock',.5);A.relockT=S.t;}});}
+    events.push({t:La-.02,fn:()=>S.hooks.sound('unroll',.55,{s:'arc_lash'})},{t:Tf+.06,fn:()=>{S.hooks.sound('lock',.5);A.relockT=S.t;}});}
   const body=[...bodyKeys(A,[[0,snap?'now':'guard',{pz:z0}]]),...appBody.filter(k=>!(tSpin&&k.t>Tw0&&k.t<Tw0+tSpin+.1))];
   body.push(...spinBody);
   // the windup, the impact, the hold and the follow-through, in the blow's form (ATTACK.form; the kicks' own)
@@ -1425,7 +1425,7 @@ function planAttack(A,D,kind,res,opts){
   const contactSeg=T.kick?()=>[A.p[KNF],A.p[FTF]]:butt?()=>{const h=A.p[HAF],t=A.p[TIP],L=wp.len;return[h,{x:h.x+(t.x-h.x)/L*along,y:h.y+(t.y-h.y)/L*along}];}:()=>[A.p[HAF],A.p[TIP]];
   const contactVel=()=>({x:(cp.x-cp.px)/DT,y:(cp.y-cp.py)/DT});
   const react0=planReaction(D,A,kind,res,Timp,Cfn,theta,rnd,snap,fa),react=combo?comboReact(D,A,combo,react0,snap):react0;
-  events.push({t:Tw1+tStrike*.2,fn:()=>S.hooks.sound('swoosh',T.kick?.8:wp.mass)},{t:Tr,fn:()=>{A.station=settleStation(A,D,endX);}});
+  events.push({t:Tw1+tStrike*.2,fn:()=>S.hooks.sound('swoosh',T.kick?.8:wp.mass,{A})},{t:Tr,fn:()=>{A.station=settleStation(A,D,endX);}});
   if(combo)events.push(...combo.events);
   if(insP)events.push(...insP.evs);
   events.push(...(react.evs||[]));
@@ -1647,7 +1647,7 @@ function applyImpact(ex,A,D,res,Cfn,contactVel,slip,fa,primary){
     if(!S.warming&&(T.flair==='leap'||!primary||(crit&&showy)||res.dmg>=26))S.punch={x:prjX(C.x,D.dep),t:0};
     popup(D,String(res.dmg),crit?'#ffd36b':'#ffffff',crit?'Critical':D.dead?'Out':down?'On the ground':D.downed?(sweep?'Swept':'Knocked down'):D.daze&&zone==='head'?'Dazed':res.back?'From behind':sweep?'Off balance':null,crit?34:28);
     if(res.shatter&&A.wp.shatter)shatterBottle(A,D,C);
-    S.hooks.sound(crit?'crit':'hit',res.dmg);
+    S.hooks.sound(crit?'crit':'hit',res.dmg,{A,D});
     if(hurt||tripped)S.hooks.wound(ex,D,{zone,hurt,tripped,primary});
   }else if(res.out==='block'){
     flash(C,24,'#cfeaff',D.dep);sparks(C,18,'#fff3cf',D.dep);
@@ -2405,7 +2405,7 @@ function simStep(){
   stuckStep();finTick();envPost();
   if(S.table&&S.table.state==='breaking'&&S.t>=S.table.breakBy)breakTable();
   if(S.wall&&S.wall.state==='breaching'&&S.t>=S.wall.breakBy)breachWall();
-  if(tableIntact()){const P=S.table.pts;if(Math.abs(Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x))>.8){S.table.state='toppled';const b=tableBox();dust(b.cx,b.b,1.1,S.table.dep);S.hooks.sound('thud',300);S.hooks.status();}}
+  if(tableIntact()){const P=S.table.pts;if(Math.abs(Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x))>.8){S.table.state='toppled';const b=tableBox();dust(b.cx,b.b,1.1,S.table.dep);S.hooks.sound('thud',300,{s:'table_topple'});S.hooks.status();}}
   for(const f of LF){if(!Number.isFinite(f.p[PEL].x+f.p[TIP].y+f.p[HEAD].x+f.dep)){f.dep=f.lane;f.vdep=0;f.carry=null;f.build();}scarfStep(f);recordTrail(f);offTrailStep(f);flairStep(f);dripStep(f);}
   fxStep(DT);bloodStep(DT);
 }

@@ -44,7 +44,7 @@ SUITES = {
     'lightpage':  (['node', 'sk_light_page.js'], 'page', 'the lighting and effects'),
     'drawfree':   (['node', 'probes/draw_free.js'], 'page', 'the prologue and Act I played through and seven fights, the same drawn or not'),
     'act1page':   (['node', 'sk_act1_page.js'], 'page', 'Act I: every scene on auto, their lines, cards and rules, walking about by hand, the Pit look'),
-    'soundpage':  (['node', 'sk_sound_page.js'], 'page', 'the held sounds heard: the bike\'s engine while it runs, and silent once the bike part is over; the prologue\'s song, from a file and over http'),
+    'soundpage':  (['node', 'sk_sound_page.js'], 'page', 'the held sounds heard: the bike\'s engine while it runs, and silent once the bike part is over; the prologue\'s song, from a file and over http; the recorded sounds over http (loading, the calls, the held ones, the sound switch, footsteps)'),
     'live':       (['node', 'figwork/livecheck.js'], 'live', 'the published page runs its own loop without errors'),
     'perf':       (['node', 'sk_perf_page.js'], 'perf', 'what drawing costs a frame (timing: run alone)'),
 }
@@ -69,7 +69,8 @@ COVERS = [
     (r'^sk_(hudui|chainui|crewui|insureui|ctxmovesui)\.js$|^sk_css_.*\.css$|^sk_body\.html$|^sk_head\.txt$', ['hudpage', 'finalepage', 'lightpage', 'dom']),
     (r'^sk_(finaleui|officeui|breachui|secretui|lobbyui)\.js$', ['finalepage', 'hudpage', 'dom']),
     (r'^sk_(storyui|beastui|elfui|styleui|reactui|roomui|shortui)\.js$', ['finalepage', 'hudpage', 'dom', 'act1page']),
-    (r'^sk_storyui\.js$|^music/', ['soundpage']),
+    (r'^sk_storyui\.js$|^music/|^sfx/', ['soundpage']),
+    (r'^sk_sfxui\.js$', ['soundpage', 'dom']),
     (r'^sk_lightui\.js$', ['lightpage', 'lookpage', 'dom']),
     (r'^sk_(exploreui|pitui|pitcastui|pit2ui|pit5ui|pit6ui|pit7ui|pit8ui|pit9ui|pitmenuui)\.js$|^sk_css_(explore|pit|pit2|pit5|pit6|pit7|pit8|pit9|pitmenu)\.css$', ['act1page', 'hudpage', 'dom']),
     (r'^sk_(lookui|armsui|storyui)\.js$', ['act1page']),
@@ -88,6 +89,9 @@ def tracked():
     scenes = re.search(r"SCENES = \[(.*?)\]", src, re.S)
     if scenes: fs += ['envx/%s.js' % s for s in re.findall(r"'(\w+)'", scenes.group(1))]
     fs += [s[0][1] for s in SUITES.values()]
+    # (the song and the recorded sounds are published beside the page: the page suites play them)
+    for d in ('music', 'sfx'):
+        if os.path.isdir(path(d)): fs += ['%s/%s' % (d, f) for f in os.listdir(path(d)) if f.endswith('.mp3')]
     return sorted(set(f for f in fs if os.path.exists(path(f))))
 
 def digest(fs):

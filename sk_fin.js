@@ -82,7 +82,8 @@ function finisherImpact(ex,A,D,res,C,fa){
     case'knockout':{const s=(res.seed&2)?1:-1;h.px-=fa*280*DT;h.py+=70*DT;D.vdep+=s*80;
       sparks(h,10,'#fff3cf',D.dep);break;}
   }
-  S.hooks.sound('crit',30);
+  const fsnd=!gore?null:['behead','execution','throatcut'].includes(F.type)?'finish_neck':['runthrough','impale','heartstab','pin','knifed'].includes(F.type)?'finish_through':null;
+  S.hooks.sound('crit',30,fsnd?{s:fsnd}:{A,D});
   S.hooks.fin(ex,{A,D,F});
 }
 // the neck gives way: the head is free and the stump spurts

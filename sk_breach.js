@@ -66,7 +66,7 @@ function breachStep(B,K,party){
     if(brMove(B.wk)){K.facing=face;K.action=plantAction(K,S.t,chargeHand(K));B.plantT=S.t;breachState(B,'plant');}}
   else if(B.state==='plant'){
     const u=S.t-B.plantT;
-    if(!B.charge&&u>=.55){B.charge={t:S.t};B.clickT=S.t;B.blastT=S.t+BREACH.fuse;B.beeps=BREACH.beeps.map(x=>S.t+x);S.hooks.sound('click',1);S.hooks.log({type:'breach',stage:'plant',f:K});}
+    if(!B.charge&&u>=.55){B.charge={t:S.t};B.clickT=S.t;B.blastT=S.t+BREACH.fuse;B.beeps=BREACH.beeps.map(x=>S.t+x);S.hooks.sound('click',1,{s:'charge_plant'});S.hooks.log({type:'breach',stage:'plant',f:K});}
     if(B.charge&&u>=.85){B.wk=brWalk(K,walkPath(K,X+B.side*BREACH.backX,BREACH.backZ),BREACH.backV);breachState(B,'back');}}
   else if(B.state==='back'){
     if(brMove(B.wk)&&S.t>=B.plantT+1.05){
@@ -158,7 +158,7 @@ function breachTick(){
     const up=Math.abs(Math.sin(p.ang))*p.w/2+Math.abs(Math.cos(p.ang))*p.h/2,ey=lerp(up,2.2,clamp(p.th/(Math.PI/2),0,1));
     if(p.y+ey>=g){p.y=g-ey;
       if(p.vy>80&&p.bounce<4){p.vy*=-.32;p.vx*=.66;p.vd*=.55;p.va*=.5;p.fv*=.4;p.bounce++;
-        if(p.vy<-120&&S.t-B.clack>.06){B.clack=S.t;S.hooks.sound('wood',clamp(.25+Math.abs(p.vy)/700,.25,.6));}}
+        if(p.vy<-120&&S.t-B.clack>.06){B.clack=S.t;S.hooks.sound('wood',clamp(.25+Math.abs(p.vy)/700,.25,.6),{clack:1});}}
       else{p.vy=0;if(!p.bounce)p.bounce=1;p.vx*=1-9*DT;p.vd*=1-9*DT;p.va*=1-8*DT;p.fv*=1-8*DT;
         if(Math.abs(p.vx)+Math.abs(p.vd)<12&&p.th>1.5||p.age>5){p.rest=true;p.th=Math.PI/2;p.y=g-2.2;p.vx=p.vd=p.vy=p.va=p.fv=0;p.tgt=p.ang;}}}}
   const sm=B.smoke;let n=0;

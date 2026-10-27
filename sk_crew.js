@@ -112,7 +112,7 @@ function crewEnter(){
   f.ready=Math.min(...rest.map(o=>o.ready))+Math.round(CREW.lag*actionCost(f,'slash'));
   C.lastSide=side;
   const how=door?door.how:'from the '+(side<0?'left':'right');
-  if(door){C.doors.push({kind:door.kind,t0:S.t});S.hooks.sound('wood',.5);}
+  if(door){C.doors.push({kind:door.kind,t0:S.t});S.hooks.sound('wood',.5,{door:door.kind});}
   S.callouts.push({i:f.idx,text:f.name,age:door?0:-.3,life:1.4,dx:0});
   S.hooks.log({type:'crew',f,how,left:C.queue.length});S.hooks.crew(f);
   return f;

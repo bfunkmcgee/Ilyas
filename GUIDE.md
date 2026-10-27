@@ -38,9 +38,11 @@ Live sources (the only files to edit for the game):
   then the features' game parts: crew chain insure style secret lobby breach office finale ctxmoves cast arms guns story beast elf
   (hud and light have UI parts only) react room.
 - UI: sk_envui.js, sk_phaseui.js, sk_arcui.js, the features' UI parts (crewui ... figui lookui castui sceneui armsui gunsui storyui
-  beastui elfui hudui lightui reactui roomui, in FEAT order), then sk_ui.js last (its frame loop starts the game).
+  beastui elfui hudui lightui reactui roomui ... sfxui, in FEAT order), then sk_ui.js last (its frame loop starts the game).
 - Page: sk_head.txt, sk_body.html, the sk_css_*.css in build.py's CSS list.
 - Music: music/lepers_ascent.mp3, the prologue's song. Not built into the page: published beside it (see "Publishing").
+- Sounds: sfx/*.mp3, the prologue's 153 recorded sounds, made in code by tools/sfx (see "The recorded sounds" under "How the code is
+  put together"). Not built into the page: published beside it (see "Publishing").
 - Scenes: envx/*.js painters named in build.py's SCENES, plus sk_scene_glue.js. **sk_sceneui.js is generated from them: never edit it.**
 - Built (never edit): ragdoll-skirmish-lab.html (published), sk_full.js, test_page.html (opens on the lab: `window.SK_TEST=1`),
   build_map.json, build_modules.json, uiwork/qa_*.
@@ -117,6 +119,35 @@ figure is drawn translated by (dep*PSX, -dep*PSY) and uses his raw x/y. Canvas p
   graph would hear zeros). Sound off or the page hidden holds it; the 'quit' hook fades it out and drops it; a play() the browser
   refuses (no press yet) tries again at the next click, key or touch. The page loads it beside itself by a relative path: the
   published page needs the file published with it (see "Publishing"), and uiwork/qa_*.html have none (it simply does not play).
+- The recorded sounds (since V69): sk_sfxui.js plays the prologue's sounds from recordings, "The Long Night Sound List" (153 sounds)
+  made in code by tools/sfx. One file a sound in sfx/ (its takes one after another, or a loop with a margin each side), and
+  `SFX_MAN` says where each take sits (`{t:[[offset, length, LUFS], ...]}`) or a loop's window (`{l:[start, end]}`). Over http(s)
+  the page loads them beside itself: the fights' own (`SFX_FIGHT`) always, a stage's (`SFX_STAGE`) with it and the next one, and in
+  the lab the ground's footsteps, the room's kit and the guns' when a gun is in the fight; what is no longer wanted is let go. A page
+  opened as a file, or a call whose recording has not loaded yet, plays the synthesized sounds as before (uiwork/qa_*.html have none).
+  The sound hook is wrapped last (sfx is the last name in FEAT), so it hears every call first, with a third argument the inner
+  wrappers never see. The game's calls keep their old keys (the synthesized sounds and the logic suites still hear them) and say more
+  in it: `{s:'desk_slam'}` names the recording, `{skip:'desk_slam'}` is silent while that one is loaded (another call carries the
+  moment), and `take`, `delay`, `dur`, `g` (gain), `A`/`D` (the fighters: a blow sounds by the striker's weapon), `kind` (a blast),
+  `door`, `clack`, `tumble`, `body` (a falling body: one thud for all of it, none in the jolt of a scene put in place), `pit`. A key
+  with no synthesized sound that is a recording's name (`maize_push`, `lift_doors`, `tail_writhe` ...) plays only the recording.
+  `sfxRoute` is the table from a call to a recording (a swing by the weapon's mass, a thud by its weight and the floor, `sfxFloor`).
+  The held sounds, from `V11UI.tick`: the stage's background (`SFX_BED`, crossfaded), his bike on two loops blended by speed (the
+  synthesized engine, rails and wind stand down while their recordings are loaded), the riders' bike, the rails and their joints, the
+  carrier, the fire, the train at the platform, the freight lift, the helicopter's hover and the fall's wind. Footsteps are the game's
+  own steps (`f.steps`) put down, by the floor; fight footwork scuffs now and then. Levels: `SFX_GAIN` (the one-shots peak at -1
+  dBTP) and `SFX_LOOP` (a loop's loudness in LUFS where it is heard fullest; the files hold -20). Every recording goes out through
+  `SFX.bus`, which the sound switch closes at once. Voices are capped (`SFX_CAP`, 4 a sound, 40 in all). Nothing here writes what
+  the game reads. Suite: soundpage (over http, from a server it starts).
+  The generator, tools/sfx (Python 3 with numpy, scipy, soundfile and pedalboard, matplotlib for the sheets; ffmpeg with libmp3lame;
+  a C compiler makes the filters much faster, else they run in Python): list.json is the list, rec_*.py the recipes (one function a
+  sound, `@sound(key, takes, kind, L)`), gens.py and amb.py the families they are made from, dsp.py the kit. `python3
+  tools/sfx/render.py <out> --web --install .` renders every sound (about half a minute here), packs them and installs sfx/ and the
+  manifest (<out> is a folder outside the repository, or tools/sfx/out, which git ignores); `python3 tools/sfx/render.py <out> KEY
+  ...` renders some (the masters, to listen to, in <out>/wav), and `python3 tools/sfx/sheet.py <out> <sheet.png> [KEY,KEY]` draws
+  their spectrograms (a loop's seam measured). A take is seeded by its key and number, so a render comes out the same every
+  time. A new sound: its recipe and its line in list.json, render all and install (the manifest installed is the whole of
+  <out>/web/manifest.json), its level in `SFX_GAIN` or `SFX_LOOP`, the stage that loads it in `SFX_STAGE`, and the call that plays it.
 - sk_lookui.js (Kael), sk_castui.js (everyone else), sk_figui.js (FigKit: the shared shaping and light). drawFighterItem in sk_ui.js.
 - sk_lightui.js (FXL): effects Full/Lite/Off (localStorage sk_fx; auto-drops to Lite on a slow device, never under SK_TEST). Full
   draws each fighter into a sprite (ctx swapped) reused for cast shadows and reflections; the fx are restyled as light; the vignette
@@ -469,11 +500,12 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V69 ..." (V68 was the last published; count on from it). The song is published beside the page as one of the
-artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3"}`. An update keeps the files it does not name, so
-pass it only when the track changes or when publishing to a new url (V68 sent it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
+short label "V70 ..." (V69 was the last published; count on from it). The song and the recorded sounds are published beside the page
+as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
+...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
+so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V68: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V69: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 

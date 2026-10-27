@@ -566,7 +566,7 @@ function takeLoot(A,L){
 }
 // a bottle breaks on the first hit and leaves a jagged neck in the hand
 function shatterBottle(A,D,C){
-  const next=A.wp.shatter;sparks(C,16,'#bfe9e2',D.dep);sparks(C,8,'#ffffff',D.dep);S.hooks.sound('crack',1);
+  const next=A.wp.shatter;sparks(C,16,'#bfe9e2',D.dep);sparks(C,8,'#ffffff',D.dep);S.hooks.sound('crack',1,{s:'bottle_smash'});
   popup(A,'Shattered','#bfe9e2',null,18,-26);A.setWeapon(next);
 }
 

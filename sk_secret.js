@@ -14,13 +14,13 @@ const SECRET_T={turn:.3,grind:.36,slide0:.4,slide1:1.4,line:1.2,chime:1.62,open0
 S.secret=null;
 function revealStart(T){
   if(!deepOn())return null;
-  const t0=S.t,D=S.secret={t0},hx=SECRET_DOOR.x,tp=GB-SECRET_ART.h-8,snd=(k,v)=>S.hooks.sound(k,v);
+  const t0=S.t,D=S.secret={t0},hx=SECRET_DOOR.x,tp=GB-SECRET_ART.h-8,snd=(k,v,c)=>S.hooks.sound(k,v,c);
   // dust sifts out of the seams as the section moves
   const puff=()=>dust(hx+(Math.random()-.5)*SECRET_ART.w,tp-(Math.random()*70|0),1,KITCHEN.far,'#cfd8d4');
-  const cues=[[0,()=>{snd('click',1);S.shake=Math.max(S.shake,2.5);}],
+  const cues=[[0,()=>{snd('click',1,{s:'wall_latch'});S.shake=Math.max(S.shake,2.5);}],
     [SECRET_T.turn,()=>{for(const h of S.F)if(h.team===0&&!h.dead&&!h.carry)faceToward(h,hx);}],
-    [SECRET_T.grind,()=>{snd('grind',1);puff();puff();}],[.7,puff],[1,()=>{puff();puff();}],[SECRET_T.slide1-.05,()=>{puff();S.shake=Math.max(S.shake,3);snd('thud',120);}],
-    [SECRET_T.chime,()=>snd('chime',1)]];
+    [SECRET_T.grind,()=>{snd('grind',1);puff();puff();}],[.7,puff],[1,()=>{puff();puff();}],[SECRET_T.slide1-.05,()=>{puff();S.shake=Math.max(S.shake,3);snd('thud',120,{skip:'wall_slide'});}],
+    [SECRET_T.chime,()=>{snd('chime',1);snd('lift_doors',1,{take:0,delay:.25});}]];
   let k=0;
   return()=>{
     if(S.secret!==D)return true;const u=S.t-t0;
