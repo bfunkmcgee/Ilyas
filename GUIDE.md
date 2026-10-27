@@ -40,6 +40,7 @@ Live sources (the only files to edit for the game):
 - UI: sk_envui.js, sk_phaseui.js, sk_arcui.js, the features' UI parts (crewui ... figui lookui castui sceneui armsui gunsui storyui
   beastui elfui hudui lightui reactui roomui, in FEAT order), then sk_ui.js last (its frame loop starts the game).
 - Page: sk_head.txt, sk_body.html, the sk_css_*.css in build.py's CSS list.
+- Music: music/lepers_ascent.mp3, the prologue's song. Not built into the page: published beside it (see "Publishing").
 - Scenes: envx/*.js painters named in build.py's SCENES, plus sk_scene_glue.js. **sk_sceneui.js is generated from them: never edit it.**
 - Built (never edit): ragdoll-skirmish-lab.html (published), sk_full.js, test_page.html (opens on the lab: `window.SK_TEST=1`),
   build_map.json, build_modules.json, uiwork/qa_*.
@@ -107,6 +108,15 @@ figure is drawn translated by (dep*PSX, -dep*PSY) and uses his raw x/y. Canvas p
   opening to the end of the story (even with the sound off). The engine is now stopped after `ENG_HUSH` seconds quiet. Suite:
   `soundpage` (sk_sound_page.js) hears the page's own output at the master gain (Chromium with
   `--autoplay-policy=no-user-gesture-required`, an AnalyserNode on `master`, the game held still while the audio plays on).
+- The prologue's song (since V68): music/lepers_ascent.mp3, "Lepers Ascent", the author's own track (made with Suno; cover art and
+  tags stripped, the audio itself untouched). `MUSIC` in sk_storyui.js starts it on the 'stage' story hook for the first stage (sundown: Begin and Play
+  again; a chapter from the menu does not start it) and it plays once through, about five minutes. Over http(s) an audio element with
+  `crossOrigin` goes through `MUSIC.g` straight to `AC.destination`, not `master`, so the effects checks never hear it and its level
+  (`MUSIC.lvl`, .5; the track is -16.7 LUFS) holds on iPhones, which ignore an element's own volume. If it will not load that way
+  (another origin without CORS) it falls back to a plain element at that volume; a page opened as a file always plays it plain (the
+  graph would hear zeros). Sound off or the page hidden holds it; the 'quit' hook fades it out and drops it; a play() the browser
+  refuses (no press yet) tries again at the next click, key or touch. The page loads it beside itself by a relative path: the
+  published page needs the file published with it (see "Publishing"), and uiwork/qa_*.html have none (it simply does not play).
 - sk_lookui.js (Kael), sk_castui.js (everyone else), sk_figui.js (FigKit: the shared shaping and light). drawFighterItem in sk_ui.js.
 - sk_lightui.js (FXL): effects Full/Lite/Off (localStorage sk_fx; auto-drops to Lite on a slow device, never under SK_TEST). Full
   draws each fighter into a sprite (ctx swapped) reused for cast shadows and reflections; the fx are restyled as light; the vignette
@@ -459,7 +469,9 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V68 ..." (V67 was the last published; count on from it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
+short label "V69 ..." (V68 was the last published; count on from it). The song is published beside the page as one of the
+artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3"}`. An update keeps the files it does not name, so
+pass it only when the track changes or when publishing to a new url (V68 sent it). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
 Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V68: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
