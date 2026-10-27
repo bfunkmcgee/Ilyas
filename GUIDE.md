@@ -143,8 +143,9 @@ figure is drawn translated by (dep*PSX, -dep*PSY) and uses his raw x/y. Canvas p
   a C compiler makes the filters much faster, else they run in Python): list.json is the list, rec_*.py the recipes (one function a
   sound, `@sound(key, takes, kind, L)`), gens.py and amb.py the families they are made from, dsp.py the kit. `python3
   tools/sfx/render.py <out> --web --install .` renders every sound (about half a minute here), packs them and installs sfx/ and the
-  manifest; `python3 tools/sfx/render.py <out> KEY ...` renders some (the masters, to listen to, in <out>/wav), and `python3
-  tools/sfx/sheet.py <out>` draws their spectrograms. A take is seeded by its key and number, so a render comes out the same every
+  manifest (<out> is a folder outside the repository, or tools/sfx/out, which git ignores); `python3 tools/sfx/render.py <out> KEY
+  ...` renders some (the masters, to listen to, in <out>/wav), and `python3 tools/sfx/sheet.py <out> <sheet.png> [KEY,KEY]` draws
+  their spectrograms (a loop's seam measured). A take is seeded by its key and number, so a render comes out the same every
   time. A new sound: its recipe and its line in list.json, render all and install (the manifest installed is the whole of
   <out>/web/manifest.json), its level in `SFX_GAIN` or `SFX_LOOP`, the stage that loads it in `SFX_STAGE`, and the call that plays it.
 - sk_lookui.js (Kael), sk_castui.js (everyone else), sk_figui.js (FigKit: the shared shaping and light). drawFighterItem in sk_ui.js.
