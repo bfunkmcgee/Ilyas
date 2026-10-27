@@ -203,7 +203,7 @@ S.hooks.phase=step=>{const b=document.getElementById('banner');lockRunToggles();
   if(step==='clear'){b.textContent=`The ${roomName()} is clear`;updateStatus();}
   else if(step==='reveal'){b.textContent='A hidden lift';}
   else if(step==='breach'){b.textContent='The executive\'s door';}
-  else if(step==='walk'){const T=S.stage.tr;b.textContent=T&&T.to?ROOMS[T.to].via:'Through to the kitchen';if(!T||T.from==='dining')S.hooks.sound('wood',.6);}
+  else if(step==='walk'){const T=S.stage.tr;b.textContent=T&&T.to?ROOMS[T.to].via:'Through to the kitchen';if(!T||T.from==='dining')S.hooks.sound('wood',.6,{s:'door_swing'});}
   else if(step==='swap'){buildRows();buildBench();snapCamera();b.textContent=ROOMS[S.room].title;updateStatus();}
   else if(step==='enter'){S.hooks.sound('thud',160);}
 };

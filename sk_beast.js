@@ -91,7 +91,7 @@ function planTail(A,D,kind,res,opts){
   const tuck=armPose(A,poseA(A,'glaiveUp'));
   const armK=armKeys(A,[[0,snap?'now':'guard'],[Math.max(.05,Ts0-.04),tuck,eOut],[Ts1,tuck],[Tr,'guard',sstep],[Tend,'guard']]);
   const react=planReaction(D,A,kind,res,Timp,Cfn,0,rnd,snap,fa);
-  const events=[{t:Math.max(0,Ts0-.03),fn:()=>S.hooks.sound('tail',1)},{t:Timp-.07,fn:()=>S.hooks.sound('swoosh',4.4)}];
+  const events=[{t:Math.max(0,Ts0-.03),fn:()=>S.hooks.sound('tail',1)},{t:Timp-.07,fn:()=>S.hooks.sound('swoosh',4.4,{skip:'tail_swing'})}];
   if(out!=='hit'&&out!=='crit')events.push({t:Timp+.005,fn:()=>stallTurn(A,D)});
   events.push({t:Tr,fn:()=>{if(!A.dead&&!A.downed)A.station=settleStation(A,D,clampSt(A,A.p[PEL].x));}});
   events.push(...(react.evs||[]));
@@ -148,7 +148,7 @@ function cutTail(D,fa){if(!tailIntact(D)||!D.tail)return null;const k=TAIL.cut,q
   const e=q[k];if(S.gore!=='off'&&!S.warming){bleed(e,-fa,26,D.dep,1.15);bleed(e,fa,10,D.dep,.8);stain(e.x,D.dep,4,.7,18);}
   sparks(e,8,'#ffd9a8',D.dep);flash(e,30,'#fff1c9',D.dep);
   popup(D,'Tail severed','#ff8a5c','no more tail blows',22,-74);
-  S.hooks.sound('roar',1);S.slowT=Math.max(S.slowT,.6);S.freeze=Math.max(S.freeze,.08);S.shake=Math.max(S.shake,6);
+  S.hooks.sound('roar',1);S.hooks.sound('tail_writhe',1,{delay:.35});S.slowT=Math.max(S.slowT,.6);S.freeze=Math.max(S.freeze,.08);S.shake=Math.max(S.shake,6);
   // the shock of it takes his footing and slows him
   if(!D.dead){spendFoot(D,2);D.ready+=20;D.motor=Math.min(D.motor,.5);}
   return bit;}
@@ -217,7 +217,7 @@ function halvesStep(){if(S.gore==='off'||S.warming)return;
   S.callouts.push({i:A.idx,text:F.name,age:0,life:1.4,dx:-A.facing*8,big:true});
   S.slowT=Math.max(S.slowT,.6);S.freeze=Math.max(S.freeze,.08);if(!S.warming)S.punch={x:prjX(C.x,D.dep),t:0};
   if(!halve(D,fa,F.cut)){const s=(res.seed&2)?1:-1;D.vdep+=s*95;for(const i of [CHE,HEAD,ELF,ELB])D.p[i].px-=fa*90*DT;}
-  S.hooks.sound('crit',30);S.hooks.sound('splat',1);
+  S.hooks.sound('crit',30,{skip:'splat'});S.hooks.sound('splat',1);
   S.hooks.fin(ex,{A,D,F});};}
 
 // ---------- goblins thrown about ----------

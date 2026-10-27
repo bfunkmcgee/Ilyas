@@ -158,7 +158,7 @@ function breakDivider(w,dir){
   const C={x:w.x,y:cy};flash(C,36,'#fff1c9',cd);sparks(C,w.mat==='glass'?34:22,divChip(w),cd);
   const puffs=w.mat==='plaster'?3:w.mat==='plank'?2:w.mat==='paper'?1:0;for(let i=0;i<puffs;i++)dust(w.x+dir*6,g-i*36,1.2,cd);
   S.shake=Math.max(S.shake,15);S.freeze=Math.max(S.freeze,.07);S.slowT=Math.max(S.slowT,.4);if(!S.warming)S.punch={x:prjX(w.x,cd),t:0};
-  S.hooks.sound(M.snd,1.4);S.hooks.sound('crack',1);
+  S.hooks.sound(M.snd,1.4);S.hooks.sound('crack',1,M.snd==='glass'?{skip:'glass_large'}:M.snd==='paper'?{skip:'paper'}:undefined);
   const ex=S.game.ex;if(ex&&ex.divDmg&&ex.divSlam===w&&!ex.divShown){ex.divShown=true;S.popups.push({x:w.x+dir*12,y:cy-40,d:cd,text:'+'+ex.divDmg+' '+divWord(w),color:'#ffc163',sub:'Breach',size:20,age:0});}
   bill(M.bill,M.name);S.hooks.status();
 }
@@ -254,7 +254,7 @@ function fighterEnv(final){
 }
 function propHit(P,f,q,i,vn,rag){
   const T=PROP[P.type],need=T.brk*(i===TIP?1.2:rag?.9:1.3);
-  if(vn>140&&S.t-P.last>.2){P.last=S.t;S.hooks.sound('thud',Math.min(vn,400)*.6);if(vn>260)dust(q.x,q.y,.6,P.dep);}
+  if(vn>140&&S.t-P.last>.2){P.last=S.t;S.hooks.sound('thud',Math.min(vn,400)*.6,vn>260?{s:'prop_tumble'}:undefined);if(vn>260)dust(q.x,q.y,.6,P.dep);}
   if(vn>need){P.hp--;if(P.hp<=0)breakProp(P,Math.sign(q.vx0)||f.facing,vn);}
 }
 function propsGroundHits(P){
@@ -278,7 +278,7 @@ function breakProp(P,dir,force){
   else if(P.type==='easel'){piece(p[0],p[1],6,'#20222a');piece(p[0],p[2],2.4,WD);for(let i=0;i<5;i++)shard('wood',c,cy,D,dir,1);}
   else if(PROP_BREAK[P.type])PROP_BREAK[P.type](P,piece,dir,c,cy,D);
   for(const it of S.wares)if(it.host===P){it.host=null;it.rest=0;it.px-=dir*(.5+Math.random())*kick;it.py+=1.2*kick;}
-  dust(c,P.box.b,1.1,D);sparks({x:c,y:cy},10,'#d9a06a',D);S.shake=Math.max(S.shake,7);S.hooks.sound('crack',.7);S.hooks.sound('thud',300);
+  dust(c,P.box.b,1.1,D);sparks({x:c,y:cy},10,'#d9a06a',D);S.shake=Math.max(S.shake,7);S.hooks.sound('crack',.7,{s:'prop_break'});S.hooks.sound('thud',300,{skip:'prop_break'});
   bill(P.type==='bistro'?'bistro':P.type);
 }
 
@@ -305,7 +305,7 @@ function kickWares(host,dir,pow){for(const it of S.wares){if(it.gone||it.host!==
 // ---------- hanging lamps ----------
 function addLamp(x,dep,shadeY,kind){const ay=20+dep*PSY,p={x,y:shadeY,px:x,py:shadeY,im:1,vx0:0,vy0:0};const L={x,ay,dep,L:shadeY-ay,p,r:kind==='lantern'?8:10,kind:kind||'pendant',lit:true,fallen:false,flick:0,dead:0,ph:Math.random()*TAU};S.lamps.push(L);return L;}
 function lampHit(L,vn,f){
-  if(vn>120&&S.t-(L.lastHit||-9)>.2){L.lastHit=S.t;S.hooks.sound('clang',.25);L.flick=.35;}
+  if(vn>120&&S.t-(L.lastHit||-9)>.2){L.lastHit=S.t;S.hooks.sound('clang',.25,{s:'lamp_knock'});L.flick=.35;}
   if(L.lit&&vn>330){L.lit=false;L.dead=S.t;const p=L.p;flash(p,40,'#fff3cf',L.dep);sparks(p,16,'#fff3cf',L.dep);for(let i=0;i<10;i++)shard('glass',p.x,p.y+4,L.dep,Math.sign(f.p[PEL].vx0)||1,.6);
     popup(f,'Lamp out','#ffc163',null,16,-38);S.hooks.sound('glass',.8);bill('lamp');}
   if(vn>620&&!L.fallen){L.fallen=true;S.hooks.sound('crack',.4);}
@@ -313,7 +313,7 @@ function lampHit(L,vn,f){
 function lampsStep(final){
   for(const L of S.lamps){const p=L.p;
     if(!L.fallen){const a={x:L.x,y:L.ay,px:L.x,py:L.ay,im:0};stickC(a,p,L.L);if(final){p.x=clamp(p.x,L.x-L.L*.9,L.x+L.L*.9);}}
-    else{const g=S.arena.ground(p.x,L.dep)-L.r;if(p.y>=g){if(!L.landed){L.landed=true;for(let i=0;i<8;i++)shard('brass',p.x,g,L.dep,0,.6);dust(p.x,g+L.r,1,L.dep);S.hooks.sound('thud',350);if(L.lit){L.lit=false;bill('lamp');}}p.y=g;p.px=p.x-(p.x-p.px)*.6;}}}
+    else{const g=S.arena.ground(p.x,L.dep)-L.r;if(p.y>=g){if(!L.landed){L.landed=true;for(let i=0;i<8;i++)shard('brass',p.x,g,L.dep,0,.6);dust(p.x,g+L.r,1,L.dep);S.hooks.sound('thud',350,{s:'lamp_fall'});if(L.lit){L.lit=false;bill('lamp');}}p.y=g;p.px=p.x-(p.x-p.px)*.6;}}}
 }
 
 // ---------- the room ----------

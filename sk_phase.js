@@ -205,7 +205,7 @@ const PROP_BREAK={
 function hotRef(r){return!!(r&&r.type&&PROP[r.type]&&PROP[r.type].hot);}
 // anything that never breaks (the stove) takes the blow, and a hot one burns
 function solidPropHit(P,dir){const T=PROP[P.type];if(!T.hot||S.warming)return;const b=P.box,q={x:b.cx,y:b.t+10};
-  sparks(q,14,'#ffb347',P.dep);dust(b.cx,b.t+4,.9,P.dep,'#9a9a9a');flash(q,26,'#ffcf7a',P.dep);S.hooks.sound('clang',.7);S.hooks.sound('sizzle',1);}
+  sparks(q,14,'#ffb347',P.dep);dust(b.cx,b.t+4,.9,P.dep,'#9a9a9a');flash(q,26,'#ffcf7a',P.dep);S.hooks.sound('clang',.7,{s:'range_slam'});S.hooks.sound('sizzle',1);}
 function kitchenDivs(){addDiv('slats',178,18,104);addDiv('shelf',604,124,DEP_MAX+6);}
 function buildKitchen(){
   if(S.divOn)kitchenDivs();

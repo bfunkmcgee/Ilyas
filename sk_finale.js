@@ -245,7 +245,7 @@ function finaleStep(){
     kdrive(F,{b:{px:F.walkX,pz:106,crouch:.74,lean:1.12,stF:10,stB:-.33*leg},...lowHand(),ox:hand.x,oy:hand.y,tl:.1},u<.16?30:14);
     const H=XP.H,hb=K.p[HAB];H.kx=hb.x-X.body.headR*.6;H.ky=Math.min(hb.y+X.body.headR*.55,ky-X.body.headR-.3);
     if(!F.fx.slam&&(X.p[HEAD].y>=ky-X.body.headR-3||u>.5))fxSlam(F);
-    if(F.fx.slam&&S.t-F.fx.slam>.4){go(F,'haul');F.hx0=H.kx;F.fx.chair=0;}
+    if(F.fx.slam&&S.t-F.fx.slam>.4){go(F,'haul');F.hx0=H.kx;F.fx.chair=0;S.hooks.sound('over_desk',1,{dur:.7});}
     break;}
   case'haul':{
     // drawn back across the desk, the hips lifting out of the chair and onto the top; Kael steps back with him, and at the edge
@@ -307,12 +307,12 @@ function mdrive(F){
   M.facing=1;M.station=M.p[PEL].x;
 }
 // his chair goes back from under him
-function chairShove(){const P=S.props.find(p=>p.type==='execchair'&&!p.broken);if(!P)return;P.sleep=0;
+function chairShove(){const P=S.props.find(p=>p.type==='execchair'&&!p.broken);if(!P)return;P.sleep=0;S.hooks.sound('chair_topple',1);
   for(const [i,q] of P.pts.entries()){const v=[4.5,4.5,7,3.2][i]||4;q.px=q.x-v;if(i<3)q.py=q.y+1.2;}}
 // the face meets the desk
 function fxSlam(F){
   const X=F.X,D=F.D,h=X.p[HEAD],x=h.x,y=D.top;F.fx.slam=S.t;
-  S.freeze=Math.max(S.freeze,.1);S.shake=Math.max(S.shake,12);S.hooks.sound('thud',700);S.hooks.sound('crit',30);
+  S.freeze=Math.max(S.freeze,.1);S.shake=Math.max(S.shake,12);S.hooks.sound('thud',700,{s:'desk_slam'});S.hooks.sound('crit',30,{skip:'desk_slam'});
   if(!S.warming)S.punch={x:prjX(x,X.dep),t:0};
   flash({x,y:y-6},28,'#fff3cf',X.dep);dust(x,y,.9,X.dep);sparks({x:x+4,y:y-4},7,'#fff3cf',X.dep);
   if(D.P)kickWares(D.P,-1,1.4);
@@ -365,7 +365,7 @@ function fxCut(F){
   F.fx.cut=S.t;
   S.slowT=Math.max(S.slowT,.75);S.freeze=Math.max(S.freeze,.1);if(!S.warming)S.punch={x:prjX(n.x,X.dep),t:0};
   S.callouts.push({i:K.idx,text:gore?'Beheaded':'Struck down',age:0,life:1.7,dx:-fa*8,big:true,fin:1});
-  S.hooks.sound('crit',30);S.hooks.sound('swoosh',2.2);
+  S.hooks.sound('crit',30,{s:gore?'finish_neck':'crit_cut'});S.hooks.sound('swoosh',2.2,{s:'swing_heavy'});
   flash(n,26,'#fff6e0',X.dep);sparks(n,10,'#fff3cf',X.dep);
   S.callouts=S.callouts.filter(c=>c.i!==X.idx);kill(X,fa);X.motor=0;X.station=X.p[PEL].x;X.dyingUntil=0;
   if(gore)sever(X,fa,false);

@@ -1,8 +1,10 @@
 # Renders the prologue's sounds (The Long Night Sound List, list.json) from their recipes.
-#   python3 render.py <out dir> [key ...] [--web] [--jobs N]
+#   python3 render.py <out dir> [key ...] [--web] [--jobs N] [--install <repo>]
 # Writes <out>/wav/<key>_<NN>.wav, the masters (48 kHz 24-bit; one-shots peak at -1 dBTP; loops one seamless period at
 # -20 LUFS, peaks under -3 dBTP). With --web it also packs each key into <out>/web/<key>.mp3 (its takes one after another,
 # a loop with a margin of itself on each side) and writes <out>/web/manifest.json: where each take sits, or the loop's window.
+# --install <repo> then copies the web files into <repo>/sfx/ and writes the manifest into <repo>/sk_sfxui.js (render with --web
+# and every key first: the manifest installed is the whole of <out>/web/manifest.json).
 import json, os, subprocess, sys, zlib
 from multiprocessing import Pool
 import numpy as np
@@ -81,8 +83,33 @@ def pack(key, out):
     return ent
 
 
+def install(out, repo):
+    """the web files into the game: sfx/<key>.mp3 beside the page, and where each take sits written into sk_sfxui.js"""
+    import re, shutil
+    man = json.load(open(os.path.join(out, 'web', 'manifest.json')))
+    os.makedirs(os.path.join(repo, 'sfx'), exist_ok=True)
+    for k in man:
+        shutil.copy(os.path.join(out, 'web', k + '.mp3'), os.path.join(repo, 'sfx', k + '.mp3'))
+    slim = {k: ({'l': v['loop']} if 'loop' in v else {'t': v['takes']}) for k, v in man.items()}
+    js = json.dumps(slim, separators=(',', ':'))
+    p = os.path.join(repo, 'sk_sfxui.js')
+    src = open(p, encoding='utf-8').read()
+    new, n = re.subn(r'/\*SFX_MAN\*/.*?/\*SFX_MAN_END\*/', lambda m: '/*SFX_MAN*/' + js + '/*SFX_MAN_END*/', src, flags=re.S)
+    assert n == 1, 'the manifest markers in sk_sfxui.js'
+    open(p, 'w', encoding='utf-8').write(new)
+    print(f'installed {len(man)} sounds into {repo}/sfx and sk_sfxui.js')
+
+
 def main():
     args = sys.argv[1:]
+    if '--install' in args:
+        i = args.index('--install')
+        repo = args[i + 1]
+        del args[i:i + 2]
+        sys.argv = [sys.argv[0]] + args
+        main()
+        install(args[0], repo)
+        return
     web = '--web' in args
     jobs = 2
     if '--jobs' in args:
