@@ -768,7 +768,7 @@ function collide(f,final){
       const isFoot=i===FTF||i===FTB,planted=isFoot&&!f.steps[i===FTF?0:1].active&&f.motor>=.45;
       const vx=q.x-q.px,fr=planted?1:isFoot?.6:.32;q.px=q.x-vx*(1-fr);
       if(q.vy0>0){q.py=q.y+q.vy0*.1;const spd=q.vy0/DT;
-        if(spd>(isFoot?560:250)&&S.t-f.lastDust[i]>.3){f.lastDust[i]=S.t;dust(q.x,g+q.r,clamp(spd/600,.4,1.4),f.dep);if(!isFoot&&i!==TIP&&spd>300)S.hooks.sound('thud',spd);}}
+        if(spd>(isFoot?560:250)&&S.t-f.lastDust[i]>.3){f.lastDust[i]=S.t;dust(q.x,g+q.r,clamp(spd/600,.4,1.4),f.dep);if(!isFoot&&i!==TIP&&spd>300)S.hooks.sound('thud',spd,{body:f});}}
     }
     if(wx&&wallSolid()&&q.x>=wx-q.r-.5&&q.vx0>0){const spd=q.vx0/DT;q.px=q.x+q.vx0*.25;
       if(spd>180&&i!==TIP&&S.t-f.lastDust[i]>.3){f.lastDust[i]=S.t;onWallHit(f,q,spd);}}

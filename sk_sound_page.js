@@ -6,6 +6,11 @@
 // (music/lepers_ascent.mp3, sk_storyui.js): it starts with the first scene and only there, plays on into the field, is held by the
 // sound switch and let go when the story is left; over http (a server started here, as the published page has it) it goes through
 // the audio graph at its level, and a copy handed over from another origin without leave plays on as a plain element.
+// The recorded sounds (sfx/, sk_sfxui.js, since V69): a page opened as a file has none and plays the synthesized ones. Over http the
+// fights' own and the stage's load beside the page; a call plays its recording, or the one it names, and is silent when it says
+// another carries it; the stage's background plays, the bike's recordings take over from the synthesized engine, the sound switch
+// silences them at once, and leaving the story lets every held sound go. Footsteps come from the feet coming down: none from men
+// standing still in the lab, the field's floor under the men walking out of the maize.
 // usage: node sk_sound_page.js   (needs test_page.html from build.py; PAGE=... to point it at another copy)
 const SK_T0=Date.now();
 const {chromium}=require('playwright');
@@ -28,6 +33,8 @@ const level=()=>p.evaluate(()=>window.level()),wait=ms=>p.waitForTimeout(ms),QUI
 await wait(300);
 const st=await p.evaluate(()=>AC?AC.state:'none');
 expect('the page\'s audio runs',st==='running',st);
+{const f=await p.evaluate(()=>{step(4);const n=SFX.voices.length;S.hooks.sound('swoosh',1.5,{A:hero()});return{can:sfxCan(),bufs:Object.keys(SFX.bufs).length,voices:SFX.voices.length-n};});
+  expect('a page opened as a file has no recordings and plays the synthesized sounds',!f.can&&!f.bufs&&!f.voices,JSON.stringify(f));}
 
 // the opening: the engine once he starts the bike, and nothing of it once the opening is over
 const o=await p.evaluate(()=>{storyGo('sundown');S.storyAuto=true;S.auto=true;step(2);const n=runUntil(()=>S.story.bike&&S.story.bike.run>0,8000);return{n,run:S.story.bike?S.story.bike.run:0};});
@@ -90,6 +97,15 @@ await p.evaluate(()=>{storyQuit();step(2);});
   await h.addInitScript(()=>{window.requestAnimationFrame=cb=>{window.__raf=cb;return 1;};});
   await h.goto('http://127.0.0.1:'+A.address().port+'/'+(process.env.PAGE||'test_page.html'));await h.waitForTimeout(400);
   await h.evaluate(setup);
+  // the lab: its recordings load, and men standing still make no footsteps
+  const loaded=async st=>{let r;for(let i=0;i<40;i++){r=await h.evaluate(st=>{step(1);const ks=[...SFX_FIGHT,...(st?SFX_STAGE[st]:['step_'+sfxFloor()])];
+      return{miss:ks.filter(k=>!SFX.bufs[k]),bad:Object.keys(SFX.bad),queue:SFX.queue.length,busy:SFX.busy};},st);
+    if(!r.miss.length&&!r.busy)break;await h.waitForTimeout(150);}return r;};
+  const l0=await loaded(null);
+  const l1=await h.evaluate(()=>{const seen=new Set(),out=[];for(let i=0;i<240;i++){step(1);for(const v of SFX.voices)if(!seen.has(v)){seen.add(v);out.push(v.key);}}
+    return{floor:sfxFloor(),phase:S.game.phase,heard:out.filter(k=>/^step_|^scuff/.test(k))};});
+  expect('the recordings over http: the fights\' own and the lab ground\'s footsteps load, and none fails',!l0.miss.length&&!l0.bad.length,JSON.stringify(l0));
+  expect('the lab: men standing still make no footsteps (four seconds)',!l1.heard.length,JSON.stringify(l1));
   const g1=await h.evaluate(()=>{storyGo(null);S.storyAuto=true;S.auto=true;step(2);return{plain:MUSIC.plain,node:!!MUSIC.node};});
   await h.waitForTimeout(3500);
   const g2=await h.evaluate(()=>{step(2);const M=MUSIC,e=M.el,an=AC.createAnalyser();an.fftSize=4096;M.g.connect(an);window.__man=an;
@@ -98,6 +114,32 @@ await p.evaluate(()=>{storyQuit();step(2);});
   const g3=await h.evaluate(()=>{const an=window.__man,d=new Float32Array(an.fftSize);an.getFloatTimeDomainData(d);let s=0;for(const v of d)s+=v*v;MUSIC.g.disconnect(an);return+Math.sqrt(s/d.length).toFixed(5);});
   expect('the song over http: through the audio graph, at its level, and heard there',!g1.plain&&g1.node&&g2.playing&&Math.abs(g2.gain-.5)<.01&&g3>HEARD,
     JSON.stringify({g1,g2,level:g3}));
+  // the opening's recordings: loaded, played by the calls, the background and the bike held, the sound switch closing them at once
+  const l2=await loaded('sundown');
+  expect('the opening\'s recordings load with it',!l2.miss.length&&!l2.bad.length,JSON.stringify(l2));
+  const c1=await h.evaluate(()=>{const K=hero(),keys=()=>SFX.voices.map(v=>v.key),call=(k,v,c)=>{const n=SFX.voices.length;S.hooks.sound(k,v,c);return keys().slice(n).join();};
+    return{swoosh:call('swoosh',1.5,{A:K}),named:call('crit',30,{s:'finish_neck'}),carried:call('swoosh',1.5,{skip:'swing_mid'}),heavy:call('thud',500)};});   // (the road at sundown is dirt)
+  expect('a call plays its recording, or the one it names; one that another recording carries is silent',
+    c1.swoosh==='swing_mid'&&c1.named==='finish_neck'&&c1.carried===''&&c1.heavy==='thud_dirt',JSON.stringify(c1));
+  const b1=await h.evaluate(()=>{const n=runUntil(()=>S.story.bike&&S.story.bike.run>0,8000);step(40);const an=AC.createAnalyser();an.fftSize=4096;SFX.bus.connect(an);window.__san=an;
+    return{n,bed:!!SFX.loops['bed:amb_sundown_loop'],lo:!!SFX.loops.bikeLo,eng:!!ENG};});
+  await h.waitForTimeout(500);
+  const busLevel=()=>h.evaluate(()=>{const an=window.__san,d=new Float32Array(an.fftSize);an.getFloatTimeDomainData(d);let s=0;for(const v of d)s+=v*v;return+Math.sqrt(s/d.length).toFixed(5);});
+  const b2=await busLevel();
+  expect('the opening: the background and the bike\'s recordings play, and the synthesized engine stands down',b1.bed&&b1.lo&&!b1.eng&&b2>HEARD,JSON.stringify({b1,level:b2}));
+  await h.evaluate(()=>{S.soundOn=false;step(2);});await h.waitForTimeout(400);const b3=await busLevel();
+  await h.evaluate(()=>{S.soundOn=true;step(2);});
+  expect('the sound switch silences the recordings at once',b3<QUIET,JSON.stringify({on:b2,off:b3}));
+  await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
+  const q1=await h.evaluate(()=>({loops:Object.keys(SFX.loops),bed:SFX.bed}));
+  expect('leaving the story lets every held recording go',!q1.loops.length&&!q1.bed,JSON.stringify(q1));
+  // the field: the men walking out of the maize, on its floor
+  const w1=await h.evaluate(()=>{storyGo('field');S.storyAuto=true;S.auto=true;step(2);return 1;});
+  await loaded('field');
+  const w2=await h.evaluate(()=>{const seen=new Set(),out={};for(let i=0;i<600;i++){step(1);for(const v of SFX.voices)if(!seen.has(v)){seen.add(v);out[v.key]=(out[v.key]||0)+1;}}
+    return{floor:sfxFloor(),heard:out};});
+  const ws2=Object.keys(w2.heard).filter(k=>/^step_/.test(k));
+  expect('the field: the men coming out of the maize are heard, and their steps on its floor',w1&&w2.heard.maize_push>0&&ws2.length===1&&ws2[0]==='step_dirt'&&w2.heard.step_dirt>2,JSON.stringify(w2));
   await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
   away=true;
   await h.evaluate(()=>{storyGo(null);S.storyAuto=true;S.auto=true;step(2);});await h.waitForTimeout(1500);
