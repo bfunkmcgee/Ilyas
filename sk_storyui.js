@@ -117,6 +117,11 @@ function drawStoryScreen(){
   const th=S.thought;if(th){const u=(S.t-th.t0)/th.dur,a=clamp(Math.min(u/.18,(1-u)/.18),0,1);ctx.save();ctx.globalAlpha=a;ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.font=`italic 600 ${Math.round(clamp(30*s,15,30))}px "Cormorant Garamond","Alegreya SC",Georgia,serif`;ctx.fillStyle='#f3ead2';ctx.shadowColor='rgba(0,0,0,.85)';ctx.shadowBlur=8*s;
     const words=th.text.split(' '),lines=[];let ln='';for(const wd of words){const t2=ln?ln+' '+wd:wd;if(ctx.measureText(t2).width>w*.8&&ln){lines.push(ln);ln=wd;}else ln=t2;}lines.push(ln);
+    // (in the desert of his dream the picture is bright behind him: a soft shade under the words keeps them read)
+    const dk=S.arenaKey==='fall'&&typeof fallDream==='function'?fallDream():0;
+    if(dk>.05){const lh=34*s,y0=h*.78-(lines.length/2+.7)*lh,y1=h*.78+(lines.length/2+.7)*lh,g=ctx.createLinearGradient(0,y0,0,y1);
+      g.addColorStop(0,'rgba(14,9,4,0)');g.addColorStop(.5,`rgba(14,9,4,${(.45*dk).toFixed(3)})`);g.addColorStop(1,'rgba(14,9,4,0)');
+      ctx.save();ctx.shadowBlur=0;ctx.shadowColor='rgba(0,0,0,0)';ctx.fillStyle=g;ctx.fillRect(0,y0,w,y1-y0);ctx.restore();}
     lines.forEach((l,i)=>ctx.fillText(l,w/2,h*.78+(i-(lines.length-1)/2)*34*s));ctx.restore();}
   // a blast whites out the picture for a moment
   for(const b of S.booms){const u=S.t-b.t0;if(u>=0&&u<.35){ctx.fillStyle=`rgba(255,236,200,${(.55*(1-u/.35)*Math.min(1,b.size)).toFixed(3)})`;ctx.fillRect(0,0,w,h);}}
@@ -470,7 +475,19 @@ function windVoice(){if(!AC||AC.state!=='running')return null;if(WIND)return WIN
 function windFrame(){const on=!!S.story&&S.arenaKey==='outskirts'&&S.soundOn;if(!on){if(WIND)WIND.g.gain.setTargetAtTime(0,WIND.a.currentTime,.4);return;}
   const V=windVoice();if(!V)return;const t=V.a.currentTime,sw=.5+.5*Math.sin(S.t*.37)*Math.sin(S.t*.23+1);
   V.g.gain.setTargetAtTime((.025+.03*sw)*(1-.8*clamp(S.fade,0,1)),t,.5);V.f.frequency.setTargetAtTime(300+sw*260,t,.5);}
-V11UI.tick.push(()=>{engineFrame();railFrame();windFrame();musicSync();const C=S.card;if(C&&C.out!=null&&S.t-C.out>.6)S.card=null;});
+// the desert in his head as he falls (fallDream): a soft hiss of blowing sand under the wind of the fall, as deep as the dream is; the
+// first blow in the Pit cuts it off dead, with a breath drawn in (he is awake)
+let DREAMV=null,DREAM_WOKE=null;
+function dreamVoice(){if(!AC||AC.state!=='running')return null;if(DREAMV)return DREAMV;
+  const a=AC,n=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();n.buffer=noiseBuf;n.loop=true;f.type='bandpass';f.frequency.value=1600;f.Q.value=.6;g.gain.value=0;
+  n.connect(f);f.connect(g);g.connect(master);n.start();DREAMV={g,f,a};return DREAMV;}
+function dreamFrame(){const P=S.arenaKey==='fall'?S.pit:null,D=P&&typeof fallDream==='function'?fallDream():0,woke=!!P&&P.woke!=null;
+  if(woke&&DREAM_WOKE!==P){DREAM_WOKE=P;if(DREAMV){const t=DREAMV.a.currentTime;DREAMV.g.gain.cancelScheduledValues(t);DREAMV.g.gain.setValueAtTime(0,t);}
+    if(S.soundOn&&AC&&AC.state==='running')try{nz(.16,'highpass',900,5200,.7,.22);}catch(e){}}
+  if(!(D>0)||!S.soundOn){if(DREAMV)DREAMV.g.gain.setTargetAtTime(0,DREAMV.a.currentTime,woke?.01:.3);return;}
+  const V=dreamVoice();if(!V)return;const t=V.a.currentTime,sw=.5+.5*Math.sin(S.t*.61)*Math.sin(S.t*.27+2);
+  V.g.gain.setTargetAtTime(D*(.03+.025*sw),t,.35);V.f.frequency.setTargetAtTime(1300+700*sw,t,.35);}
+V11UI.tick.push(()=>{engineFrame();railFrame();windFrame();dreamFrame();musicSync();const C=S.card;if(C&&C.out!=null&&S.t-C.out>.6)S.card=null;});
 // the fall's junk is painted in pieces while it lasts; away from it, they are let go
 V11UI.tick.push(()=>{if(S.arenaKey!=='fall'&&typeof EnvLook!=='undefined'&&EnvLook.S&&EnvLook.S.fall&&EnvLook.S.fall.free)EnvLook.S.fall.free();});
 // the sand at sundown: a few grains blowing past his bike while he talks about the wire (sk_story.js, the opening), a fine gold run of

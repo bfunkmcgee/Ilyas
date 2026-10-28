@@ -241,8 +241,10 @@ function sfxHeld(){const SV=S.story,SK=SV&&SV.key,K=hero(),fadeK=1-.85*clamp(S.f
   sfxLoop('freight','freight_loop',SK==='deep'&&K&&K.rideLift&&S.t-SFX.liftT>.5?sfxLoopLv('freight_loop')*fadeK:0,null,.3);
   // the helicopter in its hover over the pad (after its approach)
   const H=SK==='roof'&&S.veh.find(v=>v.kind==='heli');sfxLoop('heli','heli_loop',H&&H.x>-200&&S.t-SFX.heliT>4.4?sfxLoopLv('heli_loop')*fadeK:0,null,.6);
-  // the fall: the wind of it until he is in the hay
-  const P=S.pit;sfxLoop('fall','fall_wind_loop',SK==='fall'&&(!P||P.stage!=='landed')?sfxLoopLv('fall_wind_loop')*(1-clamp(S.fade,0,1)*.6):0,null,P&&P.stage==='landed'?.25:.5);}
+  // the fall: the wind of it until he is in the hay (down the face it goes with the speed of the fall: quieter and lower as the memory
+  // slows it, back to all of it before the Pit)
+  const P=S.pit,th=SK==='fall'&&!!P&&!P.on,fk=th?clamp(Math.abs(S.scrollYV||0)/1800,0,1):1;
+  sfxLoop('fall','fall_wind_loop',SK==='fall'&&(!P||P.stage!=='landed')?sfxLoopLv('fall_wind_loop')*(1-clamp(S.fade,0,1)*.6)*(.4+.6*fk):0,th?.78+.22*fk:1,P&&P.stage==='landed'?.25:.5);}
 // the arc-blade rolling back up after a fight (the scene's roll-up: f.arcRev)
 function sfxRoll(){const K=hero();if(!K||!K.arcRev||K.arcRev===SFX.rev)return;if(S.t<K.arcRev.t0-.02)return;SFX.rev=K.arcRev;if(S.soundOn)sfxShot('arc_reroll');}
 // footsteps: each step a man takes (f.steps, the game's own: a step put down when it finishes), by what the floor is and how long

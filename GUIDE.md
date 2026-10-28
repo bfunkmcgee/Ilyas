@@ -296,6 +296,28 @@ V44). In a wind the corners are not mirrored while he is drawn turning round (dr
 headwind, forward in a tailwind, hanging again in none). `node uiwork/wind/stand.js <out.png> <wind,...> [facing] [frames]` shows him
 standing in set winds; `node uiwork/wind/shots.js <out> <stage> w h dpr <frame,...>` photographs a story stage at chosen frames.
 
+**The desert in his head (since V72).** As he goes down the face thinking of the wire, the night out past the corner turns by
+degrees to the noon he rode it in, and the tower's windows fill with sand and pour it. `fallDream()` (sk_story.js) is how deep it is,
+0 awake to 1: FALL_DREAM gives it at the end of each of FALL_LINES (it comes with the Rangers and the wire, deepens with the wells,
+falls back a little with the Sprawl, and is everything by the wire again), eased through each thought from `S.pit.dream` ({k, t0}:
+which thought, since when, set by the fall's script); it holds while the tower's foot comes up, and the first blow in the Pit
+(`pitWake`, from pitImpact, pitCatch or pitLand: `S.pit.woke`) ends it at once. The memory slows the face going by (`fallSlow()`,
+FALL_SLOW: down to 38% of the speed at the deepest), and as he swears to come back the speed comes back, all of it, before the Pit, so
+the Pit plays as it always did. The painter (envx/env_fall.js, "the desert in his head"): `desertView()` is the view out past the
+corner painted once (the sky white with heat at the horizon, the sun where the moon was, dunes to the horizon, the border wire's posts
+running out across them, a buried fortress's glass domes, a cistern, a well with people waiting at it), drawn in two parts so the sky
+comes in more slowly than the sand; a window the sand has (`sandAt`: each window its own moment, some never) is one piece
+(`sandSprites().win`: the noon in the room, a heap of sand, the mullion and transom), most of them pour a stream down the face
+(`sandPour`, drawn after the floors), the setbacks hold drifts and pour curtains, the dark glass holds the noon (`glassCol`), the fins
+burn in the sun, shafts of light come down at the deepest, the haze goes warm (`hazeSpr`, nine steps cold to warm), and sand blows up
+past him in four batches. The light that rims him moves from the city's glow to the sun (`light`). Waking (`dreamFore`): a white flash
+gone in a third of a second and the last of the sand blown off him. The sound (sk_storyui.js `dreamFrame`): a soft hiss of blowing sand
+as deep as the dream, cut dead at the waking with a breath drawn in; down the face the fall's wind goes with its speed (sk_sfxui.js:
+quieter and lower while the memory slows it). The thoughts get a soft shade under them while the dream is bright behind them. On a
+screen too short for the floor's band (a phone on its side) the fall's camera keeps him whole: `S.camCut.bandS` (sk_pitui.js).
+`node uiwork/fall48/dreamshot.js <outprefix> w h dpr <secs,...>` photographs the fall at chosen seconds; `node uiwork/fall48/dreamprobe.js
+[w h]` traces its depth, the face's speed, the waking and what the moving picture costs.
+
 **Kael with the coat off (since V46).** From the lobby on (`S.story.flags.coatOff`) his arms are bare: `bareTube` in sk_lookui.js
 builds each from FigKit.tube with `o.prof` (MUS: the width each side at points down the arm: the shoulder's cap, the biceps in front
 and the triceps behind, the forearm full at the elbow), `armFront` says which side is the front (the inside of the elbow's bend, or
@@ -575,12 +597,12 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V72 ..." (V71 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V73 ..." (V72 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
-so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns.) Never delete the duplicate artifact
+so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V71: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V72: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -611,7 +633,12 @@ was checked, and anything that did not work, plainly.
   suites and the timing checks passing alone).
 - Under SK_TEST the effects never auto-drop; in a real browser a slow first second can move a device to Lite.
 - The node checks have no Path2D or DOMMatrix: FXL and the scene painters stand down there (`SCENE_OK`).
-- The fall's live picture runs from y -110 to H+120 (`live()` in env_fall.js); a phone held upright sees past both ends. Anything
-  drawn in pieces there clips to that range (`junkWalls` does), or it pokes out above the far side's top edge.
+- A scene's still layer (sceneLayer) covers RC (y -90 to H+110); above it `sceneDraw` only stretches the layer's top row up, so a
+  phone held upright, which sees far above it, shows bare stripes there unless the scene's live() draws that part. The fall's live
+  picture runs from the camera's top to its foot, -110 to H+120 at the least (since V72, `EnvLook.S.fall.span`; before, the floors
+  stopped at -110 and an upright phone showed a band of bare piers over them, and the night's top row of stars stretched into lines).
+  Anything drawn in pieces there clips to that range (`junkWalls` does), or it pokes out above the far side's top edge.
+- Time a painter on a phone's screen by drawing the same moment over and over with a part left out by turns (as the V72 dream was
+  timed): one run against another on this machine differs by 2 ms or more.
 - In headless Chromium the canvas is rastered on the CPU when it is drawn, so a profile puts most of a frame in `restore`/`drawImage`
   (FXL's `put`); time a painter's own work with performance.now() round it (as `JK.ms` does) rather than from that profile.

@@ -135,9 +135,11 @@ V11UI.screen.push(()=>{const A=S.act1;if(!A||!A.sear||!act1On())return;const u=S
 // A scene that sets S.camCut.band ({top, foot}: world y, as drawn) keeps that much of the picture in view, instead of the floor at
 // the picture's foot: centred between the letterbox's bars (or the HUD's edges) where it fits, its top just under the top bar where
 // it does not (the kitchen's window over the table). C.bandN, where a scene gives one, is the band on a narrow screen (a phone held
-// upright has height to spare: the opening's sundown fills it from the sky's top to the world's foot).
-{const ct=camTarget;camTarget=function(){const C=S.camCut,B=C&&(cssW<640&&C.bandN?C.bandN:C.band);if(!B)return ct();
+// upright has height to spare: the opening's sundown fills it from the sky's top to the world's foot). C.bandS is the band on a
+// screen too short for the floor's own (BAND0) between the bars: a phone on its side (the fall keeps him there, not the floor).
+{const ct=camTarget;camTarget=function(){const C=S.camCut;if(!C)return ct();
   const s=cssW/Math.max(1,cam.viewW),bar=S.letter?cssH*.105:0,t=Math.max(HUD_IN.top,bar),b=Math.max(HUD_IN.bottom,bar),free=Math.max(40,cssH-t-b);
+  const B=cssW<640&&C.bandN?C.bandN:C.band||(C.bandS&&(BAND0.foot-BAND0.top)*s>free?C.bandS:null);if(!B)return ct();
   return(B.foot-B.top)*s<=free?(B.top+B.foot)/2-(t+free/2)/s:B.top-t/s;};}
 // A walk about or a cut with no band of its own, where the ground climbs (an arena with climb: the stair-streets), frames the floor's
 // band (BAND0) raised as far as the ground has come up where the camera looks: the picture goes up the stair with him (a phone on its

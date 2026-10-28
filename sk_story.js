@@ -1384,6 +1384,21 @@ const FALL_LINES=[
   ['Out on the wire you learn to wait for water. I can wait.',3.7],
   ['I’m coming back. For the man in white. For the family. For every last one of them.',4.6]];
 const FALL_EYE=.5;          // the light that comes back into his eye at the end, of the eye's full light
+// The desert in his head. As he goes down the face thinking of the wire, the night out past the corner turns by degrees to the noon he
+// rode it in and the tower's windows fill with sand and pour it (the painter's, envx/env_fall.js, from fallDream(): 0 awake, 1 the
+// dream all he sees). FALL_DREAM is how deep it is at the end of each thought: it comes with the Rangers and the wire, deepens with the
+// wells, falls back a little as he trades them for the Sprawl, and grows through the family's years until, waiting for water on the
+// wire, it is all there is. It holds while the tower's foot comes up; the first blow in the Pit wakes him (S.pit.woke) and it is gone.
+// The memory slows the fall as it takes him (FALL_SLOW: how much of the face's speed it takes away, at the end of each thought), and
+// as he swears to come back the speed comes back, all of it, before the tower's foot comes up (the Pit is met as it always was).
+const FALL_DREAM=[0,.36,.52,.44,.5,.56,.62,.68,.72,.8,1,1],FALL_SLOW=[0,.24,.4,.34,.4,.45,.5,.53,.56,.6,.62,0];
+// a curve given at the end of each thought, eased through each thought from the one before (P.dream: which thought, since when)
+function fallCurve(T,P){const d=P&&P.dream,n=FALL_LINES.length;if(!d||d.k<0)return 0;if(d.k>=n)return T[n-1];
+  const a=d.k?T[d.k-1]:0,u=clamp((S.t-d.t0)/FALL_LINES[d.k][1],0,1);return a+(T[d.k]-a)*sstep(u);}
+function fallDream(){const P=S.pit;return !P||S.arenaKey!=='fall'||P.woke!=null?0:fallCurve(FALL_DREAM,P);}
+function fallSlow(){return fallCurve(FALL_SLOW,S.pit);}
+// the first blow in the Pit, or whatever first stops him: he is awake from here
+function pitWake(P){if(P&&P.woke==null)P.woke=S.t;}
 // ---------- the Pit ----------
 // Its walls and its junk are in his plane (depth PIT_DEP), laid out in the picture's own x and in y down from the rim (the street at
 // the tower's foot). The picture has a point (x, y) at rimY+y, rimY being where the rim is now (S.scrollY is how far the picture has
@@ -1452,7 +1467,7 @@ function pitNew(){const R=mulberry32(7741);
     items:PIT.items.map(it=>Object.assign({},it,{hits:0,hitT:-9,hitT0:0,broken:0,dead:0,glass:0,swing:0,swingV:0,hx:null})),
     caps:[],hit:[],touchT:-9,impT:-9,lastHit:{},lastSp:{},rips:0,firstBig:false,slowAt:null,
     pin:null,pinT0:0,pops:0,arm:null,armGone:false,spurt:null,scrap:null,landT:null,
-    bits:[],hay:[],feathers:[],birds:pitBirds(R),drops:0};}
+    bits:[],hay:[],feathers:[],birds:pitBirds(R),drops:0,dream:{k:-1,t0:0},woke:null};}
 // the camera rides with him by moving the world past it: everything in the world that is not laid out in the Pit's own terms moves too
 function pitShift(sh){S.scrollY+=sh;const K=hero();
   for(const q of K.p){q.y-=sh;q.py-=sh;}for(const q of K.scarf||[]){q.y-=sh;q.py-=sh;}
@@ -1585,6 +1600,7 @@ function pitImpact(f,b){const P=S.pit,it=b.h.it,mat=it?it.mat:'wall',sp=b.sp,q=b
   if(it&&it.key==='roof')return;
   const last=P.lastHit[key]??-9;if(S.t-last<.14&&sp<(P.lastSp[key]||0)*1.6)return;P.lastHit[key]=S.t;P.lastSp[key]=sp;
   if(mat==='wall'&&sp<260)return;
+  pitWake(P);
   const C={x:q.x,y:q.y},dir=Math.sign(b.h.nx)||(P.R()<.5?-1:1),k=clamp(sp/700,.3,1.6),big=sp>480;
   if(it){it.hits++;it.hitT=S.t;if(!it.hitT0)it.hitT0=S.t;it.hx=pitFromW(q.x,q.y).x;}
   P.impT=S.t;
@@ -1622,7 +1638,7 @@ function pitCatch(f,u,s,forced){const P=S.pit,p=f.p,R=P.R;if(P.pin)return;
   // where the arm is now against where on the spike it goes: it is brought there over a moment, so nothing jumps
   const at=pitSpikeW(pn.s),E=p[ELF],H=p[HAF],mx=E.x+(H.x-E.x)*pn.u,my=E.y+(H.y-E.y)*pn.u;pn.ox=mx-at.x;pn.oy=my-at.y;
   if(forced){const m=Math.hypot(pn.ox,pn.oy);if(m>70){pn.ox*=70/m;pn.oy*=70/m;}}
-  P.pin=pn;P.stage='pinned';P.pinT0=S.t;P.pops=0;P.spurt=null;
+  P.pin=pn;P.stage='pinned';P.pinT0=S.t;P.pops=0;P.spurt=null;pitWake(P);
   for(const q of p){q.px=q.x-(q.x-q.px)*.5;q.py=q.y-(q.y-q.py)*.5;}
   S.freeze=Math.max(S.freeze,.12);S.slowT=Math.max(S.slowT,.8);S.shake=Math.max(S.shake,11);S.shakeDir={x:0,y:1};
   S.hooks.sound('impale',1);S.hooks.sound('crit',600,{skip:'spike_impale'});
@@ -1656,7 +1672,7 @@ function pitRip(f){const P=S.pit,gore=S.gore!=='off',p=f.p;P.stage='drop';P.vt=P
   for(const [k,q] of p.entries()){if(P.armGone&&(k===ELF||k===HAF||k===TIP))continue;q.px+=f.facing*30*DT;}
   S.freeze=Math.max(S.freeze,.07);S.slowT=Math.max(S.slowT,.6);S.shake=Math.max(S.shake,9);S.shakeDir={x:0,y:1};}
 // into the hay: it bursts round him, and the birds go up
-function pitLand(f){const P=S.pit;if(P.stage==='landed')return;P.stage='landed';P.landT=S.t;const R=P.R,H=PIT.hay;
+function pitLand(f){const P=S.pit;if(P.stage==='landed')return;P.stage='landed';P.landT=S.t;pitWake(P);const R=P.R,H=PIT.hay;
   // he comes to rest face up, toward the sky, where the light that comes back into his eye can be seen
   {const h=f.p[HEAD],c=f.p[CHE],ux=h.x-c.x;if((f.facing>0?ux:-ux)>0)f.facing=-f.facing;}
   S.hooks.sound('hay',1);S.hooks.sound('thud',420,{skip:'hay_land'});S.hooks.sound('birds',1);
@@ -1685,15 +1701,19 @@ STAGES.push({key:'fall',num:'',title:'',sub:'',arena:'fall',next:null,noFight:tr
     const cy=FALL_Y,d0=cy-K.p[PEL].y;for(const q of K.p){q.y+=d0;q.py+=d0;}
     for(let i=0;i<K.p.length;i++){const q=K.p[i],rx=q.x-K.p[PEL].x,ry=q.y-K.p[PEL].y;q.px=q.x-(-ry*.05);q.py=q.y-(rx*.05);}},
   *intro(st){const K=hero(),P=S.pit;
-    letter(1);S.fade=1;camTo(450,760,0);
+    // (on a screen too short for the floor's band, a phone on its side, the picture keeps him whole: bandS)
+    letter(1);S.fade=1;camTo(450,760,0);S.camCut.bandS={top:FALL_Y-PIT_OY-160,foot:FALL_Y-PIT_OY+120};
     const fade=(function*(){const t0=S.t;while(S.t<t0+1.2){S.fade=1-(S.t-t0)/1.2;yield;}S.fade=0;})();
     // the facade goes up past him faster and faster; the air holds him in the middle of the picture: gravity taken off, and the drift
     // of the whole body eased toward a slow pull back to the middle, the tumble of his limbs left as it is
-    const hold=(function*(){while(!P.on){S.scrollYV=Math.min(1800,S.scrollYV+DT*800);S.scrollY+=S.scrollYV*DT;
+    // (the memory slows it: fallSlow; it speeds up at most 800 a second each second, and slows at most 520)
+    const hold=(function*(){while(!P.on){const tg=1800*(1-fallSlow());S.scrollYV+=clamp(tg-S.scrollYV,-520*DT,800*DT);S.scrollY+=S.scrollYV*DT;
       const P0=K.p[PEL],n=K.p.length;let mx=0,my=0;for(const q of K.p){mx+=q.x-q.px;my+=q.y-q.py;}mx/=n;my/=n;
       const tx=clamp((440-P0.x)*.7,-50,50)*DT,ty=clamp((FALL_Y-P0.y)*.9,-70,70)*DT;
       for(const q of K.p){q.px+=(mx-tx)*.1;q.py+=(my-ty)*.1+G*DT*DT;}yield;}})();
-    const lines=(function*(){yield* wait(1.4);for(const [txt,d] of FALL_LINES){S.thought={text:txt,t0:S.t,dur:d};yield* wait(d);}S.thought=null;yield* wait(.35);pitOpen(K);})();
+    // (and the desert comes up in him as he thinks: P.dream is which thought, since when; fallDream reads it)
+    const lines=(function*(){yield* wait(1.4);for(let i=0;i<FALL_LINES.length;i++){const [txt,d]=FALL_LINES[i];S.thought={text:txt,t0:S.t,dur:d};P.dream={k:i,t0:S.t};yield* wait(d);}
+      P.dream={k:FALL_LINES.length,t0:S.t};S.thought=null;yield* wait(.35);pitOpen(K);})();
     yield* all(fade,hold,lines);
     // the Pit: from here pitStep has him (the air, the junk, the spike, the hay); the scene waits for the hay
     yield* until(()=>P.stage==='landed',45);

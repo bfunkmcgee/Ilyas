@@ -248,18 +248,33 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   const phone=await ph.evaluate(()=>drawAll(()=>{fight({n:2,auto:true,foes:['sword','axe']});CALLS.kael=0;step(240);const calls=CALLS.kael;
     fight({});const K=S.F[0],V=S.F[1];put(K,400,92,1);put(V,400+engageGap(K,V)+30,92,-1);step(30);return{calls,px:paint()};}));
   expect('on a phone he draws every frame and still shows the gold and the pale hair',phone.calls===240&&phone.px.gold>20&&phone.px.pale>10,JSON.stringify(phone));
+  // the fall on a phone held upright: the floors and the night are drawn to the top of the picture (it sees far above the still layer's
+  // top, whose edge was only stretched up there before V72: a band of bare piers over the windows)
+  const phFall=await ph.evaluate(()=>{storyGo('fall');S.storyAuto=true;S.auto=true;step(2);const t0=S.t;while(S.t<t0+20)step(1);
+    const r=drawAll(()=>{step(2);const sp=EnvLook.S.fall.span;return{top:Math.round(sp.top),camTop:Math.round(camTop()),layerTop:RC.y0,D:+fallDream().toFixed(2)};});storyQuit();return r;});
+  expect('the fall on a phone held upright: the floors and the night are drawn to the top of the picture, past the still layer\'s top',phFall.camTop<phFall.layerTop&&phFall.top<=phFall.camTop-30,JSON.stringify(phFall));
 
   // the fall played to its end: his thoughts in order, face up in the hay with the faint light in his eye and no gilt lit on him, and the
-  // last look up the wall to the arm on the spike, its lines lit
+  // last look up the wall to the arm on the spike, its lines lit. On the way down the face the desert in his head (fallDream, at the
+  // start of each thought): none at the first, deeper with the wire and the wells, back a little with the Sprawl, all he sees by the
+  // time he waits for water on the wire; the memory slows the face going by, and the speed is all back when the tower's foot comes up;
+  // the first blow in the Pit wakes him and it is gone at once; the painter draws it while it lasts and never after
   const FALL_EYE_T=await ev(()=>FALL_EYE);
-  const fallEnd=await ev(()=>{const seen=[];storyGo('fall');S.storyAuto=true;S.auto=true;step(2);let n=0,last=null;
-    while(S.story&&!S.story.ended&&n<9000){step(1);n++;const th=S.thought;if(th&&th.text!==last){last=th.text;seen.push(th.text);}}
+  const fallEnd=await ev(()=>{const seen=[],Dk=[],F=EnvLook.S.fall,dr={min:1e9,open:null,impAt:null,wokeAt:null,after:0,drawn:0,drawnAfter:0};storyGo('fall');S.storyAuto=true;S.auto=true;step(2);
+    let n=0,last=null,n0=F.dream.n,nWoke=null;
+    while(S.story&&!S.story.ended&&n<9000){step(1);n++;const th=S.thought,P=S.pit;if(th&&th.text!==last){last=th.text;seen.push(th.text);Dk.push(+fallDream().toFixed(2));}
+      if(P&&!P.on&&seen.length>2)dr.min=Math.min(dr.min,Math.round(S.scrollYV));if(P&&P.on&&dr.open==null)dr.open=Math.round(P.cv);
+      if(P&&P.impT>0&&dr.impAt==null)dr.impAt=S.t;if(P&&P.woke!=null){if(dr.wokeAt==null){dr.wokeAt=P.woke;nWoke=F.dream.n;}dr.after=Math.max(dr.after,fallDream());}}
+    dr.drawn=F.dream.n-n0;dr.drawnAfter=nWoke==null?null:F.dream.n-nWoke;dr.same=dr.impAt!=null&&dr.wokeAt===dr.impAt;dr.Dk=Dk;
     const K=hero(),P=S.pit,h=K.p[HEAD],c=K.p[CHE],ux=h.x-c.x,Q=P&&P.arm?P.arm.pts.map(q=>pitToW(q.x,q.y)):null;
     const r={n,ended:S.story&&S.story.ended,thoughts:seen.length+'/'+FALL_LINES.length,inOrder:seen.length===FALL_LINES.length&&seen.every((t,i)=>t===FALL_LINES[i][0]),
-      eyeLit:K.eyeLit,drain:K.drain,faceUp:(K.facing>0?ux:-ux)<0,look:!!(P&&P.look),armY:Q?Math.round((Q[0].y+Q[1].y+Q[2].y)/3):null,armDrain:P&&P.arm?pitArmDrain(P.arm):null};
+      eyeLit:K.eyeLit,drain:K.drain,faceUp:(K.facing>0?ux:-ux)<0,look:!!(P&&P.look),armY:Q?Math.round((Q[0].y+Q[1].y+Q[2].y)/3):null,armDrain:P&&P.arm?pitArmDrain(P.arm):null,dream:dr};
     storyQuit();return r;});
   expect('the fall: his twelve thoughts in order; he ends face up in the hay with a faint light in his eye and no gilt lit; the picture ends on the arm on the spike, still lit',
-    fallEnd.ended==='fall'&&fallEnd.inOrder&&fallEnd.eyeLit===FALL_EYE_T&&fallEnd.drain===1&&fallEnd.faceUp&&fallEnd.look&&fallEnd.armY>300&&fallEnd.armY<420&&fallEnd.armDrain===0,JSON.stringify(fallEnd));
+    fallEnd.ended==='fall'&&fallEnd.inOrder&&fallEnd.eyeLit===FALL_EYE_T&&fallEnd.drain===1&&fallEnd.faceUp&&fallEnd.look&&fallEnd.armY>300&&fallEnd.armY<420&&fallEnd.armDrain===0,JSON.stringify({...fallEnd,dream:undefined}));
+  {const d=fallEnd.dream,k=d.Dk;
+    expect('the desert in his head as he falls: none at the first thought, deeper with the wire and the wells, back a little with the Sprawl, all of it by the wire again; the face slows and is back to full speed for the Pit; the first blow wakes him, and it is drawn while it lasts and not after',
+      k.length===12&&k[0]===0&&k[2]>=.3&&k[3]>k[4]&&k[11]>=.95&&d.min<900&&d.open>=1700&&d.same&&d.after===0&&d.drawn>40&&d.drawnAfter===0,JSON.stringify(d));}
   // the prologue opens at sundown: Begin plays it first (it is not a chapter of its own), him on his bike on the road above the farms,
   // upright in the saddle; his three lines in order; the sand blowing past the bike only while he talks about the wire (drawn then, and
   // never otherwise); the sun going down; then he rides off the right edge of the picture and the field begins with him on foot
