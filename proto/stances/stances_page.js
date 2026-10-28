@@ -26,8 +26,9 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
     window.untilFree=max=>{let n=0;const K=hero();K.hp=Math.max(K.hp,K.maxHp*.8);
       while(n<max){if(S.game.phase==='over')break;if(mine()&&!K.downed&&!K.clinch)break;if(S.opening&&!isAI(S.opening.f.idx))resolveOpening(aiOpening(S.opening));
         if(mine()&&K.downed)humanCommand('guard');else if(mine()&&K.clinch)humanCommand(K.clinch.a===K?'shove':'shove');fast(1);n++;}
-      // (a fight that has run out of men on their feet starts again: the check wants one to face)
-      if(S.game.phase==='over'||!foes().some(f=>!f.dead&&!f.downed&&!f.walkIn)){S.F=[];restart();n+=untilMine(6000);}
+      // (a fight that has run out of men on their feet, or taken his blade from him, starts again: the check wants one to face, and him
+      // with the arc-blade in his hand)
+      if(S.game.phase==='over'||!foes().some(f=>!f.dead&&!f.downed&&!f.walkIn)||hero().weaponKey!=='elven'){S.F=[];restart();n+=untilMine(6000);}
       return n;};
     window.cmd=k=>document.getElementById('cmd-'+k);window.tq=k=>(document.getElementById('t-'+k)||{}).textContent||'';
     window.stb=s=>document.querySelector(`#stnBar .stn-b[data-s="${s}"]`);
@@ -92,8 +93,9 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   r=await p.evaluate(()=>{untilFree(9000);const K=hero();if(!mine())return{none:true};
     const D=foes().find(f=>f.weaponKey==='spear'&&!f.dead&&!f.downed)||foes().find(f=>!f.dead&&!f.downed&&!stanceHeavy(f)&&!stnShortBlade(f));if(!D)return{none:true};setTgt(K,D.idx);
     const fa=Math.sign(D.station-K.station)||1,at=g=>{K.station=clampSt(K,D.station-fa*(engageGap(K,D)+g));K.build();
-      // (anyone else is put well away with nothing planned, so the man in front is the only one that counts)
-      for(const o of foes())if(o!==D){o.intent=null;o.station=clampSt(o,K.station-fa*320);o.build();}fast(3);};
+      // (anyone else is put well away with nothing planned, so the man in front is the only one that counts: behind Ilyas, or past the
+      // man when Ilyas has his back to the edge)
+      for(const o of foes())if(o!==D){o.intent=null;const xs=[clampSt(o,K.station-fa*320),clampSt(o,D.station+fa*320)];o.station=Math.abs(xs[0]-K.station)>=Math.abs(xs[1]-K.station)?xs[0]:xs[1];o.build();}fast(3);};
     const show=cmd=>{for(const o of foes())if(o!==D)o.intent=null;D.intent={cmd,tgt:K.idx,gap:Math.abs(D.station-K.station),dz:D.lane-K.lane,pinned:pinned(D),band:D.posture,tband:K.posture,tguard:!!K.guarding,tctr:!!K.counter,changed:false,paid:0};
       updateStatus();stnUiNow();fast(3);const b=document.querySelector('#stnBar .stn-b.fit');
       return{fit:b?b.dataset.s:null,why:b?b.querySelector('small').textContent:'',tip:(document.querySelector('.fl-tip')||{}).textContent||''};};
@@ -106,13 +108,14 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
     // the tip line, in Unbound against his thrust
     stb('unbound').click();fast(4);const tl=show('thrust').tip;
     // the thrust he showed comes on his turn, and the answer window says what Bound does to it
-    stb('bound').click();fast(2);show('thrust');const it0=D.intent&&{cmd:D.intent.cmd,tgt:D.intent.tgt};cmd('wait').click();let win=null,n=0;const seen=[];
-    // (another man may act before him, and his turn come round again first: then Ilyas waits again, in Bound, up to three turns)
+    stb('bound').click();fast(2);at(15);show('thrust');const it0=D.intent&&{cmd:D.intent.cmd,tgt:D.intent.tgt};cmd('wait').click();let win=null,n=0;const seen=[];
+    // (another man may act before him, and his turn come round again first: then Ilyas waits again, in Bound, up to three turns, the man
+    // put back at blade's length with the thrust shown, so it comes with the point and not the butt)
     let turns=0;
     while(n<12000&&!win&&!D.dead&&!D.downed){const o=S.opening;if(o&&seen.length<12&&!seen.some(x=>x.o===o))seen.push({o,src:o.source,f:o.f&&o.f.name,opp:o.opp&&o.opp.name,att:o.attack,ex:S.game.ex&&S.game.ex.cmd});
       if(o&&o.source==='react'&&o.f===K){if(o.opp===D){win={txt:(document.getElementById('opReason')||{}).textContent||'',kind:o.attack};}resolveOpening('parry');}
       else if(o&&!isAI(o.f.idx))resolveOpening('hold');
-      if(mine()){if(++turns>3||K.downed||K.clinch)break;if(stanceOf(K)!=='bound')stb('bound').click();setTgt(K,D.idx);fast(1);cmd('wait').click();}
+      if(mine()){if(++turns>3||K.downed||K.clinch)break;if(stanceOf(K)!=='bound')stb('bound').click();setTgt(K,D.idx);at(15);show('thrust');cmd('wait').click();}
       fast(1);n++;}
     return{tgt:D.name,wp:D.weaponKey,thrust,over,close,dice,tl,win,dbg:win?null:{n,it0,seen:seen.map(({o,...x})=>x),log:S.game.lastActs||null}};});
   expect('a thrust he is gearing up at blade\'s length marks Bound, which beats it aside',!r.none&&r.thrust.fit==='bound'&&/beats his thrust/.test(r.thrust.why),JSON.stringify(r.thrust||r));
@@ -205,10 +208,11 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   // 5. a Close blow: he strikes from inside the man's reach and stays there, and the axe that answers comes on its haft
   r=await p.evaluate(()=>{let n=untilFree(9000);const K=hero();if(!mine())return{none:true,n};
     const A0=foes().find(f=>f.weaponKey==='axe'&&!f.dead&&!f.downed);if(A0)setTgt(K,A0.idx);const D=targetOf(K);
-    stb('close').click();fast(4);const tech=tq('slash');cmd('slash').click();let gi=null,end=null,res=null,mine0=null;n=0;
-    // (a stop-hit can come first: the blow itself is the exchange of his that has dice)
+    stb('close').click();fast(4);const tech=tq('slash');cmd('slash').click();let gi=null,end=null,res=null,mine0=null,pre=null;n=0;
+    // (a stop-hit can come first: the blow itself is the exchange of his that has dice; the gap is the one the blow lands across, on the
+    // frame before a hit drives him back)
     while(n<1500){if(S.opening&&!isAI(S.opening.f.idx))resolveOpening(aiOpening(S.opening));const ex=S.game.ex;
-      if(ex&&ex.A===K&&ex.res&&ex.res.kind==='slash'){mine0=ex;if(ex.impactDone&&gi==null){gi=Math.abs(K.curBody.px-D.curBody.px);res=ex.res.out;}}
+      if(ex&&ex.A===K&&ex.res&&ex.res.kind==='slash'){mine0=ex;if(!ex.impactDone)pre=Math.abs(K.curBody.px-D.curBody.px);else if(gi==null){gi=pre??Math.abs(K.curBody.px-D.curBody.px);res=ex.res.out;}}
       else if(mine0&&S.game.ex!==mine0&&end==null){end=Math.abs(K.station-D.station);break;}
       fast(1);n++;}
     const ax=foes().find(f=>f.weaponKey==='axe'&&!f.dead);

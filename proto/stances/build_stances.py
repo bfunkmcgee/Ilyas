@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The stance and rise test page: the game's own modules in the game's order, with the test's rules (sk_downfork.js, sk_stances.js,
-sk_spells.js) after the game's parts, its UI (sk_stancesui.js, sk_spellsui.js) after the features' UI parts and its stylesheet after theirs. The game's own build and
+sk_spells.js, and the stances' motion, sk_stnmotion.js) after the game's parts, its UI (sk_stancesui.js, sk_spellsui.js) after the features' UI parts and its stylesheet after theirs. The game's own build and
 files are not touched.
 
   python3 proto/stances/build_stances.py         stances-test.html (the page to publish), stances_full.js (its script alone) and
@@ -16,7 +16,7 @@ import build as B  # noqa: E402
 
 REL = os.path.relpath(HERE, ROOT)
 _core, _ui, _css = B.core_files, B.ui_files, B.css_files
-B.core_files = lambda: _core() + [os.path.join(REL, 'sk_downfork.js'), os.path.join(REL, 'sk_stances.js'), os.path.join(REL, 'sk_spells.js')]
+B.core_files = lambda: _core() + [os.path.join(REL, 'sk_downfork.js'), os.path.join(REL, 'sk_stances.js'), os.path.join(REL, 'sk_spells.js'), os.path.join(REL, 'sk_stnmotion.js')]
 B.ui_files = lambda: (lambda u: u[:-1] + [os.path.join(REL, 'sk_stancesui.js'), os.path.join(REL, 'sk_spellsui.js')] + u[-1:])(_ui())
 B.css_files = lambda: _css() + [os.path.join(REL, 'sk_css_stances.css')]
 

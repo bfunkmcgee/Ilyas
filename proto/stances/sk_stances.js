@@ -122,6 +122,10 @@ function isWhip(T){return!!T&&!!T.whip&&T.stance==='unbound';}
   if(u>=L.a&&u<L.b)len=lerp(base,L.L,eIn((u-L.a)/Math.max(.01,L.b-L.a)));
   else if(u>=L.b&&u<L.c)len=L.L;
   else if(u>=L.c&&u<L.d)len=lerp(L.L,base,sstep((u-L.c)/Math.max(.01,L.d-L.c)));
+  // the chain runs out of the blade and back into it: its end goes with it (the stick would shove the hand back as it grows, faster
+  // than the arm can keep it where it throws, and pull it on as it shrinks)
+  const was=f.sticks[10][2];if(Math.abs(len-was)>1e-6&&!f.dead){const h=f.p[HAF],t=f.p[TIP],dx=t.x-h.x,dy=t.y-h.y,k=(len-was)/(Math.hypot(dx,dy)||1);
+    t.x+=dx*k;t.y+=dy*k;t.px+=dx*k;t.py+=dy*k;}
   f.sticks[10][2]=len;f.lashLen=len;};}
 // ---------- what he is gearing up, and how far off he is ----------
 // Against the blow a man throws at him (the one he showed), as it lands, by the stance Ilyas holds:

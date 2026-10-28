@@ -22,6 +22,7 @@ function whipOn(f){return!!f&&f===hero()&&stanceOf(f)==='unbound'&&!f.downed&&!f
 // locked: a blow of his own that is not the whip (relocked inside his reach, or on a man on the floor), or a blow on him that he
 // takes on the blade
 function whipRigid(f){const ex=S.game&&S.game.ex;if(!ex||!ex.res)return false;
+  if(whipCatchOn(f))return false;           // (the chain thrown round a man's arm is loose, whatever the blow did)
   if(ex.A===f)return ATTACKS.includes(ex.res.kind)&&!!ex.res.tech&&!ex.res.tech.lash;
   return(ex.D===f&&ex.res.out==='block')||(ex.D2===f&&!!ex.res2&&ex.res2.out==='block');}
 function whipFrame(f){const h=f.p[HAF],t=f.p[TIP],L=Math.hypot(t.x-h.x,t.y-h.y)||1,ux=(t.x-h.x)/L,uy=(t.y-h.y)/L;return{h,t,ux,uy,ax:h.x+ux*WHIPD.g0,ay:h.y+uy*WHIPD.g0};}
@@ -29,20 +30,29 @@ function whipFrame(f){const h=f.p[HAF],t=f.p[TIP],L=Math.hypot(t.x-h.x,t.y-h.y)|
 function whipLay(f,W){const {N,sl}=WHIPD,F=whipFrame(f),gap=Math.max(0,(W.R-N*sl)/(N-1));
   for(let i=0;i<N;i++){const a=i*(sl+gap);for(const [j,s] of [[2*i,a],[2*i+1,a+sl]]){W.x[j]=W.px[j]=F.ax+F.ux*s;W.y[j]=W.py[j]=F.ay+F.uy*s;}}}
 function whipNew(f){const n=2*WHIPD.N,W={x:new Float64Array(n),y:new Float64Array(n),px:new Float64Array(n),py:new Float64Array(n),R:WHIPD.N*WHIPD.sl,t:S.t,F:S.F,rigid:false,hot:0,
-  throw:null,Rc:null,lash:null};whipLay(f,W);return W;}
+  throw:null,Rc:null,win:null};whipLay(f,W);return W;}
+// the throw the chain is in now (sk_stnmotion.js): a lead of a combo, run out to where the man's parry meets it; the blow itself, onto
+// the blade's tip (where the game has it land); or a catch, thrown round the forearm of a man coming in. u: its time; a: the throw
+// starts; b: it is there; c: it is let go; d: it is home. null: none
+function whipCatchOn(f){const C=f.stnCatch;return!!C&&S.t-C.t0<C.d+.05;}
+function whipWin(f,F){const L=f.lash&&f.lash.whip?f.lash:null;
+  if(L){const u=S.t-L.t0;if(L.leads)for(const w of L.leads)if(u<w.d)return{id:w,u,a:w.a,b:w.b,c:w.c,d:w.d,pin:()=>w.B};
+    return{id:L,u,a:L.a,b:L.b,c:L.c,d:L.d,pin:()=>F.t};}
+  if(whipCatchOn(f)){const C=f.stnCatch;return{id:C,u:S.t-C.t0,a:C.a,b:C.b,c:C.c,d:C.d,pin:()=>stnForearm(C.A,.62)};}
+  return null;}
 function whipStep(f,W,dt){
-  const {N,sl,it}=WHIPD,n=2*N,F=whipFrame(f),L=f.lash&&f.lash.whip?f.lash:null,last=n-1,toR=(R,k)=>R+(WHIPD.R-R)*(1-Math.exp(-dt*k)),damp=L?WHIPD.damp:WHIPD.dampRest;
+  const {N,sl,it}=WHIPD,n=2*N,F=whipFrame(f),L=whipWin(f,F),last=n-1,toR=(R,k)=>R+(WHIPD.R-R)*(1-Math.exp(-dt*k)),damp=L?WHIPD.damp:WHIPD.dampRest;
   // (a fighter put somewhere new, not moved there: the chain is laid out again from the hilt)
   if(Math.hypot(W.x[0]-F.ax,W.y[0]-F.ay)>30){whipLay(f,W);return;}
   let pin=null;
-  if(L!==W.lash){W.lash=L;W.throw=null;W.Rc=null;}
-  if(L){const u=S.t-L.t0,chord=Math.hypot(F.t.x-F.ax,F.t.y-F.ay);W.hot=1;
-    // windup: the chain trails; the throw: its tip carried from where it trailed onto the blade's tip, fastest at the end; the
-    // impact and the hold: straight onto it; then let go and reeled in
+  if((L&&L.id)!==W.win){W.win=L&&L.id;W.throw=null;W.Rc=null;}
+  if(L){const u=L.u,P=L.pin(),chord=Math.hypot(P.x-F.ax,P.y-F.ay);W.hot=1;
+    // windup: the chain trails; the throw: its tip carried from where it trailed onto the point (the blade's tip, a parry, his arm),
+    // fastest at the end; the impact and the hold: straight onto it; then let go and reeled in
     if(u<L.a)W.R=toR(W.R,6);
     else if(u<L.b){if(!W.throw)W.throw={x:W.x[last],y:W.y[last]};const q=(u-L.a)/Math.max(.01,L.b-L.a),w=q*q;
-      W.R=chord+Math.pow(1-q,1.4)*(10+.24*chord);pin={x:lerp(W.throw.x,F.t.x,w),y:lerp(W.throw.y,F.t.y,w)};}
-    else if(u<L.c){W.R=chord;pin={x:F.t.x,y:F.t.y};}
+      W.R=chord+Math.pow(1-q,1.4)*(10+.24*chord);pin={x:lerp(W.throw.x,P.x,w),y:lerp(W.throw.y,P.y,w)};}
+    else if(u<L.c){W.R=chord;pin={x:P.x,y:P.y};}
     else{if(W.Rc==null)W.Rc=W.R;W.R=lerp(W.Rc,WHIPD.R,sstep((u-L.c)/Math.max(.05,L.d+.3-L.c)));}}
   else{W.R=toR(W.R,5);W.hot=Math.max(0,W.hot-dt*2);}
   W.R=Math.max(N*sl,W.R);
@@ -70,8 +80,10 @@ function whipTick(){const K=S.F&&S.F[0];if(!K||!K.p)return;
   if(W.rigid){W.rigid=false;S.hooks.sound('unroll',.35);}
   whipStep(K,W,dt);}
 {const ss=simStep;simStep=function(){ss.apply(this,arguments);whipTick();};}
-// the snare's wrap: the chain round his shin while it holds
-function whipWrap(f){const ex=S.game&&S.game.ex,L=f.lash;if(!ex||ex.A!==f||!L||!L.wrap||!ex.res||!['hit','crit'].includes(ex.res.out))return null;
+// the snare's wrap: the chain round his shin while it holds; and round a man's forearm, caught
+function whipWrap(f){if(whipCatchOn(f)){const C=f.stnCatch,u=S.t-C.t0;if(u<C.b-.01||u>C.c+.06)return null;const A=C.A,e=A.p[ELF],h=A.p[HAF],l=Math.hypot(h.x-e.x,h.y-e.y)||1,P=stnForearm(A,.62);
+    return{x:P.x,y:P.y,dx:(h.x-e.x)/l,dy:(h.y-e.y)/l,k:clamp((u-C.b)/.08,0,1)};}
+  const ex=S.game&&S.game.ex,L=f.lash;if(!ex||ex.A!==f||!L||!L.wrap||!ex.res||!['hit','crit'].includes(ex.res.out))return null;
   const u=S.t-L.t0;if(u<L.b-.01||u>L.c+.06)return null;const D=ex.D,k=D.p[KNF],q=D.p[FTF],C=ex.plan.Cfn(),l=Math.hypot(q.x-k.x,q.y-k.y)||1;
   return{x:C.x,y:C.y,dx:(q.x-k.x)/l,dy:(q.y-k.y)/l,k:clamp((u-L.b)/.08,0,1)};}
 {const as=arcState;arcState=function(f){const st=as.apply(this,arguments),W=f._whip;

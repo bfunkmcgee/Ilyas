@@ -10,7 +10,7 @@ const fs=require('fs'),path=require('path');
 const ROOT=path.join(__dirname,'..','..');process.chdir(ROOT);
 const N=+(process.argv[2]||4),O={down:'1',rise:'off',stance:'1',policy:'match',mix:'mixed',crew:'0',n:'1,2,3',spells:'1'};
 for(const a of process.argv.slice(3)){const m=a.match(/^(\w+)=(.*)$/);if(m)O[m[1]]=m[2];}
-const core=require(path.join(ROOT,'sk_src.js'))()+fs.readFileSync(path.join(__dirname,'sk_downfork.js'),'utf8')+fs.readFileSync(path.join(__dirname,'sk_stances.js'),'utf8')+fs.readFileSync(path.join(__dirname,'sk_spells.js'),'utf8');
+const core=require(path.join(ROOT,'sk_src.js'))()+fs.readFileSync(path.join(__dirname,'sk_downfork.js'),'utf8')+fs.readFileSync(path.join(__dirname,'sk_stances.js'),'utf8')+fs.readFileSync(path.join(__dirname,'sk_spells.js'),'utf8')+fs.readFileSync(path.join(__dirname,'sk_stnmotion.js'),'utf8');
 eval(core+`
 const O=${JSON.stringify(O)};
 DOWNF.on=O.down==='1';DOWNF.rise=O.rise;STANCE.on=O.stance==='1';STANCE.policy=O.policy;if(O.step!=null)WHIP_AI.step=+O.step;if(O.tip!=null)STN.tip=+O.tip;if(O.jam!=null)STN_W.jam=+O.jam;if(O.crowdafter!=null)STN_W.crowdAfter=O.crowdafter==='1';SPELL2.on=O.spells!=='0';if(O.nospell)SPELL2.off=O.nospell.split(',');
@@ -41,14 +41,17 @@ V11.turnStart.push(i=>{R.turns++;if(i===0)R.heroTurns++;});
 S.hooks.overdrive=(A,hp)=>{inc(R.spell,'overdrive');R.odHp+=hp;};
 S.hooks.spell2=(ex,i)=>{inc(R.spellOut,ex.cmd+': '+i.label);};
 // the motion: variants, combos and the answers acted out (animation only: none of it reads or throws the game's dice)
-const MO={variant:{},combo:{hero:0,heroOK:0,foe:0,foeOK:0},react:{}};
+const MO={variant:{},combo:{hero:0,heroOK:0,foe:0,foeOK:0},react:{},planDice:0};
 {const bv=blowVariant;blowVariant=function(A,D,kind){const V=bv.apply(this,arguments);if(A===hero()||D===hero())inc(MO.variant,(A===hero()?(stanceOf(A)||'off'):'on him')+' '+kind+':'+(V?V.key:'none'));return V;};}
 {const bc=blowCombo;blowCombo=function(A,D){const L=bc.apply(this,arguments),n=L&&L.length?1:0;if(A===hero()){MO.combo.heroOK++;MO.combo.hero+=n;}else if(D===hero()){MO.combo.foeOK++;MO.combo.foe+=n;}return L;};}
 {const pr=planReaction;planReaction=function(D,A,kind,res){const r=pr.apply(this,arguments);if(D!==hero()||!res)return r;const ans=D.react||null,o=res.out;let t;
-  if(o==='block')t=D.counter?'counter':ans==='turn'?'turn him':D.skill>=RANK.expert?'parry, bind':'parry';
+  if(r&&r.stn)t='answer: '+r.stn;else if(o==='block')t=D.counter?'counter':ans==='turn'?'turn him':D.skill>=RANK.expert?'parry, bind':'parry';
   else if(o==='dodge'||o==='fumble')t=o==='dodge'&&kind==='sweep'&&ans==='back'?'hop over':o==='dodge'&&(ans==='parry'||ans==='counter')?'beat aside':r.slip!=null?'slip':'step back';
   else if(['parry','counter','turn','slip','back'].includes(ans))t='late '+ans;else t=o==='hit'||o==='crit'?'takes it':o;
   inc(MO.react,(stanceOf(D)||'off')+' '+t);return r;};}
+// the game's dice thrown while a blow is planned (the motion's own are the animation's: this stays 0)
+{const pa=planAttack;planAttack=function(){const mr=Math.random,sr=S.rng;let n=0;Math.random=()=>{n++;return mr();};S.rng=()=>{n++;return sr();};
+  try{return pa.apply(this,arguments);}finally{Math.random=mr;S.rng=sr;MO.planDice+=n;}};}
 const arenas=Object.keys(ARENAS),ns=O.crew==='1'?[1]:O.n.split(',').map(Number);
 for(const ak of arenas)for(const n of ns)for(let seed=1;seed<=${N};seed++){
   Math.random=mulberry32(seed*977+5);S.arenaKey=ak;S.cfg.n=n;S.cfg.crew=O.crew==='1';S.cfg.ally.on=false;S.auto=true;S.tableOn=true;S.rng=mulberry32(seed*31+n);
@@ -64,5 +67,5 @@ console.log(JSON.stringify({opts:O,fights:R.fights,winPct:pc(R.wins/R.fights),by
   foeFloorTurnPct:pc(R.foeFloorTurns/Math.max(1,R.foeTurns)),heroFloorTurnsPerFight:r1(R.heroFloorTurns/R.fights),downsPerFight:{hero:r1(R.downs.hero/R.fights),foe:r1(R.downs.foe/R.fights)},
   freeRisesPerFight:{hero:r1(R.rises.hero/R.fights),foe:r1(R.rises.foe/R.fights)},struckOnFloorPerFight:{hero:r1(R.struck.hero/R.fights),foe:r1(R.struck.foe/R.fights)},crewOutPerFight:r1(R.crewOut/R.fights),
   heroLandPct:pc(R.land.h/Math.max(1,R.land.n)),blowsOnHeroPerTurn:r1(R.blowsOnHero/Math.max(1,R.heroTurns)),dmgOnHeroPerFight:r1(R.dmgOnHero/R.fights),stanceUse:share(R.stance),answered:share(R.ans),spellsPerFight:Object.fromEntries(Object.entries(R.spell).map(([k,v])=>[k,r1(v/R.fights)])),spellOut:R.spellOut,overdriveHpPerFight:r1(R.odHp/R.fights),heroTech:share(R.tech),
-  motion:{variants:Object.fromEntries(Object.entries(MO.variant).sort()),combos:MO.combo,answers:Object.fromEntries(Object.entries(MO.react).sort())}}));
+  motion:{variants:Object.fromEntries(Object.entries(MO.variant).sort()),combos:MO.combo,answers:Object.fromEntries(Object.entries(MO.react).sort()),planDice:MO.planDice}}));
 `);
