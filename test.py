@@ -45,6 +45,8 @@ SUITES = {
     'drawfree':   (['node', 'probes/draw_free.js'], 'page', 'the prologue and Act I played through and seven fights, the same drawn or not'),
     'act1page':   (['node', 'sk_act1_page.js'], 'page', 'Act I: every scene on auto, their lines, cards and rules, walking about by hand, the Pit look'),
     'soundpage':  (['node', 'sk_sound_page.js'], 'page', 'the held sounds heard: the bike\'s engine while it runs, and silent once the bike part is over; the prologue\'s song, from a file and over http; the recorded sounds over http (loading, the calls, the held ones, the sound switch, footsteps)'),
+    'stances':    (['node', 'sk_stances_page.js'], 'page', 'the stances, the free rise and the new spells in the lab: the stance bar, the whip, the answers and their dice, each spell\'s button and what it does, a fall and a blow on the floor, the rules off'),
+    'stnmotion':  (['node', 'sk_stnmotion_page.js'], 'page', 'the stances\' motion: the whip\'s and Close\'s variants and combos, the leads on the parry, each answer acted out, no game dice'),
     'live':       (['node', 'figwork/livecheck.js'], 'live', 'the published page runs its own loop without errors'),
     'perf':       (['node', 'sk_perf_page.js'], 'perf', 'what drawing costs a frame (timing: run alone)'),
 }
@@ -53,11 +55,11 @@ PAGES = [n for n, s in SUITES.items() if s[1] == 'page']
 # the longest first, so the two lanes finish together
 # (seconds each in a full run, the other lane busy: drawfree 205, arms 195, look 185, cast 185, dom 180, light 150, finale 130,
 # sktest 50, hud 35, v12 30, v12finale 20, brawl 10, team 10, arc 10, live 5, env 5)
-ORDER = ['drawfree', 'armspage', 'lookpage', 'castpage', 'dom', 'lightpage', 'finalepage', 'sktest', 'act1page', 'hudpage', 'v12',
+ORDER = ['drawfree', 'stnmotion', 'armspage', 'lookpage', 'castpage', 'dom', 'stances', 'lightpage', 'finalepage', 'sktest', 'act1page', 'hudpage', 'v12',
          'v12finale', 'anim', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'arcpage', 'live', 'env']
 
 # ---------- what covers what ----------
-GAME = r'^sk_(core|anim|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|explore|pit|pit2|pit5|short|pit6|pit7|pit8|pit9|pitmenu)\.js$'
+GAME = r'^sk_(core|anim|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|rise|stances|spells|stnmotion|explore|pit|pit2|pit5|short|pit6|pit7|pit8|pit9|pitmenu)\.js$'
 COVERS = [
     (GAME, 'ALL'),                                                     # the rules: everything
     (r'^build\.py$|^sk_src\.js$', 'ALL'),
@@ -74,6 +76,7 @@ COVERS = [
     (r'^sk_lightui\.js$', ['lightpage', 'lookpage', 'dom']),
     (r'^sk_(exploreui|pitui|pitcastui|pit2ui|pit5ui|pit6ui|pit7ui|pit8ui|pit9ui|pitmenuui)\.js$|^sk_css_(explore|pit|pit2|pit5|pit6|pit7|pit8|pit9|pitmenu)\.css$', ['act1page', 'hudpage', 'dom']),
     (r'^sk_(lookui|armsui|storyui)\.js$', ['act1page']),
+    (r'^sk_(stancesui|spellsui)\.js$|^sk_css_(stances|spells)\.css$', ['stances', 'stnmotion', 'hudpage', 'dom']),
 ]
 TEST_FILE = {s[0][1]: n for n, s in SUITES.items()}
 

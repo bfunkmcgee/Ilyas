@@ -194,12 +194,16 @@ setup([['club',2]]);K=S.F[0];V=S.F[1];
 {const T=pickTechnique(K,V,'sweep');V.guarding=true;const gh=computeMods(K,V,'sweep',false,T).defMods.find(m=>m[0]==='parry')[1],gk=computeMods(K,V,'sweep',false,{...T,key:'kick'}).defMods.find(m=>m[0]==='parry')[1];V.guarding=false;
   expect('Ankle hook: the dagger\'s sweep is the Ankle hook (kdEase +1; the knife high, so a Parry is worth less)',T.key==='anklehook'&&T.name==='Ankle hook'&&T.kdEase===1&&T.kick&&gh<gk,T.name+' parry '+gh+' vs '+gk);
   const P=addProp('crate',V.station+V.body.torsoW+20,V.lane,1),T2=pickTechnique(K,V,'sweep');
-  REACTS=['back'];FORCE=['hit'];const hp0=V.hp;act(0,'sweep');const r=lastRes();run();const e=ev('hook')[0];
-  expect('Ankle hook: a crate just behind him, and a hit puts him over it',T2.tags.includes('Over the crate')&&r&&r.hookProp===P&&e&&e.Ddown&&S.popups.some(p=>p.text==='Tripped'&&p.sub==='over a crate'),
-    JSON.stringify({tags:T2.tags,prop:!!(r&&r.hookProp),down:e&&e.Ddown,pops:S.popups.map(p=>p.text+'/'+p.sub)}));}
+  // (the popups said, kept: the run plays on into his free rise, since V70, and the trip's popup is gone by then)
+  const pops=[],pp=popup;popup=function(f,t,c,sub){pops.push(t+'/'+sub);return pp.apply(this,arguments);};
+  REACTS=['back'];FORCE=['hit'];const hp0=V.hp;act(0,'sweep');const r=lastRes();try{run();}finally{popup=pp;}const e=ev('hook')[0];
+  expect('Ankle hook: a crate just behind him, and a hit puts him over it',T2.tags.includes('Over the crate')&&r&&r.hookProp===P&&e&&e.Ddown&&pops.includes('Tripped/over a crate'),
+    JSON.stringify({tags:T2.tags,prop:!!(r&&r.hookProp),down:e&&e.Ddown,pops}));}
 
 // ---------- the AI ----------
 setup([['dagger',2]],{auto:true});K=S.F[0];V=S.F[1];
+// (drained, as he is in Act I, where Short Hand is his: no Aether, so no Gilt ward among his answers)
+K.drain=1;K.aether=0;
 {const pick=(kind,n=300)=>{const g=S.game,ex0=g.ex;g.ex={A:V,D:K,cmd:kind};const T=pickTechnique(V,K,kind),c={};for(let i=0;i<n;i++){const k=aiReact(K,V,kind,T,false);c[k]=(c[k]||0)+1;}g.ex=ex0;return c;};
   const cs=pick('slash'),co=pick('overhead'),ct=pick('thrust');
   expect('AI: a Short Hand fighter answers a Slash and an Overhead with the Hinge',(cs.hinge||0)>150&&(co.hinge||0)>150,JSON.stringify({slash:cs,overhead:co}));

@@ -36,9 +36,10 @@ Live sources (the only files to edit for the game):
   sk_x.js (game), sk_xui.js (UI) and sk_css_x.css once its name is in FEAT/CSS.
 - Game (no DOM; node loads it through sk_src.js): sk_core.js, sk_anim.js, sk_brawl.js, sk_fin.js, sk_team.js, sk_env.js, sk_phase.js, sk_arc.js,
   then the features' game parts: crew chain insure style secret lobby breach office finale ctxmoves cast arms guns story beast elf
-  (hud and light have UI parts only) react room.
+  (hud and light have UI parts only) react room rise stances spells stnmotion, then Act I's (explore, the pit scenes, short).
 - UI: sk_envui.js, sk_phaseui.js, sk_arcui.js, the features' UI parts (crewui ... figui lookui castui sceneui armsui gunsui storyui
-  beastui elfui hudui lightui reactui roomui ... sfxui, in FEAT order), then sk_ui.js last (its frame loop starts the game).
+  beastui elfui hudui lightui reactui roomui stancesui spellsui ... sfxui, in FEAT order), then sk_ui.js last (its frame loop starts
+  the game).
 - Page: sk_head.txt, sk_body.html, the sk_css_*.css in build.py's CSS list.
 - Music: music/lepers_ascent.mp3, the prologue's song. Not built into the page: published beside it (see "Publishing").
 - Sounds: sfx/*.mp3, the prologue's 153 recorded sounds, made in code by tools/sfx (see "The recorded sounds" under "How the code is
@@ -155,6 +156,8 @@ figure is drawn translated by (dep*PSX, -dep*PSY) and uses his raw x/y. Canvas p
 - sk_hudui.js: the full-screen HUD. Modes by size: land (phone sideways), port (phone upright: one focus plate per side), tab, desk.
   Command dock with tabs (strike, move, tactics, room, aether; the tactics tab's key is still `guard`), menu and log drawers. The
   Room tab shows only while the room offers something (sk_roomui.js); on a desktop the room's two buttons sit in the Tactics group.
+  While Ilyas fights with the arc-blade the stance bar sits over the moves (sk_stancesui.js: the dock's first row upright, over the
+  bar beside the tabs sideways and on a tablet, the dock's top row on a desktop).
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,
@@ -217,6 +220,48 @@ The react suite (sk_react_test.js) checks the window, each answer and what it pa
 Hold, cover and Flow. `node tools/cmp/flow_probe.js` counts runs and how they end over the 36 auto fights. `node tools/cmp/react_probe.js` and `node tools/cmp/break_causes.js` run 36 auto fights and count answers, breaks and wins;
 `node tools/cmp/fight_trace.js <arena> <n> <seed>` traces one fight. `node uiwork/react_shots.js <out> [react,broken,input]
 [land,port,desk] [arena] [crew]` photographs the answer window and a break.
+
+**Stances, the free rise and the new spells (since V70).** Tried first on a test page of their own (the stances-test branch,
+proto/stances/), then put in the game: four features after the room in FEAT, so Act I's scene rules (a stage that spares everyone,
+the toll) still wrap them.
+- The free rise (sk_rise.js, `DOWNF`): a fighter knocked down stays down until his own turn starts, then rises free (`freeRiseOK`:
+  not npc, not struck on the floor, not held or carried). `startTurn` is wrapped to play a Get up that costs nothing as an exchange
+  of its own (`ex.rise`; the log's 'getup' entry with `free`; `S.hooks.freeRise`), and when it ends the same turn goes on
+  (`riseContinue`, `S._riseCont`), Off balance (`DOWNF.rise` 'off'; 'committed' gives three pips). A blow that lands on a man on the
+  floor kills a crew man (`hench`) with his weapon's finisher (the resolveAttack wrapper; not in a stage that spares everyone,
+  `act1Spare`), and anyone else loses the free rise (`f.noRise`, the 'No free rise' popup, `S.hooks.downStruck`) and gets up as
+  before. The page labels a man on the floor (`intentLabel`: Rises free, Must get up) and the tip line says what it means.
+- The stances (sk_stances.js, sk_stancesui.js, sk_css_stances.css): while Ilyas fights with the arc-blade and is not drained
+  (`stanceOn`) he holds one of three (`f.stance`, STANCES): Bound (the blade locked: the crescents and the two-man strokes, a short
+  blade kept at the point), Unbound (a bladed whip: every blow a lash from where he stands, the tip's crack from `STN.tip` past his
+  striking distance and the chain's body inside it, the Ankle wrap, a stop-lash on a man who closes, relocked blows inside his reach
+  at -2, Parry -1 and Counter -2) and Close (the blade choked: the hilt-ring, the spine, the inside hook, the grab +2, an axe swung in
+  reach jammed on its haft, -1 to everyone else while tied up inside one man). He changes it free on his own turn before he acts
+  (`setStance`; the stance bar over the dock, keys Z, X and C). `STN_ANS` is what each stance does to a man's blow (Bound beats a
+  thrust aside +3 and takes a cut on the blade +2, Close gets inside an overhead +3 or a cut +2 from a man in reach, Unbound catches
+  the raised arm of a man coming in with an overhead +3), and an answered blow that misses costs the man a pip more (`STN_MISS`);
+  `stnRange` is the range of Ilyas's own blows in each. The bar marks the stance that answers his target best (`stanceMatch`, scored
+  by `stanceFactors`: the man's weapon and its habits `STN_HABIT`, the range, the blow each man shows, the crowd) with its reason,
+  and Ilyas on auto takes it (`STANCE.policy`); a blow a man shows is the blow he throws (the ensureIntents wrapper). Unbound's chain
+  is the page's own (`K._whip`: stepped after each simStep by `whipTick`, drawn over the arc-blade's hilt by `whipPaint`; the rules
+  read nothing from it): it trails the hand, is thrown with each lash window (`whipWin`: a combo's leads to the parry, the blow onto
+  the blade's tip, the catch round a man's arm), hangs at rest and locks into the blade for a relocked blow or a blow taken on it.
+  Its crack and reel are synthesized (the stance UI's sound wrapper, ahead of sfx's).
+- The stances' motion (sk_stnmotion.js): the whip's blows and Close's hilt-ring, spine and hook come in variants of their own
+  (`STN_VAR`, picked by blowVariant from the animation's dice) and open with combos of their own (`STN_LEADS`, `stnComboPlan`: the
+  whip's flicks run out to where the man's parry meets them), and each stance's answer is acted out when the blow it answers misses
+  (`STN_ANSWER`: Bound's beat and the braced blade, Close stepping inside, Unbound's chain round the forearm `D.stnCatch`), with the
+  footwork of a Slip or Step back for the beat and the catch, in place of an elf's evasion. `STN_MOTION.on` false is the game's own.
+- The new spells (sk_spells.js, sk_spellsui.js, sk_css_spells.css; `SPELL2`): Glare (1 Aether, key A: a man in his face swings at
+  -3, a Thrust -4, and defends at -2 till he acts), Gilt line (2, key S: a yank that lands a man who holds off where the stance
+  strikes best), Gilt edge (1, key D, lit free on his turn: Bound +1 and through a guard, Unbound's tip burns, Close's hilt dazes),
+  the Gilt ward (1: an answer in the window, +5 against an Overhead, +4 a Cut, +2 a Thrust, an axe cracks it) and Overdrive (a spell
+  one or two Aether short burns 8 health a point).
+Suites: `stances` (sk_stances_page.js: the lab's fight with the bar, the whip, the answers and their dice, each spell's button and
+what it does, a fall and a blow on the floor, the rules off) and `stnmotion` (sk_stnmotion_page.js: the variants, combos and
+answers, no game dice). `node tools/cmp/stances_probe.js [fights] [key=value ...]` plays the lab's auto fights with each rule on or
+off and counts what they do (its usage lines list the options). The logic suites that look at a man after a move read him where the
+move's exchange ends (`wasDown`): their runs play on into his free rise.
 
 **The room (sk_room.js, since V42).** Events: in V11.step, any body knocked flying (`roomFlying`: dead or motor < .62, not the man
 making the move) that meets a standing man's HEAD-PEL capsule at a closing speed over ROOMEV.hit is an impact of speed x weight ratio:
@@ -500,12 +545,12 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V70 ..." (V69 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V71 ..." (V70 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V69: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V70: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -531,7 +576,9 @@ was checked, and anything that did not work, plainly.
   (1.16 ms against 1.2 on Oct 21; one full run read 1.201): a miss by a hundredth is noise, so run `python3 test.py perf` alone to
   confirm, then the full run again for the record. On the machine of the afternoon of Oct 21 it read 1.23 to 1.38 for the V45 and
   V46 builds alike (and once the weapon check missed too): a slower machine, not the change. To tell which, build the sources before
-  the change (keep copies) and time both on the same machine.
+  the change (keep copies) and time both on the same machine. On Oct 28 (V70) the crew figure read 1.07 alone and 1.22 to 1.31 at the
+  end of each full run, and the V69 build timed beside it read 1.14 to 1.28: the machine again (V70 was published on the 24 other
+  suites and the timing checks passing alone).
 - Under SK_TEST the effects never auto-drop; in a real browser a slow first second can move a device to Lite.
 - The node checks have no Path2D or DOMMatrix: FXL and the scene painters stand down there (`SCENE_OK`).
 - The fall's live picture runs from y -110 to H+120 (`live()` in env_fall.js); a phone held upright sees past both ends. Anything

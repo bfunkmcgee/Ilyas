@@ -18,13 +18,14 @@ import os, sys, json
 CORE = ['core', 'anim', 'brawl', 'fin', 'team', 'env', 'phase', 'arc']
 # the features, each with a game part (sk_<f>.js) and a UI part (sk_<f>ui.js) where it has one
 FEAT = ['crew', 'chain', 'insure', 'style', 'secret', 'lobby', 'breach', 'office', 'finale', 'ctxmoves', 'fig', 'look', 'cast',
-        'scene', 'arms', 'guns', 'story', 'beast', 'elf', 'hud', 'light', 'react', 'room', 'explore', 'pit', 'pitcast', 'pit2', 'pit5', 'short', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu', 'sfx']
+        'scene', 'arms', 'guns', 'story', 'beast', 'elf', 'hud', 'light', 'react', 'room', 'rise', 'stances', 'spells', 'stnmotion', 'explore', 'pit',
+        'pitcast', 'pit2', 'pit5', 'short', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu', 'sfx']
 # the UI parts that come before the features' UI parts, and the main UI script that comes last (its frame loop starts the game)
 UI_FIRST = ['envui', 'phaseui', 'arcui']
 UI_LAST = 'ui'
 # the stylesheets, in cascade order
 CSS = ['base', 'extra', 'crew', 'chain', 'insure', 'style', 'secret', 'lobby', 'breach', 'office', 'finale', 'ctxmoves', 'arms', 'story',
-       'elf', 'hud', 'light', 'react', 'room', 'explore', 'pit', 'pit2', 'pit5', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu']
+       'elf', 'hud', 'light', 'react', 'room', 'stances', 'spells', 'explore', 'pit', 'pit2', 'pit5', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu']
 # the scene painters (envx/) that make sk_sceneui.js, with the glue that puts them in the game last
 SCENES = ['env_look', 'env_tex', 'env_props', 'tex_lobby', 'tex_office', 'tex_out_a', 'tex_out_b', 'env_street', 'env_dining', 'env_kitchen',
           'env_lobby', 'env_office', 'env_field', 'env_hill', 'env_ledge', 'env_wall', 'env_crops', 'env_outskirts', 'env_chase', 'env_roadblock', 'env_roof',

@@ -52,8 +52,9 @@ for(const sz of Object.keys(SIZES)){const p=await open(sz);
     tab('move').click();step(2);const m={tab:c.dataset.tab,vis:[...document.querySelectorAll('#cmds .cmd')].filter(b=>b.offsetParent).map(b=>b.id)};
     tab('aether').click();step(2);const ae={tab:c.dataset.tab,vis:[...document.querySelectorAll('#cmds .cmd')].filter(b=>b.offsetParent).map(b=>b.id)};
     tab('strike').click();step(2);return{m,ae,sel:tab('strike').getAttribute('aria-selected'),pips:document.getElementById('tabPips').textContent};});
-  expect('the Move tab shows Advance, Sidestep and Withdraw; Aether the three spells; the tab carries the Aether as pips',
-    t.m.tab==='move'&&t.m.vis.join()==='cmd-advance,cmd-sidestep,cmd-withdraw'&&t.ae.vis.join()==='mg-bolt,mg-gale,mg-blink'&&t.sel==='true'&&/^◆+◇*$/.test(t.pips),JSON.stringify(t));
+  // (the six spells since V70: the Gilt bolt, Gale and Glimmer step, then Glare, Gilt line and Gilt edge, sk_spells.js)
+  expect('the Move tab shows Advance, Sidestep and Withdraw; Aether the six spells; the tab carries the Aether as pips',
+    t.m.tab==='move'&&t.m.vis.join()==='cmd-advance,cmd-sidestep,cmd-withdraw'&&t.ae.vis.join()==='mg-bolt,mg-gale,mg-blink,mg-glare,mg-line,mg-edge'&&t.sel==='true'&&/^◆+◇*$/.test(t.pips),JSON.stringify(t));
   // a hero knocked down on his turn: the Strike tab has nothing to press, the Guard tab has Get up; up again, back to Strike
   const d=await ev(p,()=>{const K=S.F[0],g=S.game;let n=0;while(!(g.phase==='input'&&g.active===0)&&n<3000){if(g.phase==='input'&&isAI(g.active)===false&&g.active!==0)command(g.active,'guard');step(1);n++;}
     K.downed=true;g.turnNo++;updateStatus();step(1);const t1=document.getElementById('commands').dataset.tab,gu=document.getElementById('n-guard').textContent;

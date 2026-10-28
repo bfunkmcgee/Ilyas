@@ -17,9 +17,11 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
       window.__now=performance.now()+1000;window.step=(k,o)=>{const ev=(o&&o.every)||window.__drawEvery||1;for(let i=0;i<k;i++){window.__now+=16.7;const f=window.__raf;window.__raf=null;if(!f)continue;if(ev===1||(window.__fc=(window.__fc||0)+1)%ev===0)f(window.__now);else{const R=window.render;window.render=()=>{};try{f(window.__now);}finally{window.render=R;}}}};window.__drawEvery=window.__drawEvery||8;window.drawAll=fn=>{const e=window.__drawEvery;window.__drawEvery=1;try{return fn();}finally{window.__drawEvery=e;}};
       // every call to KaelLook.draw is counted, with who it was for
       // (and the frames drawn: one in eight outside drawAll)
-      window.CALLS={kael:0,other:0,ms:0,rips:0,frames:0};const _rd=window.render;window.render=function(){CALLS.frames++;return _rd.apply(this,arguments);};const _d=KaelLook.draw;KaelLook.draw=function(c,F,o){if(F===S.F[0])CALLS.kael++;else CALLS.other++;
+      window.CALLS={kael:0,other:0,ms:0,rips:0,frames:0,turned:0};const _rd=window.render;window.render=function(){CALLS.frames++;return _rd.apply(this,arguments);};const _d=KaelLook.draw;KaelLook.draw=function(c,F,o){if(F===S.F[0])CALLS.kael++;else CALLS.other++;
         const prev=o&&o.onRip,o2=Object.assign({},o,{onRip:(r,ctr,cc)=>{CALLS.rips++;if(prev)prev(r,ctr,cc);}});
-        const t=performance.now();const r=_d.call(this,c,F,o2);CALLS.ms+=performance.now()-t;return r;};
+        const t=performance.now();const r=_d.call(this,c,F,o2);CALLS.ms+=performance.now()-t;
+        // (drawn turned, in a spin or a turn round: a tear on the side away from the viewer is not drawn)
+        if(F===S.F[0]){const sn=KaelLook.seen.get(F);if(sn&&sn.turned)CALLS.turned++;}return r;};
       window.fight=(o)=>{S.arenaKey=o.arena||'field';S.introOn=!!o.intro;S.tableOn=!!o.table;S.divOn=false;S.cfg.n=o.n||1;S.cfg.crew=!!o.crew;S.cfg.ally.on=!!o.ally;S.auto=!!o.auto;
         S.cfg.hero.weapon=o.hero||'elven';S.cfg.hero.skill=o.hs||4;(o.foes||['sword']).forEach((w,i)=>{S.cfg.foes[i].weapon=w;S.cfg.foes[i].skill=3;S.cfg.foes[i].temper='plain';});
         S.F=[];rosterBuild();restart();step(3);};
@@ -40,8 +42,9 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
           out.push({g:r.g,stab:r.stab,cc,x:Math.round(m.a*ctr.x+m.c*ctr.y+m.e),y:Math.round(m.b*ctr.x+m.d*ctr.y+m.f)});}}));};
         try{render();}finally{KaelLook.draw=_d;}const c=document.getElementById('cv').getContext('2d');
         for(const t of out){const o=typeof FXL!=='undefined'?FXL.offsetOf(t.cc):{x:0,y:0};t.x+=o.x;t.y+=o.y;delete t.cc;}
-        for(const t of out){const d=c.getImageData(t.x,t.y,1,1).data;t.rgb=[d[0],d[1],d[2]];const w=c.getImageData(t.x-2,t.y-2,5,5).data;t.red=false;
-          for(let i=0;i<w.length;i+=4)if(w[i]>140&&w[i]-w[i+1]>55&&w[i]-w[i+2]>40)t.red=true;}return out;};
+        // (the lining, too, is looked for round the tear's middle: a middle on the hole's edge or on a line of trim is no proof of none)
+        for(const t of out){const d=c.getImageData(t.x,t.y,1,1).data;t.rgb=[d[0],d[1],d[2]];const w=c.getImageData(t.x-2,t.y-2,5,5).data;t.red=false;t.lining=false;
+          for(let i=0;i<w.length;i+=4){if(w[i]>140&&w[i]-w[i+1]>55&&w[i]-w[i+2]>40)t.red=true;if(w[i+1]>150&&w[i+2]>140&&w[i]<140)t.lining=true;}}return out;};
       // pixels in a box round Kael's upper body, in canvas pixels: how many are gold and how many are his pale hair
       window.paint=()=>{const K=S.F[0],cv=document.getElementById('cv'),c=cv.getContext('2d'),s=cv.width/cam.viewW,viewH=cam.viewW/aspect,L=cam.x-cam.viewW/2,T=camTop();
         const cx=(prjX(K.p[CHE].x,K.dep)-L)*s,cy=(prjY(K.p[CHE].y,K.dep)-T)*s,w=Math.round(46*s),h=Math.round(60*s),x0=Math.round(cx-w/2),y0=Math.round(cy-h*.55);
@@ -77,15 +80,16 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     const runUntil=(pred,max)=>{let n=0;while(!pred()&&n<(max||30000)){step(1);n++;}return n;};
     const clearNow=()=>{if(S.crew)S.crew.queue.length=0;S.opening=null;S.game.ex=null;for(const f of foes()){f.hp=0;kill(f,1);}if(nextRoom())beginTransit();};
     for(const r of ['dining','kitchen','lobby','office']){runUntil(()=>S.room===r&&!S.stage.tr&&(S.game.phase==='input'||S.game.phase==='exchange'));
-      CALLS.kael=0;CALLS.rips=0;CALLS.frames=0;step(200);const L=kaelLight(S.F[0]);out[r]={calls:CALLS.kael,frames:CALLS.frames,light:!!(L.light||L.dir),indoor:!!S.arena.indoor,rips:CALLS.rips,kept:S.F[0].rips.includes(tear)||S.F[0].rips.length===16};
+      CALLS.kael=0;CALLS.rips=0;CALLS.frames=0;CALLS.turned=0;step(200);const L=kaelLight(S.F[0]);out[r]={calls:CALLS.kael,frames:CALLS.frames,light:!!(L.light||L.dir),indoor:!!S.arena.indoor,rips:CALLS.rips,turned:CALLS.turned,kept:S.F[0].rips.includes(tear)||S.F[0].rips.length===16};
       if(r!=='office'){CALLS.kael=0;CALLS.frames=0;clearNow();runUntil(()=>S.room!==r,4000);out[r].walk=CALLS.kael;out[r].walkFrames=CALLS.frames;}}
     return out;});
   // (every frame drawn draws him the new way: one frame in eight is drawn here)
   expect('he is drawn the new way in all five outdoor arenas and the four rooms of the restaurant',Object.values(arenas).every(v=>v.frames>=20&&v.calls===v.frames&&v.light),JSON.stringify(arenas));
   expect('indoors the light comes from the lamps overhead, and he walks from room to room drawn the new way',['dining','kitchen','lobby','office'].every(r=>arenas[r].indoor)&&['dining','kitchen','lobby'].every(r=>arenas[r].walkFrames>=4&&arenas[r].walk===arenas[r].walkFrames),
     JSON.stringify(['dining','kitchen','lobby'].map(r=>[arenas[r].walk,arenas[r].walkFrames])));
-  expect('a tear from the first room is still on him, and drawn, in every room after it',['dining','kitchen','lobby','office'].every(r=>arenas[r].kept&&arenas[r].rips>=arenas[r].frames),
-    JSON.stringify(['dining','kitchen','lobby','office'].map(r=>[arenas[r].kept,arenas[r].rips])));
+  // (every frame he is drawn in, unless drawn turned in a spin, when a tear in front is on the side away from the viewer)
+  expect('a tear from the first room is still on him, and drawn, in every room after it',['dining','kitchen','lobby','office'].every(r=>arenas[r].kept&&arenas[r].rips>=arenas[r].frames-arenas[r].turned),
+    JSON.stringify(['dining','kitchen','lobby','office'].map(r=>[arenas[r].kept,arenas[r].rips,arenas[r].frames,arenas[r].turned])));
 
   // ---- every weapon he can hold ----
   const wps=await ev(()=>drawAll(()=>{const out={};
@@ -102,8 +106,11 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     fight({});K().sidearm='offhand';CALLS.kael=0;step(20);out.offhand=CALLS.kael;
     fight({});K().severed=true;kill(K());CALLS.kael=0;step(60);out.dead=CALLS.kael;
     fight({intro:true});CALLS.kael=0;const modes={};for(let i=0;i<120;i++){step(1);const m=arcState(K());modes[m?m.mode:'rigid']=1;}out.intro=CALLS.kael;out.introModes=Object.keys(modes).sort().join(',');
-    fight({});const V=S.F[1];put(K(),420,92,1);put(V,420+engageGap(K(),V)+100,92,-1);step(10);mine();V.foot=3;setTgt(K(),V.idx);humanCommand('sweep');
-    const lm={};CALLS.kael=0;for(let i=0;i<60;i++){step(1);const m=arcState(K());lm[m?m.mode:'rigid']=1;}out.lash=CALLS.kael;out.lashModes=Object.keys(lm).sort().join(',');
+    // (the lash as it was before the stances, V70, with them off; in Unbound the blade is a bladed whip)
+    STANCE.on=false;fight({});const V=S.F[1];put(K(),420,92,1);put(V,420+engageGap(K(),V)+100,92,-1);step(10);mine();V.foot=3;setTgt(K(),V.idx);humanCommand('sweep');
+    const lm={};CALLS.kael=0;for(let i=0;i<60;i++){step(1);const m=arcState(K());lm[m?m.mode:'rigid']=1;}out.lash=CALLS.kael;out.lashModes=Object.keys(lm).sort().join(',');STANCE.on=true;
+    fight({});const Vw=S.F[1];put(K(),420,92,1);put(Vw,420+engageGap(K(),Vw)+100,92,-1);step(10);mine();setStance(K(),'unbound');setTgt(K(),Vw.idx);humanCommand('slash');
+    const wm={};CALLS.kael=0;for(let i=0;i<60;i++){step(1);const m=arcState(K());wm[m?m.mode:'rigid']=1;}out.whip=CALLS.kael;out.whipModes=Object.keys(wm).sort().join(',');
     fight({});const V2=S.F[1];put(K(),420,92,1);put(V2,420+engageGap(K(),V2),92,-1);step(10);mine();setTgt(K(),V2.idx);humanCommand('shove');CALLS.kael=0;step(60);out.shove=CALLS.kael;
     fight({});S.opening={f:K(),source:'test',left:1,dur:1};CALLS.kael=0;render();out.opening=CALLS.kael;S.opening=null;
     fight({});K().look={t0:S.t,end:5,keys:[[0,-1],[5,-1]],slow:true};CALLS.kael=0;step(5);out.glance=CALLS.kael;K().look=null;
@@ -112,7 +119,8 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     st.facingLeft===20&&st.down===120&&st.dazedGuard===20&&st.offhand===20&&st.dead===60,JSON.stringify(st));
   expect('knocked down, the coat comes to rest on the floor and not through it',st.coatOnFloor,'');
   expect('the readying intro draws the blade rolled, unrolling and locking',st.intro===120&&/rolled/.test(st.introModes)&&/unroll/.test(st.introModes)&&/lock/.test(st.introModes),st.introModes);
-  expect('the lash draws the blade strung out on its thread',st.lash===60&&/lash/.test(st.lashModes),st.lashModes);
+  expect('the lash draws the blade strung out on its thread (the stances off)',st.lash===60&&/lash/.test(st.lashModes),st.lashModes);
+  expect('in Unbound he is drawn every frame of a whip blow, the blade a bladed whip',st.whip===60&&/whip/.test(st.whipModes),st.whipModes);
   expect('a shove, an opening and a glance behind him all draw',st.shove===60&&st.opening===1&&st.glance===5,JSON.stringify([st.shove,st.opening,st.glance]));
 
   // ---- the coat has its own motion, and it behaves ----
@@ -221,7 +229,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   expect('the tears are kept to sixteen and every one has a finite shape',unit.n===16&&unit.fin,JSON.stringify(unit));
   const goreOff=await ev(()=>{fight({});const K=S.F[0],V=S.F[1];put(K,420,92,1);put(V,420+engageGap(K,V),92,-1);step(30);const was=S.gore;S.gore='off';
     foeHit('slash','hit');foeHit('thrust','hit');const px=tearPx(),n=(K.rips||[]).length,marks=K.marks.length;S.gore=was;
-    return{n,marks,px:px.map(t=>t.rgb),red:px.filter(t=>t.rgb[0]>150&&t.rgb[1]<90).length,lining:px.filter(t=>t.rgb[1]>150&&t.rgb[2]>140&&t.rgb[0]<140).length};});
+    return{n,marks,px:px.map(t=>t.rgb),red:px.filter(t=>t.rgb[0]>150&&t.rgb[1]<90).length,lining:px.filter(t=>t.lining).length};});
   expect('with gore off the suit still tears, showing the lining and no blood',goreOff.n>=2&&goreOff.marks===0&&goreOff.red===0&&goreOff.lining>=1,JSON.stringify(goreOff));
 
   // ---- crews, an ally, a whole fight ----

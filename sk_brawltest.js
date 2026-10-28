@@ -32,6 +32,10 @@ function run(max=120*10){let n=0;for(;n<max;n++){simStep();
     if(S.opening){const p=PICKS.shift()||'hold';opened.push(S.opening.f.name+':'+S.opening.source+'>'+p);resolveOpening(p);}
     for(const f of S.F)for(const q of f.p)if(!Number.isFinite(q.x+q.y)){errs.push('NaN '+f.name);return -1;}
     if(S.game.phase!=='exchange'&&!S.opening)return n;}return n;}
+// (since V70 a man put down rises free at the start of his own turn, sk_rise.js, and the runs here play on into it: what a move did to
+// him is read where its exchange ends)
+let DOWNED=new Set();V11.exchangeEnd.push(ex=>{if(ex&&!ex.rise)DOWNED=new Set(S.F.filter(f=>f.downed||f.dead));});
+const wasDown=f=>f.downed||f.dead||DOWNED.has(f);
 function act(i,cmd,label){const g=S.game;g.phase='input';g.active=i;g.aiAt=null;S.opening=null;
   const ok=command(i,cmd);if(!ok)errs.push(label+': refused '+S.F[i].name+' '+cmd);return ok;}
 function settle(n){const a=S.auto;S.auto=false;const g=S.game;if(g.phase!=='exchange'){g.phase='input';g.active=0;g.aiAt=null;}for(let i=0;i<n;i++)simStep();S.auto=a;}
@@ -84,11 +88,11 @@ for(const [hz,arena,pos,o] of THROWS)for(const r of ['ok','crush','fail']){
   setup(arena,['sword',3],foes,pos,o);makeClinch(S.F[0],S.F[1],false);resolveStations();
   const info=throwInfo(S.F[0]),w0=S.wall?S.wall.hp:null;ROLLS=[r];
   act(0,'throw','throw '+hz+' '+r);run();settle(60);
-  const V=S.F[1];if(r!=='fail'&&!V.downed&&!V.dead)errs.push('throw '+hz+' '+r+': Qadir still up');
+  const V=S.F[1];if(r!=='fail'&&!wasDown(V))errs.push('throw '+hz+' '+r+': Qadir still up');
   if(r!=='fail'&&hz!=='plain'&&(!info||!info.hazard||info.hazard.kind!==hz))errs.push('throw '+hz+': hazard not chosen ('+(info&&info.hazard?info.hazard.kind:'none')+')');
   if(r!=='fail'&&hz==='table'&&S.table.state==='intact')errs.push('throw table: table intact');
   if(r!=='fail'&&hz==='wall'&&S.wall.hp>=w0&&S.wall.state==='standing')errs.push('throw wall: wall unhurt');
-  if(r!=='fail'&&hz==='body'&&!S.F[2].downed&&!S.F[2].dead)errs.push('throw body: bystander still up');
+  if(r!=='fail'&&hz==='body'&&!wasDown(S.F[2]))errs.push('throw body: bystander still up');
   if(r==='fail'&&(S.F[0].clinch||S.F[0].foot>FOOT_MAX-FOOT_COST.throw-FOOT_HIT))errs.push('throw fail: thrower kept his balance / still clinched');
   check('throw '+hz+' '+r,(info?info.how+'@'+info.x.toFixed(0):'-')+' '+st()+' table '+(S.table?S.table.state:'-')+' wall '+(S.wall?S.wall.hp+'/'+S.wall.state:'-'));}
 for(const r of ['ok','fail']){
@@ -128,7 +132,7 @@ for(const cmd of ['getup','roll','wait']){
 for(const w of ['sword','axe','spear','dagger','fists','club'])for(const kind of ATTACKS)for(const out of ['hit','crit','dodge']){
   setup('field',[w,3],[['axe',2]],[[330,92],[430,92,1]]);knockDown(S.F[1]);settle(90);
   const T=pickTechnique(S.F[0],S.F[1],kind);FORCE=[out];act(0,kind,'ground '+w+' '+kind);run();
-  if(!S.F[1].dead&&!S.F[1].downed)errs.push('ground '+w+' '+kind+': target got up');
+  if(!wasDown(S.F[1]))errs.push('ground '+w+' '+kind+': target got up');
   check('ground '+w+' '+kind+' '+out,T.name+' '+st());}
 
 // --- disarms: guard break and bind, then picking things up

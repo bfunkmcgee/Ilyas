@@ -20,6 +20,10 @@ function run(max=120*10){for(let n=0;n<max;n++){simStep();if(S.opening){if(isAI(
 // the next roll comes up as asked: ok (a plain success), crush, or fail
 function force(A,m,how){const c=roomMods(A,m.D,m.cmd),v=how==='fail'?1:how==='crush'?20:clamp(c.dc-c.bonus,2,19);let first=true;const save=S.rng;S.rng=()=>{if(first){first=false;S.rng=save;return(v-.5)/20;}return save();};}
 function slotOf(A,cmd){const ms=roomMoves(A);const i=ms.findIndex(m=>m.cmd===cmd);return i<0?null:i?'room2':'room1';}
+// (since V70 a man put down rises free at the start of his own turn, sk_rise.js, and the runs here play on into it: what a move did to
+// him is read where its exchange ends)
+let DOWNED=new Set();V11.exchangeEnd.push(ex=>{if(ex&&!ex.rise)DOWNED=new Set(S.F.filter(f=>f.downed||f.dead));});
+const wasDown=f=>f.downed||f.dead||DOWNED.has(f);
 let paid=0;
 function play(A,cmd,how){const slot=slotOf(A,cmd);if(!slot)return null;const m=roomPick(A,slot);force(A,m,how);const r0=A.ready,ok=command(A.idx,slot);paid=A.ready-r0;run();return ok?m:null;}
 // a body sent flying in an exchange of Kael's: v (px/s) along x, motor down to a ragdoll's
@@ -100,7 +104,7 @@ expect('in the open with nobody behind him, the room offers nothing',!roomMoves(
 [K,V,B]=setup('field',[[300,92],[300,92],[0,92]]);
 {V.station=K.station+engageGap(K,V)+6;V.build();B.station=V.station+84;B.lane=B.dep=96;B.side=1;B.build();startTurn(0);S.game.active=0;S.game.aiAt=null;
   const cost=actionCost(K,'room1',moveCost(K,V,'room1')),c0=chainSt().n,m=play(K,'hurl','ok');
-  expect('Hurl: on a hit he goes into the other and both go down',!!m&&(V.downed||V.dead)&&(B.downed||B.dead),'V '+V.downed+' B '+B.downed);
+  expect('Hurl: on a hit he goes into the other and both go down',!!m&&wasDown(V)&&wasDown(B),'V '+wasDown(V)+' B '+wasDown(B));
   expect('the room calls it, and it is two takedowns for Kael\\'s flow',EV.some(e=>e.kind==='hurl'&&e.at===B)&&chainSt().n>=c0+2,EV.map(e=>e.kind).join()+' run '+chainSt().n);
   expect('it costs '+ROOM_COST.hurl+' tempo at base and a pip of balance',paid===cost&&cost===actionCost(K,'throw',0)&&K.foot===footMaxOf(K)-1,paid+'/'+cost+' foot '+K.foot);}
 [K,V,B]=setup('field',[[300,92],[300,92],[0,92]]);
@@ -110,7 +114,7 @@ expect('in the open with nobody behind him, the room offers nothing',!roomMoves(
 // Through the pane
 {[K,V,B]=setup('restaurant',[[560,90],[676,90],[300,150]]);const w=S.divs.find(d=>d.mat==='glass'),h0=V.hp;
   const m=play(K,'pane','ok');
-  expect('Through the pane: it bursts and he lands down on the far side',!!m&&w.state==='broken'&&V.p[PEL].x>w.x&&(V.downed||V.dead)&&V.hp<h0,w.state+' x '+Math.round(V.p[PEL].x)+' hp '+h0+'>'+V.hp);}
+  expect('Through the pane: it bursts and he lands down on the far side',!!m&&w.state==='broken'&&V.p[PEL].x>w.x&&wasDown(V)&&V.hp<h0,w.state+' x '+Math.round(V.p[PEL].x)+' hp '+h0+'>'+V.hp);}
 {[K,V,B]=setup('restaurant',[[560,90],[676,90],[300,150]]);const w=S.divs.find(d=>d.mat==='glass');
   const m=play(K,'pane','fail');
   expect('braced, the pane stands',!!m&&w.state==='standing'&&!V.downed,w.state);}

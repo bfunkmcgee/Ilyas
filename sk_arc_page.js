@@ -31,11 +31,17 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   // ---- the states ----
   const intro=await ev(()=>{fight({intro:true});reset();step(150);return{...AR.modes};});
   expect('as a fight opens the arc-blade is drawn rolled up, unrolling and locking, then locked',intro.rolled>0&&intro.unroll>0&&intro.lock>0&&intro.rigid>0,JSON.stringify(intro));
-  const lash=await ev(()=>{fight({});const K=S.F[0],V=S.F[1];put(K,300,92,1);put(V,300+engageGap(K,V)+110,92,-1);hold();step(20);hold();
+  // (the lash as it was before the stances, V70: Ilyas's with the stances off, and an elven foe's; in the stance Unbound his blade is a
+  // bladed whip, sk_stancesui.js, checked in sk_stances_page.js)
+  const lash=await ev(()=>{STANCE.on=false;try{fight({});const K=S.F[0],V=S.F[1];put(K,300,92,1);put(V,300+engageGap(K,V)+110,92,-1);hold();step(20);hold();
     S.game.active=0;command(0,'slash');reset();let n=0,mx=0;
     // a read roll on the way pauses the exchange for a choice: hold, and carry on until the plates have relocked
-    while(n<600&&!AR.modes.pulse){step(1);n++;if(S.opening)resolveOpening('hold');mx=Math.max(mx,K.lashLen||0);}return{...AR.modes,lashMax:Math.round(mx),relock:K.relockT>0};});
-  expect('the Unbound lash draws the plates out on the thread, and they relock with a pulse',lash.lash>0&&lash.pulse>0,JSON.stringify(lash));
+    while(n<600&&!AR.modes.pulse){step(1);n++;if(S.opening)resolveOpening('hold');mx=Math.max(mx,K.lashLen||0);}return{...AR.modes,lashMax:Math.round(mx),relock:K.relockT>0};}finally{STANCE.on=true;}});
+  expect('the lash draws the plates out on the thread, and they relock with a pulse (the stances off)',lash.lash>0&&lash.pulse>0,JSON.stringify(lash));
+  // Unbound: the blade hangs from the hilt as a bladed whip, drawn every frame
+  const whip=await ev(()=>{fight({});const K=S.F[0],V=S.F[1];put(K,300,92,1);put(V,300+engageGap(K,V)+110,92,-1);hold();step(20);hold();
+    S.game.active=0;setStance(K,'unbound');reset();step(30);return{...AR.modes,st:stanceOf(K)};});
+  expect('in Unbound the blade is drawn as a bladed whip',whip.st==='unbound'&&whip.whip>=25&&!whip.rigid,JSON.stringify(whip));
 
   // ---- painted once at game size and close up, as paths very close ----
   const lod=await ev(()=>{fight({});reset();step(20);const game={sprite:AR.sprite,vector:AR.vector};

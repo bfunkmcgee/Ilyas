@@ -1,0 +1,6 @@
+/* ===== SPELLS: the new spells' buttons (since V70) ===== */
+/* a button Overdrive opens, and the lit edge */
+.cmd.mg.od .tq{color:#ff9a5c;text-shadow:0 0 9px rgba(255,154,92,.45)}
+.wrap.hud .cmd.mg.od .tq{color:#ff9a5c}
+.cmd.mg.lit{background:rgba(226,182,90,.12)}
+.cmd.mg.lit .tq{color:#fff1c9}

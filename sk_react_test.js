@@ -40,7 +40,8 @@ let K,V,B;
 setup([['sword',3]]);K=S.F[0];V=S.F[1];
 act(1,'slash');const o=S.opening;
 expect('a blow at a hero the player controls is held and opens a window for him',!!o&&o.source==='react'&&o.f===K&&o.opp===V&&o.attack==='slash'&&!!(o.ex&&o.ex.reactPending),o&&o.source);
-expect('it offers Parry, Counter, Slip and Step back (Turn him only with one of his behind him)',o&&JSON.stringify(openingChoices(o))==='["parry","counter","slip","back"]',o&&openingChoices(o).join());
+// (and since V70 the Gilt ward, sk_spells.js, while he has the Aether for it)
+expect('it offers Parry, Counter, Slip and Step back, and the Ward while he has the Aether (Turn him only with one of his behind him)',o&&JSON.stringify(openingChoices(o))===JSON.stringify(['parry','counter','slip','back',...(wardOK(K)?['ward']:[])]),o&&openingChoices(o).join());
 expect('time slows for it: the window lasts two to three and a half seconds of the player\\'s own',o&&o.dur>=REACT.durMin&&o.dur<=REACT.durMax,o&&o.dur);
 {const r0=K.ready,v0=V.foot;FORCE=['block'];resolveOpening('parry');const res=lastAttack(),pm=res&&(res.defMods.find(m=>m[0]==='parry')||[0,0])[1];
   expect('Parry: the answer counts in his DEF (+4 against a Slash) and costs him '+REACT.cost+' tempo',R.includes(HERO_NAME+':parry')&&pm===4&&K.ready-r0===REACT.cost,R.join()+' parry '+pm+' tempo '+(K.ready-r0));

@@ -31,6 +31,10 @@ function run(max=120*12){let n=0;for(;n<max;n++){simStep();
     if(S.opening){const p=PICKS.shift()||'hold';opened.push(S.opening.f.name+':'+S.opening.source+'>'+p);resolveOpening(p);}
     for(const f of S.F)for(const q of f.p)if(!Number.isFinite(q.x+q.y)){errs.push('NaN '+f.name);return -1;}
     if(S.game.phase!=='exchange'&&!S.opening)return n;}return n;}
+// (since V70 a man put down rises free at the start of his own turn, sk_rise.js, and the runs here play on into it: what a move did to
+// him is read where its exchange ends)
+let DOWNED=new Set();V11.exchangeEnd.push(ex=>{if(ex&&!ex.rise)DOWNED=new Set(S.F.filter(f=>f.downed||f.dead));});
+const wasDown=f=>f.downed||f.dead||DOWNED.has(f);
 function act(i,cmd,label){const g=S.game;g.phase='input';g.active=i;g.aiAt=null;S.opening=null;const ok=command(i,cmd);if(!ok)errs.push(label+': refused '+S.F[i].name+' '+cmd);return ok;}
 function settle(n){const a=S.auto;S.auto=false;const g=S.game;if(g.phase!=='exchange'){g.phase='input';g.active=0;g.aiAt=null;}for(let i=0;i<n;i++)simStep();S.auto=a;}
 function check(label,extra){
@@ -51,7 +55,7 @@ for(const [mat,need] of [['paper',1],['glass',2],['plaster',3],['plank',2]]){
   let n=0,thru=false;
   for(let k=0;k<4&&!thru;k++){if(V.downed){V.downed=false;standUp(V);settle(40);}
     const s0=bodySide(V,w);SHOVE='ok';act(0,'shove','shove '+mat);run();settle(60);n++;
-    if(w.state==='broken'){thru=true;if(bodySide(V,w)===s0)errs.push('shove '+mat+': broke but body stayed on the near side');if(!V.downed&&!V.dead)errs.push('shove '+mat+': not floored after going through');}
+    if(w.state==='broken'){thru=true;if(bodySide(V,w)===s0)errs.push('shove '+mat+': broke but body stayed on the near side');if(!wasDown(V))errs.push('shove '+mat+': not floored after going through');}
     else{if(bodySide(V,w)!==s0)errs.push('shove '+mat+': body passed a standing divider');if(V.station>divL(w)-DIV_M+1&&V.station<divR(w)+DIV_M-1)errs.push('shove '+mat+': station inside the margin');
       K.station=clampSt(K,V.station+70);settle(30);}
     const ii=inside();if(ii)errs.push('shove '+mat+': '+ii);}
@@ -72,7 +76,7 @@ for(const out of ['hit','crit']){
   if(r.divRes==='breach'&&w.state!=='broken')errs.push('knock '+out+': breach but glass stands');
   if(r.divRes==='slam'&&(w.state==='broken'||w.hp!==1))errs.push('knock '+out+': slam left hp '+w.hp);
   if(w.state!=='broken'&&bodySide(V,w)!==s0)errs.push('knock '+out+': through a standing pane');
-  if(r.divRes==='breach'&&!V.downed&&!V.dead)errs.push('knock '+out+': breach without a fall');
+  if(r.divRes==='breach'&&!wasDown(V))errs.push('knock '+out+': breach without a fall');
   check('knockback '+out+' into glass',r.divRes+' +'+r.divDmg+' glass '+w.state+w.hp+' '+st());}
 // ---- throws: into a solid divider (slam) and through a weak one
 for(const [mat,hp] of [['plaster',3],['paper',1],['glass',1]]){
