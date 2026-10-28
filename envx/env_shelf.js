@@ -7,8 +7,9 @@
 // pole to pole along the front of the tarps. The ledge is packed earth and stone, planked where it has worn through; its front edge is
 // railed (the rail, with a lamp at each end, is drawn over the people in fore()), and past it the drop: the wall going on down under
 // the ledge into the murk, its windows and fires, smoke coming up. Above the stalls the wall goes on up into the haze in walkways and
-// shacks. At the right end a stair climbs the rock to the way on up, and a hoist on the ledge's corner lets a basket down over the
-// edge; at both ends the wall turns away and the far side of the Pit shows across the gap. The stalls stand by where their keepers
+// shacks. At the left end the stair-head, an arch in the rock where the Shelf stair comes up inside the wall, a board over it pointing
+// down to the Floor (he comes and goes there); at the right end a stair climbs the rock to the way on up, and a hoist on the ledge's
+// corner lets a basket down over the edge; at both ends the wall turns away and the far side of the Pit shows across the gap. The stalls stand by where their keepers
 // stand (the game's shelf.keepers.d, else 200), and the counters stand among the people (pieces), so a keeper is behind his and a
 // buyer in front of it. live(): lamps, smoke, the bunting and the tarps' edges stirring.
 (()=>{const E=EnvLook,{C,pp,poly,lin,rad,rgba,mix,glow,haze,stars,moon,rng,lerp,clamp,TAU}=E;const K=E.pitKit;
@@ -139,7 +140,7 @@ function between(c,P){const f=FD(),sh=(col,k)=>K.shade(P,col,k),r=rng(301),S0=st
   c.restore();
   const gaps=[];let x=LEDGE.x0+10;for(const s of S0){gaps.push([x,s.x-s.w/2]);x=s.x+s.w/2;}gaps.push([x,SR.x0]);
   gaps.forEach(([g0,g1],i)=>{const w=g1-g0;if(w<14)return;const cx=(g0+g1)/2;
-    if(i===0){door(c,P,g0+38,30,96,true);wallLamp(c,P,g0+66,118);brazier(c,P,g1-26,f-28);}
+    if(i===0){stairHead(c,P,g0+10,g0+66);wallLamp(c,P,g0+80,118);brazier(c,P,g1-22,f-28);}
     else if(i===2){// the ladder up the rock to the walkway, the pipe beside it
       const a=Q(cx,0,f-6),b=Q(cx+4,204,f);c.strokeStyle=sh('#463222');c.lineWidth=3;c.beginPath();c.moveTo(a.x-7,a.y);c.lineTo(b.x-7,b.y);c.moveTo(a.x+7,a.y);c.lineTo(b.x+7,b.y);c.stroke();
       c.lineWidth=2;c.beginPath();for(let hh=12;hh<204;hh+=14){const p=Q(cx+4*hh/204,hh,lerp(f-6,f,hh/204));c.moveTo(p.x-7,p.y);c.lineTo(p.x+7,p.y);}c.stroke();
@@ -151,6 +152,22 @@ function between(c,P){const f=FD(),sh=(col,k)=>K.shade(P,col,k),r=rng(301),S0=st
       if(i===1){const p=Q(g1-8,40,f-2);c.strokeStyle=sh('#6a5a3e');c.lineWidth=1.6;for(let k=0;k<3;k++){c.beginPath();c.ellipse(p.x,p.y+k*2,6,2.4,0,0,TAU);c.stroke();}}
       else{const p=Q(g1-8,0,f-12);c.fillStyle=sh('#6a4a32');c.beginPath();c.moveTo(p.x-6,p.y);c.quadraticCurveTo(p.x-10,p.y-14,p.x-4,p.y-22);c.lineTo(p.x+4,p.y-22);c.quadraticCurveTo(p.x+10,p.y-14,p.x+6,p.y);c.closePath();c.fill();
         c.fillStyle=K.topLit(P,'#6a4a32',.5);c.fillRect(p.x-4.4,p.y-24,8.8,2.4);c.fillStyle=rgba('#000000',.25);c.fillRect(p.x+2,p.y-20,3,18);}}});}
+// the stair-head at the ledge's left end, where the Shelf stair comes up inside the rock: an arch in it, rough stone round it, the top
+// steps going down out of sight, and a board over it pointing down to the Floor
+function stairHead(c,P,x0,x1){const f=FD(),sh=(col,k)=>K.shade(P,col,k),a=Q(x0,112,f),e=Q(x1,0,f),cx=(a.x+e.x)/2,rr=(e.x-a.x)/2;
+  c.fillStyle=sh('#3a3632',1.2);c.beginPath();c.moveTo(a.x-14,e.y);c.lineTo(a.x-14,a.y+rr-6);c.arc(cx,a.y+rr,rr+14,Math.PI,0);c.lineTo(e.x+14,e.y);c.closePath();c.fill();
+  c.strokeStyle=rgba('#000000',.4);c.lineWidth=1;for(let k=0;k<=8;k++){const an=Math.PI+k*Math.PI/8;c.beginPath();c.moveTo(cx+Math.cos(an)*rr,a.y+rr+Math.sin(an)*rr);c.lineTo(cx+Math.cos(an)*(rr+14),a.y+rr+Math.sin(an)*(rr+14));c.stroke();}
+  c.save();c.beginPath();c.moveTo(a.x,e.y);c.lineTo(a.x,a.y+rr);c.arc(cx,a.y+rr,rr,Math.PI,0);c.lineTo(e.x,e.y);c.closePath();c.clip();
+  c.fillStyle=lin(c,0,a.y,0,e.y,[[0,'#0a0807'],[1,'#16110e']]);c.fillRect(a.x,a.y,e.x-a.x,e.y-a.y);
+  for(let k=0;k<4;k++){const y=e.y-14+k*4,w=(e.x-a.x)*(.92-k*.14);c.fillStyle=jm(K.topLit(P,'#4a443c',.6),'#0a0807',.2+k*.22);c.fillRect(cx-w/2,y,w,2);}
+  c.fillStyle=lin(c,0,e.y-30,0,e.y,[[0,rgba('#000000',0)],[1,rgba('#000000',.55)]]);c.fillRect(a.x,e.y-30,e.x-a.x,30);
+  c.fillStyle=lin(c,0,a.y,0,e.y,[[0,rgba('#000000',.6)],[1,rgba('#000000',0)]]);c.fillRect(a.x,a.y,e.x-a.x,e.y-a.y);
+  c.restore();
+  {const p=Q((x0+x1)/2,150,f),ink=K.shade(P,'#d8c8a0',.55);c.font='700 10px "Alegreya SC", Georgia, serif';const tw=c.measureText('THE FLOOR').width+24,bh=15;
+    c.fillStyle=sh('#1a1410',1.2);c.fillRect(p.x-tw/2-2,p.y-bh-2,tw+4,bh+4);c.fillStyle=sh('#3a3226',1.05);c.fillRect(p.x-tw/2,p.y-bh,tw,bh);
+    c.textAlign='center';c.textBaseline='middle';c.fillStyle=ink;c.fillText('THE FLOOR',p.x-5,p.y-bh/2+.5);
+    const ax=p.x+tw/2-8,ay=p.y-bh/2;c.strokeStyle=ink;c.lineWidth=1.4;c.beginPath();c.moveTo(ax,ay-4);c.lineTo(ax,ay+4);c.moveTo(ax-3,ay+1);c.lineTo(ax,ay+4);c.lineTo(ax+3,ay+1);c.stroke();
+    c.fillStyle=rgba(P.light,.06+.2*P.lightA);c.fillRect(p.x-tw/2,p.y-bh,tw,1);}}
 // a door cut into the rock: a timber frame, open on a lamp-lit storeroom, or shut
 function door(c,P,x,w,h,open){const f=FD(),a=Q(x-w/2,h,f),e=Q(x+w/2,0,f),sh=(col,k)=>K.shade(P,col,k);
   c.fillStyle=sh('#22180f',1.2);c.fillRect(a.x-4,a.y-5,e.x-a.x+8,e.y-a.y+5);
@@ -364,6 +381,7 @@ function upperPaint(c,P,x0,x1,y0,y1){const X0=-170,X1=W+250;
 // the bunting stirring in the draught that comes up the Pit
 function live(){syncST();const t=S.t,P=K.pal();ctx.save();
   K.upper('shelf:'+P.key,-1000,(c,x0,x1,y0,y1)=>upperPaint(c,P,x0,x1,y0,y1));
+  K.tram(ctx,t,P,-760);
   {const srcs=SMOKES.slice();for(const ch of UPW.chims.slice(0,6))srcs.push({x:ch.x,y:ch.y,s:2.6*(ch.s||1),sp:.08,n:5,h:60+50*(ch.s||1),dx:12,a:.4*(1-ch.hz*.6),ph:ch.x*.013});K.smoke(ctx,srcs,t,P.smoke,1);}
   {const pf=K.puffSpr(P.smoke);for(let q=0;q<4;q++){const u=(t*.04+q/4)%1,x=90+q*230+Math.sin(t*.3+q*2)*30,y=548-u*120,R=16+u*30;ctx.globalAlpha=.22*(1-u)*Math.min(1,u*4);ctx.drawImage(pf,x-R,y-R,R*2,R*2);}ctx.globalAlpha=1;}
   ctx.globalCompositeOperation='lighter';

@@ -327,8 +327,9 @@ sk_react_test.js, sk_teamtest_body.js, sk_cast_page.js, sk_arms_page.js, sk_v12f
 **Act I, the Pit (since V49).** The user's doc tab "Act I, beats 1 and 2" (copy: uiwork/act1/doc.md; plan: uiwork/act1/PLAN.md) is
 nine scenes. Scenes 1 to 5 are built: the fall goes on (`fall.next`) to `roof1` and `kitchen1` (scene 1, sk_pit.js), `backroom`
 (scene 2, sk_pit.js), `lostprop` (scene 3) and `yard1` (scene 4, sk_pit2.js), then scene 5 (sk_pit5.js): `list` (the yard, Tamm's
-list and the satchel), `stairsup` (the stair-street; the empty spike), `shelf` (the market) and `stairsdown` (dusk, the beggars); the
-last goes on (since V51) into scene 6, `toll` (sk_pit6.js: the losing fight on the stair-street), scene 7, `tamm` (sk_pit7.js: Tamm's
+list and the satchel), `stairsup` (the Lane stair by day; the empty spike; the collectors at their stand), `shelfstair` (the Shelf
+stair by day, the silent row; since V71), `shelf` (the market) and `stairsdown` (the Shelf stair at dusk, the beggars); the last
+goes on (since V51) into scene 6, `toll` (sk_pit6.js: the losing fight on the Lane stair), scene 7, `tamm` (sk_pit7.js: Tamm's
 scripted fight), scene 8, `night` (sk_pit8.js: the yard at night) and scene 9 (since V52), `sh1` to `sh6` (sk_pit9.js: the Short
 Hand lessons and bouts), the last of which sets `S.story.ended='act1'`: the end card says the rest of Act I is being built. All
 nine scenes of beats 1 and 2 are in the game. Stages carry `act:1`; the act's first shows its card first (`st.actCard`, `S.card.pre`) and each
@@ -392,7 +393,33 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
 - The places: ACT1_PLACES (sk_pit.js) are the layouts; the painters read them. envx/env_sumproof.js (with the Sump's shared kit
   EnvLook.sump: keep it first of the three), env_sumpkitchen.js, env_backroom.js, env_yard.js (with the Pit's kit EnvLook.pitKit for
   the stairs and the Shelf: S.act1.night/morning/dusk set the time of day), env_stairs.js, env_shelf.js. No fighter stands deeper
-  than DEP_MAX (170): Dob perches on the yard's crate, not its wall. A scene can look up: `S.camCut.band` {top, foot} keeps that much of the picture between the letterbox's bars, centred (sk_pitui.js), and `S.camCut.wn` sets the view's width on a narrow screen (the kitchen's window shot; since V53).
+  than DEP_MAX (170): Dob perches on the yard's crate, not its wall. A scene can look up: `S.camCut.band` {top, foot} keeps that much of the picture between the letterbox's bars, centred (sk_pitui.js), and `S.camCut.wn` sets the view's width on a narrow screen (the kitchen's window shot; since V53). Where the ground climbs (an arena with `climb(x)`, how far it has come up without the steps: the stair-streets), a walk about or a cut with no band frames the floor's band (BAND0) raised that far where the camera looks, so the picture goes up the stair with him (since V71; a phone on its side lost his head over the top landing).
+- One Pit (since V71; the comment over ACT1_PLACES). The yard, the stair-streets and the Shelf are all seen from the Pit's open middle
+  looking at the wall the Sump stands under (the Sump's rooms and roof look the other way, at the far wall and the spike), so left and
+  right there are left and right on the Pit map: up he walks to the right in every scene, down to the left, through the same places.
+  The way: the yard's gate (right) onto the lane; the short flight up from the lane; the Lane stair to the switchback; inside the rock
+  back up to the Shelf stair's foot; the Shelf stair; inside the rock up to the Shelf's stair-head at its left end. The stair-streets
+  are one arena and one ground ('stairs', act1StairY) and two flights: `S.act1.flight` 'lane' (stairsup, toll, tamm) or 'shelf'
+  (shelfstair, stairsdown), set in each setup; env_stairs.js paints each its own (`key()` has the flight). An arch in the back wall is
+  each way through the rock (the switchback at the Lane stair's top, the Shelf stair's foot and top, the Shelf's stair-head), with a
+  painted board by it (THE SHELF, THE FLOOR). The people (sk_pit5.js): `act1Row(A, K)` seats the silent row and the old man on the
+  Shelf stair (ACT1_PLACES.stairs.beggars n, x0..x1; the painter sets a tin cup before each place as a piece), by day too (the old
+  man looks off down the street then; at dusk he follows Ilyas); `act1Stand(A)` puts Tarr's two collectors at their stand by day
+  (stand: the board at x, the stool at sit, the big one by the door at by; they turn to keep him in sight; at dusk the stand is
+  empty and the big one comes down out of it in the toll); `act1Folk(A, key)` the townsfolk and children of ACT1_FOLK by day
+  (cast 'Townsfolk' and 'Child', drawn from their seeds: sk_pitcastui.js `folkSpec`, `childSpec`). An NPC's x is held to the stage's
+  bounds (clampStage: 60 to 840). The Lane stair has the city's trades and talk on it (a fish stall shut for good with the Tarkesh
+  foundries' mark on its post, a skewer stall, the choirhouse and its bell, the Mendery's FREE MENDING, a rondel court chalked at a
+  child's height, the match bill, the Nightglass, tracts, a numbers board, the toll board over the stand); the Shelf stair the tea
+  stall (TEA, BELLBREAD), the cookshop, the row under Hallowell's old billboard and the keeping niche (its candles three at dusk);
+  Tarr's main runs along both with a rag of his blue on its valve, and his tag hangs on the yard pump. The walls' painted boards
+  (pitKit WORDS) have the city's words too. The Halo Tram crosses the sky over the Rim (`K.tram`, live, where an upright phone sees
+  the sky). Everything on a wall is kept low enough to show under the letterbox: about 205 up at the back wall, 70 over the top landing.
+- The Pit map (sk_pit5ui.js, PITMAP, since V71): the same view, on a 600 by 420 sheet: the Floor (the Sump, its gate, the lane, Tarr's
+  pumphouse), the two flights rising right (the water toll at the switchback, the beggars' row), the turns inside the rock dashed with
+  an arch at each end, the Shelf with its stalls (their names a step up and down in turn), the closed ladders, the spike, the Rim and
+  the tower's foot. `a1MapAt(stage)` is where it puts him (PITMAP_AT for scene 5, where the Map button shows; PITMAP_FIGHT for the
+  toll and Tamm, for the menu's map).
   A raised place (the hay, the table, the cot) is ground for any body over it at its depth, so a knee or foot that swings past its
   edge is lifted onto its top and the body bobs. In the kitchen Tamm and Dob stand on the floor at the table's ends with
   `f.gr=()=>GB` (since V53); Dob holds the ankles with `F.lookBack` (his face turned away), and Tamm's pan is aimed at the stump.
@@ -492,7 +519,10 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   map, shop and satchel. The engine map for the Act I fights: uiwork/act1/COMBAT_MAP.md. The toll: `node uiwork/act1/probe6.js
   <seed>` (turn by turn: pins, breaks), `node uiwork/act1/shot6.js <seed> <outdir>` (stills of the pin and the end), `node
   uiwork/act1/dock6.js <outdir> <seed> [sizes]` (the dock as the player sees it while held); `node uiwork/act1/probe7.js` (scene 7's
-  beats).
+  beats). The places (since V71): `node uiwork/act1/placeshot.js <out.png> <stage> [heroX|-] [camX|-] [w h] [secs]` (a still once
+  he walks about, him or the camera put where you say), `node uiwork/act1/cutshot.js <out.png> <stage> <secs> [w h]` (a stage on
+  auto, cuts and all), `node uiwork/act1/mapshot.js <out.png> [stage] [w h]` (the Pit map as it opens there), `node
+  uiwork/act1/tammprobe.js [n]` (Tamm's outro after n endings of the toll: who walked through whom).
 
 ## Rules
 1. **The drawing never changes the game.** render() and everything it calls may not change anything the game or the page reads. Work
@@ -545,12 +575,12 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V71 ..." (V70 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V72 ..." (V71 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
-so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code.) Never delete the duplicate artifact
+so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V70: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V71: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 

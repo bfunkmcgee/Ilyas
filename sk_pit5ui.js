@@ -7,44 +7,68 @@
 
 const A1M={};
 // ---------- the Pit map ----------
-// A section through the Pit, drawn once as a picture: the walls, the Floor with the Sump and Tarr's pumphouse, the stair-streets
-// switchbacking up the left wall to the Shelf, the ladders (closed: two hands), the spike high on the right wall, the Rim and the
-// tower's foot at the top. The route he takes is traced in gold; the list's waypoints sit on the Shelf's stalls; a marker shows him.
-const PITMAP={sump:[150,352],gate:[214,352],pump:[404,352],spike:[528,170],stairs:[[214,352],[96,318],[196,286],[90,252],[180,218],[118,196]],
-  shelf:[[84,196],[440,196]],stalls:{oil:[136,188],grain:[180,188],linen:[224,188],nim:[268,188],grind:[312,188]},
-  ladders:[{at:[340,352,340,200],name:'Ladder'},{at:[140,196,140,62],name:'Ladder'},{at:[500,352,500,250],name:'Ladder'}],rim:[[40,60],[560,60]],tower:[[300,60],[330,0],[370,0],[400,60]]};
-const PITMAP_AT={list:'yard',stairsup:'stairs',shelf:'shelf',stairsdown:'stairs'};
-function a1MapSvg(atK){const P=PITMAP,pt=a=>a.join(','),A=S.act1,E=A&&A.errand,at=atK||PITMAP_AT[S.story&&S.story.key]||'yard';
-  const here=at==='yard'?P.sump:at==='shelf'?[230,196]:[150,270];
+// The Pit drawn once as a picture, seen as the yard, the stair-streets and the Shelf are seen: from its open middle, looking at the
+// wall the Sump stands under, the sides of the Pit curving round at the edges. The Floor with the Sump, its yard's gate and the lane,
+// and Tarr's pumphouse; the two stair-streets on the wall, each rising to the right as it does on the screen, the Lane stair from the
+// lane to the switchback (the water toll board there) and the Shelf stair past the beggars' row, with the turns inside the rock
+// between them dashed and an arch at each place the street goes into the wall; the Shelf and its stalls; the ladders (closed: two
+// hands); the spike high on the far side; the Rim and the tower's foot at the top. The route he takes is
+// traced in gold; the list's waypoints sit on the Shelf's stalls; a marker shows him, on the flight he is on.
+const PITMAP={h:420,floor:392,sump:[112,392],gate:[150,392],pump:[404,392],spike:[528,150],
+  // the lane from the gate, the short flight up from it, the Lane stair to the switchback; the turn back up inside the rock; the
+  // Shelf stair; the climb inside the rock to the Shelf's stair-head
+  lane:[[150,392],[176,392],[192,372],[214,372],[306,332],[326,332]],turn:'M326 332 C342 316 232 316 200 290',
+  shelfst:[[200,290],[218,290],[306,250],[326,250]],up:'M326 250 C338 234 306 220 296 204',
+  shelf:[[288,204],[520,204]],
+  // the stalls, their names a step up and down in turn so that neighbours never run into each other
+  stalls:{oil:[312,196,0],grain:[356,196,1],linen:[400,196,0],nim:[444,196,1],grind:[488,196,0]},
+  arches:[[326,332],[200,290],[326,250],[296,204]],toll:[332,320],row:[[274,261],[288,255],[302,249]],
+  ladders:[{at:[470,392,470,208]},{at:[420,204,420,62]}],tower:[[300,60],[330,0],[370,0],[400,60]],
+  // where he is (and where its word goes from the dot: up and to the right, or, on the Shelf, under its line)
+  you:{yard:[146,370],lane:[236,356],shelfst:[236,276],shelf:[306,216,10,5]}};
+// where each stage of the Pit puts him on the map: the yard, the Lane stair, the Shelf stair or the Shelf (the stages of scene 5,
+// where the Map button shows while he walks about, and the two fights on the Lane stair, for the menu's map)
+const PITMAP_AT={list:'yard',stairsup:'lane',shelfstair:'shelfst',shelf:'shelf',stairsdown:'shelfst'},PITMAP_FIGHT={toll:'lane',tamm:'lane'};
+function a1MapAt(k){return PITMAP_AT[k]||PITMAP_FIGHT[k]||'yard';}
+function a1MapSvg(atK){const P=PITMAP,pt=a=>a.join(','),pts=L=>L.map(pt).join(' '),A=S.act1,E=A&&A.errand,at0=atK||a1MapAt(S.story&&S.story.key),at=at0==='stairs'?'lane':at0;
+  const here=P.you[at]||P.you.yard;
   const stalls=Object.entries(P.stalls).map(([id,[x,y]])=>{const st=STALLS[id],need=st.goods.some(g=>GOODS[g.id].list&&!(E&&E.got[GOODS[g.id].list]));
-    return`<g class="a1m-wp${need?' need':''}"><circle cx="${x}" cy="${y}" r="5"/><text x="${x}" y="${y-10}" text-anchor="middle">${{oil:'Oil',grain:'Rice, salt',linen:'Linen',nim:'Valve',grind:'Salves'}[id]}</text></g>`;}).join('');
+    return`<g class="a1m-wp${need?' need':''}"><circle cx="${x}" cy="${y}" r="5"/><text x="${x}" y="${y-10-(P.stalls[id][2]?13:0)}" text-anchor="middle">${{oil:'Oil',grain:'Rice, salt',linen:'Linen',nim:'Valve',grind:'Salves'}[id]}</text></g>`;}).join('');
   const lad=P.ladders.map(L=>{const [x0,y0,x1,y1]=L.at,mx=(x0+x1)/2,my=(y0+y1)/2;return`<g class="a1m-lad"><line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}"/>`+
     `<circle cx="${mx}" cy="${my}" r="9"/><line class="x" x1="${mx-6}" y1="${my-6}" x2="${mx+6}" y2="${my+6}"/></g>`;}).join('');
-  return`<svg class="a1m-svg" viewBox="0 0 600 380" role="img" aria-label="The Pit: the Floor, the stair-streets, the Shelf market and the Rim">`+
-    // the walls of the Pit, and the sky above the Rim
-    `<rect x="0" y="0" width="600" height="380" fill="#0b0a0d"/><path class="a1m-wall" d="M0 0 L40 0 L40 60 L64 120 L56 196 L76 260 L60 352 L0 380 Z"/>`+
-    `<path class="a1m-wall" d="M600 0 L560 0 L560 60 L540 130 L552 210 L536 290 L548 352 L600 380 Z"/>`+
+  const arches=P.arches.map(([x,y])=>`<path class="a1m-arch" d="M${x-5} ${y} L${x-5} ${y-6} A5 5 0 0 1 ${x+5} ${y-6} L${x+5} ${y}"/>`).join('');
+  const H=P.h,F=P.floor,tail=d=>d.replace(/^M\S+ \S+ /,' ');
+  return`<svg class="a1m-svg" viewBox="0 0 600 ${H}" role="img" aria-label="The Pit: the Floor, the Lane stair and the Shelf stair, the Shelf market and the Rim">`+
+    // the sky above the Rim, the face of the wall, and the sides of the Pit curving round
+    `<rect x="0" y="0" width="600" height="${H}" fill="#0b0a0d"/><path class="a1m-face" d="M40 60 L560 60 L540 140 L552 230 L536 320 L548 ${F} L60 ${F} L76 290 L56 210 L64 130 Z"/>`+
+    `<path class="a1m-wall" d="M0 0 L40 0 L40 60 L64 130 L56 210 L76 290 L60 ${F} L0 ${H} Z"/>`+
+    `<path class="a1m-wall" d="M600 0 L560 0 L560 60 L540 140 L552 230 L536 320 L548 ${F} L600 ${H} Z"/>`+
     // the tiers
-    `<line class="a1m-tier" x1="40" y1="60" x2="560" y2="60"/><line class="a1m-tier" x1="56" y1="196" x2="372" y2="196"/><line class="a1m-tier" x1="60" y1="352" x2="548" y2="352"/>`+
-    `<text class="a1m-tname" x="552" y="52" text-anchor="end">THE RIM</text><text class="a1m-tname" x="440" y="214" text-anchor="end">THE SHELF</text>`+
-    `<text class="a1m-tname" x="226" y="300">STAIR-STREETS</text><text class="a1m-tname" x="540" y="372" text-anchor="end">THE FLOOR</text>`+
+    `<line class="a1m-tier" x1="40" y1="60" x2="560" y2="60"/><line class="a1m-tier" x1="60" y1="${F}" x2="548" y2="${F}"/>`+
+    `<text class="a1m-tname" x="552" y="52" text-anchor="end">THE RIM</text><text class="a1m-tname" x="462" y="222" text-anchor="end">THE SHELF</text>`+
+    `<text class="a1m-tname" x="96" y="240">STAIR-STREETS</text><text class="a1m-tname" x="540" y="${F+20}" text-anchor="end">THE FLOOR</text>`+
     // the tower's foot on the Rim
     `<path class="a1m-tower" d="M${P.tower.map(pt).join(' L')} Z"/><text class="a1m-lm" x="350" y="80" text-anchor="middle">The tower’s foot</text>`+
     // the ladders, closed to a man with one hand
-    lad+`<text class="a1m-note" x="352" y="282">Ladders: two hands</text>`+
-    // the stair-streets and the Shelf
-    `<polyline class="a1m-stairs" points="${P.stairs.map(pt).join(' ')}"/><line class="a1m-shelf" x1="${P.shelf[0][0]}" y1="${P.shelf[0][1]}" x2="${P.shelf[1][0]}" y2="${P.shelf[1][1]}"/>`+
-    // the route: out the gate, up the switchbacks, along the Shelf
-    `<polyline class="a1m-route" points="${pt(P.sump)} ${P.stairs.map(pt).join(' ')} ${pt([230,196])}"/>`+
-    // the landmarks
+    lad+`<text class="a1m-note" x="432" y="128">Ladders: two hands</text>`+
+    // the stair-streets, the turns inside the rock, the Shelf
+    `<polyline class="a1m-stairs" points="${pts(P.lane)}"/><polyline class="a1m-stairs" points="${pts(P.shelfst)}"/>`+
+    `<path class="a1m-tunnel" d="${P.turn}"/><path class="a1m-tunnel" d="${P.up}"/>`+
+    `<line class="a1m-shelf" x1="${P.shelf[0][0]}" y1="${P.shelf[0][1]}" x2="${P.shelf[1][0]}" y2="${P.shelf[1][1]}"/>`+arches+
+    // the route: out the gate, along the lane, up the Lane stair, through the rock, up the Shelf stair, through the rock, along the Shelf
+    `<path class="a1m-route" d="M${pt(P.sump)} L${P.lane.map(pt).join(' L')}${tail(P.turn)} L${P.shelfst.slice(1).map(pt).join(' L')}${tail(P.up)} L${P.stalls.grind[0]} ${P.shelf[0][1]}"/>`+
+    // the landmarks: the Sump and its gate, the pumphouse, the toll board, the beggars' row, the spike
     `<g class="a1m-sump"><rect x="${P.sump[0]-20}" y="${P.sump[1]-22}" width="40" height="22"/><path d="M${P.sump[0]-24} ${P.sump[1]-22} L${P.sump[0]} ${P.sump[1]-36} L${P.sump[0]+24} ${P.sump[1]-22} Z"/></g>`+
-    `<text class="a1m-lm" x="${P.sump[0]}" y="${P.sump[1]+14}" text-anchor="middle">The Sump</text>`+
-    `<g class="a1m-pump"><rect x="${P.pump[0]-26}" y="${P.pump[1]-30}" width="52" height="30"/><line x1="${P.pump[0]+26}" y1="${P.pump[1]-18}" x2="${P.pump[0]+70}" y2="${P.pump[1]-18}"/></g>`+
+    `<text class="a1m-lm" x="${P.sump[0]}" y="${P.sump[1]+16}" text-anchor="middle">The Sump</text>`+
+    `<g class="a1m-gate"><line x1="${P.gate[0]-4}" y1="${P.gate[1]}" x2="${P.gate[0]-4}" y2="${P.gate[1]-12}"/><line x1="${P.gate[0]+4}" y1="${P.gate[1]}" x2="${P.gate[0]+4}" y2="${P.gate[1]-12}"/></g>`+
+    `<g class="a1m-pump"><rect x="${P.pump[0]-26}" y="${P.pump[1]-30}" width="52" height="30"/><line x1="${P.pump[0]+26}" y1="${P.pump[1]-18}" x2="${P.pump[0]+64}" y2="${P.pump[1]-18}"/></g>`+
     `<text class="a1m-lm" x="${P.pump[0]}" y="${P.pump[1]-38}" text-anchor="middle">Tarr’s pumphouse</text>`+
-    `<g class="a1m-spike"><path d="M${P.spike[0]+12} ${P.spike[1]-6} L${P.spike[0]-26} ${P.spike[1]} L${P.spike[0]+12} ${P.spike[1]+6} Z"/></g><text class="a1m-lm" x="${P.spike[0]-6}" y="${P.spike[1]+22}" text-anchor="middle">The spike</text>`+
+    `<g class="a1m-toll"><rect x="${P.toll[0]}" y="${P.toll[1]-13}" width="9" height="7"/></g><text class="a1m-lm2" x="${P.toll[0]+14}" y="${P.toll[1]-5}">Water toll</text>`+
+    `<g class="a1m-row">${P.row.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.2"/>`).join('')}</g><text class="a1m-lm2" x="266" y="252" text-anchor="end">Beggars’ row</text>`+
+    `<g class="a1m-spike"><path d="M${P.spike[0]+12} ${P.spike[1]-6} L${P.spike[0]-26} ${P.spike[1]} L${P.spike[0]+12} ${P.spike[1]+6} Z"/></g><text class="a1m-lm" x="${P.spike[0]-14}" y="${P.spike[1]+22}" text-anchor="middle">The spike</text>`+
     stalls+
     // where he is
-    `<g class="a1m-you"><circle cx="${here[0]+30}" cy="${here[1]-8}" r="6"/><text x="${here[0]+40}" y="${here[1]-14}">You</text></g></svg>`;}
+    `<g class="a1m-you"><circle cx="${here[0]}" cy="${here[1]}" r="6"/><text x="${here[0]+(here[2]??10)}" y="${here[1]+(here[3]??-6)}">You</text></g></svg>`;}
 V11UI.init.push(()=>{const W=storyStageWrap();if(!W)return;
   const m=stEl('div','a1-panel a1-map');m.id='a1Map';m.hidden=true;m.setAttribute('role','dialog');m.setAttribute('aria-label','The Pit map');
   m.innerHTML='<div class="a1-panel-in"><p class="st-kick">The Pit</p><div class="a1-map-pic" id="a1MapPic"></div>'+

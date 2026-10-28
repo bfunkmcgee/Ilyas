@@ -60,7 +60,9 @@ const ACT1_CAST={Tamm:{cm:186,bulk:1.44,color:'#c9a46a',seed:7311},Dob:{cm:136,b
   Collector:{cm:172,bulk:.92,color:'#8f9aa8',seed:7411},'Big collector':{cm:191,bulk:1.42,color:'#7a8698',seed:7433},
   Beggar:{cm:166,bulk:.86,color:'#8a8070',seed:7451},'Old man':{cm:162,bulk:.8,posture:.25,color:'#a09a8a',seed:7477},
   'Oil seller':{cm:168,bulk:1.1,color:'#c49a5a',seed:7501},Grocer:{cm:160,bulk:1.2,color:'#a8a070',seed:7523},'Linen seller':{cm:158,bulk:.9,color:'#c8c0b0',seed:7541},
-  Grinder:{cm:174,bulk:1.02,color:'#9a8a7a',seed:7561}};
+  Grinder:{cm:174,bulk:1.02,color:'#9a8a7a',seed:7561},
+  // the Pit's people about their day on the stair-streets and the Shelf (each one's look drawn from the seed): grown-ups and children
+  Townsfolk:{cm:168,bulk:1,color:'#9a8a70',seed:7601},Child:{cm:124,bulk:.7,color:'#a8b48a',seed:7621}};
 function act1Npc(name,o={}){const c=ACT1_CAST[name]||{},seed=o.seed||c.seed||(name.length*97),f=new Fighter(S.F.length,1,name,c.color||'#a89a80');
   f.npc=true;f.pitCast=o.cast||name;f.scfg={seed,weapon:o.weapon||'fists',skill:1,temper:'plain'};Object.assign(f,{seed,weaponKey:o.weapon||'fists',skill:1,temper:'plain'});
   f.setup(seed,f.weaponKey,1,o.x??450,o.dep??100);f.maxHp=f.hp=20;f.facing=o.facing??-1;f.build();f.side=1;f.reads={};f.wounds={head:0,arm:0,leg:0,body:0};f.marks=[];
@@ -71,6 +73,13 @@ function act1Npc(name,o={}){const c=ACT1_CAST[name]||{},seed=o.seed||c.seed||(na
 // The Sump: a bar of boards and tin on the floor of the Pit. Its roof (the hay, Dob's pigeon lofts, the hatch house), its kitchen
 // (the table, the stove, the window up the Pit's wall), the back room (the cot, the chair, the shelf, the window onto the Pit's floor),
 // and later its yard. x across the world, d the depth (12 near, 170 the back of the floor), y up from the floor where it matters.
+// One Pit for all of them. The yard, the stair-streets and the Shelf are seen from the Pit's open middle, looking at the wall the
+// Sump stands under (the Sump's rooms and its roof look the other way, out over the yard to the far wall, where the spike is), so
+// left and right in those scenes are left and right on the Pit map (sk_pit5ui.js, PITMAP): the Sump on the Floor, its yard's gate on
+// the right onto the lane; the short flight up from the lane to the Lane stair, which rises to the right to the switchback; inside
+// the rock back up to the Shelf stair's foot; the Shelf stair rising to the right; inside the rock up to the Shelf's stair-head at its
+// left end; the Shelf on to the right, and the way on up to the Rim from its right end. Going up he walks to the right in every
+// scene; coming down, to the left, through the same places.
 const ACT1_PLACES={
   sumproof:{far:210,hay:{x:470,d:96,w:74,h:22},hatch:{x:742,d:168,door:28},lofts:{x0:70,x1:250,d:180},pipe:{x:640,d:186},
     spike:{x:360,y:208},floor:{x0:40,x1:860,z0:30,z1:150}},
@@ -83,11 +92,16 @@ const ACT1_PLACES={
   yard:{far:232,door:{x:170,d:226,w:46},step:{x:170,d:206,h:16},window:{x0:286,x1:346,y0:150,y1:104},pump:{x:520,d:118,r:22},trough:{x0:540,x1:600,d:126},
     bucket:{x:496,d:104},gate:{x:836,d:120,w:60},ladder:{x:392,d:224,top:150},sidestair:{x0:30,x1:118,d:200},wall:{x0:600,x1:900,d:214,h:64},dobSeat:{x:712,d:214},
     barrels:[{x:250,d:150,r:16},{x:282,d:164,r:15}],crates:[{x:660,d:156,w:34,h:30},{x:690,d:170,w:30,h:26}],floor:{x0:40,x1:800,z0:30,z1:170}},
-  // a stair-street: a switchback cut up the Pit's wall, rising left to right (the floor of the Pit below, off the left; the Shelf
-  // above, off the right). Its steps are the ground; landings at both ends. Beggars sit along the wall with tin cups. From its
-  // first landing the spike is in view across the Pit, high on the far wall.
-  stairs:{far:224,lo:{x1:150},hi:{x0:744},rise:132,step:{run:24,h:8},beggars:{x0:330,x1:610,d:206},oldman:{x:640,d:204},rail:{d:20},spike:{x:470,y:-140},
-    floor:{x0:30,x1:870,z0:40,z1:150}},
+  // the stair-streets: two flights up the Pit's wall, each a scene of its own and each rising left to right on this one ground (the
+  // steps are the ground; a landing at each end). S.act1.flight says which: 'lane', the Lane stair, from the first landing over the
+  // lane (the short flight up from the lane comes in from the left) to the switchback at its top, where Tarr's collectors keep their
+  // stand under the toll board (stand: the board at x, the stool at sit, the big one's place by the door at by) and an arch takes the
+  // street back up inside the rock; 'shelf', the Shelf stair, from the arch where the switchback comes out of the rock to the arch at
+  // its top that climbs inside the rock to the Shelf, the silent row of beggars along its wall with their tin cups (n of them from x0
+  // to x1, the old man at the row's end). From the Lane stair's first landing the spike is in view across the Pit, high on the far
+  // wall.
+  stairs:{far:224,lo:{x1:150},hi:{x0:744},rise:132,step:{run:24,h:8},beggars:{x0:330,x1:610,d:206,n:6},oldman:{x:640,d:204},rail:{d:20},spike:{x:470,y:-140},
+    stand:{x:760,d:172,sit:712,by:840},floor:{x0:30,x1:870,z0:40,z1:150}},
   // the Shelf market: a broad ledge halfway up the Pit's wall, stalls along the back under tarps and lamps, the edge railed at the
   // front with the drop to the floor beyond it
   shelf:{far:232,stalls:[{id:'oil',x:150,w:110,name:'Lamp oil'},{id:'grain',x:300,w:120,name:'Rice and salt'},{id:'linen',x:450,w:110,name:'Linen'},
@@ -100,7 +114,9 @@ storyArena('sumpkitchen',{label:'Kitchen',name:'The Sump’s kitchen',ground:(x,
 // a stair-street's ground: the bottom landing, the steps, the top landing
 function act1StairY(x){const R=ACT1_PLACES.stairs;if(x<=R.lo.x1)return 0;if(x>=R.hi.x0)return R.rise;const u=(x-R.lo.x1)/(R.hi.x0-R.lo.x1),n=Math.floor(u*R.rise/R.step.h);return Math.min(R.rise,n*R.step.h);}
 storyArena('yard',{label:'Yard',name:'The Sump’s yard',ground:()=>GB,wall:null,far:ACT1_PLACES.yard.far});
-storyArena('stairs',{label:'Stair-street',name:'The stair-streets',ground:x=>GB-act1StairY(x),wall:null,far:ACT1_PLACES.stairs.far});
+// (climb: how far the ground has come up at x, without the steps, for the camera to climb the stair with him; sk_pitui.js)
+storyArena('stairs',{label:'Stair-street',name:'The stair-streets',ground:x=>GB-act1StairY(x),wall:null,far:ACT1_PLACES.stairs.far,
+  climb:x=>{const R=ACT1_PLACES.stairs;return R.rise*clamp((x-R.lo.x1)/(R.hi.x0-R.lo.x1),0,1);}});
 storyArena('shelf',{label:'Shelf',name:'The Shelf market',ground:()=>GB,wall:null,far:ACT1_PLACES.shelf.far});
 storyArena('backroom',{label:'Back room',name:'The Sump’s back room',ground:(x,d)=>{const C=ACT1_PLACES.backroom.cot;return act1Top(C,x,d)?GB-C.top:GB;},wall:null,far:ACT1_PLACES.backroom.far});
 

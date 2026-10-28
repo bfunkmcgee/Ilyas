@@ -76,8 +76,8 @@ function pmBag(){const E=S.act1&&S.act1.errand,el=hudEl;if(!E)return;const live=
     :'<span class="a1-hand-k">Hand</span><span class="a1-hand-v a1-free">Free</span>';
   el('pmBagNote').textContent=PM.note||'';
   el('pmList').innerHTML=ERRAND_LIST.map(l=>`<li class="${E.got[l.id]?'got':''}"><span class="pm-tick" aria-hidden="true"></span><span class="pm-li">${l.name}</span><span class="pm-st">${E.got[l.id]?'Got':''}</span></li>`).join('');}
-// where he is on the map: the stage's own place, the stair-street for the fights on it, else the yard
-function pmMap(){const k=S.story&&S.story.key,at=PITMAP_AT[k]||{toll:'stairs',tamm:'stairs'}[k]||'yard';const M=hudEl('pmMap'),html=a1MapSvg(at);if(M.innerHTML!==html)M.innerHTML=html;}
+// where he is on the map: the stage's own place, the Lane stair for the fights on it, else the yard
+function pmMap(){const k=S.story&&S.story.key,at=a1MapAt(k);const M=hudEl('pmMap'),html=a1MapSvg(at);if(M.innerHTML!==html)M.innerHTML=html;}
 function pmStyles(){const C=hudEl('pmCards'),html=a9CardsHtml();if(C.innerHTML!==html)C.innerHTML=html;}
 // the menu button marked while a section newly open has not been seen
 function pmBadge(){const mb=hudEl('menuBtn');if(!mb||!mb.dataset)return;const on=PM.unseen.length>0&&pmOn()?'1':'';if((mb.dataset.new||'')!==on){if(on)mb.dataset.new=on;else delete mb.dataset.new;}

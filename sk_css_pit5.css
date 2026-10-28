@@ -16,7 +16,14 @@
 .a1m-lad line{stroke:#c06a3a;stroke-width:2;stroke-dasharray:4 4}
 .a1m-lad circle{fill:#0b0a0d;stroke:#c06a3a;stroke-width:2}
 .a1m-lad line.x{stroke-dasharray:none;stroke-width:2.2}
+.a1m-face{fill:#141215;stroke:none}
 .a1m-stairs{fill:none;stroke:#7a6a52;stroke-width:4;stroke-linejoin:round}
+.a1m-tunnel{fill:none;stroke:#4a4034;stroke-width:3;stroke-dasharray:3 4;stroke-linecap:round}
+.a1m-arch{fill:#0b0a0d;stroke:#9a8a6a;stroke-width:1.4}
+.a1m-gate line{stroke:#e2b65a;stroke-width:1.6}
+.a1m-toll rect{fill:#5a5444;stroke:#c06a3a;stroke-width:1.2}
+.a1m-row circle{fill:#8a8070}
+.a1m-lm2{font:600 11px var(--ui);fill:#a99f88}
 .a1m-shelf{stroke:#7a6a52;stroke-width:6}
 .a1m-route{fill:none;stroke:#e2b65a;stroke-width:2;stroke-dasharray:6 5;stroke-linejoin:round}
 .a1m-sump rect,.a1m-sump path{fill:#2a2018;stroke:#e2b65a;stroke-width:1.4}
@@ -26,6 +33,8 @@
 .a1m-wp.need circle{fill:#e2b65a;stroke:#fff0c6}.a1m-wp.need text{fill:#f3ead2}
 .a1m-you circle{fill:#f3ead2;stroke:#05050a;stroke-width:2}.a1m-you text{font:700 12px var(--display);fill:#f3ead2}
 .a1-map-tip{margin:0;font:italic 500 14px var(--ui);color:#cfc4a8;text-align:center}
+/* on a phone the map is drawn smaller: its words a size up, to read at that size */
+@media (max-width:640px),(max-height:520px){.a1m-lm,.a1m-you text{font-size:14px}.a1m-lm2{font-size:13px}.a1m-tname{font-size:12.5px}.a1m-wp text{font-size:12px}}
 .a1-map-tip[hidden]{display:none}
 /* the shop and the satchel */
 .a1-shop-body{display:flex;gap:14px;width:100%;align-items:flex-start}

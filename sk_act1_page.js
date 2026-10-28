@@ -247,10 +247,15 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   const has5=await ev(()=>typeof errand==='function'&&stageIx('list')>=0);
   if(has5){
     const r5=await ev(()=>{LOG.length=0;const out={};storyGo('list');S.storyAuto=true;S.auto=true;step(2);let mapSeen=false,spike=0,face=new Set(),beg=0;
-      out.n=runUntil(()=>{const A=S.act1;if(A&&A.map&&A.map.open&&!document.getElementById('a1Map').hidden)mapSeen=true;if(A)spike=Math.max(spike,A.spikeView||0);
-        if(S.story.key==='stairsdown'){beg=Math.max(beg,S.F.filter(f=>f.pitCast==='Beggar').length);if(A&&A.oldman&&Math.abs(hero().station-A.oldman.station)>40)face.add(A.oldman.facing);}
-        return S.story.step==='done'||!['list','stairsup','shelf','stairsdown'].includes(S.story.key);},30000);
-      const E=S.act1.errand;out.keys=S.story.key;out.ended=S.story.ended;out.mapSeen=mapSeen;out.spike=spike;out.oldman=[...face].sort().join(',');
+      // each stage the way goes through: the flight it is on, who is there, and where he comes in and goes out (his first and last x
+      // while he walks about), and where the map puts him
+      const W={},order=[];
+      out.n=runUntil(()=>{const A=S.act1,k=S.story.key;if(A&&A.map&&A.map.open&&!document.getElementById('a1Map').hidden)mapSeen=true;if(A)spike=Math.max(spike,A.spikeView||0);
+        if(k==='stairsdown'){beg=Math.max(beg,S.F.filter(f=>f.pitCast==='Beggar').length);if(A&&A.oldman&&Math.abs(hero().station-A.oldman.station)>40)face.add(A.oldman.facing);}
+        if(A&&S.ex&&S.ex.on){let w=W[k];if(!w){w=W[k]={flight:A.flight||null,in:Math.round(hero().station),beg:S.F.filter(f=>f.pitCast==='Beggar').length,old:S.F.filter(f=>f.pitCast==='Old man').length,
+            stand:S.F.filter(f=>f.npc&&(f.pitCast==='Collector'||f.pitCast==='Big collector')).length,map:typeof a1MapAt==='function'?a1MapAt(k):null};order.push(k);}w.out=Math.round(hero().station);}
+        return S.story.step==='done'||!['list','stairsup','shelfstair','shelf','stairsdown'].includes(k);},36000);
+      const E=S.act1.errand;out.keys=S.story.key;out.ended=S.story.ended;out.mapSeen=mapSeen;out.spike=spike;out.oldman=[...face].sort().join(',');out.way=W;out.order=order.join(' ');
       out.errand={got:Object.keys(E.got).sort().join(','),rice:riceWhere(),coin:E.coin,chits:E.chits,nim:E.nim,bag:E.bag.join(',')};out.beggars=beg;out.next5=STAGES[stageIx('stairsdown')].next;
       out.log=LOG.map(l=>l.key+' | '+l.who+': '+l.text);return out;});
     const said5=r5.log.filter(l=>!l.includes('(thought)'));
@@ -259,8 +264,17 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     expect('the map shows the way; at the first landing the picture crosses the Pit to the spike and he thinks "Gone. Somebody climbed for it."',r5.mapSeen&&r5.spike===1&&r5.log.includes('stairsup | (thought): Gone. Somebody climbed for it.'),JSON.stringify({map:r5.mapSeen,spike:r5.spike}));
     expect('on auto the list is got (the good oil for a chit, the valve at Nim\'s three coin), all of it in the satchel, the rice too',
       r5.errand.got==='linen,oil,rice,salt,valve'&&r5.errand.rice==='bag'&&r5.errand.nim===3&&r5.errand.chits===2&&r5.errand.coin===3,JSON.stringify(r5.errand));
-    if(r5.next5)expect('the way back at dusk: six beggars and the old man, who turns to follow him past; then on down into the toll',r5.beggars===6&&r5.oldman==='-1,1'&&r5.keys===r5.next5&&r5.n<30000,JSON.stringify({b:r5.beggars,o:r5.oldman,k:r5.keys,n:r5.n}));
-    else expect('the way back at dusk: six beggars and the old man, who turns to follow him past; the scene ends on the end card',r5.beggars===6&&r5.oldman==='-1,1'&&r5.ended==='act1'&&r5.n<30000,JSON.stringify({b:r5.beggars,o:r5.oldman,e:r5.ended,n:r5.n}));
+    if(r5.next5)expect('the way back at dusk: six beggars and the old man, who turns to follow him past; then on down into the toll',r5.beggars===6&&r5.oldman==='-1,1'&&r5.keys===r5.next5&&r5.n<36000,JSON.stringify({b:r5.beggars,o:r5.oldman,k:r5.keys,n:r5.n}));
+    else expect('the way back at dusk: six beggars and the old man, who turns to follow him past; the scene ends on the end card',r5.beggars===6&&r5.oldman==='-1,1'&&r5.ended==='act1'&&r5.n<36000,JSON.stringify({b:r5.beggars,o:r5.oldman,e:r5.ended,n:r5.n}));
+    // one way there and back: the yard, the Lane stair, the Shelf stair, the Shelf, and down the Shelf stair again; up he goes in at
+    // the left (on the landing at its foot) and out at the right of each stair, at the Shelf in and out at its left end, and down the Shelf stair from its right to
+    // its left; the silent row is on the Shelf stair both times, the collectors' stand on the Lane stair by day; the map knows each
+    {const w=r5.way,g=k=>w[k]||{};
+      expect('one way to the Shelf and back: the Lane stair (the collectors at their stand) and the Shelf stair (the row there by day and at dusk), each walked the same way both times',
+        r5.order==='list stairsup shelfstair shelf stairsdown'&&g('stairsup').flight==='lane'&&g('stairsup').stand===2&&g('shelfstair').flight==='shelf'&&g('stairsdown').flight==='shelf'&&
+        g('shelfstair').beg===6&&g('shelfstair').old===1&&g('stairsdown').beg===6&&g('stairsdown').old===1&&g('stairsup').beg===0&&
+        g('stairsup').in<=150&&g('stairsup').out>800&&g('shelfstair').in<=150&&g('shelfstair').out>800&&g('shelf').in<100&&g('shelf').out<100&&g('stairsdown').in>800&&g('stairsdown').out<100&&
+        g('list').map==='yard'&&g('stairsup').map==='lane'&&g('shelfstair').map==='shelfst'&&g('shelf').map==='shelf'&&g('stairsdown').map==='shelfst',JSON.stringify({o:r5.order,w}));}
     const shop=await ev(()=>{storyGo('shelf');S.storyAuto=false;S.auto=false;step(2);runUntil(()=>S.story.step==='explore',4000);const out={},E=errand();
       act1ShopOpen('oil');out.coinOil=act1ShopBuy('oil','coin');out.chitOil=act1ShopBuy('oil','chit');out.again=act1ShopBuy('oilcheap','coin');act1ShopClose();
       act1ShopOpen('grain');out.rice=act1ShopBuy('rice','coin');out.salt=act1ShopBuy('salt','coin');act1ShopClose();
@@ -297,7 +311,8 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
       const E=S.act1.errand=errandDone();E.sharp=true;errandToHand(E.bag.indexOf('rice'));E.bag.push('salve');E.salve=1;step(2);out.through={};
       const sh=S.hooks.short;S.hooks.short=(e,d)=>{if(S.story&&S.story.key==='tamm')out.beats.push(e+(d&&d.res&&d.res.threat?'(threat)':'')+' '+(d&&d.A?d.A.name:'')+'>'+(d&&d.D?d.D.name:''));if(sh)sh(e,d);};
       const card=()=>{const C=S.card;if(C&&S.story&&!out.cards[S.story.key])out.cards[S.story.key]={kick:C.kick,title:C.title};};
-      out.n=runUntil(()=>{card();const K=hero(),T=S.act1&&S.act1.toll,g=S.game;
+      out.flights={};
+      out.n=runUntil(()=>{card();const K=hero(),T=S.act1&&S.act1.toll,g=S.game;if(S.act1&&S.story)out.flights[S.story.key]=S.act1.flight||null;
         if(S.story.key==='toll'&&S.story.step==='fight'&&g.phase==='input'&&!out.dock){const sec=document.querySelector('.cg[data-g="arc"]'),C=S.F.find(f=>f.pitCast==='Collector');
           out.dock={arc:!!sec&&!sec.hidden,dark:sec?[...sec.querySelectorAll('.cmd.dark')].filter(b=>b.disabled).length:0,aether:!!document.getElementById('tabAether')&&document.getElementById('tabAether').hidden,foot:footMaxOf(K)};
           out.tempo={K:actionCost(K,'slash'),C:actionCost(C,'slash'),B:actionCost(S.F.find(f=>f.pitCast==='Big collector'),'slash')};out.whet=!!K.whet;}
@@ -334,6 +349,8 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     expect('it ends on the condition, not a game over: Broken twice (the pin the first) or under a third of his health; nobody dead',
       !!r6.toll&&r6.toll.end&&r6.toll.pinDowns>=1&&(r6.toll.breaks>=2||r6.hp[0]<50)&&!r6.dead.length&&r6.hp.every(h=>h>=1),JSON.stringify({t:r6.toll,hp:r6.hp,dead:r6.dead}));
     expect('the rice he held goes down on the stair and splits',r6.spill,String(r6.spill));
+    expect('down the Shelf stair, then the toll and Tamm on the Lane stair below it, where the collectors keep their stand',
+      r6.flights.stairsdown==='shelf'&&r6.flights.toll==='lane'&&r6.flights.tamm==='lane',JSON.stringify(r6.flights));
     expect('the whetstone bought at the Shelf gives his dagger its edge for the toll, and it is spent after',r6.whet===true&&r6.sharpAfter===false,JSON.stringify({w:r6.whet,a:r6.sharpAfter}));
     const L7=L6.filter(l=>l.startsWith('tamm |'));
     const want7=['tamm | Tamm: You’re late. That oil is mine.','tamm | Collector: This is Pump King business, Tamm.','tamm | Tamm: The Sump pays its water on the first, same as always. Tell Osgood.','tamm | Tamm: You dropped my rice.'];

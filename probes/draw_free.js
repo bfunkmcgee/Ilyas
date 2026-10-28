@@ -22,7 +22,7 @@ const PAGE=process.env.PAGE||'test_page.html',PART=process.env.PART||'all';
     return p;};
   const story=async every=>{const p=await open(every);
     const rows=await p.evaluate(()=>{seed(5);const rows=[];S.storyAuto=true;S.auto=true;storyBegin(null,{auto:true});step(2);
-      for(let guard=0;guard<24;guard++){const SV=S.story;if(!SV||SV.step==='done')break;const key=SV.key,row={key};
+      for(let guard=0;guard<26;guard++){const SV=S.story;if(!SV||SV.step==='done')break;const key=SV.key,row={key};
         row.intro=runUntil(()=>S.story.step==='fight'||S.story.step==='explore'||S.story.step==='done'||S.story.key!==key,6000);
         if(S.story.key!==key){row.note='went on';rows.push(row);continue;}
         const st=STAGES[S.story.i];

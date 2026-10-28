@@ -1,6 +1,6 @@
 // ===== PIT CAST UI =====
 // (loaded ahead of the main UI script) The people of the Pit in CastLook: Tamm, Dob, Nim, Tarr's collectors, the beggars and the old
-// man, the Shelf's stall keepers. Act I is soot, oilcloth and rust: work clothes gone dark with wear, waxed coats with a dull shine,
+// man, the Shelf's stall keepers, and the townsfolk and children about their day. Act I is soot, oilcloth and rust: work clothes gone dark with wear, waxed coats with a dull shine,
 // rust and the Pump King's blue as the only colours. Everyone is a dark figure lit along one edge, as the cast always is. The Pit
 // has people the restaurant never had: an orc (grey-green, a heavy brow and jaw, two small lower tusks, small pointed ears) and a
 // goblin of the duneworks (big ears, a long nose, sandy green-tan). Their eyes are plain: only an elf's eyes give light.
@@ -160,6 +160,31 @@ function beggarSpec(seed){const R=rng(((seed||1)>>>0)*7919+433),woman=R()<.4,rag
       coat:wrap?{len:36+R()*14,closed:1,lining:false,ragged:1.6+R()*1.2}:null},
     trail:null,build:null,seed};}
 CL.CAST.Beggar=Object.assign(beggarSpec(1),{vary:beggarSpec});
+// ---------- the Pit's people about their day ----------
+// Grown-ups on the stair-streets and the Shelf, each drawn from his or her seed: a man or a woman in work clothes gone dark with wear,
+// a flat cap, a knitted cap or a kerchief, a coat, a shawl or an apron; and children in what was handed down to them, patched, a boy's
+// cap too big for him or a girl's kerchief
+const WORKC=['#2a2620','#3a3228','#2c3038','#3a2a22','#33302a','#2a2c26'],COATC=['#26221c','#2e2a24','#3a2e24','#22262a','#34281e'],KERC=['#5e2d1c','#2f3b33','#4a4030','#3a2e3e','#5a4a32'];
+function folkSpec(seed){const R=rng(((seed||1)>>>0)*7907+211),woman=R()<.5,work=rpick(R,WORKC),coat=rpick(R,COATC),ker=rpick(R,KERC),cap=rpick(R,['#2a251f','#24262a','#3a2a1e']),
+    sh=rpick(R,SHAWL),hc=rpick(R,['#2a211b','#3a3129','#5a554c','#1c1816','#4a3a2a']);
+  return{race:'human',room:'pit',role:'Lives on the stair-streets',temper:null,
+    col:pitCol({skin:rpick(R,['#1d1512','#221811','#2a1d14','#251b14']),eye:'#9a9f9e',hair:hc,hairShade:mid(hc,'#000000',.45),beard:mid(hc,'#000000',.1),
+      hat:woman?ker:cap,hatShade:mid(woman?ker:cap,'#000000',.35),shawl:sh,shawlFar:mid(sh,'#3a3346',.3),
+      shirt:work,sleeve:work,shirtFar:mid(work,'#3a3346',.3),sleeveFar:mid(work,'#3a3346',.3),suit:coat,coat,coatFar:mid(coat,'#3a3346',.3),trouser:mid(coat,'#000000',.2),
+      apron:rpick(R,['#4f4a3e','#3e3a31','#38342d']),apronFar:'#2e2b26'}),
+    head:{skull:woman?rpick(R,['soft','round']):rpick(R,['human','flat','round','gaunt']),ear:'human',hair:woman?'pulled':rpick(R,['crop','sidepart','curly','bald']),
+      hat:woman?rpick(R,['kerchief','kerchief',null]):rpick(R,['flatcap','beanie',null,'flatcap']),beard:woman?null:rpick(R,[null,'short',null,'chops'])},
+    outfit:{top:'shirt',sleeves:R()<.5?'rolled':'shirt',neck:'collar',shawl:woman&&R()<.7?1:0,coat:R()<.6?{len:woman?50:34+R()*10,closed:1,lining:false}:null,
+      apron:woman&&R()<.5?{len:40,ties:1}:null,boots:R()<.5?1:0},
+    trail:null,build:null,seed};}
+function childSpec(seed){const R=rng(((seed||1)>>>0)*6151+97),girl=R()<.45,c1=rpick(R,WORKC),c2=rpick(R,COATC),hc=rpick(R,['#3b2b1d','#22180f','#4a3a2a','#1c1816']),hat=rpick(R,['#3b3529','#2f3b33','#5e2d1c']);
+  return{race:'human',room:'pit',role:'Plays on the stair-streets',temper:null,
+    col:pitCol({skin:rpick(R,['#231912','#1d1512','#2a1d14']),eye:'#aab6c6',hair:hc,hairShade:mid(hc,'#000000',.4),hairHi:mid(hc,'#ffffff',.25),suit:c2,suitFar:mid(c2,'#3a3346',.3),lapel:c2,
+      coat:c2,coatFar:mid(c2,'#3a3346',.3),shirt:c1,trouser:mid(c2,'#000000',.2),trouserFar:mid(c2,'#3a3346',.25),hat,hatShade:mid(hat,'#000000',.35),patch:rpick(R,['#4c3b28','#36404e']),patch2:'#4a301f'}),
+    head:{skull:'kid',ear:'human',hair:girl?'pulled':'scruff',hat:girl?rpick(R,['kerchief',null]):rpick(R,['newsboy',null]),scale:1.26},
+    outfit:{top:'suit',sleeves:'jacket',neck:'collar',coat:{len:18,lining:false},cuffs:false,patches:[[.3,5,2.4,0]],kneePatch:R()<.6,boots:1},
+    trail:null,build:null,seed};}
+CL.CAST.Townsfolk=Object.assign(folkSpec(1),{vary:folkSpec});CL.CAST.Child=Object.assign(childSpec(1),{vary:childSpec});
 // a person whose look varies (CAST[name].vary) is drawn from his seed, worked out once for him (kept as f._pitVary, a drawing cache:
 // the game never reads it)
 {const cs=castSpec;castSpec=function(f){const c=f&&f.pitCast&&CL.CAST[f.pitCast];if(c&&c.vary){const sd=((f.seed||1)*31+(f.idx||0))>>>0,v=f._pitVary;

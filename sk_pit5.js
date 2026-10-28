@@ -131,10 +131,32 @@ STAGES.push({key:'list',act:1,num:'5',title:'Tamm’s List',sub:'The stair-stree
           S.hooks.sound('gate',1);K.action=null;yield* goTo(K,Y.gate.x+30,Y.gate.d,70);A.outGate=true;}}]};},
   *outro(st){yield* fadeTo(1,1);}});
 
-// The stair-street going up: the first landing, the spike across the Pit, and the long way up (the ladders are closed to him).
-STAGES.push({key:'stairsup',act:1,num:'',title:'',sub:'',arena:'stairs',next:'shelf',weapon:'fists',wear:'kit',cardDur:0,foes:[],
+// ---------- the stair-streets' people ----------
+// the silent row on the Shelf stair, by day and at dusk the same: the beggars seated along the back wall on their sacking, and the old
+// man at the end of the row (the painter sets a tin cup before each place)
+function act1Row(A,K){const R=ACT1_PLACES.stairs,B=R.beggars,n=B.n||6;
+  A.beggars=[];for(let i=0;i<n;i++){const f=act1Npc('Beggar',{x:B.x0+(B.x1-B.x0)*i/(n-1),dep:B.d-(i%2)*2,facing:i%3?-1:1,seed:7451+i*31});f.guardBody=()=>sitBody(f,0);f.guardArm=()=>sitArm(f);A.beggars.push(f);}
+  const O=act1Npc('Old man',{x:R.oldman.x,dep:R.oldman.d,facing:K&&K.station<R.oldman.x?-1:1});O.guardBody=()=>sitBody(O,0);O.guardArm=()=>sitArm(O);A.oldman=O;return O;}
+// Tarr's two collectors at their stand by day, at the switchback at the top of the Lane stair: the one who talks on his stool under the
+// board, the big one stood by the door past it. A chit a bag off whoever carries goods; going up, Ilyas carries nothing. They watch
+// him by.
+function act1Stand(A){const Sd=ACT1_PLACES.stairs.stand,c1=act1Npc('Collector',{x:Sd.sit,dep:Sd.d,facing:-1}),c2=act1Npc('Big collector',{x:Sd.by,dep:Sd.d-8,facing:-1});
+  c1.guardBody=()=>sitBody(c1,18);c1.guardArm=()=>sitArm(c1);A.stand=[c1,c2];}
+// The Pit's people about their day, by day: on the Lane stair a man at the skewer stall and two children at the chalked rondel court;
+// on the Shelf stair a woman at the tea stall; on the Shelf a man warming his hands at the brazier by the stair-head and a boy watching
+// the grinder's wheel. Each [name, x, depth, facing, seed] stands where it is put (x within the stage's own bounds, 60 to 840), out
+// of his way (deeper than a fight's floor where it must be: its own zMax). At dusk the stair-streets go quiet, and nobody is about but
+// the row.
+const ACT1_FOLK={lane:[['Townsfolk',70,180,1,7603],['Child',368,152,1,7623],['Child',402,156,-1,7641]],shelf:[['Townsfolk',96,176,-1,7611]],
+  market:[['Townsfolk',60,198,1,7617],['Child',840,180,-1,7629]]};
+function act1Folk(A,key){A.folk=(ACT1_FOLK[key]||[]).map(([nm,x,d,fa,sd])=>{const f=act1Npc(nm,{x,dep:d,facing:fa,seed:sd});if(d>DEP_MAX)f.zMax=d+10;return f;});return A.folk;}
+
+// The Lane stair going up, by day: the first landing over the lane, the spike across the Pit, and the long way up (the ladders are
+// closed to him) past the collectors' stand to the switchback.
+STAGES.push({key:'stairsup',act:1,num:'',title:'',sub:'',arena:'stairs',next:'shelfstair',weapon:'fists',wear:'kit',cardDur:0,foes:[],
   spawn:[[60,110]],
-  setup(st){const K=hero(),A=act1State();S.fade=1;standEasy(K);K.station=40;K.lane=K.dep=K.stepDep=110;K.facing=1;K.build();A.dusk=false;A.spikeView=0;A.errand=A.errand||errandNew();},
+  setup(st){const K=hero(),A=act1State();S.fade=1;standEasy(K);K.station=40;K.lane=K.dep=K.stepDep=110;K.facing=1;K.build();A.dusk=false;A.flight='lane';A.spikeView=0;A.errand=A.errand||errandNew();
+    act1Stand(A);act1Folk(A,'lane');},
   *intro(st){const K=hero(),A=act1State(),R=ACT1_PLACES.stairs;
     letter(1);camTo(300,760,0);yield* fadeTo(0,1);
     // he stops at the first landing, and looks across the Pit at the spike
@@ -149,7 +171,25 @@ STAGES.push({key:'stairsup',act:1,num:'',title:'',sub:'',arena:'stairs',next:'sh
       spots:[],exits:[{id:'up',x0:R.floor.x1-20,x1:R.floor.x1,z0:R.floor.z0,z1:R.floor.z1,label:'On up',*run(){A.upTop=true;exGoalCheck();}}]};},
   *outro(st){yield* fadeTo(1,.9);}});
 // (on auto the stair-street's way up is walked to: there is nothing on it to use)
-V11.step.push(()=>{const st=act1Stage(),E=S.ex;if(!st||st.key!=='stairsup'||!E||!E.on||S.cut||E.to||!(S.storyAuto||S.auto))return;exGo(ACT1_PLACES.stairs.floor.x1,100);});
+V11.step.push(()=>{const st=act1Stage(),E=S.ex;if(!st||(st.key!=='stairsup'&&st.key!=='shelfstair')||!E||!E.on||S.cut||E.to||!(S.storyAuto||S.auto))return;exGo(ACT1_PLACES.stairs.floor.x1,100);});
+// the stand's men turn to keep him in sight as he goes by
+V11.step.push(()=>{const st=act1Stage();if(!st||st.key!=='stairsup')return;const A=S.act1,K=S.F[0];if(!A||!A.stand||!K)return;
+  for(const f of A.stand){const dx=K.station-f.station;if(Math.abs(dx)>10)f.facing=dx<0?-1:1;}});
+
+// The Shelf stair going up, by day: out of the arch where the switchback comes up through the rock, past the tea stall and the
+// cookshop and the silent row with their tin cups (the old man at its end looking off down the street), and on up through the arch
+// to the Shelf.
+STAGES.push({key:'shelfstair',act:1,num:'',title:'',sub:'',arena:'stairs',next:'shelf',weapon:'fists',wear:'kit',cardDur:0,foes:[],
+  spawn:[[40,110]],
+  setup(st){const K=hero(),A=act1State();S.fade=1;standEasy(K);K.station=40;K.lane=K.dep=K.stepDep=110;K.facing=1;K.build();A.dusk=false;A.flight='shelf';A.spikeView=0;A.errand=A.errand||errandNew();
+    // (by day the old man looks down the street, not at him)
+    const O=act1Row(A,null);O.facing=-1;act1Folk(A,'shelf');},
+  *intro(st){const K=hero();letter(1);camTo(260,760,0);yield* fadeTo(0,1);yield* goTo(K,96,110,70);letter(0);},
+  explore(st){const R=ACT1_PLACES.stairs,A=act1State();
+    return{area:'stairs',bounds:{x0:R.floor.x0,x1:R.floor.x1,z0:R.floor.z0,z1:R.floor.z1},view:760,map:true,hand:A.errand&&A.errand.hand?{id:A.errand.hand,name:GOODS[A.errand.hand].name,good:true}:null,
+      goal:{text:'Up the stair-street to the Shelf',done:()=>!!A.upShelf},
+      spots:[],exits:[{id:'up',x0:R.floor.x1-20,x1:R.floor.x1,z0:R.floor.z0,z1:R.floor.z1,label:'On up',*run(){A.upShelf=true;exGoalCheck();}}]};},
+  *outro(st){yield* fadeTo(1,.9);}});
 
 // The Shelf market: five stalls under tarps and lamps; the list worked through; Nim at the pump stall.
 // the keepers stand behind their counters (the painter's default, 200 deep: past where anyone stands in a fight, so each has his own
@@ -158,7 +198,8 @@ const SHELF_KEEP_D=200;
 STAGES.push({key:'shelf',act:1,num:'',title:'',sub:'',arena:'shelf',next:'stairsdown',weapon:'fists',wear:'kit',cardDur:0,foes:[],
   spawn:[[60,90]],
   setup(st){const K=hero(),R=ACT1_PLACES.shelf,A=act1State();S.fade=1;standEasy(K);K.station=60;K.lane=K.dep=K.stepDep=90;K.facing=1;K.build();A.errand=A.errand||errandNew();A.shop=null;
-    A.keepers={};for(const s of R.stalls){const nm=STALLS[s.id].keeper,f=act1Npc(nm,{x:s.x+10,dep:SHELF_KEEP_D,facing:-1});f.zMax=SHELF_KEEP_D+10;A.keepers[s.id]=f;}},
+    A.keepers={};for(const s of R.stalls){const nm=STALLS[s.id].keeper,f=act1Npc(nm,{x:s.x+10,dep:SHELF_KEEP_D,facing:-1});f.zMax=SHELF_KEEP_D+10;A.keepers[s.id]=f;}
+    act1Folk(A,'market');},
   *intro(st){letter(1);camTo(330,760,0);yield* fadeTo(0,1);yield* wait(.6);letter(0);},
   explore(st){const R=ACT1_PLACES.shelf,A=act1State(),E=errand();
     const label={oil:'Lamp oil',grain:'Rice and salt',linen:'Linen',nim:'The pump stall',grind:'Salves and a grinder'};
@@ -178,16 +219,15 @@ STAGES.push({key:'shelf',act:1,num:'',title:'',sub:'',arena:'shelf',next:'stairs
 V11.step.push(()=>{const st=act1Stage(),E=S.ex;if(!st||st.key!=='shelf'||!E||!E.on||S.cut||E.to||!(S.storyAuto||S.auto))return;
   if(errandCount()>=ERRAND_LIST.length&&!E.spots.some(s=>exShown(s)&&!s.used&&s.id==='stall:grind'))exGo(ACT1_PLACES.shelf.floor.x0,90);});
 
-// The way back down at dusk: the street goes quiet along the row of silent beggars with their tin cups, and the old man at the end of
-// it follows him with his eyes until he is out of sight.
+// The Shelf stair going back down at dusk: the street goes quiet along the row of silent beggars with their tin cups, and the old man
+// at the end of it follows him with his eyes until he is out of sight, down into the arch at the foot.
 STAGES.push({key:'stairsdown',act:1,num:'',title:'',sub:'',arena:'stairs',next:null,weapon:'fists',wear:'kit',cardDur:0,foes:[],
   spawn:[[860,110]],
-  setup(st){const K=hero(),R=ACT1_PLACES.stairs,A=act1State();S.fade=1;standEasy(K);K.station=860;K.lane=K.dep=K.stepDep=100;K.facing=-1;K.build();A.dusk=true;A.spikeView=0;
+  setup(st){const K=hero(),R=ACT1_PLACES.stairs,A=act1State();S.fade=1;standEasy(K);K.station=860;K.lane=K.dep=K.stepDep=100;K.facing=-1;K.build();A.dusk=true;A.flight='shelf';A.spikeView=0;
     if(!A.errand)A.errand=errandDone();
-    // the beggars, seated along the back wall, and the old man at the end of the row
-    A.beggars=[];const B=R.beggars,n=6;for(let i=0;i<n;i++){const f=act1Npc('Beggar',{x:B.x0+(B.x1-B.x0)*i/(n-1),dep:B.d-(i%2)*2,facing:i%3?-1:1,seed:7451+i*31});f.guardBody=()=>sitBody(f,0);f.guardArm=()=>sitArm(f);A.beggars.push(f);}
-    // (he is already looking up the street at Ilyas when the scene opens: the turn of his head that follows him starts from there)
-    const O=act1Npc('Old man',{x:R.oldman.x,dep:R.oldman.d,facing:K.station<R.oldman.x?-1:1});O.guardBody=()=>sitBody(O,0);O.guardArm=()=>sitArm(O);A.oldman=O;},
+    // the beggars, seated along the back wall, and the old man at the end of the row (he is already looking up the street at Ilyas
+    // when the scene opens: the turn of his head that follows him starts from there)
+    act1Row(A,K);},
   *intro(st){letter(1);camTo(700,760,0);yield* fadeTo(0,1.2);letter(0);},
   explore(st){const R=ACT1_PLACES.stairs,A=act1State(),E=errand();
     return{area:'stairs',bounds:{x0:R.floor.x0,x1:R.floor.x1,z0:R.floor.z0,z1:R.floor.z1},view:760,map:true,hand:E.hand?{id:E.hand,name:GOODS[E.hand].name,good:true}:null,

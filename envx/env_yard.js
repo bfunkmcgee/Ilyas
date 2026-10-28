@@ -101,7 +101,9 @@ function facade(c,P,o){const r=rng(o.seed||1),x0=o.x0,x1=o.x1,top=o.top,base=o.b
 const SHACK=['#3a2e28','#33292a','#3e3430','#2c2a2c','#463a2e','#38302a','#2e3030','#40362c','#3a3236'],TINC=['#5a4a40','#4a4644','#6a5442','#4e4a46','#5e4434','#585048','#6a4a36'],
   TARPC=['#2e4a56','#3e5a3a','#6a5630','#5a3a2c','#46405a','#3a4a44'],CLOTH=['#8a6a5a','#5a6a8a','#a8946a','#6a7a5a','#9a5a4a','#c8bca0','#7a5a6a'],
   JUNKC=['#3a2a24','#2a2c30','#4a3a2a','#2e2420','#3e3434','#4a2e22','#283028'],WINC=['#ffcf86','#7ff3e3','#ff6ad0'],
-  WORDS=['TEA','SOUP','ROOMS','BATHS','BEER','SCRAP','PAWN','NOODLES','KNIVES','SALT','WATER','RAGS'];
+  // the words on the walls' painted boards: the Pit's trades, and the city's (bellbread, skewers, the choirhouses, the Mendery's free
+  // mending, the keepsake buyers, the numbers runners, rondel on Restday)
+  WORDS=['TEA','SOUP','ROOMS','BATHS','BEER','SCRAP','PAWN','NOODLES','KNIVES','SALT','WATER','RAGS','SKEWERS','BELLBREAD','CHOIR','MENDING','KEEPSAKES','NUMBERS','RONDEL'];
 function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=o.yBot,yt=o.yTop,span=o.span||(yb-yt),winP=P.win*(o.winK??1),out=o.out||{},
     shrink=o.shrink??.55,sspan=o.sspan||700,seed=o.seed||7,night=P.winA>.6;
   const lit=[],signs=[],bulbs=[],boardsW=[];out.fires=out.fires||[];out.chims=out.chims||[];
@@ -254,6 +256,17 @@ function skyTop(c,x0,x1,y0,y1,P,o){o=o||{};c.fillStyle=lin(c,0,y0,0,y1,[[0,P.sky
   // the light falling down the Pit from it
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,y1,0,y1+260,[[0,rgba(P.sky[1],.25)],[1,rgba(P.sky[1],0)]]);c.fillRect(x0,y1,x1-x0,260);c.restore();}
 function cRad(c,x,y,r0,r1,col,a,sq){c.save();c.translate(x,y);c.scale(1,sq||1);c.fillStyle=rad(c,0,0,r0,r1,[[0,rgba(col,a)],[1,rgba(col,0)]]);c.beginPath();c.arc(0,0,r1,0,TAU);c.fill();c.restore();}
+// the Halo Tram, high over the Rim: the city's ring line, its track a dark line across the sky with a pylon here and there, and now
+// and then a train going along it, its glass lit (drawn where the sky shows, on a phone held upright; y the track's height)
+function tram(c,t,P,y){if(typeof camTop!=='function'||camTop()-40>y+30)return;const x0=-170,x1=W+250,ty=x=>y+Math.sin((x-x0)/(x1-x0)*Math.PI)*-12;
+  c.save();c.strokeStyle=jm(jm(P.sky[1],'#000000',.72),P.air[0],.15);c.lineWidth=2.2;c.beginPath();for(let x=x0;x<=x1;x+=30){x===x0?c.moveTo(x,ty(x)):c.lineTo(x,ty(x));}c.stroke();
+  c.lineWidth=1.4;c.beginPath();for(let x=x0+60;x<x1;x+=260){c.moveTo(x,ty(x));c.lineTo(x-6,y+80);c.moveTo(x,ty(x));c.lineTo(x+6,y+80);}c.stroke();
+  const per=46,u=(t%per)/per,len=150,hx=lerp(x0-len-40,x1+40,u/.55);
+  if(u<.55){const glass=P.key==='day'||P.key==='morning'?jm('#a8c8d0','#000000',.3):'#bff6ff';
+    for(let k=0;k<5;k++){const a=hx+k*31,b=a+28,ya=ty(a),yb=ty(b);c.fillStyle=jm(jm(P.sky[1],'#000000',.75),P.air[0],.1);c.beginPath();c.moveTo(a,ya-7);c.lineTo(b,yb-7);c.lineTo(b,yb+1);c.lineTo(a,ya+1);c.closePath();c.fill();
+      c.fillStyle=glass;for(let q=0;q<4;q++){const wx=a+3+q*6.4;c.fillRect(wx,lerp(ya,yb,(wx-a)/28)-5.4,4,2.6);}}
+    if(P.key!=='day'&&P.key!=='morning'){c.globalCompositeOperation='lighter';glowAt(c,hx+len/2,ty(hx+len/2)-3,len*.6,'#7ff3e3',.18,.25);}}
+  c.restore();}
 // a puddle lying in the floor's plane (call inside the floor's transform): dark water, the sky in it toward its far side, its wet rim
 function puddle(c,P,x,d,rx,seed,k,warm){c.save();c.translate(x,d);
   c.fillStyle=rgba('#050403',.16);blob(c,0,0,rx*1.35,rx*.95,rng(seed+1));c.fill();
@@ -261,7 +274,7 @@ function puddle(c,P,x,d,rx,seed,k,warm){c.save();c.translate(x,d);
   c.fillStyle=jm(jm(P.dirt[1],'#000000',.55),sky,(.08+.1*P.lightA)*(k??1));c.fill();
   c.save();c.clip();c.fillStyle=rgba(warm||sky,(warm?.4:.1+.22*P.lightA)*(k??1));c.fillRect(-rx*.9,rx*.18,rx*1.2,rx*.06);c.restore();
   c.restore();}
-E.pitKit={tod,pal,PAL,jm,shade,topLit,Q,poly,blob,spr,glowSpr,puffSpr,glowAt,smoke,boards,tin,oilcloth,facade,shackRows,drop,lantern,piece,drawPiece,upper,skyTop,cRad,puddle,
+E.pitKit={tod,pal,PAL,jm,shade,topLit,Q,poly,blob,spr,glowSpr,puffSpr,glowAt,smoke,boards,tin,oilcloth,facade,shackRows,drop,lantern,piece,drawPiece,upper,skyTop,cRad,puddle,tram,
   SHACK,TINC,TARPC,CLOTH,JUNKC,WINC};
 })();
 
@@ -653,7 +666,10 @@ function pumpPiece(){const Yd=Y(),P=K.pal(),Pm=Yd.pump,c0=Q(Pm.x,0,Pm.d),R=Pm.r;
     c.strokeStyle=sh('#4e3a28');c.lineWidth=4;c.beginPath();c.moveTo(p.x-26,p.y-ch-5);c.lineTo(p.x-36,p.y-ch-1);c.stroke();c.lineCap='butt';
     c.fillStyle=sh('#2e3034');c.beginPath();c.arc(p.x-2,p.y-ch-2,2.4,0,TAU);c.fill();
     c.strokeStyle=rgba(P.light,.1+.4*P.lightA);c.lineWidth=.8;c.beginPath();c.moveTo(p.x-4.6,p.y-2);c.lineTo(p.x-3.6,p.y-ch+2);c.stroke();
-    c.fillStyle=rgba('#7a3a14',.32);c.fillRect(p.x+1,p.y-ch+20,2,24);c.fillRect(p.x-3,p.y-ch+4,1.4,12);});}
+    c.fillStyle=rgba('#7a3a14',.32);c.fillRect(p.x+1,p.y-ch+20,2,24);c.fillRect(p.x-3,p.y-ch+4,1.4,12);
+    // Tarr's tag on the column, a rag of the Pump King's blue through it: the Sump's water is his, paid on the first
+    c.fillStyle=sh('#6a665e',.9);c.fillRect(p.x-10,p.y-ch+24,6,8);c.fillStyle=rgba('#000000',.35);c.fillRect(p.x-9,p.y-ch+26,4,.7);c.fillRect(p.x-9,p.y-ch+28.4,3,.7);
+    c.fillStyle=K.shade(P,'#2f5c7c',.8);c.beginPath();c.moveTo(p.x-7,p.y-ch+22);c.lineTo(p.x-3,p.y-ch+21);c.lineTo(p.x-5,p.y-ch+33);c.lineTo(p.x-7.5,p.y-ch+31);c.closePath();c.fill();});}
 function troughPiece(){const Yd=Y(),P=K.pal(),T0=Yd.trough,d0=T0.d-9,d1=T0.d+9,h=18,a=Q(T0.x0,h+4,d1),b=Q(T0.x1,0,d0);
   return K.piece('yardtrough|'+P.key,a.x-4,a.y-6,b.x-a.x+30,b.y-a.y+12,c=>{const sh=(col,k)=>K.shade(P,col,k),x0=T0.x0,x1=T0.x1;
     c.fillStyle=sh('#403c37',1.1);K.poly(c,[Q(x0,0,d0),Q(x1,0,d0),Q(x1,h,d0),Q(x0,h,d0)]);c.fill();
@@ -702,6 +718,7 @@ function live(){const t=S.t,P=K.pal(),T=P.key,Yd=Y();ctx.save();
     K.shackRows(c,Object.assign({pal:P,x0:-170,x1:W+250,yTop:-650,clip:[-650,y1]},ROWS));
     c.fillStyle=lin(c,0,-640,0,-480,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,160);
     K.skyTop(c,x0,x1,y0,-636,P,{tower:150});});
+  K.tram(ctx,t,P,-760);
   // the far wall's chimneys smoking, its fires, a few of its windows going dark a moment (a lamp moved, someone passing): only where
   // the far wall shows
   ctx.save();ctx.clip(skyPath());

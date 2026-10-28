@@ -116,7 +116,7 @@ STAGES.push({key:'toll',act:1,num:'6',title:'The Toll',sub:'A stair-street below
   foes:[{name:'Collector',cast:'Collector',seed:7411,weapon:'club',skill:3,temper:'rusher',hp:70,human:true},
         {name:'Big collector',cast:'Big collector',seed:7433,weapon:'fists',skill:3,temper:'brute',hp:90,human:true}],
   spawn:[[700,100],[240,96,-1],[880,104,1]],
-  setup(st){const K=hero(),A=act1State(),Sm=tollSmall(),Bg=tollBig();S.fade=1;A.dusk=true;A.spikeView=0;A.tollDrop=null;A.riceSpill=null;
+  setup(st){const K=hero(),A=act1State(),Sm=tollSmall(),Bg=tollBig();S.fade=1;A.dusk=true;A.flight='lane';A.spikeView=0;A.tollDrop=null;A.riceSpill=null;
     if(!A.errand)A.errand=errandDone();
     A.toll={breaks:0,stepIns:0,acts:0,gang:null,hits:0,pins:0,pinDowns:0,downed:false,end:false};S.story.flags.downedOne=false;
     standEasy(K);K.station=700;K.lane=K.dep=K.stepDep=100;K.facing=-1;K.build();

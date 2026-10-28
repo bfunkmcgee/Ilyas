@@ -63,7 +63,7 @@ STAGES.push({key:'tamm',act:1,num:'7',title:'Tamm',sub:'The same stair',arena:'s
         {name:'Big collector',cast:'Big collector',seed:7433,weapon:'fists',skill:3,temper:'brute',hp:90,human:true}],
   spawn:[[460,100],[420,96,-1],[500,104,1]],
   setup(st){const K=hero(),A=act1State(),E=A.tollEnd||{K:{x:470,z:98,hp:110},big:{x:500,z:101,hp:70},small:{x:420,z:94,hp:50},drop:null,spill:null};
-    S.fade=.6;A.dusk=true;A.spikeView=0;if(!A.errand)A.errand=errandDone();
+    S.fade=.6;A.dusk=true;A.flight='lane';A.spikeView=0;if(!A.errand)A.errand=errandDone();
     if(A.tollDrop===undefined)A.tollDrop=E.drop;if(A.riceSpill===undefined)A.riceSpill=E.spill;
     A.t7={beat:0,end:false};
     // where scene 6 left them: he is down on the steps, out of the fight
@@ -105,15 +105,13 @@ STAGES.push({key:'tamm',act:1,num:'7',title:'Tamm',sub:'The same stair',arena:'s
     if(typeof shortRelease==='function')shortRelease(T);T.shortThreat=false;yield* wait(.5);
     // they go, down the stair and away, the bigger one with his wrist held to him
     yield* riseUp([B,C],.7);
-    // (whoever has to pass her to get down the stair goes behind her, on a deeper line than hers, and comes back to the stair's line
-    // past her; nobody walks through her or through Ilyas on the steps)
-    // (and the bigger one keeps a line of his own, apart from the smaller one's the whole way, so neither walks through the other)
-    const lineOf=f=>f===C?C.lane:Math.min(148,B.lane+16),apart=z=>{const zc=C.lane;if(Math.abs(z-zc)>=22)return z;const up=zc+22,dn=zc-22;return up<=148?up:dn;};
-    const away=f=>(function*(){const z0=f===C?f.lane:apart(lineOf(f)),by=[T,K].filter(o=>o&&o.station<f.station+10);
-      if(by.length){const zr=clamp(Math.max(...by.map(o=>o.lane))+40,40,148),zb=f===C?zr:apart(zr);
-        yield* goTo(f,f.station-8,zb,70);yield* goTo(f,Math.min(...by.map(o=>o.station))-60,zb,f===C?90:80);}
-      yield* goTo(f,-60,z0,f===C?90:80);})();
-    yield* all(away(C),(function*(){yield* wait(.4);yield* away(B);})());
+    // (whoever has to pass her or Ilyas to get down the stair goes round behind them, deeper than either, and nobody walks through
+    // anybody: the two of them go together at one pace, the one standing deeper on the deeper line and the other on a line in front
+    // of his, both lines planned before either moves, so their paths never cross; past her and him they go on down on those lines)
+    const by=[T,K].filter(o=>o&&(o.station<B.station+10||o.station<C.station+10)),inWay=by.length>0,top=inWay?Math.max(...by.map(o=>o.lane)):0,
+      deep=clamp(top+40,40,148),[lo,hi]=B.lane<=C.lane?[B,C]:[C,B],zHi=inWay?deep:hi.lane,zLo=inWay?Math.max(top+16,deep-24):lo.lane;
+    const away=(f,z)=>(function*(){if(inWay){yield* goTo(f,f.station-4,z,70);yield* goTo(f,Math.min(...by.map(o=>o.station))-60,z,85);}yield* goTo(f,-60,z,85);})();
+    yield* all(away(hi,zHi),away(lo,zLo));
     for(const f of [B,C]){f.hidden=true;f.offstage=true;}
     // then the rice
     const D=A.tollDrop;if(D&&D.id==='rice'){yield* goTo(T,D.x+T.facing*0+14,D.d,44);T.facing=Math.sign(D.x-T.station)||-1;T.action=stoopAction(T,1.2,{crouch:.72,lean:.55});

@@ -139,6 +139,11 @@ V11UI.screen.push(()=>{const A=S.act1;if(!A||!A.sear||!act1On())return;const u=S
 {const ct=camTarget;camTarget=function(){const C=S.camCut,B=C&&(cssW<640&&C.bandN?C.bandN:C.band);if(!B)return ct();
   const s=cssW/Math.max(1,cam.viewW),bar=S.letter?cssH*.105:0,t=Math.max(HUD_IN.top,bar),b=Math.max(HUD_IN.bottom,bar),free=Math.max(40,cssH-t-b);
   return(B.foot-B.top)*s<=free?(B.top+B.foot)/2-(t+free/2)/s:B.top-t/s;};}
+// A walk about or a cut with no band of its own, where the ground climbs (an arena with climb: the stair-streets), frames the floor's
+// band (BAND0) raised as far as the ground has come up where the camera looks: the picture goes up the stair with him (a phone on its
+// side lost his head over the top landing). Elsewhere nothing changes.
+{const cb=camBand;camBand=function(){const C=S.camCut,A=S.arena;if(!C||!A||!A.climb||!S.F.length)return cb();
+  const h=A.climb(C.x);return{top:BAND0.top-h,foot:BAND0.foot-h};};}
 
 // ---------- the Pit's sounds ----------
 // the skillet's hiss, the fizzle of the gilt that does not answer, the nine plates in his lap, the pump, Tamm's pin, the purse
