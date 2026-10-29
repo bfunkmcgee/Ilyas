@@ -20,29 +20,56 @@ const LEDGE=10;                   // every tenth floor a setback ledge
 const MOON={x:776,y:84,r:13};
 const fy=F=>YREF+F-(S.scrollY||0);       // where a point F down the face is on the screen now
 const WARM_W=['#ffe2b0','#c98848'],CYAN_W=['#c8fbf3','#3a9e98'];
-const K={glint:'rgba(138,154,200,.05)',grid:'#161b28',desk:'rgba(11,8,6,.72)',blind:'rgba(11,8,6,.3)',man:'rgba(20,12,8,.85)',frame:'#0a0a10'};
 // the haze that hangs off the face where he falls, as pieces drawn once: cold, and warmer by steps to the warm one the desert in his head
 // hangs there
 const HZS=[];function hazeSpr(D){const k=Math.round(clamp(D,0,1)*8);if(HZS[k])return HZS[k];const u=k/8,cv=document.createElement('canvas');cv.width=cv.height=128;const g=cv.getContext('2d');
   const c0=mix('#5a6a90','#ffd89a',u),c1=mix('#3a4a6a','#e8b070',u);g.fillStyle=rad(g,64,64,0,64,[[0,rgba(c0,lerp(.32,.28,u))],[.5,rgba(c1,lerp(.12,.11,u))],[1,rgba(c1,0)]]);g.fillRect(0,0,128,128);return HZS[k]=cv;}
 // a floor's windows, the same every time for the same floor and bay: 0 dark, 1 warm, 2 cyan, 3 warm with someone at the glass
 function cell(i,j){let h=(i*73856093^j*19349663)>>>0;h=(h^(h>>>13))*1274126177>>>0;const v=(h>>>8)/16777216;return v<.62?0:v<.9?1:v<.97?2:3;}
-// the range the last frame's moving parts covered (the look suite checks that it reaches the top of an upright phone's picture)
-const SPAN_LAST={top:0,bot:0};
+// the range the last frame's moving parts covered (the look suite checks that it reaches the top of an upright phone's picture), and
+// how many frames have been drawn
+const SPAN_LAST={top:0,bot:0,n:0};
 // the night out past the corner above the still layer's top: its dark and its stars (the layer's top row is only stretched up there,
 // and a star in that row stretches into a line)
 function upperNight(top){const x0=CORNER+6,x1=W+240,y1=RC.y0+2;ctx.fillStyle='#020309';ctx.fillRect(x0,top,x1-x0,y1-top);
   const r=rng(61);for(let y=y1;y>top;y-=7){const x=x0+r()*(x1-x0),a=.2+.5*r(),s=r()<.9?.8:1.4,dy=r()*7;if(r()<.35)continue;ctx.fillStyle=rgba('#fff4e0',a*.7);ctx.fillRect(x,y-dy,s,s);}}
+// the city's other towers far out over the plain, low on the horizon in the haze, a few lights in them (TOWERS: their tops, where the
+// live picture blinks their red lights)
+const TOWERS=[];
+function farTowers(c){const r=rng(97),X1=W+240;TOWERS.length=0;
+  for(let i=0;i<18;i++){const x=CORNER+16+r()*(X1-CORNER-30),u=Math.pow(r(),1.8),base=HOR+1+u*24,s=.35+.65*u,h=(16+r()*62)*s,w=(4+r()*12)*s,top=base-h;
+    c.fillStyle=lin(c,0,top,0,base,[[0,'#0f0c18'],[1,'#2a1e2c']]);c.fillRect(x-w/2,top,w,h);
+    let tip=top;if(r()<.45){const mh=h*(.12+r()*.16);c.fillRect(x-.35,top-mh,.7,mh);tip=top-mh;}
+    for(let q=0;q<h*w/18;q++){if(r()<.5)continue;c.fillStyle=rgba(r()<.85?'#ffd59a':'#bff6ff',.3+.45*r());c.fillRect(x-w/2+r()*w,top+r()*h,.55,.55);}
+    c.fillStyle=lin(c,x-w/2,0,x+w/2,0,[[0,rgba('#000000',.35)],[.5,rgba('#000000',0)],[1,rgba('#ffb070',.08)]]);c.fillRect(x-w/2,top,w,h);
+    TOWERS.push([x,tip]);}
+  // the haze they stand in, thick along the horizon
+  c.fillStyle=lin(c,0,HOR-46,0,HOR+34,[[0,rgba('#3a2a3a',0)],[.6,rgba('#4a3442',.32)],[1,rgba('#3a2a3a',0)]]);c.fillRect(CORNER,HOR-46,X1-CORNER,80);}
+// soft puffs, made once for each colour: a cloud, or the dust of the dream's tide, is many of them heaped together
+const CPF=new Map();function cpuff(col){let p=CPF.get(col);if(p)return p;p=document.createElement('canvas');p.width=p.height=64;const g=p.getContext('2d');
+  g.fillStyle=rad(g,32,32,0,32,[[0,rgba(col,1)],[.35,rgba(col,.72)],[.7,rgba(col,.22)],[1,rgba(col,0)]]);g.fillRect(0,0,64,64);CPF.set(col,p);return p;}
+// a bank of cloud along a line: thick in its middle and torn thin at its ends, its body dark, its underside lit by what is under it
+// and its top by the moon
+function cloudBank(c,cx,cy,w,h,seed,o){const r=rng(seed),N=Math.round(w/4),P=[];
+  for(let i=0;i<N;i++){const u=r(),env=Math.pow(Math.sin(Math.PI*u),.7),x=cx+(u-.5)*w,y=cy+(r()-.5)*h*env,rx=(5+r()*15)*(.35+env),ry=rx*(.28+r()*.24);P.push([x,y,rx,ry]);}
+  for(const [x,y,rx,ry] of P){c.globalAlpha=.4*o.dens;c.drawImage(cpuff(o.body),x-rx,y-ry,rx*2,ry*2);}
+  c.save();c.globalCompositeOperation='lighter';
+  for(const [x,y,rx,ry] of P){if(y>=cy){c.globalAlpha=.09*o.dens;c.drawImage(cpuff(o.under),x-rx*1.1,y-ry*.2,rx*2.2,ry*1.5);}
+    else if(y<cy-h*.12){c.globalAlpha=.05*o.dens;c.drawImage(cpuff(o.top),x-rx,y-ry*1.5,rx*2,ry*1.3);}}
+  c.restore();c.globalAlpha=1;}
 // ---------- the still parts ----------
 function paint(c){const X1=W+240,T0=-110,B0=H+120;
   // the night beyond the corner: cold at the top, the city's warmth low down
   c.fillStyle=lin(c,0,T0,0,B0,[[0,'#020309'],[.28,'#060916'],[.42,'#141729'],[.5,'#2a1f2c'],[.56,'#1a1520'],[1,'#07060a']]);c.fillRect(CORNER-20,T0,X1-CORNER+20,B0-T0);
   stars(c,CORNER,X1,T0,HOR-50,90,29,.75);
   glow(c,MOON.x,MOON.y,220,'#7c8ed0',.14);
-  {const r=rng(31);for(let i=0;i<6;i++){const cx=CORNER+r()*(X1-CORNER),cy=40+r()*140,rx=60+r()*120,ry=3+r()*6;c.save();c.translate(cx,cy);c.scale(1,ry/rx);
-    c.fillStyle=rad(c,0,0,0,rx,[[0,rgba('#10131f',.85)],[1,rgba('#10131f',0)]]);c.beginPath();c.arc(0,0,rx,0,TAU);c.fill();
-    c.fillStyle=rad(c,0,-ry*2,0,rx,[[0,rgba('#c8d4ff',.15)],[1,rgba('#c8d4ff',0)]]);c.beginPath();c.arc(0,-ry*1.2,rx,0,TAU);c.fill();c.restore();}}
   moon(c,MOON.x,MOON.y,MOON.r,{});
+  // its corona, and the faint ring round it the high ice makes
+  glow(c,MOON.x,MOON.y,70,'#c8d4ff',.1);c.strokeStyle=rgba('#c8d4ff',.045);c.lineWidth=5;c.beginPath();c.arc(MOON.x,MOON.y,62,0,TAU);c.stroke();
+  // high thin cloud, one wisp of it across the moon, its edges silvered; and banks of it low over the city, lit from under by it
+  cloudBank(c,MOON.x-10,MOON.y+9,190,8,31,{body:'#0c1020',top:'#d8e0ff',under:'#2a2a44',dens:.55});
+  {const r=rng(33);for(let i=0;i<3;i++)cloudBank(c,CORNER+60+r()*(X1-CORNER-120),36+r()*90,150+r()*170,8+r()*8,41+i*7,{body:'#0c1020',top:'#b8c4f0',under:'#2a2a44',dens:.7});}
+  {const r=rng(37);for(let i=0;i<5;i++)cloudBank(c,CORNER+40+r()*(X1-CORNER-60),HOR-24-r()*64,190+r()*220,14+r()*14,61+i*11,{body:'#0a0810',top:'#7a86b8',under:'#ff9a5a',dens:1});}
   // the city far below: a plain of light to the horizon, avenues running out to it, the river dark through it
   {const vx=880,r=rng(43);c.save();c.beginPath();c.rect(CORNER,HOR,X1-CORNER,B0-HOR);c.clip();
     c.fillStyle=lin(c,0,HOR,0,B0,[[0,'#2a2030'],[.12,'#151019'],[1,'#08070b']]);c.fillRect(CORNER,HOR,X1-CORNER,B0-HOR);
@@ -54,7 +81,13 @@ function paint(c){const X1=W+240,T0=-110,B0=H+120;
     c.fillStyle=rgba('#05070c',.85);c.beginPath();c.moveTo(vx+20,HOR+2);c.quadraticCurveTo(vx+80,HOR+70,vx+260,B0);c.lineTo(vx+150,B0);c.quadraticCurveTo(vx+40,HOR+70,vx+8,HOR+2);c.closePath();c.fill();
     // the plain thick with light toward the horizon, where it all runs together
     c.globalCompositeOperation='lighter';for(let i=0;i<1600;i++){const u=Math.pow(r(),3),y=HOR+1+u*120,x=CORNER+r()*(X1-CORNER);c.fillStyle=rgba(r()<.85?'#ffcf86':'#e8f4ff',(.18+.4*r())*(1-u*.5));c.fillRect(x,y,.7,.6);}
-    c.fillStyle=lin(c,0,HOR,0,HOR+50,[[0,rgba('#ff9a5a',.16)],[1,rgba('#ff9a5a',0)]]);c.fillRect(CORNER,HOR,X1-CORNER,50);c.globalCompositeOperation='source-over';c.restore();}
+    c.fillStyle=lin(c,0,HOR,0,HOR+50,[[0,rgba('#ff9a5a',.16)],[1,rgba('#ff9a5a',0)]]);c.fillRect(CORNER,HOR,X1-CORNER,50);
+    // the districts: pools of sodium light, and here and there the cold of an elven quarter
+    for(let i=0;i<9;i++){const u=Math.pow(r(),1.3),y=HOR+8+u*230,x=CORNER+r()*(X1-CORNER),rr=(30+r()*60)*(.4+u),col=r()<.25?'#5ff0e0':'#ff9a4a';glow(c,x,y,rr,col,.1+.08*r(),.34);}
+    // the river holding the lights along it
+    for(let i=0;i<70;i++){const u=r(),y=HOR+2+u*u*(B0-HOR),x=vx+14+u*u*170+(r()-.5)*(10+u*70);c.fillStyle=rgba('#ffd59a',.18+.3*r());c.fillRect(x,y,.5+u*1.2,.4+u*.6);}
+    c.globalCompositeOperation='source-over';c.restore();}
+  farTowers(c);
   // the city's glow going up into the haze over it
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,HOR-110,0,HOR+4,[[0,rgba('#ff9a5a',0)],[1,rgba('#ff9a5a',.2)]]);c.fillRect(CORNER,HOR-110,X1-CORNER,114);c.restore();
   // the face: the stone between the piers is dark glass and spandrels (drawn live); here the piers, which run straight down and do
@@ -69,41 +102,63 @@ function paint(c){const X1=W+240,T0=-110,B0=H+120;
   c.fillStyle=lin(c,X0F,0,CORNER,0,[[0,rgba('#000000',.45)],[1,rgba('#000000',0)]]);c.fillRect(X0F,T0,CORNER-X0F,B0-T0);}
 // ---------- the desert in his head ----------
 // While he thinks of the wire (fallDream() in sk_story.js: 0 awake, 1 the dream all he sees) the night out past the corner turns by
-// degrees to the noon he rode it in: a white-hot sky with the sun where the moon was, sand to the horizon where the city was, the
-// border wire running out across the dunes, a buried fortress's glass domes, a cistern, and a well with people waiting at it. The
-// tower's windows fill with sand and the noon, more of them as the dream deepens, and pour it down the face; it lies in drifts on the
-// setbacks and falls off their lips in curtains; it blows up past him on the wind of the fall, and the sun rims him instead of the city.
-// The first blow in the Pit (S.pit.woke) wakes him: it is gone in a white flash, the last of the sand blown off him. (Phones first: the
-// view is one piece painted once, a window the sand has is one piece, the sand in the air goes in four batches.)
+// degrees to the noon he rode it in. The sand comes in over the city on a tide, a wall of dust rolling in from the horizon over its
+// lights; behind it the dunes lie dark under the night still, a dawn comes up over them and the sky goes to the white-hot noon with the
+// sun where the moon was, sand to the horizon, the heat wavering over it and a mirage of water on it, the border wire running out
+// across the dunes, a buried fortress's glass domes, a cistern, and a well with people waiting at it. The tower's windows fill with
+// sand like the glass of an hourglass, more of them as the dream deepens, a thread of it running in, and pour it down the face; it
+// lies in drifts on the setbacks and falls off their lips in curtains; it blows up past him on the wind of the fall, the noon comes
+// down across the face in shafts, the sun throws its ghosts in the lens, and it rims him instead of the city. The first blow in the
+// Pit (S.pit.woke) wakes him: it is gone in a white flash, the last of the sand blown off him. (Phones first: the view is one piece
+// painted once, a window's sand one piece of six, the frames over the sand, the threads and the sand in the air in batches.)
 const SUN={x:MOON.x,y:MOON.y,r:15};
 const DREAM_LAST={D:0,n:0};          // the last frame's depth of the dream, and how many frames have drawn it (for the checks)
 function dreamK(){return typeof fallDream==='function'?fallDream():0;}
 // the view, painted once (at most 1.5 times the world's units, only as far right as the fall's camera ever looks): the sky deep at the
 // top and white with the heat at the horizon, the sun where the moon was and its glare, then ridge on ridge of dunes, pale and flat far
-// off and bigger and warmer toward the foot of the picture, with what stands on them drawn among them at their distances
+// off and bigger and warmer toward the foot of the picture, each lit where it turns to the sun and in its own shadow where it turns
+// away, glittering near, with what stands on them drawn among them at their distances
 const DES={cv:null,sc:0,x0:CORNER+6,x1:880,y0:-760,y1:H+120,top:'#4f86c0'};
 function desertView(){const sc=clamp(jkScale()*.8,1,1.5);if(DES.cv&&DES.cv.width&&Math.abs(DES.sc/sc-1)<.15)return DES.cv;
   const w=DES.x1-DES.x0,h=DES.y1-DES.y0,cn=DES.cv||document.createElement('canvas');cn.width=Math.ceil(w*sc);cn.height=Math.ceil(h*sc);DES.cv=cn;DES.sc=sc;
-  const g=cn.getContext('2d'),r=rng(83),X0=DES.x0-20,X1=DES.x1+20,Y1=DES.y1;g.setTransform(sc,0,0,sc,-DES.x0*sc,-DES.y0*sc);
+  const g=cn.getContext('2d');g.setTransform(sc,0,0,sc,-DES.x0*sc,-DES.y0*sc);desertPaint(g,DES.x0-20,DES.x1+20);return cn;}
+// the desert itself, into g (set to the world's units) from X0 to X1
+function desertPaint(g,X0,X1){const r=rng(83),Y1=DES.y1;
   g.fillStyle=lin(g,0,-40,0,HOR+2,[[0,DES.top],[.45,'#8fb8d8'],[.8,'#d8d6c8'],[1,'#f4e8cc']]);g.fillRect(X0,DES.y0,X1-X0,HOR+2-DES.y0);
   glow(g,SUN.x,SUN.y,300,'#fff2d0',.24);glow(g,SUN.x,SUN.y,80,'#ffffff',.6);g.fillStyle='#fffdf4';g.beginPath();g.arc(SUN.x,SUN.y,SUN.r,0,TAU);g.fill();
   g.fillStyle=lin(g,0,HOR-18,0,HOR+2,[[0,rgba('#fff4dc',0)],[1,'#fff2d8']]);g.fillRect(X0,HOR-18,X1-X0,20);
   g.fillStyle=lin(g,0,HOR,0,Y1,[[0,'#efdcb6'],[.25,'#e2c48e'],[1,'#c0915a']]);g.fillRect(X0,HOR,X1-X0,Y1-HOR);
+  // the mirage: the sky lying on the sand at the horizon like water, in broken bands
+  {const r2=rng(89);for(let q=0;q<4;q++){const y=HOR+1.2+q*1.6;for(let x=X0;x<X1;){const L=10+r2()*60;if(r2()<.5){g.fillStyle=rgba('#d8e8f4',.24-.05*q);g.fillRect(x,y,L,.5+r2()*.5);}x+=L+r2()*40;}}}
+  const SH=dsShade();
   for(let k=0;k<11;k++){const u=k/10,base=HOR+3+Math.pow(u,1.7)*(Y1-HOR+40),amp=1.2+u*u*34,wl=34+u*170,ph=r()*TAU,ph2=r()*TAU;
-    const lit=mix('#f8e6c0','#f2c88a',u),dark=mix('#d9bc8e','#9a6630',u),pts=[];
-    for(let x=X0;x<=X1;x+=5)pts.push([x,base-amp*(.65*Math.sin(x/wl+ph)+.35*Math.sin(x/(wl*.41)+ph2))]);
+    const lit=mix('#f8e6c0','#f2c88a',u),dark=mix('#d9bc8e','#9a6630',u),pts=[],Yr=x=>base-amp*(.65*Math.sin(x/wl+ph)+.35*Math.sin(x/(wl*.41)+ph2));
+    for(let x=X0;x<=X1;x+=5)pts.push([x,Yr(x)]);
     g.fillStyle=lin(g,0,base-amp,0,base+amp+14+u*36,[[0,lit],[.3,mix(lit,dark,.25)],[1,dark]]);
     g.beginPath();g.moveTo(X0,Y1+40);for(const [x,y] of pts)g.lineTo(x,y);g.lineTo(X1,Y1+40);g.closePath();g.fill();
+    // the light on its face: where the crest runs down to the right the sand turns to the sun (out past the corner, to the right) and
+    // is bright under it, where it runs up to the right it turns away into its own shadow, darkest just under the crest
+    // (in the canvas's own pixels, two at a time, edge to edge: strips in the world's units would overlap and show as seams)
+    const M=g.getTransform?g.getTransform():null;
+    if(M&&u>.08){const dep=(8+u*46)*M.d,sm=amp/wl*1.5,st=2;g.save();g.setTransform(1,0,0,1,0,0);
+      for(let px=0;px<g.canvas.width;px+=st){const x=(px+st/2-M.e)/M.a,s=(Yr(x+1)-Yr(x-1))/2,sh=clamp(s/sm*1.3,-1,1);if(Math.abs(sh)<.05)continue;
+        g.globalAlpha=Math.abs(sh)*(sh>0?.5:.42)*(.55+.45*u);g.drawImage(sh>0?SH.lit:SH.lee,px,Yr(x)*M.d+M.f-.3*M.d,st,dep*(sh>0?.7:1));}g.restore();g.globalAlpha=1;}
     // the crest catching the noon
     g.strokeStyle=rgba('#fffaf0',.3+.4*u);g.lineWidth=.5+u*.9;g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke();
-    // the wind's ripples on the nearer ones
+    // the wind's ripples on the nearer ones, and the glitter of the grains in the sun
     if(u>.45){g.strokeStyle=rgba('#a87a44',.16);g.lineWidth=.5;for(let q=0;q<8;q++){const yy=base+5+q*(3+u*4);g.beginPath();
-      for(let x=X0;x<=X1;x+=6){const y=yy+Math.sin(x/(9+u*8)+q+ph)*1.2;x===X0?g.moveTo(x,y):g.lineTo(x,y);}g.stroke();}}
+      for(let x=X0;x<=X1;x+=6){const y=yy+Math.sin(x/(9+u*8)+q+ph)*1.2;x===X0?g.moveTo(x,y):g.lineTo(x,y);}g.stroke();}
+      g.fillStyle='#fffdf4';for(let q=0;q<(X1-X0)*u*.35;q++){const x=X0+r()*(X1-X0),y=Yr(x)+2+r()*(10+u*30);g.globalAlpha=.25+.6*r();g.fillRect(x,y,.5,.5);}g.globalAlpha=1;}
     if(k===1)desFort(g,HOR+7);
     if(k===3)desCistern(g,700,HOR+30);
     if(k===6)desWell(g,775,HOR+128);}
-  desWire(g,Y1);
-  return cn;}
+  // the heat's haze lying over the far sand
+  g.fillStyle=lin(g,0,HOR,0,HOR+80,[[0,rgba('#fbf2e2',.55)],[.4,rgba('#f6e6c8',.18)],[1,rgba('#f6e6c8',0)]]);g.fillRect(X0,HOR,X1-X0,80);
+  desWire(g,Y1);}
+// the light and the shadow laid down a dune's face from its crest, made once: strongest at the crest
+let DSH=null;function dsShade(){if(DSH)return DSH;const mk=col=>{const c=document.createElement('canvas');c.width=2;c.height=48;const g=c.getContext('2d');
+    g.fillStyle=lin(g,0,0,0,48,[[0,rgba(col,1)],[.18,rgba(col,.7)],[.55,rgba(col,.22)],[1,rgba(col,0)]]);g.fillRect(0,0,2,48);return c;};
+  return DSH={lit:mk('#fff6e0'),lee:mk('#7a4a24')};}
 // a buried fortress far out: the line of its wall just over the sand, its glass domes catching the sun
 function desFort(g,y){g.fillStyle='#cfb488';g.fillRect(618,y-2,104,2.6);
   for(const [x,rx] of [[634,7],[662,10],[700,6]]){g.fillStyle=lin(g,0,y-rx*.55,0,y,[[0,'#f2fbff'],[1,'#8fb2c0']]);g.beginPath();g.ellipse(x,y,rx,rx*.5,0,Math.PI,TAU);g.fill();
@@ -129,48 +184,284 @@ function desWire(g,Y1){const N=34,c=.09,F=1-1/(1+N*c),P=[];for(let k=0;k<=N;k++)
     if(!k){g.moveTo(p.x,y);continue;}const q=P[k-1],qy=q.y-q.h*f;g.quadraticCurveTo((p.x+q.x)/2,(y+qy)/2+.6+p.h*.04,p.x,y);}g.stroke();}
   // the glint of the wire in the sun, here and there
   g.strokeStyle=rgba('#fff6dc',.7);g.lineWidth=.5;for(let k=6;k<P.length;k+=5){const p=P[k],q=P[k-1];g.beginPath();g.moveTo(q.x,q.y-q.h*.92);g.lineTo((p.x+q.x)/2,(p.y-p.h*.92+q.y-q.h*.92)/2);g.stroke();}}
-// the sky and the sun over it, and the land, out past the corner, over the night as deep as the dream is
-function desert(D,top,bot,t){const x0=DES.x0,x1=DES.x1,cn=desertView(),sc=DES.sc,ya=Math.max(top,DES.y0),yh=HOR+2,yb=Math.min(bot,DES.y1);ctx.save();
-  // the sky gives way more slowly than the land (the sand comes up through the city's lights first): the view's two parts drawn apart
+// The sky and the sun over it, and the land, out past the corner, over the night as deep as the dream is. The land comes in on a
+// tide: a wall of dust rolling in from the horizon over the city's lights toward him (lit from under by them at night, by the sun as
+// the dream deepens), the sand behind it at first dark under the night still; the sky gives way more slowly, by a dawn low over the
+// sand to the noon.
+function tideY(D,bot){const k=clamp(D/.72,0,1);return HOR+(bot+90-HOR)*k*k;}
+// its wall's height where it is (taller the nearer, to a point)
+function wh0(fr){return Math.min(16+(fr-HOR)*.42,84);}
+function desert(D,top,bot,t){const x0=DES.x0,x1=DES.x1,cn=desertView(),sc=DES.sc,ya=Math.max(top,DES.y0),yh=HOR+2,yb=Math.min(bot,DES.y1),fr=tideY(D,bot);ctx.save();
   const sa=D*D*(3-2*D);if(top<DES.y0){ctx.globalAlpha=sa;ctx.fillStyle=DES.top;ctx.fillRect(x0,top,x1-x0,DES.y0-top+.5);}
   if(yh>ya){ctx.globalAlpha=sa;ctx.drawImage(cn,0,(ya-DES.y0)*sc,cn.width,(yh-ya)*sc,x0,ya,x1-x0,yh-ya);}
-  if(yb>yh){ctx.globalAlpha=D;ctx.drawImage(cn,0,(yh-DES.y0)*sc,cn.width,(yb-yh)*sc,x0,yh,x1-x0,yb-yh);}
-  if(bot>DES.y1){ctx.globalAlpha=D;ctx.fillStyle='#c0915a';ctx.fillRect(x0,DES.y1,x1-x0,bot-DES.y1);}
-  // the heat over the horizon, shimmering
-  ctx.globalCompositeOperation='lighter';ctx.fillStyle='#fff4dc';for(let k=0;k<6;k++){const y=HOR-5+k*2.4+(reduceMotion?0:Math.sin(t*2.6+k*1.7)*.7);ctx.globalAlpha=D*.16;ctx.fillRect(x0,y,x1-x0,.9);}
+  {const dw=Math.sin(Math.PI*clamp((D-.1)/.72,0,1));if(dw>.02){ctx.globalCompositeOperation='screen';ctx.globalAlpha=dw*.6;
+    ctx.fillStyle=lin(ctx,0,HOR-170,0,HOR+3,[[0,rgba('#ff8a5a',0)],[.55,rgba('#ffa070',.3)],[1,rgba('#ffd8a8',.75)]]);ctx.fillRect(x0,HOR-170,x1-x0,173);ctx.globalCompositeOperation='source-over';}}
+  const fe=Math.min(fr,yb);
+  if(fe>yh){ctx.globalAlpha=1;ctx.drawImage(cn,0,(yh-DES.y0)*sc,cn.width,(fe-yh)*sc,x0,yh,x1-x0,fe-yh);
+    const nk=(1-sa)*.62;if(nk>.01){ctx.globalAlpha=nk;ctx.fillStyle='#0c1838';ctx.fillRect(x0,yh,x1-x0,fe-yh);}}
+  if(bot>DES.y1&&fr>DES.y1){ctx.globalAlpha=1;ctx.fillStyle='#c0915a';ctx.fillRect(x0,DES.y1,x1-x0,Math.min(bot,fr)-DES.y1);}
+  if(fr-wh0(fr)*.9<yb){const wh=wh0(fr),dc=mix('#2a1e1c','#e6c494',sa),lc=mix('#ff9a5a','#fff2d8',sa),P=cpuff(dc),Q=cpuff(lc),n=11,dr=reduceMotion?0:t*7,span=x1-x0+90;
+    ctx.globalAlpha=1;ctx.fillStyle=lin(ctx,0,fr-wh*.75,0,fr+wh*.3,[[0,rgba(dc,0)],[.45,rgba(dc,.85)],[.78,rgba(dc,.8)],[1,rgba(dc,0)]]);ctx.fillRect(x0,fr-wh*.75,x1-x0,wh*1.05);
+    // its billows, the light catching their tops (the moon's at night, from under by the city: their feet)
+    for(let i=0;i<n;i++){const hx=hsh(i,601),x=x0-45+((i+hx)/n*span+dr*(.5+hx))%span,s=wh*(.75+.7*hsh(i,607)),y=fr-wh*(.3+.6*hsh(i,613))+(reduceMotion?0:Math.sin(t*.7+i*1.3)*wh*.05);
+      ctx.globalAlpha=.72;ctx.drawImage(P,x-s,y-s*.6,s*2,s*1.2);
+      ctx.globalCompositeOperation='screen';ctx.globalAlpha=.24;ctx.drawImage(Q,x-s*.85,y-s*lerp(-.1,.62,sa),s*1.7,s*.7);ctx.globalCompositeOperation='source-over';}}
+  // the heat over the horizon, shimmering: the sand and the mirage on it wavering in strips (each laid over itself a little to the
+  // side), and the glare in the air over it
+  if(D>.5&&!reduceMotion&&fe>HOR+30){const k=clamp((D-.5)/.3,0,1);for(let y=HOR-4;y<HOR+28;y+=2){const dx=(.5+.5*Math.sin(t*3.1+y*.83))*1.1*k;if(dx<.15)continue;
+    ctx.globalAlpha=1;ctx.drawImage(cn,0,(y-DES.y0)*sc,cn.width,2*sc,x0+dx,y,x1-x0,2);}}
+  ctx.globalCompositeOperation='lighter';ctx.fillStyle='#fff4dc';for(let k=0;k<6;k++){const y=HOR-5+k*2.4+(reduceMotion?0:Math.sin(t*2.6+k*1.7)*.7);ctx.globalAlpha=D*.07;ctx.fillRect(x0,y,x1-x0,.7);}
   ctx.restore();}
-// the sand's pieces, made once: a stream pouring off a sill (narrow and solid at the top, spreading and thinning as it falls), a
-// window the sand has, and a long drift as it lies along a setback
+// the sand's pieces, made once: three streams pouring off a sill (a sheet at the lip breaking into ropes that wander, thin and run
+// out each at its own length, grains and clumps falling out of them and a haze of dust about their ends), and a long drift as it
+// lies along a setback
 let SANDS=null;
 function sandSprites(){if(SANDS)return SANDS;const mk=(w,h,fn)=>{const cv=document.createElement('canvas');cv.width=w;cv.height=h;fn(cv.getContext('2d'),w,h);return cv;};
-  const ridge=(w,h,pk,k)=>x=>{const u=x/w;return h*(1-(Math.exp(-Math.pow((u-pk)/.32,2))*.9+.1))+Math.sin(u*9+k)*1.1;};
-  const stream=mk(24,128,(g,w,h)=>{const r=rng(91);for(let y=0;y<h;y++){const u=y/h,hw=(.2+.3*u)*w,a=Math.pow(1-u,1.4)*.95;
-      g.fillStyle=rgba('#e3ad62',a);g.fillRect(w/2-hw,y,hw*2,1);g.fillStyle=rgba('#f6d496',a*.8);g.fillRect(w/2-hw*.45,y,hw*.5,1);}
-    for(let i=0;i<90;i++){const y=r()*h,u=y/h,x=w/2+(r()-.5)*(.34+.56*u)*w;g.fillStyle=rgba(r()<.5?'#fff2cc':'#9a6a34',Math.pow(1-u,1.2)*.7);g.fillRect(x,y,.9,2+r()*6);}});
-  // a window the sand has, whole: the noon in the room, a heap of sand in it (low, middling, high), the mullion and the transom across
-  const win=[.12,.5,.88].map((hs,k)=>mk(80,120,(g,w,h)=>{const r=rng(127+k*13),hh=h*(.36+.5*hs),Y=ridge(w,hh,.2+.6*r(),k);
-    g.fillStyle='#f9eed4';g.fillRect(0,0,w,h);g.fillStyle='#fffaf0';g.fillRect(0,0,w,h*.24);
-    g.save();g.translate(0,h-hh);g.fillStyle=lin(g,0,0,0,hh,[[0,'#f2c47a'],[.45,'#d69a50'],[1,'#a86c32']]);g.beginPath();g.moveTo(0,hh);for(let x=0;x<=w;x+=2)g.lineTo(x,Y(x));g.lineTo(w,hh);g.closePath();g.fill();
-    g.strokeStyle=rgba('#fff6dc',.8);g.lineWidth=1.6;g.beginPath();for(let x=0;x<=w;x+=2)x?g.lineTo(x,Y(x)+.8):g.moveTo(x,Y(x)+.8);g.stroke();g.restore();
-    g.fillStyle=K.frame;g.fillRect(w/2-1.6,0,3.2,h);g.fillRect(0,h*.28,w,2.8);}));
+  // (a stream: a short sheet at the lip, then ropes that wander apart as it falls, thinning, and the ropes into grains; the sun on
+  // its right side)
+  const stream=[0,1,2].map(v=>mk(32,192,(g,w,h)=>{const r=rng(91+v*17),N=3+v,R=[];
+    for(let i=0;i<N;i++)R.push({p:(i+.5)/N*2-1+(r()-.5)*.3,w:.1+r()*.12,a:.5+.5*r(),end:.55+.45*r(),ph:r()*TAU});
+    const env=u=>lerp(.13,.36,Math.pow(u,.85)),sway=u=>Math.sin(u*5.5+v*2)*u*1.6;
+    g.fillStyle=rad(g,w/2,h*.8,0,w*.7,[[0,rgba('#e8c088',.12)],[1,rgba('#e8c088',0)]]);g.fillRect(0,h*.45,w,h*.55);
+    for(let y=0;y<h;y++){const u=y/h,e=env(u)*w,cx=w/2+sway(u),fall=(u<.02?u/.02:1)*Math.pow(1-u,1.15),sheet=u<.06?1:Math.max(.2,1-(u-.06)*2.6);
+      g.fillStyle=rgba(u<.15?'#f0c47c':'#d8a864',.8*fall*sheet);g.fillRect(cx-e,y,e*2,1);
+      g.fillStyle=rgba('#fff0c8',.4*fall*sheet);g.fillRect(cx+e*.15,y,e*.55,1);
+      if(u>.08)for(const s of R){if(u>s.end)continue;const k=u/s.end,fa=fall*Math.pow(1-k,.9)*s.a*(.8+.2*Math.sin(y*.4+s.ph))*clamp((u-.08)/.12,0,1),hw=Math.max(.45,s.w*w*.5*(1-.35*u)),xr=cx+s.p*e*.75;
+        g.fillStyle=rgba('#e0b070',.75*fa);g.fillRect(xr-hw,y,hw*2,1);}}
+    for(let i=0;i<80;i++){const y=h*(.2+.8*r()),u=y/h,x=w/2+sway(u)+(r()-.5)*env(u)*w*2.4;g.fillStyle=rgba(r()<.5?'#fff2cc':'#a8743c',Math.pow(1-u,.8)*.7);g.fillRect(x,y,.8+r()*.6,1.4+r()*4);}}));
   const drift=mk(512,32,(g,w,h)=>{const r=rng(113),Y=x=>h-h*.9*Math.pow(Math.max(0,.5+.5*Math.sin(x/41+1.3)),1.4)*(.45+.55*(.5+.5*Math.sin(x/127+.4)))-h*.08-r()*.5;
     g.fillStyle=lin(g,0,0,0,h,[[0,'#f2c88a'],[.55,'#d49c56'],[1,'#a06a34']]);g.beginPath();g.moveTo(0,h);for(let x=0;x<=w;x+=4)g.lineTo(x,Y(x));g.lineTo(w,h);g.closePath();g.fill();
     g.strokeStyle=rgba('#fff2d4',.7);g.lineWidth=1;g.beginPath();for(let x=0;x<=w;x+=4)x?g.lineTo(x,Y(x)+.6):g.moveTo(x,Y(x)+.6);g.stroke();});
-  return SANDS={stream,drift,win};}
-// the dark glass holding the noon as the dream deepens
-function glassCol(D){return jmix('#070a12','#4c5862',D*.55);}
-// how far the sand has a window as the dream deepens: each window its own moment (and some never fill: their glass holds the noon)
-function sandAt(i,j,D){const th=.06+hsh(i*131+j,977)*1.05;return clamp((D-th)/.14,0,1);}
-// a window the sand has, at strength a, its heap low, middling or high by hs
-function sandWindow(x0,gy,w,h,a,hs){ctx.globalAlpha=a;ctx.drawImage(sandSprites().win[Math.min(2,(hs*3)|0)],x0,gy,w,h);ctx.globalAlpha=1;}
+  return SANDS={stream,drift};}
+// how full of sand a window is as the dream deepens: each window its own moment (and a few never fill: their glass holds the noon)
+function sandAt(i,j,D){const th=.04+hsh(i*131+j,977)*.9;return clamp((D-th)/.25,0,1);}
+// how deep the dream has gone in this fall (the sand in the windows follows it: it does not drain)
+const DMX={pit:null,max:0};function dreamMax(D){const P=typeof S!=='undefined'?S.pit:null;if(DMX.pit!==P){DMX.pit=P;DMX.max=0;}if(D<.004)DMX.max=0;DMX.max=Math.max(DMX.max,D);return DMX.max;}
 // the streams of the frame, poured after the floors so that each runs down over the stone and the glass below it: x, the top, width,
-// length, strength; a few grains running down each
+// length, strength, and which it is (its piece, and the grains running down it, quicker the further down)
 function sandPour(L,t){if(!L.length)return;const SP=sandSprites(),sp=reduceMotion?.3:1,G=new Path2D();
-  for(let n=0;n<L.length;n+=5){const x=L[n],y=L[n+1],w=L[n+2],len=L[n+3],a=L[n+4];ctx.globalAlpha=a;ctx.drawImage(SP.stream,x-w/2,y,w,len);
-    if(a>.5)for(let q=0;q<2;q++){const h=hsh(n+q*7,431),gy=y+((t*(240+120*h)*sp+h*len)%(len*.7));G.rect(x+(h-.5)*w*.5,gy,1,2.4);}}
+  for(let n=0;n<L.length;n+=6){const x=L[n],y=L[n+1],w=L[n+2],len=L[n+3],a=L[n+4],id=L[n+5];ctx.globalAlpha=a;ctx.drawImage(SP.stream[id%3],x-w/2,y,w,len);
+    if(a>.4)for(let q=0;q<3;q++){const h=hsh(id*3+q,431),f=((t*(.5+.4*h)*sp+h)%1),gy=y+f*f*len*.8;G.rect(x+(h-.5)*w*(.3+.5*f),gy,.9,1.6+f*4);}}
   ctx.globalAlpha=.8;ctx.fillStyle='#fff3d0';ctx.fill(G);ctx.globalAlpha=1;}
+// ---------- the face's pieces, painted once ----------
+// Every window is one piece from a set painted once at the screen's scale: the house's rooms lit warm (desks under the ceiling's
+// light and the glow of their screens, someone at work, a meeting table under a screen, shelves of files and a lamp, a lounge, blinds
+// half down, a corridor to a lit door, a panelled office with a banker's lamp), an elf's cyan rooms (racks of lights, a bench of
+// glowing glass), someone standing at the glass with the light behind, and the dark rooms (chairs and desks against the city's glow
+// on the back wall, a screen asleep, an exit sign); each behind its glass (the sky in it high up, the city's warmth low, a sheen
+// across) in its frame, and once more smeared down the face for the speed. The spandrel between the floors and the setbacks' ledge
+// are a strip each: the stone veined, the gold threads and the fluting catching the light. In the dream, the sand that fills them.
+const FP={sc:0,lit:[],cyan:[],man:[],dark:[],sandIn:[],span:null,spanS:null,ledge:null,ledgeS:null,sm:new Map()};
+const WW=40,WH=60,WTR=16.8;          // a window's width and height, and where its transom is
+function fpMk(w,h,sc){const c=document.createElement('canvas');c.width=Math.ceil(w*sc);c.height=Math.ceil(h*sc);const g=c.getContext('2d');g.setTransform(sc,0,0,sc,0,0);return{c,g};}
+// a man or a woman: head, neck, shoulders and body to the waist, dark against the light, lit along the edge toward it
+function fpFig(g,x,y,s,col,rim,o){o=o||{};g.save();g.translate(x,y);g.scale(s,s);g.fillStyle=col;
+  g.beginPath();g.ellipse(0,-17,3.1,3.7,0,0,TAU);g.fill();g.fillRect(-1.2,-14,2.4,2.4);
+  g.beginPath();g.moveTo(-6.2,-10.6);g.quadraticCurveTo(-6.6,-12.4,-3,-12.2);g.lineTo(3,-12.2);g.quadraticCurveTo(6.6,-12.4,6.2,-10.6);g.lineTo(o.sit?5.4:5,o.sit?-2:2);g.lineTo(o.sit?-5.4:-5,o.sit?-2:2);g.closePath();g.fill();
+  if(rim){g.strokeStyle=rim;g.lineWidth=.55;g.beginPath();g.ellipse(0,-17,3.1,3.7,0,-Math.PI*.9,-Math.PI*.1);g.stroke();g.beginPath();g.moveTo(-6,-10.8);g.quadraticCurveTo(-6.4,-12.2,-3,-12);g.lineTo(3,-12);g.quadraticCurveTo(6.4,-12.2,6,-10.8);g.stroke();}
+  g.restore();}
+// a desk with a screen on it (its glow col), a chair before it
+function fpDesk(g,x,y,w,dark,lit,scr,chair){g.fillStyle=dark;g.fillRect(x,y,w,1.6);g.fillRect(x+.8,y+1.6,1,60-y);g.fillRect(x+w-1.8,y+1.6,1,60-y);
+  g.fillStyle=lit;g.fillRect(x,y,w,.4);
+  if(scr){const sx=x+w*.3,sw=w*.42;g.fillStyle=dark;g.fillRect(sx-.5,y-7.2,sw+1,6.4);g.fillStyle=scr;g.fillRect(sx,y-6.8,sw,5.4);g.fillStyle=rgba('#ffffff',.25);g.fillRect(sx,y-6.8,sw,.8);g.fillStyle=dark;g.fillRect(sx+sw/2-.5,y-1.4,1,1.4);
+    g.save();g.globalCompositeOperation='lighter';g.fillStyle=rad(g,sx+sw/2,y-4,0,sw*1.4,[[0,rgba(scr,.35)],[1,rgba(scr,0)]]);g.fillRect(sx-sw,y-12,sw*3,14);g.restore();}
+  if(chair){const cx=chair;g.fillStyle=dark;g.beginPath();g.ellipse(cx,y-1,3.2,4.2,0,0,TAU);g.fill();g.fillRect(cx-3,y+3,6,1.4);g.fillRect(cx-.5,y+4,1,4);g.fillRect(cx-3.4,y+8,6.8,.9);}}
+// the glass over a room, and the frame: the sky in it high up, the city's warmth low, a sheen across, the mullion and the transom
+function fpGlass(g,o){o=o||{};
+  g.fillStyle=lin(g,0,0,0,26,[[0,rgba(o.sky||'#b8c8e8',o.skyA??.16)],[1,rgba(o.sky||'#b8c8e8',0)]]);g.fillRect(0,0,WW,26);
+  g.fillStyle=lin(g,0,40,0,WH,[[0,rgba(o.low||'#ff9a5a',0)],[1,rgba(o.low||'#ff9a5a',o.lowA??.07)]]);g.fillRect(0,40,WW,20);
+  g.save();g.globalCompositeOperation='lighter';g.fillStyle=rgba('#ffffff',o.sheen??.05);g.beginPath();g.moveTo(9,0);g.lineTo(17,0);g.lineTo(4,WH);g.lineTo(-4,WH);g.closePath();g.fill();
+  g.fillStyle=rgba('#ffffff',(o.sheen??.05)*.6);g.beginPath();g.moveTo(22,0);g.lineTo(24.5,0);g.lineTo(11.5,WH);g.lineTo(9,WH);g.closePath();g.fill();g.restore();
+  const fr=o.frame||'#07070c';g.fillStyle=fr;g.fillRect(19.2,0,1.6,WH);g.fillRect(0,WTR,WW,1.5);g.fillRect(0,0,WW,.7);g.fillRect(0,WH-.9,WW,.9);g.fillRect(0,0,.7,WH);g.fillRect(WW-.7,0,.7,WH);
+  g.fillStyle=rgba(o.edge||C.goldL,o.edgeA??.22);g.fillRect(19.2,0,.35,WH);g.fillRect(0,WTR,WW,.3);
+  g.fillStyle=lin(g,0,0,3,0,[[0,rgba('#000000',.45)],[1,rgba('#000000',0)]]);g.fillRect(.7,0,3,WH);g.fillStyle=lin(g,0,0,0,3,[[0,rgba('#000000',.4)],[1,rgba('#000000',0)]]);g.fillRect(0,.7,WW,3);}
+// a lit room of the house: its back wall in the ceiling's light, and what is in it
+function fpLit(kind,seed,sc){const {c,g}=fpMk(WW,WH,sc),r=rng(seed),dk='#1e130c',rim='#ffd9a0';
+  const top=mix('#f7d9a4','#ffe8c2',r()),mid=mix('#c98a4c','#b8743c',r()),low='#4a2e1a';
+  g.fillStyle=lin(g,0,0,0,WH,[[0,top],[.3,mid],[.75,mix(mid,low,.6)],[1,low]]);g.fillRect(0,0,WW,WH);
+  // the ceiling's light: a strip, and its fall down the wall
+  g.fillStyle='#fff6e0';g.fillRect(3,1.4,WW-6,1.1);g.save();g.globalCompositeOperation='lighter';g.fillStyle=lin(g,0,2,0,24,[[0,rgba('#fff0d0',.35)],[1,rgba('#fff0d0',0)]]);g.fillRect(0,2,WW,22);g.restore();
+  // the side walls going back, in shadow
+  g.fillStyle=lin(g,0,0,7,0,[[0,rgba('#000000',.38)],[1,rgba('#000000',0)]]);g.fillRect(0,0,7,WH);g.fillStyle=lin(g,WW,0,WW-7,0,[[0,rgba('#000000',.3)],[1,rgba('#000000',0)]]);g.fillRect(WW-7,0,7,WH);
+  if(kind==='desks'||kind==='desks2'){fpDesk(g,2,44,15,dk,rim,r()<.5?'#cfefff':'#fff1c8',r()<.6?9:0);fpDesk(g,22,45,15,dk,rim,'#d8f2ff',r()<.5?29:0);
+    if(kind==='desks2')fpFig(g,10,46,.9,dk,rgba(rim,.7),{sit:1});else if(r()<.5)fpFig(g,31,48,.85,dk,rgba(rim,.6),{sit:1});}
+  else if(kind==='meeting'){g.fillStyle='#16202c';g.fillRect(9,12,22,11);g.fillStyle='#9fd8ff';g.fillRect(10,13,20,9);g.save();g.globalCompositeOperation='lighter';g.fillStyle=rad(g,20,18,0,22,[[0,rgba('#9fd8ff',.3)],[1,rgba('#9fd8ff',0)]]);g.fillRect(0,0,WW,40);g.restore();
+    g.fillStyle=dk;g.fillRect(3,45,34,2);g.fillStyle=rim;g.fillRect(3,45,34,.4);for(let i=0;i<4;i++){const cx=6+i*9.4;g.fillStyle=dk;g.beginPath();g.ellipse(cx,42.5,2.6,3.6,0,0,TAU);g.fill();}
+    for(let i=0;i<3;i++){g.fillStyle='#fff4dc';g.fillRect(8+i*12,3,3.2,.9);g.fillStyle=dk;g.fillRect(9.2+i*12,0,.6,3);}}
+  else if(kind==='files'){g.fillStyle=mix(dk,mid,.25);g.fillRect(2,14,22,46);const B=['#5a3a2a','#2a3a4a','#4a4a2a','#6a2a22','#3a2a4a','#2a4a3a'];
+    for(let row=0;row<4;row++){const yy=16+row*10;g.fillStyle=dk;g.fillRect(2,yy+8,22,1.2);for(let xx=3;xx<23;){const bw=1.2+r()*1.4;g.fillStyle=mix(B[(r()*B.length)|0],top,.25);g.fillRect(xx,yy+1+r()*1.5,bw,7-r()*1.5);xx+=bw+.3;}}
+    fpDesk(g,25,46,13,dk,rim,0,0);g.fillStyle=dk;g.fillRect(33,38,.9,8);g.beginPath();g.moveTo(30.4,38.6);g.lineTo(35.6,38.6);g.lineTo(34.4,35.6);g.lineTo(31.6,35.6);g.closePath();g.fill();
+    g.save();g.globalCompositeOperation='lighter';g.fillStyle=rad(g,33,42,0,12,[[0,rgba('#ffcf86',.5)],[1,rgba('#ffcf86',0)]]);g.fillRect(20,30,20,22);g.restore();}
+  else if(kind==='lounge'){g.fillStyle=dk;g.beginPath();g.moveTo(4,50);g.quadraticCurveTo(4,40,10,41);g.lineTo(26,41);g.quadraticCurveTo(31,40,31,50);g.lineTo(31,56);g.lineTo(4,56);g.closePath();g.fill();g.fillStyle=rim;g.fillRect(9,41,17,.4);
+    g.fillStyle=dk;g.fillRect(35,24,.8,32);g.beginPath();g.moveTo(32.2,25);g.lineTo(38.6,25);g.lineTo(37.2,20);g.lineTo(33.6,20);g.closePath();g.fill();
+    g.save();g.globalCompositeOperation='lighter';g.fillStyle=lin(g,0,25,0,56,[[0,rgba('#ffd890',.42)],[1,rgba('#ffd890',0)]]);g.beginPath();g.moveTo(32.6,25);g.lineTo(38.2,25);g.lineTo(42,56);g.lineTo(28,56);g.closePath();g.fill();g.restore();
+    g.fillStyle=dk;g.fillRect(1.5,47,3.4,9);for(let i=0;i<7;i++){g.beginPath();g.ellipse(3.2+(r()-.5)*5,36+r()*10,1.4,3.6,(r()-.5)*1.6,0,TAU);g.fill();}}
+  else if(kind==='blinds'){fpDesk(g,3,45,16,dk,rim,'#d8f2ff',11);fpDesk(g,22,45,15,dk,rim,0,0);
+    for(let q=0;q<18;q++){const yy=.8+q*2.1;g.fillStyle=rgba(q%2?'#e8c896':'#a87844',.92);g.fillRect(0,yy,WW,1.2);g.fillStyle=rgba('#000000',.22);g.fillRect(0,yy+1.2,WW,.35);}
+    g.fillStyle=dk;g.fillRect(0,38.6,WW,.9);}
+  else if(kind==='corridor'){g.fillStyle=mix(mid,low,.5);g.fillRect(0,0,WW,WH);g.fillStyle=lin(g,0,0,0,WH,[[0,rgba('#000000',.5)],[1,rgba('#000000',.1)]]);g.fillRect(0,0,WW,WH);
+    g.fillStyle='#fff0cc';g.fillRect(15,20,10,30);g.save();g.globalCompositeOperation='lighter';g.fillStyle=rad(g,20,36,0,20,[[0,rgba('#ffe2b0',.5)],[1,rgba('#ffe2b0',0)]]);g.fillRect(0,10,WW,50);g.restore();
+    g.strokeStyle=rgba('#000000',.35);g.lineWidth=.5;g.beginPath();g.moveTo(0,60);g.lineTo(15,50);g.moveTo(40,60);g.lineTo(25,50);g.moveTo(0,0);g.lineTo(15,20);g.moveTo(40,0);g.lineTo(25,20);g.stroke();
+    if(r()<.7)fpFig(g,21,50,.62,'#2a1a10',0);for(let i=0;i<3;i++){g.fillStyle='#fff4dc';g.fillRect(18.6,3+i*6,2.8,.7);}}
+  else if(kind==='panelled'){g.fillStyle=lin(g,0,0,0,WH,[[0,'#6a3c1e'],[1,'#2a160a']]);g.fillRect(0,0,WW,WH);g.strokeStyle=rgba('#1a0c06',.6);g.lineWidth=.6;for(let x=4;x<WW;x+=8){g.strokeRect(x-3,6,6,20);g.strokeRect(x-3,30,6,26);}
+    g.fillStyle='#d8b064';g.fillRect(14,9,12,9);g.fillStyle='#2a3a2a';g.fillRect(15,10,10,7);
+    fpDesk(g,7,46,26,'#140a04','#e8b070',0,0);g.fillStyle='#1a5a2a';g.beginPath();g.ellipse(20,43,3.6,1.6,0,Math.PI,TAU);g.fill();g.fillStyle='#c8a040';g.fillRect(19.6,43,.8,3);
+    g.save();g.globalCompositeOperation='lighter';g.fillStyle=rad(g,20,45,0,14,[[0,rgba('#9fe8a0',.35)],[.4,rgba('#ffcf86',.25)],[1,rgba('#ffcf86',0)]]);g.fillRect(4,30,32,24);g.restore();
+    if(r()<.6)fpFig(g,28,48,.92,'#120804',rgba('#e8b070',.6),{sit:1});}
+  fpGlass(g,{});return c;}
+// an elf's rooms in their cyan
+function fpCyan(kind,seed,sc){const {c,g}=fpMk(WW,WH,sc),r=rng(seed),dk='#061214';
+  g.fillStyle=lin(g,0,0,0,WH,[[0,'#c8fff8'],[.3,'#4ac0bc'],[1,'#0a2a2e']]);g.fillRect(0,0,WW,WH);g.fillStyle='#effffd';g.fillRect(3,1.4,WW-6,1);
+  if(kind==='racks'){for(let i=0;i<4;i++){const x=2+i*9.6;g.fillStyle=dk;g.fillRect(x,10,7.4,50);for(let q=0;q<22;q++){if(r()<.35)continue;g.fillStyle=r()<.7?'#8ffff0':r()<.5?'#9cff8a':'#ffd070';g.fillRect(x+1+r()*5,12+q*2.1,.8,.6);}}
+    g.save();g.globalCompositeOperation='lighter';g.fillStyle=lin(g,0,10,0,60,[[0,rgba('#7ff3e3',.25)],[1,rgba('#7ff3e3',0)]]);g.fillRect(0,10,WW,50);g.restore();}
+  else if(kind==='bench'){g.fillStyle=dk;g.fillRect(3,44,34,2);for(let i=0;i<5;i++){const x=6+i*6.4,h=3+r()*5;g.fillStyle=rgba('#bffff6',.85);g.beginPath();g.ellipse(x,44-h/2,1.6,h/2,0,0,TAU);g.fill();}
+    g.save();g.globalCompositeOperation='lighter';g.fillStyle=rad(g,20,40,0,22,[[0,rgba('#7ff3e3',.5)],[1,rgba('#7ff3e3',0)]]);g.fillRect(0,20,WW,40);g.restore();fpFig(g,28,52,.95,dk,rgba('#c8fff8',.8));}
+  else{g.strokeStyle=rgba('#e8fffc',.35);g.lineWidth=.5;g.strokeRect(6,10,28,40);fpDesk(g,7,45,26,dk,'#c8fff8',0,0);for(let i=0;i<3;i++)fpFig(g,12+i*8,45,.8,dk,rgba('#c8fff8',.6),{sit:1});}
+  fpGlass(g,{low:'#7ff3e3',lowA:.05});return c;}
+// someone standing at the glass, the room's light behind
+function fpMan(seed,sc){const {c,g}=fpMk(WW,WH,sc),r=rng(seed);g.fillStyle=lin(g,0,0,0,WH,[[0,'#ffe2b0'],[.4,'#c4824a'],[1,'#3a2414']]);g.fillRect(0,0,WW,WH);g.fillStyle='#fff6e0';g.fillRect(3,1.4,WW-6,1);
+  fpDesk(g,22,46,15,'#1a100a','#ffd9a0','#d8f2ff',0);fpFig(g,9+r()*8,64,1.75,'#0e0806',rgba('#ffe2b0',.85));fpGlass(g,{sheen:.035});return c;}
+// a dark room: the city's glow on its back wall, what stands in it against that, the glass full of the night
+function fpDark(kind,seed,sc){const {c,g}=fpMk(WW,WH,sc),r=rng(seed),dk='#020306';
+  g.fillStyle=lin(g,0,0,0,WH,[[0,'#06080e'],[.55,'#0a0b12'],[1,'#1a120e']]);g.fillRect(0,0,WW,WH);
+  if(kind!=='empty'){fpDesk(g,2+r()*4,45,15,dk,rgba('#5a3a28',.6),kind==='screen'?'#2a3a5a':0,r()<.6?10:0);if(r()<.6)fpDesk(g,22,46,14,dk,rgba('#5a3a28',.5),0,0);}
+  if(kind==='exit'){g.fillStyle='#168a54';g.fillRect(30,9,4,1.5);g.save();g.globalCompositeOperation='lighter';g.fillStyle=rad(g,32,9.8,0,5,[[0,rgba('#1fd07a',.22)],[1,rgba('#1fd07a',0)]]);g.fillRect(26,5,12,10);g.restore();}
+  if(kind==='standby'){g.fillStyle='#ff8a3c';g.fillRect(12,41,.8,.8);}
+  if(kind==='lamp'){g.save();g.globalCompositeOperation='lighter';g.fillStyle=rad(g,30,44,0,9,[[0,rgba('#ffb070',.4)],[1,rgba('#ffb070',0)]]);g.fillRect(20,34,20,20);g.restore();}
+  // the glass: the sky high in it, the city's warmth low, a few of its lights
+  fpGlass(g,{sky:'#5a6e98',skyA:.28,low:'#ff9a5a',lowA:.16,sheen:.06,edgeA:.16});
+  g.save();g.globalCompositeOperation='lighter';for(let i=0;i<6;i++){g.fillStyle=rgba(r()<.8?'#ffcf86':'#dff4ff',.25+.4*r());g.fillRect(r()*WW,42+r()*16,.6,.6);}g.restore();return c;}
+// A window the dream has fills with sand like the glass of an hourglass, as deep as the dream is: the sand pressed against the glass,
+// the layers it came in by, its surface lit by the noon under the glass's top. One piece of sand for each shape of its surface (flat
+// and tilted, or heaped where it pours in from above), its top at the piece's top, drawn only as deep as the window holds it; each
+// once more softened for the speed, a little or a lot. Over it the window's frame again.
+function fpSandIn(seed,sc,kind){const {c,g}=fpMk(WW,WH,sc),r=rng(seed),pk=8+r()*24,tilt=(r()-.5)*7,heap=kind?4+r()*4:0;
+  const S=x=>clamp(4.5+tilt*(x/WW-.5)-heap*Math.pow(Math.max(0,1-Math.abs(x-pk)/15),1.6)+Math.sin(x*.7+seed)*.3,0,10);
+  g.beginPath();g.moveTo(0,S(0));for(let x=1;x<=WW;x++)g.lineTo(x,S(x));g.lineTo(WW,WH);g.lineTo(0,WH);g.closePath();
+  g.fillStyle=lin(g,0,0,0,WH,[[0,'#f2cf94'],[.35,'#dcaa6a'],[1,'#9e6c40']]);g.fill();g.save();g.clip();
+  // the layers, following the surface near it and flattening with depth
+  const LC=['#fff0d0','#8a5228','#f6dcae','#b0623a','#fff4dc','#6a4426','#e8b878'];
+  for(let q=1;q<15;q++){const k=q/15;g.strokeStyle=rgba(LC[(q+((r()*2)|0))%LC.length],.16+.12*r());g.lineWidth=.8+r()*1.8;g.beginPath();
+    for(let x=0;x<=WW;x+=2){const y=S(x)*(1-k)+q*4+Math.sin(x*.22+q*1.7)*.8*(1-k*.6);x?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();}
+  for(let i=0;i<220;i++){g.fillStyle=r()<.5?rgba('#fff6e0',.2+.3*r()):rgba('#5a3418',.18+.3*r());g.fillRect(r()*WW,r()*WH,.45,.45);}
+  g.fillStyle=lin(g,0,WH*.5,0,WH,[[0,rgba('#2a1408',0)],[1,rgba('#2a1408',.3)]]);g.fillRect(0,WH*.5,WW,WH*.5);
+  // the noon on its skin, and the crest
+  g.strokeStyle=rgba('#ffe8b8',.32);g.lineWidth=1.6;g.beginPath();for(let x=0;x<=WW;x++)x?g.lineTo(x,S(x)+1):g.moveTo(x,S(x)+1);g.stroke();g.restore();
+  g.strokeStyle=rgba('#fff4dc',.7);g.lineWidth=.45;g.beginPath();for(let x=0;x<=WW;x++)x?g.lineTo(x,S(x)):g.moveTo(x,S(x));g.stroke();
+  // the glass over it, catching the sun
+  g.save();g.globalCompositeOperation='lighter';g.fillStyle=rgba('#fff8e8',.07);g.beginPath();g.moveTo(9+r()*5,0);g.lineTo(18+r()*5,0);g.lineTo(4,WH);g.lineTo(-5,WH);g.closePath();g.fill();g.restore();
+  return{c,pk};}
+// softened up and down by d of its own height (the speed), the top no longer a line
+function fpBlurV(src,d){const c=document.createElement('canvas');c.width=src.width;c.height=src.height;const g=c.getContext('2d'),N=8,px=src.height*d;
+  for(let i=0;i<N;i++){g.globalAlpha=1/(i+1);g.drawImage(src,0,(i/(N-1)-.5)*px);}return c;}
+// the stone between the floors: a strip for the whole face, veined, its gold thread along the top and its fluting in each bay
+function fpSpan(sc){const w=CORNER-X0F,{c,g}=fpMk(w,SPAN,sc),r=rng(631);
+  g.fillStyle=lin(g,0,0,0,SPAN,[[0,'#1a1a22'],[.18,'#121218'],[.6,'#0c0c11'],[1,'#07070a']]);g.fillRect(0,0,w,SPAN);
+  for(let i=0;i<90;i++){const x=r()*w,y=r()*SPAN;g.strokeStyle=rgba(r()<.5?'#3a3a48':'#000000',.12+.12*r());g.lineWidth=.3+r()*.4;g.beginPath();g.moveTo(x,y);g.bezierCurveTo(x+6,y+(r()-.5)*6,x+12,y+(r()-.5)*6,x+18+r()*20,y+(r()-.5)*8);g.stroke();}
+  g.fillStyle=lin(g,0,2.4,0,4.6,[[0,C.goldL],[.5,C.gold],[1,C.goldDD]]);g.fillRect(0,2.4,w,2.2);g.fillStyle=rgba('#fff4d8',.5);g.fillRect(0,2.4,w,.4);
+  for(let x=BAY/2-6;x<w-8;x+=BAY)for(let q=0;q<3;q++){const xx=x+q*6;g.fillStyle=rgba('#000000',.55);g.fillRect(xx,11,1.6,SPAN-20);g.fillStyle=rgba(C.gold,.32);g.fillRect(xx+1.6,11,.5,SPAN-20);g.fillStyle=rgba('#fff0c8',.12);g.fillRect(xx-.4,11,.4,SPAN-20);}
+  g.fillStyle=rgba(C.gold,.35);g.fillRect(0,SPAN-5.4,w,.9);g.fillStyle=lin(g,0,SPAN-4,0,SPAN,[[0,rgba('#000000',0)],[1,rgba('#000000',.7)]]);g.fillRect(0,SPAN-4,w,4);
+  for(let x=BAY/2;x<w;x+=BAY){g.fillStyle=lin(g,0,SPAN-6,0,SPAN+2,[[0,rgba('#000000',0)],[1,rgba('#1a1208',.25)]]);g.fillRect(x-14,SPAN-10,28,10);}
+  return c;}
+// a setback's ledge: stone, its gold lip, the housings of the lights let into it
+function fpLedge(sc){const w=CORNER-X0F,{c,g}=fpMk(w,16,sc);g.fillStyle=lin(g,0,0,0,16,[[0,'#20202a'],[.3,'#17171f'],[1,'#0a0a0e']]);g.fillRect(0,0,w,16);
+  g.fillStyle=lin(g,0,0,0,3.6,[[0,'#fff0c8'],[.35,C.goldL],[1,C.goldD]]);g.fillRect(0,0,w,3.6);g.fillStyle=rgba('#000000',.5);g.fillRect(0,3.6,w,.8);
+  for(let x=BAY/2;x<w;x+=BAY*2){g.fillStyle='#050507';g.fillRect(x-4,12,8,3);g.fillStyle='#bffff6';g.fillRect(x-3,14,6,1);}
+  return c;}
+// a piece smeared down the face, as the speed of the fall smears it, a little (lv 0) or a lot (lv 1): painted once for each piece the
+// first time it is wanted, in two passes of eight so that the smear runs smooth
+function fpSmear(src,lv){const key=lv?'h':'l';let m=FP.sm.get(src);if(!m){m={};FP.sm.set(src,m);}if(m[key])return m[key];
+  const e=lv?.45:.16,ext=Math.round(src.height*e),mid=document.createElement('canvas'),c=document.createElement('canvas');
+  mid.width=c.width=src.width;mid.height=src.height+Math.round(ext/8)+1;c.height=src.height+ext+1;
+  let g=mid.getContext('2d');for(let i=0;i<8;i++){g.globalAlpha=1/(i+1);g.drawImage(src,0,ext/8*i/7);}
+  g=c.getContext('2d');for(let i=0;i<8;i++){g.globalAlpha=1/(i+1);g.drawImage(mid,0,ext*i/8);}
+  return m[key]={c,ext:(c.height-src.height)/src.height};}
+// the strips softened up and down for the speed, in their own height
+function fpSoft(src){const c=document.createElement('canvas');c.width=src.width;c.height=src.height;const g=c.getContext('2d'),N=8,d=src.height*.12;
+  for(let i=0;i<N;i++){g.globalAlpha=1/(i+1);g.drawImage(src,0,(i/(N-1)-.5)*d);}return c;}
+function facePieces(){const sc=clamp((typeof cv!=='undefined'&&typeof cam!=='undefined'?cv.width/cam.viewW:2)*1.1,1.4,2.6);if(FP.lit.length&&Math.abs(FP.sc/sc-1)<.15)return FP;
+  FP.sc=sc;FP.sm=new Map();
+  FP.lit=['desks','desks2','meeting','files','lounge','blinds','corridor','panelled','desks','blinds'].map((k,i)=>fpLit(k,301+i*17,sc));
+  FP.cyan=['racks','bench','glass'].map((k,i)=>fpCyan(k,401+i*13,sc));FP.man=[0,1,2].map(i=>fpMan(451+i*7,sc));
+  FP.dark=['empty','desk','screen','exit','standby','lamp','desk','empty'].map((k,i)=>fpDark(k,501+i*11,sc));
+  FP.sandIn=[0,1,0,1,1,0].map((k,i)=>{const p=fpSandIn(601+i*19,sc,k);return{c:[p.c,fpBlurV(p.c,.07),fpBlurV(p.c,.18)],pk:p.pk};});FP.span=fpSpan(sc);FP.spanS=fpSoft(FP.span);FP.ledge=fpLedge(sc);FP.ledgeS=fpSoft(FP.ledge);return FP;}
+// a window's piece where it stands, sharp, a little smeared or much smeared by the speed (crossed over from each to the next), at
+// strength a
+function fpDraw(spr,x0,gy,w,h,blur,a){
+  if(blur<6){ctx.globalAlpha=a;ctx.drawImage(spr,x0,gy,w,h);ctx.globalAlpha=1;return;}
+  const k1=clamp((blur-6)/3,0,1),k2=clamp((blur-21)/3,0,1);
+  if(k1<1){ctx.globalAlpha=a*(1-k1);ctx.drawImage(spr,x0,gy,w,h);}
+  if(k2<1){const L=fpSmear(spr,0);ctx.globalAlpha=a*k1*(1-k2);ctx.drawImage(L.c,x0,gy,w,h*(1+L.ext));}
+  if(k2>0){const Hh=fpSmear(spr,1);ctx.globalAlpha=a*k2;ctx.drawImage(Hh.c,x0,gy,w,h*(1+Hh.ext));}
+  ctx.globalAlpha=1;}
+// the top of a window's piece, down to lv, as smeared as the speed has it
+function fpTop(spr,x0,gy,w,lv,blur){const c=blur<8?spr:fpSmear(spr,blur<21?0:1).c;ctx.drawImage(c,0,0,c.width,spr.height*lv/WH,x0,gy,w,lv);}
+const FXL_full=()=>typeof FXL!=='undefined'&&FXL.q==='full';
+// What the glass holds (full effects): the night behind him, the sky high in it, the dark of the street, the city's lights out of focus
+// low down, the moon long in the glass's waver, a broad sheen across; the noon's white and the sand's gold in the dream. One small
+// picture for each depth of the dream, made once, fixed to the screen and laid over the glass column by column, so that it stands
+// still while the face goes by under it, as a reflection does.
+const GLS=[];
+function glassSpr(D){const k=Math.round(clamp(D,0,1)*8);if(GLS[k])return GLS[k];const u=k/8,w=96,h=160,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),r=rng(941);
+  g.fillStyle=lin(g,0,0,0,h,[[0,rgba(mix('#4a5a88','#fff2d8',u),lerp(.4,.2,u))],[.36,rgba(mix('#141a30','#ffe6b8',u),lerp(.1,.06,u))],[.68,rgba(mix('#1e1614','#f0c080',u),.06)],[1,rgba(mix('#ff9a5a','#e8a860',u),lerp(.3,.12,u))]]);g.fillRect(0,0,w,h);
+  g.save();g.translate(w*.82,h*.11);g.scale(1,2.8);g.fillStyle=rad(g,0,0,0,w*.13,[[0,rgba(mix('#dfe6ff','#ffffff',u),lerp(.5,.6,u))],[.35,rgba(mix('#9fb0e8','#fff0c8',u),lerp(.16,.24,u))],[1,rgba('#ffffff',0)]]);g.fillRect(-w*.13,-w*.13,w*.26,w*.26);g.restore();
+  g.globalCompositeOperation='lighter';for(const [x0,x1,a] of [[.08,.32,.06],[.4,.45,.07]]){g.fillStyle=rgba('#ffffff',a*(1+.3*u));g.beginPath();g.moveTo(w*(x0+.32),0);g.lineTo(w*(x1+.32),0);g.lineTo(w*(x1-.12),h);g.lineTo(w*(x0-.12),h);g.closePath();g.fill();}
+  for(let i=0;i<46;i++){const x=r()*w,y=h*(.6+.38*r()),s=.5+r()*1.3,col=r()<.8?'#ffcf86':r()<.5?'#8fe8ff':'#ff8ad0';g.globalAlpha=(.15+.35*r())*(1-u);g.fillStyle=rad(g,x,y,0,s,[[0,rgba(col,1)],[1,rgba(col,0)]]);g.fillRect(x-s,y-s,s*2,s*2);}
+  g.globalAlpha=1;return GLS[k]=c;}
+function glassSky(D,yA,yB,cT,cH){const R=glassSpr(D),y0=cT-60,y1=cT+cH+60,a=Math.max(yA,y0),b=Math.min(yB,y1);if(b<=a)return;const sx=R.width/(CORNER-X0F),sy=R.height/(y1-y0);
+  ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha=1;
+  for(let x=X0F;x<CORNER-BAY*.4;x+=BAY){const x0=x+9,w=BAY-18;ctx.drawImage(R,(x0-X0F)*sx,(a-y0)*sy,w*sx,(b-a)*sy,x0,a,w,b-a);}
+  ctx.restore();}
+// the wash of a light let into a setback's ledge down the face under it, made once: bright at the lamp, spreading down in a soft curve
+let SCAL=null;function scallop(){if(SCAL)return SCAL;const w=64,h=128,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+  const wash=a=>{g.save();g.translate(w/2,0);g.scale(.5,1);g.fillStyle=rad(g,0,0,0,h,[[0,rgba(C.cyan,.6*a)],[.1,rgba(C.cyan,.34*a)],[.42,rgba(C.cyan,.1*a)],[1,rgba(C.cyan,0)]]);g.fillRect(-w,0,w*2,h);g.restore();};
+  wash(.35);g.save();g.beginPath();g.moveTo(w/2-2.5,0);g.quadraticCurveTo(w/2-26,h*.3,w/2-30,h);g.lineTo(w/2+30,h);g.quadraticCurveTo(w/2+26,h*.3,w/2+2.5,0);g.closePath();g.clip();wash(.65);g.restore();
+  return SCAL=c;}
+// a lit window's light smeared down the stone under it at speed, made once for each colour: strongest at the window
+const SPILL=new Map();function spill(col){let s=SPILL.get(col);if(s)return s;s=document.createElement('canvas');s.width=4;s.height=64;const g=s.getContext('2d');
+  g.fillStyle=lin(g,0,0,0,64,[[0,rgba(col,1)],[.15,rgba(col,.5)],[.45,rgba(col,.14)],[1,rgba(col,0)]]);g.fillRect(0,0,4,64);SPILL.set(col,s);return s;}
+// ---------- the night's own movement, and the lens ----------
+// soft dots of light, made once for each colour
+const DOTS=new Map();function dot(col){let d=DOTS.get(col);if(d)return d;d=document.createElement('canvas');d.width=d.height=32;const g=d.getContext('2d');
+  g.fillStyle=rad(g,16,16,0,16,[[0,rgba(col,1)],[.2,rgba(col,.55)],[.5,rgba(col,.14)],[1,rgba(col,0)]]);g.fillRect(0,0,32,32);DOTS.set(col,d);return d;}
+// out past the corner the night goes on: two searchlights sweep up out of the city, the far towers' red lights blink, traffic runs
+// out along the avenues and back, and a plane crosses high up (all of it as deep as he is awake)
+// a searchlight's beam, made once for each colour: across it a soft bell brighter in its core, along it fading out, faint bands in
+// it where the haze it lights is thicker
+const BEAMS=new Map();function beamSpr(col){let b=BEAMS.get(col);if(b)return b;const w=48,h=256,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),im=g.createImageData(w,h),n=parseInt(col.slice(1),16);
+  for(let y=0;y<h;y++){const u=y/h,hw=.04+.96*u,a0=Math.pow(1-u,1.6)*(u<.015?u/.015:1)*(.8+.2*Math.sin(y*.09+1.3)*Math.sin(y*.031+.4));
+    for(let x=0;x<w;x++){const d=Math.abs((x+.5)/w*2-1)/hw;if(d>=1)continue;const v=a0*(Math.exp(-d*d*4)*.75+.25*(1-d*d)),p=(y*w+x)*4;im.data[p]=n>>16&255;im.data[p+1]=n>>8&255;im.data[p+2]=n&255;im.data[p+3]=Math.round(clamp(v,0,1)*255);}}
+  g.putImageData(im,0,0);BEAMS.set(col,c);return c;}
+// the moon's light come down into the Pit's air, made once: like a beam, but carrying far down before it fades, and softer at its sides
+let SHAFT=null;function shaftSpr(){if(SHAFT)return SHAFT;const w=48,h=256,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),im=g.createImageData(w,h);
+  for(let y=0;y<h;y++){const u=y/h,hw=.25+.75*u,a0=Math.pow(1-u,.7)*(u<.05?u/.05:1)*(.85+.15*Math.sin(y*.07));
+    for(let x=0;x<w;x++){const d=Math.abs((x+.5)/w*2-1)/hw;if(d>=1)continue;const v=a0*Math.exp(-d*d*3)*(1-d*d),p=(y*w+x)*4;im.data[p]=184;im.data[p+1]=200;im.data[p+2]=240;im.data[p+3]=Math.round(clamp(v,0,1)*255);}}
+  g.putImageData(im,0,0);return SHAFT=c;}
+// (fr: how far the dream's tide of sand has come in over the city: what is behind it is gone)
+function nightLive(t,top,bot,a,yMax,fr){const x0=CORNER+6,x1=W+240,yb=Math.min(bot,yMax);if(yb<=top||a<.02)return;
+  ctx.save();ctx.beginPath();ctx.rect(x0,top,x1-x0,yb-top);ctx.clip();ctx.globalCompositeOperation='screen';
+  {const k=1-clamp((fr-HOR)/70,0,1);if(k>0)for(const [bx,ph,per,col] of [[690,0,19,'#c8d8ff'],[940,2.1,27,'#ffe6c4']]){const by=HOR+70,ang=-Math.PI/2+Math.sin(t*TAU/per+ph)*.4,Lb=560,w1=56;
+    ctx.save();ctx.translate(bx,by);ctx.rotate(ang-Math.PI/2);ctx.globalAlpha=a*k*.3;ctx.drawImage(beamSpr(col),-w1,0,w1*2,Lb);ctx.restore();
+    ctx.globalAlpha=a*k*.6;ctx.drawImage(dot(col),bx-5,by-3,10,6);}}
+  ctx.globalCompositeOperation='lighter';
+  if(fr<HOR+6)for(let i=0;i<TOWERS.length;i++){const [x,y]=TOWERS[i];if(((t*.55+i*.37)%1)>.42)continue;ctx.globalAlpha=a;ctx.fillStyle='#ff5040';ctx.fillRect(x-.55,y-.55,1.1,1.1);ctx.globalAlpha=a*.45;ctx.drawImage(dot('#ff4a3a'),x-4,y-4,8,8);}
+  {const vx=880,r=rng(733);for(const k of [3,5,7,9,11])for(let n=0;n<4;n++){const ang=Math.PI/2+k*.12,ex=vx+Math.cos(ang)*700,ey=HOR+Math.sin(ang)*700,sp=.025+r()*.035,ph=r(),out=r()<.5;
+    let u=(t*sp+ph)%1;if(!out)u=1-u;u=u*u;const x=lerp(vx,ex,u),y=lerp(HOR,ey,u),sz=.5+u*2.2;if(y<fr)continue;ctx.globalAlpha=a*(.35+.5*u);ctx.drawImage(dot(out?'#ffe8c0':'#ff3a2a'),x-sz,y-sz,sz*2,sz*2);}}
+  {const per=70,u=(t%per)/per,x=lerp(1180,560,u),y=58+u*22;if(((t*1.3)%1)<.12){ctx.globalAlpha=a;ctx.drawImage(dot('#ffffff'),x-4,y-4,8,8);}ctx.globalAlpha=a*.8;ctx.drawImage(dot(((t*.9)%1)<.5?'#ff4a3a':'#5aff7a'),x-1.6,y-1.6,3.2,3.2);}
+  ctx.restore();}
+// near the lens: out-of-focus motes of light going up past him, soft discs with a brighter rim (warm and cold at night, gold in the
+// dream, the Pit's dust in the Pit), and the fewer the less the screen should move
+const BOK=new Map();function bokSpr(col){let b=BOK.get(col);if(b)return b;b=document.createElement('canvas');b.width=b.height=64;const g=b.getContext('2d');
+  g.beginPath();for(let i=0;i<6;i++){const an=i/6*TAU+.3;g.lineTo(32+Math.cos(an)*29,32+Math.sin(an)*29);}g.closePath();
+  g.fillStyle=rad(g,32,32,0,30,[[0,rgba(col,.5)],[.8,rgba(col,.62)],[.94,rgba(col,.9)],[1,rgba(col,0)]]);g.fill();BOK.set(col,b);return b;}
+function bokeh(t,v,D,pit){if(typeof cam==='undefined')return;const vw=cam.viewW,L=cam.x-vw/2,T=camTop(),Hv=vw/(typeof aspect==='number'?aspect:1.8),n=reduceMotion?3:8,r=rng(211);
+  ctx.save();ctx.globalCompositeOperation='screen';
+  for(let i=0;i<n;i++){const x=L+r()*vw,sz=24+r()*64,sp=(pit?90:220+v*1.15)*(.7+r()*.6)*(reduceMotion?.4:1),span=Hv+sz*2+500,y=T+Hv+sz-((r()*3000+t*sp)%span),k=r();
+    const col=D>.5?(k<.6?'#ffd890':'#fff0c8'):pit?(k<.5?'#c8b8a8':'#ffb070'):(k<.45?'#ffcf86':k<.75?'#8fd8ff':'#ff9ad8');
+    ctx.globalAlpha=(.035+.05*r())*(pit?.7:1);ctx.drawImage(bokSpr(col),x-sz/2,y-sz/2,sz,sz);}
+  ctx.restore();}
 // ---------- what moves ----------
-function live(){const t=S.t,sy=S.scrollY||0,v=Math.abs(S.scrollYV||0),blur=clamp(v*.022,0,70),ka=FH/(FH+blur*.6);ctx.save();
+function live(){const t=S.t,sy=S.scrollY||0,v=Math.abs(S.scrollYV||0),blur=clamp(v*.022,0,70);ctx.save();
   // (what moves covers all the screen shows: a phone held upright sees far above the still layer's top, where the layer's edge is only
   // stretched up, and there the floors, the night and the stars are drawn here)
   const cT=typeof camTop==='function'?camTop():0,cH=typeof cam!=='undefined'&&typeof aspect==='number'?cam.viewW/aspect:H;
@@ -178,47 +469,50 @@ function live(){const t=S.t,sy=S.scrollY||0,v=Math.abs(S.scrollYV||0),blur=clamp
   SPAN_LAST.top=top;SPAN_LAST.bot=bot;
   if(top<RC.y0+2)upperNight(top);
   // the desert in his head, out past the corner over the night, as deep as the dream is
-  const D=dreamK();DREAM_LAST.D=D;if(D>.004){DREAM_LAST.n++;desert(D,top,bot,t);}
+  const D=dreamK(),DM=dreamMax(D);DREAM_LAST.D=D;SPAN_LAST.n++;if(D>.004){DREAM_LAST.n++;desert(D,top,bot,t);}
   const i0=Math.floor((top-YREF+sy)/FH)-1,i1=Math.min(pit?Math.floor(S.pit.base/FH)-1:1e9,Math.ceil((bot-YREF+sy)/FH)+1);
   if(faceBot>top){
   ctx.save();ctx.beginPath();ctx.rect(X0F,top,CORNER-8-X0F,faceBot-top);ctx.clip();
   // above the roof's edge: the sky over the tower (only while he is still near the top)
   if(fy(0)>top){const y=fy(0);ctx.fillStyle=lin(ctx,0,top,0,y,[[0,'#04060e'],[1,'#141828']]);ctx.fillRect(X0F,top,CORNER-X0F,y-top);stars(ctx,X0F,CORNER,top,y-10,60,7,.6);}
-  const lit=[],pour=[];
-  for(let i=Math.max(0,i0);i<=i1;i++){const y=fy(i*FH),gy=y+SPAN;if(y>bot||gy+FH<top)continue;
-    // the glass of this floor, a window to a bay, split by a mullion and a transom: dark, lit warm, lit by an elf's cyan, someone at
-    // the glass. A lit room shows its ceiling's light along the top and the dark of its desks along the bottom; some have blinds.
-    // In the dream a window the sand has is the noon and a heap of sand, and many of those pour it over the sill
-    for(let x=X0F,j=0;x<CORNER-BAY*.4;x+=BAY,j++){const k=cell(i,j),x0=x+9,w=BAY-18,h=FH-SPAN,mx=x0+w/2-.8,ty=gy+h*.28,id=i*131+j,sd=D>0?sandAt(i,j,D):0;
-      if(sd<1){
-        // (dreaming, the dark glass holds the noon)
-        if(k===0){ctx.fillStyle=D>0?glassCol(D):'#070a12';ctx.fillRect(x0,gy,w,h);ctx.fillStyle=K.glint;ctx.fillRect(x0+w*.6,gy,w*.1,h);
-          ctx.fillStyle=K.grid;ctx.fillRect(mx,gy,1.6,h);ctx.fillRect(x0,ty,w,1.4);}
-        else{const col=k===2?CYAN_W:WARM_W;
-          // plain fills, no gradients: the room's glow, the ceiling's light and its fall, the desks and the sill
-          ctx.globalAlpha=.78*ka;ctx.fillStyle=col[1];ctx.fillRect(x0,gy,w,h);ctx.fillStyle=col[0];ctx.fillRect(x0,gy,w,h*.1);ctx.globalAlpha=.35*ka;ctx.fillRect(x0,gy+h*.1,w,h*.2);
-          ctx.globalAlpha=1;ctx.fillStyle=K.desk;ctx.fillRect(x0,gy+h*.74,w,h*.26);
-          if(cell(i+977,j+31)===1&&k!==3){ctx.fillStyle=K.blind;for(let q=0;q<5;q++)ctx.fillRect(x0,ty+4+q*4.6,w,1.4);}
-          if(k===3&&blur<20){ctx.fillStyle=K.man;const fx=x0+w*.27;ctx.beginPath();ctx.arc(fx,gy+h*.36,3.4,0,TAU);ctx.fill();ctx.fillRect(fx-4.5,gy+h*.42,9,h*.58);}
-          ctx.fillStyle=K.frame;ctx.fillRect(mx,gy,1.6,h);ctx.fillRect(x0,ty,w,1.4);
-          lit.push(x0,gy+h,w,k===2?1:0);}}
-      if(sd>0){sandWindow(x0,gy,w,h,sd,hsh(id,211));
-        if(hsh(id,491)<.75){const pa=sd*clamp((D-.16-hsh(id,977)*1.05)/.2,0,1);
-          if(pa>.02)pour.push(x0+w*(.3+.4*hsh(id,17)),gy+h-1,7+7*hsh(id,23)+3*D,(80+110*hsh(id,29))*(.6+.4*D)+blur*.8,pa);}}}
-    // the spandrel: black stone, a thread of gold along its top, fluting in the middle of each bay
-    ctx.fillStyle=lin(ctx,0,y,0,y+SPAN,[[0,'#13131a'],[.5,'#0c0c12'],[1,'#08080c']]);ctx.fillRect(X0F,y,CORNER-X0F,SPAN);ctx.fillStyle=rgba(C.gold,.55);ctx.fillRect(X0F,y+3,CORNER-X0F,1.1);
-    ctx.fillStyle=rgba(C.gold,.13);for(let x=X0F+BAY/2-6;x<CORNER-8;x+=BAY)for(let q=0;q<3;q++)ctx.fillRect(x+q*6,y+11,1,SPAN-20);
-    ctx.fillStyle=rgba(C.gold,.25);ctx.fillRect(X0F,y+SPAN-5,CORNER-X0F,.8);ctx.fillStyle=rgba('#000000',.5);ctx.fillRect(X0F,y+SPAN-3,CORNER-X0F,3);
-    // a setback every tenth floor: a ledge of stone with gold on its lip and cyan lights let into it
-    if(i%LEDGE===0){ctx.fillStyle='#16161e';ctx.fillRect(X0F,y-10,CORNER-X0F,14);ctx.fillStyle=lin(ctx,0,y-12,0,y-6,[[0,C.goldL],[1,C.goldD]]);ctx.fillRect(X0F,y-12,CORNER-X0F,3.4);
-      ctx.save();ctx.globalCompositeOperation='lighter';for(let x=X0F+BAY/2;x<CORNER;x+=BAY*2){ctx.fillStyle=lin(ctx,0,y+4,0,y+70+blur,[[0,rgba(C.cyan,.35)],[1,rgba(C.cyan,0)]]);ctx.beginPath();ctx.moveTo(x-3,y+4);ctx.lineTo(x+3,y+4);ctx.lineTo(x+14,y+70+blur);ctx.lineTo(x-14,y+70+blur);ctx.closePath();ctx.fill();}ctx.restore();
+  const FRM=new Path2D(),FRE=new Path2D(),lit=[],pour=[],thr=[],FPc=facePieces(),fl0=Math.max(0,i0),wTop=Math.max(top,fy(0)+SPAN),sbv=blur<8?0:blur<22?1:2;
+  // the glass of every floor first, a window to a bay, split by a mullion and a transom: dark, lit warm, lit by an elf's cyan, someone
+  // at the glass. A lit room shows its ceiling's light along the top and the dark of its desks along the bottom; some have blinds.
+  // In the dream the windows fill with sand, each its own moment, like the glass of an hourglass (as deep as the dream has gone: it
+  // does not drain when he comes back a little), a thread of it running in from the top of some while they fill, and many of them
+  // pour it out over the sill
+  for(let i=fl0;i<=i1;i++){const y=fy(i*FH),gy=y+SPAN;if(y>bot||gy+FH<top)continue;
+    for(let x=X0F,j=0;x<CORNER-BAY*.4;x+=BAY,j++){const k=cell(i,j),x0=x+9,w=BAY-18,h=FH-SPAN,id=i*131+j,sd=D>.04?sandAt(i,j,DM):0,vr=hsh(id,173);
+      const L=k===0?FPc.dark:k===2?FPc.cyan:k===3?FPc.man:FPc.lit,spr=L[(vr*L.length)|0],f=sd*sd*(3-2*sd),lv=h*(1-.9*f),hh=h-lv;
+      // (the room only above the sand once the sand has much of it)
+      if(f>.3)fpTop(spr,x0,gy,w,lv,blur);else fpDraw(spr,x0,gy,w,h,blur,1);if(k!==0&&sd<.8)lit.push(x0,gy+h,w,k===2?1:0);
+      if(sd>0){const P=FPc.sandIn[(hsh(id,211)*FPc.sandIn.length)|0];
+        if(hh>.4){const cS=P.c[sbv],a=clamp(D/.08,0,1),kx=w/WW,ya=gy+lv;ctx.globalAlpha=a;ctx.drawImage(cS,0,0,cS.width,cS.height*hh/WH,x0,ya,w,hh);ctx.globalAlpha=1;
+          FRM.rect(x0+19.2*kx,ya,1.6*kx,hh);FRM.rect(x0,ya,.8*kx,hh);FRM.rect(x0+w-.8*kx,ya,.8*kx,hh);FRE.rect(x0+20.4*kx,ya,.4*kx,hh);if(lv<WTR*h/WH){FRM.rect(x0,gy+WTR*h/WH,w,1.5);FRE.rect(x0,gy+WTR*h/WH,w,.35);}}
+        if(f<.97&&hsh(id,307)<.45)thr.push(x0+P.pk*w/WW,gy+WTR+1.6,gy+lv+2.5,id);
+        if(hsh(id,491)<.5){const pa=sd*clamp((D-.16-hsh(id,977)*.9)/.2,0,1);
+          if(pa>.02)pour.push(x0+w*(.25+.5*hsh(id,17)),gy+h-1,6+9*hsh(id,23)+3*D,(70+120*hsh(id,29))*(.6+.4*D)+blur*.8,pa,id);}}}}
+  // the frames over the sand, in one batch (the noon on their gold), and the threads of sand running in, and the grains in them
+  if(D>.04){ctx.fillStyle='#120c08';ctx.fill(FRM);ctx.fillStyle=rgba('#ffe8b0',.6);ctx.fill(FRE);}
+  if(thr.length){const G=new Path2D(),Q=new Path2D(),sp=reduceMotion?.3:1;for(let n=0;n<thr.length;n+=4){const x=thr[n],y0=thr[n+1],y1=thr[n+2],id=thr[n+3];if(y1<=y0)continue;
+      G.rect(x-.55+Math.sin(t*9+id)*.15,y0,1.1,y1-y0);for(let q=0;q<2;q++){const h2=hsh(id*2+q,433),u=(t*(1.4+h2)*sp+h2)%1;Q.rect(x-.9+h2*1.8,y0+u*(y1-y0),.7,1.4);}}
+    ctx.globalAlpha=.85;ctx.fillStyle='#f0c880';ctx.fill(G);ctx.fillStyle='#fff4d6';ctx.fill(Q);ctx.globalAlpha=1;}
+  // what the glass holds: the night behind him (the noon in the dream), still on the screen while the face goes by under it
+  if(FXL_full())glassSky(D,wTop,faceBot,cT,cH);
+  // then the stone over the glass's edges: the spandrel, black stone, veined, a thread of gold along its top, fluting in the middle of
+  // each bay (one strip, softened at speed); and every tenth floor a setback, a ledge of stone with gold on its lip and cyan lights let
+  // into it that wash the face under them
+  for(let i=fl0;i<=i1;i++){const y=fy(i*FH);if(y>bot||y+SPAN+FH<top)continue;
+    ctx.drawImage(blur>10?FPc.spanS:FPc.span,X0F,y,CORNER-X0F,SPAN);
+    if(i%LEDGE===0){ctx.drawImage(blur>10?FPc.ledgeS:FPc.ledge,X0F,y-12,CORNER-X0F,16);
+      {ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.85;const sc=scallop(),lh=96+blur*1.3;for(let x=X0F+BAY/2;x<CORNER;x+=BAY*2)ctx.drawImage(sc,x-27,y+3,54,lh);ctx.restore();}
       // dreaming: the sand drifted along the setback, and falling off its lip in curtains
       if(D>.05){const a=clamp((D-.05)/.3,0,1),dh=10+16*D;ctx.globalAlpha=a;ctx.drawImage(sandSprites().drift,X0F,y-10-dh,CORNER-X0F,dh+2);ctx.globalAlpha=1;
-        for(let x=X0F+BAY*.5,q=0;x<CORNER-10;x+=BAY,q++){const h2=hsh(i*31+q,557);if(h2>.2+.75*D)continue;pour.push(x+(h2-.5)*20,y+3,16+18*h2,(110+160*h2)*D+blur,a*.9);}}}}
+        for(let x=X0F+BAY*.5,q=0;x<CORNER-10;x+=BAY,q++){const h2=hsh(i*31+q,557);if(h2>.2+.75*D)continue;pour.push(x+(h2-.5)*20,y+3,16+18*h2,(110+160*h2)*D+blur,a*.9,i*31+q+7);}}}}
   sandPour(pour,t);
   // at speed each lit window smears down over the stone below it, where it just was
-  if(blur>2){const a=clamp((blur-2)/30,0,1);ctx.save();ctx.globalCompositeOperation='lighter';
-    for(let n=0;n<lit.length;n+=4){const x0=lit[n],y0=lit[n+1],w=lit[n+2];ctx.fillStyle=lit[n+3]?CYAN_W[1]:WARM_W[1];const L=blur*.6;ctx.globalAlpha=.2*a;ctx.fillRect(x0,y0,w,L);ctx.globalAlpha=.11*a;ctx.fillRect(x0,y0+L,w,L);ctx.globalAlpha=.05*a;ctx.fillRect(x0,y0+L*2,w,L);}
+  if(blur>2){const a=clamp((blur-2)/30,0,1);ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.18*a;const L=blur*1.9,sw=spill(WARM_W[1]),sc2=spill(CYAN_W[1]);
+    for(let n=0;n<lit.length;n+=4)ctx.drawImage(lit[n+3]?sc2:sw,lit[n],lit[n+1],lit[n+2],L);
     ctx.restore();}
   // the roof's edge itself, the gold coping he went over
   {const y=fy(0);if(y>top&&y<bot){ctx.fillStyle=lin(ctx,0,y-8,0,y+2,[[0,C.goldL],[.5,C.gold],[1,C.goldDD]]);ctx.fillRect(X0F,y-8,CORNER-X0F+14,8);ctx.fillStyle='#08080c';ctx.fillRect(X0F,y,CORNER-X0F+14,10);}}
@@ -235,20 +529,24 @@ function live(){const t=S.t,sy=S.scrollY||0,v=Math.abs(S.scrollYV||0),blur=clamp
   ctx.globalAlpha=1-.45*D;ctx.fillStyle=lin(ctx,X0F,0,CORNER,0,[[0,rgba('#000000',.42)],[.6,rgba('#000000',.1)],[1,rgba('#000000',0)]]);ctx.fillRect(X0F,top,CORNER-X0F,faceBot-top);ctx.globalAlpha=1;
   if(D<1){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=1-D;ctx.fillStyle=lin(ctx,0,H*.55,0,bot,[[0,rgba('#ff9a5a',0)],[1,rgba('#ff9a5a',.1)]]);ctx.fillRect(X0F,Math.min(H*.55,faceBot),CORNER-X0F,Math.max(0,faceBot-H*.55));ctx.restore();}
   // dreaming: the sun's glare along the corner, and the gold of the fins burning in it
-  if(D>.004){ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=lin(ctx,CORNER,0,CORNER-220,0,[[0,rgba('#ffe6b8',.24*D)],[1,rgba('#ffe6b8',0)]]);ctx.fillRect(CORNER-220,top,220,faceBot-top);
-    ctx.fillStyle=rgba('#ffe7a8',.3*D);for(let x=X0F,j=0;x<CORNER;x+=BAY,j++)if(j%2===0)ctx.fillRect(x-1.2,top,2.4,faceBot-top);
+  if(D>.004){ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=lin(ctx,CORNER,0,CORNER-220,0,[[0,rgba('#ffe6b8',.16*D)],[1,rgba('#ffe6b8',0)]]);ctx.fillRect(CORNER-220,top,220,faceBot-top);
+    ctx.fillStyle=rgba('#ffe7a8',.24*D);for(let x=X0F,j=0;x<CORNER;x+=BAY,j++)if(j%2===0)ctx.fillRect(x-1.2,top,2.4,faceBot-top);
     ctx.fillStyle=rgba('#fff2cc',.4*D);ctx.fillRect(CORNER-5,top,6,faceBot-top);ctx.restore();}}
   // under the tower's foot: the Pit
   if(pit)pitLive(rimY,top,bot,t,v);
   // a cold haze hangs off the face in the middle of the picture, where he falls: the body reads dark against it (in the dream a warm one)
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.translate(450,250);ctx.scale(1,.8);ctx.globalAlpha=lerp(pit&&rimY<H?.32:.5,.55,D);ctx.drawImage(hazeSpr(D),-320,-320,640,640);ctx.restore();
-  // the city far below drifts up a little as he drops toward it (until the far side of the Pit stands up in front of it; not in the dream)
-  {const fr=pit?HOR+(rimY-HOR)*KF:1e9,yb=Math.min(bot,fr-10);if(yb>HOR+30&&D<1){const r=rng(5);ctx.save();ctx.beginPath();ctx.rect(CORNER+6,HOR+30,W+260-CORNER,yb-HOR-30);ctx.clip();ctx.globalCompositeOperation='lighter';
+  {ctx.save();ctx.globalCompositeOperation='lighter';ctx.translate(450,250);ctx.scale(1,.8);ctx.globalAlpha=lerp(pit&&rimY<H?.32:.5,.34,D);ctx.drawImage(hazeSpr(D),-320,-320,640,640);ctx.restore();}
+  // the city far below drifts up a little as he drops toward it (until the far side of the Pit stands up in front of it; in the dream
+  // only what the tide of sand has not reached)
+  const tf=D>.004?tideY(D,bot):HOR;
+  {const fr=pit?HOR+(rimY-HOR)*KF:1e9,yb=Math.min(bot,fr-10),ya=Math.max(HOR+30,tf);if(yb>ya&&D<1){const r=rng(5);ctx.save();ctx.beginPath();ctx.rect(CORNER+6,ya,W+260-CORNER,yb-ya);ctx.clip();ctx.globalCompositeOperation='lighter';
     for(let i=0;i<40;i++){const x=CORNER+r()*(W+260-CORNER),y=HOR+40+((r()*500-sy*.05)%500+500)%500;ctx.fillStyle=rgba('#ffd59a',.25*r()*(1-D));ctx.fillRect(x,y,1.2,1.2);}ctx.restore();}}
+  // the night going on out past the corner (as far down as the Pit's far side lets it show)
+  if(D<1)nightLive(t,top,bot,1-D,pit?HOR+(rimY-HOR)*KF-10:1e9,tf);
   // the noon's light coming down through the sand in the air, in shafts from the sun across the face
-  if(D>.7){const a=(D-.7)/.3;ctx.save();ctx.globalCompositeOperation='lighter';
-    for(const [dx,w0,w1] of [[-170,26,150],[-360,18,120]]){ctx.fillStyle=lin(ctx,SUN.x,SUN.y,SUN.x+dx,bot,[[0,rgba('#fff0c8',.08*a)],[1,rgba('#fff0c8',0)]]);
-      ctx.beginPath();ctx.moveTo(SUN.x-w0/2,SUN.y);ctx.lineTo(SUN.x+w0/2,SUN.y);ctx.lineTo(SUN.x+dx+w1/2,bot);ctx.lineTo(SUN.x+dx-w1/2,bot);ctx.closePath();ctx.fill();}ctx.restore();}
+  if(D>.7){const a=(D-.7)/.3,B=beamSpr('#fff0c8');ctx.save();ctx.globalCompositeOperation='screen';
+    for(const [dx,w1,k] of [[-190,170,.16],[-380,120,.11]]){const L=Math.hypot(dx,bot-SUN.y),ang=Math.atan2(bot-SUN.y,dx);
+      ctx.save();ctx.translate(SUN.x,SUN.y);ctx.rotate(ang-Math.PI/2);ctx.globalAlpha=k*a;ctx.drawImage(B,-w1/2,0,w1,L);ctx.restore();}ctx.restore();}
   // the wind of the fall: streaks going up past him, faster the faster he falls (warm with the sand in the dream)
   {const r=rng(17),col=D>.004?jmix('#d8e2ff','#ffe2b0',D):'#d8e2ff';ctx.save();ctx.globalCompositeOperation='lighter';for(let i=0;i<34;i++){const x=-140+r()*1220,L=40+r()*120+blur*2,sp=(400+v*.9)*(.7+r()*.6),y=bot-((r()*900+t*sp)%(bot-top+L+200));
     ctx.strokeStyle=rgba(col,(.03+r()*.08)*clamp(v/600+.3,0,1)*(pit&&rimY<H?clamp(v/500,0,1):1));ctx.lineWidth=.5+r()*.6;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(r()-.5)*4,y+L);ctx.stroke();}ctx.restore();}
@@ -303,9 +601,32 @@ function pitDraw(rimY,top,bot,t,v,L,P,farRim){
   // the air of the Pit: cold up by the rim, the warmth of its fires coming up from the floor
   {const u=clamp((top-rimY)/L.floor,0,1);ctx.save();ctx.globalCompositeOperation='lighter';
     ctx.fillStyle=lin(ctx,0,top,0,bot,[[0,rgba('#5a6a9a',.05*(1-u))],[1,rgba('#ff8a4a',.03+.07*u)]]);ctx.fillRect(-200,Math.max(top,rimY),1400,bot-Math.max(top,rimY));ctx.restore();}}
+// The air of the Pit between its far side and him (its haze and the glow of the windows are painted into the far side's pieces,
+// farTile): the pools of the lamps and the braziers on the boards, the glow of the signs, mist lying in bands at three depths and
+// drifting, and (full effects) the moon's light coming down into it in two shafts from the far rim with the dust turning in them.
+// All of it slides with the far side.
+function pitAir(farRim,fl,y0,y1,t,signs){if(y1<=y0)return;
+  // (only across what the screen shows)
+  const vw=typeof cam!=='undefined'?cam.viewW:W,cx=typeof cam!=='undefined'?cam.x:W/2,XL=cx-vw/2-40,XR=cx+vw/2+40,inX=(x,r)=>x+r>XL&&x-r<XR;
+  ctx.save();ctx.globalCompositeOperation='lighter';const WC=['#ffcf86','#7ff3e3','#ff6ad0'];
+  // the pools of the lamps hung along the walkways and of the braziers, warm on the boards round them (a few in each stretch of the
+  // far side, flickering)
+  {const m0=Math.floor((y0-farRim)/120)-1,m1=Math.ceil((y1-farRim)/120)+1;for(let m=Math.max(0,m0);m<=m1;m++)for(let q=0;q<2;q++){const h1=hsh(m*7+q,877);if(h1<.35)continue;
+    const x=-150+hsh(m*7+q,881)*1250,y=farRim+m*120+hsh(m*7+q,887)*120,R=40+h1*50;if(!inX(x,R))continue;const fl2=reduceMotion?1:.85+.15*Math.sin(t*(3+h1*4)+m+q);ctx.globalAlpha=.12*fl2;ctx.drawImage(dot(h1<.85?'#ffb060':'#ff7a40'),x-R,y-R*.75,R*2,R*1.5);}}
+  for(let n=0;n<signs.length;n+=4){const x=signs[n],y=signs[n+1],w=signs[n+2],s=w*2.2;if(!inX(x,s))continue;ctx.globalAlpha=.16;ctx.drawImage(dot(WC[(signs[n+3]+1)%3]),x-s,y-s*.7,s*2,s*1.4);}
+  ctx.globalCompositeOperation='screen';const dr=reduceMotion?0:t;
+  for(let b=0;b<3;b++){const yb=farRim+(fl-farRim)*(.22+.27*b);if(yb<y0-40||yb>y1+40)continue;const P=cpuff(b===2?'#7a5a5a':'#6a7088');
+    for(let i=0;i<6;i++){const h1=hsh(b*17+i,811),x=((h1*1500+dr*(5+3*b)*(h1<.5?1:-1))%1500+1500)%1500-260,w=180+h1*160,hh=18+hsh(i,823)*18;if(!inX(x,w/2))continue;ctx.globalAlpha=.08+.05*hsh(b+i,829);ctx.drawImage(P,x-w/2,yb-hh/2+hsh(i,831)*16,w,hh);}}
+  if(FXL_full()){const B=shaftSpr(),L=(fl-farRim)*.95,tn=Math.tan(.4);
+    for(const [x,w1,k] of [[640,96,.12],[860,74,.09]]){const xa=x-(y0-farRim)*tn,xb=x-(y1-farRim)*tn;if(Math.max(xa,xb)+w1<XL||Math.min(xa,xb)-w1>XR)continue;
+      ctx.save();ctx.translate(x,farRim-6);ctx.rotate(.4);ctx.globalAlpha=k;ctx.drawImage(B,-w1/2,0,w1,L);ctx.restore();}
+    ctx.globalCompositeOperation='lighter';ctx.fillStyle='#e6ecff';
+    for(let i=0;i<30;i++){const h1=hsh(i,841),h2=hsh(i,853),sh=i%2,bx=[640,860][sh],u=(h1+dr*.012*(.5+h2))%1,ux=-Math.sin(.4),uy=Math.cos(.4),d=u*L,o=(h2-.5)*(30+120*u);
+      const x=bx+ux*d+uy*o,y=farRim-6+uy*d-ux*o;if(y<y0||y>y1)continue;ctx.globalAlpha=(.18+.3*hsh(i,859))*(1-u);ctx.fillRect(x,y,.9,.9);}}
+  ctx.restore();}
 // the far side: rows of shacks on junk, down to the floor
 function farWall(farRim,top,bot,L,t,v){const y0=Math.max(top,farRim),fl=farRim+L.floor*KF,y1=Math.min(bot,fl),sm=clamp(v*KF*.018,0,26);
-  if(y1>y0){ctx.fillStyle=lin(ctx,0,farRim,0,fl,[[0,'#130f17'],[.45,'#100c12'],[.8,'#170f0f'],[1,'#26170f']]);ctx.fillRect(-200,y0,1400,y1-y0);}
+  if(y1>y0){ctx.fillStyle=lin(ctx,0,farRim,0,fl,[[0,'#181825'],[.45,'#0f0c14'],[.8,'#150e10'],[1,'#281611']]);ctx.fillRect(-200,y0,1400,y1-y0);}
   // the far rim against the night: a ragged line of shacks, poles and a water tank
   if(farRim>top-60&&farRim<bot+10){const r=rng(4411);let x=CORNER-30;ctx.fillStyle='#0a080c';
     while(x<1120){const w=20+r()*46,h=8+r()*22;ctx.fillRect(x,farRim-h,w,h+2);if(r()<.25){ctx.fillRect(x+w*.5,farRim-h-16,1.4,16);}
@@ -318,14 +639,14 @@ function farWall(farRim,top,bot,L,t,v){const y0=Math.max(top,farRim),fl=farRim+L
       for(let n=0;n<T.lit.length;n+=5)lit.push(T.lit[n],farRim+T.lit[n+1],T.lit[n+2],T.lit[n+3],T.lit[n+4]);
       for(let n=0;n<T.signs.length;n+=4)signs.push(T.signs[n],farRim+T.signs[n+1],T.signs[n+2],T.signs[n+3]);
       for(let n=0;n<T.bulbs.length;n+=4)bulbs.push(T.bulbs[n],farRim+T.bulbs[n+1],T.bulbs[n+2],T.bulbs[n+3]);}}
-  // the far side sits back in the air of the Pit; its windows burn through it
-  if(y1>y0){ctx.fillStyle='rgba(12,9,18,.4)';ctx.fillRect(-200,y0,1400,y1-y0);}
+  // (the far side sits back in the air of the Pit, painted into its pieces; its windows burn through it)
   ctx.save();ctx.globalCompositeOperation='lighter';const WC=['#ffcf86','#7ff3e3','#ff6ad0'];
   for(let n=0;n<lit.length;n+=5){const x=lit[n],y=lit[n+1],w=lit[n+2],h2=lit[n+3];ctx.fillStyle=WC[lit[n+4]];ctx.globalAlpha=.5;ctx.fillRect(x,y,w,h2);if(sm>1){ctx.globalAlpha=.14;ctx.fillRect(x,y+h2,w,sm);}}
   // signs over a door or two, glowing; strings of bulbs from shack to shack
   for(let n=0;n<signs.length;n+=4){const x=signs[n],y=signs[n+1],w=signs[n+2],col=WC[(signs[n+3]+1)%3];ctx.globalAlpha=.55+.25*Math.sin(t*3+x);ctx.fillStyle=col;ctx.fillRect(x-w/2,y-2,w,4);ctx.globalAlpha=.12;ctx.fillRect(x-w,y-7,w*2,14);}
   for(let n=0;n<bulbs.length;n+=4){const x0=bulbs[n],y0=bulbs[n+1],w=bulbs[n+2],k=bulbs[n+3];for(let q=0;q<=10;q++){const u=q/10,x=x0+w*u,y=y0+Math.sin(u*Math.PI)*7;ctx.globalAlpha=.4+.3*Math.sin(t*2+q+k*9);ctx.fillStyle=WC[(q+((k*3)|0))%3===0?2:0];ctx.fillRect(x-.8,y,1.6,1.8);}}
   ctx.restore();
+  pitAir(farRim,fl,y0,y1,t,signs);
   // the floor far across: mud, and the fires the Pit cooks on
   if(fl<bot){ctx.fillStyle='#0d0a0b';ctx.fillRect(-200,fl,1400,bot-fl);const r=rng(66);
     for(let i=0;i<12;i++){const x=-100+r()*1200,y=fl+4+r()*30,a=.5+.3*Math.sin(t*(5+r()*4)+i);glow(ctx,x,y,14+r()*10,'#ff9a4a',.25*a,.7);ctx.fillStyle=rgba('#ffcf86',.7*a);ctx.fillRect(x-1,y-2,2,2);}}}
@@ -547,6 +868,11 @@ function nearTile(sd,j){const TH=JW.TH,y0=j*TH-1,h=TH+2,x0=sd<0?20:650,w=JW.w;
   const items=[];for(let c=Math.floor((y0-200)/JW.CH);c<=Math.ceil((y0+h+200)/JW.CH);c++)for(const it of jCell(sd,c))items.push(it);
   items.sort((a,b)=>a.layer-b.layer);
   for(const it of items){const ex=Math.max(it.w,it.h)*.6;if(it.y+ex<y0||it.y-ex>y0+h||it.x+ex<x0||it.x-ex>x0+w)continue;junk(g,it);}
+  // the light on it: dark back toward the rock, the moon's cold on its edge toward the open Pit, darker the deeper it is
+  g.save();g.globalCompositeOperation='source-atop';
+  g.fillStyle=lin(g,outer,0,fm,0,[[0,rgba('#000000',.5)],[.55,rgba('#000000',.14)],[.9,rgba('#000000',0)],[1,rgba('#9ab0e0',.12)]]);g.fillRect(x0-20,y0,w+40,h);
+  {const F=pitLayout().floor,d0=clamp(y0/F,0,1),d1=clamp((y0+h)/F,0,1);g.fillStyle=lin(g,0,y0,0,y0+h,[[0,rgba('#05040a',.32*d0)],[1,rgba('#05040a',.32*d1)]]);g.fillRect(x0-20,y0,w+40,h);}
+  g.restore();
   return{cv:cn,x0,y0,w,h};}
 // the near walls on the screen: the pieces in view, then the next one down on each side painted ahead of need
 function junkWalls(rimY,top,bot){const ya=Math.max(0,top-rimY),yb=bot-rimY;if(yb<60)return;
@@ -643,7 +969,17 @@ function farTile(m,L){const RS=FW.RS,FT=FW.FT,y0=m*FT-1,h=FT+2,{cn,g}=jkCanvas(F
   // (a row's drawing reaches about 41 up from its walkway, to its roofs and heaps, and 42 down, to the foot of its ladders)
   const jmax=Math.floor(L.floor*KF/RS)-1;g.save();g.beginPath();g.rect(FW.x0,y0,FW.w,h);g.clip();
   for(let j=Math.max(0,Math.ceil((y0-46)/RS)-1);j<=Math.min(jmax,Math.floor((y0+h+48)/RS)-1);j++)farRow(g,j,(j+1)*RS,T,m*FT,(m+1)*FT);
+  // the air it stands back in (cold up by the rim, the fires' smoke warm by the floor) and the glow of its lit windows on the boards
+  // round them, painted with it (its windows' own light is drawn over it live, burning through)
+  {const F=L.floor*KF,a=farAir(clamp(y0/F,0,1)),b=farAir(clamp((y0+h)/F,0,1));g.globalCompositeOperation='source-atop';
+    g.fillStyle=lin(g,0,y0,0,y0+h,[[0,rgba(a[0],a[1])],[1,rgba(b[0],b[1])]]);g.fillRect(FW.x0,y0,FW.w,h);
+    g.globalCompositeOperation='lighter';const WC=['#ffcf86','#7ff3e3','#ff6ad0'];
+    for(let n=0;n<T.lit.length;n+=5){const x=T.lit[n]+T.lit[n+2]/2,y=T.lit[n+1]+T.lit[n+3]/2,s=Math.max(T.lit[n+2],T.lit[n+3])*2.6;g.globalAlpha=.13;g.drawImage(dot(WC[T.lit[n+4]]),x-s,y-s,s*2,s*2);}
+    g.globalAlpha=1;g.globalCompositeOperation='source-over';}
   g.restore();return T;}
+// the air over the far side at a depth u (0 the rim, 1 the floor): its colour and how thick
+function farAir(u){const K=[[0,[28,31,47],.58],[.35,[14,11,21],.54],[.8,[19,12,18],.55],[1,[42,21,19],.6]];let i=0;while(i<K.length-2&&u>K[i+1][0])i++;
+  const A=K[i],B=K[i+1],f=clamp((u-A[0])/(B[0]-A[0]),0,1),c=A[1].map((v,k)=>Math.round(lerp(v,B[1][k],f)));return['#'+c.map(v=>v.toString(16).padStart(2,'0')).join(''),lerp(A[2],B[2],f)];}
 // rubbish over the lip of the Pit, hanging into it
 const RIMJ=[[128,'bags',96,52,.12],[206,'mat',160,28,1.15],[316,'tin',150,64,-.28],[452,'frame',130,48,.85],[600,'bags',84,46,-.12],[690,'door',70,160,-1.38],[842,'tyre',56,56,0],[900,'crate',70,54,.3]];
 function rimJunk(rimY){for(const [x,k,w,h,a] of RIMJ){const r=rng(x*13+7),ey=Math.abs(w/2*Math.sin(a))+Math.abs(h/2*Math.cos(a));
@@ -829,7 +1165,13 @@ function dreamFore(){const P=S.pit,woke=P&&P.woke!=null?S.t-P.woke:-1;if(!(woke>
       for(let i=0;i<n;i++){const a=hsh(i,733)*TAU,sp=(220+620*hsh(i,739))*(reduceMotion?.5:1),d=sp*woke*(1-woke*.7),x=cx+Math.cos(a)*d,y=cy+Math.sin(a)*d+woke*woke*120;
         ctx.globalAlpha=(1-u)*(.4+.5*hsh(i,743));ctx.fillStyle=hsh(i,751)<.5?'#f6dfae':'#c8995e';ctx.fillRect(x,y,1.3,1.3+sp*.004);}}}
   ctx.restore();}
-function fore(c){dreamFore();if(!pitOn())return;const P=S.pit,L=pitLayout(),rimY=fy(P.base),t=S.t,gore=S.gore!=='off';ctx.save();
+// the sun's ghosts in the lens as the dream gets to noon: faint discs along the line from it through the middle of the picture
+function flare(D){if(D<.45||typeof cam==='undefined')return;const k=clamp((D-.45)/.4,0,1),vw=cam.viewW,Hv=vw/(typeof aspect==='number'?aspect:1.8),cx=cam.x,cy=camTop()+Hv/2,dx=cx-SUN.x,dy=cy-SUN.y;
+  ctx.save();ctx.globalCompositeOperation='screen';
+  for(const [f,sz,col,a] of [[.42,26,'#ffe0a0',.07],[.7,14,'#a8f0e0',.06],[1.18,44,'#ffd890',.05],[1.42,22,'#ffb070',.06],[1.75,64,'#fff0c8',.035]]){
+    ctx.globalAlpha=a*k;ctx.drawImage(bokSpr(col),SUN.x+dx*f-sz/2,SUN.y+dy*f-sz/2,sz,sz);}
+  ctx.restore();}
+function fore(c){flare(dreamK());bokeh(S.t,Math.abs(S.scrollYV||0),dreamK(),pitOn()&&fy(S.pit.base)<H);dreamFore();if(!pitOn())return;const P=S.pit,L=pitLayout(),rimY=fy(P.base),t=S.t,gore=S.gore!=='off';ctx.save();
   // (the spike only inside the picture, as the walls are: a phone held upright sees past its ends)
   if(P.pin||P.arm){const s=P.pin?P.pin.s:P.arm.s;ctx.save();ctx.beginPath();ctx.rect(-1e4,-110,2e4,H+230);ctx.clip();spikeSeg(rimY,s-.05,1,gore,s);ctx.restore();}
   if(P.scrap){const q=pitSpike(P.scrap.s),x=q.x,y=rimY+q.y,sw=Math.sin(t*2.2)*.12;ctx.save();ctx.translate(x,y);ctx.rotate(sw);ctx.fillStyle='#0c0b11';path([[-5,-3],[5,-2],[4,12],[1,22],[-2,15],[-4,24],[-6,10]]);ctx.fill();
@@ -852,8 +1194,60 @@ function fore(c){dreamFore();if(!pitOn())return;const P=S.pit,L=pitLayout(),rimY
 // the light that rims him: the city's glow from out past the corner, low on the right; in the dream the sun, high on the right
 function light(f){const D=dreamK(),x=lerp(1040,SUN.x+60,D),y=lerp(420,SUN.y-60,D);return{light:{x:x-f.dep*PSX,y:y+f.dep*PSY}};}
 const LAYOUT={corner:CORNER,floor:FH,yRef:YREF,hMark:HMARK,horizon:HOR};
+// ---------- the picture as a camera takes it ----------
+// Once the world is drawn (before his thoughts and the bars, sk_storyui.js), over the whole fall: the light blooms (the frame shrunk to
+// an eighth, its bright parts drawn out by multiplying it by itself) and runs out sideways from every bright point in the long streaks
+// a cinema lens makes (cold at night, warm in the dream), the two laid over the frame at once; the edges of the picture darken (cold
+// at night, a burnt brown in the dream, deepest in the Pit); and a fine grain moves over it. Full effects: all of it. Lite: the dark
+// at the edges. Off: none. Phones first: the frame is gone over whole only twice (the light, the grain), the dark only along the
+// edges, and nothing in a blend that costs more than laying one picture over another. It only draws: the game never reads what it
+// keeps.
+const PFX={B:null,S:null,C:null,pat:null,last:{bloom:0,vig:0,n:0}};
+function pfxCv(c,w,h){c=c||document.createElement('canvas');if(c.width!==w||c.height!==h){c.width=w;c.height=h;}return c;}
+// the grain, a tile drawn once: specks a little lighter or a little darker than what is under them, laid plainly over it
+function grainPat(){if(PFX.pat)return PFX.pat;const c=pfxCv(null,128,128),g=c.getContext('2d'),im=g.createImageData(128,128),r=rng(907);
+  for(let i=0;i<128*128;i++){const v=(r()+r()+r()-1.5)/1.5,lv=v>0?255:0;im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=lv;im.data[i*4+3]=Math.round(Math.min(1,Math.abs(v)*1.4)*255);}
+  g.putImageData(im,0,0);PFX.pat=cv.getContext('2d').createPattern(c,'repeat');return PFX.pat;}
+// how far the story's bars are in (sk_storyui.js draws them after this, a tenth of the height each at full)
+function bars(){return typeof ST_LB==='number'?clamp(ST_LB,0,1):0;}
+// the dark falling in from the edges, in three bands inside the bars (not along the top, where the moon and the sun are; the corners
+// where two bands cross the darkest)
+function vignette(W2,H2,D,pit){const bar=Math.floor(H2*.105*bars()),y0=bar,ih=H2-2*bar;if(ih<8)return;
+  const col=pit?'#020308':mix('#02040b','#1c1006',D),a=pit?.62:lerp(.5,.3,D),vw=W2*.16,vh=ih*.16;PFX.last.vig=a;
+  const band=(x0,y0g,x1,y1g)=>{const g=ctx.createLinearGradient(x0,y0g,x1,y1g);g.addColorStop(0,rgba(col,a));g.addColorStop(.4,rgba(col,a*.38));g.addColorStop(1,rgba(col,0));return g;};
+  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+  ctx.fillStyle=band(0,0,vw,0);ctx.fillRect(0,y0,vw,ih);ctx.fillStyle=band(W2,0,W2-vw,0);ctx.fillRect(W2-vw,y0,vw,ih);
+  ctx.fillStyle=band(0,y0+ih,0,y0+ih-vh);ctx.fillRect(0,y0+ih-vh,W2,vh);}
+function post(){if(typeof cv==='undefined'||!cv.width)return;const q=typeof FXL!=='undefined'?FXL.q:'full';if(q==='off')return;
+  const W2=cv.width,H2=cv.height,P=S.pit,D=dreamK(),woke=P&&P.woke!=null?S.t-P.woke:9,pit=P&&P.on&&P.base!=null&&fy(P.base)<H?1:0;
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);PFX.last.n++;
+  if(q==='full'){
+    // the light alone: the frame an eighth the size, multiplied by itself twice
+    const bw=Math.max(24,Math.round(W2/8)),bh=Math.max(24,Math.round(H2/8)),B=PFX.B=pfxCv(PFX.B,bw,bh),g=B.getContext('2d');
+    g.globalCompositeOperation='copy';g.globalAlpha=1;g.imageSmoothingEnabled=true;g.drawImage(cv,0,0,bw,bh);
+    g.globalCompositeOperation='multiply';g.drawImage(B,0,0);g.drawImage(B,0,0);
+    // the streaks: that light smeared out sideways, and coloured
+    const SS=PFX.S=pfxCv(PFX.S,bw,bh),h2=SS.getContext('2d');h2.globalCompositeOperation='copy';h2.globalAlpha=1;h2.drawImage(B,0,0);h2.globalCompositeOperation='lighter';
+    for(const [f,a] of [[.012,.55],[.028,.36],[.055,.22],[.1,.12],[.17,.06]])for(const sg of [-1,1]){h2.globalAlpha=a;h2.drawImage(B,sg*f*bw,0);}
+    h2.globalCompositeOperation='multiply';h2.globalAlpha=1;h2.fillStyle=D>.3?'#ffcf96':pit?'#8aa6d8':'#7fb0ff';h2.fillRect(0,0,bw,bh);
+    // (less of it as the picture grows bright: the dream is all light, and he stays dark against it; a burst of it as he wakes)
+    const kb=(pit?.48:lerp(.6,.34,D))*(woke<.35?1+2*(1-woke/.35):1),ks=kb*(.75-.3*D);PFX.last.bloom=kb;
+    // the two in one small picture, laid over the frame once
+    const Cc=PFX.C=pfxCv(PFX.C,bw,bh),h3=Cc.getContext('2d');h3.globalCompositeOperation='copy';h3.globalAlpha=clamp(ks,0,1);h3.drawImage(SS,0,0);
+    h3.globalCompositeOperation='lighter';h3.globalAlpha=clamp(kb,0,1);h3.drawImage(B,0,0);
+    // (the dark at the edges first, so that a lamp or the sun in a corner keeps its glow; only between the bars: what they cover is
+    // not drawn)
+    vignette(W2,H2,D,pit);
+    const y0=Math.floor(H2*.105*bars()),sh=bh*y0/H2;
+    ctx.imageSmoothingEnabled=true;ctx.globalCompositeOperation='screen';ctx.globalAlpha=1;ctx.drawImage(Cc,0,sh,bw,bh-2*sh,0,y0,W2,H2-2*y0);}
+  else vignette(W2,H2,D,pit);
+  // the grain, moving (still where motion is reduced), a pixel of the canvas (not on a phone's small screen, where it would not show
+  // and the frame cannot spare it)
+  if(q==='full'&&cssW>=640){const pt=grainPat(),f=(S._rf||0),ox=reduceMotion?0:(f*53)%128,oy=reduceMotion?0:(f*97)%128,y0=Math.floor(H2*.105*bars());
+    ctx.globalCompositeOperation='source-over';ctx.globalAlpha=.05;ctx.fillStyle=pt;ctx.translate(-ox,-oy);ctx.fillRect(ox,y0+oy,W2,H2-2*y0);}
+  ctx.restore();}
 // (away from the fall its pieces are let go: the junk's tiles and the desert's view)
 function free(){jkFree();if(DES.cv){DES.cv.width=DES.cv.height=0;DES.cv=null;}}
-E.S.fall={paint,live,light,fore,LAYOUT,free,jk:JK,span:SPAN_LAST,dream:DREAM_LAST};
+E.S.fall={paint,live,light,fore,post,LAYOUT,free,jk:JK,span:SPAN_LAST,dream:DREAM_LAST,pfx:PFX.last,sand:DMX,views:{des:DES}};
 })();
 // ===== ENV FALL END =====

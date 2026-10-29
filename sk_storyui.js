@@ -463,6 +463,9 @@ if(typeof window!=='undefined'&&window.addEventListener)for(const ev of ['click'
 if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('visibilitychange',()=>musicSync());
 
 // ---------- every frame ----------
+// (the fall is taken as a camera takes it before the words and the bars go over it: its painter's post; a fault in it costs the
+// player only that pass, and the checks hear of it)
+V11UI.screen.push(()=>{if(S.arenaKey!=='fall'||typeof EnvLook==='undefined'||!EnvLook.S.fall||!EnvLook.S.fall.post||envKey()!=='fall')return;try{EnvLook.S.fall.post();}catch(e){if(window.SK_TEST)throw e;}});
 V11UI.screen.push(drawStoryScreen);
 V11UI.world.push(storyDust);
 // (each frame, drawn or not: the engine, the rails and the song follow the scene, and a chapter card that has faded out is done)

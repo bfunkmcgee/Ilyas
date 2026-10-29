@@ -304,19 +304,47 @@ which thought, since when, set by the fall's script); it holds while the tower's
 (`pitWake`, from pitImpact, pitCatch or pitLand: `S.pit.woke`) ends it at once. The memory slows the face going by (`fallSlow()`,
 FALL_SLOW: down to 38% of the speed at the deepest), and as he swears to come back the speed comes back, all of it, before the Pit, so
 the Pit plays as it always did. The painter (envx/env_fall.js, "the desert in his head"): `desertView()` is the view out past the
-corner painted once (the sky white with heat at the horizon, the sun where the moon was, dunes to the horizon, the border wire's posts
-running out across them, a buried fortress's glass domes, a cistern, a well with people waiting at it), drawn in two parts so the sky
-comes in more slowly than the sand; a window the sand has (`sandAt`: each window its own moment, some never) is one piece
-(`sandSprites().win`: the noon in the room, a heap of sand, the mullion and transom), most of them pour a stream down the face
-(`sandPour`, drawn after the floors), the setbacks hold drifts and pour curtains, the dark glass holds the noon (`glassCol`), the fins
-burn in the sun, shafts of light come down at the deepest, the haze goes warm (`hazeSpr`, nine steps cold to warm), and sand blows up
-past him in four batches. The light that rims him moves from the city's glow to the sun (`light`). Waking (`dreamFore`): a white flash
-gone in a third of a second and the last of the sand blown off him. The sound (sk_storyui.js `dreamFrame`): a soft hiss of blowing sand
-as deep as the dream, cut dead at the waking with a breath drawn in; down the face the fall's wind goes with its speed (sk_sfxui.js:
-quieter and lower while the memory slows it). The thoughts get a soft shade under them while the dream is bright behind them. On a
-screen too short for the floor's band (a phone on its side) the fall's camera keeps him whole: `S.camCut.bandS` (sk_pitui.js).
-`node uiwork/fall48/dreamshot.js <outprefix> w h dpr <secs,...>` photographs the fall at chosen seconds; `node uiwork/fall48/dreamprobe.js
-[w h]` traces its depth, the face's speed, the waking and what the moving picture costs.
+corner painted once (`desertPaint`: the sky white with heat at the horizon, the sun where the moon was, a mirage of water lying on
+the sand, dunes to the horizon lit where they turn to the sun and shaded where they turn away, glittering near, the border wire's
+posts running out across them, a buried fortress's glass domes, a cistern, a well with people waiting at it). Since V73 the sand
+comes in on a tide (`tideY`, `wh0`): a wall of dust rolls in from the horizon over the city's lights, the sand behind it dark under
+the night at first, while the sky goes by a dawn to the noon; the searchlights, the far towers' lights, the traffic and the city's
+drift go as the tide reaches them; at noon the heat wavers over the horizon (strips of the view laid over themselves a little to the
+side). The windows fill with sand like the glass of an hourglass (`sandAt` on `dreamMax`: each its own moment, as deep as the dream
+has gone, so they never drain when it falls back a little; a few never fill): one of six pieces of sand (`fpSandIn`: its layers, its
+lit skin and crest, three softnesses for the speed) drawn only as deep as the window holds it, the room above it, the frames over it
+in one batch, a thread of sand running in from the top of some while they fill; half of them pour a stream down the face
+(`sandPour`: three streams, a sheet breaking into ropes and grains), the setbacks hold drifts and pour curtains, the fins burn in the
+sun, the noon comes down across the face in two soft shafts at the deepest, the haze goes warm (`hazeSpr`), sand blows up past him in
+four batches, and the sun throws faint ghosts in the lens (`flare`). The light that rims him moves from the city's glow to the sun
+(`light`). Waking (`dreamFore`): a white flash gone in a third of a second and the last of the sand blown off him. The sound
+(sk_storyui.js `dreamFrame`): a soft hiss of blowing sand as deep as the dream, cut dead at the waking with a breath drawn in; down
+the face the fall's wind goes with its speed (sk_sfxui.js: quieter and lower while the memory slows it). The thoughts get a soft shade
+under them while the dream is bright behind them. On a screen too short for the floor's band (a phone on its side) the fall's camera
+keeps him whole: `S.camCut.bandS` (sk_pitui.js). `node uiwork/fall48/dreamshot.js <outprefix> w h dpr <secs,...>` photographs the
+fall at chosen seconds; `node uiwork/fall48/dreamprobe.js [w h]` traces its depth, the face's speed, the waking and what the moving
+picture costs.
+
+**The fall as a camera takes it (since V73).** The face: every window is a piece from a set painted once at the screen's scale
+(`facePieces`: ten lit rooms of the house, three of an elf's cyan, three with someone at the glass, eight dark), each in two smears
+for the speed (`fpSmear`, crossed over in narrow bands of speed), the spandrel and the ledge a strip each (softened at speed); the
+glass then holds the night behind him (`glassSky`, full effects: one small picture for each depth of the dream, fixed to the screen
+and laid over the glass column by column, so it stands still while the face goes by); each setback's lights wash the face under them
+(`scallop`); a lit window's light smears down the stone at speed (`spill`). The night: clouds heaped from soft puffs and lit from
+under (`cloudBank`, painted once), the moon's corona and ring, the far towers in the haze, two searchlights sweeping (`beamSpr`), the
+towers' red lights, traffic along the avenues and a plane (`nightLive`). Near the lens, out-of-focus motes go up past him (`bokeh`).
+The Pit: the far side's haze (cold by the rim, the fires' smoke warm by the floor: `farAir`) and its windows' glow are painted into its
+pieces (farTile), and over them live the pools of the lamps and braziers, the signs' glow, mist in bands at three depths and, at full
+effects, two shafts of the moon with dust in them (`pitAir`); the near walls darken back toward the rock and catch the moon on their
+edge (nearTile). Over the finished frame (`post`, run by sk_storyui.js before the thoughts and the bars): the light blooms and runs
+out in a lens's streaks (one small picture, the frame an eighth the size multiplied by itself, laid over the frame once with screen),
+the edges darken in three bands (not along the top, where the moon and the sun are; first, so that a light in a corner keeps its
+glow), and a pixel's grain moves over it on a wide screen. Full effects: all of it; Lite: the dark at the edges; Off: none. Phones
+first: on a phone's 1.2 million pixels in the headless (CPU) canvas the bloom costs about 6 ms, the glass 3.5, the edges 2, the Pit's
+air 3.5, the sand in the windows 2 to 3.5; V73's fall at Full drew 9 to 15 ms a frame over V72's there, at Lite 3 to 6 (a GPU
+canvas pays a small part of that, and a device that cannot keep up drops to Lite by itself). The look suite checks the pass runs on
+every frame the fall draws, the bloom's range, the sand never draining while the dream lasts and gone when he wakes, and that Off
+draws none of it.
 
 **Kael with the coat off (since V46).** From the lobby on (`S.story.flags.coatOff`) his arms are bare: `bareTube` in sk_lookui.js
 builds each from FigKit.tube with `o.prof` (MUS: the width each side at points down the arm: the shoulder's cap, the biceps in front
@@ -597,12 +625,12 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V73 ..." (V72 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V74 ..." (V73 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V72: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V73: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -640,5 +668,13 @@ was checked, and anything that did not work, plainly.
   Anything drawn in pieces there clips to that range (`junkWalls` does), or it pokes out above the far side's top edge.
 - Time a painter on a phone's screen by drawing the same moment over and over with a part left out by turns (as the V72 dream was
   timed): one run against another on this machine differs by 2 ms or more.
+- What a pass over the whole frame costs is its pixels times its blend, and in a CPU canvas it is dear: on a phone's 1.2 million
+  pixels here (Oct 28) one picture laid over all of it costs about 4 to 5 ms whatever the blend, soft-light 8, overlay 5, a pattern
+  scaled up 9 (unscaled 4), a gradient fill 3.5, a solid fill under 1. The V73 fall's first camera pass cost 35 ms there (two screens,
+  a soft-light grade and a scaled overlay grain) and was cut to 6. Lay the bloom and the streaks over in one picture, darken in bands
+  where the dark is, paint into the still pieces what does not move (the Pit's haze and window glow went into its tiles: 13 ms to 3.5),
+  and cull what spans the world to what the screen shows. To time a part, leave it out with a switch for the while (taken out again
+  after) and time it paired, each round against all of it just before, the median of the differences (single runs here wander by
+  4 ms); `node uiwork/fall48/pagesab.js w h dpr <secs,...> <pageA> <pageB> [full|lite|off]` times two builds by turns.
 - In headless Chromium the canvas is rastered on the CPU when it is drawn, so a profile puts most of a frame in `restore`/`drawImage`
   (FXL's `put`); time a painter's own work with performance.now() round it (as `JK.ms` does) rather than from that profile.

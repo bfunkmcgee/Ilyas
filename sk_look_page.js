@@ -260,12 +260,14 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   // time he waits for water on the wire; the memory slows the face going by, and the speed is all back when the tower's foot comes up;
   // the first blow in the Pit wakes him and it is gone at once; the painter draws it while it lasts and never after
   const FALL_EYE_T=await ev(()=>FALL_EYE);
-  const fallEnd=await ev(()=>{const seen=[],Dk=[],F=EnvLook.S.fall,dr={min:1e9,open:null,impAt:null,wokeAt:null,after:0,drawn:0,drawnAfter:0};storyGo('fall');S.storyAuto=true;S.auto=true;step(2);
+  const fallEnd=await ev(()=>{const seen=[],Dk=[],F=EnvLook.S.fall,dr={min:1e9,open:null,impAt:null,wokeAt:null,after:0,drawn:0,drawnAfter:0},cam0={post:F.pfx.n,drawn:F.span.n,bloom:0,sandMax:0,drained:false,sandAfter:0};storyGo('fall');S.storyAuto=true;S.auto=true;step(2);
     let n=0,last=null,n0=F.dream.n,nWoke=null;
     while(S.story&&!S.story.ended&&n<9000){step(1);n++;const th=S.thought,P=S.pit;if(th&&th.text!==last){last=th.text;seen.push(th.text);Dk.push(+fallDream().toFixed(2));}
+      cam0.bloom=Math.max(cam0.bloom,F.pfx.bloom);if(P&&P.woke==null){if(F.sand.max<cam0.sandMax-1e-6)cam0.drained=true;cam0.sandMax=F.sand.max;}else cam0.sandAfter=F.sand.max;
       if(P&&!P.on&&seen.length>2)dr.min=Math.min(dr.min,Math.round(S.scrollYV));if(P&&P.on&&dr.open==null)dr.open=Math.round(P.cv);
       if(P&&P.impT>0&&dr.impAt==null)dr.impAt=S.t;if(P&&P.woke!=null){if(dr.wokeAt==null){dr.wokeAt=P.woke;nWoke=F.dream.n;}dr.after=Math.max(dr.after,fallDream());}}
     dr.drawn=F.dream.n-n0;dr.drawnAfter=nWoke==null?null:F.dream.n-nWoke;dr.same=dr.impAt!=null&&dr.wokeAt===dr.impAt;dr.Dk=Dk;
+    dr.cam={frames:F.span.n-cam0.drawn,post:F.pfx.n-cam0.post,bloom:+cam0.bloom.toFixed(2),sandMax:+cam0.sandMax.toFixed(2),drained:cam0.drained,sandAfter:cam0.sandAfter};
     const K=hero(),P=S.pit,h=K.p[HEAD],c=K.p[CHE],ux=h.x-c.x,Q=P&&P.arm?P.arm.pts.map(q=>pitToW(q.x,q.y)):null;
     const r={n,ended:S.story&&S.story.ended,thoughts:seen.length+'/'+FALL_LINES.length,inOrder:seen.length===FALL_LINES.length&&seen.every((t,i)=>t===FALL_LINES[i][0]),
       eyeLit:K.eyeLit,drain:K.drain,faceUp:(K.facing>0?ux:-ux)<0,look:!!(P&&P.look),armY:Q?Math.round((Q[0].y+Q[1].y+Q[2].y)/3):null,armDrain:P&&P.arm?pitArmDrain(P.arm):null,dream:dr};
@@ -274,7 +276,15 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     fallEnd.ended==='fall'&&fallEnd.inOrder&&fallEnd.eyeLit===FALL_EYE_T&&fallEnd.drain===1&&fallEnd.faceUp&&fallEnd.look&&fallEnd.armY>300&&fallEnd.armY<420&&fallEnd.armDrain===0,JSON.stringify({...fallEnd,dream:undefined}));
   {const d=fallEnd.dream,k=d.Dk;
     expect('the desert in his head as he falls: none at the first thought, deeper with the wire and the wells, back a little with the Sprawl, all of it by the wire again; the face slows and is back to full speed for the Pit; the first blow wakes him, and it is drawn while it lasts and not after',
-      k.length===12&&k[0]===0&&k[2]>=.3&&k[3]>k[4]&&k[11]>=.95&&d.min<900&&d.open>=1700&&d.same&&d.after===0&&d.drawn>40&&d.drawnAfter===0,JSON.stringify(d));}
+      k.length===12&&k[0]===0&&k[2]>=.3&&k[3]>k[4]&&k[11]>=.95&&d.min<900&&d.open>=1700&&d.same&&d.after===0&&d.drawn>40&&d.drawnAfter===0,JSON.stringify(d));
+    // the picture as a camera takes it, over every frame the fall draws: the light blooms (and bursts as he wakes, never past three
+    // times itself); the windows fill with sand as the dream deepens and never drain while it lasts, and the sand is gone with it
+    const c=d.cam;expect('the fall as a camera takes it: the light blooming and the edges darkening over every frame; the windows\' sand only ever rising while the dream lasts, and gone when he wakes',
+      c.frames>100&&c.post===c.frames&&c.bloom>.5&&c.bloom<=1.45&&c.sandMax>=.95&&!c.drained&&c.sandAfter===0,JSON.stringify(c));}
+  // the effects setting: the fall's camera pass at Full and at Lite, and none of it at Off
+  const fxFall=await ev(()=>{storyGo('fall');S.storyAuto=true;S.auto=true;step(2);const F=EnvLook.S.fall,q0=FXL.q,o={};
+    for(const q of ['off','lite','full']){FXL.set(q);const n0=F.pfx.n,d0=F.span.n;step(64);o[q]=F.pfx.n-n0;o[q+'Drawn']=F.span.n-d0;}FXL.set(q0);storyQuit();return o;});
+  expect('the effects setting: the fall\'s camera pass draws at Full and at Lite, and not at all at Off',fxFall.off===0&&fxFall.offDrawn>0&&fxFall.lite===fxFall.liteDrawn&&fxFall.full===fxFall.fullDrawn&&fxFall.full>0,JSON.stringify(fxFall));
   // the prologue opens at sundown: Begin plays it first (it is not a chapter of its own), him on his bike on the road above the farms,
   // upright in the saddle; his three lines in order; the sand blowing past the bike only while he talks about the wire (drawn then, and
   // never otherwise); the sun going down; then he rides off the right edge of the picture and the field begins with him on foot
