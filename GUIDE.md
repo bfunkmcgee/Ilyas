@@ -627,14 +627,19 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   pixels), how light, how varied, how saturated, how much of it is flat black (`empty`), how much of Ilyas's outline reads against
   what is next to it (`hero.read`), and what it costs to draw; and a quarter-size picture of the canvas. The fast-forward to each
   moment is not drawn, then two seconds are; the fall is drawn all the way. About half an hour for all 65 frames.
+- `python3 uiwork/look/hues.py <out>`: from an audit's canvas pictures, each frame's share of the style guide's four colours (gold,
+  sodium orange, cyan, white) in its lit picture, into hues.json; the guide's colour checks read it.
 
 **The visual director (since Nov 2).** The look kept consistent by design rather than by memory, in four phases: (1) the audit,
 done: the Noir Gilt Audit (https://claude.ai/artifact/AmXd4JN8ZqZQ4SbNq6Ae9a) has every place's frames with a verdict (9 hold, 12
 mixed, 6 fall off of 27 views) and notes, the problems that run across places (an upright phone sees past what 19 of 27 views
 paint; the camera's finish lives only in the fall; light drawn as hard wedges and slabs; the Pit by day has no light; Ilyas lost on
 dark ground; the fight's words in four styles; the underground without its lights; no colour script; the crowded fights cost up to
-47 ms here), the colour script as it stands, and the eight decisions below; (2) a style guide for the user to approve, written
-from those decisions; (3) the look held in one place in the code (each place's mood, colours by role, one soft light shape, the
+47 ms here), the colour script as it stands, and the eight decisions below; (2) the style guide, written from those decisions,
+drafted Nov 2 and waiting for the user's approval: the Noir Gilt Style Guide (https://claude.ai/artifact/Lue47W1ygrJFpaUjErsuXM),
+with the look in brief, framing on a phone, colour and the colour script, light, the finish and its budget, fighters against the
+ground, the fight's words, every place's kind and changes, the checks, and phase 3's order; until it is approved the eight
+decisions are the rule; (3) the look held in one place in the code (each place's mood, colours by role, one soft light shape, the
 camera's finish for every place within a phone budget); (4) a reviewer, checks and a lookbook.
 
 **The look's decisions (Nov 2).** Settled with the user, and on the audit page; visual work follows them from now on.
