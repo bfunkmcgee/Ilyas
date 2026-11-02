@@ -633,9 +633,26 @@ done: the Noir Gilt Audit (https://claude.ai/artifact/AmXd4JN8ZqZQ4SbNq6Ae9a) ha
 mixed, 6 fall off of 27 views) and notes, the problems that run across places (an upright phone sees past what 19 of 27 views
 paint; the camera's finish lives only in the fall; light drawn as hard wedges and slabs; the Pit by day has no light; Ilyas lost on
 dark ground; the fight's words in four styles; the underground without its lights; no colour script; the crowded fights cost up to
-47 ms here), the colour script as it stands, and what phase 2 must decide; (2) a style guide for the user to approve, with the
-colour script and target frames; (3) the look held in one place in the code (each place's mood, colours by role, one soft light
-shape, the camera's finish for every place within a phone budget); (4) a reviewer, checks and a lookbook.
+47 ms here), the colour script as it stands, and the eight decisions below; (2) a style guide for the user to approve, written
+from those decisions; (3) the look held in one place in the code (each place's mood, colours by role, one soft light shape, the
+camera's finish for every place within a phone budget); (4) a reviewer, checks and a lookbook.
+
+**The look's decisions (Nov 2).** Settled with the user, and on the audit page; visual work follows them from now on.
+1. An upright phone: push in. On the player's turn the moves cover the band under the floor, as now; when they drop for the action
+   the camera leans in so the place fills the screen (the mock: about 404 world units across on a 412x714 phone, the top near
+   y -90) and the fighters read up to 40% bigger. Places paint more floor where a wide fight would still show black.
+2. The frames to match, one per kind of place: the fall for set pieces, the lobby for rooms, Lamplight Street in the rain for the
+   city at night, the stairs at dusk for the Pit.
+3. Colour by meaning: gold is the gilt and the family's money, cyan is elven light, sodium orange is the city and the poor, white is
+   the man in white. The roof's betrayal drains the gold, the Pit has none, the joining brings it back.
+4. The Pit by day: a warm sun low over the quarry's rim, shafts down the terraces, cool shadows under the walkways.
+5. Light is soft at its edges and fades with distance, drawn by one shared piece; hard geometry stays in the gilt ornament only.
+6. The finish (the glow, the darkened edges, the grain) in every place from one shared pass, at a strength the place sets. Lite keeps
+   only the darkened edges, Off none. The crowded fights get cheaper first.
+7. The fight's words: at most two over the fighters at once (the move's name and its result), in one type style. Routine states
+   (off balance, committed, rises) are shown by the poses and the footing ring, and written in the log.
+8. Darkness: fighters get a thin rim from the place's key light, the ground under them has a floor, and the audit fails any frame
+   where under two thirds of Ilyas's outline reads.
 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
