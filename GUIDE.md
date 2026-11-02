@@ -635,29 +635,42 @@ done: the Noir Gilt Audit (https://claude.ai/artifact/AmXd4JN8ZqZQ4SbNq6Ae9a) ha
 mixed, 6 fall off of 27 views) and notes, the problems that run across places (an upright phone sees past what 19 of 27 views
 paint; the camera's finish lives only in the fall; light drawn as hard wedges and slabs; the Pit by day has no light; Ilyas lost on
 dark ground; the fight's words in four styles; the underground without its lights; no colour script; the crowded fights cost up to
-47 ms here), the colour script as it stands, and the eight decisions below; (2) the style guide, written from those decisions,
-drafted Nov 2 and waiting for the user's approval: the Noir Gilt Style Guide (https://claude.ai/artifact/Lue47W1ygrJFpaUjErsuXM),
-with the look in brief, framing on a phone, colour and the colour script, light, the finish and its budget, fighters against the
-ground, the fight's words, every place's kind and changes, the checks, and phase 3's order; until it is approved the eight
-decisions are the rule; (3) the look held in one place in the code (each place's mood, colours by role, one soft light shape, the
-camera's finish for every place within a phone budget); (4) a reviewer, checks and a lookbook.
+47 ms here), the colour script as it stands, and the eight decisions phase 2 was written from; (2) the style guide, approved by
+the user on Nov 2: the Noir Gilt Style Guide (https://claude.ai/artifact/Lue47W1ygrJFpaUjErsuXM), whose standing rules follow, with
+its companion the Noir Gilt Drawing Guide (https://claude.ai/artifact/PN2fZLGXe4kfyxitjDYejm: detail by depth, the phone's scale,
+the four worlds' shapes, how an object is built, materials, repetition, people and signs, the faults the audit found), drafted Nov 2
+and waiting for approval; (3) the look held in one place in the code, in the style guide's order (the push-in, the look as data, one
+soft light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script); (4) a reviewer, checks and a
+lookbook.
 
-**The look's decisions (Nov 2).** Settled with the user, and on the audit page; visual work follows them from now on.
-1. An upright phone: push in. On the player's turn the moves cover the band under the floor, as now; when they drop for the action
-   the camera leans in so the place fills the screen (the mock: about 404 world units across on a 412x714 phone, the top near
-   y -90) and the fighters read up to 40% bigger. Places paint more floor where a wide fight would still show black.
-2. The frames to match, one per kind of place: the fall for set pieces, the lobby for rooms, Lamplight Street in the rain for the
-   city at night, the stairs at dusk for the Pit.
-3. Colour by meaning: gold is the gilt and the family's money, cyan is elven light, sodium orange is the city and the poor, white is
-   the man in white. The roof's betrayal drains the gold, the Pit has none, the joining brings it back.
-4. The Pit by day: a warm sun low over the quarry's rim, shafts down the terraces, cool shadows under the walkways.
-5. Light is soft at its edges and fades with distance, drawn by one shared piece; hard geometry stays in the gilt ornament only.
-6. The finish (the glow, the darkened edges, the grain) in every place from one shared pass, at a strength the place sets. Lite keeps
-   only the darkened edges, Off none. The crowded fights get cheaper first.
-7. The fight's words: at most two over the fighters at once (the move's name and its result), in one type style. Routine states
-   (off balance, committed, rises) are shown by the poses and the footing ring, and written in the log.
-8. Darkness: fighters get a thin rim from the place's key light, the ground under them has a floor, and the audit fails any frame
-   where under two thirds of Ilyas's outline reads.
+**The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
+1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
+   camera eases in until the place fills the screen (about 404 units across on a 412x714 phone, y -90 to 610), stopping where
+   everyone in the fight still fits. The black under the world's foot (y 500, solid by 540) moves down, and a place paints more
+   ground wherever a wide fight still shows black: the audit's `empty` 5% or less in the action. Story beats frame the same way
+   between the bars; reduced motion cuts instead of gliding; a wide screen is unchanged.
+2. The frames to match: the fall for set pieces, the lobby for rooms (the underground's too), Lamplight Street in the rain for the
+   city at night, the stairs at dusk for the Pit, its rooms too. The road at sundown is a set piece.
+3. Colour by meaning: gold #e2b65a (HUD #e9c46e) is the gilt and the family's money, cyan #7ff3e3 elven light, sodium orange
+   (#ffb25e, #ff8a3c) the city and the poor, white #f2ece0 the man in white alone. The roof's betrayal drains the gold; the Pit has
+   none but what fell with him (his arm on the spike, his cut suit's trim); the joining brings it back. Checked with
+   `uiwork/look/hues.py`: gold under 1% of Act I's lit picture, and at least as much gold as sodium in the family's rooms.
+4. The Pit by day: a pale warm sun (about #ffd6a0, never gilt) low over the quarry's rim, soft shafts down the terraces, cool slate
+   shadows under the walkways; its saturation aims near .3.
+5. Light is soft: its sides feather across at least a quarter of its width at the foot, it fades with distance, and one shared
+   piece in env_look.js draws it, replacing `beam()`, the helicopter's own `beam()`, `glowSprites()` and `liftSpill()`. Hard
+   geometry stays in the gilt ornament.
+6. The finish (glow, darkened edges, grain) in every place from one shared pass. Glow: the fall's .34 to .6 for set pieces, .3 for
+   rooms and the city, .2 for the underground and the Pit; edges .3 to .62, .5 and .62; grain on screens 640 points and up. Lite
+   keeps only the edges, Off none. The pass costs no more than the fall's (6.7 ms at Full, 2.0 at Lite at 412x714), and no place's
+   frame costs more than the fall's in the same audit run (38 ms on Nov 2); the deep station, the kitchen and the dining room come
+   down 10 to 15 ms first.
+7. The fight's words: at most two over the fighters (the move's name and its result), both Alegreya SC in cream #f3ead6; one result
+   word, the biggest (Broken, Disarmed, Guard broken, Tripped or Knocked down, Critical, damage, Blocked); routine states (off
+   balance, committed, rises, down, braces) go to the poses, the footing ring and the log. The enemies' intent boxes on your turn stay.
+8. Darkness: the figures' rim (FigKit) takes each place's key light, its direction and colour, and brightens on ground under .2; the
+   ground behind the fight band never measures under .2 and aims for .28; the audit fails any frame where under two thirds of
+   Ilyas's outline reads, measured with the footing rings and head bars hidden.
 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
