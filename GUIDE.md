@@ -621,6 +621,21 @@ Build a copy first (`python3 build.py --qa`) and point the tools at it with `PAG
 - `node uiwork/pose_light.js <out.png> <ground> kx kz ex ez`: two fighters placed by hand. `node envx/game_shot.js <script.json>`:
   scripted steps on the game's own canvas. `node uiwork/shots.js <prefix> w h dpr [mobile] [load|fight|story]`: the real page.
 Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well as desktop.
+- `node uiwork/look/audit.js <out> [w h dpr] [ids]`: the look audit. Every place the game draws (the story's stages in order and the
+  lab's own grounds) at set moments on auto, shot as the player sees it (412x714 upright by default), with each frame's numbers in
+  audit.json from the game's canvas between the bars: its average colour and what its light is made of (six clusters of the lit
+  pixels), how light, how varied, how saturated, how much of it is flat black (`empty`), how much of Ilyas's outline reads against
+  what is next to it (`hero.read`), and what it costs to draw; and a quarter-size picture of the canvas. The fast-forward to each
+  moment is not drawn, then two seconds are; the fall is drawn all the way. About half an hour for all 65 frames.
+
+**The visual director (since Nov 2).** The look kept consistent by design rather than by memory, in four phases: (1) the audit,
+done: the Noir Gilt Audit (https://claude.ai/artifact/AmXd4JN8ZqZQ4SbNq6Ae9a) has every place's frames with a verdict (9 hold, 12
+mixed, 6 fall off of 27 views) and notes, the problems that run across places (an upright phone sees past what 19 of 27 views
+paint; the camera's finish lives only in the fall; light drawn as hard wedges and slabs; the Pit by day has no light; Ilyas lost on
+dark ground; the fight's words in four styles; the underground without its lights; no colour script; the crowded fights cost up to
+47 ms here), the colour script as it stands, and what phase 2 must decide; (2) a style guide for the user to approve, with the
+colour script and target frames; (3) the look held in one place in the code (each place's mood, colours by role, one soft light
+shape, the camera's finish for every place within a phone budget); (4) a reviewer, checks and a lookbook.
 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
