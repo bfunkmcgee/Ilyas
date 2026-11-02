@@ -629,6 +629,9 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   moment is not drawn, then two seconds are; the fall is drawn all the way. About half an hour for all 65 frames.
 - `python3 uiwork/look/hues.py <out>`: from an audit's canvas pictures, each frame's share of the style guide's four colours (gold,
   sodium orange, cyan, white) in its lit picture, into hues.json; the guide's colour checks read it.
+- `python3 uiwork/look/faults.py <out>`: the drawing guide's two picture faults in each frame, into faults.json: flat lit patches
+  over 2% of the picture (a bare gradient sky counts) and bands that repeat more than once across it. The gilt's bays and the
+  underground's ribs repeat by design; whoever reads the result marks those.
 
 **The visual director (since Nov 2).** The look kept consistent by design rather than by memory, in four phases: (1) the audit,
 done: the Noir Gilt Audit (https://claude.ai/artifact/AmXd4JN8ZqZQ4SbNq6Ae9a) has every place's frames with a verdict (9 hold, 12
@@ -638,10 +641,12 @@ dark ground; the fight's words in four styles; the underground without its light
 47 ms here), the colour script as it stands, and the eight decisions phase 2 was written from; (2) the style guide, approved by
 the user on Nov 2: the Noir Gilt Style Guide (https://claude.ai/artifact/Lue47W1ygrJFpaUjErsuXM), whose standing rules follow, with
 its companion the Noir Gilt Drawing Guide (https://claude.ai/artifact/PN2fZLGXe4kfyxitjDYejm: detail by depth, the phone's scale,
-the four worlds' shapes, how an object is built, materials, repetition, people and signs, the faults the audit found), drafted Nov 2
-and waiting for approval; (3) the look held in one place in the code, in the style guide's order (the push-in, the look as data, one
-soft light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script); (4) a reviewer, checks and a
-lookbook.
+the four worlds' shapes, how an object is built, materials, repetition, people and signs, the faults the audit found), approved
+Nov 2 too, its rules after the look's; and the Noir Gilt Remediation List (https://claude.ai/artifact/XuHtYYHCfBNG47sQBAS7mR), every
+instance in V73 that breaks the two guides (133, in phase 3's order, each with a fixed ID such as P1 or L3 and a status to keep up
+as the work lands); (3) the look held in one place in the code, in the style guide's order (the push-in, the look as data, one soft
+light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
+reviewer, checks and a lookbook.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -671,6 +676,24 @@ lookbook.
 8. Darkness: the figures' rim (FigKit) takes each place's key light, its direction and colour, and brightens on ground under .2; the
    ground behind the fight band never measures under .2 and aims for .28; the audit fails any frame where under two thirds of
    Ilyas's outline reads, measured with the footing rings and head bars hidden.
+
+**The drawing's rules (the drawing guide, approved Nov 2).** How things are drawn; the guide has the tables and the examples.
+1. Detail follows depth in five tiers: far (shapes and lit specks, within .15 of the sky behind), the set (the most detail, above
+   the fight), the fight (the figure kit's), the floor (calm: one material at low contrast, .2 to .4), the foreground (big dark
+   shapes over the fighters, never across a head, at most a tenth of the screen's width each). The set is quiet right behind the
+   heads.
+2. The phone sets the scale: the smallest mark is 1.5 units (1 only for a highlight on a lit edge); one repeat of a texture is 4
+   to 40 units; fine texture is baked into tiles (env_tex.js), never drawn mark by mark in a frame; still layers are painted for the
+   push-in's closest view (about 2.3 pixels per unit); a sign meant to be read is at least 12 units tall.
+3. Four worlds, four shape languages: the gilt upright, exact, mirrored; the city ordered and worn; the underground ribbed, tiled,
+   in a steady beat with breaks; the Pit crooked, patched, stacked, never square, no straight run over 40 units unbroken.
+4. Every object is built in eight steps: silhouette, planes of light from the key, its material's tile, structure, ornament, the
+   world's wear, a light catch with a contact shadow, then the tier's air.
+5. One tile and one light behaviour per material (the drawing guide's table), and no flat fills.
+6. Machine-made things may repeat exactly, lived-in things never; a tile repeats no more than once across 900 units; the Pit's
+   pieces vary by up to a quarter in size, 6 degrees in lean and two fifths in spacing; every choice comes from a seed.
+7. People who are not fighting are drawn with the figure kit's planes and rim, busy and in overlapping groups; world text is
+   Alegreya SC or hand-drawn, never the HUD's Barlow; props tell the place's story or serve the fight.
 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
