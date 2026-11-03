@@ -220,7 +220,7 @@ function live(){const t=S.t,sn=sunNow();ctx.save();
   {const h=TOWER.base-TOWER.top,y=TOWER.top-h*.2,on=Math.pow(Math.max(0,Math.sin(t*2.4)),8);if(on>.02){glow(ctx,TOWER.x,y,7,'#ff3a2a',.8*on);ctx.fillStyle=rgba('#ffd0c0',on);ctx.fillRect(TOWER.x-.6,y-.6,1.2,1.2);}}
   ctx.restore();}
 // the light that rims him and the bike: the sun, low behind on the left
-function light(f){return{light:{x:SUN.x-f.dep*PSX,y:SUN.y0+8+f.dep*PSY}};}
+function light(f){return{light:{x:SUN.x-f.dep*PSX,y:SUN.y0+8+f.dep*PSY},col:'#ffb070'};}
 E.S.outskirts={paint,live,light,sun:sunNow,road:roadD,SUN,HOR};
 })();
 // ===== ENV OUTSKIRTS END =====

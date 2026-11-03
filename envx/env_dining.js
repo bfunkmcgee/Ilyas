@@ -394,7 +394,7 @@ function liveBlown(t){const G=fdG(),r=rng(733);
     const col=u<.25?mix('#8a7a78','#6a5a58',u/.25):'#6a5a58';ctx.fillStyle=rad(ctx,x,y,0,R,[[0,rgba(col,a)],[1,rgba(col,0)]]);ctx.beginPath();ctx.arc(x,y,R,0,TAU);ctx.fill();}
   // embers in the splinters by the doorway
   for(let i=0;i<9;i++){const x=G.px+(r()-.6)*60,d=FAR-4-r()*40,q=pp(x,GB,d),fl=Math.max(0,Math.sin(t*(6+r()*7)+i*2.1));if(fl>.1)glow(ctx,q.x,q.y-.5,3.6,'#ff7a2a',.7*fl);}}
-function light(f){return{dir:{x:.12,y:-1}};}
+function light(f){return{dir:{x:.12,y:-1},col:'#ffd9a0'};}
 // ---------- the room's furniture ----------
 const at=(q,d)=>P(q.x,q.y,d);
 function segP(a,b,d,w,col){const A=at(a,d),B=at(b,d);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();}

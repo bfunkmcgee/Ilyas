@@ -18,7 +18,8 @@ function sceneLayer(k){const need=sceneScale(),lh=sceneLayerH(),v=EnvLook.S[k].k
   if(!L||L.k!==k||L.v!==v||L.lh!==lh||Math.abs(need/L.sc-1)>.15){if(L){L.cv.width=L.cv.height=0;SCENE_LY=null;}
     const cn=document.createElement('canvas');cn.width=Math.ceil(RC.w*need);cn.height=Math.ceil(lh*need);
     const c=cn.getContext('2d'),t0=performance.now();c.setTransform(need,0,0,need,-RC.x0*need,-RC.y0*need);EnvLook.S[k].paint(c);if(SCENE_NIGHT[k])sceneNightLift(c,cn);
-    const B=sceneBandOf(cn,lh);L=SCENE_LY={k,v,cv:cn,sc:need,lh,ms:performance.now()-t0,foot:B.foot,top:B.top,bot:B.bot};SCENE_WARM.planned[k]=true;}
+    if(!EnvLook.S[k].setLive){const G=setOf(k);if(G)setDraw(c,G,RC.x0,RC.w);}
+    const B=sceneBandOf(cn,lh);L=SCENE_LY={k,v,cv:cn,sc:need,lh,ms:performance.now()-t0,foot:B.foot,top:B.top,bot:B.bot,gnd:sceneGrid(cn,lh)};SCENE_WARM.planned[k]=true;}
   return L;}
 // How far a layer is painted (world y), read off a small copy of it: its foot, the lowest row painted across most of the floor's
 // width, where the black under the place starts (render(), sk_ui.js); and the part of it that is not flat black by the audit's test
@@ -64,6 +65,68 @@ function sceneStars(y0,y1){if(!SCENE_STARS){const s=2,cn=document.createElement(
     SCENE_STARS={cv:cn,c:null,p:null};}
   const Z=SCENE_STARS;if(Z.c!==ctx){Z.c=ctx;Z.p=ctx.createPattern(Z.cv,'repeat');if(Z.p&&Z.p.setTransform)Z.p.setTransform(new DOMMatrix().scale(.5));}
   if(!Z.p)return;ctx.fillStyle=Z.p;ctx.fillRect(RC.x0,y0,RC.w,y1-y0);}
+// ---------- the light on the fight (the style guide's rule 8) ----------
+// The ground behind the fight band never measures under .2 and aims for .28, and it gets there by light: each place lays its key
+// light over the floor the fight stands on and the wall behind it (EnvLook.S[k].set, an object, or a function of the moment where it
+// changes with the story or the hour). It goes over the place's picture, under the floor's shadows and the people, in world units,
+// in up to three passes shaped alike: more light on what is painted there (gain: colour-dodge in the key's colour, each surface so
+// many times as light at full, the key's brightest channel the most, black left black); the key's light over it (soft: soft-light
+// in its colour, the darks lifted most and the lights least, the paint's grain and its contrast kept: the main one); and a little
+// light in the air (air: screen in its colour, the darks lifted a touch, so an arch or a doorway is not a hole). The shape: full
+// from y1 to y2, fading to nothing at y0 above the fight and at y3 in front of it; along x0 to x1 an even base, brighter in each
+// pool ([x, half width, 0..1]: a door's, a window's); a ground that scrolls repeats every P units, moved by ox().
+// set: {col, gain, soft, air, y:[y0,y1,y2,y3], x:[x0,x1], base (0..1, default 1), pools, P, ox}
+const SET_W=256,SET_H=40,SET_SPR=new Map();
+const setSS=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
+function setY(G){return G.y||[GB-330,GB-250,GB-40,GB+30];}
+function setX(G){return G.P?[0,G.P]:G.x||[RC.x0,RC.x0+RC.w];}
+// the shape at a point of the band: v down it (0 at y0, 1 at y3), x in world units
+function setProf(G,x,y){const Y=setY(G),vy=y<Y[1]?setSS(Y[0],Y[1],y):y>Y[2]?1-setSS(Y[2],Y[3],y):1;if(vy<=0)return 0;
+  const base=G.base??1;let px=base;if(G.pools)for(const [cx,w,k] of G.pools){let dx=Math.abs(x-cx);if(G.P){dx%=G.P;dx=Math.min(dx,G.P-dx);}if(dx<w){const t=dx/w,b=(1-t*t)*(1-t*t);px=Math.max(px,base+(1-base)*k*b);}}
+  return vy*Math.min(1,px);}
+// the key's colour as the dodge needs it: each channel's own gain, the brightest at G.gain
+function setGains(G){const c=G.col,h=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)/255),m=Math.max(...h,1e-3);return h.map(v=>1+((G.gain||1)-1)*v/m);}
+// (made once for each colour, gain and shape: the dodge's in the key's colour at its gains, the soft light's and the air's one tint)
+function setSprites(G){const key=G.col+'|'+(G.gain||1)+'|'+(G.base??1)+'|'+JSON.stringify(G.pools||0)+'|'+(G.P||0)+'|'+setY(G).join(',')+'|'+setX(G).join(',');
+  let S2=SET_SPR.get(key);if(S2)return S2;if(SET_SPR.size>24)SET_SPR.clear();
+  const X=setX(G),Y=setY(G),gs=setGains(G),cs=gs.map(g=>Math.round((1-1/g)*255)),kc=[1,3,5].map(i=>parseInt(G.col.slice(i,i+2),16)),mk=rgb=>{
+    const cn=document.createElement('canvas');cn.width=SET_W;cn.height=SET_H;const c=cn.getContext('2d'),im=c.createImageData(SET_W,SET_H),d=im.data;
+    for(let j=0;j<SET_H;j++){const y=Y[0]+(Y[3]-Y[0])*(j+.5)/SET_H;for(let i=0;i<SET_W;i++){const x=X[0]+(X[1]-X[0])*(i+.5)/SET_W,a=setProf(G,x,y),o=(j*SET_W+i)*4;
+      d[o]=rgb[0];d[o+1]=rgb[1];d[o+2]=rgb[2];d[o+3]=Math.round(a*255);}}
+    c.putImageData(im,0,0);return cn;};
+  S2={dodge:G.gain>1?mk(cs):null,tint:mk(kc)};SET_SPR.set(key,S2);return S2;}
+function setOf(k){const X=EnvLook.S[k],G=X&&X.set;const v=typeof G==='function'?G():G;return v&&v.col?v:null;}
+// the passes on a canvas c in world units, over x L to L+VW (and its repeats)
+function setDraw(c,G,L,VW){const S2=setSprites(G),X=setX(G),Y=setY(G),w=X[1]-X[0];
+  const ox=G.P&&G.ox?G.ox():0,n0=G.P?Math.floor((L-ox-X[0])/w):0,n1=G.P?Math.floor((L+VW-ox-X[0])/w):0;
+  c.save();
+  for(const [spr,op,a] of [[S2.dodge,'color-dodge',1],[S2.tint,'soft-light',G.soft||0],[S2.tint,'screen',G.air||0]]){if(!spr||!(a>0))continue;c.globalCompositeOperation=op;c.globalAlpha=Math.min(1,a);
+    for(let n=n0;n<=n1;n++){const x0=X[0]+ox+n*w,l=Math.max(L-8,x0),r=Math.min(L+VW+8,x0+w);if(r<=l)continue;
+      const s0=(l-x0)/w*SET_W,s1=(r-x0)/w*SET_W;c.drawImage(spr,s0,0,Math.max(.5,s1-s0),SET_H,l,Y[0],r-l,Y[3]-Y[0]);}}
+  c.restore();}
+// Laid into the place's layer once, as it is painted (sceneLayer): a still place pays nothing a frame for it. A place whose ground is
+// drawn as it moves (setLive: the tunnel's walls, the chase's street, the face of the tower in the fall) has it laid over each frame.
+function sceneSet(k,L,VW){const X=EnvLook.S[k];if(!X||!X.setLive)return;const G=setOf(k);if(G)setDraw(ctx,G,L,VW);}
+// The ground behind a figure, as light as it is drawn (for his rim, sk_figui.js): the layer read once when it is painted (its light
+// laid in), on a grid of 10 units; a place whose ground the layer does not hold (it scrolls, or it is drawn as it moves) says how
+// light it is itself (ground: a number or a function of the figure). Null where nothing is known.
+function sceneGrid(cn,lh){try{const w=RC.w/10,h=Math.ceil(lh/10),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+    g.drawImage(cn,0,0,cn.width,cn.height,0,0,w,lh/10);const d=g.getImageData(0,0,w,h).data,v=new Float32Array(w*h*3);
+    for(let q=0;q<w*h;q++){v[q*3]=d[q*4]/255;v[q*3+1]=d[q*4+1]/255;v[q*3+2]=d[q*4+2]/255;}
+    return{x0:RC.x0,y0:RC.y0,d:10,w,h,v};}catch(e){return null;}}
+// a cell of the grid as the frame draws it: a light laid over each frame (setLive) worked in by the same sums the canvas makes
+const softL=(cb,cs)=>{if(cs<=.5)return cb-(1-2*cs)*cb*(1-cb);const D=cb<=.25?((16*cb-12)*cb+4)*cb:Math.sqrt(cb);return cb+(2*cs-1)*(D-cb);};
+function setLum(G,gs,kc,x,y,r,g,b){const p=G?setProf(G,x,y):0;if(p>0){const f=(cb,q)=>{let c1=cb;if(G.gain>1){const B=cb<=0?0:Math.min(1,cb*gs[q]);c1+=p*(B-c1);}
+      if(G.soft>0)c1+=p*G.soft*(softL(c1,kc[q])-c1);if(G.air>0)c1+=p*G.air*kc[q]*(1-c1);return c1;};r=f(r,0);g=f(g,1);b=f(b,2);}
+  return .2126*r+.7152*g+.0722*b;}
+function sceneGround(f){const k=envKey(),X=k&&EnvLook.S[k];if(!X||!f||!f.p||!f.p[HEAD]||!f.p[FTF])return null;
+  if(X.ground!=null)return typeof X.ground==='function'?X.ground(f):X.ground;
+  const L=SCENE_LY,M=L&&L.k===k?L.gnd:null;if(!M)return null;const d=f.dep||0,cx=(f.p[PEL].x+f.p[CHE].x)/2+d*PSX,y1=Math.max(f.p[FTF].y,f.p[FTB].y)-d*PSY+8,y0=f.p[HEAD].y-d*PSY-12;
+  const i0=clamp(Math.floor((cx-24-M.x0)/M.d),0,M.w-1),i1=clamp(Math.floor((cx+24-M.x0)/M.d),0,M.w-1),j0=clamp(Math.floor((y0-M.y0)/M.d),0,M.h-1),j1=clamp(Math.floor((y1-M.y0)/M.d),0,M.h-1);
+  const G=X.setLive?setOf(k):null,gs=G?setGains(G):null,kc=G?[1,3,5].map(i=>parseInt(G.col.slice(i,i+2),16)/255):null,ox=G&&G.P&&G.ox?G.ox():0;
+  let s=0,n=0;for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const q=(j*M.w+i)*3;s+=setLum(G,gs,kc,M.x0+i*M.d+5-ox,M.y0+j*M.d+5,M.v[q],M.v[q+1],M.v[q+2]);n++;}return n?s/n:null;}
+// his rim on a dark ground: stronger the darker it is under .2, at most 1.8 times at .1 and under
+function sceneRimK(f){const g=sceneGround(f);return g==null?1:1+.8*clamp((.2-g)/.1,0,1);}
 // a piece of the layer drawn elsewhere (source and destination in world units): how the hidden lift's wall section, the lobby lift's
 // leaves and the kitchen's back door move while looking exactly as the layer paints them
 function sceneBlit(c,sx,sy,sw,sh,dx,dy,dw,dh){const L=SCENE_LY;if(!L||!L.cv.width)return false;const s=L.sc;
@@ -161,10 +224,11 @@ V11UI.init.push(()=>{
   drawSky=function(L,T,VW,VH){const k=envKey();if(!k)return _sky(L,T,VW,VH);sceneDraw(k,T);};
   // a scene's own foreground over the fighters (the wind on the roof, the station's hanging lamps and the freight cage's front)
   const _fx=drawFx;drawFx=function(){const k=envKey(),sc=k&&EnvLook.S[k];if(sc&&sc.fore){ctx.save();try{sc.fore(ctx);}catch(e){}ctx.restore();}_fx();};
-  drawFloor=function(){const k=envKey();if(!k)return _floor();const sc=EnvLook.S[k];if(sc.live)sc.live();if(S.arena.wall)(sc.wall||drawWall)();};
-  drawRoom=function(L,T,VW,VH){const k=envKey();if(!k)return _room(L,T,VW,VH);sceneDraw(k,T);SCENE_LIVE[k]();
+  drawFloor=function(){const k=envKey();if(!k)return _floor();const sc=EnvLook.S[k];if(sc.live)sc.live();if(S.arena.wall)(sc.wall||drawWall)();sceneSet(k,cam.x-cam.viewW/2,cam.viewW);};
+  drawRoom=function(L,T,VW,VH){const k=envKey();if(!k)return _room(L,T,VW,VH);sceneDraw(k,T);SCENE_LIVE[k]();sceneSet(k,L,VW);
     const lf=litFrac();if(lf<1){ctx.fillStyle=`rgba(8,3,14,${((1-lf)*.38).toFixed(3)})`;ctx.fillRect(L-40,T-40,VW+80,VH+80);}};
-  kaelLight=function(f){const k=envKey(),sc=k&&EnvLook.S[k];return sc&&sc.light?sc.light(f):_kl(f);};
+  // (the place's key light: where it is, its colour, and how much stronger his rim is on a dark ground there)
+  kaelLight=function(f){const k=envKey(),sc=k&&EnvLook.S[k];if(!(sc&&sc.light))return _kl(f);const L=sc.light(f);return{light:L.light,dir:L.dir,col:L.col||null,rk:f&&f.body?sceneRimK(f):1};};
   drawProp=function(Pp){const k=envKey(),sc=k&&EnvLook.S[k];if(sc&&sc.prop&&sc.prop(Pp))return;_prop(Pp);};
   drawLamp=function(L){const k=envKey(),sc=k&&EnvLook.S[k];if(sc&&sc.lamp&&sc.lamp(L))return;_lamp(L);};
   drawWare=function(it){const k=envKey(),sc=k&&EnvLook.S[k];if(sc&&sc.ware&&sc.ware(it))return;_ware(it);};

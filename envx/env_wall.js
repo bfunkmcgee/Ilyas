@@ -257,7 +257,9 @@ function live(){const t=S.t;ctx.save();
 // the light that falls on a fighter: a torch on the wall while it stands, else the nearer brazier, else the moon
 function light(f){const px=f.p[PEL].x+f.dep*PSX,cands=[];if(!(S.wall&&S.wall.state==='breached'))for(const T of TORCH)cands.push(torchAt(T));for(const B of BRAZ)cands.push(brazAt(B));
   let best=null,bd=1e9;for(const q of cands){const dd=Math.abs(q.x-px);if(dd<bd){bd=dd;best=q;}}
-  if(bd>240)return{dir:{x:-.4,y:-1}};return{light:{x:best.x-f.dep*PSX,y:best.y+f.dep*PSY}};}
-E.S.wall={paint,live,light,wall,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false};
+  if(bd>240)return{dir:{x:-.4,y:-1},col:'#c8d6ff'};return{light:{x:best.x-f.dep*PSX,y:best.y+f.dep*PSY},col:'#ff9e58'};}
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the torches' and the braziers' light on the ground before the wall
+const SET={col:'#ffc59b',soft:1,gain:1.3,air:.04,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.wall={set:SET,paint,live,light,wall,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false};
 })();
 // ===== ENV WALL END =====

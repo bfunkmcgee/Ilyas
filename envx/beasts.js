@@ -134,7 +134,7 @@ function paint(c,ps,mat,env,far,ra,fm){const C=env.col,base=far?(C[mat+'Far']||m
   env.far=!!far;const old=cls?ps.filter(q=>!FigKit.litOK(q,env)):ps;
   // (the current path is let go first: a canvas carries whatever was left in it through every change of transform)
   c.beginPath();
-  if(old.length){const a0=c.globalAlpha,dx=env.L.x*env.rw,dy=env.L.y*env.rw;c.globalAlpha=a0*(far?.38:(ra??1));c.translate(dx,dy);c.fillStyle=C.rim;
+  if(old.length){const a0=c.globalAlpha,dx=env.L.x*env.rw,dy=env.L.y*env.rw;c.globalAlpha=a0*Math.min(1,(far?.38:(ra??1))*FigKit.rimK());c.translate(dx,dy);c.fillStyle=C.rim;
     c.fill(old.length===ps.length?U:unionOf(old));c.translate(-dx,-dy);c.globalAlpha=a0;}
   // (a shape that takes a plane of light is filled flat under it, the plane doing the work the shading wash did)
   fillForm(c,U,base,far||old.length<ps.length?null:fm,env);
@@ -1078,8 +1078,10 @@ function envFor(c,F,o,sp,ctr){const tr=c.getTransform?c.getTransform():null,k=tr
   // game's own F._yaw)
   return{k,fa:F.facing||1,L:Ld,col:sp.col,rw:Math.max(.9,1.25/k)*1.05,lod:k<LOD[0]?0:k<LOD[1]?1:2,sz,now:o.now??(F.t||0),litMin:3.1*sz,planeMax:5.4*sz,far:false,flat:false,
     yaw:+(o.yaw??F._yaw??0)||0};}
-function draw(c,F,o={}){
-  const sp=specOf(F),p=F.p,env=envFor(c,F,o,sp,mix(p[PEL],p[CHE],.5));
+// (the place's key light, sk_figui.js: the rim in its colour; a view of the spec with that rim, kept on the spec for each colour)
+function keyed(sp){const r=FigKit.rimCol(sp.col.rim);if(r===sp.col.rim)return sp;let K=sp._key;if(!K||K.r!==r)K=sp._key={r,v:{...sp,col:{...sp.col,rim:r}}};return K.v;}
+function draw(c,F,o={}){FigKit.useKey(o);
+  const sp=keyed(specOf(F)),p=F.p,env=envFor(c,F,o,sp,mix(p[PEL],p[CHE],.5));
   env.gy=typeof F.gr==='function'?(x=>F.gr(x)):(x=>F.ground??(Math.max(p[FTF].y,p[FTB].y)+3));
   if(sp.kind==='goblin'&&F.half&&F.half.U&&F.half.L){const r=restOnHalves(F,env.gy,env.sz);env.p=r.q;env.half=r.half;}
   else env.p=restOn(F,sp.kind,env.gy,env.sz);
@@ -1088,7 +1090,7 @@ function draw(c,F,o={}){
   c.restore();}
 // a severed piece of the lizard's tail, where the game has it: P = {F: the lizard (colours, size), q: points from the cut end to the
 // tip, i0: the link it was cut at, N}; o as for draw
-function tailPiece(c,P,o={}){const F=P&&P.F;if(!F||!P.q||P.q.length<2)return;const sp=specOf(F);if(sp.kind!=='lizard')return;
+function tailPiece(c,P,o={}){const F=P&&P.F;if(!F||!P.q||P.q.length<2)return;FigKit.useKey(o);const sp=keyed(specOf(F));if(sp.kind!=='lizard')return;
   const env=envFor(c,F,o,sp,P.q[0]);env.gy=x=>1e9;
   const N=P.N||TAIL.N,i0=P.i0||0,R=resample(P.q.map(q=>V(q.x,q.y)),3),m=R.length,span=P.q.length-1,ts=R.map((_,j)=>(i0+j/(m-1)*span)/N);
   c.save();c.lineCap='round';c.lineJoin='round';tailBody(c,R,ts,env,sp,{startCut:true});c.restore();}

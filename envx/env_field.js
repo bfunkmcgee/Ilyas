@@ -188,7 +188,9 @@ function live(){const t=S.t;ctx.save();
   const ey=EY();for(let i=0;i<5;i++){const ph=(t*.9+i*.37)%1,y=lerp(WAT0+2,ey-2,(i*.23+.1)%1),a=Math.sin(ph*Math.PI);ctx.fillStyle=rgba('#f4f6ff',.35*a);ctx.fillRect(MOON.x-4+Math.sin(t*3+i*2)*5,y,6+i%3*2,.7);}
   ctx.restore();}
 // the light that rims a fighter: the moon
-function light(f){return{light:{x:MOON.x-f.dep*PSX,y:MOON.y+f.dep*PSY}};}
-E.S.field={paint,live,light,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false};
+function light(f){return{light:{x:MOON.x-f.dep*PSX,y:MOON.y+f.dep*PSY},col:'#c8d6ff'};}
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the moon on the field behind the fight
+const SET={col:'#d6e0ff',soft:1,y:[GB-340,GB-260,GB-60,GB+20]};
+E.S.field={set:SET,paint,live,light,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false};
 })();
 // ===== ENV FIELD END =====

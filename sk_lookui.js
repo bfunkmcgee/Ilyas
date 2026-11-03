@@ -103,9 +103,9 @@ const LOOKS={
       if(env.flat){c.fillStyle=base;c.fill(U);return;}
       // a shape the light can be worked out for gets its plane of light and a rim where it faces the light (FigKit.light); any other
       // keeps the old rim, the whole shape again nudged toward the light under the shape itself
-      if(RIMMED[mat]&&old.length){const a0=c.globalAlpha,dx=env.L.x*env.rw,dy=env.L.y*env.rw;c.globalAlpha=a0*(env.far?.4:1);c.translate(dx,dy);c.fillStyle=C.rim;c.fill(old.length===ps.length?U:unionOf(old));c.translate(-dx,-dy);c.globalAlpha=a0;}
+      if(RIMMED[mat]&&old.length){const a0=c.globalAlpha,dx=env.L.x*env.rw,dy=env.L.y*env.rw;c.globalAlpha=a0*Math.min(1,(env.far?.4:1)*FigKit.rimK());c.translate(dx,dy);c.fillStyle=FigKit.rimCol(C.rim);c.fill(old.length===ps.length?U:unionOf(old));c.translate(-dx,-dy);c.globalAlpha=a0;}
       c.fillStyle=base;c.fill(U);
-      if(lit)FigKit.light(c,ps,env,{cls:lit,base,light:C.rim,far:env.far});}},
+      if(lit)FigKit.light(c,ps,env,{cls:lit,base,light:FigKit.rimCol(C.rim),far:env.far});}},
   cel:{name:'Clean Cel',line:'#0d0c13',
     col:{suit:['#2b2e3f','#181a25'],suitFar:['#1f2131','#13141c'],skin:['#f3e4d7','#d4b9a8'],skinFar:['#c9b6aa','#a8968c'],shoe:['#23232d','#101016'],shoeFar:['#18181f','#0d0d12'],
       shirt:['#3a3d50','#262838'],shirtFar:['#2a2c3c','#1c1d28'],lapel:['#383d54','#23273b'],coat:['#272a3a','#16171f'],coatFar:['#1e2030','#121219'],hair:['#f6e9b5','#d6bc72'],hairLine:'#c2a95e',hairHi:'#fffbe8',
@@ -117,7 +117,7 @@ const LOOKS={
       c.lineJoin='round';c.strokeStyle=this.line;c.lineWidth=env.ow*2;for(const q of ps)c.stroke(q.p);
       // the pieces as one shape, so joints show no seams: rim along the lit edge, shadow on the far side, the light tone between
       const U=unionOf(ps),rim=RIMMED[mat]&&!env.far&&env.k>1.2,wr=rim?Math.max(.3,.7/env.k):0;
-      c.fillStyle=rim?this.col.rim:shade;c.fill(U);
+      c.fillStyle=rim?FigKit.rimCol(this.col.rim):shade;c.fill(U);
       if(rim){c.save();c.clip(U);c.translate(-L.x*wr,-L.y*wr);c.fillStyle=shade;c.fill(U);c.restore();}
       for(const q of ps){c.save();c.clip(q.p);if(rim){c.translate(-L.x*wr,-L.y*wr);c.clip(U);c.translate(L.x*wr,L.y*wr);}
         const d=Math.max(.6,q.r*.62);c.translate(L.x*d,L.y*d);c.fillStyle=base;c.fill(q.p);c.restore();}}},
@@ -131,7 +131,7 @@ const LOOKS={
       if(env.flat){c.fillStyle=mid(dark,lit,.45);c.fill(unionOf(ps));return;}
       // the rim colour under everything, then each piece's light-to-shadow gradient over all of it but the lit edge
       const U=unionOf(ps),rim=RIMMED[mat]&&!env.far,w=rim?Math.max(.4,.9/env.k):0;
-      if(rim){c.fillStyle=mat==='skin'?this.col.rimSkin:this.col.rim;c.fill(U);}
+      if(rim){c.fillStyle=FigKit.rimCol(mat==='skin'?this.col.rimSkin:this.col.rim);c.fill(U);}
       for(const q of ps){c.save();if(rim){c.translate(-L.x*w,-L.y*w);c.clip(U);c.translate(L.x*w,L.y*w);}
         // a limb is lit across its width only, so the shading runs down it unbroken from one segment to the next
         let G=L,str=1;if(q.u){const lp=sub(L,mul(q.u,dot(L,q.u))),m=len(lp);G=m>.05?mul(lp,1/m):perp(q.u);str=cl(.35+m,0,1);}
@@ -546,7 +546,7 @@ function pinnedSleeve(c,look,env,Sh,u,n,sz,lod,k,mat,C,ua,pinned=true,fa=25*sz,l
   c.clip(sl.p);
   // the cuff folded up over its foot: the top edge of the doubled cloth (dark under a lit edge), and the creases of the empty cloth
   {const f0=pt(.58,3.4),f1=pt(.6,-3.3),m=pt(.66,0);c.beginPath();c.moveTo(f0.x,f0.y);c.quadraticCurveTo(m.x,m.y,f1.x,f1.y);c.stroke();
-    c.strokeStyle=rgbaHex(look.col.rim||'#ffcf86',.3);c.lineWidth=Math.max(.4,.6/k);c.beginPath();c.moveTo(f0.x-hd.x*.9*sz,f0.y-hd.y*.9*sz);c.quadraticCurveTo(m.x-hd.x*.9*sz,m.y-hd.y*.9*sz,f1.x-hd.x*.9*sz,f1.y-hd.y*.9*sz);c.stroke();}
+    c.strokeStyle=rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.3);c.lineWidth=Math.max(.4,.6/k);c.beginPath();c.moveTo(f0.x-hd.x*.9*sz,f0.y-hd.y*.9*sz);c.quadraticCurveTo(m.x-hd.x*.9*sz,m.y-hd.y*.9*sz,f1.x-hd.x*.9*sz,f1.y-hd.y*.9*sz);c.stroke();}
   c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=Math.max(.4,.6/k);for(const [a0,b0,a1,b1] of [[.14,1.8,.5,.6],[.2,-1.6,.48,-.4],[.7,1.6,.94,.4]]){const A=pt(a0,b0),Z=pt(a1,b1);c.beginPath();c.moveTo(A.x,A.y);c.lineTo(Z.x,Z.y);c.stroke();}
   c.restore();
   // Tamm's pin, through the fold
@@ -597,7 +597,7 @@ function coatFly(c,C,o={}){const look=LOOKS[o.look||cfg.look],R=C.rows,Cn=C.cols
   // cell by cell, far ones first; a cell turned over shows the lining
   const cells=[];for(let r=0;r<R-1;r++)for(let j=0;j<Cn-1;j++)cells.push({r,j,z:(Z(r,j)+Z(r,j+1)+Z(r+1,j)+Z(r+1,j+1))/4});
   cells.sort((A,B)=>B.z-A.z);
-  const coatC=tone(look,'coat',false,0),coatD=tone(look,'coat',false,1)||coatC,lin=mid(tone(look,'lining',false,0),coatC.length===7?coatC:'#0c0b11',.62),rimC=look.col.rim||'#ffcf86';
+  const coatC=tone(look,'coat',false,0),coatD=tone(look,'coat',false,1)||coatC,lin=mid(tone(look,'lining',false,0),coatC.length===7?coatC:'#0c0b11',.62),rimC=FigKit.rimCol(look.col.rim||'#ffcf86');
   for(const e of cells){const a=at(e.r,e.j),b=at(e.r,e.j+1),d=at(e.r+1,e.j+1),f=at(e.r+1,e.j),ar=((b.x-a.x)*(f.y-a.y)-(b.y-a.y)*(f.x-a.x))*C.fa;
     const Q=new Path2D();Q.moveTo(a.x,a.y);Q.lineTo(b.x,b.y);Q.lineTo(d.x,d.y);Q.lineTo(f.x,f.y);Q.closePath();
     c.fillStyle=ar<0?lin:coatC;c.globalAlpha=ar<0?.8:1;c.fill(Q);c.globalAlpha=1;c.strokeStyle=ar<0?lin:coatC;c.lineWidth=Math.max(.6,1.1/k);c.stroke(Q);
@@ -638,7 +638,7 @@ function torsoBody(T,D){return[[-.25*T,-6.6,4.2],[-.17*T,-8.4,5.8],[-.1*T,-8.8*D
   [.72*T,-8.9*D,10*D],[.86*T,-8.8*D,9.2*D],[.97*T,-6.2,7.8*D],[T+.4,-4.4,5.2],[T+1.4,-3.3,3],[T+2.6,-2.6,1]];}
 const SEEN=new WeakMap();
 function draw(c,F,o={}){
-  headPaths();
+  headPaths();FigKit.useKey(o);
   // (F.wear: Act I, the Pit, and what he wears there, in the Pit's colours: {top: 'bare' or 'shirt', coat ('oilcloth'), scarf, feet:
   // 'bare' or 'boots', belt, bandage}. F.oneArm: the arm he has left is the rig's front arm, the one that holds a weapon, and it is his
   // left: it is drawn on his far side, and the near shoulder carries what is left of the other)
@@ -686,7 +686,7 @@ function draw(c,F,o={}){
   const coatOff=!WEAR&&!!F.coatOff,coatOn=out.coat&&!coatOff,shield=coatOn&&!TN&&!WEAR?ease(F.coatShield||0):0,shred=coatOn&&!WEAR?cl(F.coatShred||0,0,1):0;let shieldAt=null;
   const hq0=p0[HAF],hsp=hq0.px!=null&&typeof DT!=='undefined'?Math.hypot(hq0.x-hq0.px,hq0.y-hq0.py)/DT:0,glowK=(1+((o.opening||F.opening)?.8:0)+cl(hsp/800,0,.6)+cl(F.flare||0,0,1.4));
   // the tears on one piece of cloth, kept inside it (AT: where a place on a turned torso is seen)
-  const rips=F.rips||[],gore=o.gore||null,rim=look.col.rim||'#ffcf86',colOf=(key,f)=>{const v=look.col[key];return Array.isArray(v)?v[1]:v||f;};let skirt=null;
+  const rips=F.rips||[],gore=o.gore||null,rim=FigKit.rimCol(look.col.rim||'#ffcf86'),colOf=(key,f)=>{const v=look.col[key];return Array.isArray(v)?v[1]:v||f;};let skirt=null;
   const tear=(g,clip,under,cc=c,AT=null)=>{if(!rips.some(r=>r.g===g))return;const acc={hole:new Path2D(),gore:new Path2D(),rim:new Path2D()};
     for(const r of rips){if(r.g!==g)continue;let ctr,d;
       if(g==='skirt'){if(!skirt)continue;const top=mix(skirt.HF,skirt.HB,r.t),bot=skirt.base(r.t);ctr=mix(top,bot,r.v);const h=nrm(sub(skirt.bk,skirt.fr));d=add(mul(h,Math.cos(r.ang)),mul(perp(h),Math.sin(r.ang)*fa));}
@@ -716,10 +716,10 @@ function draw(c,F,o={}){
   // a hand at rest, open (F.openHand, when it holds nothing): the palm and the fingers together, a little curled, the thumb along it
   const openHand=(H,g,s)=>{const q=perp(g),k=1.12,pt=(a,bb)=>add(H,add(mul(g,a*s*k),mul(q,bb*s*k)));
     return piece([pt(-2.8,-2.5),pt(1.4,-2.8),pt(4.8,-2.5),pt(7.8,-1.8),pt(9.6,-.6),pt(9.5,.9),pt(7.6,1.9),pt(4.2,2.5),pt(1.6,2.9),pt(-.6,4.3),pt(-2.4,3.9),pt(-3.3,.6)],.5);};
-  const foldCol={lit:rgbaHex(look.col.rim||'#ffcf86',.26),dark:'rgba(0,0,0,.55)'},foldFar={lit:rgbaHex(look.col.rim||'#ffcf86',.12),dark:'rgba(0,0,0,.3)',far:true};
+  const foldCol={lit:rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.26),dark:'rgba(0,0,0,.55)'},foldFar={lit:rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.12),dark:'rgba(0,0,0,.3)',far:true};
   // a bare arm: the shoulder's swell, the upper arm and the forearm in skin, the tattoos in their light, a leather wrap at the wrist
   const bareArm=(A,far)=>{const wr=capsule(sub(A.W,mul(A.fd,.7*sz)),add(A.W,mul(A.fd,.9*sz)),5.9*sz,5.6*sz);
-    paint([A.tb],'skin',far);muscleLines(c,A.tb,look.col.rim||'#ffcf86',env.L,lod,k,far);
+    paint([A.tb],'skin',far);muscleLines(c,A.tb,FigKit.rimCol(look.col.rim||'#ffcf86'),env.L,lod,k,far);
     tattoo(c,A.S,A.E,A.W,8.8*sz,6.2*sz,k,lod,glowK,far,now,far?3:7,{dr:F.drain,L:env.L,scar:isNoir(look)?SCAR_DEF:SCAR_LIGHT,clip:A.tb.p});if(!WEAR)paint([wr],'band',far);
     if(!far){const q=perp(A.fd),e=sub(A.W,mul(A.fd,.2*sz));goldLine(c,look,env,[add(e,mul(q,2.9*sz)),sub(e,mul(q,2.9*sz))],lod,.7,true);}};
   // the far arm, and the dagger in its hand
@@ -802,7 +802,7 @@ function draw(c,F,o={}){
   const footDetail=(S,kind,far,Kn,A)=>{const pt=S.pt,ln=(pts,col,w,a=1)=>{c.strokeStyle=col;c.lineWidth=w;c.globalAlpha=a*(far?.7:1);c.beginPath();c.moveTo(pts[0].x,pts[0].y);
       if(pts.length===3)c.quadraticCurveTo(pts[1].x,pts[1].y,pts[2].x,pts[2].y);else for(const q of pts.slice(1))c.lineTo(q.x,q.y);c.stroke();},
       fill=(pts,col,a=1)=>{c.fillStyle=col;c.globalAlpha=a*(far?.75:1);c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(const q of pts.slice(1))c.lineTo(q.x,q.y);c.closePath();c.fill();},
-      rimC=look.col.rim||'#ffcf86',lace=tone(look,'rope',far)||'#5c4c33',fr=!!S.front,
+      rimC=FigKit.rimCol(look.col.rim||'#ffcf86'),lace=tone(look,'rope',far)||'#5c4c33',fr=!!S.front,
       // (the toes from the front: the big toe on the inside, each smaller out to the little one, along the front of the foot)
       toes=y0=>{const inn=TN&&VW?(VW.px>A.x?1:-1):1,sk=tone(look,'skin',far);c.globalAlpha=far?.8:1;
         const T=[[0,1.05],[1,.82],[2,.74],[3,.66],[4,.57]].map(([i,r])=>({i,r,t:pt(inn*(2.5-i*1.27)+inn*(i?0:.1),y0+(1-r)*.7)}));
@@ -1108,7 +1108,7 @@ FigKit.folds(c,L.tb,env,far?foldFar:foldCol);tear(side>0?'legN':'legF',L.tb.p,fa
     if(flap>.3){const nade=F.nade??F.grenade==='coat',G=fAt(.58,.27),ax=nrm(sub(fAt(.58,.4),G)),bx=perp(ax),gs=sz*1.15,A=add(G,mul(bx,-5.4*gs)),B=add(G,mul(bx,5.4*gs)),al=cl((flap-.3)/.25,0,1);
       c.save();c.globalAlpha*=al;
       if(nade){c.save();c.translate(G.x,G.y);c.rotate(Math.atan2(ax.y,ax.x)-Math.PI/2);c.fillStyle='#2b3324';c.strokeStyle='#0a0c08';c.lineWidth=Math.max(.5,.8*gs);
-        c.beginPath();c.ellipse(0,0,3.1*gs,3.9*gs,0,0,TAU);c.fill();c.stroke();c.strokeStyle=look.col.rim||'#ffcf86';c.globalAlpha*=.55;c.lineWidth=Math.max(.4,.5*gs);c.beginPath();c.ellipse(0,0,3.1*gs,3.9*gs,0,Math.PI*1.05,Math.PI*1.75);c.stroke();c.globalAlpha/=.55;c.fillStyle='rgba(190,210,150,.22)';c.beginPath();c.ellipse(-1*gs,-1.2*gs,1.1*gs,1.7*gs,0,0,TAU);c.fill();
+        c.beginPath();c.ellipse(0,0,3.1*gs,3.9*gs,0,0,TAU);c.fill();c.stroke();c.strokeStyle=FigKit.rimCol(look.col.rim||'#ffcf86');c.globalAlpha*=.55;c.lineWidth=Math.max(.4,.5*gs);c.beginPath();c.ellipse(0,0,3.1*gs,3.9*gs,0,Math.PI*1.05,Math.PI*1.75);c.stroke();c.globalAlpha/=.55;c.fillStyle='rgba(190,210,150,.22)';c.beginPath();c.ellipse(-1*gs,-1.2*gs,1.1*gs,1.7*gs,0,0,TAU);c.fill();
         c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.3,.4*gs);for(const yy of [-1.6,0,1.6]){c.beginPath();c.moveTo(-3*gs,yy*gs);c.lineTo(3*gs,yy*gs);c.stroke();}
         c.fillStyle='#8e95a3';c.fillRect(-1.3*gs,-5.6*gs,2.6*gs,2*gs);c.fillRect(1*gs,-5.4*gs,1*gs,5.2*gs);c.strokeStyle='#c8ccd4';c.lineWidth=Math.max(.4,.6*gs);c.beginPath();c.arc(-2.2*gs,-5*gs,1.4*gs,0,TAU);c.stroke();c.restore();}
       c.strokeStyle='#1e130b';c.lineWidth=2.6*gs;c.lineCap='butt';c.beginPath();c.moveTo(A.x,A.y);c.quadraticCurveTo(G.x+ax.x*(nade?-1.2:.8)*gs,G.y+ax.y*(nade?-1.2:.8)*gs,B.x,B.y);c.stroke();
@@ -1166,12 +1166,12 @@ function armStump(c,look,env,Sh,u,n,sz,coatOff,gore,lod,k,seared){const d=nrm(ad
   if(!coatOff){c.strokeStyle=tone(look,'lining',false,0)||'#45d8c8';c.globalAlpha=.6;c.lineWidth=Math.max(.3,.45*sz);c.stroke();c.globalAlpha=1;}}
 // the arm itself, torn away and left behind (on the spike in the Pit): its torn top at A.S, the elbow at A.E, the hand at A.H, in the
 // frame it is drawn in. o: {look, light, gore (its colour), coatOff, sz (the man's size), fa, drain (as F.drain: its tattoos scars)}
-function armPiece(c,A,o={}){
+function armPiece(c,A,o={}){FigKit.useKey(o);
   const look=LOOKS[o.look||cfg.look],tr=c.getTransform?c.getTransform():null,k=tr&&tr.a!=null?Math.hypot(tr.a,tr.b)||1:2,sz=o.sz||1,lod=k<2.4?0:k<5?1:2;
   const env={k,fa:o.fa||1,L:o.light?nrm(sub(o.light,A.E)):V(.5,-1),far:false,rw:Math.max(.9,1.25/k)*1.05,ow:Math.max(.55,1.05/k)},paint=(ps,mat)=>look.paint(c,ps,mat,env);
   const S0=A.S,E=A.E,Hd=A.H,fd=nrm(sub(Hd,E)),W=sub(Hd,mul(fd,3.6*sz)),ud=nrm(sub(S0,E)),q=perp(ud);
   c.save();c.lineCap='round';c.lineJoin='round';
-  if(o.coatOff){const W0=sub(W,mul(fd,.2*sz)),tb=bareTube(S0,E,W0,sz,lod===0,armFront(S0,E,W0,V(o.fa||1,0)));paint([tb],'skin');muscleLines(c,tb,look.col.rim||'#ffcf86',env.L,lod,k,false);
+  if(o.coatOff){const W0=sub(W,mul(fd,.2*sz)),tb=bareTube(S0,E,W0,sz,lod===0,armFront(S0,E,W0,V(o.fa||1,0)));paint([tb],'skin');muscleLines(c,tb,FigKit.rimCol(look.col.rim||'#ffcf86'),env.L,lod,k,false);
     tattoo(c,S0,E,W,8.8*sz,6.2*sz,k,lod,1,false,0,7,{dr:o.drain??1,L:env.L,scar:isNoir(look)?SCAR_DEF:SCAR_LIGHT,clip:tb.p});
     paint([capsule(sub(W,mul(fd,.7*sz)),add(W,mul(fd,.9*sz)),5.9*sz,5.6*sz)],'band');}
   else{paint([capsule(S0,E,8.4*sz,6.4*sz),capsule(E,sub(W,mul(fd,.2*sz)),6.3*sz,5.1*sz)],'suit');paint([capsule(sub(W,mul(fd,.4*sz)),add(W,mul(fd,1*sz)),4.9*sz,4.6*sz)],'shirt');
@@ -1281,7 +1281,7 @@ function headRound(c,F,look,hair,env,lod,o,s,h,thw,fa,hy){
   const open=!!o.opening||!!F.opening,dr=eyeDr(F),eyeC=mid(open?look.col.open:noir?look.col.eye:look.col.iris,EYE_DULL,dr);
   // (close up and facing the viewer, the face's own shapes: on the dark skin they are where the light catches them, on the side it
   // comes from (lit: that side's lateral sign), and in shadow across from it; his brows as pale as his hair)
-  const hc=Math.cos(hy),hs=Math.sin(hy),Pm=(f,y,l)=>V(f*hc+l*hs,y),front=cl((HV.noseZ-.25)/.5,0,1),lit=(Lh.x*hs<0?-1:1),rimC=look.col.rim||'#ffcf86';
+  const hc=Math.cos(hy),hs=Math.sin(hy),Pm=(f,y,l)=>V(f*hc+l*hs,y),front=cl((HV.noseZ-.25)/.5,0,1),lit=(Lh.x*hs<0?-1:1),rimC=FigKit.rimCol(look.col.rim||'#ffcf86');
   const face=lod>=1&&front>0,dark=noir||isNoir(look);
   if(face){c.save();c.clip(HV.skull);c.lineCap='round';
     const ln=(pts,col,w,a)=>{c.strokeStyle=col;c.lineWidth=w;c.globalAlpha=a*front;c.beginPath();c.moveTo(pts[0].x,pts[0].y);if(pts.length===3)c.quadraticCurveTo(pts[1].x,pts[1].y,pts[2].x,pts[2].y);else for(const q of pts.slice(1))c.lineTo(q.x,q.y);c.stroke();};
@@ -1357,7 +1357,7 @@ function kaelWind(f){const sc=S.arena&&S.arena.scroll?(S.scrollV||0):0;
   return 0;}
 function drawKael(f){
   const L=kaelLight(f),drawing=f.sheath&&S.t<f.sheath.t0+f.sheath.out&&f.scab===f.weaponKey;
-  KaelLook.draw(ctx,f,{light:L.light,dir:L.dir,now:S.t,wind:kaelWind(f),yaw:f._yaw||0,spin:f._spinU,headYaw:f._headYaw??(f.headTurn||undefined),latArm:f._latArm,latLeg:f._latLeg,latKnee:f._latKnee,latFoot:f._latFoot,phys:f._phys,opening:!!(S.opening&&S.opening.f===f),arcSt:f.weaponKey==='elven'?arcState(f):null,gore:S.gore!=='off'?GORE_COL[S.gore].mark:null,
+  KaelLook.draw(ctx,f,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,wind:kaelWind(f),yaw:f._yaw||0,spin:f._spinU,headYaw:f._headYaw??(f.headTurn||undefined),latArm:f._latArm,latLeg:f._latLeg,latKnee:f._latKnee,latFoot:f._latFoot,phys:f._phys,opening:!!(S.opening&&S.opening.f===f),arcSt:f.weaponKey==='elven'?arcState(f):null,gore:S.gore!=='off'?GORE_COL[S.gore].mark:null,
     lookBack:!!(f.look&&tacLook(f)<-.4),bladeOK:!drawing,drawOther:drawWeapon,afterFarArm:f.sidearm==='offhand'?drawOffDagger:null,afterTorso:f.scab&&!f.dead?drawScabbard:null});
   if(f.severed&&S.gore!=='off'){ctx.fillStyle=GORE_COL[S.gore].mark;circ(f.p[CHE],f.body.torsoW*.34);}
   drawMarks(f);}

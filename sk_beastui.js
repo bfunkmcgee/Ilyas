@@ -6,7 +6,7 @@
 {const ei=envItems;envItems=function(items){ei(items);for(const P of S.tailBits||[])items.push({d:P.dep+.015,tailBit:P});};}
 {const de=drawEnvItem;drawEnvItem=function(it){if(it.tailBit){drawTailBit(it.tailBit);return true;}return de(it);};}
 function drawTailBit(P){ctx.save();ctx.translate(P.dep*PSX,-P.dep*PSY);
-  try{if(typeof BeastLook!=='undefined'&&BeastLook.tailPiece&&!S.classicLook){const L=kaelLight(P.F);BeastLook.tailPiece(ctx,P,{light:L.light,dir:L.dir,now:S.t});}
+  try{if(typeof BeastLook!=='undefined'&&BeastLook.tailPiece&&!S.classicLook){const L=kaelLight(P.F);BeastLook.tailPiece(ctx,P,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t});}
     else{// plainly: a tapering dark shape along the chain, the cut end red
       const q=P.q,n=q.length;ctx.lineCap='round';ctx.strokeStyle='#15140f';
       for(let i=0;i<n-1;i++){ctx.lineWidth=Math.max(1,tailW(P.F,(P.i0+i)/TAIL.N)*.9);ctx.beginPath();ctx.moveTo(q[i].x,q[i].y);ctx.lineTo(q[i+1].x,q[i+1].y);ctx.stroke();}

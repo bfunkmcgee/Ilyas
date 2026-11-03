@@ -160,7 +160,9 @@ function live(){const t=S.t;ctx.save();
   ctx.globalAlpha=.06;for(let i=0;i<5;i++){const x=((t*6+i*230)%1300)-200,q=gp(x,150+i*22);ctx.fillStyle=rad(ctx,q.x,q.y,0,120,[[0,'#a8b4d0'],[1,rgba('#a8b4d0',0)]]);ctx.save();ctx.translate(q.x,q.y);ctx.scale(1,.16);ctx.beginPath();ctx.arc(0,0,120,0,TAU);ctx.fill();ctx.restore();}
   ctx.restore();}
 // the light that rims a fighter: the moon over the crest
-function light(f){return{light:{x:MOON.x-f.dep*PSX,y:MOON.y+f.dep*PSY}};}
-E.S.hill={paint,live,light,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false};
+function light(f){return{light:{x:MOON.x-f.dep*PSX,y:MOON.y+f.dep*PSY},col:'#c8d6ff'};}
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the moon on the hill's grass behind the fight
+const SET={col:'#d6e0ff',soft:1,y:[GB-340,GB-260,GB-60,GB+20]};
+E.S.hill={set:SET,paint,live,light,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false};
 })();
 // ===== ENV HILL END =====

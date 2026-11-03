@@ -541,9 +541,14 @@ function spikePaint(w,h,P){const cvs=document.createElement('canvas');cvs.width=
   return{cv:cvs,w,h,s,G,k:P.key};}
 // the light that rims a man on the stair: at dusk the nearest lamp, else the daylight from far above
 function light(f){const P=K.pal();if(P.key==='dusk'){const px=f.p[PEL].x+f.dep*PSX;let best=RAIL.lamps[0],bd=1e9;for(const lx of RAIL.lamps){const dd=Math.abs(lx-px);if(dd<bd){bd=dd;best=lx;}}
-    const q=Q(best+14,sy(best)+104,Y().rail.d);return{light:{x:q.x-f.dep*PSX,y:q.y+f.dep*PSY}};}
-  return{light:{x:500-f.dep*PSX,y:-340+f.dep*PSY}};}
+    const q=Q(best+14,sy(best)+104,Y().rail.d);return{light:{x:q.x-f.dep*PSX,y:q.y+f.dep*PSY},col:'#ffbe78'};}
+  return{light:{x:500-f.dep*PSX,y:-340+f.dep*PSY},col:P.light};}
 const LAYOUT={edge:EDGE,face:FACE,rail:RAIL,down:DOWN,flight};
-E.S.stairs={paint,live,fore,light,key,pieces,LAYOUT};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): by day the Pit's light on the treads and the
+// walls by them; at dusk the lamps', stronger, the light going; at night what little the lamps give. The stairs climb, so the band
+// is tall: from over the top landing's heads to the bottom landing's floor
+const SETS={day:{col:'#f5ebd3',soft:.8,y:[GB-470,GB-380,GB-60,GB+20]},morning:{col:'#ebf2fa',soft:.8,y:[GB-470,GB-380,GB-60,GB+20]},
+  dusk:{col:'#ffce9a',soft:1,gain:1.6,air:.07,y:[GB-470,GB-380,GB-60,GB+20]},night:{col:'#9ba3c7',soft:1,gain:1.4,air:.05,y:[GB-470,GB-380,GB-60,GB+20]}};
+E.S.stairs={set:()=>SETS[K.pal().key]||SETS.day,paint,live,fore,light,key,pieces,LAYOUT};
 })();
 // ===== ENV STAIRS END =====

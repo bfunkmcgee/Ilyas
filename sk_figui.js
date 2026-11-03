@@ -115,6 +115,17 @@ function mixHex(a,b,u){const k=a+b+u.toFixed(3);if(MIXC[k])return MIXC[k];const 
 // a shape the light is worked out for: one the look has marked as a main form, big enough to carry a plane (env.litMin; the small
 // parts, a cuff, a collar, a button, keep the plain rim the look gives them), and at the game's own size not on the far side of him
 function litOK(q,env){return!!q&&!!q.lit&&q.r>=(env.litMin||0)&&!(env.far&&(env.k||1)<2.4);}
+// ---------- the key light ----------
+// Each place's key light (its light(f), sk_scene_glue.js) gives the rim its colour as well as its direction (the style guide's rule
+// 8): a figure's drawing starts with useKey(o), and every rim, lit plane, fold and edge of light it draws takes the key's colour
+// (rimCol) brought up to a rim's brightness, its hue kept: the brightest channel full, then toward white until it is at least .72
+// light. Where the ground behind him is darker than .2 the place says so (o.rimK, over 1) and the rim is laid on stronger and wider.
+// No key (the lab's old drawing, a look on its own page) keeps each look's own rim colour.
+const KEY={col:null,k:1},RIMC=new Map();
+function rimOf(h){let v=RIMC.get(h);if(v)return v;let [r,g,b]=hex(h);const m=Math.max(r,g,b,1);r*=255/m;g*=255/m;b*=255/m;
+  const L=(.2126*r+.7152*g+.0722*b)/255,u=L<.72?(.72-L)/(1-L):0;v='#'+[r,g,b].map(x=>Math.round(x+(255-x)*u).toString(16).padStart(2,'0')).join('');RIMC.set(h,v);return v;}
+function useKey(o){KEY.col=o&&typeof o.key==='string'&&o.key[0]==='#'&&o.key.length===7?rimOf(o.key):null;KEY.k=o&&o.rimK>1?Math.min(2,o.rimK):1;}
+const rimCol=c=>KEY.col||c,rimK=()=>KEY.k;
 // After a shape's base fill: its plane of light, its sheen (for the materials that have one), and its rim, along the lit runs of its
 // outline. env: {L (toward the light, unit), rw (the rim's width), k (the drawing scale)}; o: {cls, base, light (its colour), far}
 function light(c,ps,env,o){let some=false;for(const q of ps)if(litOK(q,env)){some=true;break;}if(!some)return;
@@ -150,8 +161,9 @@ function light(c,ps,env,o){let some=false;for(const q of ps)if(litOK(q,env)){som
         if(lv!==cur){const a=V(O[i].x-N[i].x*rw*.5,O[i].y-N[i].y*rw*.5);RM[lv].moveTo(a.x,a.y);cur=lv;anyR[lv]=true;}RM[lv].lineTo(b.x,b.y);}}}
   if(any){c.fillStyle=planeCol;c.fill(PL);}
   if(anyS){c.fillStyle=specCol;c.fill(SP);}
-  if(anyR[0]||anyR[1]){const a0=c.globalAlpha;c.lineCap='butt';c.lineJoin='bevel';c.strokeStyle=o.light;c.lineWidth=rw;
-    if(anyR[0]){c.globalAlpha=a0*K.rim*.5*(far?.4:1);c.stroke(RM[0]);}if(anyR[1]){c.globalAlpha=a0*K.rim*(small?.85:1)*(far?.4:1);c.stroke(RM[1]);}c.globalAlpha=a0;}}
+  // (on a dark ground the rim is laid on stronger, and wider by half as much again)
+  if(anyR[0]||anyR[1]){const a0=c.globalAlpha,bk=KEY.k;c.lineCap='butt';c.lineJoin='bevel';c.strokeStyle=o.light;c.lineWidth=rw*(1+(bk-1)*.5);
+    if(anyR[0]){c.globalAlpha=a0*Math.min(1,K.rim*.5*(far?.4:1)*bk);c.stroke(RM[0]);}if(anyR[1]){c.globalAlpha=a0*Math.min(1,K.rim*(small?.85:1)*(far?.4:1)*bk);c.stroke(RM[1]);}c.globalAlpha=a0;}}
 // folds where a limb is bent: the cloth bunched on the inside of the joint, a few short creases fanning from it, caught by the light
 // on the lit side and dark on the other
 function folds(c,tb,env,o){if(!tb.folds||!tb.folds.length)return;const L=env.L,k=env.k||1;if(o.far&&k<2.4)return;
@@ -344,7 +356,7 @@ function headView(M,hy){const c=Math.cos(hy),s=Math.sin(hy),P=q=>V(q[0]*c+q[2]*s
   // the line of the mouth and the nose's tip
   out.mouth=[P([M.chin[0]+6,37,-6]),P([M.chin[0]+8,37.5,0]),P([M.chin[0]+6,37,6])];out.noseTip=P([M.nose[0],M.nose[1],0]);out.noseZ=Z([1,0,0]);
   return out;}
-return{V,add,sub,mul,len,nrm,perp,mix,dot,cross,cl,ss,curvePts,pathOf,normals,piece,outlined,capsule,tube,light,litOK,folds,CLS,mixHex,inPoly,segDist,
+return{V,add,sub,mul,len,nrm,perp,mix,dot,cross,cl,ss,curvePts,pathOf,normals,piece,outlined,capsule,tube,light,litOK,folds,CLS,mixHex,inPoly,segDist,useKey,rimCol,rimK,rimOf,
   view,wrap,spinYaw,headYaw,torsoMap,seen,hull,cone,ellOutline,ellPt,ellPatch,loopPath,headModel,headView};
 })();
 // ===== FIGURE KIT END =====

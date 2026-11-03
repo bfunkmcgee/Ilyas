@@ -419,8 +419,13 @@ V11UI.init.push(()=>{try{
   sync();}catch(e){}});
 V11UI.init.push(()=>sync());
 return{on,full,frame,shadows,front,grade,fx,put,done,set,lights:XL,get q(){return Q.q;},get auto(){return Q.auto;},get user(){return Q.user;},
-  // (for the checks: the sprite a fighter was drawn into this frame, and where it sits on the canvas)
-  sprite:f=>REC.get(f)||null,offsetOf:c=>{for(const R of REC.values())if(R.g===c)return{x:R.x,y:R.y};return{x:0,y:0};},
+  // (for the checks: the sprite a fighter was drawn into this frame, and where it sits on the canvas; and how much of the moment's
+  // impact is on him, 0 to 1: struck white, or an impact's flash where he is)
+  sprite:f=>REC.get(f)||null,
+  struck:f=>{let k=0;const h=HP.get(f);if(h){const u=Math.max((S.t-h.t0)/.13,(performance.now()-h.r0)/250);if(u>=0&&u<1)k=1-u;}
+    if(f&&f.p&&f.p[CHE]){const cx=prjX(f.p[CHE].x,f.dep),cy=prjY(f.p[CHE].y,f.dep);for(const b of BURST){const u=(S.t-b.t0)/b.life;if(u<0||u>=1)continue;const a=1-u,R=b.r+70,d=Math.hypot(prjX(b.x,b.d)-cx,prjY(b.y,b.d)-cy);
+      if(d<R)k=Math.max(k,Math.min(1,b.k*a*a*(1-d/R)));}}
+    return k;},offsetOf:c=>{for(const R of REC.values())if(R.g===c)return{x:R.x,y:R.y};return{x:0,y:0};},
   fk:FK,skip:SKIP,dbg:()=>({key:KEY,cfg:CFG,casters:CST.map(c=>({x:Math.round(c.x),y:Math.round(c.y),d:c.d,k:+c.k.toFixed(2)})),moon:MOONNOW,lights:LIT.length,
     sprites:[...REC.values()].map(R=>({i:R.f.idx,x:R.x,y:R.y,w:R.w,h:R.h,gd:Math.round(groundY(R.f)),sh:shadowFor(R.f).map(l=>({vx:+l.vx.toFixed(2),vy:+l.vy.toFixed(2),ax:+l.ax.toFixed(2),ay:+l.ay.toFixed(2),a:+l.a.toFixed(2)}))}))})};
 })();

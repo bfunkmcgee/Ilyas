@@ -137,7 +137,7 @@ function live(){const ox=OX(),yb=yB(),sx0=RANGE.x0+ox,sx1=RANGE.x1+ox,top=yb-74,
     for(let i=0;i<4;i++){const ph=(t*.3+i/4+u)%1,y=top-h-6-ph*90,rr=5+ph*18;ctx.globalAlpha=.1*Math.sin(ph*Math.PI);ctx.fillStyle='#e8e4dc';
       ctx.beginPath();ctx.ellipse(x+Math.sin(t*1.3+i*2+u*9)*7*ph,y,rr,rr*.7,0,0,TAU);ctx.fill();}}
   ctx.restore();}
-function light(f){const sx=(RANGE.x0+RANGE.x1)/2,px=f.p[PEL].x;return Math.abs(px-sx)<220?{light:{x:sx+OX()-f.dep*PSX,y:yB()-90+f.dep*PSY}}:{dir:{x:.15,y:-1}};}
+function light(f){const sx=(RANGE.x0+RANGE.x1)/2,px=f.p[PEL].x;return Math.abs(px-sx)<220?{light:{x:sx+OX()-f.dep*PSX,y:yB()-90+f.dep*PSY},col:'#ffb072'}:{dir:{x:.15,y:-1},col:'#ffe2b0'};}
 // ---------- the kitchen's furniture ----------
 const at=(q,d)=>P(q.x,q.y,d),seg=(a,b,w,col)=>{ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();},segP=(a,b,d,w,col)=>seg(at(a,d),at(b,d),w,col);
 function quad(p,col){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(p[0].x,p[0].y);for(const q of p.slice(1))ctx.lineTo(q.x,q.y);ctx.closePath();ctx.fill();}
@@ -223,6 +223,8 @@ function slatFace(ctx,w,A,B,yt,g,h){
   ctx.fillStyle=rgba('#050403',.7);ctx.fillRect(A,yt,B-A,h);
   for(let d=Math.ceil(w.d0/8)*8;d<=w.d1;d+=8){ctx.fillStyle=lin(ctx,d-2.2,0,d+2.2,0,[[0,'#2a1a0e'],[.5,'#5a3e24'],[1,'#2a1a0e']]);ctx.fillRect(d-2.1,yt+2,4.2,h-4);ctx.fillStyle=rgba(C.rim,.35);ctx.fillRect(d-2.1,yt+2,4.2,.8);}
   for(const y of [g-34,yt+22]){ctx.fillStyle='#3a2614';ctx.fillRect(A,y,B-A,8);ctx.fillStyle=rgba(C.rim,.3);ctx.fillRect(A,y,B-A,.8);}}
-E.S.kitchen={paint,live,light,prop,table,lamp,div};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the lamps' light on the tiles and the floor behind the fight
+const SET={col:'#ffe9c4',soft:.5,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.kitchen={set:SET,paint,live,light,prop,table,lamp,div};
 })();
 // ===== ENV KITCHEN END =====

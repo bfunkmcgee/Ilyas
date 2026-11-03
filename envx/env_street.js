@@ -814,12 +814,14 @@ function liveBlast(t){const dt=t-S.bistroBlast;if(!(dt>=0&&dt<3.4))return;
     const x=sx+dr*u+Math.sin(u*3+ph)*10*k,y=sy-up*(1-Math.pow(1-u,1.6)),rr=r0*(1+2.6*u),a=.58*Math.min(1,u*5)*(1-u),col=smokeCol(.3+u*.7);ctx.fillStyle=rad(ctx,x,y,0,rr,[[0,rgba(col,a)],[1,rgba(col,0)]]);ctx.beginPath();ctx.arc(x,y,rr,0,TAU);ctx.fill();}}}
 // the light that falls on a fighter: the nearest lamp
 function light(f){const px=f.p[PEL].x+f.dep*PSX;let best=null,bd=1e9;for(const lx of LAMPX){const x=lampAt(lx).x,dd=Math.abs(x-px);if(dd<bd){bd=dd;best=x;}}
-  return{light:{x:best-f.dep*PSX,y:lampAt(LAMPX[0]).y+f.dep*PSY}};}
+  return{light:{x:best-f.dep*PSX,y:lampAt(LAMPX[0]).y+f.dep*PSY},col:'#ffc98a'};}
 // the doorway for the story: where it is on the street (x and depth as the game counts them), the sill on screen (y), the top of its
 // arch and of the fascia over it
 function doorAt(){const g=BG,d=DF-2;return{x:g.dcx-d*PSX,dep:d,y:g.dBase,top:g.yTop,fascia:g.gTop};}
 // the layer depends on the bistro's state: the glue paints it again when this changes. lookUp: how high the camera keeps in view
 // during a fight here, if it can (the bistro's fascia)
-E.S.street={paint,live,light,key:()=>'street:'+(blown()?'blown':'intact'),lamps:LAMPX,doorAt,lookUp:BG.gTop-10,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'town'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('town'):false};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the sodium lamps' light on the flags and the fronts behind the fight
+const SET={col:'#ffd6a7',soft:.8,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.street={set:SET,paint,live,light,key:()=>'street:'+(blown()?'blown':'intact'),lamps:LAMPX,doorAt,lookUp:BG.gTop-10,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'town'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('town'):false};
 })();
 // ===== ENV STREET END =====

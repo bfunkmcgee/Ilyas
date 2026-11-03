@@ -297,8 +297,8 @@ function live(){if(!LIVE)return;const G=LIVE.G,fd=LIVE.fd,S0=G.stove,t=S.t,k=.62
   ctx.restore();}
 // the light that rims them: the stove's fire for whoever is near it, the lamp over the table for the rest
 function light(f){const G=LIVE?LIVE.G:geo(),S0=G.stove,px=f.p[PEL].x;
-  if(px>S0.x0-120){const p=q((S0.x0+S0.x1)/2,S0.h*.5,S0.d0);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY}};}
-  const Lm=G.lamp,p=q(Lm.x,Lm.h,Lm.d);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY}};}
+  if(px>S0.x0-120){const p=q((S0.x0+S0.x1)/2,S0.h*.5,S0.d0);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY},col:'#ffa868'};}
+  const Lm=G.lamp,p=q(Lm.x,Lm.h,Lm.d);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY},col:'#ffd49a'};}
 function layoutNow(){const G=geo();return{ceil:CEIL,stove:G.stove,lamp:G.lamp,window:G.win,arm:armAt(G)};}
 E.S.sumpkitchen={paint,live,light,close:true,get LAYOUT(){return layoutNow();}};
 })();

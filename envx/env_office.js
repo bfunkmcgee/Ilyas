@@ -303,7 +303,7 @@ function live(){const yb=yB(),ox=OXf(),t=S.t,Cy=city();ctx.save();ctx.globalComp
     ctx.globalAlpha=.85*Math.pow(k,.8)*(1-u*.3);ctx.drawImage(SM[i%3],x-s/2,y-s/2,s,s);}
   ctx.restore();}
 // the light on a fighter: the lobby's amber from the doorway when he is near it, the room's lamps from above otherwise
-function light(f){const px=f.p[PEL].x;if(px<OFFICE_ENTRY.x+150){const sx=OFFICE_ENTRY.x+OXf(),sy=yB()-70;return{light:{x:sx-f.dep*PSX,y:sy+f.dep*PSY}};}return{dir:{x:.1,y:-1}};}
+function light(f){const px=f.p[PEL].x;if(px<OFFICE_ENTRY.x+150){const sx=OFFICE_ENTRY.x+OXf(),sy=yB()-70;return{light:{x:sx-f.dep*PSX,y:sy+f.dep*PSY},col:'#ffd8a0'};}return{dir:{x:.1,y:-1},col:'#ffd090'};}
 // ---------- the furniture ----------
 const at=(q,d)=>P(q.x,q.y,d),seg=(a,b,w,col)=>{ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();};
 function fp(pts,style){fillPts(ctx,pts,style);}

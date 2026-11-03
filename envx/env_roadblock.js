@@ -359,7 +359,9 @@ function live(){const t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';
   {const x=TOWER.x,y=TOWER.top-75,on=Math.pow(Math.max(0,Math.sin(t*2.4)),8);if(on>.02){glow(ctx,x,y,10,'#ff3a2a',.8*on);ctx.fillStyle=rgba('#ffd0c0',on);ctx.fillRect(x-.7,y-.7,1.4,1.4);}}
   ctx.restore();}
 // the light that rims a fighter: the floods on the light tower, high on the right
-function light(f){const L=mastLamp(),d=f.dep||0;return{light:{x:L.x-14-d*PSX,y:L.y-4+d*PSY}};}
-E.S.roadblock={paint,live,light,mast:MAST,div:it=>it.dv&&it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'town'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('town'):false};
+function light(f){const L=mastLamp(),d=f.dep||0;return{light:{x:L.x-14-d*PSX,y:L.y-4+d*PSY},col:'#e0eaff'};}
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the floods' light on the road behind the fight
+const SET={col:'#e8efff',soft:.5,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.roadblock={set:SET,paint,live,light,mast:MAST,div:it=>it.dv&&it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'town'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('town'):false};
 })();
 // ===== ENV ROADBLOCK END =====

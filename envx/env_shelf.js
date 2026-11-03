@@ -403,8 +403,10 @@ function live(){syncST();const t=S.t,P=K.pal();ctx.save();
   ctx.restore();}
 // the light that rims a man on the Shelf: the nearest of the stalls' lamps
 function light(f){syncST();const px=f.p[PEL].x;let best=450,bd=1e9;for(const s of stalls())for(const x of [s.x-s.w/2+12,s.x+s.w/2-12]){const dd=Math.abs(x-px);if(dd<bd){bd=dd;best=x;}}
-  const q=Q(best,ST.th-8,ST.tf+2);return{light:{x:q.x-f.dep*PSX,y:q.y+f.dep*PSY}};}
+  const q=Q(best,ST.th-8,ST.tf+2);return{light:{x:q.x-f.dep*PSX,y:q.y+f.dep*PSY},col:'#ffcf8e'};}
 const LAYOUT={stall:ST,ledge:LEDGE,stair:SR,hoist:DK,signs:SIGN};
-E.S.shelf={paint,live,fore,light,key,pieces,LAYOUT};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the stalls' lamps on the shelf's boards and its counters behind the fight
+const SET={col:'#ffdbaa',soft:.8,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.shelf={set:SET,paint,live,fore,light,key,pieces,LAYOUT};
 })();
 // ===== ENV SHELF END =====

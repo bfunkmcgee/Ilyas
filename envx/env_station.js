@@ -87,12 +87,15 @@ function portal(c,P,i){c.save();faceT(c,WALL);const x0=P.x-P.w/2,x1=P.x+P.w/2,ba
   // the bore: rings of its lining going away, smaller and darker, to a lamp's glow far down the line
   arch(0,true);c.save();c.clip();c.fillStyle='#030304';c.fillRect(x0,crown,x1-x0,base-crown);
   const vx=P.x+(i?-10:10),vy=yW(40);
-  for(let k=0;k<9;k++){const u=k/9,rr=rad0*(1-u*.82),cx=lerp(P.x,vx,u),sy=lerp(spr,vy-rr*.15,u),b=lerp(base,vy+rr*.55,u);c.strokeStyle=rgba(k%2?'#2a1a14':'#1c120e',.9*(1-u*.6));c.lineWidth=3*(1-u*.7);
+  // (the far lamp's light fills the bore's air and catches its rings: a bore that is not a hole behind the fight on the deck, the
+  // style guide's rule 8)
+  glow(c,vx,vy-14,rad0*1.5,'#5fb8ac',.2);glow(c,P.x,base-40,rad0*1.2,'#e8c88a',.06);
+  for(let k=0;k<9;k++){const u=k/9,rr=rad0*(1-u*.82),cx=lerp(P.x,vx,u),sy=lerp(spr,vy-rr*.15,u),b=lerp(base,vy+rr*.55,u);c.strokeStyle=rgba(k%2?'#4a3024':'#2e1e16',.9*(1-u*.6));c.lineWidth=3*(1-u*.7);
     c.beginPath();c.moveTo(cx-rr,b);c.lineTo(cx-rr,sy);c.arc(cx,sy,rr,Math.PI,0);c.lineTo(cx+rr,b);c.stroke();}
   glow(c,vx,vy-6,26,'#7ff3e3',.25);glow(c,vx,vy-6,8,'#d9fffa',.55);
   // the rails running in, shining a little, and the dark coming out at us
   c.strokeStyle=rgba('#8a94a8',.35);c.lineWidth=1;c.beginPath();c.moveTo(P.x-16,base);c.lineTo(vx-3,vy+12);c.moveTo(P.x+16,base);c.lineTo(vx+3,vy+12);c.stroke();
-  c.fillStyle=rad(c,P.x,base-30,10,90,[[0,rgba('#000000',0)],[1,rgba('#000000',.6)]]);c.fillRect(x0,crown,x1-x0,base-crown);c.restore();
+  c.fillStyle=rad(c,P.x,base-30,10,90,[[0,rgba('#000000',0)],[1,rgba('#000000',.42)]]);c.fillRect(x0,crown,x1-x0,base-crown);c.restore();
   // the keystone, gilt, with the house's H; a sign over the arch saying where the line goes
   c.fillStyle='#0c0a08';c.beginPath();c.moveTo(P.x-8,crown-14);c.lineTo(P.x+8,crown-14);c.lineTo(P.x+6,crown+2);c.lineTo(P.x-6,crown+2);c.closePath();c.fill();
   c.strokeStyle=C.gold;c.lineWidth=1;c.stroke();c.fillStyle=C.goldL;c.fillRect(P.x-3.6,crown-10,1.4,9);c.fillRect(P.x+2.2,crown-10,1.4,9);c.fillRect(P.x-3.6,crown-6.2,7.2,1.3);
@@ -373,7 +376,10 @@ function liftFront(c){if(LIFT_FRONT_LATER&&!FRONT_BY_DEPTH&&END()==='tower')cage
 function liftFrontLater(on){LIFT_FRONT_LATER=!!on;}
 // the light that rims a fighter: the nearest hanging lamp that is lit
 function light(f){let best=PEND[0],bd=1e9;for(const L of PEND){if(L.dead)continue;const d=Math.abs(L.x-f.p[PEL].x);if(d<bd){bd=d;best=L;}}const p=q(best.x,yW(best.h),best.d);
-  return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY}};}
-E.S.station={key:END,end:END,paint,live,light,fore,kitLiftAt,liftAt,liftFront,liftFrontLater,frontItem,pitClip,LAYOUT:{WALL,PIT,EDGE,NEAR,SID,MAIN,RAILS,KL,CAGE,PORT,NEST,trainGy:GB+PIT-3,trainDep:GAUGE_C}};
+  return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY},col:'#a6f2e8'};}
+// the light on the fight (the style guide's rule 8, sk_scene_glue.js): the lamps' light on the platform, the tiles and the bores
+// behind it, a pale gold-white
+const SET={col:'#f2f2ea',soft:1,gain:1.4,air:.05,y:[GB-380,GB-290,GB-60,GB+20]};
+E.S.station={key:END,end:END,paint,live,light,fore,set:SET,kitLiftAt,liftAt,liftFront,liftFrontLater,frontItem,pitClip,LAYOUT:{WALL,PIT,EDGE,NEAR,SID,MAIN,RAILS,KL,CAGE,PORT,NEST,trainGy:GB+PIT-3,trainDep:GAUGE_C}};
 })();
 // ===== ENV STATION END =====

@@ -141,9 +141,9 @@ const LIT={suit:'wool',coat:'wool',trouser:'wool',hat:'wool',vest:'wool',lapel:'
 function paint(c,ps,mat,env){const C=env.col,base=(env.far&&C[mat+'Far'])||(env.far?mid(C[mat]||C.suit,'#3a3346',.32):C[mat])||C.suit,U=unionOf(ps),lit=(C.lit&&C.lit[mat])||LIT[mat],old=lit?ps.filter(q=>!FigKit.litOK(q,env)):ps;
   // (flat: what is on a turned torso, whose light its main shape carries)
   if(env.flat){c.fillStyle=base;c.fill(U);return;}
-  if(RIMMED[mat]&&old.length){const a0=c.globalAlpha,dx=env.L.x*env.rw,dy=env.L.y*env.rw;c.globalAlpha=a0*(env.far?.4:1);c.translate(dx,dy);c.fillStyle=C.rim;c.fill(old.length===ps.length?U:unionOf(old));c.translate(-dx,-dy);c.globalAlpha=a0;}
+  if(RIMMED[mat]&&old.length){const a0=c.globalAlpha,dx=env.L.x*env.rw,dy=env.L.y*env.rw;c.globalAlpha=a0*Math.min(1,(env.far?.4:1)*FigKit.rimK());c.translate(dx,dy);c.fillStyle=FigKit.rimCol(C.rim);c.fill(old.length===ps.length?U:unionOf(old));c.translate(-dx,-dy);c.globalAlpha=a0;}
   c.fillStyle=base;c.fill(U);
-  if(lit&&base[0]==='#'&&base.length===7)FigKit.light(c,ps,env,{cls:lit,base,light:C.rim||'#ffcf86',far:env.far});}
+  if(lit&&base[0]==='#'&&base.length===7)FigKit.light(c,ps,env,{cls:lit,base,light:FigKit.rimCol(C.rim||'#ffcf86'),far:env.far});}
 
 // ---------- the coat's skirt (KaelLook's) ----------
 const COAT={w:21,z:.8,vmax:1100,snap:110};
@@ -204,7 +204,7 @@ function torsoSecs(Jl,wide,body){let a0=1e9,a1=-1e9;for(const q of Jl){a0=Math.m
 // the body's own sections where no garment's outline says otherwise: [a, s at the back, s at the front]
 function torsoBody(T,D){return[[-.25*T,-6.6,4.2],[-.17*T,-8.4,5.8],[-.1*T,-8.8*D,6.6*D],[0,-9.3*D,7.7*D],[.2*T,-7.6*D,7.7*D],[.4*T,-6.5*D,8.2*D],[.55*T,-7.3*D,9*D],
   [.72*T,-8.9*D,10*D],[.86*T,-8.8*D,9.2*D],[.97*T,-6.2,7.8*D],[T+.4,-4.4,5.2],[T+1.4,-3.3,3],[T+2.6,-2.6,1]];}
-function draw(c,F,spec,o={}){
+function draw(c,F,spec,o={}){FigKit.useKey(o);
   const C=spec.col,out=spec.outfit,hd=spec.head,elf=spec.race==='elf',now=o.now??(F.t||0);
   const p0=F.p,fa=F.facing,b=F.body,tr=c.getTransform?c.getTransform():null,k=tr&&tr.a!=null?Math.hypot(tr.a,tr.b)||1:2;
   const P0=p0[PEL],C0=p0[CHE],u0=nrm(sub(C0,P0)),n0=mul(perp(u0),fa),T=len(sub(C0,P0)),sz=b.h*(.93+.07*b.bulk),wf=(.7+.3*b.bulk)*(elf?.96:1.04);
@@ -249,7 +249,7 @@ function draw(c,F,spec,o={}){
   // a hand with weight to it: a full fist, the thumb's knuckle along the top of the grip
   const fist=(H,g,s)=>{const q=perp(g),kk=1.22,ptq=(a,bb)=>add(H,add(mul(g,a*s*kk),mul(q,bb*s*kk)));
     return piece([ptq(-3.2,-2.7),ptq(.4,-3.3),ptq(2.5,-3.7),ptq(3.9,-1.5),ptq(3.8,1.4),ptq(2.7,3),ptq(-2.8,3),ptq(-3.8,.2)],.55);};
-  const foldCol={lit:rgba(C.rim||'#ffcf86',.24),dark:'rgba(0,0,0,.5)'},foldFar={lit:rgba(C.rim||'#ffcf86',.1),dark:'rgba(0,0,0,.28)',far:true};
+  const foldCol={lit:rgba(FigKit.rimCol(C.rim||'#ffcf86'),.24),dark:'rgba(0,0,0,.5)'},foldFar={lit:rgba(FigKit.rimCol(C.rim||'#ffcf86'),.1),dark:'rgba(0,0,0,.28)',far:true};
   // (near: the arm on the near side, which holds the weapon; far: painted as the far side of him)
   const arm=(A,far,near)=>{
     if(out.sleeves==='bare'){pt([A.tb],'skin',far);pt([capsule(sub(A.Wr,mul(A.fd,2.2*sz)),add(A.Wr,mul(A.fd,.6*sz)),W(5.2),W(4.8))],'wrap',far);}
@@ -340,7 +340,7 @@ function draw(c,F,spec,o={}){
       if(A0.tools&&lod>=1){const st=C.steel||'#5d626b';for(const [v,h,t] of [[.56,8,-.6],[.7,10.5,.5],[.84,6.5,1.4]]){const b0=AQ(.2,v),tp=add(b0,V(fa*t*sz,-h*sz));
         line(c,[b0,tp],st,Math.max(.6,1.1*sz));c.strokeStyle=st;c.lineWidth=Math.max(.5,.8*sz);c.beginPath();c.arc(tp.x,tp.y,1.25*sz,.6,TAU-.6);c.stroke();}}
       const pk=piece(Q,.25);pt([pk],'apron');c.fillStyle=rgba('#000000',.22);c.fill(pk.p);
-      if(lod>=1){line(c,[Q[0],Q[1]],rgba(C.rim||'#ffcf86',.38),Math.max(.5,.7*sz));if(lod>=2){c.setLineDash([1.1*sz,1*sz]);line(c,[Q[1],Q[2],Q[3],Q[0]],rgba('#d8c8a8',.3),Math.max(.4,.3*sz));c.setLineDash([]);}}}};
+      if(lod>=1){line(c,[Q[0],Q[1]],rgba(FigKit.rimCol(C.rim||'#ffcf86'),.38),Math.max(.5,.7*sz));if(lod>=2){c.setLineDash([1.1*sz,1*sz]);line(c,[Q[1],Q[2],Q[3],Q[0]],rgba('#d8c8a8',.3),Math.max(.4,.3*sz));c.setLineDash([]);}}}};
   // ----- things worn on the torso over the clothes (drawn on it, as the scarf and the watch are) -----
   const extras=(AT,side)=>{const P=Q=>Q.map(([a,s2])=>AT(a,s2));
     // an apron's bib over the chest (out.apron.bib), and its strap round the neck
@@ -516,7 +516,7 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
   if(hd.tusks&&SK.tusks)for(const [bx,by,tx,ty,w,far] of SK.tusks){const d=`M${bx-w},${by} Q${R1(bx-w*.7)},${R1((by+ty)/2)} ${tx},${ty} Q${R1(bx+w*1.1)},${R1((by+ty)/2+1)} ${bx+w},${by} Z`;
     c.fillStyle=far?C.tuskShade||'#8a8068':C.tusk||'#cfc4a2';c.fill(P2(d));
     if(lod>=1&&!far){c.strokeStyle=C.tuskShade||'#8a8068';c.lineWidth=1.2;c.beginPath();c.moveTo(bx+w*.5,by);c.quadraticCurveTo(bx+w*.6,(by+ty)/2,tx,ty);c.stroke();}}
-  if(HT){const fillHat=(d,shade)=>{const P=P2(d),dx=Lh.x*he.rw,dy=Lh.y*he.rw;c.translate(dx,dy);c.fillStyle=C.rim;c.fill(P);c.translate(-dx,-dy);c.fillStyle=shade?C.hatShade:C.hat;c.fill(P);};
+  if(HT){const fillHat=(d,shade)=>{const P=P2(d),dx=Lh.x*he.rw,dy=Lh.y*he.rw;c.translate(dx,dy);c.fillStyle=FigKit.rimCol(C.rim);c.fill(P);c.translate(-dx,-dy);c.fillStyle=shade?C.hatShade:C.hat;c.fill(P);};
     if(HT.knot)fillHat(HT.knot,true);fillHat(HT.crown);if(HT.band)fillHat(HT.band,true);if(HT.brim)fillHat(HT.brim,true);
     if(HT.pleats&&lod>=1){c.strokeStyle=C.hatShade;c.lineWidth=2.4;c.stroke(P2(HT.pleats));}
     if(HT.badge&&lod>=1){c.fillStyle=C.badge||C.button;c.beginPath();c.arc(HT.badge[0],HT.badge[1],3.2,0,TAU);c.fill();}}
@@ -588,7 +588,7 @@ function headRound(c,F,spec,env,lod,o,s,h,thw,fa,hy){
   c.save();c.translate(h.x,h.y);c.scale(fa,1);c.rotate(thw*fa);c.scale(s,s);c.translate(0,-8);
   const Lw=env.L,Lh=rot(V(Lw.x*fa,Lw.y),-thw*fa),he={...env,L:Lh,rw:env.rw/s,ow:env.ow/s,k:env.k*s};
   const fillHair=P=>{if(!P)return;c.fillStyle=C.hairShade;c.fill(P);c.save();c.clip(P);c.translate(Lh.x*9,Lh.y*9);c.fillStyle=C.hair;c.fill(P);c.restore();};
-  const HT=HV.hat,fillHat=(P,shade)=>{const dx=Lh.x*he.rw,dy=Lh.y*he.rw;c.translate(dx,dy);c.fillStyle=C.rim;c.fill(P);c.translate(-dx,-dy);c.fillStyle=shade?C.hatShade:C.hat;c.fill(P);};
+  const HT=HV.hat,fillHat=(P,shade)=>{const dx=Lh.x*he.rw,dy=Lh.y*he.rw;c.translate(dx,dy);c.fillStyle=FigKit.rimCol(C.rim);c.fill(P);c.translate(-dx,-dy);c.fillStyle=shade?C.hatShade:C.hat;c.fill(P);};
   // behind the head: a hat's knot or its brim seen from behind, the hair, the far ear; then the skull and the face, a beard, the hair
   // over them, the near ear, the hat
   if(HT&&HT.knot&&!HT.knotFront)fillHat(HT.knot,true);
@@ -733,7 +733,7 @@ function castSpec(f){
   return CastLook.CAST[f.name==='Mr. Hallowell'?'Hallowell':f.name];}
 function drawCast(f){
   const L=kaelLight(f),sp=castSpec(f);
-  CastLook.draw(ctx,f,sp,{light:L.light,dir:L.dir,now:S.t,yaw:f._yaw||0,spin:f._spinU,opening:!!(S.opening&&S.opening.f===f),lookBack:!!(f.look&&typeof tacLook==='function'&&tacLook(f)<-.4),
+  CastLook.draw(ctx,f,sp,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,yaw:f._yaw||0,spin:f._spinU,opening:!!(S.opening&&S.opening.f===f),lookBack:!!(f.look&&typeof tacLook==='function'&&tacLook(f)<-.4),
     drawOther:drawWeapon,afterFarArm:f.sidearm==='offhand'?drawOffDagger:null,afterTorso:f.sidearm==='sheathed'?drawSheath:f.scab&&!f.dead?drawScabbard:null});
   if(f.severed&&S.gore!=='off'){ctx.fillStyle=GORE_COL[S.gore].mark;circ(f.p[CHE],f.body.torsoW*.34);}
   drawMarks(f);}

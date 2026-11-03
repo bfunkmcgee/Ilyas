@@ -1192,7 +1192,7 @@ function fore(c){flare(dreamK());bokeh(S.t,Math.abs(S.scrollYV||0),dreamK(),pitO
   for(const b of P.birds)if(b.fly)drawBird(b,b.x,rimY+b.y,t);
   ctx.restore();}
 // the light that rims him: the city's glow from out past the corner, low on the right; in the dream the sun, high on the right
-function light(f){const D=dreamK(),x=lerp(1040,SUN.x+60,D),y=lerp(420,SUN.y-60,D);return{light:{x:x-f.dep*PSX,y:y+f.dep*PSY}};}
+function light(f){const D=dreamK(),x=lerp(1040,SUN.x+60,D),y=lerp(420,SUN.y-60,D);return{light:{x:x-f.dep*PSX,y:y+f.dep*PSY},col:D>.5?'#ffd890':'#c8d4ff'};}
 const LAYOUT={corner:CORNER,floor:FH,yRef:YREF,hMark:HMARK,horizon:HOR};
 // ---------- the picture as a camera takes it ----------
 // Once the world is drawn (before his thoughts and the bars, sk_storyui.js), over the whole fall: the light blooms (the frame shrunk to
@@ -1248,6 +1248,10 @@ function post(){if(typeof cv==='undefined'||!cv.width)return;const q=typeof FXL!
   ctx.restore();}
 // (away from the fall its pieces are let go: the junk's tiles and the desert's view)
 function free(){jkFree();if(DES.cv){DES.cv.width=DES.cv.height=0;DES.cv=null;}}
-E.S.fall={paint,live,light,fore,post,LAYOUT,free,jk:JK,span:SPAN_LAST,dream:DREAM_LAST,pfx:PFX.last,sand:DMX,views:{des:DES}};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the night's light on the face round him as he
+// falls (the haze off the face, caught on the stone and the glass), going as the dream comes (whose own light is enough)
+const SETF={col:'#d6dfff',y:[30,160,410,520],base:0,pools:[[500,400,1]]};
+function set(){const D=dreamK();return D>=.98?null:Object.assign({},SETF,{soft:.75*(1-D)});}
+E.S.fall={set,setLive:true,ground:.24,paint,live,light,fore,post,LAYOUT,free,jk:JK,span:SPAN_LAST,dream:DREAM_LAST,pfx:PFX.last,sand:DMX,views:{des:DES}};
 })();
 // ===== ENV FALL END =====

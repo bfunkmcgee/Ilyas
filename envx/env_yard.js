@@ -750,10 +750,16 @@ function live(){const t=S.t,P=K.pal(),T=P.key,Yd=Y();ctx.save();
   ctx.restore();}
 // the light that rims a man in the yard: at night the back door's, else the daylight from far above (cold at sun-up, from the right)
 function light(f){const Yd=Y(),T=K.tod();
-  if(T==='night'){const D=Yd.door,p=Q(D.x,SUMP.doorH*.6,Yd.far);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY}};}
-  if(T==='morning')return{light:{x:720-f.dep*PSX,y:-260+f.dep*PSY}};
-  return{light:{x:480-f.dep*PSX,y:-320+f.dep*PSY}};}
+  if(T==='night'){const D=Yd.door,p=Q(D.x,SUMP.doorH*.6,Yd.far);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY},col:'#ffb870'};}
+  if(T==='morning')return{light:{x:720-f.dep*PSX,y:-260+f.dep*PSY},col:K.pal().light};
+  return{light:{x:480-f.dep*PSX,y:-320+f.dep*PSY},col:K.pal().light};}
 const LAYOUT={sump:SUMP,shed:SHED,fence:FENCE,lantern:LANT};
-E.S.yard={paint,live,light,key,pieces,LAYOUT};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): by day the Pit's light on the yard's dirt and the
+// Sump's boards, by its hour; at night the back door's light and the window's out over the yard, strong by them and falling away
+// toward the pump, enough that a man in the yard stands out against it
+const SETS={day:{col:'#f5ebd3',soft:1,y:[GB-360,GB-280,GB-60,GB+20]},morning:{col:'#ebf2fa',soft:1,y:[GB-360,GB-280,GB-60,GB+20]},
+  dusk:{col:'#ffc49b',soft:1,gain:1.3,air:.04,y:[GB-360,GB-280,GB-60,GB+20]},
+  night:{col:'#ffca94',soft:1,gain:1.8,air:.08,y:[GB-360,GB-280,GB-60,GB+20],base:.3,pools:[[L0.door.x+L0.far*PSX,420,1],[(L0.window.x0+L0.window.x1)/2+L0.far*PSX,220,.8]]}};
+E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT};
 })();
 // ===== ENV YARD END =====

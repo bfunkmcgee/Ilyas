@@ -583,9 +583,11 @@ function live(){if(!LIVE)return;const G=LIVE.G,t=S.t;ctx.save();
 // over the people: the front of the heap, over whoever lies in it
 function fore(c){c=c||ctx;const F=heapFront();c.drawImage(F.cv,F.x0,F.y0,F.w,F.h);}
 // the light that rims them: the hut's open door, on the right
-function light(f){const G=LIVE?LIVE.G:geo(),D=G.door,p=q((D.x0+D.x1)/2,D.h*.55,G.hut.d0);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY}};}
+function light(f){const G=LIVE?LIVE.G:geo(),D=G.door,p=q((D.x0+D.x1)/2,D.h*.55,G.hut.d0);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY},col:'#ffcc8a'};}
 // where things are, for the scene (worked out from ACT1_PLACES each time it is read)
 function layoutNow(){const G=geo();return{hut:G.hut,door:G.door,lofts:G.loft,pipe:G.pipe,spike:G.sp,doorAt:{x:(G.door.x0+G.door.x1)/2,dep:G.hut.d0+4}};}
-E.S.sumproof={paint,live,fore,light,close:true,get LAYOUT(){return layoutNow();}};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the hut door's light on the tin roof behind him
+const SET={col:'#ffd9a7',soft:.3,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.sumproof={set:SET,paint,live,fore,light,close:true,get LAYOUT(){return layoutNow();}};
 })();
 // ===== ENV SUMPROOF END =====

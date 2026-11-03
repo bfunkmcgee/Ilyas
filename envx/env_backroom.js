@@ -288,8 +288,10 @@ function live(){if(!LIVE)return;const G=LIVE.G,V=LIVE.V,w=G.win,t=S.t;ctx.save()
   {const Lm=G.lamp,p=q(Lm.x,Lm.h,Lm.d),f=.88+.12*Math.sin(t*8.3)*Math.sin(t*3.9);ctx.globalCompositeOperation='lighter';ctx.fillStyle=`rgba(255,232,180,${(.85*f).toFixed(3)})`;ctx.beginPath();ctx.ellipse(p.x,p.y-3,1.2,2.6,0,0,TAU);ctx.fill();glowAt(ctx,p.x,p.y-3,16,'#ffd27a',.3*f);ctx.globalCompositeOperation='source-over';}
   ctx.restore();}
 // the light that rims them: the day through the window
-function light(f){const G=LIVE?LIVE.G:geo(),w=G.win;return{light:{x:(w.x0+w.x1)/2-f.dep*PSX,y:(w.y0+w.y1)/2+f.dep*PSY}};}
+function light(f){const G=LIVE?LIVE.G:geo(),w=G.win;return{light:{x:(w.x0+w.x1)/2-f.dep*PSX,y:(w.y0+w.y1)/2+f.dep*PSY},col:'#e2d8c0'};}
 function layoutNow(){const G=geo();return{ceil:CEIL,window:G.win,lamp:G.lamp,door:DOOR};}
-E.S.backroom={paint,live,light,close:true,get LAYOUT(){return layoutNow();}};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the window's grey day on the boards and the floor behind him
+const SET={col:'#e9e2d0',soft:1,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.backroom={set:SET,paint,live,light,close:true,get LAYOUT(){return layoutNow();}};
 })();
 // ===== ENV BACKROOM END =====

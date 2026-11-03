@@ -647,8 +647,10 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   lab's own grounds) at set moments on auto, shot as the player sees it (412x714 upright by default), with each frame's numbers in
   audit.json from the game's canvas between the bars: its average colour and what its light is made of (six clusters of the lit
   pixels), how light, how varied, how saturated, how much of it is flat black (`empty`), how much of Ilyas's outline reads against
-  what is next to it (`hero.read`), and what it costs to draw; and a quarter-size picture of the canvas. The fast-forward to each
-  moment is not drawn, then two seconds are; the fall is drawn all the way. About half an hour for all 65 frames.
+  what is next to it (`hero.read`, with the marks on the fight hidden and only what of him shows; `hero.Lb` the ground round him;
+  the style guide's rule 8, below), and what it costs to draw; a quarter-size picture of the canvas and the frame round him at full
+  size. It ends with the frames that break rule 8. The fast-forward to each moment is not drawn, then two seconds are; the fall is
+  drawn all the way. About a quarter of an hour for all 65 frames at 412x714.
 - `node uiwork/look/push.js <stage|lab_arena> <outprefix> [w h] [reduce]`: the push-in as a player meets it (since V74): the fight
   run to his turn, a move picked, the action played on in real time with his opening cards answered; shots of his turn, the action
   with no card up and his card up, with the camera's numbers, the layer's foot, scale and paint time, and `empty` below the top bar.
@@ -675,7 +677,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below). The rim and the darkness (M1 on) are next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below). Cheaper crowds (C1 on) are next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -727,12 +729,12 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V78 ..." (V77 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V79 ..." (V78 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V77: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V78: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -780,6 +782,26 @@ was checked, and anything that did not work, plainly.
   stopped at -110 and an upright phone showed a band of bare piers over them, and the night's top row of stars stretched into lines).
   Anything drawn in pieces there clips to that range (`junkWalls` does), or it pokes out above the far side's top edge.
 - Light is one piece (since V77, the style guide's rule 5): `EnvLook.softSpr(col, spread, fall, lead)` makes a cone once for each colour, spread (its source's width over its foot's, in twentieths) and fall, row by row with a gradient across each (a canvas with no pixel access makes it too): a bell with a brighter core, its sides feathering from full to nothing between three and five quarters of the nominal half-width (a quarter of the width at the foot on each side), fading along with the distance. `EnvLook.softCone(c, x, y, w0, w1, h, col, a, ang, fall)` stamps it from a source (w0 and w1 are where it is half gone; ang is the turn from straight down), `softSpill(c, x, d, w0, w1, len, col, a, g, ang)` lays it in the ground plane, from a door out toward us by default (full at the sill). `beam()` is softCone; glowSprites().cone (the room lamps: the dining room, the kitchen, the lobby, the office) is the sprite itself, so the width it is stamped at is where the last of it goes; liftSpill (the kitchen's secret lift, the lobby's, the platform's) is two softSpills and the wall's halo; the checkpoint's floods and searchlights, the roof's crown beam and searchlights, the helicopter's searchlight, the train's and the bikes' headlamps, the street's window spills, the lobby's slot light and the sundown's shafts are the piece too, and the line of light under the executive's doors fades at its ends. The helicopter's open door is a light (FXL's lights, sk_storyui.js: the man in white lit warm) with its own spill across the pad (HeliLook.wash). The fall keeps its own per-pixel beams, the model the piece was made from.
+- The rim and the darkness (since V78, the style guide's rule 8). Each place's `light(f)` gives its key light's colour (`col`) with
+  where it is; `kaelLight` passes it on with `rk`, how much stronger the rim is on the ground there, and the figures' drawings
+  (Ilyas's, the cast's, the beasts', his arm on the spike) start with `FigKit.useKey(o)`: every rim, lit plane, fold and edge of
+  light takes the key's colour brought up to a rim's brightness (`FigKit.rimCol`; `rimOf` keeps its hue, the brightest channel
+  full, then toward white until it is .72 light), and `FigKit.light` lays the rim on stronger and wider by `rimK` (1.8 times at a
+  ground of .1 and under, nothing over .2). The ground behind a figure is read off the place's layer as it is painted (`sceneGrid`,
+  a cell every 10 units; `sceneGround`), or given by a place whose ground is drawn as it moves (`ground`: the tunnel .26, the chase
+  .28, the fall .24). The ground behind the fight band is lit to .2 and more, aiming at .28, by each place's `set` (an object, or a
+  function of the hour: the yard, the stairs, the fall): {col, gain (colour-dodge: each surface so many times as light at full,
+  black left black), soft (soft-light: the darks lifted most, the lights least), air (screen: the darks a touch), y: [y0, y1, y2, y3]
+  (nothing at y0, full from y1 to y2, nothing at y3), base and pools ([x, half width, 0..1]: the yard's door and window at night)}.
+  It is laid into the layer once as it is painted (`setDraw`): soft-light over the band costs a CPU canvas about 8 ms a frame, so
+  only `setLive` places (the tunnel's walls, the chase's street, the face in the fall) draw it each frame, at 5 to 10 ms there. The
+  flatcar's deck is a lit grey plate and the station's bores carry the far lamp's light in their air, the two dark grounds the light
+  cannot lift. The audit reads his outline on the frame drawn again without the footing rings, their words, the head bars and the
+  labels, once more without him and once without anyone (their shadows kept), so only what of him shows counts (`shown`) and only
+  where it is against the ground (`alone`: Tamm holding him up is left out); an outline mostly hidden (under 24 points of it), or
+  one with a blow's flash on him (`FXL.struck` over .25: struck white, an impact where he is) is not judged, and the run ends with
+  `rule 8 fails`. Each shot writes `<id>_<moment>_hero.png`, the frame round him as he was measured; INJ=<file.js> runs a
+  script in the page once it loads, to try a change before making it.
 - Time a painter on a phone's screen by drawing the same moment over and over with a part left out by turns (as the V72 dream was
   timed): one run against another on this machine differs by 2 ms or more.
 - What a pass over the whole frame costs is its pixels times its blend, and in a CPU canvas it is dear: on a phone's 1.2 million

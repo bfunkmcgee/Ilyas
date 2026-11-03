@@ -218,7 +218,9 @@ function live(){const t=S.t;ctx.save();
   ctx.restore();}
 // the light that falls on a fighter: the nearest flame, else the moon
 function light(f){const px=f.p[PEL].x+f.dep*PSX;let best=null,bd=1e9;for(const L of LIGHTS){const q=lightAt(L),dd=Math.abs(q.x-px);if(dd<bd){bd=dd;best=q;}}
-  if(bd>260)return{dir:{x:-.35,y:-1}};return{light:{x:best.x-f.dep*PSX,y:best.y+f.dep*PSY}};}
-E.S.ledge={paint,live,light,lights:LIGHTS,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false};
+  if(bd>260)return{dir:{x:-.35,y:-1},col:'#c8d6ff'};return{light:{x:best.x-f.dep*PSX,y:best.y+f.dep*PSY},col:'#ffb878'};}
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the lamps' and the braziers' light on the ledge behind the fight
+const SET={col:'#ffcda0',soft:1,gain:1.3,air:.04,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.ledge={set:SET,paint,live,light,lights:LIGHTS,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false};
 })();
 // ===== ENV LEDGE END =====

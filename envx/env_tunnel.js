@@ -307,10 +307,12 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
     ctx.restore();}}
 // the light that rims a fighter: the station's lamps while it goes by, the nearest lamp passing if one is close, else the car's lantern
 function light(f){const x=f.p[PEL].x,s0=S.scroll||0,sh=yS(),s=stnAt(x+s0,60);
-  if(s!=null){let best=null,bd=1e9;for(const L of STN_LAMPS){if(!L.lit)continue;const d=Math.abs(s+L.x-s0-x);if(d<bd){bd=d;best=L;}}const p=q(s+best.x-s0,GB-best.h,best.d);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY}};}
+  if(s!=null){let best=null,bd=1e9;for(const L of STN_LAMPS){if(!L.lit)continue;const d=Math.abs(s+L.x-s0-x);if(d<bd){bd=d;best=L;}}const p=q(s+best.x-s0,GB-best.h,best.d);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY},col:'#a6f2e8'};}
   const i=Math.round((x+s0-LAMP/2)/LAMP),lx=lampAt(i)-s0;
-  if(lampOn(i)&&Math.abs(lx-x)<170)return{light:{x:lx+WD*PSX-f.dep*PSX,y:sh+28+f.dep*PSY}};
-  const p=q(LANTERN.x+5,GB-36,LANTERN.d);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY}};}
-E.S.tunnel={paint,live,light,warm,LAYOUT:{DN,DF,WD,BED,SPR,SILL,deckY:GB,railTop:GB-24,railDep:LANTERN.d,lantern:LANTERN,STN,STN_AT,STN_L}};
+  if(lampOn(i)&&Math.abs(lx-x)<170)return{light:{x:lx+WD*PSX-f.dep*PSX,y:sh+28+f.dep*PSY},col:'#a6f2e8'};
+  const p=q(LANTERN.x+5,GB-36,LANTERN.d);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY},col:'#ffc070'};}
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the passing lamps' cyan on the flatcar and the tunnel's walls round the fight
+const SET={col:'#bcf5ee',soft:1,gain:1.3,air:.04,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.tunnel={set:SET,setLive:true,ground:.26,paint,live,light,warm,LAYOUT:{DN,DF,WD,BED,SPR,SILL,deckY:GB,railTop:GB-24,railDep:LANTERN.d,lantern:LANTERN,STN,STN_AT,STN_L}};
 })();
 // ===== ENV TUNNEL END =====

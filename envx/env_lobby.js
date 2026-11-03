@@ -267,7 +267,7 @@ function leaves(o){const A=LOBBY_LIFT,cx=LG.liftX,yb=LG.yB,top=yb-A.h,hw=A.w/2,o
   for(const s of [-1,1]){const ex=s<0?cx-open:cx+open;ctx.fillStyle=rgba('#fff3d6',.35*Math.min(1,o*4));ctx.fillRect(ex-.4,top,.8,A.h);}
   ctx.restore();}
 // the light on a fighter: from above, a little from the front
-function light(f){return{dir:{x:.1,y:-1}};}
+function light(f){return{dir:{x:.1,y:-1},col:'#ffe0a8'};}
 // ---------- the furniture: black leather sofas, gold velvet lounge chairs, black velvet poufs, Portoro and brass ----------
 // patterns for the main canvas, made once and moved for each piece
 const PC=new Map();function patC(cv,x,y,u,rot){let p=PC.get(cv);if(!p||p.ctx!==ctx){p={ctx,p:ctx.createPattern(cv,'repeat')};PC.set(cv,p);}let m=new DOMMatrix().translate(x,y);if(rot)m=m.rotate(rot);p.p.setTransform(m.scale(u));return p.p;}
@@ -399,6 +399,8 @@ function below(c,x0,x1,y0,y1){const SX=110,SD=66,d0=(GB-y1)/PSY,d1=(GB-y0)/PSY+1
     if(((k%2)+2)%2===0){c.fillStyle=rgba(GOLD,.4);c.fillRect(X0,d-.6,X1-X0,1.2);}}
   c.restore();
   c.fillStyle=lin(c,0,y0,0,y1,[[0,rgba('#000000',.1)],[1,rgba('#000000',.45)]]);c.fillRect(x0,y0,x1-x0,y1-y0);}
-E.S.lobby={paint,live,light,prop,table,lamp,div,ware,upTile:COF.h,below};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the chandeliers' light on the marble behind the fight
+const SET={col:'#ffe8be',soft:.4,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.lobby={set:SET,paint,live,light,prop,table,lamp,div,ware,upTile:COF.h,below};
 })();
 // ===== ENV LOBBY END =====

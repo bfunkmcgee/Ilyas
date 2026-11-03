@@ -192,7 +192,7 @@ function pitArmDrain(A){return 1-sstep(clamp((S.t-A.t0-.3)/1.6,0,1));}
   // (only inside the Pit's own picture, as its walls are: a phone held upright sees past the picture's ends)
   ctx.save();ctx.beginPath();ctx.rect(-1e4,-110,2e4,H+230);ctx.clip();try{
     if(K&&lookOn(K)){const L=kaelLight(K),lt=L.light?{x:L.light.x+PIT_DEP*PSX,y:L.light.y-PIT_DEP*PSY}:null;
-      KaelLook.armPiece(ctx,{S:Q[0],E:Q[1],H:Q[2]},{light:lt,gore:S.gore!=='off'?GORE_COL[S.gore].mark:null,coatOff:A.coatOff,sz:K.body.h*(.93+.07*K.body.bulk),fa:A.fa,drain:pitArmDrain(A)});
+      KaelLook.armPiece(ctx,{S:Q[0],E:Q[1],H:Q[2]},{light:lt,key:L.col,rimK:L.rk,gore:S.gore!=='off'?GORE_COL[S.gore].mark:null,coatOff:A.coatOff,sz:K.body.h*(.93+.07*K.body.bulk),fa:A.fa,drain:pitArmDrain(A)});
       // its light on the wall round it, the only light left of him
       const lit=1-pitArmDrain(A);if(lit>.02){const cx=(Q[0].x+Q[1].x+Q[2].x)/3,cy=(Q[0].y+Q[1].y+Q[2].y)/3,r=42,g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
         g.addColorStop(0,`rgba(127,243,227,${(.17*lit).toFixed(3)})`);g.addColorStop(1,'rgba(127,243,227,0)');ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.fillRect(cx-r,cy-r,r*2,r*2);ctx.globalCompositeOperation='source-over';}}
@@ -329,7 +329,7 @@ V11UI.init.push(()=>{const lg=S.hooks.log;S.hooks.log=e=>{lg(e);if(e.type!=='gua
   const h=el.innerHTML.replace(/<span class="tag" style="color:var\(--block\)"[^>]*>Guard<\/span>/,`<span class="tag" style="color:var(--block)" title="${tip}">In cover</span>`);if(h!==el.innerHTML)el.innerHTML=h;}};}
 // a grenade on a belt, or in a hand on its way into a coat
 // the beasts are drawn by their own painter; someone not yet in the scene (f.hidden) is not drawn at all
-function drawBeast(f){const L=kaelLight(f);BeastLook.draw(ctx,f,{light:L.light,dir:L.dir,now:S.t,opening:!!(S.opening&&S.opening.f===f),lookBack:!!(f.look&&typeof tacLook==='function'&&tacLook(f)<-.4),
+function drawBeast(f){const L=kaelLight(f);BeastLook.draw(ctx,f,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,opening:!!(S.opening&&S.opening.f===f),lookBack:!!(f.look&&typeof tacLook==='function'&&tacLook(f)<-.4),
   drawOther:g=>{if(g.wp.unarmed)return;if(beastArm(g.weaponKey)){ctx.save();BeastLook.weapon(ctx,g.weaponKey,g.p[HAF],g.p[TIP],g.facing,{light:L.light,dir:L.dir,now:S.t,seed:g.seed});ctx.restore();}else drawWeapon(g);}});
   drawMarks(f);}
 function beastArm(k){return typeof BeastLook!=='undefined'&&BeastLook.weapon&&BeastLook.WEAPONS&&!!BeastLook.WEAPONS[k]&&!S.classicLook;}

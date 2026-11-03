@@ -719,9 +719,11 @@ function light(f){const P=BAND.street.P,o=offOf(BAND.street),pel=f.p[typeof PEL=
   for(const lx of LX){const q=lampHead(lx);add(q.x,q.y,210,1);}
   add(MARQ.x,MARQ.y,190,.8);
   wx+=.06*MOON.x;wy+=.06*MOON.y;ws+=.06;
-  return{light:{x:wx/ws-f.dep*PSX,y:wy/ws+f.dep*PSY}};}
+  return{light:{x:wx/ws-f.dep*PSX,y:wy/ws+f.dep*PSY},col:'#ffc98a'};}
 // (the pavement runs on under the layer in live(): the front band; past even that, the dark it goes into)
 function below(c,x0,x1,y0,y1){c.fillStyle='#08070b';c.fillRect(x0,y0,x1-x0,y1-y0);}
-E.S.chase={paint,live,light,warm:strips,table:()=>false,div:()=>false,below};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the sodium lamps' light on the road and the pavement going by
+const SET={col:'#ffd6a7',soft:1,gain:1.6,air:.07,y:[GB-360,GB-280,GB-60,GB+20]};
+E.S.chase={set:SET,setLive:true,ground:.28,paint,live,light,warm:strips,table:()=>false,div:()=>false,below};
 })();
 // ===== ENV CHASE END =====

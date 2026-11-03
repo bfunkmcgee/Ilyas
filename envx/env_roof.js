@@ -287,9 +287,11 @@ function fore(){const t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';ct
   for(const s2 of NEAR){const x=((s2.ph+t*s2.sp)%1800)-400;ctx.globalAlpha=s2.a;ctx.beginPath();ctx.moveTo(x,s2.y);ctx.lineTo(x+s2.len,s2.y+s2.len*.03);ctx.stroke();}
   ctx.restore();}
 // the light that rims a fighter: the moon over the left of the sky
-function light(f){return{light:{x:MOON.x-f.dep*PSX,y:MOON.y+f.dep*PSY}};}
+function light(f){return{light:{x:MOON.x-f.dep*PSX,y:MOON.y+f.dep*PSY},col:'#c8d6ff'};}
 // where things are, for the scenes that use the roof
 const LAYOUT={edge:EDGE,parapet:PAR_D,pad:PAD,door:{x:(KIOSK.door[0]+KIOSK.door[1])/2,dep:KIOSK.d0},crown:CROWN,mast:MAST,horizon:HOR};
-E.S.roof={paint,live,fore,light,LAYOUT};
+// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the moon on the roof's deck and the parapet behind the fight
+const SET={col:'#d6e0ff',soft:1,y:[GB-340,GB-260,GB-60,GB+20]};
+E.S.roof={set:SET,paint,live,fore,light,LAYOUT};
 })();
 // ===== ENV ROOF END =====

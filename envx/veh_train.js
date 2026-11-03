@@ -126,12 +126,14 @@ function loco(c,ox,oy,L,fa){const X0=-DIM.loco,X1=0,cab0=X0+2,cab1=X0+82,h0=cab1
 function flatcar(c,ox,oy,L,i,fa){const X0=-DIM.car,X1=0,D=DIM.deck,r=rnd(17+i*31);
   const top=(x0,x1,y,col)=>{c.fillStyle=col;c.beginPath();c.moveTo(x0,y);c.lineTo(x1,y);c.lineTo(x1+ox,y+oy);c.lineTo(x0+ox,y+oy);c.closePath();c.fill();};
   // the deck: iron plate with a diamond tread, the same as the car the fight rides on in the tunnel: plates 60 long with welded seams
-  // and rivets along them, worn bright down the middle, oil and rust on it
-  top(X0,X1,D,'#17171d');
+  // and rivets along them, worn bright down the middle, oil and rust on it. It is the ground the fight on the line stands on, and
+  // the lamps overhead light it (the style guide's rule 8: the ground behind a fight measures .2 and more): a grey plate, its tread
+  // catching the light
+  top(X0,X1,D,'#34343e');
   c.save();c.beginPath();c.moveTo(X0,D);c.lineTo(X1,D);c.lineTo(X1+ox,D+oy);c.lineTo(X0+ox,D+oy);c.closePath();c.clip();
-  const NR=12;for(let k=0;k<NR;k++){const u=(k+.5)/NR;c.fillStyle=rgba(k%2?'#2c2c36':'#272731',.9);for(let x=X0+1+(k%2)*2.2;x<X1;x+=4.4)c.fillRect(x+ox*u,D+oy*u-.3,2.2,.6);}
-  c.fillStyle=lg(c,0,D,0,D+oy,[[0,rgba('#030305',.45)],[.4,rgba('#030305',.2)],[.6,rgba('#030305',.2)],[1,rgba('#030305',.5)]]);c.beginPath();c.moveTo(X0,D);c.lineTo(X1,D);c.lineTo(X1+ox,D+oy);c.lineTo(X0+ox,D+oy);c.closePath();c.fill();
-  c.fillStyle=rgba('#9aa4c0',.05);c.beginPath();c.moveTo(X0+ox*.36,D+oy*.36);c.lineTo(X1+ox*.36,D+oy*.36);c.lineTo(X1+ox*.62,D+oy*.62);c.lineTo(X0+ox*.62,D+oy*.62);c.closePath();c.fill();
+  const NR=12;for(let k=0;k<NR;k++){const u=(k+.5)/NR;c.fillStyle=rgba(k%2?'#5a5a68':'#4c4c5a',.9);for(let x=X0+1+(k%2)*2.2;x<X1;x+=4.4)c.fillRect(x+ox*u,D+oy*u-.3,2.2,.6);}
+  c.fillStyle=lg(c,0,D,0,D+oy,[[0,rgba('#030305',.26)],[.4,rgba('#030305',.06)],[.6,rgba('#030305',.06)],[1,rgba('#030305',.32)]]);c.beginPath();c.moveTo(X0,D);c.lineTo(X1,D);c.lineTo(X1+ox,D+oy);c.lineTo(X0+ox,D+oy);c.closePath();c.fill();
+  c.fillStyle=rgba('#9aa4c0',.12);c.beginPath();c.moveTo(X0+ox*.36,D+oy*.36);c.lineTo(X1+ox*.36,D+oy*.36);c.lineTo(X1+ox*.62,D+oy*.62);c.lineTo(X0+ox*.62,D+oy*.62);c.closePath();c.fill();
   // the seams: across the car every 60, and one down its length; rivets along them
   c.strokeStyle='#07070a';c.lineWidth=.9;c.beginPath();for(let x=X0+60;x<X1;x+=60){c.moveTo(x,D);c.lineTo(x+ox,D+oy);}c.moveTo(X0+ox*.5,D+oy*.5);c.lineTo(X1+ox*.5,D+oy*.5);c.stroke();
   c.fillStyle=rgba('#6a6a7a',.45);for(let x=X0+60;x<X1;x+=60)for(let u=.08;u<1;u+=.14)c.fillRect(x+ox*u+1.2,D+oy*u,.9,.9);for(let x=X0+4;x<X1;x+=7)c.fillRect(x+ox*.5,D+oy*.5+1.1,.9,.9);

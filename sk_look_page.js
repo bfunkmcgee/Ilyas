@@ -174,8 +174,9 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
       const cx=(prjX(H0.x,K.dep)-L)*s,cy=(prjY(H0.y,K.dep)-T)*s,w=Math.round(30*s),h=Math.round(26*s),d=c.getImageData(Math.round(cx-w/2),Math.round(cy-h/2),w,h).data;
       let e=0;for(let i=0;i<d.length;i+=4)e+=Math.max(0,(d[i+1]+d[i+2])/2-d[i]-20);return Math.round(e);};
     try{K.drain=0;K.eyeLit=0;step(20);const lit=glow();K.drain=1;step(20);const dark=glow();K.eyeLit=FALL_EYE;step(20);const back=glow();return{lit,dark,back};}finally{K.drain=0;K.eyeLit=0;K.coatOff=false;}}));
+  // (measured above the drained frame: the place's own light round his head (the moon's on the field, V78) is in all three)
   expect('drained, his eye has no light; at the end of the fall a faint light comes back into it, well short of what it had',
-    eye.dark<eye.back*.5&&eye.back<eye.lit*.8,JSON.stringify(eye));
+    eye.back-eye.dark>.15*(eye.lit-eye.dark)&&eye.back-eye.dark<.8*(eye.lit-eye.dark)&&eye.lit-eye.dark>500,JSON.stringify(eye));
   const piece=await ev(()=>{const cv=document.createElement('canvas');cv.width=220;cv.height=220;const c=cv.getContext('2d');
     const draw=dr=>{c.setTransform(1,0,0,1,0,0);c.fillStyle='#000';c.fillRect(0,0,220,220);c.setTransform(3.4,0,0,3.4,100,30);
       KaelLook.armPiece(c,{S:{x:0,y:0},E:{x:2,y:24},H:{x:6,y:46}},{coatOff:true,sz:1,fa:1,drain:dr,gore:null});
