@@ -539,9 +539,13 @@ function rifleAt(c,x,y,ang,o){o=Object.assign({},o||{});const ux=Math.cos(ang),u
 function headBeam(c,B,o){o=o||{};const lie=clamp(B.lie||0,0,1),lk=clamp(B.light??0,0,1)*(B.wreck?0:1)*(1-lie)*(1-lie);if(lk<=0)return;
   const S=B.style==='street',c0=S?'#fff1c4':K.cyanL,c1=S?'#ffd27a':K.cyan,k2=S?.8:1,fa=B.fa<0?-1:1,d=B.dep||0,g=B.gy,pr=(x,dd)=>({x:x+dd*PX(),y:g-dd*PY()});
   const x0=B.x+fa*62,x1=B.x+fa*(B.pitch>.2?120:S?260:330),sp=S?36:44,a=pr(x0,d),b=pr(x1,d-sp),e=pr(x1,d+sp),m=pr(lerp(x0,x1,.45),d);
+  // (the shared soft piece laid on the road ahead, EnvLook.softSpill: its sides feathered, fading as it goes; the old hard one only
+  // where it is not)
+  const E=typeof EnvLook!=='undefined'&&EnvLook.softSpill?EnvLook:null;
+  if(E){E.softSpill(c,x0,d,8,sp*1.7,Math.abs(x1-x0),c1,.2*lk*k2,g,-fa*Math.PI/2);E.softSpill(c,x0,d,6,sp*.9,Math.abs(x1-x0)*.5,c0,.12*lk*k2,g,-fa*Math.PI/2);}
   c.save();c.globalCompositeOperation='lighter';
-  c.fillStyle=(()=>{const gr=c.createLinearGradient(a.x,a.y,pr(x1,d).x,pr(x1,d).y);gr.addColorStop(0,rgba(c0,.22*lk*k2));gr.addColorStop(.35,rgba(c1,.12*lk*k2));gr.addColorStop(1,rgba(c1,0));return gr;})();
-  c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(e.x,e.y);c.closePath();c.fill();
+  if(!E){c.fillStyle=(()=>{const gr=c.createLinearGradient(a.x,a.y,pr(x1,d).x,pr(x1,d).y);gr.addColorStop(0,rgba(c0,.22*lk*k2));gr.addColorStop(.35,rgba(c1,.12*lk*k2));gr.addColorStop(1,rgba(c1,0));return gr;})();
+    c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(e.x,e.y);c.closePath();c.fill();}
   c.translate(m.x,m.y);c.scale(1,.26);c.fillStyle=rg(c,0,0,0,120,[[0,rgba(c1,.16*lk*k2)],[1,rgba(c1,0)]]);c.beginPath();c.arc(0,0,120,0,TAU);c.fill();
   c.restore();}
 

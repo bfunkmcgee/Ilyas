@@ -246,6 +246,10 @@ function drawVehicle(B){
   if(typeof VehLook!=='undefined'&&B.kind==='bike'){const L=kaelLight({p:[{x:B.x,y:B.gy-60}],dep:B.dep,facing:B.fa,station:B.x});
     ctx.save();VehLook.bike(ctx,B,{light:L.light,dir:L.dir,now:S.t});ctx.restore();return;}
   if(B.kind==='bike')drawBikeStub(B);}
+// the helicopter's open door is a light (the cabin's warmth): on whoever stands by it, the man in white, and in a pool on the pad
+// under it (FXL's lights, sk_lightui.js); the spill out of it across the deck is the machine's own (HeliLook.wash)
+V11UI.init.push(()=>{if(typeof FXL==='undefined'||!FXL.lights)return;FXL.lights.push(add=>{if(S.classicLook||typeof HeliLook==='undefined')return;
+  for(const H of S.veh||[]){if(H.kind!=='heli'||!(H.door>.02))continue;const D=HeliLook.doorAt(H);add(D.x,D.y-72,(H.dep||0)-4,'#ffc98a',.6*clamp(H.door,0,1),170);}});});
 function drawVehShadow(B){if(B.kind==='heli'){if(typeof HeliLook!=='undefined'&&HeliLook.wash&&!S.classicLook){ctx.save();HeliLook.wash(ctx,B,{now:S.t});ctx.restore();}return;}
   if(B.kind==='apc'){if(typeof ApcLook!=='undefined'&&ApcLook.shadow&&!S.classicLook){ctx.save();ApcLook.shadow(ctx,B);ctx.restore();return;}
   const bx=apcBox(B),q=P((bx.l+bx.r)/2,B.gy,B.dep);ctx.fillStyle='rgba(3,2,8,.45)';ctx.beginPath();ctx.ellipse(q.x,q.y,(bx.r-bx.l)/2+16,8,0,0,TAU);ctx.fill();return;}

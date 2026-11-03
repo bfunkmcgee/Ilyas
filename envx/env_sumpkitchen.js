@@ -250,9 +250,9 @@ function lamp(c,G){const Lm=G.lamp,p=q(Lm.x,Lm.h,Lm.d),top=q(Lm.x,Lm.h+200,Lm.d)
   c.fillStyle='#2a2420';c.beginPath();c.moveTo(p.x-14,p.y);c.lineTo(p.x-5,p.y-10);c.lineTo(p.x+5,p.y-10);c.lineTo(p.x+14,p.y);c.closePath();c.fill();c.fillStyle=rgba('#ffcf86',.3);c.fillRect(p.x-14,p.y-.6,28,1.2);
   c.fillStyle=rgba('#f0e6d0',.5);c.fillRect(p.x-2.4,p.y,4.8,9);c.fillStyle='#8a6a32';c.beginPath();c.ellipse(p.x,p.y+12,6,3.4,0,0,TAU);c.fill();
   // its light: down over the table, a little on the wall
-  // (the cone in nested layers, so its edges are soft)
-  c.save();c.globalCompositeOperation='lighter';for(const k of [1,.78,.56,.36]){c.fillStyle=lin(c,0,p.y,0,p.y+130,[[0,rgba('#ffd890',.055)],[1,rgba('#ffd890',0)]]);c.beginPath();c.moveTo(p.x-12*k,p.y);c.lineTo(p.x+12*k,p.y);c.lineTo(p.x+118*k,p.y+130);c.lineTo(p.x-118*k,p.y+130);c.closePath();c.fill();}
-  floorT(c);c.translate(Lm.x,Lm.d-14);c.scale(1.9,1);c.fillStyle=rad(c,0,0,4,90,[[0,rgba('#ffcf86',.18)],[.6,rgba('#ffb060',.06)],[1,rgba('#ffb060',0)]]);c.fillRect(-90,-90,180,180);c.restore();
+  // (the shared soft piece)
+  E.softCone(c,p.x,p.y,18,170,134,'#ffd890',.2,0,1);
+  c.save();c.globalCompositeOperation='lighter';floorT(c);c.translate(Lm.x,Lm.d-14);c.scale(1.9,1);c.fillStyle=rad(c,0,0,4,90,[[0,rgba('#ffcf86',.18)],[.6,rgba('#ffb060',.06)],[1,rgba('#ffb060',0)]]);c.fillRect(-90,-90,180,180);c.restore();
   glowAt(c,p.x,p.y+5,60,'#ffd27a',.4);}
 function stoveLight(c,G){const S0=G.stove;
   c.save();c.globalCompositeOperation='lighter';floorT(c);c.translate((S0.x0+S0.x1)/2-20,S0.d0-40);c.scale(1.7,1);c.fillStyle=rad(c,0,0,4,80,[[0,rgba('#ff8a3c',.2)],[.6,rgba('#ff7a30',.07)],[1,rgba('#ff7a30',0)]]);c.fillRect(-80,-80,160,160);c.restore();}

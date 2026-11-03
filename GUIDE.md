@@ -675,7 +675,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`). One soft light (L1 on) is next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below). The rim and the darkness (M1 on) are next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -727,12 +727,12 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V77 ..." (V76 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V78 ..." (V77 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V76: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V77: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -779,6 +779,7 @@ was checked, and anything that did not work, plainly.
   picture runs from the camera's top to its foot, -110 to H+120 at the least (since V72, `EnvLook.S.fall.span`; before, the floors
   stopped at -110 and an upright phone showed a band of bare piers over them, and the night's top row of stars stretched into lines).
   Anything drawn in pieces there clips to that range (`junkWalls` does), or it pokes out above the far side's top edge.
+- Light is one piece (since V77, the style guide's rule 5): `EnvLook.softSpr(col, spread, fall, lead)` makes a cone once for each colour, spread (its source's width over its foot's, in twentieths) and fall, row by row with a gradient across each (a canvas with no pixel access makes it too): a bell with a brighter core, its sides feathering from full to nothing between three and five quarters of the nominal half-width (a quarter of the width at the foot on each side), fading along with the distance. `EnvLook.softCone(c, x, y, w0, w1, h, col, a, ang, fall)` stamps it from a source (w0 and w1 are where it is half gone; ang is the turn from straight down), `softSpill(c, x, d, w0, w1, len, col, a, g, ang)` lays it in the ground plane, from a door out toward us by default (full at the sill). `beam()` is softCone; glowSprites().cone (the room lamps: the dining room, the kitchen, the lobby, the office) is the sprite itself, so the width it is stamped at is where the last of it goes; liftSpill (the kitchen's secret lift, the lobby's, the platform's) is two softSpills and the wall's halo; the checkpoint's floods and searchlights, the roof's crown beam and searchlights, the helicopter's searchlight, the train's and the bikes' headlamps, the street's window spills, the lobby's slot light and the sundown's shafts are the piece too, and the line of light under the executive's doors fades at its ends. The helicopter's open door is a light (FXL's lights, sk_storyui.js: the man in white lit warm) with its own spill across the pad (HeliLook.wash). The fall keeps its own per-pixel beams, the model the piece was made from.
 - Time a painter on a phone's screen by drawing the same moment over and over with a part left out by turns (as the V72 dream was
   timed): one run against another on this machine differs by 2 ms or more.
 - What a pass over the whole frame costs is its pixels times its blend, and in a CPU canvas it is dear: on a phone's 1.2 million

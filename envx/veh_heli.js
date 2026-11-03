@@ -57,6 +57,9 @@ function cabin(c){const {x0,x1,sill,top}=DIM.door;
   for(const sx of [-26,22]){c.fillStyle=lgr(c,sx,0,sx+30,0,[[0,K.creamD],[.5,K.cream],[1,K.creamD]]);c.beginPath();c.moveTo(sx,sill+6);c.lineTo(sx+2,sill+84);c.quadraticCurveTo(sx+16,sill+96,sx+30,sill+84);c.lineTo(sx+32,sill+6);c.closePath();c.fill();
     c.strokeStyle=rgba(K.gold,.8);c.lineWidth=.8;c.stroke();c.strokeStyle=rgba('#6a5638',.5);c.lineWidth=.5;c.beginPath();for(let y=sill+20;y<sill+80;y+=12){c.moveTo(sx+4,y);c.lineTo(sx+28,y);}c.stroke();}
   c.fillStyle=K.gold;c.fillRect(x0,104,x1-x0,2);
+  // its light comes from the lamp in its ceiling: brightest under it, falling off to the corners and down to the floor, so the
+  // doorway is a lit room with a direction, not one flat colour
+  {const lx=(x0+x1)/2,ly=top-10,R=(top-sill)*1.08;c.fillStyle=rgr(c,lx,ly,4,R,[[0,'rgba(255,240,206,.42)'],[.3,'rgba(255,214,150,.06)'],[.55,'rgba(40,20,8,.16)'],[.8,'rgba(26,12,4,.5)'],[1,'rgba(16,8,2,.74)']]);c.fillRect(x0,sill,x1-x0,top-sill);}
   c.fillStyle=rgba('#fff2d0',.9);c.fillRect(x0+10,top-8,x1-x0-20,3);
   c.fillStyle='#2a1a0e';c.fillRect(x0,sill,x1-x0,6);}
 function lgr(c,x0,y0,x1,y1,st){const g=c.createLinearGradient(x0,y0,x1,y1);for(const [o,col] of st)g.addColorStop(o,col);return g;}
@@ -159,16 +162,22 @@ function lights(c,H,o){const now=o.now??0,fa=H.fa<0?-1:1;
 function beam(c,H,o){const k=clamp(H.lamp??0,0,1);if(k<=0)return;const F=frame(H),d=H.dep||0,L=at(H,DIM.lamp[0],DIM.lamp[1]),G=G0();
   const lx=L.x+d*PX(),ly=L.y-d*PY();let tx,ty,tdep;
   if(H.spot){tdep=H.spot.dep;tx=H.spot.x+tdep*PX();ty=G-tdep*PY();}else{tdep=d-10;const ax=at(H,DIM.lamp[0]+60,DIM.lamp[1]-40);const vx=ax.x-L.x,vy=ax.y-L.y,t=(G-L.y)/(vy||1e-3);tx=L.x+vx*t+tdep*PX();ty=G-tdep*PY();}
-  const dx=tx-lx,dy=ty-ly,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len,w=len*.16;
+  const dx=tx-lx,dy=ty-ly,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len,w=len*.16,E=typeof EnvLook!=='undefined'&&EnvLook.softCone?EnvLook:null;
+  // (the shared soft piece: a bell across the beam, its sides feathered, fading toward the deck; the old hard cone where it is not)
+  if(E)E.softCone(c,lx,ly,4,w*1.7,len*1.04,'#e4f2ff',.3*k,Math.atan2(dy,dx)-Math.PI/2,.8);
   c.save();c.globalCompositeOperation='lighter';
-  c.fillStyle=lgr(c,lx,ly,tx,ty,[[0,rgba('#eaf6ff',.28*k)],[.7,rgba('#d8ecff',.1*k)],[1,rgba('#d8ecff',.04*k)]]);
-  c.beginPath();c.moveTo(lx+nx*2,ly+ny*2);c.lineTo(tx+nx*w,ty+ny*w*.4);c.lineTo(tx-nx*w,ty-ny*w*.4);c.lineTo(lx-nx*2,ly-ny*2);c.closePath();c.fill();
+  if(!E){c.fillStyle=lgr(c,lx,ly,tx,ty,[[0,rgba('#eaf6ff',.28*k)],[.7,rgba('#d8ecff',.1*k)],[1,rgba('#d8ecff',.04*k)]]);
+    c.beginPath();c.moveTo(lx+nx*2,ly+ny*2);c.lineTo(tx+nx*w,ty+ny*w*.4);c.lineTo(tx-nx*w,ty-ny*w*.4);c.lineTo(lx-nx*2,ly-ny*2);c.closePath();c.fill();}
   c.translate(tx,ty);c.scale(1,.42);c.fillStyle=rgr(c,0,0,2,w*1.3,[[0,rgba('#f2f8ff',.32*k)],[.5,rgba('#dcecff',.12*k)],[1,rgba('#dcecff',0)]]);c.beginPath();c.arc(0,0,w*1.3,0,TAU);c.fill();c.restore();
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=rgr(c,lx,ly,0,14,[[0,rgba('#ffffff',.95*k)],[.3,rgba('#eaf6ff',.5*k)],[1,rgba('#eaf6ff',0)]]);c.beginPath();c.arc(lx,ly,14,0,TAU);c.fill();c.restore();}
 // the downwash on the deck when it is low: rings of blown dust running out from under it, grit flying, the deck's sheen stirred
 function wash(c,H,o){const now=o.now??0,d=H.dep||0,G=G0(),hub=at(H,DIM.hub[0],0),cx=hub.x+d*PX(),cy=G-d*PY(),hy=H.y||0;
   // its shadow on the deck, softer and fainter the higher it hangs
   {const k=clamp(1-hy/420,0,1),sx=at(H,10,0).x+d*PX();c.save();c.translate(sx,cy);c.scale(1,.16);c.fillStyle=rgr(c,0,0,10,340,[[0,rgba('#000000',.5*k)],[.6,rgba('#000000',.25*k)],[1,rgba('#000000',0)]]);c.beginPath();c.arc(0,0,340,0,TAU);c.fill();c.restore();}
+  // the cabin's light out of the open door across the pad toward us, the lower it hangs the more (the shared soft piece laid on the deck, over its shadow); the
+  // story makes the doorway a light too, for whoever stands in it (sk_storyui.js)
+  {const u=clamp(H.door??0,0,1),lo=clamp(1-hy/240,0,1),E=typeof EnvLook!=='undefined'&&EnvLook.softSpill?EnvLook:null;
+    if(E&&u>.02&&lo>0){const D=doorAt(H);E.softSpill(c,D.x,d-4,64,170,170,K.warm,.5*u*lo);E.softSpill(c,D.x,d-4,54,100,80,'#ffe2b0',.3*u*lo);}}
   const low=clamp(1-hy/150,0,1)*(H.spin==null?1:H.spin);if(low<=0)return;
   c.save();for(let i=0;i<4;i++){const u=((now*1.6+i/4)%1),r=40+u*260,a=(1-u)*.22*low;c.strokeStyle=rgba('#9a94a8',a);c.lineWidth=2+6*(1-u);c.beginPath();c.ellipse(cx,cy,r,r*.3,0,0,TAU);c.stroke();}
   c.fillStyle=rgr(c,cx,cy,10,200,[[0,rgba('#9a94a8',.12*low)],[1,rgba('#9a94a8',0)]]);c.save();c.translate(cx,cy);c.scale(1,.3);c.beginPath();c.arc(0,0,200,0,TAU);c.fill();c.restore();

@@ -197,7 +197,9 @@ function lights(c,T,o,ox,oy){const now=o.now||0,run=clamp(T.run??0,0,1),lk=clamp
     c.fillStyle=rgba(K.cyanL,.95*fl);c.beginPath();c.ellipse(x+.6,y,2.6,9.6,0,0,TAU);c.fill();
     c.fillStyle=rg(c,x+2,y,0,30,[[0,rgba(K.cyanL,.55*fl)],[.25,rgba(K.cyan,.25*fl)],[1,rgba(K.cyan,0)]]);c.beginPath();c.arc(x+2,y,30,0,TAU);c.fill();
     // the beam down the line, and the pool it makes on the rails ahead
-    c.fillStyle=lg(c,x,0,x+260,0,[[0,rgba(K.cyan,.2*fl)],[1,rgba(K.cyan,0)]]);c.beginPath();c.moveTo(x+2,y+10);c.lineTo(x+260,y+40);c.lineTo(x+260,-4);c.lineTo(x+2,y-10);c.closePath();c.fill();
+    // (the shared soft piece, EnvLook.softCone: the old hard cone only where it is not)
+    {const E=typeof EnvLook!=='undefined'&&EnvLook.softCone?EnvLook:null;if(E)E.softCone(c,x+2,y,18,120,262,K.cyan,.22*fl,Math.atan2(-30,258)-Math.PI/2,1);
+      else{c.fillStyle=lg(c,x,0,x+260,0,[[0,rgba(K.cyan,.2*fl)],[1,rgba(K.cyan,0)]]);c.beginPath();c.moveTo(x+2,y+10);c.lineTo(x+260,y+40);c.lineTo(x+260,-4);c.lineTo(x+2,y-10);c.closePath();c.fill();}}
     c.fillStyle=rg(c,x+150,2,0,120,[[0,rgba(K.cyan,.14*fl)],[1,rgba(K.cyan,0)]]);c.save();c.translate(x+150,2);c.scale(1,.18);c.beginPath();c.arc(0,0,120,0,TAU);c.fill();c.restore();}
   c.restore();
   // heat over the stack when she is working

@@ -112,10 +112,9 @@ function paint(c){
   // the sun's light in the sky: a wide warm bloom round where it goes down, gold close in
   glow(c,SUN.x,SUN.y0+12,620,'#ff8a40',.3,.55);glow(c,SUN.x,SUN.y0+8,240,'#ffc070',.38,.8);glow(c,SUN.x,SUN.y0+6,90,'#fff0c0',.3);
   // shafts of the sun's light fanning up through the haze
-  {c.save();c.globalCompositeOperation='lighter';const R=rng(52),ox=SUN.x,oy=SUN.y0+6,L=430;
-    for(let i=0;i<9;i++){const a=-Math.PI/2+(i-4)*.3+(R()-.5)*.12,w=.016+R()*.022,g=c.createLinearGradient(ox,oy,ox+Math.cos(a)*L,oy+Math.sin(a)*L);
-      g.addColorStop(0,rgba('#ffd890',.045));g.addColorStop(.4,rgba('#ffd890',.014));g.addColorStop(1,rgba('#ffd890',0));c.fillStyle=g;
-      c.beginPath();c.moveTo(ox,oy);c.lineTo(ox+Math.cos(a-w)*L,oy+Math.sin(a-w)*L);c.lineTo(ox+Math.cos(a+w)*L,oy+Math.sin(a+w)*L);c.closePath();c.fill();}c.restore();}
+  // (each the shared soft piece: feathered along its sides, fading as it goes)
+  {const R=rng(52),ox=SUN.x,oy=SUN.y0+6,L=430;
+    for(let i=0;i<9;i++){const a=-Math.PI/2+(i-4)*.3+(R()-.5)*.12,w=.016+R()*.022;E.softCone(c,ox,oy,2,2*L*Math.tan(w)*1.15,L,'#ffd890',.072,a-Math.PI/2,1.7);}}
   // clouds: long thin streaks, gold underneath near the sun, violet away from it
   for(const [cx,cy,w,h] of [[60,214,210,7],[300,186,260,6],[520,150,300,8],[-60,150,240,7],[760,212,240,5],[420,252,200,4],[180,120,280,9],[880,96,320,8],[40,268,150,3.5]]){
     const near=clamp(1-Math.hypot(cx-SUN.x,(cy-SUN.y0)*1.6)/520,0,1);streak(c,cx,cy,w,h,near);}

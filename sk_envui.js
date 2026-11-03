@@ -88,7 +88,9 @@ function glowSprites(){if(GLOW)return GLOW;const mk=(w,h,fn)=>{const c=document.
   GLOW={
     dot:mk(128,128,(g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,1,w/2,h/2,w/2);r.addColorStop(0,'rgba(255,236,190,1)');r.addColorStop(.35,'rgba(255,200,130,.38)');r.addColorStop(1,'rgba(255,180,110,0)');g.fillStyle=r;g.fillRect(0,0,w,h);}),
     pool:mk(128,128,(g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,2,w/2,h/2,w/2);r.addColorStop(0,'rgba(255,196,120,1)');r.addColorStop(1,'rgba(255,180,110,0)');g.fillStyle=r;g.fillRect(0,0,w,h);}),
-    cone:mk(96,128,(g,w,h)=>{const r=g.createLinearGradient(0,0,0,h);r.addColorStop(0,'rgba(255,214,150,1)');r.addColorStop(1,'rgba(255,190,120,0)');g.fillStyle=r;g.beginPath();g.moveTo(w/2-9,0);g.lineTo(w/2+9,0);g.lineTo(w,h);g.lineTo(0,h);g.closePath();g.fill();})};
+    // a room lamp's cone: the shared soft piece (EnvLook.softSpr, env_look.js), its sides feathering out to the sprite's edges, so
+    // the width it is stamped at is where the last of it goes
+    cone:typeof EnvLook!=='undefined'&&EnvLook.softSpr?EnvLook.softSpr('#ffd696',.25,.85,.06,1.3):mk(96,128,(g,w,h)=>{const r=g.createLinearGradient(0,0,0,h);r.addColorStop(0,'rgba(255,214,150,1)');r.addColorStop(1,'rgba(255,190,120,0)');g.fillStyle=r;g.fillRect(0,0,w,h);})};
   return GLOW;}
 // pools of lamplight on the floor, following each lamp as it swings
 function drawLampPools(){

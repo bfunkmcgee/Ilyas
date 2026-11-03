@@ -143,8 +143,9 @@ function featureWall(c,x0,x1,top,bt){const cx=(x0+x1)/2,cy=top+68,R=40;
   brassV(c,x0-6,top-6,3,bt-top+6,1);brassV(c,x1+3,top-6,3,bt-top+6,1);brassH(c,x0-6,top-6,x1-x0+12,3);
   c.fillStyle=lin(c,0,top,0,bt,[[0,rgba('#000000',.0)],[1,rgba('#000000',.35)]]);c.fillRect(x0,top,x1-x0,bt-top);
   // the light from above: a cone from a slot in the ceiling, warm on the stone and the ring
-  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,top,0,top+170,[[0,rgba('#ffd69a',.18)],[1,rgba('#ffd69a',0)]]);c.beginPath();c.moveTo(cx-8,top);c.lineTo(cx+8,top);c.lineTo(cx+82,top+170);c.lineTo(cx-82,top+170);c.closePath();c.fill();
-  c.fillStyle=rad(c,cx,cy,0,96,[[0,rgba('#ffc880',.16)],[1,rgba('#ffc880',0)]]);c.fillRect(cx-96,cy-96,192,192);c.restore();
+  // (the shared soft piece: its sides feathered, fading as it comes down)
+  E.softCone(c,cx,top,16,150,176,'#ffd69a',.19,0,1);
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=rad(c,cx,cy,0,96,[[0,rgba('#ffc880',.16)],[1,rgba('#ffc880',0)]]);c.fillRect(cx-96,cy-96,192,192);c.restore();
   // the ring: polished brass, its gap, its moon and the bar; inside it a thread of cyan light
   c.save();c.lineCap='round';
   c.strokeStyle=rgba('#000000',.6);c.lineWidth=5;c.beginPath();c.arc(cx+1.4,cy+2,R,.35,TAU-.5);c.stroke();

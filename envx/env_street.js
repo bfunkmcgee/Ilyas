@@ -3,7 +3,7 @@
 // among them under its lanterns; elven gas lamps along the far kerb; wet flagstones, granite kerbs and a road of granite setts
 // with tram rails; beyond the roofs the city and the Hallowell tower with its ring of cyan light. Brick, stucco, dressed stone,
 // mahogany, canvas and paving come from EnvTex, made once pixel by pixel and laid on as patterns.
-(()=>{const E=EnvLook,{C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,haze,vine,scroll,gilt,windowPane,wetStreak,stars,moon,cloudBank,skyline,hallTower,rng,lerp,clamp,TAU}=E;
+(()=>{const E=EnvLook,{C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,softSpill,haze,vine,scroll,gilt,windowPane,wetStreak,stars,moon,cloudBank,skyline,hallTower,rng,lerp,clamp,TAU}=E;
 const TX=()=>EnvTex;
 const DF=212,KB=22,LAMPD=200,LAMPX=[60,290,520,750,980];
 const g0=()=>GB-KB,fy=d=>g0()-d*PSY,fx=(x,d)=>x+d*PSX;
@@ -694,7 +694,8 @@ function paint(c){SPILL=[];
     c.fillStyle=pf;c.fillRect(X0-100,d0,X1-X0+100,d1-d0);c.restore();
     c.fillStyle=lin(c,0,fy(d1),0,fy(d0),[[0,rgba('#06040a',.6)],[1,rgba('#06040a',.5)]]);poly(c,pv);c.fill();
     // the windows' light lying out across the flags, in front of each window
-    c.save();c.transform(1,0,PSX,-PSY,0,g);c.globalCompositeOperation='lighter';for(const s of SPILL){const sc=s.col||'#ffb060',x0=s.x0-DF*PSX,x1=s.x1-DF*PSX;c.fillStyle=lin(c,0,d1,0,d1-50,[[0,rgba(sc,.2*s.a)],[1,rgba(sc,0)]]);c.beginPath();c.moveTo(x0,d1);c.lineTo(x1,d1);c.lineTo(x1+12,d1-50);c.lineTo(x0-12,d1-50);c.closePath();c.fill();}c.restore();
+    // (the shared soft piece laid on the flags: full at the facade, spreading a little as it comes, its sides feathered)
+    for(const s of SPILL){const w=s.x1-s.x0;softSpill(c,(s.x0+s.x1)/2-DF*PSX,d1,w,w+24,54,s.col||'#ffb060',.21*s.a,g);}
     const y1=fy(126);for(const lx of LAMPX){const q=lampAt(lx);wetStreak(c,q.x,base+2,y1,16,'#ffc477',.35,lx);}
     for(const [sx,a] of [[BG.wcx[0],.3],[BG.wcx[1],.3],[BG.dcx,.22],[600,.18],[40,.16],[790,.15],[1060,.16],[-80,.12]])wetStreak(c,sx,base+2,y1,30,'#ffb866',a,sx+3);
     for(const lx of LAMPX){const q=pp(lx+16*LK,g,LAMPD-20);glow(c,q.x,q.y,80,'#ffb866',.16,.3);}

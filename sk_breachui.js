@@ -22,7 +22,9 @@ function brSprites(){if(BR_SPR)return BR_SPR;
     fire:mk(128,128,(g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);r.addColorStop(0,'rgba(255,244,205,1)');r.addColorStop(.12,'rgba(255,214,120,.95)');r.addColorStop(.34,'rgba(255,140,44,.78)');
       r.addColorStop(.66,'rgba(206,60,20,.38)');r.addColorStop(1,'rgba(120,24,12,0)');g.fillStyle=r;g.fillRect(0,0,w,h);}),
     red:mk(48,48,(g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);r.addColorStop(0,'rgba(255,170,150,1)');r.addColorStop(.22,'rgba(255,60,40,.85)');r.addColorStop(1,'rgba(255,30,20,0)');g.fillStyle=r;g.fillRect(0,0,w,h);}),
-    shaft:mk(8,64,(g,w,h)=>{const r=g.createLinearGradient(0,0,0,h);r.addColorStop(0,'rgba(255,200,120,.6)');r.addColorStop(1,'rgba(255,170,90,0)');g.fillStyle=r;g.fillRect(0,0,w,h);})};
+    // (soft at its ends as well as down its length: light, not a slab)
+    shaft:mk(64,64,(g,w,h)=>{const r=g.createLinearGradient(0,0,0,h);r.addColorStop(0,'rgba(255,200,120,.6)');r.addColorStop(1,'rgba(255,170,90,0)');g.fillStyle=r;g.fillRect(0,0,w,h);
+      g.globalCompositeOperation='destination-in';const e=g.createLinearGradient(0,0,w,0);e.addColorStop(0,'rgba(0,0,0,0)');e.addColorStop(.22,'rgba(0,0,0,1)');e.addColorStop(.78,'rgba(0,0,0,1)');e.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=e;g.fillRect(0,0,w,h);})};
   return BR_SPR;}
 
 // ---------- the closed door ----------

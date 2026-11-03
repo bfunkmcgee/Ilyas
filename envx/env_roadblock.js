@@ -8,7 +8,7 @@
 // one, a lit message board says CHECKPOINT, a spike strip lies across the asphalt, and a cruiser waits at the back with its lightbar
 // turning. The asphalt is wet: worn lane paint, puddles holding the lights, a manhole breathing steam. The fighting band (depth 12 to
 // 170) is clear, and the right third of the floor is plain asphalt for the armoured carrier (ApcLook) that stands there.
-(()=>{const E=EnvLook,{C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,haze,gilt,windowPane,wetStreak,stars,cloudBank,skyline,rng,lerp,clamp,TAU}=E;
+(()=>{const E=EnvLook,{C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,softCone,haze,gilt,windowPane,wetStreak,stars,cloudBank,skyline,rng,lerp,clamp,TAU}=E;
 const KB=12,DF=240;                           // the kerb's height and the facade line (depth)
 const g0=()=>GB-KB,fy=d=>g0()-d*PSY,fx=(x,d)=>x+d*PSX;
 const gq=(x,d)=>pp(x,GB,d);                   // a point on the road
@@ -257,7 +257,7 @@ function road(c,X0,X1){
   c.restore();
   // the light on the road: the cold pool of the floods across the checkpoint and down the lanes, the sodium lamps' warm pools behind
   c.save();c.globalCompositeOperation='lighter';
-  {const L=mastLamp(),p=gq(MAST.x-120,110);c.save();c.translate(p.x,p.y);c.scale(1,.32);c.fillStyle=rad(c,0,0,0,520,[[0,rgba('#c8dcff',.16)],[.45,rgba('#c8dcff',.06)],[1,rgba('#c8dcff',0)]]);c.beginPath();c.arc(0,0,520,0,TAU);c.fill();c.restore();void L;}
+  {const L=mastLamp(),p=gq(MAST.x-120,110);c.save();c.translate(p.x,p.y);c.scale(1,.32);c.fillStyle=rad(c,0,0,0,520,[[0,rgba('#c8dcff',.2)],[.45,rgba('#c8dcff',.075)],[1,rgba('#c8dcff',0)]]);c.beginPath();c.arc(0,0,520,0,TAU);c.fill();c.restore();void L;}
   for(const Lp of LAMPS){const p=gq(Lp.x+44,84);c.save();c.translate(p.x,p.y);c.scale(1,.34);c.fillStyle=rad(c,0,0,0,180,[[0,rgba('#ffb060',.14)],[1,rgba('#ffb060',0)]]);c.beginPath();c.arc(0,0,180,0,TAU);c.fill();c.restore();}
   c.restore();}
 // the far pavement and its kerb
@@ -309,16 +309,17 @@ function paint(c){
   {const wy=d=>g0()-196-d*PSY;for(const [d,a] of [[82,.85],[96,.6]]){const pts=POLES.map(px=>pp(px+44,g0()-196,204-122+(d-82)));
       c.strokeStyle=rgba('#040406',a);c.lineWidth=.8;c.beginPath();c.moveTo(X0,pts[0].y+6);for(let i=0;i<pts.length;i++){const p=pts[i];if(i)c.quadraticCurveTo((pts[i-1].x+p.x)/2,(pts[i-1].y+p.y)/2+6,p.x,p.y);else c.lineTo(p.x,p.y);}c.lineTo(X1,pts[pts.length-1].y+6);c.stroke();
       c.strokeStyle=rgba('#cfe0ff',.14*a);c.lineWidth=.4;c.stroke();void wy;}}
-  // the floods' light: the cone down the avenue from the mast, and from the tripod; the glare of the lamp faces
-  {const L=mastLamp(),o={x:L.x-14,y:L.y-4};c.save();c.globalCompositeOperation='lighter';
-    // the mast's cone falls down the avenue onto the road, a little of it caught in the drizzle on the way
-    for(const [a,b,al] of [[gq(-40,10),gq(560,190),.05],[gq(120,50),gq(480,160),.05]]){const m={x:(a.x+b.x)/2,y:(a.y+b.y)/2},gr=c.createLinearGradient(o.x,o.y,m.x,m.y);
-      gr.addColorStop(0,rgba('#e6efff',al*2));gr.addColorStop(.55,rgba('#c8dcff',al));gr.addColorStop(1,rgba('#c8dcff',al*.25));c.fillStyle=gr;
-      c.beginPath();c.moveTo(o.x,o.y-4);c.lineTo(o.x,o.y+4);c.lineTo(a.x,a.y);c.lineTo(b.x,b.y);c.closePath();c.fill();}
-    // and the tripod's, low and flat along the far lane
-    {const T=triLamp(),h={x:T.x-12,y:T.y-TRI.h},a=gq(TRI.x-420,110),b=gq(TRI.x-300,196),gr=c.createLinearGradient(h.x,h.y,(a.x+b.x)/2,(a.y+b.y)/2);
-      gr.addColorStop(0,rgba('#e6efff',.14));gr.addColorStop(1,rgba('#c8dcff',0));c.fillStyle=gr;c.beginPath();c.moveTo(h.x,h.y-4);c.lineTo(h.x,h.y+5);c.lineTo(a.x,a.y);c.lineTo(b.x,b.y-30);c.closePath();c.fill();}
-    c.restore();glow(c,o.x,o.y,90,'#dce8ff',.5);glow(c,o.x,o.y,22,'#ffffff',.9);
+  // the floods' light: soft cones down the avenue from the mast and from the tripod (the shared piece: a cone from the lamp to the
+  // stretch of road it lands on, as wide there as that stretch is across it), dimmer in the air than the pools they leave on the
+  // road; the glare of the lamp faces
+  {const L=mastLamp(),o={x:L.x-14,y:L.y-4},cone=(o,a,b,al)=>{const Ax=(a.x+b.x)/2-o.x,Ay=(a.y+b.y)/2-o.y,len=Math.hypot(Ax,Ay)||1,fw=Math.abs(((b.x-a.x)*Ay-(b.y-a.y)*Ax)/len);
+      softCone(c,o.x,o.y,9,fw*.82,len,'#d6e4ff',al,Math.atan2(Ay,Ax)-Math.PI/2,.9);};
+    // the mast's falls down the avenue onto the road, a little of it caught in the drizzle on the way
+    cone(o,gq(-40,10),gq(560,190),.09);cone(o,gq(120,50),gq(480,160),.07);
+    // and the tripod's, low and flat along the far lane, with its own pool there
+    {const T=triLamp(),h={x:T.x-12,y:T.y-TRI.h};cone(h,gq(TRI.x-420,110),gq(TRI.x-300,196),.11);
+      const p=gq(TRI.x-360,150);c.save();c.globalCompositeOperation='lighter';c.translate(p.x,p.y);c.scale(1,.3);c.fillStyle=rad(c,0,0,0,150,[[0,rgba('#c8dcff',.15)],[.5,rgba('#c8dcff',.05)],[1,rgba('#c8dcff',0)]]);c.beginPath();c.arc(0,0,150,0,TAU);c.fill();c.restore();}
+    glow(c,o.x,o.y,90,'#dce8ff',.5);glow(c,o.x,o.y,22,'#ffffff',.9);
     const T=triLamp();glow(c,T.x-12,T.y-TRI.h,56,'#dce8ff',.6);glow(c,T.x-12,T.y-TRI.h,12,'#ffffff',.9);}
   for(const Lp of LAMPS){const L=lampHead(Lp);glow(c,L.x,L.y+2,48,'#ffb050',.45);glow(c,L.x,L.y+2,10,'#fff0c8',.8);beam(c,L.x,L.y+3,10,90,120,'#ffb860',.06);}
   // the near lane: sawhorses and cones toward us, left of where the carrier stands
@@ -330,10 +331,9 @@ const STEAM=(()=>{const r=rng(5),a=[];for(let i=0;i<14;i++)a.push({ph:r(),dx:(r(
 const RAIN=(()=>{const r=rng(8),a=[];for(let i=0;i<70;i++)a.push({x:r()*1100-100,y:r()*560-40,sp:280+r()*160,l:5+r()*5,a:.06+r()*.1});return a;})();
 function live(){const t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';
   // the searchlights out of the crown, two pale arms sweeping the cloud
-  {const cw=TOWER.w*.62,oy=TOWER.top-8;for(const [sd,ph,sp,col] of [[-1,0,.23,'#e4ecff'],[1,2.1,.17,'#cfeeff']]){const ox=TOWER.x+sd*cw*.47,a=-Math.PI/2+sd*.42+Math.sin(t*sp+ph)*.5,len=700,ex=ox+Math.cos(a)*len,ey=oy+Math.sin(a)*len,nx=-Math.sin(a),ny=Math.cos(a);
-    const g=ctx.createLinearGradient(ox,oy,ex,ey);g.addColorStop(0,rgba(col,.36));g.addColorStop(.35,rgba(col,.12));g.addColorStop(1,rgba(col,0));ctx.fillStyle=g;
-    ctx.beginPath();ctx.moveTo(ox+nx*2.4,oy+ny*2.4);ctx.lineTo(ex+nx*54,ey+ny*54);ctx.lineTo(ex-nx*54,ey-ny*54);ctx.lineTo(ox-nx*2.4,oy-ny*2.4);ctx.closePath();ctx.fill();
-    glow(ctx,ox,oy,14,'#f4f8ff',.6);}}
+  // (the shared soft piece, as the fall's searchlights: a bell across, fading out into the cloud)
+  {const cw=TOWER.w*.62,oy=TOWER.top-8;for(const [sd,ph,sp,col] of [[-1,0,.23,'#e4ecff'],[1,2.1,.17,'#cfeeff']]){const ox=TOWER.x+sd*cw*.47,a=-Math.PI/2+sd*.42+Math.sin(t*sp+ph)*.5;
+    softCone(ctx,ox,oy,5,100,700,col,.38,a-Math.PI/2,1.8);glow(ctx,ox,oy,14,'#f4f8ff',.6);}}
   // the flashers on the sawhorses, amber and blue by turns
   for(let i=0;i<BARR.length;i++){const s=BARR[i],d=s.d,h=38,L=s.w/2,q=pp(s.x+L*.55,GB-h,d),blue=i%2===1,on=Math.pow(Math.max(0,Math.sin(t*(blue?5.2:4.6)+i*1.7)),6);
     if(on<.02)continue;const col=blue?'#5a8cff':'#ffb030',y=q.y-(d<0?9:7)-2.2;glow(ctx,q.x,y,d<0?30:22,col,.75*on);ctx.fillStyle=rgba('#ffffff',.85*on);ctx.fillRect(q.x-1.6,y-1,3.2,2);}

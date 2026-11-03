@@ -7,7 +7,7 @@
 // it, the sheer face of the tower below it, and beyond, very far down, the city's lights spread to the horizon. The moon is up on
 // the left. live() blows: wind streaks, cloud tearing past, the lights blinking, the crown's light breathing, searchlights sweeping
 // from the crown, the windsock snapping.
-(()=>{const E=EnvLook,{C,pp,poly,lin,rad,rgba,mix,glow,haze,stars,moon,rng,lerp,clamp,TAU}=E;
+(()=>{const E=EnvLook,{C,pp,poly,lin,rad,rgba,mix,glow,softCone,haze,stars,moon,rng,lerp,clamp,TAU}=E;
 const FAR=230;
 const EDGE=868;                                // the roof ends here, in plane x: beyond it, the drop
 const PAR_D=236,PAR_H=30;                      // the parapet along the back: its depth and height
@@ -62,10 +62,8 @@ function farCity(c,X0,X1){const r=rng(9);
   haze(c,X0,X1,HOR-10,HOR+14,'#5a3a40',.35);}
 // ---------- the crown: a lantern of glass full of the house's cyan light, gold blades rising from round it to the needle ----------
 function crown(c){const b=g2(CROWN.x,CROWN.d),cx=b.x,base=b.y,top=-150,dw=104,dh=118,dt=base-dh;
-  // the beam it throws up into the cloud
-  c.save();c.globalCompositeOperation='lighter';
-  c.fillStyle=lin(c,0,top-60,0,dt,[[0,rgba(C.cyan,0)],[.4,rgba(C.cyan,.06)],[1,rgba(C.cyan,.12)]]);c.beginPath();c.moveTo(cx-20,dt-120);c.lineTo(cx+20,dt-120);c.lineTo(cx+70,top-80);c.lineTo(cx-70,top-80);c.closePath();c.fill();
-  c.restore();
+  // the beam it throws up into the cloud (the shared soft piece, turned to go up, fading as it goes)
+  softCone(c,cx,dt-90,36,130,dt-90-(top-80),C.cyan,.13,Math.PI,1.1);
   glow(c,cx,dt-40,200,C.cyan,.18,.9);
   // the lantern: a drum of dark glass in gold mullions, the cyan light deep inside it
   c.fillStyle=lin(c,cx-dw,0,cx+dw,0,[[0,'#030a0c'],[.3,'#072226'],[.5,'#0e4448'],[.7,'#072226'],[1,'#02080a']]);c.fillRect(cx-dw,dt,dw*2,dh);
@@ -246,12 +244,10 @@ function paint(c){
   // the near edge of the picture: the deck going on toward us into the dark
   E.fallKeep(c,X0,X1+120,GB-30,[[GB-30,0],[GB+140,.55]],null,.06);}
 // ---------- what moves ----------
-// The moving lights are stamped from small sprites made once (a glow, a soft cloud, a searchlight's beam), so a frame costs little.
+// The moving lights are stamped from small sprites made once (a glow, a soft cloud; the searchlights' beams are the shared soft piece), so a frame costs little.
 const SPR={};function sprite(key,w,h,fn){if(SPR[key])return SPR[key];const cv=document.createElement('canvas');cv.width=w;cv.height=h;fn(cv.getContext('2d'),w,h);return SPR[key]=cv;}
 const glowSpr=col=>sprite('g'+col,64,64,(g,w)=>{g.fillStyle=rad(g,w/2,w/2,0,w/2,[[0,rgba(col,1)],[.25,rgba(col,.45)],[.6,rgba(col,.12)],[1,rgba(col,0)]]);g.fillRect(0,0,w,w);});
 const cloudSpr=()=>sprite('cloud',128,64,(g,w,h)=>{g.save();g.scale(1,h/w);g.fillStyle=rad(g,w/2,w/2,0,w/2,[[0,rgba('#2a2c40',.9)],[.6,rgba('#2a2c40',.4)],[1,rgba('#2a2c40',0)]]);g.fillRect(0,0,w,w);g.restore();});
-const beamSpr=()=>sprite('beam',512,32,(g,w,h)=>{const gr=g.createLinearGradient(0,0,w,0);gr.addColorStop(0,'rgba(223,246,255,.9)');gr.addColorStop(1,'rgba(223,246,255,0)');g.fillStyle=gr;
-  g.beginPath();g.moveTo(0,h/2-1);g.lineTo(w,0);g.lineTo(w,h);g.lineTo(0,h/2+1);g.closePath();g.fill();});
 function glowAt(x,y,r,col,a,sq){ctx.globalAlpha=a;ctx.drawImage(glowSpr(col),x-r,y-r*(sq||1),r*2,r*2*(sq||1));}
 const STREAKS=(()=>{const r=rng(5),a=[];for(let i=0;i<46;i++)a.push({y:-90+r()*560,len:30+r()*120,sp:500+r()*700,ph:r()*3000,a:.05+r()*.12,w:.4+r()*.6});return a;})();
 const WISPS=(()=>{const r=rng(7),a=[];for(let i=0;i<7;i++)a.push({y:120+r()*150,rx:90+r()*160,ry:4+r()*8,sp:40+r()*70,ph:r()*1600});return a;})();
@@ -262,7 +258,8 @@ function live(){const t=S.t;ctx.save();
   ctx.globalCompositeOperation='lighter';
   // the crown breathes, and two searchlights sweep the cloud from it
   {const b=g2(CROWN.x,CROWN.d),pulse=.55+.45*Math.sin(t*1.3),y0=b.y-118-150;glowAt(b.x,y0,170,C.cyan,.06+.06*pulse,.7);
-    const bs=beamSpr();for(const [ph,sp] of [[0,.35],[2.4,.27]]){const a=-Math.PI/2+Math.sin(t*sp+ph)*.85;ctx.save();ctx.translate(b.x,y0-60);ctx.rotate(a);ctx.globalAlpha=.13;ctx.drawImage(bs,0,-34,900,68);ctx.restore();}}
+    // (soft beams fading into the cloud: the shared piece)
+    for(const [ph,sp] of [[0,.35],[2.4,.27]]){const a=-Math.PI/2+Math.sin(t*sp+ph)*.85;softCone(ctx,b.x,y0-60,4,62,900,'#dff6ff',.13,a-Math.PI/2,1.4);}}
   // the pad's edge lights, a slow chase round the ring
   {const {x,d,r}=PAD;for(let k=0;k<PAD_N;k++){const a=k/PAD_N*TAU,q=g2(x+Math.cos(a)*(r+5),d+Math.sin(a)*(r+5)),ch=Math.pow(Math.max(0,Math.cos((k/PAD_N-t*.35)*TAU)),6),on=.45+.55*ch;
     glowAt(q.x,q.y,7+5*ch,k%2?'#ffcf86':'#7ff3e3',.45*on);ctx.globalAlpha=.7*on;ctx.fillStyle='#fffaf0';ctx.fillRect(q.x-.8,q.y-.8,1.6,1.6);}}

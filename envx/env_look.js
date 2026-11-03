@@ -26,9 +26,34 @@ function mix(a,b,t){const A=parseInt(a.slice(1),16),B=parseInt(b.slice(1),16),f=
 // a soft light added to what is there: sq squashes it vertically
 function glow(c,x,y,r,col,a,sq){c.save();c.globalCompositeOperation='lighter';c.globalAlpha=a==null?1:a;c.translate(x,y);if(sq)c.scale(1,sq);
   c.fillStyle=rad(c,0,0,0,r,[[0,rgba(col,1)],[.25,rgba(col,.45)],[.6,rgba(col,.12)],[1,rgba(col,0)]]);c.beginPath();c.arc(0,0,r,0,TAU);c.fill();c.restore();}
-// a cone of light falling from (x, y): w0 wide at the top, w1 at the bottom, h tall
-function beam(c,x,y,w0,w1,h,col,a){c.save();c.globalCompositeOperation='lighter';c.globalAlpha=a;c.fillStyle=lin(c,0,y,0,y+h,[[0,rgba(col,.9)],[.5,rgba(col,.3)],[1,rgba(col,0)]]);
-  c.beginPath();c.moveTo(x-w0/2,y);c.lineTo(x+w0/2,y);c.lineTo(x+w1/2,y+h);c.lineTo(x-w1/2,y+h);c.closePath();c.fill();c.restore();}
+// ---------- light: the one soft piece (the style guide's rule 5) ----------
+// Every lamp's cone, every beam and searchlight and every spill across a floor is this piece, made once for each colour, spread (its
+// source's width over its foot's, in twentieths) and fall, and stamped, scaled and turned. Across it a bell with a brighter core
+// whose sides feather from full to nothing over a quarter of its width at the foot (from three quarters to five quarters of the
+// nominal half-width: w0 and w1 below are the widths where it is half gone); along it the light fades with the distance from its
+// source, coming up softly at the source (lead) so it never starts on a hard line, and gone at its far end (gain: brighter all
+// through, the core held at full). Made row by row with a
+// gradient across each, so a canvas with no pixel access makes it too.
+const SOFT=new Map();
+function softSpr(col,r,fall,lead,gain){r=Math.round(clamp(r,0,1)*20)/20;fall=fall||1.3;lead=lead==null?.06:lead;gain=gain||1;const key=col+'|'+r+'|'+fall+'|'+lead+'|'+gain;let cv=SOFT.get(key);if(cv)return cv;
+  const w=64,h=192;cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d');if(!g)return cv;const hw=w/2;
+  for(let y=0;y<h;y++){const v=(y+.5)/h,e=.8*(r+(1-r)*v)*hw,k=gain*Math.pow(1-v,fall)*(lead>0?ss(v/lead):1);if(k<.002||e<.05)continue;
+    const gr=g.createLinearGradient(hw-1.25*e,0,hw+1.25*e,0),at=u=>(u+1.25)/2.5;
+    for(const [u,f] of [[-1.25,0],[-.75,.78],[-.3,.95],[0,1],[.3,.95],[.75,.78],[1.25,0]])gr.addColorStop(at(u),rgba(col,clamp(f*k,0,1)));
+    g.fillStyle=gr;g.fillRect(hw-1.25*e,y,2.5*e,1.02);}
+  SOFT.set(key,cv);return cv;}
+// a cone of light from (x, y): w0 across at its source and w1 at its foot (the widths where it is half gone), h long, turned ang from
+// straight down (radians, clockwise on the screen); fall: how fast it fades along (1.3 by default)
+function softCone(c,x,y,w0,w1,h,col,a,ang,fall){if(!(a>0)||!(h>0)||!(w1>0))return;const S=softSpr(col,w0/w1,fall);c.save();c.globalCompositeOperation='lighter';
+  c.globalAlpha=Math.min(1,a);c.translate(x,y);if(ang)c.rotate(ang);c.drawImage(S,-w1*.625,0,w1*1.25,h);c.restore();}
+// the same light laid in the ground plane: a spill from a door at (x, depth d) out across the floor toward us, w0 across at the
+// door and w1 at its far end, len deep; it is full right at the sill (no lead) and fades more slowly than a cone (g: the floor's
+// height on the screen, GB by default; ang: which way it runs in the ground plane, toward us by default, -π/2 along +x)
+function softSpill(c,x,d,w0,w1,len,col,a,g,ang){if(!(a>0)||!(len>0)||!(w1>0))return;const S=softSpr(col,w0/w1,.9,.015);c.save();c.globalCompositeOperation='lighter';
+  c.globalAlpha=Math.min(1,a);c.transform(1,0,PX(),-PY(),0,g==null?G0():g);c.translate(x,d);c.rotate(ang==null?Math.PI:ang);c.drawImage(S,-w1*.625,0,w1*1.25,len);c.restore();}
+// a cone of light falling from (x, y): w0 wide at the top, w1 at the bottom, h tall (the soft piece, as bright at its source as the
+// old hard cone was)
+function beam(c,x,y,w0,w1,h,col,a){softCone(c,x,y,w0,w1,h,col,a*.92);}
 // a band of haze between two heights
 function haze(c,x0,x1,y0,y1,col,a,up){c.save();c.globalAlpha=a;c.fillStyle=lin(c,0,y0,0,y1,up?[[0,rgba(col,1)],[1,rgba(col,0)]]:[[0,rgba(col,0)],[1,rgba(col,1)]]);c.fillRect(x0,y0,x1-x0,y1-y0);c.restore();}
 // ---------- the gold vine: Kael's trim and the arc-blade's engraving, at the scale of ironwork and frames ----------
@@ -156,6 +181,6 @@ function fallOff(c,x0,x1,y0,stops,col){const g=c.createLinearGradient(0,y0,0,FOO
 function fallKeep(c,x0,x1,y0,stops,col,k){const yk=G0()+20;let v=stops[stops.length-1][1];
   for(let i=0;i<stops.length;i++){const [ya,a]=stops[i];if(ya>=yk){const [yp,ap]=i?stops[i-1]:[ya,a];v=ya>yp?ap+(a-ap)*(yk-yp)/(ya-yp):a;break;}}
   const kk=k==null?.08:k;fallOff(c,x0,x1,y0,stops.filter(s=>s[0]<yk).concat([[yk,v],[G0()+110,v+kk*.4],[FOOT,v+kk]]),col);}
-return{TAU,lerp,clamp,ss,rng,C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,haze,vine,scroll,gilt,windowPane,bricks,setts,flags,wetStreak,stars,moon,cloudBank,skyline,hallTower,NEAR,FOOT,fallOff,fallKeep,S:{}};
+return{TAU,lerp,clamp,ss,rng,C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,softCone,softSpill,softSpr,haze,vine,scroll,gilt,windowPane,bricks,setts,flags,wetStreak,stars,moon,cloudBank,skyline,hallTower,NEAR,FOOT,fallOff,fallKeep,S:{}};
 })();
 // ===== ENV LOOK END =====

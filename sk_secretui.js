@@ -42,14 +42,13 @@ function liftLine(c,cx,yB,w,h,k){
   for(const [lw,al] of [[8,.05],[3.6,.13],[1.3,.95]]){c.strokeStyle=`rgba(${LIFT_COL.cold},${(al*k).toFixed(3)})`;c.lineWidth=lw;c.beginPath();c.moveTo(x0,yB);c.lineTo(x0,top);c.lineTo(x0+w,top);c.lineTo(x0+w,yB);c.stroke();}
   c.restore();
 }
-// cold light spilling out across the floor from a lift in the back wall (world x hx, depth dp), and a halo on the wall; k from 0 to 1
+// cold light spilling out across the floor from a lift in the back wall (world x hx, depth dp), and a halo on the wall; k from 0 to 1.
+// The spill is the shared soft piece laid on the floor (EnvLook.softSpill, env_look.js): full at the sill, spreading as it comes
+// out, its sides feathered, fading to nothing by reach; a brighter tongue of it nearer the door.
 function liftSpill(c,hx,dp,w,k,reach){
-  if(k<=0)return;const a=P(hx-w/2,GB,dp),b=P(hx+w/2,GB,dp),d1=dp-reach,e=P(hx+w/2+reach*.55,GB,d1),f=P(hx-w/2-reach*.55,GB,d1),yB=a.y,cx=(a.x+b.x)/2;
+  if(k<=0)return;const a=P(hx-w/2,GB,dp),b=P(hx+w/2,GB,dp),yB=a.y,cx=(a.x+b.x)/2,E=typeof EnvLook!=='undefined'?EnvLook:null;
+  if(E&&E.softSpill){E.softSpill(c,hx,dp,w*.95,w+reach*1.1,reach,'#c4e6ff',.6*k);E.softSpill(c,hx,dp,w*.8,w+reach*.45,reach*.6,'#e6f6ff',.42*k);}
   c.save();c.globalCompositeOperation='lighter';
-  const g=c.createLinearGradient(0,yB,0,e.y);g.addColorStop(0,`rgba(196,230,255,${(.4*k).toFixed(3)})`);g.addColorStop(.5,`rgba(170,212,250,${(.14*k).toFixed(3)})`);g.addColorStop(1,'rgba(150,200,250,0)');
-  c.fillStyle=g;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(e.x,e.y);c.lineTo(f.x,f.y);c.closePath();c.fill();
-  const g2=c.createLinearGradient(0,yB,0,yB+(e.y-yB)*.6);g2.addColorStop(0,`rgba(230,246,255,${(.3*k).toFixed(3)})`);g2.addColorStop(1,'rgba(200,230,255,0)');
-  c.fillStyle=g2;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(lerp(b.x,e.x,.35),lerp(b.y,e.y,.6));c.lineTo(lerp(a.x,f.x,.35),lerp(a.y,f.y,.6));c.closePath();c.fill();
   const rg=c.createRadialGradient(cx,yB-70,6,cx,yB-70,104);rg.addColorStop(0,`rgba(190,226,255,${(.2*k).toFixed(3)})`);rg.addColorStop(1,'rgba(170,210,250,0)');c.fillStyle=rg;c.fillRect(cx-104,yB-174,208,174);
   c.restore();
 }
