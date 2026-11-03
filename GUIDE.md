@@ -80,7 +80,12 @@ ring and vignette, the wipe, V11UI.screen, FXL.done (timing).
 wall at `far`, 236). Screen-world: `prjX(x,d)=x+d*PSX`, `prjY(y,d)=y-d*PSY` (PSX .2, PSY .75); `P(x,y,d)` in UI code. A fighter's
 figure is drawn translated by (dep*PSX, -dep*PSY) and uses his raw x/y. Canvas pixels: render's transform `s=cv.width/cam.viewW`,
 `L=cam.x-cam.viewW/2`, `T=camTop()`. CSS pixels: cssW/cssH; canvas px = CSS px x dpr. `HUD_IN={top,bottom}` is what the HUD covers
-(CSS px); the camera frames the fighters inside the rest. Fighters: `f.p[PEL|CHE|HEAD|ELF|HAF|ELB|HAB|KNF|FTF|KNB|FTB|TIP]`,
+(CSS px); the camera frames the fighters inside the rest. On an upright phone (the HUD's 'port' layout) the moves fade away while the
+player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' turns, the fight's end) and the camera pushes in
+(`camPush`, `camNarrowW`, `camPushW`, `camCardH` in sk_ui.js, since V74): at its closest 700 units of height fill the screen (about
+404 across at 412x714), never closer than lets everyone fit, the band of fighters standing on the top of the tallest opening card met
+(246 CSS px before one is met), so the cards come and go over the floor and the camera holds still; with reduced motion it cuts
+(`cam.cut`); as the moves come back it follows quickly for 0.7 s (`cam.riseT`). A scene's own camera (`S.camCut`) wins. Fighters: `f.p[PEL|CHE|HEAD|ELF|HAF|ELB|HAB|KNF|FTF|KNB|FTB|TIP]`,
 `f.station` (x), `f.lane`/`f.dep` (depth), `f.facing` +1/-1, `f.action={t0,end,body:[keys],arm:[keys]}` drives the motors.
 
 **Modules worth knowing.**
@@ -627,6 +632,9 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   pixels), how light, how varied, how saturated, how much of it is flat black (`empty`), how much of Ilyas's outline reads against
   what is next to it (`hero.read`), and what it costs to draw; and a quarter-size picture of the canvas. The fast-forward to each
   moment is not drawn, then two seconds are; the fall is drawn all the way. About half an hour for all 65 frames.
+- `node uiwork/look/push.js <stage|lab_arena> <outprefix> [w h] [reduce]`: the push-in as a player meets it (since V74): the fight
+  run to his turn, a move picked, the action played on in real time with his opening cards answered; shots of his turn, the action
+  with no card up and his card up, with the camera's numbers, the layer's foot, scale and paint time, and `empty` below the top bar.
 - `python3 uiwork/look/hues.py <out>`: from an audit's canvas pictures, each frame's share of the style guide's four colours (gold,
   sodium orange, cyan, white) in its lit picture, into hues.json; the guide's colour checks read it.
 - `python3 uiwork/look/faults.py <out>`: the drawing guide's two picture faults in each frame, into faults.json: flat lit patches
@@ -646,7 +654,8 @@ Nov 2 too, its rules after the look's; and the Noir Gilt Remediation List (https
 instance in V73 that breaks the two guides (133, in phase 3's order, each with a fixed ID such as P1 or L3 and a status to keep up
 as the work lands); (3) the look held in one place in the code, in the style guide's order (the push-in, the look as data, one soft
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
-reviewer, checks and a lookbook.
+reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
+(the action's part of P5 to P29); the scenes' closer framing on a phone (P8, P11, P14, P16 to P23) is next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -698,12 +707,12 @@ reviewer, checks and a lookbook.
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V74 ..." (V73 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V75 ..." (V74 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V73: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V74: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -734,8 +743,14 @@ was checked, and anything that did not work, plainly.
   suites and the timing checks passing alone).
 - Under SK_TEST the effects never auto-drop; in a real browser a slow first second can move a device to Lite.
 - The node checks have no Path2D or DOMMatrix: FXL and the scene painters stand down there (`SCENE_OK`).
-- A scene's still layer (sceneLayer) covers RC (y -90 to H+110); above it `sceneDraw` only stretches the layer's top row up, so a
-  phone held upright, which sees far above it, shows bare stripes there unless the scene's live() draws that part. The fall's live
+- A scene's still layer (sceneLayer) covers RC: y -90 to 870 since V74 (the part below 610 kept only on an upright screen,
+  `sceneLayerH`), painted for the push-in's closest view (`camCloseW`: 2.4 pixels a unit at the most, about twice V73's paint time
+  and pixels on a phone). Each place's ground runs on to `EnvLook.FOOT` (depth `EnvLook.NEAR`), its darkening as it was down to the
+  fight's front and held there beyond (`EnvLook.fallKeep`); a place that adds rows or marks in front keeps them on their own dice, so
+  what was behind the fight is painted as before. The black starts where the layer was measured to stop painting (`sceneFootOf`,
+  `camPaintFoot`; the old look keeps H+40). Above the layer `sceneDraw` only stretches the layer's top row up (under a night sky,
+  `SCENE_NIGHT`, with a field of faint stars laid over it), so a phone held upright, which sees far above it, shows bare stripes
+  there unless the scene's live() draws that part. The fall's live
   picture runs from the camera's top to its foot, -110 to H+120 at the least (since V72, `EnvLook.S.fall.span`; before, the floors
   stopped at -110 and an upright phone showed a band of bare piers over them, and the night's top row of stars stretched into lines).
   Anything drawn in pieces there clips to that range (`junkWalls` does), or it pokes out above the far side's top edge.

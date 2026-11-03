@@ -136,9 +136,9 @@ function paint(c){
   c.strokeStyle=rgba('#c8d4ff',.12);c.lineWidth=.5;c.beginPath();for(let i=0;i<46;i++){const x=X0+r()*(X1-X0),y=wy0+3+r()*(wy1-wy0-5),l=6+r()*24;c.moveTo(x,y);c.lineTo(x+l,y);}c.stroke();
   const LT=landing(c);wetStreak(c,LT.lx,wy0+2,wy1-1,8,'#ffc477',.5,77);
   // ---- the meadow: grazed grass in the ground plane, dark and calm
-  const mv=[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1,GB,-110),pp(X0,GB,-110)];
+  const mv=[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1+110,GB,E.NEAR),pp(X0,GB,E.NEAR)];
   c.save();poly(c,mv);c.clip();c.save();c.transform(1,0,PSX,-PSY,0,GB);
-  c.fillStyle=patAt(c,OutTex.meadow(3,{g0:'#0f1913',g1:'#1c281d',dry:'#2a2a20',earth:'#1c1711'}),0,0,1/3);c.fillRect(X0-60,-120,X1-X0+120,FAR+130);
+  c.fillStyle=patAt(c,OutTex.meadow(3,{g0:'#0f1913',g1:'#1c281d',dry:'#2a2a20',earth:'#1c1711'}),0,0,1/3);c.fillRect(X0-60,E.NEAR-10,X1-X0+240,FAR-E.NEAR+20);
   // the footpath worn through it to the landing: trodden earth and grit, two soft ruts, a puddle holding the moon
   {const ax=PATH.a.x,ad=PATH.a.d,bx=PATH.b.x,bd=PATH.b.d,L=Math.hypot(bx-ax,bd-ad),ux=(bx-ax)/L,ud=(bd-ad)/L,nx=-ud,nd=ux,rr=rng(23),w=PATH.w,side=k=>{const e=[];for(let s2=0;s2<=L;s2+=5)e.push([ax+ux*s2+nx*k*w/2*(.82+.36*rr()),ad+ud*s2+nd*k*w/2*(.82+.36*rr())]);return e;};
     const e1=side(1),e2=side(-1).reverse();c.beginPath();for(const [x,d] of e1.concat(e2))c.lineTo(x,d);c.closePath();
@@ -148,8 +148,8 @@ function paint(c){
     for(const t of [.38,.71]){const px=ax+ux*L*t+nx*1.4,pd=ad+ud*L*t;c.fillStyle=rgba('#0a0c12',.75);c.beginPath();c.ellipse(px,pd,6,3.4,Math.atan2(ud,ux),0,TAU);c.fill();c.fillStyle=rgba('#8ea0c8',.16);c.beginPath();c.ellipse(px+1,pd+.6,3.6,1.6,Math.atan2(ud,ux),0,TAU);c.fill();}}
   c.restore();
   // the night over the meadow: darker toward us, the moon's cold light lying across the far grass
-  c.fillStyle=lin(c,0,ey,0,GB+70,[[0,rgba('#04060a',.3)],[.45,rgba('#04060a',.5)],[1,rgba('#010203',.78)]]);c.fillRect(X0,ey,X1-X0,GB+130-ey);
-  c.save();c.globalCompositeOperation='lighter';{const q=pp(MOON.x-40,GB,FAR-40);c.fillStyle=rad(c,q.x,q.y,10,480,[[0,rgba('#8ea0c8',.12)],[.5,rgba('#8ea0c8',.035)],[1,rgba('#8ea0c8',0)]]);c.fillRect(X0,ey,X1-X0,GB+130-ey);}
+  E.fallKeep(c,X0,X1+120,ey,[[ey,.3],[ey+(GB+70-ey)*.45,.5],[GB+70,.64]],'#03050a',.04);
+  c.save();c.globalCompositeOperation='lighter';{const q=pp(MOON.x-40,GB,FAR-40);c.fillStyle=rad(c,q.x,q.y,10,480,[[0,rgba('#8ea0c8',.12)],[.5,rgba('#8ea0c8',.035)],[1,rgba('#8ea0c8',0)]]);c.fillRect(X0,ey,X1-X0+120,E.FOOT-ey);}
   // the landing lantern's warmth on the grass by the water
   {const q=pp(LAND.x-FAR*PSX,GB,FAR-14);c.save();c.translate(q.x,q.y);c.scale(1,.4);c.fillStyle=rad(c,0,0,2,90,[[0,rgba('#ffb866',.16)],[1,rgba('#ffb866',0)]]);c.beginPath();c.arc(0,0,90,0,TAU);c.fill();c.restore();}
   c.restore();c.restore();
@@ -179,7 +179,7 @@ function paint(c){
       if(rc()<.25){c.strokeStyle=rgba('#c8d4ff',.18);c.lineWidth=.35;c.beginPath();c.moveTo(q.x+lean*.6,q.y-h*.75);c.lineTo(q.x+lean,q.y-h);c.stroke();}
       if(rc()<.05){c.fillStyle='#070b08';c.save();c.translate(q.x,q.y-2);c.rotate((rc()-.5)*1.4);c.beginPath();c.ellipse(0,-6,2.6,7,0,0,TAU);c.fill();c.strokeStyle=rgba('#c8d4ff',.12);c.lineWidth=.4;c.beginPath();c.moveTo(0,0);c.lineTo(0,-12);c.stroke();c.restore();}}}
   // the dark toward us
-  c.fillStyle=lin(c,0,GB-10,0,GB+110,[[0,rgba('#000000',0)],[1,rgba('#000000',.55)]]);c.fillRect(X0,GB-10,X1-X0,120);}
+  E.fallKeep(c,X0,X1+120,GB-10,[[GB-10,0],[GB+110,.4]],null,.04);}
 // ---------- what moves: fireflies over the grass, the moon's track glinting ----------
 const FLIES=(()=>{const r=rng(91),a=[];for(let i=0;i<34;i++)a.push({x:-40+r()*980,d:120+r()*150,h:4+r()*18,ph:r()*TAU,sp:.6+r()*1.2,dr:6+r()*14,bl:2+r()*3});return a;})();
 function live(){const t=S.t;ctx.save();

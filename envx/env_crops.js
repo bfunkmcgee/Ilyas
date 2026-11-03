@@ -116,14 +116,14 @@ function paint(c){
   {const gq0=g2(GATE.x0,CROP_D),gq1=g2(GATE.x1,CROP_D),vx=436,vy=HOR+5;c.fillStyle=lin(c,0,vy,0,gq0.y,[[0,rgba('#2a2520',.4)],[1,'#2c261e']]);c.beginPath();c.moveTo(gq0.x+6,gq0.y);c.lineTo(vx-2,vy);c.lineTo(vx+2,vy);c.lineTo(gq1.x-4,gq1.y);c.closePath();c.fill();
     c.strokeStyle=rgba('#c8d4ff',.08);c.lineWidth=.5;c.beginPath();c.moveTo(gq0.x+12,gq0.y);c.lineTo(vx-1,vy);c.moveTo(gq1.x-10,gq1.y);c.lineTo(vx+1,vy);c.stroke();}
   // ---- the clearing: harvested stubble and a dirt farm track, dark and calm
-  const fv=[g2(X0,CROP_D+20),g2(X1,CROP_D+20),g2(X1,-110),g2(X0,-110)],TRK=x=>82+Math.sin(x*.012)*5,
+  const fv=[g2(X0,CROP_D+20),g2(X1,CROP_D+20),g2(X1+110,E.NEAR),g2(X0,E.NEAR)],TRK=x=>82+Math.sin(x*.012)*5,
     trackPts=(()=>{const pts=[];for(let x=X0-60;x<=270;x+=10)pts.push([x,TRK(x)]);for(let k=1;k<=12;k++){const t=k/12;pts.push([lerp(270,(GATE.x0+GATE.x1)/2,t)+Math.sin(t*3)*6,lerp(TRK(270),CROP_D+16,t)]);}return pts;})(),
     onTrack=(x,d)=>{if(x<275)return Math.abs(d-TRK(x))<20;const t=clamp((d-TRK(270))/(CROP_D+16-TRK(270)),0,1),cx=lerp(270,(GATE.x0+GATE.x1)/2,t)+Math.sin(t*3)*6;return Math.abs(x-cx)<20&&d>70;};
   c.save();poly(c,fv);c.clip();c.save();c.transform(1,0,PSX,-PSY,0,GB);
-  c.fillStyle=patAt(c,OutTex.meadow(23,{U:96,sc:3,g0:'#100d0a',g1:'#1d1610',dry:'#2c2418',earth:'#0b0907'}),0,0,1/3);c.fillRect(X0-60,-120,X1-X0+120,FAR+130);
+  c.fillStyle=patAt(c,OutTex.meadow(23,{U:96,sc:3,g0:'#100d0a',g1:'#1d1610',dry:'#2c2418',earth:'#0b0907'}),0,0,1/3);c.fillRect(X0-60,E.NEAR-10,X1-X0+240,FAR-E.NEAR+20);
   // the rows the harvester left: furrows running away from us, a shade darker, a ridge of loose earth along each
-  {const rr=rng(3);c.lineCap='round';for(let rx=X0+6;rx<X1;rx+=13){const x0=rx+(rr()-.5)*2;c.strokeStyle=rgba('#000000',.05+.1*rr());c.lineWidth=2.6+rr()*1.4;c.beginPath();c.moveTo(x0,-60);c.lineTo(x0+2.2,CROP_D+10);c.stroke();
-    c.strokeStyle=rgba('#6e5a3a',.07);c.lineWidth=1.1;c.beginPath();c.moveTo(x0+3.4,-60);c.lineTo(x0+5.6,CROP_D+10);c.stroke();}}
+  {const rr=rng(3);c.lineCap='round';for(let rx=X0+6;rx<X1;rx+=13){const x0=rx+(rr()-.5)*2;c.strokeStyle=rgba('#000000',.05+.1*rr());c.lineWidth=2.6+rr()*1.4;c.beginPath();c.moveTo(x0,E.NEAR);c.lineTo(x0+2.2,CROP_D+10);c.stroke();
+    c.strokeStyle=rgba('#6e5a3a',.07);c.lineWidth=1.1;c.beginPath();c.moveTo(x0+3.4,E.NEAR);c.lineTo(x0+5.6,CROP_D+10);c.stroke();}}
   // the track: in off the left, along the clearing, then bending away up to the gate
   {const tr=rng(5),W2=38,pts=trackPts,N=pts.length,nrm=i=>{const a=pts[Math.max(0,i-1)],b=pts[Math.min(N-1,i+1)],dx=b[0]-a[0],dd=b[1]-a[1],L=Math.hypot(dx,dd)||1;return[-dd/L,dx/L];};
     c.beginPath();for(let i=0;i<N;i++){const [nx,nd]=nrm(i),w=W2*(.92+.16*tr());c.lineTo(pts[i][0]+nx*w/2,pts[i][1]+nd*w/2);}for(let i=N-1;i>=0;i--){const [nx,nd]=nrm(i),w=W2*(.92+.16*tr());c.lineTo(pts[i][0]-nx*w/2,pts[i][1]-nd*w/2);}c.closePath();
@@ -153,11 +153,15 @@ function paint(c){
       const q=g2(x,d),h=(2.2+rs()*3.4)*(nearBike?.6:1)*(d<-20?1.5:1),far=clamp(d/CROP_D,0,1),v=rs();let ci=v<.2?1:v<.55?2:v<.85?3:4;if(far>.55&&rs()<.3)ci=Math.min(5,ci+1);
       const lx=q.x+(rs()-.5)*1.4;P[ci].moveTo(q.x,q.y);P[ci].lineTo(lx,q.y-h);if(rs()<.35){P[0].moveTo(q.x+.6,q.y+.4);P[0].lineTo(q.x+2.6,q.y+.3);}
       if(rs()<.3){tips.moveTo(lx-.6,q.y-h);tips.lineTo(lx+.5,q.y-h-.4);}}}
+    // (the rows run on toward us in front of the fight, the stalks a little taller for being near; their own dice)
+    {const rn=rng(8);for(let rx=X0+6;rx<X1+110;rx+=13)for(let d=-64;d>E.NEAR;d-=3.4+rn()*3.2){const x=rx+3.4+(d+60)/(CROP_D+70)*2.2+(rn()-.5)*1.6;if(rn()<.16)continue;
+      const q=g2(x,d),h=(2.6+rn()*3.8)*1.6,v=rn(),ci=v<.25?1:v<.6?2:v<.88?3:4,lx=q.x+(rn()-.5)*1.8;P[ci].moveTo(q.x,q.y);P[ci].lineTo(lx,q.y-h);if(rn()<.35){P[0].moveTo(q.x+.6,q.y+.4);P[0].lineTo(q.x+3,q.y+.3);}}}
     c.lineCap='round';cols.forEach((col,i)=>{c.strokeStyle=rgba(col,i>=5?.5:.92);c.lineWidth=i>=4?.55:.75;c.stroke(P[i]);});
     c.strokeStyle=rgba('#c8d4ff',.16);c.lineWidth=.45;c.stroke(tips);
     // straw and husk lying about, pale where the moon finds it
     const sp1=new Path2D(),sp2=new Path2D();for(let i=0;i<1100;i++){const x=X0+rs()*(X1-X0),d=-40+rs()*(CROP_D+30);if(onTrack(x,d)&&rs()<.75)continue;if(Math.hypot(x-150,(d-150)*1.4)<60&&rs()<.6)continue;
       const q=g2(x,d),a=(rs()-.5)*1.2+(rs()<.5?0:Math.PI),L=1.6+rs()*3.4,P2=rs()<.72?sp1:sp2;P2.moveTo(q.x,q.y);P2.lineTo(q.x+Math.cos(a)*L,q.y+Math.sin(a)*L*.3);}
+    {const rn=rng(9);for(let i=0;i<700;i++){const x=X0+rn()*(X1-X0+110),d=E.NEAR+rn()*(-40-E.NEAR),q=g2(x,d),a=(rn()-.5)*1.2+(rn()<.5?0:Math.PI),L=2+rn()*4,P2=rn()<.72?sp1:sp2;P2.moveTo(q.x,q.y);P2.lineTo(q.x+Math.cos(a)*L,q.y+Math.sin(a)*L*.3);}}
     c.strokeStyle=rgba('#6e5e40',.34);c.lineWidth=.45;c.stroke(sp1);c.strokeStyle=rgba('#b8a478',.32);c.lineWidth=.45;c.stroke(sp2);}
   // ---- the crop across the back: maize on the left and in the middle, wheat on the right, the track's gap between
   {const rm=rng(31),mk=()=>({dark:new Path2D(),rim:new Path2D(),warm:new Path2D(),tas:new Path2D()}),Mb=mk(),Mf=mk(),tops=[];
@@ -219,7 +223,7 @@ function paint(c){
     const M={dark:new Path2D(),rim:new Path2D(),warm:new Path2D(),tas:new Path2D()};for(const [x,d,h] of [[-96,-34,128],[-70,-42,112],[1008,-38,120]]){const q=g2(x,d);maize(M,rc,q.x,q.y,h,1.25,(rc()-.5)*.4);}
     c.fillStyle='#030304';c.fill(M.dark);c.strokeStyle=rgba('#c8d4ff',.14);c.lineWidth=.6;c.stroke(M.rim);c.strokeStyle=rgba('#e4d6a8',.25);c.stroke(M.tas);}
   // the dark toward us
-  c.fillStyle=lin(c,0,GB-20,0,GB+110,[[0,rgba('#000000',0)],[1,rgba('#000000',.6)]]);c.fillRect(X0,GB-20,X1-X0,130);}
+  E.fallKeep(c,X0,X1+120,GB-20,[[GB-20,0],[GB+110,.42]],null,.05);}
 // ---------- what moves: chaff in the moonlight, the wind over the crop tops, fireflies at the crop's edge, the windmill, the tower's light ----------
 const CHAFF=(()=>{const r=rng(66),a=[];for(let i=0;i<40;i++)a.push({x:-60+r()*1000,d:10+r()*220,h:8+r()*90,ph:r()*TAU,sp:6+r()*14,bob:2+r()*5,tw:1+r()*3});return a;})();
 const FLIES=(()=>{const r=rng(91),a=[];for(let i=0;i<14;i++)a.push({x:-40+r()*980,d:CROP_D-14-r()*30,h:6+r()*26,ph:r()*TAU,sp:.6+r()*1.2,dr:6+r()*12,bl:2+r()*3});return a;})();

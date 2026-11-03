@@ -205,7 +205,7 @@ function warm(k,force){if(force){WT=RT=ST=PS=SMK=LG=PL=null;}if(k==null)k=(typeo
 // ---------- the scene ----------
 function paint(c){const X0=-160,X1=W+260,T0=-140;
   try{warm();}catch(e){}
-  c.fillStyle='#030304';c.fillRect(X0,T0,X1-X0,GB+220-T0);
+  c.fillStyle='#030304';c.fillRect(X0,T0,X1-X0+120,E.FOOT-T0);
   deck(c);
   // the car's lantern: its light on the deck rides with the car
   c.save();floorT(c,0);c.beginPath();c.rect(X0,DN,X1-X0,DF-DN);c.clip();c.globalCompositeOperation='lighter';
@@ -259,6 +259,17 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
   {const r=rng(5),span=1500;for(const [f,n,y0,y1,a0,w0] of [[.7,24,sh,df,.07,.7],[1,20,sh+60,GB-20,.09,.9],[1.4,12,GB-120,GB+30,.12,1.3]]){
       for(let i=0;i<n;i++){const x=-300+frac(r()-s0*f/span)*span,y=lerp(y0,y1,r()),a=a0*(.5+r()),L=Math.min(46,1+v*.032*f*(.6+r()));
         ctx.fillStyle=rgba(i%4?'#c8bca8':'#cfe8ff',a);ctx.fillRect(x,y,L,w0);}}}
+  // the line in front of the car, streaming by into the dark toward us: the near road's ballast, its sleepers in their beat, its two
+  // rails glinting; smeared as the speed comes up (an upright phone's push-in shows it under the fight)
+  {const gy=GB+43,Y0=gy+4,Y1=E.FOOT,ph=frac(s0/28)*28,sa=1-blurA*.75;
+    ctx.fillStyle=lin(ctx,0,Y0,0,Y1,[[0,'#1a1714'],[.4,'#15130f'],[1,'#0e0d0b']]);ctx.fillRect(vx0,Y0,vx1-vx0,Y1-Y0);
+    ctx.save();ctx.transform(1,0,PSX,-PSY,0,gy);
+    {const r=rng(17),span=1400;for(let i=0;i<90;i++){const x=-300+frac(r()-s0/span)*span,d=-8-r()*(-8-E.NEAR),L=2+r()*5+v*.05;ctx.fillStyle=rgba(r()<.5?'#5a5044':'#3a342e',.3+.35*r());ctx.fillRect(x,d,L,1+r()*1.4);}}
+    ctx.fillStyle=rgba('#33261a',.9*sa);for(let x=vx0-200-ph;x<vx1+120;x+=28)ctx.fillRect(x,-168,7.5,122);
+    if(blurA>0){ctx.fillStyle=rgba('#33261a',.4*blurA);ctx.fillRect(vx0-200,-168,vx1-vx0+320,122);}
+    for(const d of [-62,-152]){ctx.fillStyle='#0a0a0d';ctx.fillRect(vx0-200,d-1.6,vx1-vx0+320,3.2);ctx.fillStyle=rgba('#b8c4dc',.32);ctx.fillRect(vx0-200,d+1,vx1-vx0+320,.7);}
+    ctx.restore();
+    ctx.fillStyle=lin(ctx,0,Y0,0,Y1,[[0,rgba('#000000',.1)],[.3,rgba('#000000',.28)],[1,rgba('#000000',.46)]]);ctx.fillRect(vx0,Y0,vx1-vx0,Y1-Y0);}
   // under the car's near side: the tops of its wheels turning, sparks off them when it runs hard
   {const yb=q(0,GB,DN).y+SILL,wa=s0/12;ctx.save();ctx.beginPath();ctx.rect(vx0,yb,vx1-vx0,60);ctx.clip();
     for(let x=-188;x<1100;x+=150){for(const dx of [0,46]){const cx=x+dx,cy=yb+13;if(cx<vx0-20||cx>vx1+20)continue;

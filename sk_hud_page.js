@@ -1,7 +1,8 @@
 // The full-screen HUD in the real page (Playwright, a fake clock): the layouts by screen, the canvas filling the stage, the camera's
 // framing between the top bar and the dock, the plates (target by click and by key), the tabs (and the turn that finds its tab), the
 // menu drawer (it pauses the fight, Escape, Resume, the bench inside it, the title screen), the log drawer, the riposte window docked
-// in the commands' place, the prologue's scenes hiding the HUD, and no sideways scroll anywhere.
+// in the commands' place, the push-in for the action on an upright phone (and its cut with reduced motion), the prologue's scenes
+// hiding the HUD, and no sideways scroll anywhere.
 // usage: node sk_hud_page.js   (needs test_page.html from build.py; PAGE=... for another build). Ends with "errors 0 []".
 // Frames are drawn one in eight (window.step) and the game is the same either way (probes/draw_free.js); a check that counts or
 // reads what is drawn runs inside drawAll(), which draws every frame.
@@ -138,6 +139,28 @@ for(const sz of ['land','port','desk']){const p=await open(sz);
   expect(`${sz}: the riposte window docks at the foot in the commands' place, whole on the screen`,r.op.b<=r.vh+.5&&r.vh-r.op.b<=40&&r.op.l>=0&&r.op.r<=r.vw+.5&&r.tab.t>=r.top&&r.cmds==='hidden',JSON.stringify([r.op,r.tab.t,r.top,r.cmds]));
   expect(`${sz}: its choices are big enough to touch`,r.bs.length>=2&&r.bs.every(x=>x.h>=40&&x.w>=80),JSON.stringify(r.bs.map(x=>[Math.round(x.w),Math.round(x.h)])));
   expect(`${sz}: the enemies' plates fade while the hero chooses`,r.dataop==='h'&&+r.fade<.5,r.dataop+' '+r.fade);
+  await p.context().close();}
+
+// ---- the push-in: on an upright phone the moves drop away for the action and the camera comes in, the fighters over where the
+// opening cards come up; with reduced motion it cuts there; a sideways phone and a desktop keep their framing
+for(const [sz,red] of [['port',false],['port',true],['land',false],['desk',false]]){const p=await open(sz);
+  if(red)await p.emulateMedia({reducedMotion:'reduce'}),await p.reload(),await p.waitForTimeout(250),await p.evaluate(()=>{S.soundOn=false;window.__now=performance.now()+1000;window.step=k=>{for(let i=0;i<k;i++){window.__now+=16.7;const f=window.__raf;window.__raf=null;if(f)f(window.__now);}};
+    window.seed=s=>{let a=s;Math.random=()=>{a=(a*1103515245+12345)&0x7fffffff;return a/0x7fffffff;};S.rng=Math.random;};
+    window.fight=o=>{seed(o.seed||11);S.arenaKey=o.arena||'street';S.introOn=false;S.cfg.n=o.n||2;S.cfg.crew=!!o.crew;S.cfg.ally.on=o.ally!==false;S.auto=false;S.allyAuto=false;S.F=[];rosterBuild();restart();step(60);};});
+  const r=await ev(p,()=>{fight({seed:11});const g=S.game,wr=document.getElementById('wrap');let t=0;
+    while(!(g.phase==='input'&&!isAI(g.active)&&!S.opening)&&t<3000){step(1);t++;}step(40);
+    const turn={w:cam.viewW,drop:wr.dataset.drop||''},K=S.F[g.active],D=targetOf(K);
+    command(K.idx,['advance','slash','thrust','wait','withdraw','guard'].map(x=>slotAction(K,D,x)).find(x=>x&&cmdValid(K,D,x)));
+    // (the frames while the moves are down: the closest the camera came, and where the feet were then)
+    let drop='',w2=null,w=cam.viewW,feet=[];
+    for(t=0;t<40;t++){step(1);if(HUD.drop){drop=wr.dataset.drop||'';if(w2==null){step(2);w2=cam.viewW;}}
+      if(HUD.drop&&cam.viewW<w){w=cam.viewW;const k=cssW/cam.viewW,T=camTop();feet=S.F.filter(f=>!f.gone).map(f=>Math.round((prjY(f.gr(f.p[PEL].x),f.dep)-T)*k));}}
+    return{turn,drop,w2,w,feet,card:camCardH(),vh:innerHeight,ph:g.phase,rm:reduceMotion};});
+  const port=sz==='port';
+  if(port&&!red){expect('port: the moves drop for the action and the camera pushes in',r.turn.drop===''&&r.drop==='1'&&r.w<r.turn.w-40,JSON.stringify(r));
+    expect('port: in the push-in every fighter stands over the opening cards\' place',r.feet.every(y=>y<=r.vh-r.card+4),JSON.stringify([r.feet,r.vh,r.card]));}
+  else if(port)expect('port, reduced motion: the push-in cuts in at once',r.rm&&r.drop==='1'&&Math.abs(r.w2-r.w)<r.turn.w*.03&&r.w<r.turn.w-40,JSON.stringify(r));
+  else expect(`${sz}: the moves stay and the camera keeps its framing in the action`,r.drop===''&&Math.abs(r.w-r.turn.w)<r.turn.w*.06,JSON.stringify(r));
   await p.context().close();}
 
 // ---- the prologue: its title hides the HUD, a scene keeps only the menu, its fight brings the HUD back

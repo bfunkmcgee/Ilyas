@@ -144,6 +144,18 @@ function hallTower(c,x,base,top,w,o){o=o||{};const h=base-top,s=w/40,dark=o.col|
   // the house's H, gilt, high on the shaft
   if(o.H!==false){const hy=base-h*.62,hs=w*.34;c.fillStyle=rgba(C.goldL,.95*lit);c.fillRect(x-hs/2,hy-hs*.6,hs*.2,hs*1.2);c.fillRect(x+hs/2-hs*.2,hy-hs*.6,hs*.2,hs*1.2);c.fillRect(x-hs/2,hy-hs*.08,hs,hs*.16);glow(c,x,hy,hs*2.2,C.amber,.35*lit);}
   c.restore();}
-return{TAU,lerp,clamp,ss,rng,C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,haze,vine,scroll,gilt,windowPane,bricks,setts,flags,wetStreak,stars,moon,cloudBank,skyline,hallTower,S:{}};
+// the ground in front of the fight: an upright phone's push-in shows it down to y 870, the foot of a still layer (RC, sk_envui.js), so
+// each place's floor runs on to FOOT (depth NEAR on the ground plane), its material calm and the light falling off toward us
+const NEAR=-540,FOOT=875;
+// the light falling off toward us over the ground in front: a darkening from y0 down to FOOT, its stops at world heights ([y, alpha])
+function fallOff(c,x0,x1,y0,stops,col){const g=c.createLinearGradient(0,y0,0,FOOT);for(const [y,a] of stops)g.addColorStop(clamp((y-y0)/(FOOT-y0),0,1),rgba(col||'#000000',a));
+  c.fillStyle=g;c.fillRect(x0,y0,x1-x0,FOOT-y0);}
+// A place's darkening toward us as it always was down to the fight's front (y GB+20; its stops at world heights), then held there and
+// deepening only by k more at FOOT: the ground in front of the fight stays in the fight's light rather than going to black (it was
+// the edge of the world, faded out under the black at the world's foot).
+function fallKeep(c,x0,x1,y0,stops,col,k){const yk=G0()+20;let v=stops[stops.length-1][1];
+  for(let i=0;i<stops.length;i++){const [ya,a]=stops[i];if(ya>=yk){const [yp,ap]=i?stops[i-1]:[ya,a];v=ya>yp?ap+(a-ap)*(yk-yp)/(ya-yp):a;break;}}
+  const kk=k==null?.08:k;fallOff(c,x0,x1,y0,stops.filter(s=>s[0]<yk).concat([[yk,v],[G0()+110,v+kk*.4],[FOOT,v+kk]]),col);}
+return{TAU,lerp,clamp,ss,rng,C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,haze,vine,scroll,gilt,windowPane,bricks,setts,flags,wetStreak,stars,moon,cloudBank,skyline,hallTower,NEAR,FOOT,fallOff,fallKeep,S:{}};
 })();
 // ===== ENV LOOK END =====

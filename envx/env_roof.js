@@ -170,8 +170,8 @@ const PAD_N=20;
 function edge(c){
   // the drop: straight past the lip, the city's plain far below, its avenues running out to the horizon. (The tower's face
   // under the lip is only a band of shadow going down into it: the eye goes to the city.)
-  {const top=HOR,a=g2(EDGE,PAR_D),b=g2(EDGE,-300);c.save();c.beginPath();c.moveTo(a.x,HOR-2);c.lineTo(W+400,HOR-2);c.lineTo(W+400,H+200);c.lineTo(b.x,H+200);c.lineTo(b.x,b.y);c.lineTo(a.x,a.y);c.closePath();c.clip();
-    c.fillStyle=lin(c,0,top,0,H+200,[[0,'#241e2a'],[.15,'#16121c'],[1,'#0a080d']]);c.fillRect(b.x-80,top-2,W+500-b.x,H+300);
+  {const top=HOR,a=g2(EDGE,PAR_D),b=g2(EDGE,E.NEAR);c.save();c.beginPath();c.moveTo(a.x,HOR-2);c.lineTo(W+400,HOR-2);c.lineTo(W+400,E.FOOT+10);c.lineTo(b.x,E.FOOT+10);c.lineTo(b.x,b.y);c.lineTo(a.x,a.y);c.closePath();c.clip();
+    c.fillStyle=lin(c,0,top,0,H+200,[[0,'#241e2a'],[.15,'#16121c'],[1,'#0a080d']]);c.fillRect(b.x-80,top-2,W+500-b.x,E.FOOT+20-top);
     const r=rng(61);
     // the avenues fan out from the vanishing point; the cross streets crowd together toward the horizon
     for(let k=-16;k<=16;k++){const ang=Math.PI/2+k*.075,len=900,ex=VP.x+Math.cos(ang)*len,ey=VP.y+Math.sin(ang)*len,main=k%4===0;
@@ -203,9 +203,9 @@ function edge(c){
 const EDGE_LIGHTS=[-120,-80,-40,0,40,80,120,160,200];
 // ---------- the deck ----------
 function deck(c,X0){
-  const fv=[g2(X0,PAR_D),g2(EDGE,PAR_D),g2(EDGE,-300),g2(X0,-300)];
+  const fv=[g2(X0,PAR_D),g2(EDGE,PAR_D),g2(EDGE,E.NEAR),g2(X0,E.NEAR)];
   c.save();poly(c,fv);c.clip();c.save();c.transform(1,0,PSX,-PSY,0,GB);
-  c.fillStyle=patAt(c,deckTex(),0,0,1/2);c.fillRect(X0-80,-320,EDGE-X0+160,PAR_D+340);
+  c.fillStyle=patAt(c,deckTex(),0,0,1/2);c.fillRect(X0-80,E.NEAR-20,EDGE-X0+160,PAR_D-E.NEAR+40);
   // grit and wear: the deck is swept, but the wind brings the city's dust up here
   {const r=rng(13);c.fillStyle=rgba('#2a2a33',.5);for(let i=0;i<500;i++){const x=X0+r()*(EDGE-X0),d=-300+r()*(PAR_D+300);c.fillRect(x,d,.6+r()*1.4,.4+r());}}
   // a puddle or two, holding the crown's cyan and the moon
@@ -213,7 +213,7 @@ function deck(c,X0){
     c.fillStyle=rad(c,0,0,0,pr,[[0,'#0a1a20'],[.8,'#0c1418'],[1,rgba('#0c1418',0)]]);c.beginPath();c.arc(0,0,pr,0,TAU);c.fill();c.restore();}
   pad(c);
   // a gold line inlaid in the deck a stride in from the edge: the line not to cross
-  c.fillStyle=rgba(C.gold,.55);c.fillRect(EDGE-34,-300,1.8,PAR_D+300);
+  c.fillStyle=rgba(C.gold,.55);c.fillRect(EDGE-34,E.NEAR,1.8,PAR_D-E.NEAR);
   c.restore();
   // the light on the deck: the crown's cyan over the back of it, the moon cold from the left, the pad's own glow
   c.save();c.globalCompositeOperation='lighter';
@@ -244,7 +244,7 @@ function paint(c){
     c.strokeStyle=rgba('#c8d4ff',.18);c.lineWidth=.5;c.beginPath();c.moveTo(b.x-.8,b.y);c.lineTo(b.x-.8,b.y-118);c.stroke();}
   deck(c,X0-40);edge(c);
   // the near edge of the picture: the deck going on toward us into the dark
-  c.fillStyle=lin(c,0,GB-30,0,GB+140,[[0,rgba('#000000',0)],[1,rgba('#000000',.7)]]);c.fillRect(X0,GB-30,X1-X0,170);}
+  E.fallKeep(c,X0,X1+120,GB-30,[[GB-30,0],[GB+140,.55]],null,.06);}
 // ---------- what moves ----------
 // The moving lights are stamped from small sprites made once (a glow, a soft cloud, a searchlight's beam), so a frame costs little.
 const SPR={};function sprite(key,w,h,fn){if(SPR[key])return SPR[key];const cv=document.createElement('canvas');cv.width=w;cv.height=h;fn(cv.getContext('2d'),w,h);return SPR[key]=cv;}

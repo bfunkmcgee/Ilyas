@@ -578,9 +578,9 @@ function paint(c){SPILL=[];
     line(c,[a,b],rgba(C.rim,.55),1.1);
     for(const lx of LAMPX){const q=pp(lx+16,g,126);c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,q.x-60,0,q.x+60,0,[[0,rgba('#ffb866',0)],[.5,rgba('#ffb866',.18)],[1,rgba('#ffb866',0)]]);c.fillRect(q.x-60,a.y,120,f.y-a.y);c.restore();}}
   // the road: granite setts wet from the rain, two pairs of grooved tram rails, a gutter by the kerb
-  {const rv=[pp(X0,GB,120),pp(X1,GB,120),pp(X1,GB,-100),pp(X0,GB,-100)];
+  {const rv=[pp(X0,GB,120),pp(X1,GB,120),pp(X1+110,GB,E.NEAR),pp(X0,GB,E.NEAR)];
     c.save();poly(c,rv);c.clip();c.transform(1,0,PSX,-PSY,0,GB);const ps=c.createPattern(TX().setts(7,{c0:'#28222a',c1:'#423a40',farX:true}),'repeat');if(ps.setTransform)ps.setTransform(new DOMMatrix().rotate(90).scale(1/6));
-    c.fillStyle=ps;c.fillRect(X0,-100,X1-X0,220);c.restore();
+    c.fillStyle=ps;c.fillRect(X0,E.NEAR,X1-X0+240,120-E.NEAR);c.restore();
     c.fillStyle=lin(c,0,GB-90,0,GB+75,[[0,rgba('#06040a',.4)],[1,rgba('#06040a',.58)]]);poly(c,rv);c.fill();
     {const q0=pp(X0,GB,114),q1=pp(X1,GB,114);c.fillStyle=rgba('#05040a',.6);c.fillRect(q0.x,q0.y-2,q1.x-q0.x,4);}
     for(const gx of [176,560,940])grate(c,gx);
@@ -596,7 +596,7 @@ function paint(c){SPILL=[];
   else{bayTree(c,216-207*PSX,207);bayTree(c,286-207*PSX,207);chalkMenu(c,168-205*PSX,205);}
   // a low mist along the kerb, and the dark falling off toward us
   haze(c,X0,X1,fy(126)-26,fy(126)+24,'#5a3a40',.16);
-  c.fillStyle=lin(c,0,GB-20,0,GB+110,[[0,rgba('#000000',0)],[1,rgba('#000000',.6)]]);c.fillRect(X0,GB-20,X1-X0,130);}
+  E.fallKeep(c,X0,X1+120,GB-20,[[GB-20,0],[GB+110,.45]],null,.06);}
 // the lamps burn and their light spills: drawn every frame over the layer
 function live(){const t=S.t;ctx.save();
   for(const lx of LAMPX){const q=lampAt(lx),x=q.x,y=fy(LAMPD)-140,f=.93+.07*Math.sin(t*7+lx)*Math.sin(t*3.1+lx*.3);

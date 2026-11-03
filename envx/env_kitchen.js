@@ -115,8 +115,8 @@ function paint(c){
     const hx=pr-10,hy=yb-70;c.fillStyle=C.goldD;c.fillRect(hx-3,hy-4,6,8);c.fillStyle=C.goldL;c.fillRect(hx-2,hy-3,1,6);c.fillRect(hx+1,hy-3,1,6);c.fillRect(hx-2,hy-.5,4,1);}
   // the skirting and the floor: quarry tiles, flour trodden in, the range's light on them
   c.fillStyle='#0e0b09';c.fillRect(X0,yb-9,X1-X0,9);c.fillStyle=rgba(C.rim,.2);c.fillRect(X0,yb-9,X1-X0,.8);
-  {const pts=[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1,GB,-110),pp(X0,GB,-110)];c.save();poly(c,pts);c.clip();c.save();floorT(c);c.fillStyle=patAt(c,TX().quarryTiles(21,{L:24,cols:4,rows:4,c0:'#4a2216',c1:'#5e2c1a',pale:'#76462e',grout:'#221c18'}),0,0,1/6);c.fillRect(X0-60,-120,X1-X0+120,FAR+130);c.restore();
-    c.fillStyle=lin(c,0,yb,0,GB+100,[[0,rgba('#0a0604',.56)],[.5,rgba('#0a0604',.58)],[1,rgba('#000000',.8)]]);c.fillRect(X0,yb,X1-X0,GB+120-yb);
+  {const pts=[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1+110,GB,E.NEAR),pp(X0,GB,E.NEAR)];c.save();poly(c,pts);c.clip();c.save();floorT(c);c.fillStyle=patAt(c,TX().quarryTiles(21,{L:24,cols:4,rows:4,c0:'#4a2216',c1:'#5e2c1a',pale:'#76462e',grout:'#221c18'}),0,0,1/6);c.fillRect(X0-60,E.NEAR-10,X1-X0+240,FAR-E.NEAR+20);c.restore();
+    E.fallKeep(c,X0,X1+120,yb,[[yb,.56],[(yb+GB+100)/2,.58],[GB+100,.8]],'#0a0604');
     c.globalCompositeOperation='lighter';{const sx=(RANGE.x0+RANGE.x1)/2,a=pp(RANGE.x0,GB,FAR-2),b=pp(RANGE.x1,GB,FAR-2),e=pp(RANGE.x1+60,GB,FAR-110),f=pp(RANGE.x0-60,GB,FAR-110);c.fillStyle=lin(c,0,a.y,0,e.y,[[0,rgba('#ff9a50',.22)],[1,rgba('#ff9a50',0)]]);poly(c,[a,b,e,f]);c.fill();void sx;}
     c.restore();}
   for(const [x,d,rr] of [[160,132,26],[334,160,18],[548,158,16]]){const q=pp(x,GB,d);c.fillStyle=rad(c,q.x,q.y,1,rr,[[0,rgba('#f0eadc',.28)],[1,rgba('#f0eadc',0)]]);c.beginPath();c.ellipse(q.x,q.y,rr,rr*.3,0,0,TAU);c.fill();}

@@ -545,12 +545,14 @@ function drumFire(c,P){const p=Q(DRUM.x,0,DRUM.d);barrel(c,P,p.x,p.y,11,28,'#3a2
 // packed dirt, darker toward the walls and toward us; the path worn from the door to the pump to the gate; ruts in from the gate;
 // puddles holding the light; straw and feathers off the roof; stones
 function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.key==='night';
-  const pts=[Q(X0,0,far+40),Q(X1,0,far+40),Q(X1,0,-140),Q(X0,0,-140)];
+  const pts=[Q(X0,0,far+40),Q(X1,0,far+40),Q(X1,0,E.NEAR),Q(X0,0,E.NEAR)];
   c.fillStyle=lin(c,0,pts[0].y,0,GB+60,[[0,P.dirt[0]],[.55,mix(P.dirt[0],P.dirt[1],.5)],[1,P.dirt[1]]]);K.poly(c,pts);c.fill();
   c.save();K.poly(c,pts);c.clip();c.transform(1,0,PSX,-PSY,0,GB);
   const tx=typeof EnvTex!=='undefined'?EnvTex.plaster(57,128,128,{base:'#808080'}):null;
-  if(tx){const pt=c.createPattern(tx,'repeat');if(pt.setTransform)pt.setTransform(new DOMMatrix().scale(.7,.35));c.globalCompositeOperation='multiply';c.globalAlpha=.55;c.fillStyle=pt;c.fillRect(X0,-140,X1-X0,far+180);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
+  if(tx){const pt=c.createPattern(tx,'repeat');if(pt.setTransform)pt.setTransform(new DOMMatrix().scale(.7,.35));c.globalCompositeOperation='multiply';c.globalAlpha=.55;c.fillStyle=pt;c.fillRect(X0,E.NEAR-10,X1-X0,far+50-E.NEAR);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
   for(let i=0;i<900;i++){const x=X0+r()*(X1-X0),d=-60+r()*(far+90),v=r();c.fillStyle=v<.5?rgba('#000000',.1+.14*r()):rgba(P.light,.03+.07*r()*(.4+P.lightA));c.fillRect(x,d,.8+r()*2.4,.6+r()*1.4);}
+  // (the grit runs on toward us in front of the fight, a little coarser for being near; its own dice)
+  {const rn=rng(102);for(let i=0;i<1200;i++){const x=X0+rn()*(X1-X0),d=E.NEAR+rn()*(-60-E.NEAR),v=rn();c.fillStyle=v<.55?rgba('#000000',.12+.16*rn()):rgba(P.light,.03+.06*rn()*(.4+P.lightA));c.fillRect(x,d,1+rn()*3,.8+rn()*1.8);}}
   // the path, packed harder, and the ruts in from the gate
   c.strokeStyle=rgba(jm2(P.dirt[0],'#d8ccb8',.2),night?.05:.13);c.lineCap='round';c.lineJoin='round';c.lineWidth=20;c.beginPath();c.moveTo(Yd.door.x,Yd.step.d-14);c.quadraticCurveTo(330,150,Yd.pump.x-24,Yd.pump.d-4);c.quadraticCurveTo(700,100,FENCE.x,Yd.gate.d);c.stroke();
   c.lineWidth=8;c.strokeStyle=rgba(jm2(P.dirt[0],'#d8ccb8',.2),night?.03:.08);c.beginPath();c.moveTo(Yd.sidestair.x1+6,Yd.sidestair.d-6);c.quadraticCurveTo(180,140,Yd.pump.x-30,Yd.pump.d-4);c.stroke();
@@ -634,7 +636,7 @@ function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
     const m=Q(520,0,110);K.cRad(c,m.x,m.y,20,520,P.light,T==='morning'?.12:.1,.36);}
   c.restore();
   c.fillStyle=lin(c,0,Q(0,0,far).y-6,0,Q(0,0,far-50).y,[[0,rgba('#000000',.32)],[1,rgba('#000000',0)]]);c.fillRect(-200,Q(0,0,far).y-6,1400,Q(0,0,far-50).y-Q(0,0,far).y+6);
-  c.fillStyle=lin(c,0,GB-40,0,GB+130,[[0,rgba('#000000',0)],[1,rgba('#000000',T==='night'?.75:.6)]]);c.fillRect(-200,GB-40,1400,170);
+  E.fallKeep(c,-200,1240,GB-40,[[GB-40,0],[GB+130,T==='night'?.6:.48]],null,.06);
   if(T==='morning'){// mist lying on the floor of the Pit: over the far shacks' feet, along the yard's walls, low over the yard
     c.fillStyle=lin(c,0,110,0,GB,[[0,rgba('#ccd6de',0)],[.32,rgba('#ccd6de',.3)],[.5,rgba('#ccd6de',.2)],[.75,rgba('#ccd6de',.1)],[1,rgba('#ccd6de',.05)]]);c.fillRect(-200,110,1400,GB-110);}}
 // ---------- the scene ----------

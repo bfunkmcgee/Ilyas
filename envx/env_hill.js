@@ -114,8 +114,8 @@ function paint(c){
   // old stones up on the hill behind the railing, small with distance
   for(let i=0;i<26;i++){const x=470+r()*640,y=crestY(x)+14+r()*36;if(Math.abs(x-800)<38&&y<crestY(800)+12)continue;stela(c,x,y,{h:7+r()*7,w:2.6+r()*2,tilt:(r()-.5)*.25,seed:900+i,plain:true,dark:.6});}
   // ---- the slope the fight stands on: turf in the tilted ground plane
-  const sv=[gp(X0,FAR),gp(X1,FAR),gp(X1,-110),gp(X0,-110)];
-  c.save();poly(c,sv);c.clip();c.save();c.transform(1,-SL,PSX,-PSY,0,G0());c.fillStyle=patAt(c,OutTex.meadow(11,{g0:'#0f1813',g1:'#1b261c',dry:'#2a2a1e',earth:'#1e1812'}),0,0,1/3);c.fillRect(X0-60,-120,X1-X0+120,FAR+130);
+  const sv=[gp(X0,FAR),gp(X1,FAR),gp(X1+110,E.NEAR-130),gp(X0,E.NEAR-130)];
+  c.save();poly(c,sv);c.clip();c.save();c.transform(1,-SL,PSX,-PSY,0,G0());c.fillStyle=patAt(c,OutTex.meadow(11,{g0:'#0f1813',g1:'#1b261c',dry:'#2a2a1e',earth:'#1e1812'}),0,0,1/3);c.fillRect(X0-60,E.NEAR-140,X1-X0+240,FAR-E.NEAR+150);
   // the gravel path climbing the hill, its edges set with old kerb stones
   {const d0=84,d1=106,rr=rng(8);c.beginPath();for(let x=X0;x<=X1;x+=6)c.lineTo(x,d1+Math.sin(x*.05)*1.2+rr()*.8);for(let x=X1;x>=X0;x-=6)c.lineTo(x,d0+Math.sin(x*.043+2)*1.2-rr()*.8);c.closePath();
     c.fillStyle=patAt(c,OutTex.pathEarth(17,{e0:'#2a2620',e1:'#3e3a32',stone:'#7a766a'}),0,0,1/4);c.fill();c.fillStyle=rgba('#000000',.12);c.fill();
@@ -125,8 +125,8 @@ function paint(c){
     c.strokeStyle=rgba('#0e140e',.8);c.lineWidth=1;c.strokeRect(x,d,w,l);}
   c.restore();
   // the night over the slope: darker toward us, the moon's light lying across the upper ground
-  c.fillStyle=lin(c,0,200,0,GB+60,[[0,rgba('#04060a',.28)],[.5,rgba('#04060a',.5)],[1,rgba('#010203',.78)]]);c.fillRect(X0,150,X1-X0,GB+130-150);
-  c.globalCompositeOperation='lighter';{const q=gp(MOON.x-60,FAR-40);c.fillStyle=rad(c,q.x,q.y,10,520,[[0,rgba('#8ea0c8',.12)],[.5,rgba('#8ea0c8',.04)],[1,rgba('#8ea0c8',0)]]);c.fillRect(X0,150,X1-X0,GB+130-150);}
+  E.fallKeep(c,X0,X1+120,150,[[200,.28],[200+(GB+60-200)*.5,.5],[GB+60,.64]],'#03050a',.04);
+  c.globalCompositeOperation='lighter';{const q=gp(MOON.x-60,FAR-40);c.fillStyle=rad(c,q.x,q.y,10,520,[[0,rgba('#8ea0c8',.12)],[.5,rgba('#8ea0c8',.04)],[1,rgba('#8ea0c8',0)]]);c.fillRect(X0,150,X1-X0+120,E.FOOT-150);}
   c.restore();
   // ---- the turf: tufts of grass, the tips toward the moon catching it, clover and daisies, longer grass round the stones
   {const r2=rng(5),cols=['#070c09','#0f1710','#172018','#202a22','#34403a','#55625c'],paths=cols.map(()=>new Path2D());
@@ -150,7 +150,7 @@ function paint(c){
       if(rc()<.25){c.strokeStyle=rgba('#c8d4ff',.18);c.lineWidth=.35;c.beginPath();c.moveTo(q.x+lean*.6,q.y-h*.75);c.lineTo(q.x+lean,q.y-h);c.stroke();}
       if(rc()<.05){c.fillStyle='#070b08';c.save();c.translate(q.x,q.y-2);c.rotate((rc()-.5)*1.4);c.beginPath();c.ellipse(0,-6,2.6,7,0,0,TAU);c.fill();c.strokeStyle=rgba('#c8d4ff',.12);c.lineWidth=.4;c.beginPath();c.moveTo(0,0);c.lineTo(0,-12);c.stroke();c.restore();}}}
   // the dark toward us
-  c.fillStyle=lin(c,0,GB-20,0,GB+110,[[0,rgba('#000000',0)],[1,rgba('#000000',.55)]]);c.fillRect(X0,GB-20,X1-X0,140);
+  E.fallKeep(c,X0,X1+120,GB-20,[[GB-20,0],[GB+110,.4]],null,.04);
   HILL.lamps=lamps;HILL.door=TH;}
 const HILL={lamps:[],door:null};
 // ---------- what moves: the elven lamps breathe, the tomb's lantern flickers, mist drifts low over the slope ----------

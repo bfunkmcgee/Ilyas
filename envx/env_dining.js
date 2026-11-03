@@ -206,12 +206,12 @@ function paint(c){
     // under the counter's top the shadow it throws on its own front
     c.fillStyle=lin(c,0,cy+2,0,cy+14,[[0,rgba('#000000',.5)],[1,rgba('#000000',0)]]);c.fillRect(x0-14,cy+2,x1-x0+14,12);}
   // the floor: herringbone in a dark polished wood, the windows and the bar lying in it, a path walked dull down the middle
-  {const pts=[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1,GB,-110),pp(X0,GB,-110)];c.save();poly(c,pts);c.clip();
-    c.save();floorT(c);c.fillStyle=pat(c,T.herringbone({T:128,k:4,sc:4,seed:11}),.25);c.fillRect(X0-60,-120,X1-X0+120,FAR+130);
+  {const pts=[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1+110,GB,E.NEAR),pp(X0,GB,E.NEAR)];c.save();poly(c,pts);c.clip();
+    c.save();floorT(c);c.fillStyle=pat(c,T.herringbone({T:128,k:4,sc:4,seed:11}),.25);c.fillRect(X0-60,E.NEAR-10,X1-X0+240,FAR-E.NEAR+20);
     // the polish: reflected light from the back of the room fading toward us, a duller walked band
     const sheen=c.createLinearGradient(0,FAR,0,0);sheen.addColorStop(0,'rgba(255,190,130,.12)');sheen.addColorStop(.35,'rgba(255,190,130,.03)');sheen.addColorStop(1,'rgba(255,190,130,0)');c.fillStyle=sheen;c.fillRect(X0-60,0,X1-X0+120,FAR);
     c.fillStyle='rgba(120,90,70,.06)';c.fillRect(X0-60,40,X1-X0+120,90);c.restore();
-    c.fillStyle=lin(c,0,yb,0,GB+100,[[0,rgba('#000000',.12)],[.4,rgba('#000000',.22)],[1,rgba('#000000',.72)]]);c.fillRect(X0,yb,X1-X0,GB+120-yb);
+    E.fallKeep(c,X0,X1+120,yb,[[yb,.12],[yb+(GB+100-yb)*.4,.22],[GB+100,.72]]);
     c.globalCompositeOperation='lighter';
     for(const wx of [150,300]){const a=pp(wx-40,GB,FAR-2),b=pp(wx+40,GB,FAR-2),e=pp(wx+70,GB,FAR-90),f=pp(wx-10,GB,FAR-90);c.fillStyle=lin(c,0,a.y,0,e.y,[[0,rgba('#8aa0d0',.13)],[1,rgba('#8aa0d0',0)]]);poly(c,[a,b,e,f]);c.fill();
       // the window's shape mirrored in the polish, broken by the boards

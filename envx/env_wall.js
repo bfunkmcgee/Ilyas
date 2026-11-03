@@ -210,23 +210,26 @@ function paint(c){const X0=-160,X1=W+240,T0=-110,r=rng(3),wx=wallX(),base=fy(0),
   c.save();c.globalCompositeOperation='lighter';for(const B of BRAZ){const q=brazAt(B);c.fillStyle=rad(c,q.x,q.y,0,90,[[0,rgba('#ff9a50',.2)],[.5,rgba('#ff9a50',.06)],[1,rgba('#ff9a50',0)]]);c.fillRect(q.x-90,q.y-90,180,180);}c.restore();
   ivy(c,[[fx(-40),fy(126),60,0],[fx(-30),fy(124),90,.4],[fx(-18),fy(127),40,0],[fx(640),fy(126),70,-.4],[fx(652),fy(125),110,0],[fx(665),fy(127),60,.5]],41);
   // the ground inside the walls: grass, the old road of setts running through it to the gate, puddles on the road
-  {const g=GB;c.save();c.beginPath();const qs=[pp(X0,g,DW),pp(wx,g,DW),pp(wx,g,-100),pp(X0,g,-100)];poly(c,qs);c.clip();
-    c.save();plane(c,g);c.fillStyle=patAt(c,TB().turf(5,{}),0,0,.25);c.fillRect(X0,-100,wx-X0,DW+100);
-    const roadX=d=>lerp(178,G.x,Math.pow((d+100)/(DW+100),1.25)),rw=d=>lerp(34,26,(d+100)/(DW+100)),jr=rng(5),L=[],R=[];for(let d=-100;d<=DW;d+=8){L.push([roadX(d)-rw(d)+(jr()-.5)*5,d]);R.push([roadX(d)+rw(d)+(jr()-.5)*5,d]);}
+  {const g=GB,N=E.NEAR;c.save();c.beginPath();const qs=[pp(X0,g,DW),pp(wx,g,DW),pp(wx,g,N),pp(X0,g,N)];poly(c,qs);c.clip();
+    c.save();plane(c,g);c.fillStyle=patAt(c,TB().turf(5,{}),0,0,.25);c.fillRect(X0,N,wx-X0,DW-N);
+    // (the old road runs on toward us past the fight, bending a little, on its own dice so the stretch behind keeps its stones)
+    const roadX=d=>d<-100?178+(d+100)*.12:lerp(178,G.x,Math.pow((d+100)/(DW+100),1.25)),rw=d=>lerp(34,26,(d+100)/(DW+100)),jr=rng(5),j2=rng(6),L=[],R=[];
+    for(let d=-108;d>=N-8;d-=8){L.unshift([roadX(d)-rw(d)+(j2()-.5)*5,d]);R.unshift([roadX(d)+rw(d)+(j2()-.5)*5,d]);}
+    for(let d=-100;d<=DW;d+=8){L.push([roadX(d)-rw(d)+(jr()-.5)*5,d]);R.push([roadX(d)+rw(d)+(jr()-.5)*5,d]);}
     c.beginPath();L.forEach(([x,d],i)=>i?c.lineTo(x,d):c.moveTo(x,d));for(let i=R.length-1;i>=0;i--)c.lineTo(R[i][0],R[i][1]);c.closePath();c.save();c.clip();
-    c.fillStyle=patAt(c,TX().setts(7,{c0:'#28222a',c1:'#423a40',farX:true}),0,0,1/6,90);c.fillRect(X0,-100,wx-X0,DW+100);c.restore();
+    c.fillStyle=patAt(c,TX().setts(7,{c0:'#28222a',c1:'#423a40',farX:true}),0,0,1/6,90);c.fillRect(X0,N-10,wx-X0,DW-N+10);c.restore();
     c.strokeStyle=rgba('#0a0c08',.6);c.lineWidth=2.2;c.beginPath();L.forEach(([x,d],i)=>i?c.lineTo(x,d):c.moveTo(x,d));c.stroke();c.beginPath();R.forEach(([x,d],i)=>i?c.lineTo(x,d):c.moveTo(x,d));c.stroke();c.restore();
-    c.fillStyle=lin(c,0,yF,0,GB+80,[[0,rgba('#06070e',.58)],[1,rgba('#05060c',.7)]]);c.fillRect(X0,base-20,wx-X0+60,GB+120-base);
+    E.fallKeep(c,X0,wx+60,base-20,[[yF,.58],[GB+80,.62]],'#05060c',.04);
     // puddles on the road holding the braziers' light
     for(const [d,w] of [[230,14],[150,18],[60,22]]){const q=pp(roadX(d)+(d%3)*4,g,d);c.save();c.beginPath();c.ellipse(q.x,q.y,w,w*.22,0,0,TAU);c.clip();c.fillStyle=lin(c,0,q.y-w*.22,0,q.y+w*.22,[[0,'#262a38'],[1,'#13151e']]);c.fillRect(q.x-w,q.y-w,2*w,2*w);
       c.globalCompositeOperation='lighter';for(const B of BRAZ){const bq=brazAt(B);if(Math.abs(bq.x-q.x)<w+16){c.fillStyle=rgba('#ffb866',.32);c.fillRect(bq.x-1.5,q.y-w*.22,3,w*.44);}}c.restore();}
     c.restore();}
   // the strip under the near wall (the footing of its stones, seen only when it is broken through) and the ground outside it
-  {const g=GB,stone=TX().granite(62,96,96,{base:'#6e665c'});c.save();c.beginPath();poly(c,[pp(wx,g,DW),pp(wx+WALL_T,g,DW),pp(wx+WALL_T,g,-100),pp(wx,g,-100)]);c.clip();c.fillStyle=patAt(c,stone,0,0,.25);c.fillRect(wx-20,0,WALL_T+120,700);c.fillStyle=rgba('#05050a',.86);c.fillRect(wx-20,0,WALL_T+120,700);c.restore();
-    c.save();c.beginPath();poly(c,[pp(wx+WALL_T,g,DW),pp(X1,g,DW),pp(X1,g,-100),pp(wx+WALL_T,g,-100)]);c.clip();c.save();plane(c,g);c.fillStyle=patAt(c,TB().turf(9,{g0:'#20261a',g1:'#343c24'}),0,0,.25);c.fillRect(wx,-100,X1-wx,DW+100);
+  {const g=GB,stone=TX().granite(62,96,96,{base:'#6e665c'});c.save();c.beginPath();poly(c,[pp(wx,g,DW),pp(wx+WALL_T,g,DW),pp(wx+WALL_T,g,E.NEAR),pp(wx,g,E.NEAR)]);c.clip();c.fillStyle=patAt(c,stone,0,0,.25);c.fillRect(wx-140,0,WALL_T+260,E.FOOT+20);c.fillStyle=rgba('#05050a',.86);c.fillRect(wx-20,0,WALL_T+120,700);c.restore();
+    c.save();c.beginPath();poly(c,[pp(wx+WALL_T,g,DW),pp(X1,g,DW),pp(X1+110,g,E.NEAR),pp(wx+WALL_T,g,E.NEAR)]);c.clip();c.save();plane(c,g);c.fillStyle=patAt(c,TB().turf(9,{g0:'#20261a',g1:'#343c24'}),0,0,.25);c.fillRect(wx,E.NEAR,X1-wx+240,DW-E.NEAR);
       // the ditch along the outside of the wall
-      c.fillStyle=lin(c,wx+WALL_T,0,wx+WALL_T+34,0,[[0,'rgba(4,4,8,.7)'],[.5,'rgba(10,10,14,.55)'],[1,'rgba(4,4,8,0)']]);c.fillRect(wx+WALL_T,-100,34,DW+100);c.restore();
-      c.fillStyle=rgba('#05050b',.68);c.fillRect(wx,0,X1-wx,700);c.restore();}
+      c.fillStyle=lin(c,wx+WALL_T,0,wx+WALL_T+34,0,[[0,'rgba(4,4,8,.7)'],[.5,'rgba(10,10,14,.55)'],[1,'rgba(4,4,8,0)']]);c.fillRect(wx+WALL_T,E.NEAR,34,DW-E.NEAR);c.restore();
+      c.fillStyle=rgba('#05050b',.68);c.fillRect(wx-120,0,X1-wx+240,E.FOOT+20);c.restore();}
   // the old town inside the walls: a roofless house's gable, cypresses against the far wall, a well
   {const stone=TX().granite(62,96,96,{base:'#7e766a'}),b0=pp(130,GB,288),b1=pp(214,GB,288),A=TB().ashlar(15,{bh:11,bl:26});
     c.beginPath();c.moveTo(b0.x,b0.y);c.lineTo(b0.x,b0.y-62);c.lineTo((b0.x+b1.x)/2-4,b0.y-96);c.lineTo((b0.x+b1.x)/2+6,b0.y-88);c.lineTo(b1.x-8,b0.y-70);c.lineTo(b1.x,b0.y-52);c.lineTo(b1.x,b1.y);c.closePath();
@@ -244,7 +247,7 @@ function paint(c){const X0=-160,X1=W+240,T0=-110,r=rng(3),wx=wallX(),base=fy(0),
     for(const T of TORCH){const q=pp(wx-30,GB,T.d);c.save();c.translate(q.x,q.y);c.scale(1,.4);c.fillStyle=rad(c,0,0,0,100,[[0,rgba('#ffb060',.12)],[1,rgba('#ffb060',0)]]);c.fillRect(-110,-110,220,220);c.restore();}
     c.fillStyle=lin(c,0,base,0,GB+40,[[0,rgba('#6a7aa8',.06)],[1,rgba('#6a7aa8',0)]]);c.fillRect(X0,base,X1-X0,GB+40-base);c.restore();
   haze(c,X0,X1,base-40,base+10,'#3a2a3a',.14);
-  c.fillStyle=lin(c,0,GB-40,0,GB+120,[[0,rgba('#000000',0)],[1,rgba('#000000',.6)]]);c.fillRect(X0,GB-40,X1-X0,160);}
+  E.fallKeep(c,X0,X1+120,GB-40,[[GB-40,0],[GB+120,.42]],null,.05);}
 // the braziers burn: drawn every frame over the layer
 function live(){const t=S.t;ctx.save();
   for(const B of BRAZ){const q=brazAt(B),f=.9+.1*Math.sin(t*7+B.x)*Math.sin(t*3.3);

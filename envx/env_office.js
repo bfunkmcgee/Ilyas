@@ -241,10 +241,10 @@ function paint(c){
     c.fillStyle=rgba('#e6ecff',.45);c.fillRect(gx0,gy1,gx1-gx0,1.2);c.fillStyle=rgba('#000000',.35);c.fillRect(gx0,gy1+1.2,gx1-gx0,2);
     walnut(c,gx0,yb-5,gx1-gx0,5,false,.4);c.fillStyle=rgba('#ffdcaa',.2);c.fillRect(gx0,yb-5,gx1-gx0,.8);}
   // ---- the floor: honey oak herringbone, polished, with the pale rug under the desk
-  {const pts=[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1,GB,-110),pp(X0,GB,-110)];c.save();E.poly(c,pts);c.clip();
-    c.save();c.transform(1,0,PSX,-PSY,0,GB);c.fillStyle=patAt(c,TX().herringbone({T:96,k:4,sc:4,seed:23,wood:OAK}),0,0,.25);c.fillRect(X0-60,-120,X1-X0+120,FAR+130);
+  {const pts=[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1+110,GB,E.NEAR),pp(X0,GB,E.NEAR)];c.save();E.poly(c,pts);c.clip();
+    c.save();c.transform(1,0,PSX,-PSY,0,GB);c.fillStyle=patAt(c,TX().herringbone({T:96,k:4,sc:4,seed:23,wood:OAK}),0,0,.25);c.fillRect(X0-60,E.NEAR-10,X1-X0+240,FAR-E.NEAR+20);
     const sheen=c.createLinearGradient(0,FAR,0,0);sheen.addColorStop(0,'rgba(255,200,140,.1)');sheen.addColorStop(.4,'rgba(255,200,140,.02)');sheen.addColorStop(1,'rgba(255,200,140,0)');c.fillStyle=sheen;c.fillRect(X0-60,0,X1-X0+120,FAR);c.restore();
-    c.fillStyle=lin(c,0,yb,0,GB+100,[[0,rgba('#0a0604',.32)],[.4,rgba('#0a0604',.42)],[1,rgba('#000000',.74)]]);c.fillRect(X0,yb,X1-X0,GB+120-yb);
+    E.fallKeep(c,X0,X1+120,yb,[[yb,.32],[yb+(GB+100-yb)*.4,.42],[GB+100,.74]],'#0a0604');
     // the moonlight through the glass lying across the boards
     c.save();c.globalCompositeOperation='lighter';for(const x of [620,730,840]){c.fillStyle=lin(c,0,pp(0,GB,FAR).y,0,pp(0,GB,110).y,[[0,rgba('#96b4ff',.08)],[1,rgba('#96b4ff',0)]]);E.poly(c,[pp(x,GB,FAR),pp(x+96,GB,FAR),pp(x+30,GB,110),pp(x-96,GB,110)]);c.fill();}
       // the lobby's amber through the doorway, and the sconces' light at the foot of the wall

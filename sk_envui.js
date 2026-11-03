@@ -11,8 +11,10 @@ function roomBottles(){if(ROOM_BOTTLES)return ROOM_BOTTLES;const r=mulberry32(77
   for(let row=0;row<3;row++)for(let x=548;x<880;x+=9+r()*6){const h=14+r()*12;L.push({x,row,h,w:4+r()*3,c:['#8a2f2f','#2f6a4a','#c9a25a','#5a3a7a','#b5567a','#3a5a8a'][Math.floor(r()*6)],tall:r()<.4});}
   return ROOM_BOTTLES=L;}
 function litFrac(){if(!S.lamps.length)return 1;let n=0;for(const L of S.lamps)if(L.lit)n++;return n/S.lamps.length;}
-// the back wall, windows, bar and ceiling, then the floor: painted once into a layer and reused every frame
-const RC={x0:-150,y0:-90,w:W+380,h:H+200};let ROOM_LAYERS={};
+// the back wall, windows, bar and ceiling, then the floor: painted once into a layer and reused every frame. RC is what a still layer
+// covers (world units): to y 870, the ground in front of the fight that an upright phone's push-in shows (sk_ui.js); a scene's layer
+// keeps the part below y 610 only on an upright screen (sceneLayerH, sk_scene_glue.js).
+const RC={x0:-150,y0:-90,w:W+380,h:H+460};let ROOM_LAYERS={};
 function paintRoom(c){
   const far=ROOM.far,yB=prjY(GB,far),X0=-140,X1=W+220,L=RC.x0,T=RC.y0,VW=RC.w,VH=RC.h,pl=pts=>{c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)c.lineTo(pts[i].x,pts[i].y);c.closePath();c.fill();};
   // ceiling and wall
@@ -72,9 +74,11 @@ function drawRoom(L,T,VW,VH){
   const need=clamp(cv.width/cam.viewW*1.12,1,2.4),key=['kitchen','lobby','office'].includes(S.room)?S.room:'dining';let Ly=ROOM_LAYERS[key];
   // each room paints its still parts once into a layer, and draws what moves over it every frame
   const paint={dining:paintRoom,kitchen:paintKitchen,lobby:paintLobby,office:paintOffice}[key],live={dining:drawDiningDoor,kitchen:drawKitchenLive,lobby:drawLobbyLive,office:drawOfficeLive}[key];
-  if(!Ly||need>Ly.sc*1.2||need<Ly.sc*.6){const cn=document.createElement('canvas'),sc=need;cn.width=Math.ceil(RC.w*sc);cn.height=Math.ceil(RC.h*sc);
+  // (the old look's rooms keep to y 610, as they always did)
+  const rh=Math.min(RC.h,H+200);
+  if(!Ly||need>Ly.sc*1.2||need<Ly.sc*.6){const cn=document.createElement('canvas'),sc=need;cn.width=Math.ceil(RC.w*sc);cn.height=Math.ceil(rh*sc);
     const c=cn.getContext('2d');c.setTransform(sc,0,0,sc,-RC.x0*sc,-RC.y0*sc);paint(c);ROOM_LAYERS={[key]:{cv:cn,sc}};Ly=ROOM_LAYERS[key];}
-  ctx.drawImage(Ly.cv,RC.x0,RC.y0,RC.w,RC.h);
+  ctx.drawImage(Ly.cv,RC.x0,RC.y0,RC.w,rh);
   live();
   const lf=litFrac();if(lf<1){ctx.fillStyle=`rgba(8,3,14,${((1-lf)*.38).toFixed(3)})`;ctx.fillRect(L-40,T-40,VW+80,VH+80);}
 }

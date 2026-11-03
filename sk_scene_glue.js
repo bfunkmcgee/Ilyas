@@ -3,24 +3,42 @@
 // browser that cannot draw them (the headless checks have no Path2D or DOMMatrix), so the old drawing stays there.
 const SCENE_OK=typeof Path2D==='function'&&typeof DOMMatrix==='function';
 function envKey(){if(!SCENE_OK||S.classicLook||S.sceneOff||!S.arena)return null;const k=S.arena.indoor?(['kitchen','lobby','office'].includes(S.room)?S.room:'dining'):S.arenaKey;return EnvLook.S[k]?k:null;}
-// One layer at a time, painted at the most the screen can need: the closest the camera comes (560 world units across on a phone, the
-// whole width on a wider screen, less a tenth for the punch-in) at the screen's own resolution, up to 2.4 times the world's units as the
-// rooms always were. It is painted again only for another scene or when the screen itself changes size.
+// One layer at a time, painted at the most the screen can need: the closest the camera comes (camCloseW, sk_ui.js: the push-in's on an
+// upright phone, about 404 world units across at 412x714; 560 on a narrow screen held sideways; the whole width on a wider one; less a
+// tenth for the punch-in) at the screen's own resolution, up to 2.4 times the world's units as the rooms always were (about 2.3 pixels
+// a unit on a phone). It is painted again only for another scene or when the screen itself changes size.
 let SCENE_LY=null;
-function sceneScale(){return clamp(cv.width/((cssW<640?560:W)*.9)*1.12,1,2.4);}
+function sceneScale(){return clamp(cv.width/(camCloseW()*.9)*1.12,1,2.4);}
+// How much of RC's height the layer keeps: all of it on an upright screen, where the push-in shows the ground in front of the fight
+// (RC runs on to y 870 for it); 700 units (to y 610) elsewhere, where the dock or the world's foot hides the rest.
+function sceneLayerH(){return camNarrow()&&cssH>cssW?RC.h:Math.min(RC.h,H+200);}
 // A scene whose still parts change with the story (the bistro's doors blown in) gives a key() that changes with them; a new key
 // paints the layer again.
-function sceneLayer(k){const need=sceneScale(),v=EnvLook.S[k].key?EnvLook.S[k].key():'';let L=SCENE_LY;
-  if(!L||L.k!==k||L.v!==v||Math.abs(need/L.sc-1)>.15){if(L){L.cv.width=L.cv.height=0;SCENE_LY=null;}
-    const cn=document.createElement('canvas');cn.width=Math.ceil(RC.w*need);cn.height=Math.ceil(RC.h*need);
+function sceneLayer(k){const need=sceneScale(),lh=sceneLayerH(),v=EnvLook.S[k].key?EnvLook.S[k].key():'';let L=SCENE_LY;
+  if(!L||L.k!==k||L.v!==v||L.lh!==lh||Math.abs(need/L.sc-1)>.15){if(L){L.cv.width=L.cv.height=0;SCENE_LY=null;}
+    const cn=document.createElement('canvas');cn.width=Math.ceil(RC.w*need);cn.height=Math.ceil(lh*need);
     const c=cn.getContext('2d'),t0=performance.now();c.setTransform(need,0,0,need,-RC.x0*need,-RC.y0*need);EnvLook.S[k].paint(c);
-    L=SCENE_LY={k,v,cv:cn,sc:need,ms:performance.now()-t0};SCENE_WARM.planned[k]=true;}
+    L=SCENE_LY={k,v,cv:cn,sc:need,lh,ms:performance.now()-t0,foot:sceneFootOf(cn,lh)};SCENE_WARM.planned[k]=true;}
   return L;}
+// How far down a layer is painted (world y): the lowest row painted across most of the floor's width, read off a small copy of it.
+// The black under the place starts there (render(), sk_ui.js).
+function sceneFootOf(cn,lh){try{const w=96,h=Math.round(lh/2),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),sx=cn.width/RC.w;
+    x.drawImage(cn,-RC.x0*sx,0,W*sx,cn.height,0,0,w,h);const d=x.getImageData(0,0,w,h).data;
+    for(let r=h-1;r>0;r--){let n=0;for(let i=0;i<w;i++)if(d[(r*w+i)*4+3]>200)n++;if(n>w*.6)return RC.y0+(r+1)*lh/h;}}catch(e){}
+  return H+40;}
 // the layer on the screen; a view that reaches above the layer (a phone with the fighters spread wide) gets the layer's top edge
-// stretched up over it
+// stretched up over it, and under a night sky the stars going on up in it
 function sceneDraw(k,T){const L=sceneLayer(k);
-  if(T-40<RC.y0)ctx.drawImage(L.cv,0,0,L.cv.width,2,RC.x0,T-40,RC.w,RC.y0-(T-40)+.5);
-  ctx.drawImage(L.cv,RC.x0,RC.y0,RC.w,RC.h);}
+  if(T-40<RC.y0){ctx.drawImage(L.cv,0,0,L.cv.width,2,RC.x0,T-40,RC.w,RC.y0-(T-40)+.5);if(SCENE_NIGHT[k])sceneStars(T-40,RC.y0+2);}
+  ctx.drawImage(L.cv,RC.x0,RC.y0,RC.w,L.lh);}
+const SCENE_NIGHT={street:1,field:1,hill:1,ledge:1,wall:1,crops:1,roadblock:1,chase:1,roof:1};
+// a field of faint stars, made once (300 by 200 units, on its own dice), laid as a repeat between y0 and y1
+let SCENE_STARS=null;
+function sceneStars(y0,y1){if(!SCENE_STARS){const s=2,cn=document.createElement('canvas');cn.width=300*s;cn.height=200*s;const c=cn.getContext('2d'),r=mulberry32(4401);
+    for(let i=0;i<70;i++){const x=r()*300,y=r()*200,a=.18+r()*.45,z=r()<.85?1:1.7;c.fillStyle=`rgba(${r()<.7?'232,226,214':'200,212,255'},${a.toFixed(2)})`;c.fillRect(x*s,y*s,z*s,z*s);}
+    SCENE_STARS={cv:cn,c:null,p:null};}
+  const Z=SCENE_STARS;if(Z.c!==ctx){Z.c=ctx;Z.p=ctx.createPattern(Z.cv,'repeat');if(Z.p&&Z.p.setTransform)Z.p.setTransform(new DOMMatrix().scale(.5));}
+  if(!Z.p)return;ctx.fillStyle=Z.p;ctx.fillRect(RC.x0,y0,RC.w,y1-y0);}
 // a piece of the layer drawn elsewhere (source and destination in world units): how the hidden lift's wall section, the lobby lift's
 // leaves and the kitchen's back door move while looking exactly as the layer paints them
 function sceneBlit(c,sx,sy,sw,sh,dx,dy,dw,dh){const L=SCENE_LY;if(!L||!L.cv.width)return false;const s=L.sc;

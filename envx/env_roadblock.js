@@ -214,15 +214,15 @@ function cruiser(c){const d=CRUISER.d,L=CRUISER.len,x0=CRUISER.x-L/2,q=(x,y)=>pp
   c.strokeStyle=rgba('#cfe0ff',.35);c.lineWidth=.8;c.beginPath();[[104,74],[192,76],[222,52],[284,46],[298,36]].forEach((p,i)=>{const s=q(p[0],p[1]);i?c.lineTo(s.x,s.y):c.moveTo(s.x,s.y);});c.stroke();}
 // ---------- the floor ----------
 function road(c,X0,X1){
-  const rv=[gq(X0,196),gq(X1,196),gq(X1,-110),gq(X0,-110)];
+  const rv=[gq(X0,196),gq(X1,196),gq(X1+110,E.NEAR),gq(X0,E.NEAR)];
   c.save();poly(c,rv);c.clip();c.save();c.transform(1,0,PSX,-PSY,0,GB);
-  c.fillStyle=patAt(c,asphalt(31,{U:64,sc:4}),0,0,1/4);c.fillRect(X0-60,-120,X1-X0+160,330);
+  c.fillStyle=patAt(c,asphalt(31,{U:64,sc:4}),0,0,1/4);c.fillRect(X0-60,E.NEAR-10,X1-X0+280,210-E.NEAR);
   // patched strips where the road has been dug and filled, darker
   {const r=rng(14);for(let i=0;i<5;i++){const x=X0+r()*(X1-X0),d=-60+r()*230,w=40+r()*120,h=10+r()*26;c.fillStyle=rgba('#07080b',.28);c.fillRect(x,d,w,h);c.strokeStyle=rgba('#000000',.25);c.lineWidth=.8;c.strokeRect(x,d,w,h);}}
   // the lane paint, worn: a broken line down the middle, solid edge lines, the stop line before the checkpoint
   {const paint=(x0,x1,d,wd,col,dash)=>{c.fillStyle=col;if(!dash){c.fillRect(x0,d-wd/2,x1-x0,wd);return;}for(let x=x0;x<x1;x+=dash[0]+dash[1])c.fillRect(x,d-wd/2,dash[0],wd);};
     paint(X0,X1,92,3.2,rgba('#e8e4d8',.34),[38,30]);paint(X0,X1,186,2.6,rgba('#d8b040',.3));paint(X0,X1,2,2.6,rgba('#e8e4d8',.22));
-    c.fillStyle=rgba('#e8e4d8',.32);c.fillRect(SPIKE.x-42,-110,7,306);
+    c.fillStyle=rgba('#e8e4d8',.32);c.fillRect(SPIKE.x-42,E.NEAR,7,196-E.NEAR);
     // the paint is broken up where the traffic wears it
     const r=rng(4);c.fillStyle=rgba('#14161c',.7);for(let i=0;i<260;i++){const x=X0+r()*(X1-X0),d=[92,186,2][i%3]+(r()-.5)*4;c.fillRect(x,d-1,1+r()*4,2+r()*1.6);}}
   // tyre marks: the carrier's, braking in on the right, and old ones down the lanes
@@ -233,8 +233,8 @@ function road(c,X0,X1){
   {const r=rng(9);for(const [x,d,s] of [[700,96,1.4],[760,128,1],[640,70,.8],[262,184,.7],[120,40,.6]]){c.fillStyle=rgba('#030304',.55);c.beginPath();c.ellipse(x,d,26*s,12*s,r()*.6,0,TAU);c.fill();
     c.strokeStyle=rgba('#7a5aa8',.12);c.lineWidth=1.2;c.beginPath();c.ellipse(x+2,d+1,24*s,10.5*s,0,0,TAU);c.stroke();c.strokeStyle=rgba('#4ab0a0',.08);c.beginPath();c.ellipse(x-1,d-1,22*s,9.5*s,0,0,TAU);c.stroke();}}
   // the spike strip across the road: a hinged strip of steel teeth, from the far kerb to the near side
-  {c.fillStyle='#0b0c10';c.fillRect(SPIKE.x-5,-110,10,306);c.fillStyle=rgba('#9aa4b8',.5);for(let d=-108;d<196;d+=5){c.beginPath();c.moveTo(SPIKE.x-3,d);c.lineTo(SPIKE.x,d+2.4);c.lineTo(SPIKE.x+3,d);c.closePath();c.fill();}
-    c.fillStyle=rgba('#000000',.5);for(let d=-110;d<196;d+=22)c.fillRect(SPIKE.x-5.4,d,10.8,.8);}
+  {c.fillStyle='#0b0c10';c.fillRect(SPIKE.x-5,E.NEAR,10,196-E.NEAR);c.fillStyle=rgba('#9aa4b8',.5);for(let d=E.NEAR+2;d<196;d+=5){c.beginPath();c.moveTo(SPIKE.x-3,d);c.lineTo(SPIKE.x,d+2.4);c.lineTo(SPIKE.x+3,d);c.closePath();c.fill();}
+    c.fillStyle=rgba('#000000',.5);for(let d=-110;d<196;d+=22)c.fillRect(SPIKE.x-5.4,d,10.8,.8);for(let d=-132;d>E.NEAR;d-=22)c.fillRect(SPIKE.x-5.4,d,10.8,.8);}
   // the manhole: a cast iron lid in its frame, its pattern, the wet ring round it
   {const h=HOLE;c.fillStyle='#08080a';c.beginPath();c.ellipse(h.x,h.d,15,11,0,0,TAU);c.fill();c.fillStyle=lin(c,h.x-12,h.d-12,h.x+12,h.d+12,[[0,'#2a2c32'],[.5,'#3a3c44'],[1,'#1c1d22']]);c.beginPath();c.ellipse(h.x,h.d,12.4,9.2,0,0,TAU);c.fill();
     c.strokeStyle=rgba('#000000',.6);c.lineWidth=.7;c.beginPath();for(let k=-3;k<=3;k++){c.moveTo(h.x+k*3.2,h.d-8.6+Math.abs(k)*.4);c.lineTo(h.x+k*3.2,h.d+8.6-Math.abs(k)*.4);}c.stroke();
@@ -324,7 +324,7 @@ function paint(c){
   // the near lane: sawhorses and cones toward us, left of where the carrier stands
   sawhorse(c,{...BARR[2],col:'a'});for(const k of CONES)if(k.d<0)cone(c,k);sawhorse(c,{...BARR[3],col:'b'});
   // the dark toward us
-  c.fillStyle=lin(c,0,GB-20,0,GB+110,[[0,rgba('#000000',0)],[1,rgba('#000000',.55)]]);c.fillRect(X0,GB-20,X1-X0,130);}
+  E.fallKeep(c,X0,X1+120,GB-20,[[GB-20,0],[GB+110,.42]],null,.05);}
 // ---------- what moves: the searchlights, the flashers and the lightbar, the board, the steam, the drizzle ----------
 const STEAM=(()=>{const r=rng(5),a=[];for(let i=0;i<14;i++)a.push({ph:r(),dx:(r()-.5)*8,sp:.18+r()*.14,w:5+r()*6});return a;})();
 const RAIN=(()=>{const r=rng(8),a=[];for(let i=0;i<70;i++)a.push({x:r()*1100-100,y:r()*560-40,sp:280+r()*160,l:5+r()*5,a:.06+r()*.1});return a;})();

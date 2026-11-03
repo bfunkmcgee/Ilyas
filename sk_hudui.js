@@ -4,14 +4,15 @@
 // command dock (one group at a time behind tabs on a phone, every group at once on a desktop), the menu drawer that pauses the fight
 // (the bench, the arena, the codex), the log drawer, and what the HUD covers of the picture, which the camera frames the fighters
 // around (HUD_IN, sk_ui.js).
-const HUD={built:false,mode:'',tab:'strike',userTab:'strike',auto:false,menu:false,log:false,dtab:'fight',state:'',turnKey:'',op:'',measAt:0,billH:0,padR:10};
+const HUD={built:false,mode:'',tab:'strike',userTab:'strike',auto:false,menu:false,log:false,dtab:'fight',state:'',turnKey:'',op:'',measAt:0,billH:0,padR:10,
+  drop:false,cardH:0,cardAH:0,cardSeen:false};
 const HUD_GROUPS={strike:['slash','overhead','thrust','sweep','shove','feint'],move:['advance','sidestep','withdraw'],guard:['guard','wait','cover','team']};
 const HUD_TABS=['strike','move','guard','aether'];
 // the layout for a screen: a phone held sideways (short and wide), a phone held upright, a desktop, and a tablet between them
 function hudModeOf(w,h){return h<=560&&w>h?'land':w<=640?'port':w>=1000?'desk':'tab';}
 function hudEl(id){return document.getElementById(id);}
 // called by resize() in sk_ui.js, from the first moment the canvas is sized
-function hudResized(){const m=hudModeOf(cssW,cssH);if(m!==HUD.mode||!HUD.applied)hudApplyMode(m);HUD.measAt=0;}
+function hudResized(){const m=hudModeOf(cssW,cssH);if(m!==HUD.mode||!HUD.applied)hudApplyMode(m);HUD.measAt=0;HUD.cardH=HUD.cardAH=0;}
 function hudApplyMode(m){
   HUD.mode=m;const wr=hudEl('wrap');if(wr&&wr.dataset)wr.dataset.mode=m;
   if(!HUD.built)return;HUD.applied=true;
@@ -36,7 +37,10 @@ function hudMeasure(){
     if(HUD.mode==='land'||HUD.mode==='tab'){const b=hudEl('cmds').getBoundingClientRect();if(b.height>0)ref=b.top;}
     else if(HUD.mode==='port'){const t=hudEl('cmdTabs').getBoundingClientRect();if(t.height>0)ref=Math.min(ref,t.top);}
     bottom=Math.max(0,R.bottom-ref);
-    const lb=hudEl('logBtn').getBoundingClientRect();if(lb.width>0)HUD.padR=Math.max(4,R.right-lb.right);}
+    const lb=hudEl('logBtn').getBoundingClientRect();if(lb.width>0)HUD.padR=Math.max(4,R.right-lb.right);
+    // an opening card up: its height, the player's own choice or the enemy's "deciding" (the push-in keeps the fighters over them)
+    const oc=hudEl('opening');if(oc&&!oc.hidden&&S.opening&&S.opening.f){let t=1e9;for(const q of oc.querySelectorAll('.op-tab,.op-dock')){const r=q.getBoundingClientRect();if(r.height>0&&r.top<t)t=r.top;}
+      if(t<R.bottom){const h=R.bottom-t;if(isAI(S.opening.f.idx))HUD.cardAH=Math.max(HUD.cardAH||0,h);else HUD.cardH=Math.max(HUD.cardH||0,h);}}}
   const bl=hudEl('bill');HUD.billH=bl&&!bl.hidden?bl.offsetHeight||0:0;
   if(Math.abs(top-HUD_IN.top)>.5||Math.abs(bottom-HUD_IN.bottom)>.5){HUD_IN.top=top;HUD_IN.bottom=bottom;
     st.style.setProperty('--hud-top',top+'px');st.style.setProperty('--hud-bottom',bottom+'px');}}
@@ -54,6 +58,13 @@ function hudFrame(){
   const st=hudStateNow();if(st!==HUD.state){HUD.state=st;wr.dataset.hud=st;if(st!=='play'&&HUD.log)hudLog(false);if(st==='title'&&HUD.menu)hudMenu(false);HUD.measAt=0;}
   // an opening or the last scene's choice docks in the commands' place; while the hero chooses, the enemies' plates fade
   const op=!hudEl('opening').hidden||!hudEl('finalePanel').hidden,ov=op?(S.opening&&S.opening.f&&S.opening.f.team===1?'e':'h'):'';if(ov!==HUD.op){HUD.op=ov;wr.dataset.op=ov;}
+  // the action on an upright phone: while the player has nothing to press the moves drop away (they fade) and the camera pushes in
+  // (camPush, sk_ui.js); on his turn they are back. The cards that come up meanwhile are measured as they show, so the camera keeps
+  // the fighters over the tallest.
+  const g=S.game,A=S.F[g.active],mine=g.phase==='input'&&!!A&&A.team===0&&!A.dead&&!isAI(g.active)&&!S.opening;
+  const drop=HUD.mode==='port'&&st==='play'&&!S.camCut&&(g.phase==='exchange'||g.phase==='over'||(g.phase==='input'&&!mine));
+  if(drop!==HUD.drop){HUD.drop=drop;wr.dataset.drop=drop?'1':'';camPushTurn(drop);}
+  if(ov&&S.opening&&!HUD.cardSeen){HUD.cardSeen=true;HUD.measAt=0;}else if(!ov)HUD.cardSeen=false;
   const now=performance.now();if(now-HUD.measAt>500){HUD.measAt=now;hudMeasure();}}
 
 // ---------- the command dock ----------

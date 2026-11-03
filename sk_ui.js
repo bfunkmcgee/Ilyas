@@ -9,7 +9,7 @@ const cv=$('cv');
 let ctx=cv.getContext('2d');
 let aspect=1.8,cssW=900,cssH=500;
 // cam.T is the world's y at the top edge of the canvas (camTop), eased toward where the framing wants it (camTarget)
-const cam={x:W/2,viewW:W,T:0,tSet:false};
+const cam={x:W/2,viewW:W,T:0,tSet:false,cut:false,riseT:0};
 // what the HUD covers of the stage, in CSS pixels from the top and from the bottom edge (sk_hudui.js measures it)
 const HUD_IN={top:0,bottom:0};
 // The canvas fills the stage, the whole screen. Its pixel ratio is held to a budget of pixels, so a big screen costs about what a
@@ -31,11 +31,36 @@ function updateCamera(rdt){
   for(const f of S.F){if(f.gone||f.entering)continue;const x=prjX(f.p[PEL].x,f.dep);if(x<lo)lo=x;if(x>hi)hi=x;}
   // a short punch-in on the biggest moments
   const pk=S.punch&&!reduceMotion?(S.punch.t<.22?1:Math.max(0,1-(S.punch.t-.22)/.7)):0;
-  const pz=(S.punch&&S.punch.z)||.1,tw=(narrow?clamp(hi-lo+280,560,W):W)*(1-pz*pk),k=Math.min(1,rdt*(pk>0?6:3.5));
+  const pz=(S.punch&&S.punch.z)||.1,tw=(narrow?camNarrowW(hi-lo,280,220):W)*(1-pz*pk),k=camRate(rdt,pk>0?6:3.5);
   cam.viewW+=(tw-cam.viewW)*k;const half=cam.viewW/2;
   const cx=pk>0?lerp((lo+hi)/2,S.punch.x,(pz>.12?.6:.45)*pk):(lo+hi)/2;
   cam.x+=(clamp(cx,half,W-half)-cam.x)*k;
 }
+// ---------- the push-in ----------
+// On an upright phone the moves drop away while the player has nothing to press (HUD.drop, sk_hudui.js) and the camera pushes in for
+// the action: at its closest 700 world units of height fill the screen's (y -90 to 610 at the style guide's framing: about 404 units
+// across at 412x714), never closer than lets everyone in the fight fit (their spread and mp round it, and the band they stand in
+// between the top bar and the cards), never wider than the player's turn shows (m round them, 560 at the least). The band sits on the
+// top of the opening cards (camCardH), so a card never covers a fighter and the camera holds still while the cards come and go; the
+// floor runs on under the cards (each place paints its ground down to RC's foot). On his turn it is as before. A scene's own camera
+// (S.camCut) wins; a wide screen is unchanged.
+const PUSH_H=700;
+function camPush(){return typeof HUD!=='undefined'&&!!HUD.drop&&!S.camCut&&camNarrow();}
+function camNarrowW(spread,m,mp){const turn=clamp(spread+m,560,W);return camPush()?Math.min(turn,camPushW(spread+mp)):turn;}
+function camPushW(fit){const b=camBand(),room=cssH-camCardH()-HUD_IN.top-36;
+  return clamp(Math.max(fit,cssW*PUSH_H/Math.max(1,cssH),cssW*(b.foot-b.top)/Math.max(60,room)),300,W);}
+// the height the opening cards take at the screen's foot (CSS pixels): the tallest the player has met on this screen, the usual one
+// before that; a fight he only watches meets only the enemies' small "deciding" card
+function camCardH(){const h=typeof HUD!=='undefined'?HUD:{},play=S.F.some(f=>f.team===0&&!f.dead&&!f.gone&&!isAI(f.idx));
+  return play?Math.max(h.cardH||0,246):Math.max(h.cardAH||0,128);}
+// how far down the place is painted (world y): the scene's layer as measured when it was painted, the old look to 40 past the foot
+function camPaintFoot(){const k=typeof envKey==='function'?envKey():null,L=typeof SCENE_LY!=='undefined'?SCENE_LY:null;return k&&L&&L.k===k&&L.foot?L.foot:H+40;}
+// the closest the camera comes on this screen (world units across): what the scene layers are painted for (sceneScale)
+function camCloseW(){return cssW<640?Math.min(560,cssW*PUSH_H/Math.max(1,cssH)):W;}
+// the push-in starting or ending (sk_hudui.js calls this): with reduced motion the camera cuts to its new framing; as the moves come
+// back up it follows quickly for a moment, so the band makes room over the dock
+function camPushTurn(on){cam.cut=reduceMotion;cam.riseT=on?0:.7;}
+function camRate(rdt,base){return cam.cut?1:Math.min(1,rdt*(cam.riseT>0?Math.max(base,6):base));}
 // The picture's height. The band the fighters stand in (the farthest one's head with a label over it, down to the nearest one's feet
 // and footing ring) sits in what the HUD leaves of the screen, as low in it as lets the floor run on under the command dock, never
 // lower than three quarters of the way down it; where the band does not fit, the feet win. Without a HUD over it a wide screen gets
@@ -49,9 +74,12 @@ function camBand(){
   return top<foot?{top,foot}:BAND0;}
 function camTarget(){
   const s=cssW/Math.max(1,cam.viewW),it=HUD_IN.top,ib=HUD_IN.bottom,b=camBand(),free=Math.max(40,cssH-it-ib);
+  // the push-in: the band's foot on the cards' top, the floor running on under them
+  if(camPush())return b.foot-(cssH-camCardH())/s;
   const A=H-(cssH-ib)/s,Bt=b.top-(it+36)/s,C=b.foot-(cssH-ib)/s,lo=(b.top+b.foot)/2-(it+.72*free)/s;
   return Math.max(Math.min(A,Bt),lo,C);}
-function camVert(rdt){const t=camTarget();if(!cam.tSet||!Number.isFinite(cam.T)){cam.T=t;cam.tSet=true;}else cam.T+=(t-cam.T)*Math.min(1,rdt*3.2);}
+function camVert(rdt){const t=camTarget();if(cam.riseT>0)cam.riseT-=rdt;
+  if(!cam.tSet||!Number.isFinite(cam.T)||cam.cut){cam.T=t;cam.tSet=true;cam.cut=false;}else cam.T+=(t-cam.T)*Math.min(1,rdt*(cam.riseT>0?6:3.2));}
 function camTop(){return cam.T;}
 
 // ---------- scenery ----------
@@ -579,8 +607,9 @@ function render(){
   const sh=reduceMotion?0:S.shake,dir=S.shakeDir||{x:0,y:0},osc=Math.cos(performance.now()*.05);
   let ox=(dir.x*osc*.9+(uiRand()*2-1)*.3)*sh,oy=(dir.y*osc*.7+(uiRand()*2-1)*.3)*sh;
   if(S.camKick&&!reduceMotion){const k=Math.max(0,1-S.camKick.t/.3);ox+=S.camKick.x*k*k;oy+=S.camKick.y*k*k;}
-  // under the world's foot the screen is the page's dark; the floor fades into it
-  const yFoot=(H-T+oy)*s;if(yFoot<cv.height){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#05050a';ctx.fillRect(0,Math.max(0,yFoot-4),cv.width,cv.height);}
+  // under the place's painted foot the screen is the page's dark; the floor fades into it over its last 48 units (the old look paints
+  // to the world's foot and 40 past it; a scene's layer as far as it was measured to paint, sk_scene_glue.js)
+  const pf=camPaintFoot(),yFoot=(pf-40-T+oy)*s;if(yFoot<cv.height){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#05050a';ctx.fillRect(0,Math.max(0,yFoot-4),cv.width,cv.height);}
   ctx.setTransform(s,0,0,s,(-L+ox)*s,(-T+oy)*s);
   if(S.arena.indoor)drawRoom(L,T,cam.viewW,viewH);else{drawSky(L,T,cam.viewW,viewH);drawFloor();}
   // the light and the air (sk_lightui.js): the fighters' sprites, their reflections, the light on the floor, the air behind them
@@ -613,7 +642,7 @@ function render(){
     else drawDebrisPiece(it.sg,it.d,it.col);
   }
   if(fxl)FXL.front();
-  if(yFoot<cv.height+40*s){const y0=(H-8-T+oy)*s,y1=(H+40-T+oy)*s;ctx.setTransform(1,0,0,1,0,0);const fg=ctx.createLinearGradient(0,y0,0,y1);
+  if(yFoot<cv.height+40*s){const y0=(pf-48-T+oy)*s,y1=(pf-T+oy)*s;ctx.setTransform(1,0,0,1,0,0);const fg=ctx.createLinearGradient(0,y0,0,y1);
     fg.addColorStop(0,'rgba(5,5,10,0)');fg.addColorStop(1,'rgba(5,5,10,1)');ctx.fillStyle=fg;ctx.fillRect(0,y0,cv.width,cv.height-y0);ctx.setTransform(s,0,0,s,(-L+ox)*s,(-T+oy)*s);}
   if(fxl)FXL.grade();
   // (the head bars under the intent labels: a label over a neighbour's head is read whole)

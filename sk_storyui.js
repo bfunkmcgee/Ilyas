@@ -76,12 +76,12 @@ function storyQuiet(){return!!(S.story&&(S.game.phase==='cut'||S.story.step!=='f
   cam.viewW+=(w-cam.viewW)*k;const x=clamp(narrow&&C.xn!=null?C.xn:C.x,cam.viewW/2-130,W-cam.viewW/2+200);cam.x+=(x-cam.x)*k;};}
 
 // on a moving road the camera keeps to the riders still in the fight (whole bikes, not just the men on them), never to the ones
-// the road has taken
+// the road has taken (and pushes in for the action on an upright phone, camNarrowW in sk_ui.js)
 {const uc=updateCamera;updateCamera=function(rdt){if(S.camCut||!S.arena||!S.arena.scroll){uc(rdt);return;}
   const narrow=cssW<640;let lo=1e9,hi=-1e9;
   for(const f of S.F){if(f.gone||f.crashed)continue;const B=f.mount,x0=prjX(B?B.x-92:f.p[PEL].x,f.dep),x1=prjX(B?B.x+92:f.p[PEL].x,f.dep);if(x0<lo)lo=x0;if(x1>hi)hi=x1;}
   if(lo>hi){lo=W/2-120;hi=W/2+120;}
-  const tw=narrow?clamp(hi-lo+110,560,W):W,k=Math.min(1,rdt*3.5);cam.viewW+=(tw-cam.viewW)*k;const half=cam.viewW/2;cam.x+=(clamp((lo+hi)/2,half,W-half)-cam.x)*k;};}
+  const tw=narrow?camNarrowW(hi-lo,110,110):W,k=camRate(rdt,3.5);cam.viewW+=(tw-cam.viewW)*k;const half=cam.viewW/2;cam.x+=(clamp((lo+hi)/2,half,W-half)-cam.x)*k;};}
 
 // ---------- drawing over the stage: letterbox, the stage card, the fade ----------
 let ST_LB=0;

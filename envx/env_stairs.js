@@ -353,9 +353,13 @@ function backWall(c,P){const fl=flight(),sh=(col,k)=>K.shade(P,col,k);WLAMPS=[];
 // doors and windows, smoke and the glow of fires further down (each flight its own street below)
 function drop(c,P,T){const sh=(col,k)=>K.shade(P,col,k),lane=flight()==='lane',r=rng(lane?503:501);
   const top=[];for(const t of T)top.push(Q(t.x0,t.h-FACE,EDGE),Q(t.x1,t.h-FACE,EDGE));
-  const pts=top.concat([Q(1150,-300,EDGE),Q(-170,-300,EDGE)]);
+  const pts=top.concat([Q(1150,-440,EDGE),Q(-170,-440,EDGE)]);
   c.save();K.poly(c,pts);c.clip();
   BELOW=K.drop(c,P,-200,1200,Q(0,132-FACE,EDGE).y,620,{seed:lane?9:7,rows:3,out:{fires:[]}});
+  // (the drop goes on down in front of the fight, to the layer's foot: the Pit's lower roofs, smaller and lost in its haze)
+  {const night=P.winA>.6,c0=jm(P.air[1],'#ff8a4a',night?.12:.05),r2=rng(lane?11:13);c.fillStyle=lin(c,0,618,0,E.FOOT,[[0,c0],[.5,jm(c0,'#000000',.35)],[1,jm(c0,'#000000',.6)]]);c.fillRect(-200,618,1400,E.FOOT-618);
+    for(const [y,sk,hz] of [[668,.4,.72],[724,.32,.8],[790,.26,.86]])for(let x=-200+r2()*20;x<1200;){const w=(12+r2()*22)*sk,h=(4+r2()*6)*sk;c.fillStyle=jm(jm(K.TINC[(r2()*K.TINC.length)|0],P.amb,P.ambK),jm(c0,'#000000',.3),hz);c.fillRect(x,y-h,w,h+2*sk);
+      c.fillStyle=rgba(P.light,(.06+.2*P.lightA)*(1-hz*.5));c.fillRect(x,y-h,w,.7*sk);if(r2()<P.win*.5){c.fillStyle=rgba('#ffcf86',.4*(1-hz*.4));c.fillRect(x+w*.3,y-h*.4,2*sk,1.6*sk);}x+=w+(r2()<.2?(6+r2()*14)*sk:(.5+r2()*2)*sk);}}
   // the street below: its fronts in the dark, a few windows and doors lit; its rail
   {const yb=Q(0,-150,Y().far).y;for(let x=-160;x<1160;){const w=60+r()*80,h=110+r()*60,p=Q(x,-150+h,Y().far),q=Q(x+w,-150,Y().far);
       c.fillStyle=jm(sh(K.SHACK[(r()*K.SHACK.length)|0],1.6),'#000000',.25);c.fillRect(p.x,p.y,q.x-p.x,q.y-p.y);

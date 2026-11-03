@@ -58,16 +58,19 @@ function paint(c){
     c.fillStyle=lin(c,0,q.y-4,0,q.y+5,[[0,'#24222a'],[1,'#08070a']]);c.beginPath();c.moveTo(q.x+8,q.y-4);c.lineTo(q.x-8,q.y-4);c.lineTo(q.x-12,q.y+1);c.lineTo(q.x-8,q.y+5);c.lineTo(q.x+8,q.y+5);c.closePath();c.fill();
     c.fillStyle=rgba(GL,.35);c.fillRect(q.x-8,q.y-4,16,.6);c.fillStyle='#0a0a10';c.beginPath();c.arc(q.x-11,q.y+1,2,0,TAU);c.fill();c.fillStyle=rgba('#7a90c0',.5);c.beginPath();c.arc(q.x-11.4,q.y+.4,.7,0,TAU);c.fill();}
   // the room falls into shadow toward us
-  c.fillStyle=lin(c,0,yb,0,GB+110,[[0,rgba('#000000',0)],[.55,rgba('#000000',.18)],[1,rgba('#000000',.55)]]);c.fillRect(X0,yb,X1-X0,GB+120-yb);}
+  E.fallKeep(c,X0,X1+120,yb,[[yb,0],[yb+(GB+110-yb)*.55,.18],[GB+110,.55]]);}
 // ---------- the floor: slabs of grey marble in a running bond, brass let into every other row, the ring inlaid, the lights held in the polish
 function floor(c,X0,X1,yb,ox){const SX=110,SD=66,gs=LT().greyStone(11,512,512,{base:'#3c3936',cloud:'#4c4844',dark:'#2c2a28',vein:'#bcb4aa',veinK:.4}),r=rng(61);
-  c.save();path(c,[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1,GB,-110),pp(X0,GB,-110)]);c.clip();
+  c.save();path(c,[pp(X0,GB,FAR),pp(X1,GB,FAR),pp(X1+110,GB,E.NEAR),pp(X0,GB,E.NEAR)]);c.clip();
   c.save();c.transform(1,0,PSX,-PSY,0,GB);
-  for(let d=-110,k=0;d<FAR;d+=SD,k++)for(let x=X0-60-(k%2)*SX/2;x<X1+60;x+=SX){const e=Math.min(d+SD,FAR),p=c.createPattern(gs,'repeat');p.setTransform(new DOMMatrix().translate(x-r()*140,d-r()*180).scale(.5));
-    c.fillStyle=p;c.fillRect(x,d,SX+.4,e-d+.4);c.fillStyle=rgba('#000000',.12+r()*.08);c.fillRect(x,d,SX+.4,e-d+.4);}
+  const slab=(d,k,rr,x1)=>{for(let x=X0-60-(((k%2)+2)%2)*SX/2;x<x1;x+=SX){const e=Math.min(d+SD,FAR),p=c.createPattern(gs,'repeat');p.setTransform(new DOMMatrix().translate(x-rr()*140,d-rr()*180).scale(.5));
+    c.fillStyle=p;c.fillRect(x,d,SX+.4,e-d+.4);c.fillStyle=rgba('#000000',.12+rr()*.08);c.fillRect(x,d,SX+.4,e-d+.4);}};
+  for(let d=-110,k=0;d<FAR;d+=SD,k++)slab(d,k,r,X1+60);
+  // (the rows in front of the fight, down to the layer's foot, on their own dice so the rows behind keep theirs)
+  {const r2=rng(62);for(let d=-110-SD,k=-1;d+SD>E.NEAR;d-=SD,k--)slab(d,k,r2,X1+170);}
   // the joints, hairline; brass in every other row
-  c.fillStyle=rgba('#0a0a0e',.7);for(let d=-110,k=0;d<FAR;d+=SD,k++){c.fillRect(X0-60,d-.3,X1-X0+120,.6);for(let x=X0-60-(k%2)*SX/2;x<X1+60;x+=SX)c.fillRect(x-.3,d,.6,Math.min(SD,FAR-d));}
-  for(let d=-110+SD*2;d<FAR;d+=SD*2){c.fillStyle=lin(c,0,d-.6,0,d+.6,[[0,rgba(GDD,.8)],[.5,rgba(GOLD,.75)],[1,rgba(GD,.8)]]);c.fillRect(X0-60,d-.6,X1-X0+120,1.2);}
+  c.fillStyle=rgba('#0a0a0e',.7);for(let d=-110-SD*7,k=-7;d<FAR;d+=SD,k++){c.fillRect(X0-60,d-.3,X1-X0+230,.6);for(let x=X0-60-(((k%2)+2)%2)*SX/2;x<X1+170;x+=SX)c.fillRect(x-.3,d,.6,Math.min(SD,FAR-d));}
+  for(let d=-110-SD*6;d<FAR;d+=SD*2){c.fillStyle=lin(c,0,d-.6,0,d+.6,[[0,rgba(GDD,.8)],[.5,rgba(GOLD,.75)],[1,rgba(GD,.8)]]);c.fillRect(X0-60,d-.6,X1-X0+230,1.2);}
   // the ring inlaid in the floor, echoing the one on the wall, its gap and its moon
   {const cx=470,cd=94,rx=112,rz=78;c.lineCap='round';
     c.strokeStyle=rgba('#000000',.55);c.lineWidth=3.4;c.beginPath();c.ellipse(cx,cd,rx,rz,0,.45,TAU-.35);c.stroke();

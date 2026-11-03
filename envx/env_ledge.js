@@ -147,9 +147,9 @@ function paint(c){
   // the warm haze the city breathes up, and the mist that sits in the drop below the terrace
   haze(c,X0,X1,HZ-10,yL+10,'#5a3a3a',.18,true);haze(c,X0,X1,yT-30,yL+6,'#2a2030',.35);
   // ---- the lower ground on the right, where the terrace fell: turf and earth
-  {const g=GB,q=[pp(470,g,FAR),pp(X1,g,FAR),pp(X1,g,-100),pp(470,g,-100)];c.save();poly(c,q);c.clip();
-    c.save();plane(c,g);c.fillStyle=patAt(c,TB().turf(5,{}),0,0,.25);c.fillRect(470,-100,X1-470,FAR+100);c.restore();
-    c.fillStyle=lin(c,0,yL,0,GB+80,[[0,rgba('#06070e',.6)],[1,rgba('#05060c',.7)]]);c.fillRect(X0,yL-10,X1-X0,GB+120-yL);c.restore();
+  {const g=GB,q=[pp(470,g,FAR),pp(X1,g,FAR),pp(X1+110,g,E.NEAR),pp(470,g,E.NEAR)];c.save();poly(c,q);c.clip();
+    c.save();plane(c,g);c.fillStyle=patAt(c,TB().turf(5,{}),0,0,.25);c.fillRect(470,E.NEAR,X1-470+240,FAR-E.NEAR);c.restore();
+    E.fallKeep(c,X0,X1+120,yL-10,[[yL,.6],[GB+80,.62]],'#05060c',.04);c.restore();
     // its far edge, where it falls away: a broken kerb of the old lower terrace, stumps of balusters, grass hanging over
     const stone=TX().granite(61,96,96,{base:'#7a7468'});
     for(let x=505;x<X1;x+=9+r()*14){if(r()<.28)continue;const w=6+r()*12,q0=pp(x,g,FAR-2),h=2+r()*4;c.beginPath();c.moveTo(q0.x,q0.y);c.lineTo(q0.x+w,q0.y);c.lineTo(q0.x+w-1,q0.y-h);c.lineTo(q0.x+1,q0.y-h-r()*2);c.closePath();
@@ -161,13 +161,13 @@ function paint(c){
     for(const [x,d,a] of [[600,190,.4],[690,226,-.3],[860,200,.9]])fallenBaluster(c,x,g,d,a,x);}
   // ---- the terrace on the left: paving in the plane, its broken right-hand edge jagged
   const edge=d=>{const k=Math.floor((d+100)/9),rr=rng(1000+k)();return 433+rr*12-(Math.sin(d*.05)*3);};
-  {const g=gT;c.save();c.beginPath();for(let d=-100;d<=FAR;d+=9){const q=pp(edge(d),g,d);d===-100?c.moveTo(q.x,q.y):c.lineTo(q.x,q.y);}
-    {const a=pp(X0,g,FAR),b=pp(X0,g,-100);c.lineTo(a.x,a.y);c.lineTo(b.x,b.y);}c.closePath();c.clip();
-    c.save();plane(c,g);c.fillStyle=patAt(c,TB().paving(21,{L:44,D:30,cols:4,rows:6}),0,0,.2);c.fillRect(X0,-100,600,FAR+100);c.restore();
-    c.fillStyle=lin(c,0,yT,0,gT+90,[[0,rgba('#06070e',.66)],[1,rgba('#05060c',.72)]]);c.fillRect(X0,yT-10,700,gT+120-yT);c.restore();
+  {const g=gT,N=E.NEAR-2;c.save();c.beginPath();for(let d=N;d<=FAR;d+=9){const q=pp(edge(d),g,d);d===N?c.moveTo(q.x,q.y):c.lineTo(q.x,q.y);}
+    {const a=pp(X0,g,FAR),b=pp(X0,g,N);c.lineTo(a.x,a.y);c.lineTo(b.x,b.y);}c.closePath();c.clip();
+    c.save();plane(c,g);c.fillStyle=patAt(c,TB().paving(21,{L:44,D:30,cols:4,rows:6}),0,0,.2);c.fillRect(X0,N,600,FAR-N);c.restore();
+    E.fallKeep(c,X0,X0+700,yT-10,[[yT,.66],[gT+90,.66]],'#05060c',.04);c.restore();
     // the slabs' broken edge: their thickness showing along the break
-    c.fillStyle='#0e0c10';c.beginPath();for(let d=-100;d<=FAR;d+=9){const q=pp(edge(d),g,d);d===-100?c.moveTo(q.x,q.y):c.lineTo(q.x,q.y);}for(let d=FAR;d>=-100;d-=9){const q=pp(edge(d)+1.5,g+5,d);c.lineTo(q.x,q.y);}c.closePath();c.fill();
-    c.strokeStyle=rgba(C.rim,.28);c.lineWidth=.6;c.beginPath();for(let d=-100;d<=FAR;d+=9){const q=pp(edge(d),g,d);d===-100?c.moveTo(q.x,q.y):c.lineTo(q.x,q.y);}c.stroke();
+    c.fillStyle='#0e0c10';c.beginPath();for(let d=N;d<=FAR;d+=9){const q=pp(edge(d),g,d);d===N?c.moveTo(q.x,q.y):c.lineTo(q.x,q.y);}for(let d=FAR;d>=N;d-=9){const q=pp(edge(d)+1.5,g+5,d);c.lineTo(q.x,q.y);}c.closePath();c.fill();
+    c.strokeStyle=rgba(C.rim,.28);c.lineWidth=.6;c.beginPath();for(let d=N;d<=FAR;d+=9){const q=pp(edge(d),g,d);d===N?c.moveTo(q.x,q.y):c.lineTo(q.x,q.y);}c.stroke();
     // the terrace's far edge: a coping stone, then the drop
     const stone=TX().granite(61,96,96,{base:'#7a7468'}),a=pp(X0,g,FAR),b=pp(edge(FAR),g,FAR);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(b.x,b.y+4);c.lineTo(a.x,a.y+4);c.closePath();c.fillStyle=patAt(c,stone,0,0,.25);c.fill();c.fillStyle=rgba('#07060c',.55);c.fill();
     c.fillStyle=rgba(C.rim,.35);c.fillRect(a.x,a.y,b.x-a.x,.7);
@@ -185,13 +185,13 @@ function paint(c){
       c.save();plane(c,g);c.beginPath();pts.forEach(([px,pd],k)=>k?c.lineTo(px,pd):c.moveTo(px,pd));c.closePath();c.restore();c.strokeStyle=rgba('#05060a',.5);c.lineWidth=1.2;c.stroke();};
     for(const [x,d,w,sd] of [[96,214,22,1],[262,176,16,2],[150,98,26,3],[338,36,18,4]])puddle(x,d,w,sd);
     c.save();plane(c,g);for(let i=0;i<26;i++){const x=-140+rr()*560,d=150+rr()*124,rx=4+rr()*14,rd=3+rr()*7;c.fillStyle=rgba(rr()<.5?'#1c2a16':'#243318',.18+rr()*.18);c.beginPath();c.ellipse(x,d,rx,rd,0,0,TAU);c.fill();}c.restore();}
-  {const g=GB;c.save();plane(c,g);const path=[[520,-100],[540,0],[560,60],[600,120],[660,170],[720,214],[790,236]];c.lineCap='round';c.lineJoin='round';
+  {const g=GB;c.save();plane(c,g);const path=[[478,E.NEAR],[500,-320],[520,-100],[540,0],[560,60],[600,120],[660,170],[720,214],[790,236]];c.lineCap='round';c.lineJoin='round';
     c.strokeStyle=rgba('#2a2018',.55);c.lineWidth=26;c.beginPath();path.forEach(([x,d],i)=>i?c.lineTo(x,d):c.moveTo(x,d));c.stroke();c.strokeStyle=rgba('#3a2c20',.35);c.lineWidth=12;c.stroke();c.restore();}
   // ---- the slope where the terrace broke: strips following the ground, darker where it is steep, earth and broken slabs on it
   {const xs=[];for(let x=426;x<=508;x+=2)xs.push(x);const dirt=TB().turf(6,{g0:'#2a2418',g1:'#3a3020',dry:'#4a4030',earth:'#2e2218',stones:90});
-    c.save();c.beginPath();{let q=pp(xs[0],gr(xs[0]),-100);c.moveTo(q.x,q.y);for(const x of xs){q=pp(x,gr(x),-100);c.lineTo(q.x,q.y);}q=pp(508,gr(508),FAR);c.lineTo(q.x,q.y);for(let i=xs.length-1;i>=0;i--){q=pp(xs[i],gr(xs[i]),FAR);c.lineTo(q.x,q.y);}}c.closePath();c.clip();
-    c.fillStyle=patAt(c,dirt,0,0,.25);c.fillRect(380,100,240,500);
-    for(let i=0;i<xs.length-1;i++){const x=xs[i],s=(gr(x+2)-gr(x))/2,k=clamp(s/1.25,0,1);const a=pp(x,gr(x),-100),b=pp(x+2.2,gr(x+2.2),-100),e=pp(x+2.2,gr(x+2.2),FAR),f=pp(x,gr(x),FAR);
+    c.save();c.beginPath();{let q=pp(xs[0],gr(xs[0]),E.NEAR);c.moveTo(q.x,q.y);for(const x of xs){q=pp(x,gr(x),E.NEAR);c.lineTo(q.x,q.y);}q=pp(508,gr(508),FAR);c.lineTo(q.x,q.y);for(let i=xs.length-1;i>=0;i--){q=pp(xs[i],gr(xs[i]),FAR);c.lineTo(q.x,q.y);}}c.closePath();c.clip();
+    c.fillStyle=patAt(c,dirt,0,0,.25);c.fillRect(300,100,320,E.FOOT-100);
+    for(let i=0;i<xs.length-1;i++){const x=xs[i],s=(gr(x+2)-gr(x))/2,k=clamp(s/1.25,0,1);const a=pp(x,gr(x),E.NEAR),b=pp(x+2.2,gr(x+2.2),E.NEAR),e=pp(x+2.2,gr(x+2.2),FAR),f=pp(x,gr(x),FAR);
       c.fillStyle=rgba('#05040a',.5+k*.3);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(e.x,e.y);c.lineTo(f.x,f.y);c.closePath();c.fill();}
     c.restore();
     // the rubble: slabs that came down with it, small stones, weeds in the earth
@@ -208,7 +208,7 @@ function paint(c){
   c.save();c.globalCompositeOperation='lighter';for(const L of LIGHTS){const g=gr(L.x),q=pp(L.x,g,L.d-24);c.fillStyle=rad(c,q.x,q.y,0,120,[[0,rgba('#ffb060',L.k==='brazier'?.16:.12)],[1,rgba('#ffb060',0)]]);c.save();c.translate(q.x,q.y);c.scale(1,.42);c.translate(-q.x,-q.y);c.fillRect(q.x-130,q.y-130,260,260);c.restore();}
     c.fillStyle=lin(c,0,yT,0,GB+40,[[0,rgba('#6a7aa8',.06)],[1,rgba('#6a7aa8',0)]]);c.fillRect(X0,yT,X1-X0,GB+40-yT);c.restore();
   haze(c,X0,X1,yT-8,yL+30,'#3a2a3a',.12);
-  c.fillStyle=lin(c,0,GB-40,0,GB+120,[[0,rgba('#000000',0)],[1,rgba('#000000',.6)]]);c.fillRect(X0,GB-40,X1-X0,160);}
+  E.fallKeep(c,X0,X1+120,GB-40,[[GB-40,0],[GB+120,.42]],null,.05);}
 // the flames burn and their light spills: drawn every frame over the layer
 function live(){const t=S.t;ctx.save();
   for(const L of LIGHTS){const q=lightAt(L),f=.9+.1*Math.sin(t*7+L.x)*Math.sin(t*3.3+L.d);

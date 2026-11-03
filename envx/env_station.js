@@ -211,12 +211,17 @@ function nearEdge(c){const X0=-220,X1=1160,a=q(X0,GB,NEAR),b=q(X1,GB,NEAR),e=q(X
   c.fillStyle=patAt(c,EnvTex.brick(11,{base:'#241a14',alt:'#18100c',hot:'#2e2018',mortar:'#0a0706',rows:6}),0,0,1/6);poly(c,[a,b,e,f]);c.fill();c.fillStyle=rgba('#000000',.55);c.fill();
   c.fillStyle='#1a1612';c.fillRect(Math.min(a.x,f.x)-4,a.y-1,b.x-a.x+8,3.4);c.fillStyle=rgba(C.rim,.3);c.fillRect(a.x,a.y-1,b.x-a.x,.8);
   // the siding's bed: ballast, a sleeper's end, the rail
-  c.save();floorT(c,SID);c.fillStyle='#0b0a0a';c.fillRect(X0,-90,X1-X0,NEAR+90);
+  c.save();floorT(c,SID);c.fillStyle='#0b0a0a';c.fillRect(X0,E.NEAR,X1-X0,NEAR-E.NEAR);
   {const r=rng(61);for(let i=0;i<500;i++){const x=X0+r()*(X1-X0),d=-60+r()*(NEAR+60);c.fillStyle=mix('#121111','#262321',r());c.beginPath();c.ellipse(x,d,.8+r()*1.3,.6+r()*.8,r()*3,0,TAU);c.fill();}}
   for(let x=X0;x<X1;x+=22){c.fillStyle='#160f0a';c.fillRect(x,-60,7,60);}
+  // (in front of the fight the bed runs on toward us: two more roads of track, their sleepers in the same beat, then ballast into
+  // the dark; their own dice)
+  {const r=rng(62);c.fillStyle='#16130f';c.fillRect(X0,E.NEAR,X1-X0,-60-E.NEAR);for(let i=0;i<1500;i++){const x=X0+r()*(X1-X0),d=E.NEAR+r()*(-60-E.NEAR);c.fillStyle=mix('#1e1c19','#3e3a34',r());c.beginPath();c.ellipse(x,d,.9+r()*1.6,.7+r()*.9,r()*3,0,TAU);c.fill();}
+    for(const [d0,d1,o] of [[-156,-96,11],[-252,-192,0]])for(let x=X0+o;x<X1;x+=22){c.fillStyle=r()<.12?'#3a2a1c':'#2c2016';c.fillRect(x+(r()-.5)*1.6,d0,7,d1-d0);c.fillStyle=rgba(C.rim,.06);c.fillRect(x,d1-1.2,7,1.2);}}
   c.restore();
-  const r0=q(X0,GB+SID-3,-4),r1=q(X1,GB+SID-3,-4);c.strokeStyle='#08080a';c.lineWidth=3;c.beginPath();c.moveTo(r0.x,r0.y);c.lineTo(r1.x,r1.y);c.stroke();c.strokeStyle=rgba('#c8d4e8',.45);c.lineWidth=.7;c.beginPath();c.moveTo(r0.x,r0.y-1.2);c.lineTo(r1.x,r1.y-1.2);c.stroke();
-  c.fillStyle=lin(c,0,a.y,0,a.y+40,[[0,rgba('#000000',.2)],[1,rgba('#000000',.75)]]);c.fillRect(X0-60,a.y+2,X1-X0+120,60);}
+  for(const d of [-4,-56,-102,-150,-198,-246]){const r0=q(X0,GB+SID-3,d),r1=q(X1,GB+SID-3,d);c.strokeStyle='#08080a';c.lineWidth=3;c.beginPath();c.moveTo(r0.x,r0.y);c.lineTo(r1.x,r1.y);c.stroke();
+    c.strokeStyle=rgba('#c8d4e8',d===-4?.45:.3);c.lineWidth=.7;c.beginPath();c.moveTo(r0.x,r0.y-1.2);c.lineTo(r1.x,r1.y-1.2);c.stroke();}
+  E.fallKeep(c,X0-60,X1+60,a.y+2,[[a.y,.2],[a.y+40,.5]],null,.06);}
 
 // ---------- the goblins' corner ----------
 // rags and straw heaped against the wall by the kitchen lift, a lean-to of planks, stolen things in it; their tallies in the tiles
@@ -274,7 +279,7 @@ function shaftFront(c){const {x0,x1,d0,h}=CAGE;
 
 // ---------- the scene ----------
 function paint(c){const X0=-160,X1=W+240,T0=-130;
-  c.fillStyle='#050406';c.fillRect(X0,T0,X1-X0,GB+200-T0);
+  c.fillStyle='#050406';c.fillRect(X0,T0,X1-X0+120,E.FOOT-T0);
   vault(c,X0,X1);
   backWall(c,X0,X1);
   PORT.forEach((P,i)=>portal(c,P,i));
