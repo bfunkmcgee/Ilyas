@@ -85,7 +85,7 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
 (`camPush`, `camNarrowW`, `camPushW`, `camCardH` in sk_ui.js, since V74): at its closest 700 units of height fill the screen (about
 404 across at 412x714), never closer than lets everyone fit, the band of fighters standing on the top of the tallest opening card met
 (246 CSS px before one is met), so the cards come and go over the floor and the camera holds still; with reduced motion it cuts
-(`cam.cut`); as the moves come back it follows quickly for 0.7 s (`cam.riseT`). A scene's own camera (`S.camCut`) wins. Fighters: `f.p[PEL|CHE|HEAD|ELF|HAF|ELB|HAB|KNF|FTF|KNB|FTB|TIP]`,
+(`cam.cut`); as the moves come back it follows quickly for 0.7 s (`cam.riseT`). A scene's own camera (`S.camCut`) wins. On an upright phone a cut with no narrow view or band of its own (`wn`, `band`, `bandN`, `bandS`), in a place whose picture stops at its ceiling or its dark (`EnvLook.S[k].close`: the Sump's rooms and roof), comes in wherever the view it asks for is taller between the bars than the place is painted (since V76, `camCutFit` in sk_storyui.js, and camTarget in sk_pitui.js): as close as lets the painted part (the layer's `top` to its `bot`, the rows that are not flat black: `sceneBandOf`), or 700 units of it (`PUSH_H`, or `S.camCut.fitH`), fill the height between the bars (wherever a scene asks with `fitH`: the platform), never so close that anyone in the view leaves it (the whole body with 46 units of air), never outside the view the scene asked for, the people in the middle; it follows them (a glide at 2.2, a cut with reduced motion only when someone would leave the frame) and lands at once on a cut (k 0). Elsewhere the scene's own framing stands (the Pit's terraces go on up over the yard and the stairs, the action low under them). Fighters: `f.p[PEL|CHE|HEAD|ELF|HAF|ELB|HAB|KNF|FTF|KNB|FTB|TIP]`,
 `f.station` (x), `f.lane`/`f.dep` (depth), `f.facing` +1/-1, `f.action={t0,end,body:[keys],arm:[keys]}` drives the motors.
 
 **Modules worth knowing.**
@@ -465,7 +465,7 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
 - The places: ACT1_PLACES (sk_pit.js) are the layouts; the painters read them. envx/env_sumproof.js (with the Sump's shared kit
   EnvLook.sump: keep it first of the three), env_sumpkitchen.js, env_backroom.js, env_yard.js (with the Pit's kit EnvLook.pitKit for
   the stairs and the Shelf: S.act1.night/morning/dusk set the time of day), env_stairs.js, env_shelf.js. No fighter stands deeper
-  than DEP_MAX (170): Dob perches on the yard's crate, not its wall. A scene can look up: `S.camCut.band` {top, foot} keeps that much of the picture between the letterbox's bars, centred (sk_pitui.js), and `S.camCut.wn` sets the view's width on a narrow screen (the kitchen's window shot; since V53). Where the ground climbs (an arena with `climb(x)`, how far it has come up without the steps: the stair-streets), a walk about or a cut with no band frames the floor's band (BAND0) raised that far where the camera looks, so the picture goes up the stair with him (since V71; a phone on its side lost his head over the top landing).
+  than DEP_MAX (170): Dob perches on the yard's crate, not its wall. A scene can look up: `S.camCut.band` {top, foot} keeps that much of the picture between the letterbox's bars, centred (sk_pitui.js), and `S.camCut.wn` sets the view's width on a narrow screen (the kitchen's window shot; since V53). The three Sump rooms' ceilings are drawn, not left black (since V76, `EnvLook.sump.ceiling`: planks, joists leaning as the floor's boards run, the beams pieced with iron straps, lit where the room's lamp, stove or window reaches), the roof's sky goes on up with the far wall's windows, and their floors run on to 870, so an upright phone's closer framing (`camCutFit`) fills with the room. Where the ground climbs (an arena with `climb(x)`, how far it has come up without the steps: the stair-streets), a walk about or a cut with no band frames the floor's band (BAND0) raised that far where the camera looks, so the picture goes up the stair with him (since V71; a phone on its side lost his head over the top landing).
 - One Pit (since V71; the comment over ACT1_PLACES). The yard, the stair-streets and the Shelf are all seen from the Pit's open middle
   looking at the wall the Sump stands under (the Sump's rooms and roof look the other way, at the far wall and the spike), so left and
   right there are left and right on the Pit map: up he walks to the right in every scene, down to the left, through the same places.
@@ -675,7 +675,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; the scenes' closer framing on a phone (P8, P11, P14, P16 to P23) is next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`). One soft light (L1 on) is next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -727,12 +727,12 @@ Qadir fight onto the bistro's flags; the scenes' closer framing on a phone (P8, 
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V76 ..." (V75 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V77 ..." (V76 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V75: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V76: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -767,10 +767,15 @@ was checked, and anything that did not work, plainly.
   `sceneLayerH`), painted for the push-in's closest view (`camCloseW`: 2.4 pixels a unit at the most, about twice V73's paint time
   and pixels on a phone). Each place's ground runs on to `EnvLook.FOOT` (depth `EnvLook.NEAR`), its darkening as it was down to the
   fight's front and held there beyond (`EnvLook.fallKeep`); a place that adds rows or marks in front keeps them on their own dice, so
-  what was behind the fight is painted as before. The black starts where the layer was measured to stop painting (`sceneFootOf`,
-  `camPaintFoot`; the old look keeps H+40). Above the layer `sceneDraw` only stretches the layer's top row up (under a night sky,
-  `SCENE_NIGHT`, with a field of faint stars laid over it), so a phone held upright, which sees far above it, shows bare stripes
-  there unless the scene's live() draws that part. The fall's live
+  what was behind the fight is painted as before. The black starts where the layer was measured to stop painting (`sceneBandOf`,
+  which also reads where its rows stop being flat black, `top` and `bot`; `camPaintFoot`; the old look keeps H+40). Above the
+  layer `sceneDraw` stretches the layer's top row up (under a night sky, `SCENE_NIGHT`, with a field of faint stars laid over it;
+  a night sky that went to black at the layer's top is lifted to a deep blue there when it is painted, `sceneNightLift`, since
+  V76), or, for a place with `upTile`, draws that many units of the layer's top on up again and again, each a little darker (the
+  lobby's coffers, rows of 66 jointed at y -90). A place with `below(c, x0, x1, y0, y1)` runs its floor on under the layer's foot
+  and has no black there (the lobby's marble, since V76). The tunnel's vault goes on up over its wall in its live() (`vaultTile`,
+  scrolled with the wall). Elsewhere a phone held upright, which sees far above the layer, shows bare stripes there unless the
+  scene's live() draws that part. The fall's live
   picture runs from the camera's top to its foot, -110 to H+120 at the least (since V72, `EnvLook.S.fall.span`; before, the floors
   stopped at -110 and an upright phone showed a band of bare piers over them, and the night's top row of stars stretched into lines).
   Anything drawn in pieces there clips to that range (`junkWalls` does), or it pokes out above the far side's top edge.

@@ -974,7 +974,8 @@ STAGES.push({key:'platform',num:'',title:'',sub:'',arena:'station',next:'line',n
     standEasy(K);stowBlade(K);K.zMax=290;K.station=kl.x;K.lane=K.dep=K.stepDep=kl.dep+4;K.facing=1;K.offstage=true;K.hidden=true;K.build();
     S.story.train=trainNew({x:PLATFORM_NOSE,gy:LY.trainGy??GB+TRAIN.deck,dep:LY.trainDep??236,fa:1,cars:1,lamp:.55});},
   *intro(st){const K=hero(),T=S.story.train,kl=kitLiftSpot();
-    letter(1);camTo(330,780,0);
+    // (on an upright phone the picture comes in on him, the lift and the flatcar, 700 units of the station's height between the bars)
+    letter(1);camTo(330,780,0);S.camCut.fitH=700;
     yield* until(()=>{S.fade=Math.max(0,S.fade-DT*1.3);return S.fade<=0;},1.2);
     yield* wait(.3);
     // the chime, the doors, and out onto the platform

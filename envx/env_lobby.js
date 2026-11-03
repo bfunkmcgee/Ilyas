@@ -23,12 +23,31 @@ function neroPanels(c,x0,x1,y0,y1,pw,rv,seed,o){o=o||{};const ne=o.tex===FEAT_O?
     else p.setTransform(new DOMMatrix().translate(x+pw+ox*u,y0).scale(-u,u));
     c.fillStyle=p;c.fillRect(x,y0,w,y1-y0);
     if(o.reveal!==false&&x+pw<x1){c.fillStyle='#050406';c.fillRect(x+pw,y0,rv,y1-y0);c.fillStyle=lin(c,x+pw,0,x+pw+rv,0,[[0,'#2a200e'],[.5,mix(GD,GOLD,.4)],[1,'#2a200e']]);c.fillRect(x+pw+rv*.25,y0,rv*.5,y1-y0);}}}
+// the coffers: 132 across between the beams, rows of 66 from the cove up (their joints at y 42, -24, -90, so the row at the
+// layer's top repeats over it without a seam)
+const COF={w:132,h:66,x0:-150,y0:42};
+function ceiling(c,X0,X1,T0,wt){
+  c.fillStyle='#0b0a0e';c.fillRect(X0,T0,X1-X0,wt-T0);
+  for(let y1=COF.y0;y1>T0;y1-=COF.h){const y0=y1-COF.h,low=y1===COF.y0;
+    for(let x=COF.x0;x<X1;x+=COF.w){const a=x+8,b=x+COF.w,t=y0,f=y1-6;
+      // the recess: lacquer holding a sheen of the cove's light, deepest at its heart
+      c.fillStyle=low?lin(c,0,t,0,f,[[0,'#0e0c12'],[1,'#1c1820']]):'#100e14';c.fillRect(a,t,b-a,f-t);
+      c.fillStyle=rad(c,(a+b)/2,(t+f)/2,4,COF.w*.55,[[0,rgba('#000000',.4)],[1,rgba('#000000',0)]]);c.fillRect(a,t,b-a,f-t);
+      // the gilt bead, its lower edge catching the light from below, and the rosette
+      c.strokeStyle=rgba(GD,.5);c.lineWidth=1.2;c.strokeRect(a+5,t+5,b-a-10,f-t-10);c.fillStyle=rgba(GL,low?.34:.22);c.fillRect(a+5,f-5.6,b-a-10,1);
+      const cx=(a+b)/2,cy=(t+f)/2;c.fillStyle=rgba(GOLD,.42);for(let i=0;i<4;i++){const q=i*Math.PI/2;c.beginPath();c.ellipse(cx+Math.cos(q)*4,cy+Math.sin(q)*4,3.4,1.5,q,0,TAU);c.fill();}
+      c.fillStyle=rgba(GL,.55);c.beginPath();c.arc(cx,cy,1.6,0,TAU);c.fill();}
+    // the cross beam under the row, a gold line along its foot
+    c.fillStyle='#07060a';c.fillRect(X0,y1-6,X1-X0,6);c.fillStyle=rgba(GL,low?.2:.12);c.fillRect(X0,y1-1.2,X1-X0,1.2);}
+  // the beams from the wall toward us, a gold edge on each
+  for(let x=COF.x0;x<X1;x+=COF.w){c.fillStyle='#050406';c.fillRect(x,T0,8,wt-T0-6);c.fillStyle=rgba(GL,.12);c.fillRect(x+7,T0,1,wt-T0-6);}}
 function paint(c){
   const X0=-160,X1=W+250,T0=-100,yb=yB(),ox=OX(),wt=46,bt=yb-34,G=LG,r=rng(5);
-  // ---- the ceiling: black lacquer, its coffers lit faintly by the cove below them
-  c.fillStyle=lin(c,0,T0,0,wt,[[0,'#020203'],[.7,'#08070a'],[1,'#121014']]);c.fillRect(X0,T0,X1-X0,wt-T0);
-  for(let x=-150;x<X1;x+=132){c.fillStyle='#050406';c.fillRect(x,T0,8,wt-T0-6);c.fillStyle=rgba(GL,.08);c.fillRect(x+7,T0,1,wt-T0-6);}
-  for(let x=-84;x<X1;x+=66){c.fillStyle='#000000';c.beginPath();c.ellipse(x,24,3.4,1.1,0,0,TAU);c.fill();c.fillStyle=rgba('#fff0d0',.85);c.beginPath();c.ellipse(x,24.3,2,.6,0,0,TAU);c.fill();glow(c,x,25,12,'#ffd090',.25);}
+  // ---- the ceiling: black lacquer in coffers, a gilt bead round each and a gilt rosette at its heart, lit from the cove below them;
+  // the row nearest the cove takes its light, the rows over it the same lacquer in one tone, so the top row (RC's top, y -90 to -24)
+  // goes on up the picture as it is (upTile: an upright phone's widest view of a fight sees a long way up)
+  ceiling(c,X0,X1,T0,wt);
+  for(let x=-84;x<X1;x+=132){c.fillStyle='#000000';c.beginPath();c.ellipse(x,24,3.4,1.1,0,0,TAU);c.fill();c.fillStyle=rgba('#fff0d0',.85);c.beginPath();c.ellipse(x,24.3,2,.6,0,0,TAU);c.fill();glow(c,x,25,12,'#ffd090',.25);}
   // ---- the walls: Nero Portoro, book-matched, brass reveals between the panels, a warm strip let into every third
   neroPanels(c,-150,X1,wt,bt,44,2,7,{tex:NERO_O});
   for(let x=-150+44,i=0;x<X1;x+=46,i++){if(i%3!==1)continue;c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,x-14,0,x+16,0,[[0,rgba('#ffbe6e',0)],[.5,rgba('#ffbe6e',.07)],[1,rgba('#ffbe6e',0)]]);c.fillRect(x-14,wt+6,30,bt-wt-12);c.restore();
@@ -366,6 +385,19 @@ function ware(it){const k=it.kind;if(it.gone||it.sil||!['decanter','tumbler','or
     ctx.fillStyle=rad(ctx,1.4,0,.5,6,[[0,'rgba(240,250,255,.25)'],[.7,'rgba(160,200,220,.22)'],[1,'rgba(220,240,255,.5)']]);ctx.beginPath();ctx.arc(0,-1.2,5.6,0,TAU);ctx.fill();ctx.strokeStyle='rgba(235,248,255,.75)';ctx.lineWidth=.6;ctx.stroke();
     ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();ctx.arc(-2,-3.4,1.1,0,TAU);ctx.fill();ctx.fillStyle=rgba(GOLD,.5);ctx.beginPath();ctx.ellipse(.5,2.6,3,.7,0,0,TAU);ctx.fill();}
   ctx.restore();return true;}
-E.S.lobby={paint,live,light,prop,table,lamp,div,ware};
+// the floor run on toward us under the layer's foot, where an upright phone's widest view of a fight reaches: the same marble in
+// slabs, their joints and the brass in every other row, going down into the dark (sceneDraw, sk_scene_glue.js)
+let BELOW=null;
+function below(c,x0,x1,y0,y1){const SX=110,SD=66,d0=(GB-y1)/PSY,d1=(GB-y0)/PSY+1,X0=x0-120,X1=x1-d0*PSX+120;
+  if(!BELOW||BELOW.c!==c){const gs=LT().greyStone(11,512,512,{base:'#3c3936',cloud:'#4c4844',dark:'#2c2a28',vein:'#bcb4aa',veinK:.4}),p=gs&&c.createPattern(gs,'repeat');
+    if(p&&p.setTransform)p.setTransform(new DOMMatrix().scale(.5));BELOW={c,p};}
+  c.save();c.transform(1,0,PSX,-PSY,0,GB);
+  c.fillStyle=BELOW.p||'#3c3936';c.fillRect(X0,d0,X1-X0,d1-d0);c.fillStyle=rgba('#000000',.5);c.fillRect(X0,d0,X1-X0,d1-d0);
+  const k0=Math.ceil((d1+110)/SD),k1=Math.floor((d0+110)/SD);
+  for(let k=k0;k>=k1;k--){const d=-110+k*SD;c.fillStyle=rgba('#0a0a0e',.7);c.fillRect(X0,d-.3,X1-X0,.6);let x=-220-(((k%2)+2)%2)*SX/2;while(x>X0)x-=SX;for(;x<X1;x+=SX)c.fillRect(x-.3,d,.6,SD);
+    if(((k%2)+2)%2===0){c.fillStyle=rgba(GOLD,.4);c.fillRect(X0,d-.6,X1-X0,1.2);}}
+  c.restore();
+  c.fillStyle=lin(c,0,y0,0,y1,[[0,rgba('#000000',.1)],[1,rgba('#000000',.45)]]);c.fillRect(x0,y0,x1-x0,y1-y0);}
+E.S.lobby={paint,live,light,prop,table,lamp,div,ware,upTile:COF.h,below};
 })();
 // ===== ENV LOBBY END =====

@@ -243,7 +243,42 @@ function sack(c,x,y,w,h,o){o=o||{};const r=rng(o.seed||(x*3+y)|0),hw=w/2,col=o.c
   else{c.strokeStyle=rgba('#2a2010',.35);c.lineWidth=.5;c.beginPath();for(let k=0;k<4;k++){const yy=y-h*(.2+k*.18);c.moveTo(x-hw*.8,yy);c.quadraticCurveTo(x,yy+1.2,x+hw*.8,yy);}c.stroke();}
   c.fillStyle=lin(c,x-hw,0,x+hw,0,[[0,rgba('#000000',.45)],[.5,rgba('#000000',.05)],[1,rgba('#000000',.4)]]);c.beginPath();c.ellipse(x,y-h*.48,hw*1.1,h*.56,0,0,TAU);c.fill();
   c.strokeStyle='#3a2a16';c.lineWidth=1.1;c.beginPath();c.moveTo(x-3,y-h*.9);c.lineTo(x+3,y-h*.9);c.stroke();c.fillStyle=col;c.beginPath();c.moveTo(x-2.4,y-h*.92);c.lineTo(x-3.4,y-h*1.12);c.lineTo(x+3,y-h*1.1);c.lineTo(x+2.4,y-h*.92);c.closePath();c.fill();}
-return{dim,pick,glowAt,puffAt,glowSpr,puffSpr,sprite,stamp,junk,junkWall,farSide,spikeRock,spikeEnds,arm,armHalo,boards,onions,garlic,crock,jar,barrel,sack,SHACK,TIN,JC,WIN};
+// The underside of a Sump room's ceiling, from the top of its back wall (y top) up the picture toward us to y -100: planks across in
+// short lengths, their ends staggered; joists from the wall toward us, leaning as the floor's boards run and never quite parallel;
+// the heavy beams across (o.beams: [y over the wall's top, height]), thicker as they come nearer, pieced at their joints with iron
+// straps; all of it smoked black, and lifted where a light in the room reaches it (o.lights: {x, y, r, col, a}: a pool on the planks,
+// a catch on the beams' undersides and the joists' sides near it). The dark gathers only at the very top. An upright phone sees it
+// all (camCutFit, sk_storyui.js), so it is drawn, not left black.
+function ceiling(c,o){const r=rng(o.seed||211),top=o.top,X0=o.x0??-200,X1=o.x1??1250,Y0=-100,pl=o.plank||'#2e2218',bm=o.beam||'#1a120c',lights=o.lights||[],
+    lean=PSX/PSY,near=y=>clamp((top-y)/(top-Y0),0,1);
+  // how much of the room's light reaches (x, y): the strongest light's share, soft at its edge
+  const lit=(x,y)=>{let a=0;for(const L of lights){const dx=(x-L.x)/(L.r*1.6),dy=(y-L.y)/L.r,q=1-Math.min(1,Math.sqrt(dx*dx+dy*dy));a=Math.max(a,L.a*q*q);}return a;};
+  c.save();c.beginPath();c.rect(X0,Y0,X1-X0,top-Y0);c.clip();
+  c.fillStyle=o.base||'#0d0a08';c.fillRect(X0,Y0,X1-X0,top-Y0);
+  // the planks, the rows wider as they come nearer
+  for(let y=top-9,h=8.5;y>Y0-16;){let x=X0-r()*90;while(x<X1){const L=40+r()*120;c.fillStyle=rgba(dim(pl,'#000000',r()*.4),.5+.25*r());c.fillRect(x,y,L-1,h);
+      c.fillStyle=rgba('#000000',.6);c.fillRect(x+L-1.3,y,1.3,h);if(r()<.18){c.fillStyle=rgba('#000000',.3);c.fillRect(x+r()*L*.8,y+h*.3,6+r()*14,h*.35);}x+=L;}
+    c.fillStyle=rgba('#000000',.6);c.fillRect(X0,y+h,X1-X0,1.1);h=Math.min(14,h*1.035);y-=h+1.1;}
+  // the joists: from the wall's top toward us, a little wider as they come nearer, each with its own lean
+  for(let x=X0+r()*40;x<X1+200;x+=52+r()*44){const l=lean*(1+(r()-.5)*.2),w0=6+r()*2,w1=w0*1.9,xt=x-(top-Y0)*l;
+    c.fillStyle=dim(bm,'#000000',.15+r()*.2);c.beginPath();c.moveTo(x-w0/2,top);c.lineTo(x+w0/2,top);c.lineTo(xt+w1/2,Y0);c.lineTo(xt-w1/2,Y0);c.closePath();c.fill();
+    // the side toward us in shadow, the other catching what light there is along its edge
+    c.strokeStyle=rgba('#000000',.55);c.lineWidth=1.6;c.beginPath();c.moveTo(x-w0/2,top);c.lineTo(xt-w1/2,Y0);c.stroke();
+    for(let k=0;k<8;k++){const u0=k/8,u1=(k+1)/8,ya=lerp(top,Y0,u0),yb=lerp(top,Y0,u1),xa=lerp(x+w0/2,xt+w1/2,u0),xb=lerp(x+w0/2,xt+w1/2,u1),a=.05+lit((xa+xb)/2,(ya+yb)/2)*1.6;
+      c.strokeStyle=rgba('#ffd2a0',Math.min(.4,a));c.lineWidth=1;c.beginPath();c.moveTo(xa,ya);c.lineTo(xb,yb);c.stroke();}}
+  // the beams across, pieced every so often, an iron strap and its bolts at each joint, the underside catching the room's light
+  for(const [dy,h] of o.beams||[[12,14],[62,18],[128,24],[210,30]]){const y=top-dy;if(y<Y0-h)continue;
+    c.fillStyle=bm;c.fillRect(X0,y-h,X1-X0,h);c.fillStyle=rgba('#000000',.45);c.fillRect(X0,y-h,X1-X0,2);
+    for(let x=X0+r()*60;x<X1;x+=34+r()*30){const L=Math.min(X1-x,34+r()*30);c.fillStyle=rgba(r()<.5?'#000000':'#6a5038',.06+.08*r());c.fillRect(x,y-h+2,L,h-2);c.fillStyle=rgba('#000000',.35);c.fillRect(x,y-h+3+r()*(h-6),L*.7,.7);}
+    for(let x=X0+40+r()*80;x<X1;x+=90+r()*70){c.fillStyle=rgba('#000000',.65);c.fillRect(x,y-h,1.2,h);
+      const sw=Math.max(5,h*.4);c.fillStyle='#1e1a18';c.fillRect(x-sw/2,y-h,sw,h);c.fillStyle=rgba('#c8b8a0',.08);c.fillRect(x-sw/2,y-h,sw,.8);c.fillStyle='#0a0808';c.fillRect(x-1,y-h*.3,2,2);c.fillRect(x-1,y-h*.75,2,2);}
+    for(let x=X0;x<X1;x+=16){const a=.05+lit(x+8,y)*1.8;c.fillStyle=rgba('#ffcf9a',Math.min(.5,a));c.fillRect(x,y-1.6,16,1.6);}}
+  // the room's light on all of it, and a cobweb or two where the joists meet the wall
+  c.save();c.globalCompositeOperation='lighter';for(const L of lights){c.save();c.translate(L.x,L.y);c.scale(1.6,1);c.fillStyle=rad(c,0,0,0,L.r,[[0,rgba(L.col,L.a)],[.5,rgba(L.col,L.a*.35)],[1,rgba(L.col,0)]]);c.fillRect(-L.r,-L.r,L.r*2,L.r*2);c.restore();}c.restore();
+  c.strokeStyle=rgba('#c8c0b0',.1);c.lineWidth=.4;for(let i=0;i<2;i++){const cx=lerp(X0+200,X1-200,r()),cy=top-2;c.beginPath();for(let a=0;a<5;a++){c.moveTo(cx,cy);c.lineTo(cx+Math.cos(Math.PI+a*.3)*26,cy+Math.sin(Math.PI+a*.3)*26);}c.stroke();}
+  c.fillStyle=lin(c,0,Y0,0,Y0+100,[[0,rgba('#050304',.5)],[1,rgba('#050304',0)]]);c.fillRect(X0,Y0,X1-X0,100);
+  c.restore();}
+return{dim,pick,glowAt,puffAt,glowSpr,puffSpr,sprite,stamp,junk,junkWall,farSide,spikeRock,spikeEnds,arm,armHalo,boards,onions,garlic,crock,jar,barrel,sack,ceiling,SHACK,TIN,JC,WIN};
 })();
 
 // ---------- the roof ----------
@@ -266,9 +301,9 @@ function geo(){const L=PL(),Hh=L.hatch,Lo=L.lofts,hw=46,dw=Hh.door||28;
 // ---------- the deck ----------
 // corrugated sheets laid in courses from the eaves to the back, each overlapping the one in front of it, nailed along the purlins,
 // rust along the ribs and round the nails; patches over the holes, one of them an old enamel sign
-function deck(c,G){const L=G.L,far=L.far,r=rng(71),X0=-300,X1=1300,D0=-210;
+function deck(c,G){const L=G.L,far=L.far,r=rng(71),X0=-300,X1=1300,D0=-340;
   c.save();deckT(c);c.fillStyle='#1c1614';c.fillRect(X0,D0,X1-X0,far-D0+1);
-  const courses=[[D0,-52],[-56,40],[36,126],[122,far+1]];
+  const courses=[[D0,-196],[-200,-52],[-56,40],[36,126],[122,far+1]];
   for(const [a0,b0] of courses){let x=X0-r()*40;
     while(x<X1){const w=56+r()*34,tone=r(),rust=r(),base=dim(dim('#241e1b','#342a24',tone),'#4a2614',rust*.45),a=a0<-100?a0:a0+(r()-.5)*26,b=Math.min(far+1,b0+18);
       c.fillStyle=base;c.fillRect(x,a,w,b-a);
@@ -468,8 +503,10 @@ function pit(c,G){const L=G.L,yb=q(0,0,L.far).y,X0=-160,X1=1140,T0=-92;
   // the drop behind the bar: the smoke over the floor of the Pit, warm with its fires, between the roof's edge and the far side
   c.fillStyle=lin(c,0,yb-56,0,yb,[[0,rgba('#24140f',0)],[1,rgba('#24140f',.6)]]);c.fillRect(X0-60,yb-56,X1-X0+120,58);
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,yb-44,0,yb,[[0,rgba('#ff8a4a',0)],[1,rgba('#ff8a4a',.1)]]);c.fillRect(X0-60,yb-44,X1-X0+120,46);c.restore();
-  // the dark going up, to one colour at the very top
-  c.fillStyle=lin(c,0,T0,0,T0+150,[[0,'#050407'],[.25,rgba('#050407',.85)],[1,rgba('#050407',0)]]);c.fillRect(X0-60,T0-4,X1-X0+120,154);c.fillStyle='#050407';c.fillRect(X0-60,T0-8,X1-X0+120,12);
+  // the dark going up, the shacks' windows going on up into it; at the very top the smoke over the Pit holding a little of the
+  // city's light from over the rim, far above (an upright phone sees this much of it: camCutFit, sk_storyui.js)
+  c.fillStyle=lin(c,0,T0,0,T0+150,[[0,rgba('#050407',.62)],[.3,rgba('#050407',.42)],[1,rgba('#050407',0)]]);c.fillRect(X0-60,T0-8,X1-X0+120,158);
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,T0-8,0,T0+130,[[0,rgba('#6a4434',.12)],[1,rgba('#6a4434',0)]]);c.fillRect(X0-60,T0-8,X1-X0+120,138);c.restore();
   return F;}
 
 // ---------- the scene ----------
@@ -483,7 +520,7 @@ function paint(c){const G=geo(),L=G.L;
   // the sign's amber coming up over the eaves at the front, a touch of its pink bird at the left
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,GB+30,0,GB-60,[[0,rgba('#ffa040',.1)],[1,rgba('#ffa040',0)]]);c.fillRect(-200,GB-60,1500,110);c.restore();
   // the near edge of the picture: the deck going on toward us into the dark
-  c.fillStyle=lin(c,0,GB-10,0,GB+140,[[0,rgba('#000000',0)],[1,rgba('#000000',.65)]]);c.fillRect(-200,GB-10,1500,150);
+  c.fillStyle=lin(c,0,GB-10,0,GB+270,[[0,rgba('#000000',0)],[.45,rgba('#000000',.3)],[1,rgba('#000000',.5)]]);c.fillRect(-200,GB-10,1500,400);
   LIVE={G,lit:F.lit,signs:F.signs,B:bulbLine(G),yb:q(0,0,L.far).y,yt:-92};
   for(let tone=0;tone<3;tone++)for(const fa of [-1,1]){for(const pk of [0,1])birdSpr(tone,fa,true,pk);for(let ph=0;ph<6;ph++)birdSpr(tone,fa,false,ph);}}
 
@@ -549,6 +586,6 @@ function fore(c){c=c||ctx;const F=heapFront();c.drawImage(F.cv,F.x0,F.y0,F.w,F.h
 function light(f){const G=LIVE?LIVE.G:geo(),D=G.door,p=q((D.x0+D.x1)/2,D.h*.55,G.hut.d0);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY}};}
 // where things are, for the scene (worked out from ACT1_PLACES each time it is read)
 function layoutNow(){const G=geo();return{hut:G.hut,door:G.door,lofts:G.loft,pipe:G.pipe,spike:G.sp,doorAt:{x:(G.door.x0+G.door.x1)/2,dep:G.hut.d0+4}};}
-E.S.sumproof={paint,live,fore,light,get LAYOUT(){return layoutNow();}};
+E.S.sumproof={paint,live,fore,light,close:true,get LAYOUT(){return layoutNow();}};
 })();
 // ===== ENV SUMPROOF END =====

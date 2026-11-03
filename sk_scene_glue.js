@@ -17,20 +17,45 @@ function sceneLayerH(){return camNarrow()&&cssH>cssW?RC.h:Math.min(RC.h,H+200);}
 function sceneLayer(k){const need=sceneScale(),lh=sceneLayerH(),v=EnvLook.S[k].key?EnvLook.S[k].key():'';let L=SCENE_LY;
   if(!L||L.k!==k||L.v!==v||L.lh!==lh||Math.abs(need/L.sc-1)>.15){if(L){L.cv.width=L.cv.height=0;SCENE_LY=null;}
     const cn=document.createElement('canvas');cn.width=Math.ceil(RC.w*need);cn.height=Math.ceil(lh*need);
-    const c=cn.getContext('2d'),t0=performance.now();c.setTransform(need,0,0,need,-RC.x0*need,-RC.y0*need);EnvLook.S[k].paint(c);
-    L=SCENE_LY={k,v,cv:cn,sc:need,lh,ms:performance.now()-t0,foot:sceneFootOf(cn,lh)};SCENE_WARM.planned[k]=true;}
+    const c=cn.getContext('2d'),t0=performance.now();c.setTransform(need,0,0,need,-RC.x0*need,-RC.y0*need);EnvLook.S[k].paint(c);if(SCENE_NIGHT[k])sceneNightLift(c,cn);
+    const B=sceneBandOf(cn,lh);L=SCENE_LY={k,v,cv:cn,sc:need,lh,ms:performance.now()-t0,foot:B.foot,top:B.top,bot:B.bot};SCENE_WARM.planned[k]=true;}
   return L;}
-// How far down a layer is painted (world y): the lowest row painted across most of the floor's width, read off a small copy of it.
-// The black under the place starts there (render(), sk_ui.js).
-function sceneFootOf(cn,lh){try{const w=96,h=Math.round(lh/2),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),sx=cn.width/RC.w;
+// How far a layer is painted (world y), read off a small copy of it: its foot, the lowest row painted across most of the floor's
+// width, where the black under the place starts (render(), sk_ui.js); and the part of it that is not flat black by the audit's test
+// (a row near black and flat), its top to its bottom, which a scene on an upright phone keeps its view inside (camCutFit,
+// sk_storyui.js).
+function sceneBandOf(cn,lh){const B={top:RC.y0,foot:H+40,bot:H+40};
+  try{const w=96,h=Math.round(lh/2),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),sx=cn.width/RC.w,u=lh/h;
     x.drawImage(cn,-RC.x0*sx,0,W*sx,cn.height,0,0,w,h);const d=x.getImageData(0,0,w,h).data;
-    for(let r=h-1;r>0;r--){let n=0;for(let i=0;i<w;i++)if(d[(r*w+i)*4+3]>200)n++;if(n>w*.6)return RC.y0+(r+1)*lh/h;}}catch(e){}
-  return H+40;}
+    const lit=r=>{let s=0,q=0,n=0;for(let i=0;i<w;i++){const j=(r*w+i)*4;if(d[j+3]<=200)continue;const L=(.2126*d[j]+.7152*d[j+1]+.0722*d[j+2])/255;s+=L;q+=L*L;n++;}
+      const mu=n?s/n:0;return n>w*.6&&(mu>=.035||Math.sqrt(Math.max(0,q/n-mu*mu))>=.006);};
+    for(let r=h-1;r>0;r--){let n=0;for(let i=0;i<w;i++)if(d[(r*w+i)*4+3]>200)n++;if(n>w*.6){B.foot=RC.y0+(r+1)*u;break;}}
+    for(let r=0;r<h;r++)if(lit(r)){B.top=RC.y0+r*u;break;}
+    for(let r=h-1;r>0;r--)if(lit(r)){B.bot=Math.min(B.foot,RC.y0+(r+1)*u);break;}}catch(e){}
+  return B;}
+// A night sky that goes to black at its top is lifted toward a deep blue there instead (#0a0d1c at the layer's top, nothing added
+// 240 units under it): an upright phone's wide view of a fight shows a great deal of sky, the layer's top row drawn on up over it
+// (sceneDraw), and black there reads as nothing painted (the style guide's rule 1; the audit's empty). A sky already that light is
+// left as it is.
+function sceneNightLift(c,cn){try{const s=cn.width/RC.w,d=c.getImageData(0,0,cn.width,Math.max(1,Math.round(3*s))).data;let R=0,G=0,B=0,n=0;
+    for(let i=0;i<d.length;i+=36){R+=d[i];G+=d[i+1];B+=d[i+2];n++;}if(!n)return;
+    const a=[[10,R],[13,G],[28,B]].map(([t,v])=>Math.max(0,Math.round(t-v/n)));if(a[0]+a[1]+a[2]<4)return;
+    c.save();c.globalCompositeOperation='lighter';const g=c.createLinearGradient(0,RC.y0,0,RC.y0+240);g.addColorStop(0,`rgba(${a.join(',')},1)`);g.addColorStop(1,`rgba(${a.join(',')},0)`);
+    c.fillStyle=g;c.fillRect(RC.x0,RC.y0,RC.w,240);c.restore();}catch(e){}}
 // the layer on the screen; a view that reaches above the layer (a phone with the fighters spread wide) gets the layer's top edge
 // stretched up over it, and under a night sky the stars going on up in it
-function sceneDraw(k,T){const L=sceneLayer(k);
-  if(T-40<RC.y0){ctx.drawImage(L.cv,0,0,L.cv.width,2,RC.x0,T-40,RC.w,RC.y0-(T-40)+.5);if(SCENE_NIGHT[k])sceneStars(T-40,RC.y0+2);}
-  ctx.drawImage(L.cv,RC.x0,RC.y0,RC.w,L.lh);}
+// A place can say how it goes on past the layer: upTile, so many units of the layer's top drawn on up over it again and again, each
+// repeat a little darker (the lobby's coffers, the tunnel's vault: an upright phone's widest view of a fight sees a long way up);
+// below(c, x0, x1, y0, y1), its floor run on under the layer's foot into the dark (else the page's dark, render() in sk_ui.js).
+function sceneDraw(k,T){const L=sceneLayer(k),X=EnvLook.S[k];
+  if(T-40<RC.y0){if(X.upTile)sceneUp(L,T-40,X.upTile);
+    else{ctx.drawImage(L.cv,0,0,L.cv.width,2,RC.x0,T-40,RC.w,RC.y0-(T-40)+.5);if(SCENE_NIGHT[k])sceneStars(T-40,RC.y0+2);}}
+  ctx.drawImage(L.cv,RC.x0,RC.y0,RC.w,L.lh);
+  if(X.below){const B=T+cv.height*cam.viewW/Math.max(1,cv.width)+40;if(B>L.foot)X.below(ctx,RC.x0,RC.x0+RC.w,L.foot-1,B);}}
+function sceneUp(L,T,h){const sh=Math.max(1,Math.round(h*L.sc)),top=RC.y0-h*6;
+  for(let y=RC.y0-h;y+h>T;y-=h)ctx.drawImage(L.cv,0,0,L.cv.width,sh,RC.x0,y,RC.w,h+.6);
+  const g=ctx.createLinearGradient(0,RC.y0,0,top);g.addColorStop(0,'rgba(3,3,6,0)');g.addColorStop(1,'rgba(3,3,6,.35)');ctx.fillStyle=g;
+  ctx.fillRect(RC.x0,Math.max(T,top),RC.w,RC.y0-Math.max(T,top));if(T<top){ctx.fillStyle='rgba(3,3,6,.35)';ctx.fillRect(RC.x0,T,RC.w,top-T);}}
 const SCENE_NIGHT={street:1,field:1,hill:1,ledge:1,wall:1,crops:1,roadblock:1,chase:1,roof:1};
 // a field of faint stars, made once (300 by 200 units, on its own dice), laid as a repeat between y0 and y1
 let SCENE_STARS=null;

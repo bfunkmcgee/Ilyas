@@ -18,8 +18,9 @@ const yR=d=>GB-d*PSY,yP=d=>GB-KH-d*PSY,FB=()=>yP(DF);
 // kept in parts by rows: [y0, y1, solid, square]. A solid part has no sky in it and goes on as an opaque copy, the cheapest there is;
 // a square part lies behind the houses everywhere but the little square, and is only drawn where the square has come round
 const BAND={far:{P:2600,f:.15,y0:40,y1:176,parts:[[40,146],[146,176,0,1]]},mid:{P:1950,f:.45,y0:4,y1:214,parts:[[4,146],[146,214,0,1]]},
-  street:{P:1560,f:1,y0:26,y1:484,parts:[[26,212],[212,484,1]]},near:{P:1170,f:1.15,y0:440,y1:510,parts:[[440,476],[476,510,1]]}};
-const ORDER=['far','mid','street','near'],SQ=[712,834];
+  street:{P:1560,f:1,y0:26,y1:484,parts:[[26,212],[212,484,1]]},near:{P:1170,f:1.15,y0:440,y1:510,parts:[[440,476],[476,510,1]]},
+  front:{P:1170,f:1.15,y0:500,y1:1010,lo:.5,parts:[[500,1010,1]]}};
+const ORDER=['far','mid','street','near','front'],SQ=[712,834];
 // the lamps on the far kerb, by where each post stands in the street's strip: one every 260, but none by the shut pawnshop and the
 // square, where the moon has the light
 const LX=[130,390,910,1170,1430],lampHead=lx=>({x:lx+16,y:yP(LAMPD)-141});
@@ -649,6 +650,16 @@ function paintNear(c,P){const g=GB-KH,r=rng(17);
   const y=yP(-31);
   for(const x of [56,104,152,640,688,1050,1098])bollard(c,x,y);
   pillarBox(c,312,y+1);pavementLamp(c,470,y);pavementLamp(c,880,y);}
+// our own pavement on toward us past the bollards, under the picture's foot where an upright phone's widest view of the road reaches:
+// the same flags going by with the kerb, darker as they come, a puddle holding a lamp across the road now and then (made at half the
+// screen's scale: it is dark, and the nearest thing going by)
+function paintFront(c,P){const g=GB-KH,r=rng(23),d0=-(1010-g)/PSY;
+  c.save();c.transform(1,0,PSX,-PSY,0,g);const pf=c.createPattern(flags(),'repeat');if(pf.setTransform)pf.setTransform(new DOMMatrix().translate(0,NK+3).scale(.4));
+  c.fillStyle=pf;c.fillRect(-300,d0,P+600,NK-40-d0);
+  for(let i=0;i<5;i++){const x=r()*P,d=lerp(NK-90,d0+60,r()),w=30+r()*50;c.fillStyle=rgba('#05040a',.5);c.beginPath();c.ellipse(x,d,w,w*.4,0,0,TAU);c.fill();
+    c.fillStyle=rgba('#ffcf86',.08+.08*r());c.beginPath();c.ellipse(x+w*.2,d+w*.08,w*.3,w*.07,0,0,TAU);c.fill();}
+  c.restore();
+  c.fillStyle=lin(c,0,500,0,1010,[[0,rgba('#05040a',.78)],[.3,rgba('#05040a',.74)],[1,rgba('#05040a',.84)]]);c.fillRect(0,500,P,510);}
 // ---------- the strips: made once at the screen's scale, slid along every frame ----------
 let ST=null;
 function wantScale(){const w=typeof cv!=='undefined'&&cv&&cv.width?cv.width:1800,cw=typeof cssW==='number'&&cssW>0?cssW:900;return clamp(w/(cw<640?560:W),1,2.4);}
@@ -661,7 +672,7 @@ function bulbSprite(sc){const n=Math.ceil(8*sc),cn=document.createElement('canva
   glow(c,0,0,4,'#ffcf86',.8);c.fillStyle='#fff6e0';c.beginPath();c.arc(0,0,.8,0,TAU);c.fill();return cn;}
 function strips(){const sc=wantScale();if(ST&&Math.abs(sc/ST.sc-1)<.15)return ST;
   if(ST)for(const k of ORDER)for(const p of ST[k].parts)p.cv.width=p.cv.height=0;
-  const t0=performance.now();ST={sc};BULB=bulbSprite(wantScale());for(const k of ORDER)ST[k]=makeBand(k,sc,k==='far'?paintFar:k==='mid'?paintMid:k==='street'?paintStreet:paintNear);
+  const t0=performance.now();ST={sc};BULB=bulbSprite(wantScale());for(const k of ORDER)ST[k]=makeBand(k,sc*(BAND[k].lo||1),k==='far'?paintFar:k==='mid'?paintMid:k==='street'?paintStreet:k==='near'?paintNear:paintFront);
   ST.bulb=BULB;ST.ms=performance.now()-t0;return ST;}
 const scrollAt=()=>{const v=typeof S!=='undefined'&&S?+S.scroll:0;return isFinite(v)?v:0;};
 const offOf=b=>{const o=(scrollAt()*b.f)%b.P;return o<0?o+b.P:o;};
@@ -701,7 +712,7 @@ function live(){const T=strips(),t=(typeof S!=='undefined'&&S.t)||0,st=T.street,
     if(ox+584>L&&ox+340<R&&BULBS.length){ctx.globalCompositeOperation='lighter';const ph=Math.floor(t*9)%3;
       for(let i=0;i<BULBS.length;i++){if((i+ph)%3)continue;const bb=BULBS[i];ctx.drawImage(T.bulb,ox+bb.x-4,bb.y-4,8,8);}ctx.globalCompositeOperation='source-over';}}
   ctx.restore();
-  blit(T.near);}
+  blit(T.front);blit(T.near);}
 // the light that rims a rider: the lamps as they pass, the Lyric's marquee, and the moon when nothing nearer is lit
 function light(f){const P=BAND.street.P,o=offOf(BAND.street),pel=f.p[typeof PEL==='number'?PEL:0],px=pel.x+f.dep*PSX;let wx=0,wy=0,ws=0;
   const add=(x,y,Rr,k)=>{for(let n=-1;n<=1;n++){const sx=x-o+n*P,dd=Math.abs(sx-px);if(dd>=Rr)continue;const w=k*(1-dd/Rr)*(1-dd/Rr);wx+=w*sx;wy+=w*y;ws+=w;}};
@@ -709,6 +720,8 @@ function light(f){const P=BAND.street.P,o=offOf(BAND.street),pel=f.p[typeof PEL=
   add(MARQ.x,MARQ.y,190,.8);
   wx+=.06*MOON.x;wy+=.06*MOON.y;ws+=.06;
   return{light:{x:wx/ws-f.dep*PSX,y:wy/ws+f.dep*PSY}};}
-E.S.chase={paint,live,light,warm:strips,table:()=>false,div:()=>false};
+// (the pavement runs on under the layer in live(): the front band; past even that, the dark it goes into)
+function below(c,x0,x1,y0,y1){c.fillStyle='#08070b';c.fillRect(x0,y0,x1-x0,y1-y0);}
+E.S.chase={paint,live,light,warm:strips,table:()=>false,div:()=>false,below};
 })();
 // ===== ENV CHASE END =====

@@ -29,12 +29,13 @@ function walls(c,G){const {yW}=G,top=G.wy(CEIL),r=rng(11);
   c.save();c.globalCompositeOperation='lighter';for(let i=0;i<9;i++){const x=-100+r()*1150,y0=top+20+r()*60,L=30+r()*90;c.fillStyle=lin(c,0,y0,0,y0+L,[[0,rgba('#d8cfb8',0)],[.5,rgba('#d8cfb8',.18)],[1,rgba('#d8cfb8',0)]]);c.fillRect(x,y0,1,L);}c.restore();
   // the skirting
   c.fillStyle='#110c08';c.fillRect(-200,yW-8,1450,8);c.fillStyle=rgba('#e8d8b8',.06);c.fillRect(-200,yW-8,1450,.8);
-  // the ceiling: planks on beams, a little lighter than the kitchen's, a cobweb in the corner
-  c.fillStyle='#0d0a08';c.fillRect(-200,-100,1450,top+100);
-  for(let y=top-10;y>-100;y-=10){c.fillStyle=rgba('#2e2218',.4+.2*r());c.fillRect(-200,y,1450,9);c.fillStyle=rgba('#000000',.5);c.fillRect(-200,y+9,1450,1);}
-  for(const [y,h] of [[top-14,16],[top-70,20],[top-140,26],[top-230,32]]){c.fillStyle='#1a120c';c.fillRect(-200,y-h,1450,h);c.fillStyle=rgba('#e8d8b8',.06);c.fillRect(-200,y-1.4,1450,1.4);c.fillStyle=rgba('#000000',.45);c.fillRect(-200,y-h,1450,2);}
+  // the ceiling: planks on joists and beams, a little lighter than the kitchen's, the lamp's light on it and the window's grey day
+  // near the window; a cobweb in the corner
+  {const cy=d=>top-(G.far-d)*PSY,Lm=G.lamp,w=G.win;
+    K.ceiling(c,{top,x0:-200,x1:1250,base:'#0d0a08',plank:'#2e2218',beam:'#1a120c',beams:[[14,16],[70,20],[140,26],[230,32]],seed:419,
+      lights:[{x:Lm.x+Lm.d*PSX,y:cy(Lm.d),r:140,col:'#ffcf86',a:.1},{x:(w.x0+w.x1)/2,y:top-20,r:120,col:'#d8cfb8',a:.07}]});}
   c.fillStyle='#1e150e';c.fillRect(-200,top-4,1450,8);c.fillStyle=rgba('#e8d8b8',.08);c.fillRect(-200,top+3,1450,1);
-  c.fillStyle=lin(c,0,-100,0,top+40,[[0,'#060504'],[.7,rgba('#060504',.55)],[1,rgba('#060504',0)]]);c.fillRect(-200,-100,1450,top+140);
+  c.fillStyle=lin(c,0,top-10,0,top+40,[[0,rgba('#060504',.45)],[1,rgba('#060504',0)]]);c.fillRect(-200,top-10,1450,50);
   {const cx=G.wx(-20),cy=top+4;c.strokeStyle=rgba('#c8c0b0',.16);c.lineWidth=.4;c.beginPath();for(let a=0;a<6;a++){c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a*.3)*40,cy+Math.sin(a*.3)*40);}for(let k=1;k<4;k++){c.moveTo(cx+k*10,cy);for(let a=1;a<6;a++)c.lineTo(cx+Math.cos(a*.3)*k*10,cy+Math.sin(a*.3)*k*10);}c.stroke();}}
 
 // ---------- the window: the floor of the Pit by its dim day ----------
@@ -236,7 +237,7 @@ function sideWall(c,G){const D=G.L.door,xw=D.x,far=G.far,d0=D.d-DOOR.w/2,d1=D.d+
 }
 
 // ---------- the floor ----------
-function floor(c,G){const far=G.far,X0=-300,X1=1300,D0=-200,r=rng(29);
+function floor(c,G){const far=G.far,X0=-300,X1=1300,D0=-340,r=rng(29);
   c.save();floorT(c);c.fillStyle='#21170f';c.fillRect(X0,D0,X1-X0,far-D0+1);
   for(let d=D0;d<far;d+=14){let x=X0-r()*120;while(x<X1){const L=80+r()*160,v=r();c.fillStyle=dim(dim('#22180f','#36281a',v),'#000000',r()*.2);c.fillRect(x,d,L,13.2);
       c.fillStyle=rgba('#000000',.12);c.fillRect(x,d+3+r()*8,L,.5);c.fillStyle=rgba('#e8d8b8',.035);c.fillRect(x,d+12.4,L,.8);c.fillStyle=rgba('#000000',.55);c.fillRect(x+L-1,d,1.2,13.2);x+=L;}
@@ -265,8 +266,9 @@ function paint(c){const G=geo();
   floor(c,G);shaft(c,G);
   barrels(c,G);shelf(c,G);washstand(c,G);crates(c,G);cot(c,G);chair(c,G);stool(c,G);sideWall(c,G);lamp(c,G);
   // the day is dim: the room darker away from the window, darkest in the corners; the near edge
-  c.fillStyle=lin(c,-200,0,1150,0,[[0,rgba('#040302',.55)],[.22,rgba('#040302',.12)],[.62,rgba('#040302',0)],[.86,rgba('#040302',.05)],[1,rgba('#040302',.4)]]);c.fillRect(-200,-100,1450,800);
-  c.fillStyle=lin(c,0,GB-20,0,GB+140,[[0,rgba('#000000',0)],[1,rgba('#000000',.7)]]);c.fillRect(-200,GB-20,1450,160);
+  c.fillStyle=lin(c,-200,0,1150,0,[[0,rgba('#040302',.55)],[.22,rgba('#040302',.12)],[.62,rgba('#040302',0)],[.86,rgba('#040302',.05)],[1,rgba('#040302',.4)]]);c.fillRect(-200,-100,1450,1000);
+  // (the boards run on toward us under the picture's foot, an upright phone's view of them darker as they come, never black)
+  c.fillStyle=lin(c,0,GB-20,0,GB+270,[[0,rgba('#000000',0)],[.45,rgba('#000000',.34)],[1,rgba('#000000',.52)]]);c.fillRect(-200,GB-20,1450,400);
   LIVE={G,V};}
 const MOTES=(()=>{const r=rng(66),a=[];for(let i=0;i<26;i++)a.push({u:r(),v:r(),ph:r()*TAU,sp:.15+r()*.3});return a;})();
 const SMOKE=(()=>{const r=rng(8),a=[];for(let i=0;i<5;i++)a.push({ph:i/5,dx:(r()-.5)});return a;})();
@@ -288,6 +290,6 @@ function live(){if(!LIVE)return;const G=LIVE.G,V=LIVE.V,w=G.win,t=S.t;ctx.save()
 // the light that rims them: the day through the window
 function light(f){const G=LIVE?LIVE.G:geo(),w=G.win;return{light:{x:(w.x0+w.x1)/2-f.dep*PSX,y:(w.y0+w.y1)/2+f.dep*PSY}};}
 function layoutNow(){const G=geo();return{ceil:CEIL,window:G.win,lamp:G.lamp,door:DOOR};}
-E.S.backroom={paint,live,light,get LAYOUT(){return layoutNow();}};
+E.S.backroom={paint,live,light,close:true,get LAYOUT(){return layoutNow();}};
 })();
 // ===== ENV BACKROOM END =====

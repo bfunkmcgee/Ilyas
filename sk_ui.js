@@ -53,8 +53,10 @@ function camPushW(fit){const b=camBand(),room=cssH-camCardH()-HUD_IN.top-36;
 // before that; a fight he only watches meets only the enemies' small "deciding" card
 function camCardH(){const h=typeof HUD!=='undefined'?HUD:{},play=S.F.some(f=>f.team===0&&!f.dead&&!f.gone&&!isAI(f.idx));
   return play?Math.max(h.cardH||0,246):Math.max(h.cardAH||0,128);}
-// how far down the place is painted (world y): the scene's layer as measured when it was painted, the old look to 40 past the foot
-function camPaintFoot(){const k=typeof envKey==='function'?envKey():null,L=typeof SCENE_LY!=='undefined'?SCENE_LY:null;return k&&L&&L.k===k&&L.foot?L.foot:H+40;}
+// how far down the place is painted (world y): the scene's layer as measured when it was painted, the old look to 40 past the foot;
+// a place that runs its own floor on under the layer (EnvLook.S[k].below, sceneDraw in sk_scene_glue.js) has no foot
+function camPaintFoot(){const k=typeof envKey==='function'?envKey():null,L=typeof SCENE_LY!=='undefined'?SCENE_LY:null;
+  if(k&&typeof EnvLook!=='undefined'&&EnvLook.S[k]&&EnvLook.S[k].below)return 1e5;return k&&L&&L.k===k&&L.foot?L.foot:H+40;}
 // the closest the camera comes on this screen (world units across): what the scene layers are painted for (sceneScale)
 function camCloseW(){return cssW<640?Math.min(560,cssW*PUSH_H/Math.max(1,cssH)):W;}
 // the push-in starting or ending (sk_hudui.js calls this): with reduced motion the camera cuts to its new framing; as the moves come

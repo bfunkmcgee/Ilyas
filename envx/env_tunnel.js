@@ -64,14 +64,15 @@ function wallTile(k){const sc=bucket(k);if(WT&&WT.sc===sc)return WT;
   const bt=EnvTex.brick(13,{base:'#2e1a14',alt:'#1e100c',hot:'#3a2018',mortar:'#0a0706'});if(!bt||bt.width<16)return null;
   const y0=-12,y1=yWB()+2,h=y1-y0,sh=yS(),cv=mk(PER,h,sc),c=cv.getContext('2d'),r=rng(7),st=v=>(v-y0)/h;c.scale(sc,sc);c.translate(0,-y0);
   c.fillStyle=patAt(c,bt,0,0,1/6);c.fillRect(0,y0,PER,h);
-  c.fillStyle=lin(c,0,y0,0,y1,[[0,rgba('#010102',1)],[st(sh-60),rgba('#020203',.92)],[st(sh),rgba('#040404',.72)],[st(sh+70),rgba('#060505',.58)],[.92,rgba('#060505',.6)],[1,rgba('#020202',.88)]]);c.fillRect(0,y0,PER,h);
+  // (dark, deepest toward the vault, where the brick still shows dimly: the vault goes on over it, vaultTile)
+  c.fillStyle=lin(c,0,y0,0,y1,[[0,rgba('#020203',.44)],[st(sh-60),rgba('#020203',.56)],[st(sh),rgba('#040404',.68)],[st(sh+70),rgba('#060505',.58)],[.92,rgba('#060505',.6)],[1,rgba('#020202',.88)]]);c.fillRect(0,y0,PER,h);
   // seepage: lime run white from the joints, and wet black under it
   for(let i=0;i<16;i++){const x=r()*PER,w=1.5+r()*5,L=40+r()*160,pale=r()<.35,col=pale?'#9a9a88':'#000000';c.fillStyle=lin(c,0,sh+4,0,sh+4+L,[[0,rgba(col,pale?.09:.4)],[1,rgba(col,0)]]);c.fillRect(x,sh+4,w,L);}
   // the rings
   for(let x=40;x<PER;x+=140){c.fillStyle='#0f1218';c.beginPath();c.moveTo(x,y1);c.lineTo(x,sh);c.quadraticCurveTo(x,sh-70,x-26,y0);c.lineTo(x-14,y0);c.quadraticCurveTo(x+12,sh-70,x+12,sh);c.lineTo(x+12,y1);c.closePath();c.fill();
     c.fillStyle=rgba('#7a8aa8',.15);c.fillRect(x+11,sh,1.2,y1-sh);c.fillStyle=rgba('#000000',.55);c.fillRect(x-4,sh,4,y1-sh);
     c.strokeStyle=rgba('#000000',.5);c.lineWidth=.6;c.beginPath();for(let y=y1;y>sh;y-=5.2){c.moveTo(x,y);c.lineTo(x+12,y);}c.stroke();}
-  c.fillStyle=lin(c,0,y0,0,sh,[[0,rgba('#010102',.96)],[.6,rgba('#010102',.5)],[1,rgba('#010102',0)]]);c.fillRect(0,y0,PER,sh-y0);
+  c.fillStyle=lin(c,0,y0,0,sh,[[0,rgba('#010102',.1)],[.6,rgba('#010102',.06)],[1,rgba('#010102',0)]]);c.fillRect(0,y0,PER,sh-y0);
   // the string course at the spring of the vault
   c.fillStyle='#0d1016';c.fillRect(0,sh-3,PER,6);c.fillStyle=rgba('#8a94b0',.16);c.fillRect(0,sh-3,PER,.8);c.fillStyle=rgba('#000000',.5);c.fillRect(0,sh+3,PER,2);
   // arched refuges low in the wall
@@ -89,6 +90,23 @@ function wallTile(k){const sc=bucket(k);if(WT&&WT.sc===sc)return WT;
     c.fillStyle=C.goldD;c.fillRect(x-5,y-10,10,2.2);c.fillRect(x-4,y+9,8,2);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=.7;c.beginPath();for(const kx of [-4.5,-1.5,1.5,4.5]){c.moveTo(x+kx,y-8);c.lineTo(x+kx*.8,y+9);}c.stroke();
     c.fillStyle='#14262a';c.beginPath();c.moveTo(x,y-6);c.lineTo(x+3.4,y);c.lineTo(x,y+6);c.lineTo(x-3.4,y);c.closePath();c.fill();}
   WT={sc,cv,blur:smear(cv,22*sc,true),y0,h};return WT;}
+// the vault over the wall: the rings going on over toward us, leaning as they come, the brick between them in its soot; made once a
+// scale at half the wall's (it is dim, and smeared at speed). live() lays it on up over the wall as far as the view goes (an upright
+// phone sees a long way up), each repeat a ring's lean further on and a little darker.
+const VH=150,VLEAN=PSX/PSY;
+let VT=null;
+function vaultTile(k){const sc=bucket(k)*.5;if(VT&&VT.sc===sc)return VT;
+  const bt=EnvTex.brick(13,{base:'#2e1a14',alt:'#1e100c',hot:'#3a2018',mortar:'#0a0706'});if(!bt||bt.width<16)return null;
+  const y1=-12,y0=y1-VH,cv=mk(PER,VH,sc),c=cv.getContext('2d'),r=rng(17);c.scale(sc,sc);c.translate(0,-y0);
+  c.fillStyle=patAt(c,bt,0,0,1/6);c.fillRect(0,y0,PER,VH);c.fillStyle=rgba('#020203',.44);c.fillRect(0,y0,PER,VH);
+  // soot in long stains along the line, where the engines' breath has gone over it for a century
+  for(let i=0;i<10;i++){const y=lerp(y0,y1,r()),L=120+r()*360,x=r()*PER;c.fillStyle=rgba('#000000',.18+.18*r());c.fillRect(x,y,L,2+r()*5);c.fillRect(x-PER,y,L,2+r()*5);}
+  const s=VH*VLEAN;for(let x=40;x<PER+s+40;x+=140){const xa=x-26,xb=x-14;
+    c.fillStyle='#0f1218';c.beginPath();c.moveTo(xa,y1);c.lineTo(xb,y1);c.lineTo(xb-s+3,y0);c.lineTo(xa-s-3,y0);c.closePath();c.fill();
+    c.strokeStyle=rgba('#7a8aa8',.12);c.lineWidth=1;c.beginPath();c.moveTo(xb,y1);c.lineTo(xb-s+3,y0);c.stroke();
+    c.strokeStyle=rgba('#000000',.5);c.lineWidth=.6;c.beginPath();for(let u=0;u<1;u+=.04){const yy=lerp(y1,y0,u),xx=lerp(xa,xa-s-3,u);c.moveTo(xx,yy);c.lineTo(xx+12+u*6,yy);}c.stroke();}
+  c.fillStyle=rgba('#010102',.1);c.fillRect(0,y0,PER,VH);
+  VT={sc,cv,blur:smear(cv,11*sc,true),y0,h:VH};return VT;}
 // the far rail along the deck's far edge: posts in their pockets and a top rail, the car's lantern on its hook (made once a scale)
 let RT=null;
 function railTile(k){const sc=bucket(k);if(RT&&RT.sc===sc)return RT;
@@ -200,7 +218,7 @@ function poolSprite(k){const sc=bucket(k);if(PL&&PL.sc===sc)return PL;
     c.scale(sc,sc);c.translate(-x0,-y0);floorT(c,0);c.fillStyle=rad(c,0,cd,0,R,[[0,rgba(col,a)],[.45,rgba(col,a*.38)],[1,rgba(col,0)]]);c.fillRect(-R,d0,2*R,d1-d0);return{cv,x0,y0,w:x1-x0,h:y1-y0};};
   return PL={sc,lamp:one(150,.16,'#ffd9a0'),stn:one(230,.17,'#ffcf86')};}
 // everything made once, ahead of the first frame: at the screen's scale if it is known
-function warm(k,force){if(force){WT=RT=ST=PS=SMK=LG=PL=null;}if(k==null)k=(typeof cv!=='undefined'&&typeof cam!=='undefined'&&cam&&cam.viewW)?cv.width/cam.viewW:2;wallTile(k);railTile(k);stnSprite(k);passSprite(k);smokeBand();lampSprite(k);poolSprite(k);}
+function warm(k,force){if(force){WT=VT=RT=ST=PS=SMK=LG=PL=null;}if(k==null)k=(typeof cv!=='undefined'&&typeof cam!=='undefined'&&cam&&cam.viewW)?cv.width/cam.viewW:2;wallTile(k);vaultTile(k);railTile(k);stnSprite(k);passSprite(k);smokeBand();lampSprite(k);poolSprite(k);}
 
 // ---------- the scene ----------
 function paint(c){const X0=-160,X1=W+260,T0=-140;
@@ -221,6 +239,10 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
   if(WT0){let x=ox-frac(s0/PER)*PER;while(x>vx0)x-=PER;
     for(;x<vx1;x+=PER){if(blurA<1)ctx.drawImage(WT0.cv,x,WT0.y0,PER+.6,WT0.h);if(blurA>0){ctx.globalAlpha=blurA;ctx.imageSmoothingEnabled=false;ctx.drawImage(WT0.blur,x,WT0.y0,PER+.6,WT0.h);ctx.imageSmoothingEnabled=true;ctx.globalAlpha=1;}}}
   else{ctx.fillStyle='#0a0606';ctx.fillRect(vx0,sh-130,vx1-vx0,wb-sh+130);}
+  // the vault over it, on up as far as the view goes
+  {const V=vaultTile(k),vy0=Math.max(-400,-Tr.f/Tr.d-20);if(V)for(let j=0,yb=V.y0+V.h;yb>vy0&&j<6;j++,yb-=V.h){const y=yb-V.h,sx=j*V.h*VLEAN;let x=ox-sx-frac(s0/PER)*PER;while(x>vx0)x-=PER;
+      for(;x<vx1;x+=PER){if(blurA<1)ctx.drawImage(V.cv,x,y,PER+.6,V.h+.6);if(blurA>0){ctx.globalAlpha=blurA;ctx.drawImage(V.blur,x,y,PER+.6,V.h+.6);ctx.globalAlpha=1;}}
+      if(j){ctx.fillStyle=rgba('#020203',Math.min(.4,.1*j));ctx.fillRect(vx0,y,vx1-vx0,V.h+.6);}}}
   // the strip of track bed at the wall's foot beyond the car, streaming by
   ctx.fillStyle='#040404';ctx.fillRect(vx0,wb-1,vx1-vx0,df-wb+1);
   {const r=rng(3),span=1500;for(let i=0;i<30;i++){const x=-300+frac(r()-s0/span)*span,L=4+r()*10+v*.03;ctx.fillStyle=rgba('#4a4238',.18+.2*r());ctx.fillRect(x,wb+1+r()*(df-wb-2),L,.8);}}

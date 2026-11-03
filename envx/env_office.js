@@ -30,8 +30,14 @@ function city(){if(CITY)return CITY;const ox=OXf(),yb=yB(),gx0=OFW.glass+ox,gy0=
 // ---------- the room, painted once ----------
 function paint(c){
   const X0=-150,X1=W+230,T0=-90,yb=yB(),ox=OXf(),GX=OFW.glass+ox,rail=yb-86,r=rng(7);
-  // ---- the ceiling: walnut coffers in shadow
+  // ---- the ceiling: walnut coffers in shadow, rows of 50 from the beam over the walls up (joined at y 10, -40 and -90, so the row at
+  // the layer's top goes on up the picture as it is: upTile), a brass bead in each holding a little of the lamps' warmth
   c.fillStyle='#060408';c.fillRect(X0,T0,X1-X0,24-T0);
+  for(let y1=10;y1>T0;y1-=50){const y0=y1-50;
+    for(let x=-130;x<X1;x+=124){const a=x+12,b=x+124;walnut(c,a,y0,b-a,y1-6-y0,false,.6,{seed:53});
+      c.fillStyle=rad(c,(a+b)/2,(y0+y1)/2,4,70,[[0,rgba('#000000',.35)],[1,rgba('#000000',0)]]);c.fillRect(a,y0,b-a,y1-6-y0);
+      c.strokeStyle=rgba('#c8a060',.24);c.lineWidth=1;c.strokeRect(a+5,y0+5,b-a-10,y1-y0-16);c.fillStyle=rgba('#ffd2a0',.1);c.fillRect(a+5,y1-11.5,b-a-10,.8);}
+    walnut(c,X0,y1-6,X1-X0,6,false,.72);c.fillStyle=rgba('#ffd2a0',.08);c.fillRect(X0,y1-.8,X1-X0,.6);}
   for(let x=-130;x<X1;x+=124){walnut(c,x,T0,12,24-T0,true,.72);c.fillStyle=rgba('#ffd2a0',.06);c.fillRect(x+11,T0,1,24-T0);}
   walnut(c,X0,4,X1-X0,6,false,.7);c.fillStyle=rgba('#ffd2a0',.1);c.fillRect(X0,9.4,X1-X0,.6);
   // ---- the walls: champagne moiré silk in walnut frames above the rail, walnut panels below it
@@ -488,7 +494,7 @@ function lamp(L){if(L.kind!=='linear'&&L.kind!=='pendant')return false;
     ctx.strokeStyle=BRASS;ctx.lineWidth=.8;ctx.beginPath();ctx.arc(0,3,10.4,0,TAU);ctx.moveTo(0,-7.4);ctx.quadraticCurveTo(-9,3,0,13.4);ctx.moveTo(0,-7.4);ctx.quadraticCurveTo(9,3,0,13.4);ctx.moveTo(-10.4,3);ctx.lineTo(10.4,3);ctx.stroke();
     ctx.fillStyle=BRASS;ctx.beginPath();ctx.arc(0,13.6,1.4,0,TAU);ctx.fill();}
   ctx.restore();return true;}
-E.S.office={paint,live,light,prop,lamp,desk};
+E.S.office={paint,live,light,prop,lamp,desk,upTile:50};
 // the desk is drawn by its own routine as two floor items: the scene takes it over when the office is on show
 if(typeof drawDesk==='function'&&!window.__officeDesk){window.__officeDesk=true;const dd0=drawDesk;window.drawDesk=function(Pp,back){const k=typeof envKey==='function'?envKey():null;if(k==='office'&&E.S.office.desk(Pp,back))return;return dd0(Pp,back);};}
 })();

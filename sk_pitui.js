@@ -137,8 +137,13 @@ V11UI.screen.push(()=>{const A=S.act1;if(!A||!A.sear||!act1On())return;const u=S
 // it does not (the kitchen's window over the table). C.bandN, where a scene gives one, is the band on a narrow screen (a phone held
 // upright has height to spare: the opening's sundown fills it from the sky's top to the world's foot). C.bandS is the band on a
 // screen too short for the floor's own (BAND0) between the bars: a phone on its side (the fall keeps him there, not the floor).
+// A scene framed closer on an upright phone (C.fit, camCutFit in sk_storyui.js) keeps its view between the bars inside the part of
+// the place that is painted, the people in it (or the floor's band, BAND0, raised with the ground where it climbs: camBand below)
+// in the middle where that allows; a painted part shorter than the view is centred.
 {const ct=camTarget;camTarget=function(){const C=S.camCut;if(!C)return ct();
   const s=cssW/Math.max(1,cam.viewW),bar=S.letter?cssH*.105:0,t=Math.max(HUD_IN.top,bar),b=Math.max(HUD_IN.bottom,bar),free=Math.max(40,cssH-t-b);
+  const F=C.fit&&C.fit.band;if(F){const v=free/s;if((F.foot-F.top)<=v)return(F.top+F.foot)/2-(t+free/2)/s;
+    const b0=camBand(),mid=C.fit.mid??(b0.top+b0.foot)/2;return clamp(mid-v/2,F.top,F.foot-v)-t/s;}
   const B=cssW<640&&C.bandN?C.bandN:C.band||(C.bandS&&(BAND0.foot-BAND0.top)*s>free?C.bandS:null);if(!B)return ct();
   return(B.foot-B.top)*s<=free?(B.top+B.foot)/2-(t+free/2)/s:B.top-t/s;};}
 // A walk about or a cut with no band of its own, where the ground climbs (an arena with climb: the stair-streets), frames the floor's

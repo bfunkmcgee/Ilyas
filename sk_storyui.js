@@ -70,10 +70,40 @@ function storyQuiet(){return!!(S.story&&(S.game.phase==='cut'||S.story.step!=='f
 
 // ---------- the scene's camera ----------
 // a scene sets where the camera looks and how wide (and, if it wants, where and how wide on a narrow screen: C.xn, C.wn, which may
-// come as close as 200 units across, a close-up on an upright phone); it eases there at the scene's own rate
+// come as close as 200 units across, a close-up on an upright phone); it eases there at the scene's own rate.
+// On an upright phone a scene that gives no narrow view or band of its own frames the way the push-in frames a fight (the style
+// guide's rule 1) in a place whose picture stops at its ceiling or its dark (EnvLook.S[k].close: the Sump's rooms and its roof),
+// where the view it asks for is taller between the bars than the place is painted (the layer's top to its bottom, the part that is
+// not flat black: SCENE_LY, sk_scene_glue.js), or wherever the scene asks for it (C.fitH: so much height to fill, the platform's
+// 700): it comes in until the painted part fills the height between the bars, or 700 units of it (the push-in's height, PUSH_H in
+// sk_ui.js; or C.fitH), never so close that anyone in the
+// view leaves the frame (the whole body, lying down too, with 46 units of air), and never outside the view the scene asked for, so
+// whoever walks out of that walks out of this. camTarget (sk_pitui.js) keeps the view inside the painted part, the people in the
+// middle where that allows. It follows them as they move: a glide, or with reduced motion a cut, only when someone would leave the
+// frame; it lands at once when the scene cuts to it (k 0). Elsewhere the scene's own framing stands (the Pit's terraces go on up
+// over the yard and the stairs, and the action sits low under them).
+function camCutFit(C,wOld){
+  if(!(cssW<640&&cssH>cssW)||C.wn||C.band||C.bandN||C.bandS||typeof envKey!=='function')return null;
+  const key=envKey(),X=key&&EnvLook.S[key];if(!X||!(X.close||C.fitH))return null;
+  const L=sceneLayer(key);if(!L||L.top==null||!(L.bot>L.top))return null;
+  const band={top:L.top,foot:L.bot},bar=S.letter?cssH*.105:0,free=Math.max(40,cssH-Math.max(HUD_IN.top,bar)-Math.max(HUD_IN.bottom,bar));
+  const wFill=cssW*Math.min(band.foot-band.top,C.fitH||PUSH_H)/free,tx=C.xn!=null?C.xn:C.x;if(wFill>=wOld-1)return null;
+  const x0=tx-wOld/2,x1=tx+wOld/2,ex=S.ex&&S.ex.on,K=hero(),m=46;let lo=1e9,hi=-1e9,yt=1e9,yf=-1e9;
+  for(const f of S.F){if(f.gone||f.hidden||f.offstage||!f.p||(ex&&f!==K))continue;const c=prjX(f.p[PEL].x,f.dep);if(!Number.isFinite(c)||c<x0-30||c>x1+30)continue;
+    for(const p of f.p){const x=prjX(p.x,f.dep),y=prjY(p.y,f.dep);if(x<lo)lo=x;if(x>hi)hi=x;if(y<yt)yt=y;if(y>yf)yf=y;}}
+  if(lo<=hi){lo=Math.max(lo-m,x0);hi=Math.min(hi+m,x1);}
+  const w=clamp(Math.max(wFill,lo<=hi?hi-lo:0,300),Math.min(300,wOld),wOld);
+  let x=tx;if(lo<=hi){const a=hi-w/2,b=lo+w/2;x=a<=b?clamp(x,a,b):(a+b)/2;}
+  return{w,x:clamp(x,x0+w/2,x1-w/2),lo,hi,band,mid:lo<=hi?(yt-30+yf+24)/2:null};}
 {const uc=updateCamera;updateCamera=function(rdt){const C=S.camCut;if(!C){uc(rdt);return;}
-  const narrow=cssW<640,w=clamp(narrow&&C.wn?C.wn:C.w*(narrow?Math.min(1,700/C.w):1),narrow&&C.wn?200:300,W),k=C.k?Math.min(1,rdt*C.k):1;
-  cam.viewW+=(w-cam.viewW)*k;const x=clamp(narrow&&C.xn!=null?C.xn:C.x,cam.viewW/2-130,W-cam.viewW/2+200);cam.x+=(x-cam.x)*k;};}
+  const narrow=cssW<640,wOld=clamp(narrow&&C.wn?C.wn:C.w*(narrow?Math.min(1,700/C.w):1),narrow&&C.wn?200:300,W),F=C.fit=camCutFit(C,wOld);
+  let w=wOld,tx=narrow&&C.xn!=null?C.xn:C.x,k=C.k?Math.min(1,rdt*C.k):1;
+  // (a cut, k 0, lands at once and then follows; a scene's own glide goes on at its own rate)
+  if(F){if(!C.fitOn){C.fitOn=true;if(!C.k)cam.cut=true;}
+    else if(!C.k){if(reduceMotion){const h=cam.viewW/2;k=F.lo<=F.hi&&(F.lo<cam.x-h||F.hi>cam.x+h)||Math.abs(F.w-cam.viewW)>F.w*.2?1:0;if(k)cam.cut=true;}
+      else k=Math.min(1,rdt*2.2);}
+    w=F.w;tx=F.x;}
+  cam.viewW+=(w-cam.viewW)*k;const x=clamp(tx,cam.viewW/2-130,W-cam.viewW/2+200);cam.x+=(x-cam.x)*k;};}
 
 // on a moving road the camera keeps to the riders still in the fight (whole bikes, not just the men on them), never to the ones
 // the road has taken (and pushes in for the action on an upright phone, camNarrowW in sk_ui.js)
