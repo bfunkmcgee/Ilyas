@@ -71,6 +71,9 @@ function camBand(){
   let top=1e9,foot=-1e9;
   for(const f of S.F){if(f.gone||f.entering||f.hidden||!f.p||!f.gr)continue;const x=f.p[PEL].x,y=prjY(f.gr(x),f.dep);if(!Number.isFinite(y))continue;
     if(y-140<top)top=y-140;if(y+22>foot)foot=y+22;}
+  // a ground can ask for more of itself over the fight to be kept in view where the screen has the room (the bistro's fascia over
+  // Lamplight Street); not in the push-in, which frames the fighters alone
+  const L=!S.classicLook&&typeof EnvLook!=='undefined'&&EnvLook.S&&EnvLook.S[S.arenaKey];if(L&&L.lookUp!=null&&top<foot&&!camPush())top=Math.min(top,L.lookUp);
   return top<foot?{top,foot}:BAND0;}
 function camTarget(){
   const s=cssW/Math.max(1,cam.viewW),it=HUD_IN.top,ib=HUD_IN.bottom,b=camBand(),free=Math.max(40,cssH-it-ib);

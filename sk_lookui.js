@@ -1083,13 +1083,45 @@ FigKit.folds(c,L.tb,env,far?foldFar:foldCol);tear(side>0?'legN':'legF',L.tb.p,fa
     const hotH=shredOn(cc,look,SPs,(uu,vv)=>mix(lineAt([Sh.A0,Sh.Wf,Sh.Kf,Sh.Bh],vv),lineAt([Sh.top,Sh.U,Sh.L,Sh.Fh],vv),.08+uu*.84),shred,now,k,sz,'#07060a',!!Ly);
     if(Ly)layerClose(c,Ly);shredHot(c,hotH,now,sz);
     tornTrim(c,look,env,[Sh.U,Sh.L,Sh.Fh],lod,.9,shred,now,55);for(const run of hemS.runs)goldLine(c,look,env,run,lod,.9);};
+  // the front of the coat swept back with his near hand (F.coatOpen 0..1, in profile only): from the shoulder seam down his side to
+  // the hip it turns back on itself, its front edge in his hand behind his hip and its corner hanging under the hand, showing its
+  // lining; on the lining a leather loop with a brass buckle and the grenade strapped in it while it is there (K.grenade==='coat'),
+  // the loop empty once it is out
+  const flap=coatOn&&!TN&&!WEAR&&!ONE?ease(F.coatOpen||0):0;
+  const flapDraw=()=>{if(!(flap>.01))return;const h=p[HAF],H0=at(T*.93,.6),H1=at(-T*.12,.2),E0=at(T*.9,7.4*D),E1=at(T*.56,8.8*D),E2=at(-T*.1,5.4);
+    const O1=V(h.x+fa*1.4*sz,h.y-1.2*sz),O0=add(mix(at(T*.9,-4.5),O1,.18),V(0,-1.5*sz)),O2=V(h.x-fa*2.4*sz+Math.sin(now*3.1)*.8*sz,h.y+21*sz);
+    const F0=mix(E0,O0,flap),F1=mix(E1,O1,flap),F2=mix(E2,O2,flap),inside=dot(sub(F1,mix(H0,H1,.42)),n0)<0;
+    const P=new Path2D();P.moveTo(H0.x,H0.y);curveThrough(P,[H0,F0,F1,F2],.42);P.lineTo(H1.x,H1.y);P.closePath();
+    const fAt=(u,v)=>{const hv=mix(H0,H1,v),ev=v<.4?mix(F0,F1,v/.4):mix(F1,F2,(v-.4)/.6);return mix(hv,ev,u);};
+    if(!inside){env.far=false;look.paint(c,[{p:P,c:mix(H0,F1,.5),r:Math.max(4,len(sub(F1,H0))*.4)}],'coat',env);return;}
+    // the lining: its own colour, in the shade of the coat at the hinge and catching the light toward the edge; quilted in diamonds
+    const lc=tone(look,'lining',false,0)||'#45d8c8',ld=tone(look,'lining',false,1)||mix(lc,'#000000',.45),mH=mix(H0,H1,.5),mE=fAt(1,.45);
+    c.save();c.fillStyle=lc;c.fill(P);c.clip(P);
+    const g=c.createLinearGradient(mH.x,mH.y,mE.x,mE.y);g.addColorStop(0,'rgba(0,0,0,.62)');g.addColorStop(.55,'rgba(0,0,0,.25)');g.addColorStop(1,'rgba(0,0,0,.05)');c.fillStyle=g;c.fill(P);
+    if(lod>=1||k>1.6){c.strokeStyle=mix(ld,'#000000',.2);c.globalAlpha=.5;c.lineWidth=Math.max(.35,.5/k);c.beginPath();
+      for(let i=-3;i<=6;i++){const a=fAt(0,i*.16),b=fAt(1,i*.16+.32),a2=fAt(0,i*.16+.32),b2=fAt(1,i*.16);c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.moveTo(a2.x,a2.y);c.lineTo(b2.x,b2.y);}c.stroke();c.globalAlpha=1;}
+    // the facing along the front edge (the coat's own cloth turned in), and its gold
+    c.strokeStyle=tone(look,'coat',false,0);c.lineWidth=3.2*sz;c.beginPath();c.moveTo(F0.x,F0.y);curveThrough(c,[F0,F1,F2],.42);c.stroke();
+    c.restore();
+    goldLine(c,look,env,[F0,mix(F0,F1,.5),F1,mix(F1,F2,.5),F2],lod,.9);
+    // the loop sewn across the lining, and the grenade in it
+    if(flap>.3){const nade=F.nade??F.grenade==='coat',G=fAt(.58,.27),ax=nrm(sub(fAt(.58,.4),G)),bx=perp(ax),gs=sz*1.15,A=add(G,mul(bx,-5.4*gs)),B=add(G,mul(bx,5.4*gs)),al=cl((flap-.3)/.25,0,1);
+      c.save();c.globalAlpha*=al;
+      if(nade){c.save();c.translate(G.x,G.y);c.rotate(Math.atan2(ax.y,ax.x)-Math.PI/2);c.fillStyle='#2b3324';c.strokeStyle='#0a0c08';c.lineWidth=Math.max(.5,.8*gs);
+        c.beginPath();c.ellipse(0,0,3.1*gs,3.9*gs,0,0,TAU);c.fill();c.stroke();c.strokeStyle=look.col.rim||'#ffcf86';c.globalAlpha*=.55;c.lineWidth=Math.max(.4,.5*gs);c.beginPath();c.ellipse(0,0,3.1*gs,3.9*gs,0,Math.PI*1.05,Math.PI*1.75);c.stroke();c.globalAlpha/=.55;c.fillStyle='rgba(190,210,150,.22)';c.beginPath();c.ellipse(-1*gs,-1.2*gs,1.1*gs,1.7*gs,0,0,TAU);c.fill();
+        c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.3,.4*gs);for(const yy of [-1.6,0,1.6]){c.beginPath();c.moveTo(-3*gs,yy*gs);c.lineTo(3*gs,yy*gs);c.stroke();}
+        c.fillStyle='#8e95a3';c.fillRect(-1.3*gs,-5.6*gs,2.6*gs,2*gs);c.fillRect(1*gs,-5.4*gs,1*gs,5.2*gs);c.strokeStyle='#c8ccd4';c.lineWidth=Math.max(.4,.6*gs);c.beginPath();c.arc(-2.2*gs,-5*gs,1.4*gs,0,TAU);c.stroke();c.restore();}
+      c.strokeStyle='#1e130b';c.lineWidth=2.6*gs;c.lineCap='butt';c.beginPath();c.moveTo(A.x,A.y);c.quadraticCurveTo(G.x+ax.x*(nade?-1.2:.8)*gs,G.y+ax.y*(nade?-1.2:.8)*gs,B.x,B.y);c.stroke();
+      c.strokeStyle='rgba(255,220,170,.22)';c.lineWidth=.5*gs;c.beginPath();c.moveTo(A.x-ax.x*1.1*gs,A.y-ax.y*1.1*gs);c.quadraticCurveTo(G.x-ax.x*2.2*gs,G.y-ax.y*2.2*gs,B.x-ax.x*1.1*gs,B.y-ax.y*1.1*gs);c.stroke();
+      const bq=mix(A,B,.82);c.fillStyle=tone(look,'gold',false,0)||'#e2b65a';c.fillRect(bq.x-1.3*gs,bq.y-1.6*gs,2.6*gs,3.2*gs);c.fillStyle='#1e130b';c.fillRect(bq.x-.5*gs,bq.y-.9*gs,1*gs,1.8*gs);
+      c.restore();}};
   // (in profile his head can still turn on its own: o.headYaw, a scene's turn of the head alone, f.headTurn)
   const head=()=>drawHead(c,F,look,hair,env,lod,o,sz,TN?{h:p[HEAD],C0:p[CHE],fa,hy:o.headYaw??FigKit.headYaw(yaw)}:o.headYaw?{h:p[HEAD],C0:p[CHE],fa,hy:o.headYaw}:null);
 
   if(!TN){
     // in profile: the far arm, the far leg, the seat, the coat's skirt, the near leg, the neck, the torso, the head, the near arm
     if(ONE)weaponArm(true);else farArm(true);leg(KNB,FTB,-1,true);seat();if(skirtDraw&&!skirtOver)skirtDraw();leg(KNF,FTF,1,false);if(skirtDraw&&skirtOver)skirtDraw();
-    neck();torso();if(o.afterTorso)o.afterTorso(F);shieldDraw();head();if(ONE)lostArm();else nearArm(false);}
+    neck();torso();if(o.afterTorso)o.afterTorso(F);shieldDraw();flapDraw();head();if(ONE)lostArm();else nearArm(false);}
   else{
     // turned: the arms and legs in the order of how far toward the viewer each is, the ones behind him first; the coat's skirt round
     // the legs (nearly side on, the near leg still steps in front of it, as in profile)
@@ -1297,7 +1329,7 @@ function snap(f,extra={}){
   return Object.assign({p:f.p.map(q=>V(q.x,q.y)),facing:f.facing,body:{...f.body},scarf:(f.scarf||[]).map(q=>V(q.x,q.y)),weaponKey:f.weaponKey,
     arcSt:st?{...st}:null,sidearm:f.sidearm,dead:f.dead,downed:f.downed,severed:f.severed,lookBack:f.look&&typeof tacLook==='function'?tacLook(f)<-.4:false,
     ground:Math.max(f.gr(f.p[FTF].x),f.gr(f.p[FTB].x)),t:typeof S!=='undefined'?S.t:0,dep:f.dep,opening:typeof S!=='undefined'&&S.opening&&S.opening.f===f,
-    coatShield:f.coatShield,coatShred:f.coatShred,coatOff:f.coatOff,charge:f.charge,hemTears:f.hemTears,armOff:f.armOff,armTear:f.armTear,wear:f.wear,oneArm:f.oneArm,seared:f.seared,drain:f.drain,eyeLit:f.eyeLit,phantom:f.phantom},extra);}
+    coatShield:f.coatShield,coatOpen:f.coatOpen,nade:f.grenade==='coat',coatShred:f.coatShred,coatOff:f.coatOff,charge:f.charge,hemTears:f.hemTears,armOff:f.armOff,armTear:f.armTear,wear:f.wear,oneArm:f.oneArm,seared:f.seared,drain:f.drain,eyeLit:f.eyeLit,phantom:f.phantom},extra);}
 // drawing needs Path2D and a context that reports its transform; without them (the headless checks) Kael keeps the old figure
 const ok=typeof Path2D==='function'&&typeof CanvasRenderingContext2D!=='undefined'&&!!CanvasRenderingContext2D.prototype.getTransform;
 return{draw,snap,cfg,ok,rng,LOOKS,OUTFITS,HAIRS,seen:SEEN,capsule,piece,coatTargets,hemLine,COAT,coatCloth,coatClothStep,coatFly,CLOTH,armPiece,windK,WIND,bareTube,armFront,MUS};
@@ -1319,6 +1351,9 @@ function kaelWind(f){const sc=S.arena&&S.arena.scroll?(S.scrollV||0):0;
   if(f.mount)return -((f.mount.vx||0)+sc);
   if(S.arenaKey==='tunnel')return -sc;
   for(const T of S.veh||[])if(T.kind==='train'&&T.riders&&T.riders.includes(f))return -((T.v||0)+sc);
+  // the bistro's blast goes past him for a moment, away from its door
+  if(S.arenaKey==='street'&&typeof S.bistroBlast==='number'){const u=S.t-S.bistroBlast,L=u>0&&u<1.4&&typeof EnvLook!=='undefined'&&EnvLook.S.street&&EnvLook.S.street.doorAt?EnvLook.S.street.doorAt():null;
+    if(L){const dx=f.p[PEL].x+f.dep*PSX-(L.x+L.dep*PSX);return Math.sign(dx||1)*900*Math.exp(-u*2.6)*Math.min(1,u*12);}}
   return 0;}
 function drawKael(f){
   const L=kaelLight(f),drawing=f.sheath&&S.t<f.sheath.t0+f.sheath.out&&f.scab===f.weaponKey;

@@ -312,6 +312,37 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     SD.sand.line===2&&Math.abs(SD.sand.dur-SD.want)<.06&&SD.sand.strokes>40&&SD.sand.strokesOff===0&&SD.y1>SD.y0+8,JSON.stringify({...SD.sand,y0:SD.y0,y1:SD.y1}));
   expect('he rides off the right edge of the picture, and the field begins with him on foot where it always has',
     SD.bx>900&&SD.after.key==='field'&&!SD.after.mount&&SD.after.lean&&SD.after.x===228&&SD.after.z===138,JSON.stringify({bx:SD.bx,...SD.after}));
+  // ---- Lamplight Street (since V75): drawn to the size of the people on it, the fight on the bistro's flags, the coat swept back on
+  // the grenade, the pin, the toss, the turn and the throw over the shoulder, the blast, the walk in ----
+  const LS=await ev(()=>{const out={};const L=EnvLook.S.street,D=L.doorAt();out.door=D;
+    // the steps the painter draws are the street's own ground
+    out.steps=BISTRO_STEPS.map(([a,b,d0,h],i)=>({on:GB-KERB_H-ARENAS.street.ground((a+b)/2,d0+1),below:GB-KERB_H-ARENAS.street.ground((a+b)/2,d0-1),h,prev:i?BISTRO_STEPS[i-1][3]:0}));
+    try{storyGo('vargo');S.storyAuto=true;S.auto=true;step(2);const K=hero(),V=S.F[1];
+      let n=0,camOK=true;while(S.story&&S.story.key==='vargo'&&S.story.step!=='fight'&&n<6000){step(1);n++;if(!Number.isFinite(cam.T))camOK=false;if(n===2){out.qadir={dep:V.dep,sx:prjX(V.station,V.dep),door:prjX(D.x,D.dep)};}if(S.say&&n%20===0)storyAdvance();}
+      out.camOK=camOK;out.fight={kz:Math.round(K.lane),vz:Math.round(V.lane)};
+      const seen={open:0,nadeOpen:false,up:0,pin:false,turned:false,blown:false,walkAway:0,inDep:0,lit:false,l0:null,l1:null};let throwX=null;
+      while(S.story&&S.story.key==='vargo'&&n<60000){step(1);n++;if(S.say&&n%20===0)storyAdvance();
+        if(S.story.step!=='outro')continue;
+        seen.open=Math.max(seen.open,K.coatOpen||0);if((K.coatOpen||0)>=1&&K.grenade==='coat')seen.nadeOpen=true;seen.up=Math.max(seen.up,K.nadeUp||0);
+        if(S.thrown.some(o=>o.kind==='pin'))seen.pin=true;
+        const g=S.thrown.find(o=>o.kind==='grenade');if(g&&throwX==null){throwX=g.x;seen.turned=K.facing===1;seen.throwSt=K.station;}
+        if(seen.open>=1&&seen.l0==null){drawAll(()=>step(1));seen.l0=FXL.dbg().lights;}
+        if(S.bistro==='blown'&&!seen.blown){seen.blown=true;seen.blastX=Math.round(K.station);seen.tb=S.t;}
+        if(seen.blown&&!seen.lit&&S.t>seen.tb+2.5){drawAll(()=>step(1));seen.l1=FXL.dbg().lights;seen.lit=seen.l1>seen.l0;}
+        if(throwX!=null&&!seen.blown||seen.blown&&K.facing===1)seen.walkAway=Math.max(seen.walkAway,Math.round(K.station-seen.throwSt));
+        if(seen.blown&&!K.offstage&&K.dep>(seen.inDep||0)){seen.inDep=+K.dep.toFixed(1);seen.inX=Math.round(prjX(K.station,K.dep));}
+        if(K.offstage&&seen.blown)break;}
+      out.seen=seen;}
+    finally{storyQuit();}
+    return out;});
+  expect('Lamplight Street: the steps the bistro\'s painter draws are the street\'s own ground, each at its height',
+    LS.steps.length===2&&LS.steps.every(q=>Math.abs(q.on-q.h)<.01&&Math.abs(q.below-q.prev)<.01),JSON.stringify(LS.steps));
+  expect('Qadir waits at his door, at the foot of his steps, and they fight on the bistro\'s flags; the camera stays sound the whole way in',
+    LS.qadir.dep>=190&&Math.abs(LS.qadir.sx-LS.qadir.door)<14&&LS.fight.kz>=140&&LS.fight.vz>=140&&LS.camOK,JSON.stringify({q:LS.qadir,f:LS.fight,cam:LS.camOK}));
+  expect('after it he sweeps his coat back on the grenade strapped inside, takes it, pulls the pin (the ring flies) and tosses it up and catches it',
+    LS.seen.open>=1&&LS.seen.nadeOpen&&LS.seen.pin&&LS.seen.up>20,JSON.stringify(LS.seen));
+  expect('he throws it with his back to the door, walks away as it goes off, the fire lights the street, and he goes in through the doorway',
+    LS.seen.turned&&LS.seen.blown&&LS.seen.walkAway>40&&LS.seen.lit&&LS.seen.inDep>LS.door.dep-14&&Math.abs(LS.seen.inX-(LS.door.x+LS.door.dep*.2))<30,JSON.stringify(LS.seen));
   expect('no page errors',pageErrs.length===0,pageErrs.slice(0,3).join(' | '));
   console.log(rep.join('\n'));console.log(errs.length?`\n${errs.length} FAILED`:`\nall ${rep.length} checks passed`);
   await b.close();process.exit(errs.length?1:0);

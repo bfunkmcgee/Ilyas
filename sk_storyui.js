@@ -69,10 +69,10 @@ function storyQuiet(){return!!(S.story&&(S.game.phase==='cut'||S.story.step!=='f
 {const dl=drawLabels;drawLabels=function(){if(!storyQuiet())dl();};}
 
 // ---------- the scene's camera ----------
-// a scene sets where the camera looks and how wide (and, if it wants, where and how wide on a narrow screen: C.xn, C.wn); it eases
-// there at the scene's own rate
+// a scene sets where the camera looks and how wide (and, if it wants, where and how wide on a narrow screen: C.xn, C.wn, which may
+// come as close as 200 units across, a close-up on an upright phone); it eases there at the scene's own rate
 {const uc=updateCamera;updateCamera=function(rdt){const C=S.camCut;if(!C){uc(rdt);return;}
-  const narrow=cssW<640,w=clamp(narrow&&C.wn?C.wn:C.w*(narrow?Math.min(1,700/C.w):1),300,W),k=C.k?Math.min(1,rdt*C.k):1;
+  const narrow=cssW<640,w=clamp(narrow&&C.wn?C.wn:C.w*(narrow?Math.min(1,700/C.w):1),narrow&&C.wn?200:300,W),k=C.k?Math.min(1,rdt*C.k):1;
   cam.viewW+=(w-cam.viewW)*k;const x=clamp(narrow&&C.xn!=null?C.xn:C.x,cam.viewW/2-130,W-cam.viewW/2+200);cam.x+=(x-cam.x)*k;};}
 
 // on a moving road the camera keeps to the riders still in the fight (whole bikes, not just the men on them), never to the ones
@@ -123,8 +123,8 @@ function drawStoryScreen(){
       g.addColorStop(0,'rgba(14,9,4,0)');g.addColorStop(.5,`rgba(14,9,4,${(.45*dk).toFixed(3)})`);g.addColorStop(1,'rgba(14,9,4,0)');
       ctx.save();ctx.shadowBlur=0;ctx.shadowColor='rgba(0,0,0,0)';ctx.fillStyle=g;ctx.fillRect(0,y0,w,y1-y0);ctx.restore();}
     lines.forEach((l,i)=>ctx.fillText(l,w/2,h*.78+(i-(lines.length-1)/2)*34*s));ctx.restore();}
-  // a blast whites out the picture for a moment
-  for(const b of S.booms){const u=S.t-b.t0;if(u>=0&&u<.35){ctx.fillStyle=`rgba(255,236,200,${(.55*(1-u/.35)*Math.min(1,b.size)).toFixed(3)})`;ctx.fillRect(0,0,w,h);}}
+  // a blast whites out the picture for a moment (softly, with reduced motion)
+  for(const b of S.booms){const u=S.t-b.t0;if(u>=0&&u<.35){ctx.fillStyle=`rgba(255,236,200,${((reduceMotion?.18:.55)*(1-u/.35)*Math.min(1,b.size)).toFixed(3)})`;ctx.fillRect(0,0,w,h);}}
   // the dialogue box and skip button follow the sim's state
   const sy=S.say,el=ST_UI.say;
   if(el){if(sy){el.hidden=false;$('stWho').textContent=sy.who;$('stWho').style.color=sy.col||storyCol(sy.who);$('stLine').textContent=sy.text.slice(0,storyShown(sy));el.classList.toggle('done',storyShown(sy)>=sy.text.length);}else el.hidden=true;}
@@ -136,8 +136,11 @@ function storyCol(who){const f=S.F.find(x=>x.name===who);return f?(f.idx===0?'#7
 {const ei=envItems;envItems=function(items){ei(items);for(const B of S.veh)if(B.x>-600)items.push({d:B.dep+.02,veh:B});
   for(const F of S.fires||[])items.push({d:F.dep-.01,fire:F});for(const b of S.booms)items.push({d:b.dep-1,boom:b});for(const o of S.thrown||[])items.push({d:o.dep-.02,thrown:o});for(const C of S.cloths||[])items.push({d:(C.dep||100)-.03,cloth:C});};}
 {const de=drawEnvItem;drawEnvItem=function(it){if(it.veh){drawVehicle(it.veh);return true;}if(it.fire){drawFire(it.fire);return true;}if(it.boom){drawBoom(it.boom);return true;}if(it.thrown){drawThrown(it.thrown);return true;}if(it.cloth){if(typeof KaelLook!=='undefined'&&KaelLook.coatFly){const C=it.cloth;ctx.save();ctx.translate(C.dep*PSX,-C.dep*PSY);try{KaelLook.coatFly(ctx,C,{now:S.t,dir:{x:.2,y:-1}});}catch(e){}ctx.restore();}return true;}return de(it);};}
-// a grenade in the air or rolling: the body, the lever, the ring gone
-function drawThrown(o){const q=P(o.x,o.y,o.dep);ctx.save();ctx.translate(q.x,q.y);ctx.rotate(o.ang);ctx.fillStyle='#2b3324';ctx.strokeStyle='#0a0c08';ctx.lineWidth=.8;
+// a grenade in the air or rolling: the body, the lever, the ring gone; or its pin and ring (kind 'pin'), flicked away, glinting as it turns
+function drawThrown(o){const q=P(o.x,o.y,o.dep);ctx.save();ctx.translate(q.x,q.y);ctx.rotate(o.ang);
+  if(o.kind==='pin'){ctx.strokeStyle='#c8ccd4';ctx.lineWidth=.7;ctx.beginPath();ctx.arc(0,0,1.5,0,TAU);ctx.stroke();ctx.fillStyle='#9aa0aa';ctx.fillRect(1.2,-.35,3.4,.7);
+    const gl=Math.abs(Math.sin(o.ang*1.3));if(gl>.8){ctx.fillStyle=`rgba(255,250,235,${((gl-.8)*4).toFixed(2)})`;ctx.fillRect(-.7,-2,1.4,1.4);}ctx.restore();return;}
+  ctx.fillStyle='#2b3324';ctx.strokeStyle='#0a0c08';ctx.lineWidth=.8;
   ctx.beginPath();ctx.ellipse(0,0,3.2,4,0,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#8e95a3';ctx.fillRect(-1.3,-5.8,2.6,2);
   // the fuse burning in its last second
   if(o.fuse-S.t<1){ctx.fillStyle=`rgba(255,180,80,${.5+.5*Math.sin(S.t*40)})`;ctx.beginPath();ctx.arc(0,-6.4,1.2,0,TAU);ctx.fill();}ctx.restore();}
@@ -307,9 +310,10 @@ function beastArm(k){return typeof BeastLook!=='undefined'&&BeastLook.weapon&&Be
   if(f.pitClip!=null&&S.arenaKey==='station'){const SL=stationLook();if(SL&&SL.pitClip){ctx.save();ctx.translate(-f.dep*PSX,f.dep*PSY);SL.pitClip(ctx,f.pitClip);ctx.translate(f.dep*PSX,-f.dep*PSY);
     const pc=f.pitClip;f.pitClip=null;try{drawFighter(f);}finally{f.pitClip=pc;ctx.restore();}return;}}
   if(f.beast&&typeof BeastLook!=='undefined'&&BeastLook.draw&&!S.classicLook){drawBeast(f);return;}
-  df(f);if(f.grenade==='belt'||f.grenade==='hand'){const q=f.grenade==='hand'?{x:f.p[HAF].x,y:f.p[HAF].y}:grenadeAt(f);
-  ctx.save();ctx.fillStyle='#2b3324';ctx.strokeStyle='#0a0c08';ctx.lineWidth=.8;ctx.beginPath();ctx.ellipse(q.x,q.y,3.1,3.9,0,0,TAU);ctx.fill();ctx.stroke();
-  ctx.fillStyle='#8e95a3';ctx.fillRect(q.x-1.3,q.y-5.6,2.6,2);ctx.strokeStyle='#c8ccd4';ctx.lineWidth=.6;ctx.beginPath();ctx.arc(q.x+2.2,q.y-5,1.4,0,TAU);ctx.stroke();ctx.restore();}};}
+  // (in a hand: f.nadeUp lifts it off the palm and f.nadeAng turns it, tossed up and caught; f.nadePin: the pin is out)
+  df(f);if(f.grenade==='belt'||f.grenade==='hand'){const hand=f.grenade==='hand',q=hand?{x:f.p[HAF].x,y:f.p[HAF].y-(f.nadeUp||0)}:grenadeAt(f);
+  ctx.save();ctx.translate(q.x,q.y);if(hand&&f.nadeAng)ctx.rotate(f.nadeAng);ctx.fillStyle='#2b3324';ctx.strokeStyle='#0a0c08';ctx.lineWidth=.8;ctx.beginPath();ctx.ellipse(0,0,3.1,3.9,0,0,TAU);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#8e95a3';ctx.fillRect(-1.3,-5.6,2.6,2);if(!(hand&&f.nadePin)){ctx.strokeStyle='#c8ccd4';ctx.lineWidth=.6;ctx.beginPath();ctx.arc(2.2,-5,1.4,0,TAU);ctx.stroke();}ctx.restore();}};}
 // a plain bike for when the painter is not there: wheels, frame, tank and seat in silhouette
 function drawBikeStub(B){const pt=(x,y)=>{const q=bikeAt(B,x,y);return P(q.x,q.y,B.dep);},R=BIKE.R;
   ctx.save();ctx.lineCap='round';ctx.lineJoin='round';

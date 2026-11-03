@@ -333,10 +333,10 @@ function storyDuel(st){
   S.opening=null;S.rubble=[];S.debris=[];S.items=[];S.blood=[];S.stains=[];S.clinches=[];S.veh=[];S.booms=[];S.say=null;S.camCut=null;S.scroll=0;S.scrollV=st.scrollV||0;S.fade=0;S.thought=null;
   S.wall=S.arena.wall?{hp:3,state:'standing',breakBy:0,breakFrom:null,dir:1}:null;
   S.stage={phase:1,tr:null};S.finaleDone=false;S.endText=null;S.cfg.n=st.foes.length;S.cfg.crew=false;S.cfg.ally.on=false;
-  S.tableOn=!!st.table;S.divOn=!!st.divs;S.backroom=false;S.deep=false;S.bistro=S.story.flags.blown?'blown':'intact';
+  S.tableOn=!!st.table;S.divOn=!!st.divs;S.backroom=false;S.deep=false;S.bistro=S.story.flags.blown?'blown':'intact';S.bistroBlast=null;
   storyRoster(st);
   const sp=st.spawn,K=S.F[0],hw=S.cfg.hero.weapon;S.cfg.hero.weapon=STORY_KAEL.weapon;
-  S.F.forEach((f,i)=>initFighter(f,sp[i],sp));S.cfg.hero.weapon=hw;K.stow=false;K.arcRev=null;K.perch=null;K.grenade=S.story.flags.grenade?'coat':null;
+  S.F.forEach((f,i)=>initFighter(f,sp[i],sp));S.cfg.hero.weapon=hw;K.stow=false;K.arcRev=null;K.perch=null;K.grenade=S.story.flags.grenade?'coat':null;K.coatOpen=0;K.nadeUp=0;K.nadeAng=0;K.nadePin=false;
   K.zMax=null;K.hidden=false;K.pitClip=null;K.coatOff=!!S.story.flags.coatOff;K.coatShield=0;K.coatShred=0;K.charge=S.story.flags.coatOff&&!S.story.flags.charged?'belt':null;K.rideLift=false;K.drain=0;K.eyeLit=0;
   // between stages he gets some of his breath back: a third of his strength, never more than all of it
   K.maxHp=STORY_KAEL.hp;K.hp=SV.hp==null?K.maxHp:Math.min(K.maxHp,Math.round(SV.hp+K.maxHp*(SV.healAt===SV.key?0:.3)));SV.healAt=SV.key;K.sidearm='sheathed';
@@ -585,8 +585,9 @@ V11.step.push(apcStep);
 // S.booms are explosions (FxLook.boom draws them), S.fires the fires they leave. A blast throws everyone near it away from its
 // centre, harder the closer they stand.
 S.fires=[];
-// a fire burns on the ground it was lit on: every new fight, stage or lab bout starts without the last one's fires and blasts
-V11.duelStart.push(()=>{S.fires=[];S.booms=[];});
+// a fire burns on the ground it was lit on: every new fight, stage or lab bout starts without the last one's fires and blasts (and
+// the bistro's blast, whose moment the street's painter plays from S.bistroBlast)
+V11.duelStart.push(()=>{S.fires=[];S.booms=[];S.bistroBlast=null;});
 function boom(x,y,dep,size,kind,o={}){const b={x,y,dep,t0:S.t,size,seed:(S.rng()*1e9)|0,kind:kind||'fuel'};S.booms.push(b);
   S.shake=Math.max(S.shake,18*size);S.freeze=Math.max(S.freeze,.07);S.hooks.sound('boom',size,{kind:kind||'fuel'});if(!S.warming)S.punch={x:prjX(x,dep),t:0};
   // the living are knocked flat close in and staggered further out; the dead go where the blast sends them
@@ -790,7 +791,8 @@ STAGES.push({key:'roadblock',num:'III',title:'The Checkpoint',sub:'The Tower Dis
     // the pin's ring on his finger, the body of it in his palm: it comes off the belt
     yield* wait(.66);G.grenade=null;K.grenade='hand';S.hooks.sound('click',1,{s:'grenade_unclip'});
     yield* until(()=>!K.action,2);yield* wait(.2);
-    // into the coat: he opens it with the other hand and the grenade goes in an inside pocket
+    // into the coat: he opens it with the other hand and the grenade goes into a leather loop on its lining (where the bistro's
+    // outro finds it)
     K.action={t0:S.t,end:1,body:[{t:0,v:()=>easyBody(K)}],arm:[{t:0,v:K.curArm},{t:.35,v:{hand:{sh:[.12*a,.28*a]},wAng:1.4,off:{sh:[.3*a,.2*a]},tilt:.12},e:eOut},{t:.6,v:{hand:{sh:[.06*a,.3*a]},wAng:1.4,off:{sh:[.3*a,.22*a]},tilt:.12}},{t:1,v:easyArm(K),e:sstep}]};
     yield* wait(.55);K.grenade='coat';S.story.flags.grenade=true;
     yield* until(()=>!K.action,2);yield* wait(.2);
@@ -814,59 +816,90 @@ V11.step.push(()=>{for(let i=S.thrown.length-1;i>=0;i--){const o=S.thrown[i];
 V11.duelStart.push(()=>{S.thrown=[];});
 
 // ===== STAGE IV: LAMPLIGHT STREET =====
-// Qadir waits outside the bistro he runs for Hallowell, alone, on the steps of his own front door. They know each other. After it,
-// Kael takes the grenade out of his coat and opens the front door for himself.
-// the bistro's front doorway on the street (the street's painter says where; this is its place until it does)
-function bistroDoor(){const L=typeof EnvLook!=='undefined'&&EnvLook.S&&EnvLook.S.street;return L&&L.doorAt?L.doorAt():{x:209,dep:210,y:400};}
+// Qadir waits outside the bistro he runs for Hallowell, alone, at the foot of the steps up to his own front door. They know each
+// other, and they fight on the bistro's flags under its windows. After it Kael sweeps his coat open on the grenade he took off the
+// gunner, pulls the pin, turns his back on the door and sends it over his shoulder without a look, and walks away from the blast
+// before he goes in through what is left of the doorway.
+// the bistro's front doorway on the street (the street's painter says where; this is its place until it does): x and depth as the
+// game counts them, the sill on screen (y), the top of the arch and of the fascia
+function bistroDoor(){const L=typeof EnvLook!=='undefined'&&EnvLook.S&&EnvLook.S.street;return L&&L.doorAt?L.doorAt():{x:236,dep:210,y:280,top:97,fascia:60};}
+// the scene's camera at the bistro: camTo's x and width, and the band of the picture it keeps (world y as drawn, top to foot);
+// a phone held upright takes its own width (wn) and band (topN, footN: it has the height for the bistro's roofs over him)
+function bistroCam(x,w,k,top,foot,wn,topN,footN){camTo(x,w,k);Object.assign(S.camCut,{band:{top,foot},bandN:{top:topN??top-40,foot:footN??foot+30},wn:wn||null});}
+const flagsY=d=>prjY(GB-KERB_H,d);
 STAGES.push({key:'vargo',num:'IV',title:'Lamplight Street',sub:'Outside the Lantern Bistro, five to midnight',arena:'street',next:'dining',flagsOut:{grenade:false,blown:true},
   foes:[{name:'Qadir',seed:7001,weapon:'axe',skill:3,temper:'brute',hp:96}],
-  spawn:[[150,92],[380,104,1]],
+  spawn:[[150,150],[380,160,1]],
   setup(st){const K=hero(),V=S.F[1],D=bistroDoor();
-    standEasy(K);stowBlade(K);K.station=-70;K.lane=K.dep=K.stepDep=72;K.facing=1;K.offstage=true;K.build();
-    // on the steps of his own front door
-    standEasy(V);V.station=clamp(D.x+70,240,520);V.lane=V.dep=V.stepDep=150;V.facing=-1;V.build();V.homeX=st.spawn[1][0];V.homeZ=st.spawn[1][1];},
-  *intro(st){const K=hero(),V=S.F[1];
-    letter(1);camTo(330,760,0);
+    standEasy(K);stowBlade(K);K.station=-70;K.lane=K.dep=K.stepDep=st.spawn[0][1];K.facing=1;K.offstage=true;K.build();
+    // at the foot of the steps up to his own front door
+    standEasy(V);V.zMax=D.dep-12;V.station=D.x+4;V.lane=V.dep=V.stepDep=D.dep-16;V.facing=-1;V.build();V.homeX=st.spawn[1][0];V.homeZ=st.spawn[1][1];},
+  *intro(st){const K=hero(),V=S.F[1],D=bistroDoor();
+    letter(1);bistroCam(prjX(D.x,D.dep)-30,760,0,D.fascia-16,flagsY(140)+30,420,-72,flagsY(140)+40);
     yield* wait(.3);
     yield* goTo(K,st.spawn[0][0],st.spawn[0][1],86);K.offstage=false;
     yield* wait(.3);
     yield* speak('Qadir','Ilyas. I set your table. I hoped you’d come to eat.',{dur:3});
     yield* speak(HERO_NAME,'We drank from the same cup, Qadir.',{dur:2.2});
-    // down off the step to meet him
-    yield* goTo(V,V.homeX,V.homeZ,70);V.facing=-1;
+    // down off his doorstep to meet him
+    yield* goTo(V,V.homeX,V.homeZ,70);V.facing=-1;V.zMax=null;
     yield* speak('Qadir','Thirty years, and the family never once filled mine. Hallowell did.',{dur:3.4});
     yield* speak(HERO_NAME,'I met his money on the way here. It’s lying in the road.',{dur:3});
     yield* speak('Qadir','Then there’s only me left. Last orders, old friend.',{dur:2.8});
     yield* speak(HERO_NAME,'I’ll settle the bill.',{dur:1.8});
     yield* wait(.1);},
   introSkip(st){const K=hero(),V=S.F[1];K.station=st.spawn[0][0];K.lane=K.dep=st.spawn[0][1];K.offstage=false;K.facing=1;K.build();
-    V.station=V.homeX;V.lane=V.dep=V.homeZ;V.facing=-1;V.build();},
-  *outro(st){const K=hero(),D=bistroDoor(),a=K.arm;
-    letter(1);camTo(clamp((K.station+D.x)/2,300,600),780,1);
+    V.zMax=null;V.station=V.homeX;V.lane=V.dep=V.homeZ;V.facing=-1;V.build();},
+  *outro(st){const K=hero(),D=bistroDoor(),a=K.arm,dX=prjX(D.x,D.dep);
+    letter(1);bistroCam(clamp((prjX(K.station,K.dep)+dX)/2,300,600),760,1,D.fascia-16,flagsY(140)+30,440,-72,flagsY(140)+40);
     K.guarding=false;K.counter=false;
     yield* act(K,rollUpAction(K,S.t));stowBlade(K);standEasy(K);
     yield* wait(.3);
-    // to where he can see the door, square to it
-    const sx=clamp(D.x+150,200,560);yield* goTo(K,sx,96,80);K.facing=-1;
-    yield* wait(.4);
-    // the coat open, the grenade out of the inside pocket, the pin pulled with the other hand
-    yield* act(K,{t0:S.t,end:.9,body:[{t:0,v:()=>easyBody(K)}],arm:[{t:0,v:easyArm(K)},{t:.3,v:{hand:{sh:[.06*a,.28*a]},wAng:1.4,off:{sh:[.3*a,.22*a]},tilt:.1},e:eOut},{t:.55,v:{hand:{sh:[.08*a,.3*a]},wAng:1.4,off:{sh:[.3*a,.22*a]},tilt:.1}},{t:.9,v:{hand:{sh:[.3*a,.1*a]},wAng:-.3,off:{sh:[.2*a,.4*a]},tilt:.05},e:sstep}]});
-    K.grenade='hand';S.hooks.sound('click',1,{s:'grenade_unclip'});
-    yield* act(K,{t0:S.t,end:.45,body:[{t:0,v:()=>easyBody(K)}],arm:[{t:0,v:K.curArm},{t:.25,v:{hand:{sh:[.3*a,.1*a]},wAng:-.3,off:{sh:[.32*a,.06*a]},tilt:.05},e:eOut},{t:.45,v:{hand:{sh:[.3*a,.1*a]},wAng:-.3,off:{sh:[-.1*a,.5*a]},tilt:.05},e:sstep}]});
-    S.hooks.sound('ping',1,{s:'grenade_pin'});
-    // an easy underarm toss, high, onto the step, and he turns away from it
-    const T={x:D.x,y:S.arena.ground(D.x,D.dep-8)-4,dep:D.dep-8};
-    const thr={t0:S.t,end:.7,body:[{t:0,v:()=>easyBody(K)},{t:.3,v:()=>({...easyBody(K),lean:.12})},{t:.7,v:()=>easyBody(K),e:sstep}],
-      arm:[{t:0,v:K.curArm},{t:.22,v:{hand:{sh:[-.2*a,.6*a]},wAng:1.6,off:{sh:[-.1*a,.5*a]},tilt:0},e:eOut},{t:.42,v:{hand:{sh:[.62*a,-.1*a]},wAng:-.6,off:{sh:[-.1*a,.5*a]},tilt:0},e:sstep},{t:.7,v:easyArm(K),e:sstep}]};
-    K.action=thr;yield* wait(.38);K.grenade=null;S.story.flags.grenade=false;
-    const gr=throwGrenade(K,T,.85,1.35);gr.size=1.15;gr.opts={spare:[K]};
-    gr.then=()=>{S.bistro='blown';S.bistroBlast=S.t;S.story.flags.blown=true;S.punch={x:prjX(D.x,D.dep),t:0};};
-    yield* wait(.5);K.facing=1;
+    // out onto the flags where he can see the door, square to it
+    const sx=clamp(D.x+176,270,610),sz=150;yield* goTo(K,sx,sz,80);K.facing=-1;
+    yield* wait(.3);
+    // the camera comes in on him
+    {const kx=prjX(K.station,K.dep),fy=flagsY(K.dep);bistroCam(kx-26,430,1.5,fy-176,fy+26,240,fy-206,fy+40);}
+    // his near hand takes the front edge of his coat and sweeps it back to his hip: on the lining, strapped in a leather loop, the grenade
+    const easy=easyArm(K),off={sh:[.08*a,.66*a]},chest={hand:{sh:[.26*a,.36*a]},wAng:1.1,off,tilt:.05},back={hand:{sh:[-.4*a,.78*a]},wAng:1.6,off,tilt:.1};
+    K.coatOpen=0;K.action={t0:S.t,end:.75,body:[{t:0,v:()=>easyBody(K)},{t:.45,v:()=>({...easyBody(K),lean:.1})},{t:.75,v:()=>({...easyBody(K),lean:.06})}],
+      arm:[{t:0,v:easy},{t:.24,v:chest,e:eOut},{t:.58,v:back,e:sstep},{t:.75,v:back}]};
+    {const t0=S.t;let swept=false;while(S.t<t0+.75){const u=(S.t-t0-.2)/.36;K.coatOpen=clamp(u,0,1);if(!swept&&u>0){swept=true;S.hooks.sound('coat_sweep',1);}yield;}K.coatOpen=1;}
+    yield* wait(.6);
+    // the same hand goes down the lining to the loop and comes up with it in his palm, and the coat falls to
+    K.action={t0:S.t,end:.62,body:[{t:0,v:()=>({...easyBody(K),lean:.06})},{t:.62,v:()=>easyBody(K),e:sstep}],
+      arm:[{t:0,v:back},{t:.22,v:{hand:{sh:[-.3*a,.6*a]},wAng:1.5,off,tilt:.1},e:sstep},{t:.62,v:{hand:{sh:[.32*a,.3*a]},wAng:-.2,off,tilt:.04},e:sstep}]};
+    yield* wait(.24);K.grenade='hand';S.hooks.sound('click',1,{s:'grenade_unclip'});
+    {const t0=S.t;while(S.t<t0+.34){K.coatOpen=1-sstep((S.t-t0)/.34);yield;}K.coatOpen=0;}
+    yield* until(()=>!K.action,1);
+    // the pin: the other hand's finger through the ring, a pull, and the ring flicked away off his finger, ringing on the flags
+    const hold={hand:{sh:[.32*a,.3*a]},wAng:-.2,off:{sh:[.36*a,.24*a]},tilt:.04};
+    yield* act(K,{t0:S.t,end:.42,body:[{t:0,v:()=>easyBody(K)}],arm:[{t:0,v:K.curArm},{t:.2,v:hold,e:eOut},{t:.32,v:{...hold,off:{sh:[.02*a,.3*a]}},e:eOut},{t:.42,v:{...hold,off:{sh:[-.08*a,.5*a]}},e:sstep}]});
+    {const h=K.p[HAB];K.nadePin=true;S.thrown.push({x:h.x,y:h.y-2,dep:K.dep+4,vx:-K.facing*60,vy:-210,vdep:-30,ang:0,spin:K.facing*26,t0:S.t,fuse:1e9,kind:'pin'});S.hooks.sound('ping',1,{s:'grenade_pin'});}
+    // up once off his palm, turning over, and caught
+    {const lo={hand:{sh:[.34*a,.4*a]},wAng:-.3,off:{sh:[-.04*a,.62*a]},tilt:.04},hi={...lo,hand:{sh:[.36*a,.22*a]}};
+      K.action={t0:S.t,end:.62,body:[{t:0,v:()=>easyBody(K)}],arm:[{t:0,v:K.curArm},{t:.12,v:lo,e:sstep},{t:.2,v:hi,e:eOut},{t:.48,v:lo,e:sstep},{t:.62,v:{...lo,hand:{sh:[.32*a,.32*a]}},e:sstep}]};
+      const t0=S.t+.18,T=.34,H=30;while(S.t<t0+T){const u=clamp((S.t-t0)/T,0,1);K.nadeUp=H*4*u*(1-u);K.nadeAng=Math.max(0,S.t-t0)*-K.facing*20;yield;}K.nadeUp=0;K.nadeAng=0;
+      yield* until(()=>!K.action,.5);}
+    yield* wait(.15);
+    // he turns his back on the door, and the grenade goes back over his shoulder without a look: high, turning over, onto the step
+    {const kx=prjX(K.station,K.dep);bistroCam((kx+dX)/2+30,760,1.2,D.fascia-16,flagsY(140)+30,440,-72,flagsY(140)+40);}
+    const T={x:D.x+2,y:S.arena.ground(D.x,D.dep-18)-4,dep:D.dep-18};
+    K.facing=1;
+    const wind={hand:{sh:[.22*a,.18*a]},wAng:.2,off:{sh:[.1*a,.6*a]},tilt:0},flick={hand:{sh:[-.34*a,-.62*a]},wAng:-1.7,off:{sh:[.14*a,.56*a]},tilt:-.06},
+      thr={t0:S.t,end:.95,body:[{t:0,v:()=>easyBody(K)},{t:.3,v:()=>({...easyBody(K),lean:.16})},{t:.95,v:()=>easyBody(K),e:sstep}],
+        arm:[{t:0,v:K.curArm},{t:.2,v:wind,e:sstep},{t:.44,v:flick,e:eOut},{t:.62,v:{...flick,hand:{sh:[-.2*a,-.4*a]}},e:sstep},{t:.95,v:easyArm(K),e:sstep}]};
+    K.action=thr;yield* wait(.42);K.grenade=null;K.nadePin=false;S.story.flags.grenade=false;
+    const gr=throwGrenade(K,T,1.0,1.6);gr.size=1.35;gr.spin=K.facing*16;gr.opts={spare:[K]};
+    gr.then=()=>{S.bistro='blown';S.bistroBlast=S.t;S.story.flags.blown=true;S.punch={x:dX,t:0};S.hooks.sound('glass',1.4);S.hooks.sound('rattle',1);};
+    // and he walks on, away from it, as it goes
+    yield* wait(.45);
+    yield* goTo(K,clamp(sx+70,330,720),sz-6,46);
     yield* until(()=>S.bistro==='blown',4);
-    yield* wait(1.4);
-    // and in through the hole
-    K.facing=-1;camTo(clamp(D.x+40,300,600),760,.8);
-    yield* goTo(K,D.x+10,clamp(D.dep-50,96,170),74);K.offstage=true;
+    yield* wait(1.7);
+    // and in through what is left
+    bistroCam(clamp(dX+40,300,600),760,.8,D.fascia-16,flagsY(140)+30,440,-72,flagsY(140)+40);
+    K.zMax=D.dep-4;yield* goTo(K,D.x+8,D.dep-24,74);yield* goTo(K,D.x+4,D.dep-6,48);yield* until(()=>K.dep>D.dep-12,1.5);K.offstage=true;K.zMax=null;
     yield* wait(.3);},
   outroSkip(st){}});
 

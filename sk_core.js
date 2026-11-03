@@ -15,8 +15,12 @@ function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a
 const PSX=.2,PSY=.75,DEP_MIN=12,DEP_MAX=170,GB=470;
 const prjX=(x,d)=>x+d*PSX,prjY=(y,d)=>y-d*PSY;
 const CURB0=120,CURB1=126,KERB_H=22;
+// the two granite steps up to the bistro's door, past where anyone fights (DEP_MAX): x from to, the depth each starts at, its height.
+// The street's painter draws them from its own numbers for the front (BG.steps in envx/env_street.js); the two agree.
+const BISTRO_STEPS=[[180,292,197,4.5],[185,287,204.5,9]];
+const streetStep=(x,d)=>{let h=0;if(d>196)for(const [a,b,d0,sh] of BISTRO_STEPS)if(d>=d0&&x>a&&x<b)h=sh;return h;};
 const ARENAS={
-  street:{label:'Street',name:'Lamplight Street',ground:(x,d)=>GB-KERB_H*clamp((d-CURB0)/(CURB1-CURB0),0,1),wall:null,far:190},
+  street:{label:'Street',name:'Lamplight Street',ground:(x,d)=>GB-KERB_H*clamp((d-CURB0)/(CURB1-CURB0),0,1)-streetStep(x,d),wall:null,far:190},
   field:{label:'Field',name:'Open Field',ground:()=>GB,wall:null,far:278},
   ledge:{label:'Ledge',name:'Broken Ledge',ground:x=>x<440?GB-50:x>500?GB:GB-50+sstep((x-440)/60)*50,wall:null,far:278},
   hill:{label:'Hillside',name:'Hillside',ground:x=>GB+18-x*.085,wall:null,far:278},

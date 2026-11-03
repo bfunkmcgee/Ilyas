@@ -108,6 +108,23 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   his desert, meant to be missed the first time (no sound, faint, quick). The fall's monologue is where the wire and the Rangers are
   said outright. The camera there has narrow-screen settings: `S.camCut.xn` (where it looks) and `S.camCut.bandN` (the band kept
   between the bars) next to `wn`; the lighting pass lights the outskirts from the low sun (sk_lightui.js `SC`, `MOON`).
+- Lamplight Street, `vargo` (since V75): the street is drawn to the size of the people on it, so a shop's door stands a head taller
+  than a man on the flags and the bistro's higher still. envx/env_street.js lays the houses out on screen and draws them `SK` (1.6)
+  times the size of their own numbers about their feet (`big()`, `inX`, `inY`, `outX`; `facade()` draws its body there and the lamps'
+  light on it on screen; `shopAt` the shopfronts, `o.doorAt` and `o.doorW` placing a door); the lamps are `LK` (1.4) times their old
+  size. The Lantern Bistro's front is drawn at full size from `BG` (its ends, the fascia, the two arched windows `W1` `W2`, the door
+  `DR`, the piers and their lanterns, the steps), and everything that touches it reads `BG`: the aftermath, the blast (`liveBlast`,
+  three seconds: the front lit, a ring over the flags, fire out of the door and both windows, the glass and the door's pieces thrown
+  out to where they lie, dust off the cornice, embers, the smoke; Lite throws half the pieces) and the story's door (`doorAt`, read
+  by `bistroDoor()`). The two steps are the street's own ground (`BISTRO_STEPS` in sk_core.js; past DEP_MAX, so no fight stands on
+  them). The fight is on the bistro's flags (spawn depths 150 and 160); Qadir waits at the foot of his steps (`V.zMax` lets him stand
+  deeper than DEP_MAX). A scene painter's `lookUp` (here the bistro's fascia) is how high the camera keeps the picture in view in a
+  fight where the screen has room (`camBand`, never in the push-in). The outro: his near hand sweeps the coat back (`K.coatOpen`,
+  drawn by KaelLook's `flapDraw`: its lining quilted, a leather loop on it and the grenade strapped in it while `K.grenade==='coat'`),
+  takes the grenade, the other hand pulls the pin (`K.nadePin`; the ring is a `S.thrown` of kind `'pin'`), a toss and a catch
+  (`K.nadeUp`, `K.nadeAng`), then he turns his back on the door and sends it back over his shoulder and walks away as it goes; the
+  blast's wind lifts his coat (`kaelWind`); the fire in the hole lights the street (a light of the moment, `FXL.lights`).
+  `node uiwork/look/vargo.js <page> <outprefix> w h dpr` shoots the stage at its moments.
 - The held sounds (sk_storyui.js, run from `V11UI.tick`): the bike's engine (`engineFrame`: the first bike in `S.veh` with `run`
   above 0 and near the picture; its level `ENG_LVL` x run, a quarter when far), the rails (`railFrame`) and the wind (`windFrame`).
   Each is one voice made once and set every frame. A held voice's modulation must work on a gain of its own ahead of the level,
@@ -635,6 +652,8 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 - `node uiwork/look/push.js <stage|lab_arena> <outprefix> [w h] [reduce]`: the push-in as a player meets it (since V74): the fight
   run to his turn, a move picked, the action played on in real time with his opening cards answered; shots of his turn, the action
   with no card up and his card up, with the camera's numbers, the layer's foot, scale and paint time, and `empty` below the top bar.
+- `node uiwork/look/vargo.js <page> <outprefix> <w> <h> <dpr> [marks]`: Lamplight Street from its intro to its outro at its moments on
+  auto (since V75): Qadir at his door, the fight, the coat swept back, the pin, the toss, the turn and throw, the blast at 0 to 3 s, the walk in.
 - `python3 uiwork/look/hues.py <out>`: from an audit's canvas pictures, each frame's share of the style guide's four colours (gold,
   sodium orange, cyan, white) in its lit picture, into hues.json; the guide's colour checks read it.
 - `python3 uiwork/look/faults.py <out>`: the drawing guide's two picture faults in each frame, into faults.json: flat lit patches
@@ -655,7 +674,8 @@ instance in V73 that breaks the two guides (133, in phase 3's order, each with a
 as the work lands); (3) the look held in one place in the code, in the style guide's order (the push-in, the look as data, one soft
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
-(the action's part of P5 to P29); the scenes' closer framing on a phone (P8, P11, P14, P16 to P23) is next.
+(the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
+Qadir fight onto the bistro's flags; the scenes' closer framing on a phone (P8, P11, P14, P16 to P23) is next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -707,12 +727,12 @@ reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V75 ..." (V74 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V76 ..." (V75 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V74: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V75: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 

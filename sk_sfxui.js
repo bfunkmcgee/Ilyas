@@ -48,7 +48,7 @@ const SFX_STAGE={
   chase:['amb_avenue_loop','bike_loop_low','bike_loop_high','bike_rival_loop','bike_rev','bike_crash','road_tumble'],
   roadblock:['amb_checkpoint_loop','apc_idle_loop','shot_mg','bullet_ground','rifle_draw','bike_into_apc','shot_rifle','boom_fuel','fire_loop','shot_pistol','ricochet',
     'hit_bullet','casing','bullet_whiz','gun_dryfire','concrete_slam','drop_gun','grenade_unclip','step_wet_stone','bike_rev','bike_loop_low','bike_loop_high'],
-  vargo:['amb_street_loop','grenade_unclip','grenade_pin','grenade_bounce','boom_grenade','step_wet_stone'],
+  vargo:['amb_street_loop','grenade_unclip','grenade_pin','grenade_bounce','boom_grenade','step_wet_stone','coat_sweep','glass_large','debris_rattle'],
   dining:['amb_dining_loop',...SFX_ROOMKIT,'step_wood'],
   kitchen:['amb_kitchen_loop','range_slam','sizzle',...SFX_ROOMKIT,'wall_latch','wall_slide','lift_bell','lift_doors','step_tile'],
   platform:['amb_station_loop','lift_bell','lift_doors','train_idle_loop','train_depart','rail_loop','rail_clack','step_tile'],
