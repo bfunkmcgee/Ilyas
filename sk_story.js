@@ -720,7 +720,7 @@ function rifleDip(f,A,dip,tilt){const L=f.wp.butt,[hx,hy]=A.hand.sh,a0=A.wAng,bx
   if(!isGun(this)||this.wp.gun.kind!=='rifle'||this.downed||this.mount)return g;
   const D=targetOf(this);if(!D)return g;const w=coverFrom(this,D),a=this.arm;
   if(this.guarding)return w&&!D.downed?brawlArm(this,{hand:{sh:[.16*a,.5*a]},wAng:-1.35,off:'grip',tilt:0}):g;
-  const A=aimArm(this,D,0);return brawlArm(this,w?rifleDip(this,A,.14,.6):rifleDip(this,A,.34,.3));};}
+  const A=aimArm(this,D,0);return brawlArm(this,w?rifleDip(this,A,.14,.3):rifleDip(this,A,.34,.1));};}
 // ---------- the burning carrier ----------
 // The wreck lies across the end of the road and nobody goes round behind it (since V85: an officer could step out along its flank
 // and behind it): along its length a man keeps to this side, APC_NEAR short of its depth. No move of the fight puts him there

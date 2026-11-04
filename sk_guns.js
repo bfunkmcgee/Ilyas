@@ -95,16 +95,15 @@ function launchShot(A,D,kind,ex){const shots=[];for(let i=0;i<shotCount(A,kind);
 function aimPoint(D){const P=D.p[PEL],C=D.p[CHE];return{x:lerp(P.x,C.x,.72),y:lerp(P.y,C.y,.72)};}
 // the pose that lays the gun on him: a rifle in the shoulder, a pistol out at arm's length in both hands, a submachine gun at the
 // chest. rc 0..1 is the kick of the round going out (the muzzle climbs, the hands come back)
-// (the rifle's butt is nested into the pocket at the front of his shoulder, under its top, not laid over it: the hand on the grip
-// half an arm ahead of his shoulder and a little below it; the tilt brings his head down and forward until his cheek is on the
-// stock and his eye behind the sight)
-const AIM={rifle:{hx:.52,hy:.15,tilt:.85,kick:.17,back:.08},pistol:{hx:.86,hy:-.05,tilt:.06,kick:.32,back:.1},smg:{hx:.5,hy:.12,tilt:.08,kick:.13,back:.05}};
+// (the rifle comes up to his eye, not his eye down to the rifle: the butt in the pocket at the front of his shoulder, the hand on
+// the grip a little over half an arm ahead of it, his head nearly upright with the cheek on the stock and the eye behind the sight)
+const AIM={rifle:{hx:.55,hy:.03,tilt:.25,kick:.17,back:.08},pistol:{hx:.86,hy:-.05,tilt:.06,kick:.32,back:.1},smg:{hx:.5,hy:.12,tilt:.08,kick:.13,back:.05}};
 function aimArm(A,D,rc){return aimArmAt(A,aimPoint(D),rc);}
 // the same, laid on a point (a scene's target: a fuel tank, a lock)
 function aimArmAt(A,T,rc){const a=A.arm,g=A.wp.gun,fa=A.facing,C=A.p[CHE],Q=AIM[g.kind]||AIM.pistol;
   const H={x:C.x+fa*Q.hx*a,y:C.y+Q.hy*a},ang=clamp(Math.atan2(T.y-H.y,Math.max(10,(T.x-H.x)*fa)),-1.15,1.15);
   return{hand:{sh:[(Q.hx-rc*Q.back)*a,(Q.hy-rc*.03)*a]},wAng:ang-rc*Q.kick,off:g.kind==='pistol'?{sh:[(Q.hx-.07-rc*Q.back)*a,(Q.hy+.05)*a]}:'grip',tilt:Q.tilt};}
-function aimBody(A){const b=A.guardBody(),r=A.wp.gun.kind==='rifle';return{...b,crouch:b.crouch-(r?.02:.01),lean:r?b.lean*.5+.23:b.lean*.4+.03,stF:b.stF*1.08,stB:b.stB*1.08};}
+function aimBody(A){const b=A.guardBody(),r=A.wp.gun.kind==='rifle';return{...b,crouch:b.crouch-(r?.02:.01),lean:r?b.lean*.5+.15:b.lean*.4+.03,stF:b.stF*1.08,stB:b.stB*1.08};}
 // the gun comes up, settles, fires (each round's kick), holds on him a moment, comes down
 function planShot(A,D,kind,shots){const K=SHOT[kind],g=A.wp.gun,tAim=K.aim*(A.skill>=4?.85:1),gap=kind==='double'?(g.burst?.075:K.gap):0;
   const fireT=shots.map((s,i)=>tAim+i*gap),last=fireT[fireT.length-1],Tend=last+.66,aim=()=>aimArm(A,D,0);
