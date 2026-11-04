@@ -311,6 +311,25 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     out.styles=[...st];out.lines=document.querySelectorAll('#log .lg-note').length-n0;return out;});
   expect('the fight\'s words: never more than two over the fighters (the move\'s name and its result) though the game says more at once, both in Alegreya SC in cream, a hit\'s word with its damage beside it; the rest goes to the log',
     wd.frames>800&&wd.max<=2&&wd.two>0&&wd.said>2&&wd.withDmg>0&&wd.styles.length>0&&wd.styles.every(s=>/Alegreya SC/.test(s)&&/#f3ead6$/.test(s))&&wd.notes>0&&wd.lines>0,JSON.stringify(wd));
+  // the colour script (the style guide's rules 3 and 4, since V81): on the roof the gold goes out with the null round (the hero's
+  // drain), the crown's cyan on the people as it flares; the Pit by day under a low warm sun from the left, by morning a cooler one
+  // from the right, none at dusk or at night; the yard by day near .3 in saturation, its morning cooler and greyer but not grey (the
+  // heli's trim stays: the family's money; read here in this one frame, the audit's frames give .32 by day and .15 to .18 by morning)
+  const cs=await ev(()=>{const out={};const read=()=>{const d=ctx.getImageData(0,0,cv.width,cv.height).data;let g=0,n=0,sat=0,m=0;
+      for(let i=0;i<d.length;i+=16){const r=d[i],gg=d[i+1],b=d[i+2],mx=Math.max(r,gg,b),mn=Math.min(r,gg,b);m++;sat+=mx?(mx-mn)/mx:0;if((.2126*r+.7152*gg+.0722*b)/255<.12)continue;n++;
+        if(mx-mn<.45*mx)continue;let h=mx===r?(gg-b)/(mx-mn):mx===gg?2+(b-r)/(mx-mn):4+(r-gg)/(mx-mn);h=(h*60+360)%360;if(h>=38&&h<54)g++;}
+      return{gold:n?+(g/n).toFixed(4):0,sat:+(sat/m).toFixed(3)};};
+    try{storyGo('roof');S.storyAuto=true;S.auto=true;step(2);const K=hero();step(1200);drawAll(()=>step(2));out.before=read().gold;out.rim=EnvLook.S.roof.light(K).col;
+      K.drain=.004;drawAll(()=>step(1));out.flare=EnvLook.S.roof.light(K).col;K.drain=1;drawAll(()=>step(2));out.after=read().gold;out.rimAfter=EnvLook.S.roof.light(K).col;K.drain=0;}
+    finally{storyQuit();}
+    const kit=EnvLook.pitKit,A0=S.act1,sun=a=>{S.act1=a;const q=kit.sun();return q?{col:q.col,ang:q.ang}:null;};
+    try{out.sun={day:sun({}),morning:sun({morning:true}),dusk:sun({dusk:true}),night:sun({night:true})};}finally{S.act1=A0;}
+    for(const [k,st,n] of [['day','yard1',300],['morning','sh1',180]]){try{storyGo(st);S.storyAuto=true;S.auto=true;step(n);drawAll(()=>step(2));out[k]={key:kit.pal().key,sat:read().sat};}finally{storyQuit();}}
+    return out;});
+  {const sat=h=>{const n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255,mx=Math.max(r,g,b);return(mx-Math.min(r,g,b))/mx;},Sn=cs.sun||{};
+    expect('the colour script: the roof\'s gold goes out with the round, the crown\'s cyan on the people while it flares; the Pit by day under a low warm sun from the left (near .3 in saturation), by morning a cooler one from the right, none at dusk or at night',
+      cs.before>.015&&cs.after<cs.before*.5&&cs.rim==='#c8d6ff'&&cs.flare!==cs.rim&&cs.rimAfter===cs.rim&&Sn.day&&Sn.day.col==='#ffd6a0'&&Sn.day.ang<0&&Sn.morning&&Sn.morning.ang>0&&
+      sat(Sn.morning.col)<sat(Sn.day.col)&&!Sn.dusk&&!Sn.night&&cs.day.key==='day'&&cs.day.sat>=.24&&cs.morning.key==='morning'&&cs.morning.sat>=.115&&cs.morning.sat<cs.day.sat,JSON.stringify(cs));}
   // the prologue opens at sundown: Begin plays it first (it is not a chapter of its own), him on his bike on the road above the farms,
   // upright in the saddle; his three lines in order; the sand blowing past the bike only while he talks about the wire (drawn then, and
   // never otherwise); the sun going down; then he rides off the right edge of the picture and the field begins with him on foot

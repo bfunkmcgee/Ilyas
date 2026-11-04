@@ -349,24 +349,25 @@ function deck(c,G){const L=G.L,far=L.far,r=rng(71),X0=-300,X1=1300,D0=-340;
 // ---------- the heap ----------
 // in slices from the back of it to the front, each slice's top the heap's height there: the back of it lit by the bulbs and the
 // hut's door, the front by the sign's glow; straw over all of it. front: only the part in front of the middle, its top raised a
-// little, which goes over whoever lies in it (fore)
+// little, which goes over whoever lies in it (fore). (Straw, dulled under .4 saturation since V81: its flat yellow read as gilt, and
+// the Pit has no gold but what fell with him, the style guide's rule 3)
 function hayHeap(c,L,front){const H=L.hay,r=rng(front?303:202),N=26;
   const v0=front?0:34,lift=u=>front?(5.5+1.2*Math.sin(u*9))*Math.pow(Math.max(0,1-u*u),.35):0;
   for(let v=v0;v>=-34;v-=3.4){const d=H.d+v,pts=[];
     for(let i=0;i<=N;i++){const u=i/N*2-1,x=H.x+u*H.w;pts.push(q(x,hayH(L,x,d)+(v===v0?lift(u):0)+(front?0:Math.sin(u*9+v)*.8),d));}
-    const base0=q(H.x-H.w-4,0,d),base1=q(H.x+H.w+4,0,d),t=(v+34)/68,col=dim(dim('#7a5c24','#d6b05c',t<.55?t/.55:(1-t)/.45*.7+.3),'#a07830',front&&v===v0?.25:0);
+    const base0=q(H.x-H.w-4,0,d),base1=q(H.x+H.w+4,0,d),t=(v+34)/68,col=dim(dim('#7a6b4e','#d6be89',t<.55?t/.55:(1-t)/.45*.7+.3),'#a08b66',front&&v===v0?.25:0);
     c.beginPath();c.moveTo(base0.x,base0.y);for(const p of pts)c.lineTo(p.x,p.y);c.lineTo(base1.x,base1.y);c.closePath();
     // the light across it: the dark on the left, the hut's door warm on the right
-    c.fillStyle=lin(c,base0.x,0,base1.x,0,[[0,dim(col,'#000000',.3)],[.5,col],[1,dim(col,'#ffcf86',.18)]]);c.fill();
+    c.fillStyle=lin(c,base0.x,0,base1.x,0,[[0,dim(col,'#000000',.3)],[.5,col],[1,dim(col,'#ffdba3',.18)]]);c.fill();
     // clumps of it, darker where they turn from the light
-    for(let i=0;i<3;i++){const u=r()*1.8-.9,x=H.x+u*H.w,p=q(x,hayH(L,x,d)*(.4+r()*.5),d);c.fillStyle=rgba(r()<.5?'#3a2808':'#f0d488',r()<.5?.12:.08);c.beginPath();c.ellipse(p.x,p.y,4+r()*8,1.6+r()*2.4,(r()-.5)*.4,0,TAU);c.fill();}}
+    for(let i=0;i<3;i++){const u=r()*1.8-.9,x=H.x+u*H.w,p=q(x,hayH(L,x,d)*(.4+r()*.5),d);c.fillStyle=rgba(r()<.5?'#3a3225':'#f0d99a',r()<.5?.12:.08);c.beginPath();c.ellipse(p.x,p.y,4+r()*8,1.6+r()*2.4,(r()-.5)*.4,0,TAU);c.fill();}}
   // straws all over it, in three colours (a path each)
   const SP=[new Path2D(),new Path2D(),new Path2D()],n=front?120:320;
   for(let i=0;i<n;i++){const u=r()*2-1,v=front?-r()*34:r()*68-34,x=H.x+u*H.w*.98,d=H.d+v,hh=hayH(L,x,d)+(front&&v>-6?lift(u)*r():0),p=q(x,hh,d),a=r()*TAU,l=2.5+r()*5,k=r()<.45?0:r()<.5?1:2;
     SP[k].moveTo(p.x,p.y);SP[k].lineTo(p.x+Math.cos(a)*l,p.y+Math.sin(a)*l*.6);}
-  c.lineWidth=.7;['#f0d488','#9a7428','#c8a050'].forEach((col,k)=>{c.strokeStyle=col;c.stroke(SP[k]);});
+  c.lineWidth=.7;['#f0d99a','#9a8863','#c8b080'].forEach((col,k)=>{c.strokeStyle=col;c.stroke(SP[k]);});
   // straws standing up along its top
-  c.strokeStyle='#ead07c';c.lineWidth=.6;c.beginPath();for(let i=0;i<(front?26:40);i++){const u=r()*2-1,x=H.x+u*H.w*.92,d=front?H.d:H.d+r()*30,p=q(x,hayH(L,x,d)+(front?lift(u):0),d),a=-Math.PI/2+(r()-.5)*1.7,l=2+r()*5;c.moveTo(p.x,p.y+1);c.lineTo(p.x+Math.cos(a)*l,p.y+1+Math.sin(a)*l);}c.stroke();}
+  c.strokeStyle='#ead696';c.lineWidth=.6;c.beginPath();for(let i=0;i<(front?26:40);i++){const u=r()*2-1,x=H.x+u*H.w*.92,d=front?H.d:H.d+r()*30,p=q(x,hayH(L,x,d)+(front?lift(u):0),d),a=-Math.PI/2+(r()-.5)*1.7,l=2+r()*5;c.moveTo(p.x,p.y+1);c.lineTo(p.x+Math.cos(a)*l,p.y+1+Math.sin(a)*l);}c.stroke();}
 // the front of the heap, painted once at a fine scale and stamped over whoever lies in it every frame
 let FRONT=null;
 function heapFront(){const L=PL(),H=L.hay,key=H.x+','+H.d+','+H.w+','+H.h;if(FRONT&&FRONT.key===key)return FRONT;
@@ -377,19 +378,19 @@ function heapThings(c,L){const H=L.hay,r=rng(404);
   // the straw thrown out over the deck by what came down in it
   c.save();deckT(c);const SP=[new Path2D(),new Path2D()];for(let i=0;i<420;i++){const a=r()*TAU,rr=H.w*(.75+Math.pow(r(),1.8)*1.9),x=H.x+Math.cos(a)*rr,d=H.d+Math.sin(a)*rr*.55,l=2+r()*5,b=r()*TAU,k=r()<.6?0:1;
     if(d>L.far-4)continue;SP[k].moveTo(x,d);SP[k].lineTo(x+Math.cos(b)*l,d+Math.sin(b)*l);}
-  c.lineWidth=.8;c.strokeStyle=rgba('#c8a050',.75);c.stroke(SP[0]);c.strokeStyle=rgba('#8a6a2a',.7);c.stroke(SP[1]);
+  c.lineWidth=.8;c.strokeStyle=rgba('#c8b080',.75);c.stroke(SP[0]);c.strokeStyle=rgba('#8a7958',.7);c.stroke(SP[1]);
   // feathers, grey and white
   for(let i=0;i<34;i++){const a=r()*TAU,rr=H.w*(.6+r()*2.2),x=H.x+Math.cos(a)*rr,d=H.d+Math.sin(a)*rr*.6;if(d>L.far-6)continue;c.save();c.translate(x,d);c.rotate(r()*TAU);c.strokeStyle=r()<.5?'#8a8a94':'#c8c8d0';c.lineWidth=1.4;c.beginPath();c.moveTo(-3,0);c.quadraticCurveTo(0,1.6,3,0);c.stroke();c.restore();}
   c.restore();
   // the bale, split at its end, beside the heap
   {const x0=H.x+H.w+14,x1=x0+34,d0=H.d+16,d1=d0+18,h=15,A=q(x0,0,d0),B=q(x1,0,d0),Bt=q(x1,h,d0),At=q(x0,h,d0),Ct=q(x1,h,d1),Dt=q(x0,h,d1),Cb=q(x1,0,d1);
-    poly(c,[B,Cb,Ct,Bt],'#7a5a24');poly(c,[At,Bt,Ct,Dt],'#c8a050');poly(c,[A,B,Bt,At],'#a8843e');
-    c.strokeStyle='#4a3418';c.lineWidth=.9;c.beginPath();for(const u of [.3,.7]){const p0=q(lerp(x0,x1,u),0,d0),p1=q(lerp(x0,x1,u),h,d0),p2=q(lerp(x0,x1,u),h,d1);c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.lineTo(p2.x,p2.y);}c.stroke();
-    c.strokeStyle='#e0c070';c.lineWidth=.6;c.beginPath();for(let i=0;i<40;i++){const u=r(),v=r(),p=q(x0+u*(x1-x0),v*h,d0);c.moveTo(p.x,p.y);c.lineTo(p.x+(r()-.5)*5,p.y+(r()-.5)*4);}c.stroke();
-    c.fillStyle='#b8913e';c.beginPath();const s0=q(x0-2,h,d0+2),s1=q(x0-14,0,d0-6),s2=q(x0-4,0,d1);c.moveTo(s0.x,s0.y);c.quadraticCurveTo(s1.x,s1.y-4,s1.x,s1.y);c.lineTo(s2.x,s2.y);c.closePath();c.fill();}
+    poly(c,[B,Cb,Ct,Bt],'#7a6a4e');poly(c,[At,Bt,Ct,Dt],'#c8b080');poly(c,[A,B,Bt,At],'#a8936c');
+    c.strokeStyle='#4a3e2f';c.lineWidth=.9;c.beginPath();for(const u of [.3,.7]){const p0=q(lerp(x0,x1,u),0,d0),p1=q(lerp(x0,x1,u),h,d0),p2=q(lerp(x0,x1,u),h,d1);c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.lineTo(p2.x,p2.y);}c.stroke();
+    c.strokeStyle='#e0c98f';c.lineWidth=.6;c.beginPath();for(let i=0;i<40;i++){const u=r(),v=r(),p=q(x0+u*(x1-x0),v*h,d0);c.moveTo(p.x,p.y);c.lineTo(p.x+(r()-.5)*5,p.y+(r()-.5)*4);}c.stroke();
+    c.fillStyle='#b8a376';c.beginPath();const s0=q(x0-2,h,d0+2),s1=q(x0-14,0,d0-6),s2=q(x0-4,0,d1);c.moveTo(s0.x,s0.y);c.quadraticCurveTo(s1.x,s1.y-4,s1.x,s1.y);c.lineTo(s2.x,s2.y);c.closePath();c.fill();}
   // the fork, stuck in the back of the heap at a lean
   {const x=H.x-H.w*.6,d=H.d+20,b=q(x,hayH(L,x,d)+1,d),t=q(x-16,92,d+10);c.strokeStyle='#4a3420';c.lineWidth=2;c.lineCap='round';c.beginPath();c.moveTo(b.x,b.y);c.lineTo(t.x,t.y);c.stroke();
-    c.strokeStyle=rgba('#ffcf86',.22);c.lineWidth=.6;c.beginPath();c.moveTo(b.x+.8,b.y);c.lineTo(t.x+.8,t.y);c.stroke();
+    c.strokeStyle=rgba('#ffdba3',.22);c.lineWidth=.6;c.beginPath();c.moveTo(b.x+.8,b.y);c.lineTo(t.x+.8,t.y);c.stroke();
     c.strokeStyle='#5a5a62';c.lineWidth=.9;c.beginPath();for(let k=-1;k<=1;k++){c.moveTo(b.x+k*2.6,b.y);c.lineTo(b.x+k*2.6+.6,b.y+7);}c.stroke();}}
 
 // ---------- the lofts ----------

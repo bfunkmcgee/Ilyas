@@ -4,7 +4,7 @@ const uiRand=mulberry32(0x9e3779b9);
 // ---------- environment drawing: the restaurant, divider walls, furniture, tableware, lamps and debris ----------
 // (loaded ahead of the main UI script; everything here runs only once the UI is up)
 const RM={wall:'#4c2443',wall2:'#57294c',wain:'#2a1426',rail:'rgba(255,196,140,.42)',floorN:'#2f1a28',floorF:'#5d3443',seam:'rgba(14,6,14,.34)',beam:'#1b0e1a',
-  wood:'#24121c',wood2:'#3a2030',brass:'#c9a25a',cloth:'#eadbc2',clothS:'#cdb89c',marble:'#d6c3bd',marbleS:'#a88f8c',paper:'rgba(247,226,186,.9)',frame:'#2a1712'};
+  wood:'#24121c',wood2:'#3a2030',brass:'#c9a25a',cloth:'#c8b48e',clothS:'#a89270',marble:'#d6c3bd',marbleS:'#a88f8c',paper:'rgba(247,226,186,.9)',frame:'#2a1712'};
 const ROOM={far:236,winY0:96,winY1:226};
 let ROOM_BOTTLES=null;
 function roomBottles(){if(ROOM_BOTTLES)return ROOM_BOTTLES;const r=mulberry32(77),L=[];
@@ -83,15 +83,21 @@ function drawRoom(L,T,VW,VH){
   const lf=litFrac();if(lf<1){ctx.fillStyle=`rgba(8,3,14,${((1-lf)*.38).toFixed(3)})`;ctx.fillRect(L-40,T-40,VW+80,VH+80);}
 }
 // soft light sprites, made once
-let GLOW=null;
-function glowSprites(){if(GLOW)return GLOW;const mk=(w,h,fn)=>{const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);return c;};
-  GLOW={
-    dot:mk(128,128,(g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,1,w/2,h/2,w/2);r.addColorStop(0,'rgba(255,236,190,1)');r.addColorStop(.35,'rgba(255,200,130,.38)');r.addColorStop(1,'rgba(255,180,110,0)');g.fillStyle=r;g.fillRect(0,0,w,h);}),
-    pool:mk(128,128,(g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,2,w/2,h/2,w/2);r.addColorStop(0,'rgba(255,196,120,1)');r.addColorStop(1,'rgba(255,180,110,0)');g.fillStyle=r;g.fillRect(0,0,w,h);}),
+// (the family's rooms, the lobby and the office, are lit gold, the Hallowells' own colour: the style guide's rule 3, since V81; the
+// bistro's rooms are the city's amber)
+let GLOW=null,GLOW_AU=null;
+const GLOW_COL={amber:{dot:[[0,'rgba(255,236,190,1)'],[.35,'rgba(255,200,130,.38)'],[1,'rgba(255,180,110,0)']],pool:[[0,'rgba(255,196,120,1)'],[1,'rgba(255,180,110,0)']],cone:'#ffd696',coneB:['rgba(255,214,150,1)','rgba(255,190,120,0)']},
+  gold:{dot:[[0,'rgba(255,242,206,1)'],[.35,'rgba(240,208,122,.38)'],[1,'rgba(226,182,90,0)']],pool:[[0,'rgba(236,198,104,1)'],[1,'rgba(226,182,90,0)']],cone:'#f0d082',coneB:['rgba(240,210,130,1)','rgba(226,182,90,0)']}};
+function glowSprites(){const au=S.room==='office'||S.room==='lobby';if(au?GLOW_AU:GLOW)return au?GLOW_AU:GLOW;const K=GLOW_COL[au?'gold':'amber'];
+  const mk=(w,h,fn)=>{const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);return c;};
+  const G={
+    dot:mk(128,128,(g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,1,w/2,h/2,w/2);for(const [o,c] of K.dot)r.addColorStop(o,c);g.fillStyle=r;g.fillRect(0,0,w,h);}),
+    pool:mk(128,128,(g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,2,w/2,h/2,w/2);for(const [o,c] of K.pool)r.addColorStop(o,c);g.fillStyle=r;g.fillRect(0,0,w,h);}),
     // a room lamp's cone: the shared soft piece (EnvLook.softSpr, env_look.js), its sides feathering out to the sprite's edges, so
     // the width it is stamped at is where the last of it goes
-    cone:typeof EnvLook!=='undefined'&&EnvLook.softSpr?EnvLook.softSpr('#ffd696',.25,.85,.06,1.3):mk(96,128,(g,w,h)=>{const r=g.createLinearGradient(0,0,0,h);r.addColorStop(0,'rgba(255,214,150,1)');r.addColorStop(1,'rgba(255,190,120,0)');g.fillStyle=r;g.fillRect(0,0,w,h);})};
-  return GLOW;}
+    cone:typeof EnvLook!=='undefined'&&EnvLook.softSpr?EnvLook.softSpr(K.cone,.25,.85,.06,1.3):mk(96,128,(g,w,h)=>{const r=g.createLinearGradient(0,0,0,h);r.addColorStop(0,K.coneB[0]);r.addColorStop(1,K.coneB[1]);g.fillStyle=r;g.fillRect(0,0,w,h);})};
+  if(au)GLOW_AU=G;else GLOW=G;
+  return G;}
 // pools of lamplight on the floor, following each lamp as it swings
 function drawLampPools(){
   if(!S.lamps.length)return;const G=glowSprites();ctx.save();ctx.globalCompositeOperation='lighter';

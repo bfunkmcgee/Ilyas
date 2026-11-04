@@ -419,12 +419,16 @@ function face(c,P,T){const sh=(col,k)=>K.shade(P,col,k),r=rng(701);
     c.fillStyle=rgba(P.light,.1+.4*P.lightA);c.fillRect(a.x,a.y-.4,b.x-a.x,1.1);
     c.fillStyle=lin(c,0,a.y,0,a.y+FACE,[[0,rgba('#000000',0)],[1,rgba('#000000',.4)]]);c.fillRect(a.x,a.y,b.x-a.x,FACE);}}
 // ---------- the light over it ----------
+// the sun's light (the kit's), the same in the layer and in the picture above it, from the rim, so its shafts run on unbroken
+const SUNO={n:8,seed:47};
 function lightPass(c,P){c.save();c.globalCompositeOperation='lighter';
   if(dusk(P)){// the last of the sky's light high up the wall, orange going to rose; the lamps' pools on the steps
     c.fillStyle=lin(c,0,-110,0,230,[[0,rgba('#ff9a5a',.22)],[.5,rgba('#ff7a6a',.08)],[1,rgba('#ff7a6a',0)]]);c.fillRect(-200,-110,1400,340);}
   else{const m=Q(480,60,120);K.cRad(c,m.x,m.y,20,520,P.light,.07,.4);}
   for(const L2 of WLAMPS){if(L2.k<=0||L2.small)continue;K.cRad(c,L2.x-20,L2.y+90,6,90,'#ffb25e',.1*L2.k*P.lamp,.45);}
   c.restore();
+  // the sun's light down the wall and the steps, by day and by morning (the kit's)
+  K.sunlight(c,P,-200,1400,-640,GB+40,SUNO);
   // at dusk the shadows go violet
   if(dusk(P)){c.fillStyle=lin(c,0,140,0,GB,[[0,rgba('#3a2448',0)],[1,rgba('#3a2448',.16)]]);c.fillRect(-200,140,1400,GB-140);}
   c.fillStyle=lin(c,0,GB-40,0,GB+120,[[0,rgba('#000000',0)],[1,rgba('#000000',.55)]]);c.fillRect(-200,GB-40,1400,170);}
@@ -475,7 +479,7 @@ function live(){const t=S.t,P=K.pal(),T=P.key,fl=flight();ctx.save();
   K.upper('stairs:'+T+':'+fl,-1000,(c,x0,x1,y0,y1)=>{c.fillStyle=P.air[0];c.fillRect(x0,y0,x1-x0,y1-y0);
     K.shackRows(c,Object.assign({pal:P,x0:-170,x1:W+250,yTop:-650,clip:[-650,y1]},rows()));
     c.fillStyle=lin(c,0,-640,0,-470,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,170);
-    K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});
+    K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1400,-640,GB+40,SUNO);
     if(T==='dusk'){c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,-640,0,-200,[[0,rgba('#ff9a5a',.18)],[1,rgba('#ff9a5a',0)]]);c.fillRect(x0,-640,x1-x0,440);c.restore();}});
   K.tram(ctx,t,P,-760);
   // smoke: the skewer grill and the brazier, the tea kettle's steam, the cookshop's chimney, the chimneys up the wall, the drop's fires
@@ -539,15 +543,17 @@ function spikePaint(w,h,P){const cvs=document.createElement('canvas');cvs.width=
   g.fillStyle=lin(g,0,H*.55,0,H,[[0,rgba(P.air[1],0)],[1,rgba(P.air[2],.6)]]);g.fillRect(0,H*.55,900,H*.45);
   g.fillStyle=rad(g,450,H*.45,Math.min(900,H)*.3,Math.max(900,H)*.8,[[0,'rgba(0,0,0,0)'],[1,'rgba(0,0,0,.5)']]);g.fillRect(0,0,900,H);
   return{cv:cvs,w,h,s,G,k:P.key};}
-// the light that rims a man on the stair: at dusk the nearest lamp, else the daylight from far above
+// the light that rims a man on the stair: at dusk the nearest lamp, by day and by morning the sun's over the rim, else the light from
+// far above
 function light(f){const P=K.pal();if(P.key==='dusk'){const px=f.p[PEL].x+f.dep*PSX;let best=RAIL.lamps[0],bd=1e9;for(const lx of RAIL.lamps){const dd=Math.abs(lx-px);if(dd<bd){bd=dd;best=lx;}}
     const q=Q(best+14,sy(best)+104,Y().rail.d);return{light:{x:q.x-f.dep*PSX,y:q.y+f.dep*PSY},col:'#ffbe78'};}
+  const S2=K.sun();if(S2)return{light:{x:S2.x-f.dep*PSX,y:S2.y+f.dep*PSY},col:S2.col};
   return{light:{x:500-f.dep*PSX,y:-340+f.dep*PSY},col:P.light};}
 const LAYOUT={edge:EDGE,face:FACE,rail:RAIL,down:DOWN,flight};
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): by day the Pit's light on the treads and the
 // walls by them; at dusk the lamps', stronger, the light going; at night what little the lamps give. The stairs climb, so the band
 // is tall: from over the top landing's heads to the bottom landing's floor
-const SETS={day:{col:'#f5ebd3',soft:.8,y:[GB-470,GB-380,GB-60,GB+20]},morning:{col:'#ebf2fa',soft:.8,y:[GB-470,GB-380,GB-60,GB+20]},
+const SETS={day:{col:'#ffe2bc',soft:.8,y:[GB-470,GB-380,GB-60,GB+20]},morning:{col:'#dce6f4',soft:.8,y:[GB-470,GB-380,GB-60,GB+20]},
   dusk:{col:'#ffce9a',soft:1,gain:1.6,air:.07,y:[GB-470,GB-380,GB-60,GB+20]},night:{col:'#9ba3c7',soft:1,gain:1.4,air:.05,y:[GB-470,GB-380,GB-60,GB+20]}};
 E.S.stairs={set:()=>SETS[K.pal().key]||SETS.day,paint,live,fore,light,key,pieces,LAYOUT};
 })();

@@ -60,6 +60,15 @@ function farCity(c,X0,X1){const r=rng(9);
   c.fillStyle=lin(c,0,HOR-2,0,HOR+40,[[0,'#1a1622'],[1,'#0c0b12']]);c.fillRect(X0,HOR-1,X1-X0,60);
   for(let i=0;i<900;i++){const x=X0+r()*(X1-X0),u=Math.pow(r(),2.2),y=HOR+u*36,s=.5+u*.9;c.fillStyle=rgba(r()<.86?'#ffcf86':r()<.5?'#dfeeff':'#7ff3e3',(.25+.6*r())*(1-u*.4));c.fillRect(x,y,s,s*.8);}
   haze(c,X0,X1,HOR-10,HOR+14,'#5a3a40',.35);}
+// ---------- the gilt, kept as shapes as it is painted, for the drain ----------
+// The roof's betrayal drains the gold (the style guide's rule 3): when the null round goes through him (sk_story.js), everything gold
+// painted on the roof goes out with the gilt in him, in four rings out from the crown (0 the crown, 1 the parapet and the stair head,
+// 2 the pad, 3 the edge). paint() keeps each gold shape here in world units (pl: in the deck's plane, x and depth) as it draws it,
+// and live() lays a dark tarnish over them as hero().drain rises: no second picture of the roof, and nothing a frame before the shot.
+let GILT=null;
+function giltNew(){GILT={f:[0,1,2,3].map(()=>new Path2D()),s:[],pl:[0,1,2,3].map(()=>new Path2D()),cy:new Path2D()};}
+const gRect=(g,x,y,w,h)=>{if(GILT)GILT.f[g].rect(x,y,w,h);},gPath=(g,P)=>{if(GILT)GILT.f[g].addPath(P);},gLine=(g,w,P)=>{if(GILT)GILT.s.push({g,w,p:P});},
+  gPlane=(g,fn)=>{if(GILT)fn(GILT.pl[g]);};
 // ---------- the crown: a lantern of glass full of the house's cyan light, gold blades rising from round it to the needle ----------
 function crown(c){const b=g2(CROWN.x,CROWN.d),cx=b.x,base=b.y,top=-150,dw=104,dh=118,dt=base-dh;
   // the beam it throws up into the cloud (the shared soft piece, turned to go up, fading as it goes)
@@ -68,23 +77,24 @@ function crown(c){const b=g2(CROWN.x,CROWN.d),cx=b.x,base=b.y,top=-150,dw=104,dh
   // the lantern: a drum of dark glass in gold mullions, the cyan light deep inside it
   c.fillStyle=lin(c,cx-dw,0,cx+dw,0,[[0,'#030a0c'],[.3,'#072226'],[.5,'#0e4448'],[.7,'#072226'],[1,'#02080a']]);c.fillRect(cx-dw,dt,dw*2,dh);
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=rad(c,cx,dt+dh*.45,4,dw*.9,[[0,rgba(C.cyanL,.4)],[.3,rgba(C.cyan,.18)],[1,rgba(C.cyan,0)]]);c.fillRect(cx-dw,dt,dw*2,dh);c.restore();
-  c.strokeStyle='#7a5c26';c.lineWidth=1.2;c.beginPath();for(let k=-7;k<=7;k++){const x=cx+Math.sin(k/7*1.35)/Math.sin(1.35)*dw;c.moveTo(x,dt);c.lineTo(x,base);}c.stroke();
+  {const mu=new Path2D();for(let k=-7;k<=7;k++){const x=cx+Math.sin(k/7*1.35)/Math.sin(1.35)*dw;mu.moveTo(x,dt);mu.lineTo(x,base);}c.strokeStyle='#7a5c26';c.lineWidth=1.2;c.stroke(mu);gLine(0,2.2,mu);}
   c.strokeStyle=rgba(C.goldL,.35);c.lineWidth=.5;c.beginPath();for(let k=-7;k<=-1;k++){const x=cx+Math.sin(k/7*1.35)/Math.sin(1.35)*dw;c.moveTo(x-.7,dt);c.lineTo(x-.7,base);}c.stroke();
-  c.strokeStyle='#4a3818';c.lineWidth=.7;c.beginPath();for(let y=dt+dh/4;y<base-1;y+=dh/4){c.moveTo(cx-dw,y);c.lineTo(cx+dw,y);}c.stroke();
-  c.fillStyle=lin(c,0,dt-6,0,dt+2,[[0,C.goldL],[.6,C.gold],[1,C.goldD]]);c.fillRect(cx-dw-8,dt-5,dw*2+16,6);c.fillStyle='#050608';c.fillRect(cx-dw-8,dt+1,dw*2+16,1.4);
+  {const tr=new Path2D();for(let y=dt+dh/4;y<base-1;y+=dh/4){tr.moveTo(cx-dw,y);tr.lineTo(cx+dw,y);}c.strokeStyle='#4a3818';c.lineWidth=.7;c.stroke(tr);gLine(0,1,tr);}
+  c.fillStyle=lin(c,0,dt-6,0,dt+2,[[0,C.goldL],[.6,C.gold],[1,C.goldD]]);c.fillRect(cx-dw-8,dt-5,dw*2+16,6);gRect(0,cx-dw-8,dt-5,dw*2+16,6);c.fillStyle='#050608';c.fillRect(cx-dw-8,dt+1,dw*2+16,1.4);
   // the blades: tall gold fins standing round the lantern's rim and sweeping in to meet the needle high above
   const nx=cx,ny=top+10,ring=dt-150;
   for(const [k,w] of [[-4,8],[-3,9],[-2,10],[-1,11],[1,11],[2,10],[3,9],[4,8],[0,13]]){const x0=cx+k*dw*.25,sd=Math.sign(k)||0,mx=lerp(x0,nx,.35)+sd*26,my=lerp(dt,ny,.5);
     const P=new Path2D();P.moveTo(x0-w/2,dt+2);P.quadraticCurveTo(mx-w*.4,my,nx-1.2,ny);P.lineTo(nx+1.2,ny);P.quadraticCurveTo(mx+w*.4,my,x0+w/2,dt+2);P.closePath();
-    c.fillStyle=lin(c,x0-w,0,x0+w,0,[[0,'#2a2010'],[.35,'#9a7630'],[.5,'#f2d080'],[.65,'#9a7630'],[1,'#20180a']]);c.fill(P);c.strokeStyle=rgba('#000000',.5);c.lineWidth=.6;c.stroke(P);
-    c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba(C.cyan,.35);c.lineWidth=.7;c.beginPath();c.moveTo(x0-sd*w*.5,dt);c.quadraticCurveTo(mx-sd*w*.3,my,nx,ny+8);c.stroke();c.restore();
+    c.fillStyle=lin(c,x0-w,0,x0+w,0,[[0,'#2a2010'],[.35,'#9a7630'],[.5,'#f2d080'],[.65,'#9a7630'],[1,'#20180a']]);c.fill(P);gPath(0,P);c.strokeStyle=rgba('#000000',.5);c.lineWidth=.6;c.stroke(P);
+    const ac=new Path2D();ac.moveTo(x0-sd*w*.5,dt);ac.quadraticCurveTo(mx-sd*w*.3,my,nx,ny+8);if(GILT)GILT.cy.addPath(ac);
+    c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba(C.cyan,.35);c.lineWidth=.7;c.stroke(ac);c.restore();
     }
   // the ring of light held inside the blades
   c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba(C.cyan,.85);c.lineWidth=2.2;c.beginPath();c.ellipse(cx,ring,dw*.62,10,0,0,TAU);c.stroke();
   c.strokeStyle=rgba(C.cyanL,.6);c.lineWidth=.8;c.beginPath();c.ellipse(cx,ring,dw*.62,10,0,Math.PI,TAU);c.stroke();c.restore();
   glow(c,cx,ring,110,C.cyan,.3,.35);
   // the needle at the very top, with its own small light
-  c.fillStyle='#0b0b10';c.fillRect(nx-2,ny-60,4,64);c.fillStyle=C.goldL;c.fillRect(nx-.8,ny-110,1.6,60);
+  c.fillStyle='#0b0b10';c.fillRect(nx-2,ny-60,4,64);c.fillStyle=C.goldL;c.fillRect(nx-.8,ny-110,1.6,60);gRect(0,nx-.8,ny-110,1.6,60);
   glow(c,nx,ny-110,26,C.cyanL,.7);}
 // ---------- the antenna mast: a tapering lattice of steel, guyed, red lights up it ----------
 function mast(c){const b=g2(MAST.x,MAST.d),x=b.x,base=b.y,top=-120,col='#06070b';c.lineCap='round';
@@ -108,13 +118,14 @@ function parapet(c,X0){const d=PAR_D,a=g2(X0,d),b=g2(EDGE,d),h=PAR_H;
   c.strokeStyle=rgba('#000000',.5);c.lineWidth=.8;c.beginPath();for(let x=X0+40;x<EDGE;x+=64){const q=g2(x,d);c.moveTo(q.x,q.y-2);c.lineTo(q.x,q.y-h+5);}c.stroke();
   c.strokeStyle=rgba(C.gold,.22);c.lineWidth=.5;c.beginPath();for(let x=X0+40;x<EDGE;x+=64){const q=g2(x,d);c.moveTo(q.x+1,q.y-4);c.lineTo(q.x+1,q.y-h+7);}c.stroke();
   // the coping: a gold rail along the top, its top edge catching the moon and the crown
-  c.fillStyle=lin(c,0,a.y-h-4,0,a.y-h+2,[[0,C.goldL],[.5,C.gold],[1,C.goldDD]]);c.fillRect(a.x,a.y-h-3,b.x-a.x,4.5);
+  c.fillStyle=lin(c,0,a.y-h-4,0,a.y-h+2,[[0,C.goldL],[.5,C.gold],[1,C.goldDD]]);c.fillRect(a.x,a.y-h-3,b.x-a.x,4.5);gRect(1,a.x,a.y-h-3,b.x-a.x,4.5);
   c.fillStyle=rgba('#000000',.6);c.fillRect(a.x,a.y-h+1.5,b.x-a.x,1.4);
   // uplights let into its foot, washing the stone (lit in live)
   for(let x=X0+72;x<EDGE-20;x+=128){const q=g2(x,d-2);c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,q.y,0,q.y-h,[[0,rgba(C.cyan,.32)],[1,rgba(C.cyan,0)]]);c.beginPath();c.moveTo(q.x-3,q.y);c.lineTo(q.x+3,q.y);c.lineTo(q.x+9,q.y-h);c.lineTo(q.x-9,q.y-h);c.closePath();c.fill();c.restore();}
   // the end post at the edge, taller, a gold finial on it
   const e=g2(EDGE,d+2);c.fillStyle='#0a0a0f';c.fillRect(e.x-6,e.y-h-22,12,h+22);c.fillStyle=C.gold;c.fillRect(e.x-7,e.y-h-24,14,3);
-  c.beginPath();c.moveTo(e.x-4,e.y-h-24);c.lineTo(e.x,e.y-h-34);c.lineTo(e.x+4,e.y-h-24);c.closePath();c.fill();}
+  c.beginPath();c.moveTo(e.x-4,e.y-h-24);c.lineTo(e.x,e.y-h-34);c.lineTo(e.x+4,e.y-h-24);c.closePath();c.fill();
+  gRect(3,e.x-7,e.y-h-24,14,3);{const q=new Path2D();q.moveTo(e.x-4,e.y-h-24);q.lineTo(e.x,e.y-h-34);q.lineTo(e.x+4,e.y-h-24);q.closePath();gPath(3,q);}}
 // ---------- the stair head: a black stone box with a lit door, the way up from the office floors ----------
 function kiosk(c){const K=KIOSK,h=K.h,fl=g2(K.x0,K.d0),fr=g2(K.x1,K.d0),br=g2(K.x1,K.d1);
   // the side toward the pad, in shadow
@@ -122,7 +133,7 @@ function kiosk(c){const K=KIOSK,h=K.h,fl=g2(K.x0,K.d0),fr=g2(K.x1,K.d0),br=g2(K.
   c.fillStyle=rgba(C.cyan,.06);c.fill();
   // the roof, a gold edge round it
   const tl=g2(K.x0,K.d1);c.fillStyle='#121218';c.beginPath();c.moveTo(fl.x,fl.y-h);c.lineTo(fr.x,fr.y-h);c.lineTo(br.x,br.y-h);c.lineTo(tl.x,tl.y-h);c.closePath();c.fill();
-  c.strokeStyle=C.gold;c.lineWidth=1.2;c.stroke();
+  c.strokeStyle=C.gold;c.lineWidth=1.2;c.stroke();{const q=new Path2D();q.moveTo(fl.x,fl.y-h);q.lineTo(fr.x,fr.y-h);q.lineTo(br.x,br.y-h);q.lineTo(tl.x,tl.y-h);q.closePath();gLine(1,1.6,q);}
   // the face toward us: black stone, a brass frame round the door
   c.fillStyle=patAt(c,blackStone(),0,0,1);c.fillRect(fl.x,fl.y-h,fr.x-fl.x,h);c.fillStyle=lin(c,0,fl.y-h,0,fl.y,[[0,rgba('#000000',.05)],[1,rgba('#000000',.45)]]);c.fillRect(fl.x,fl.y-h,fr.x-fl.x,h);
   const d0=g2(K.door[0],K.d0),d1=g2(K.door[1],K.d0),dh=96,dw=d1.x-d0.x;
@@ -133,15 +144,16 @@ function kiosk(c){const K=KIOSK,h=K.h,fl=g2(K.x0,K.d0),fr=g2(K.x1,K.d0),br=g2(K.
   // the door leaf swung in, and the brass frame
   c.fillStyle='#0c0b0e';c.beginPath();c.moveTo(d0.x,d0.y-dh);c.lineTo(d0.x+dw*.22,d0.y-dh+6);c.lineTo(d0.x+dw*.22,d0.y-4);c.lineTo(d0.x,d0.y);c.closePath();c.fill();
   c.strokeStyle=C.gold;c.lineWidth=1.6;c.strokeRect(d0.x-1,d0.y-dh-1,dw+2,dh+1);c.strokeStyle=rgba(C.goldL,.6);c.lineWidth=.5;c.strokeRect(d0.x-2.4,d0.y-dh-2.4,dw+4.8,dh+2.4);
+  {const q=new Path2D();q.rect(d0.x-1,d0.y-dh-1,dw+2,dh+1);gLine(1,2,q);const q2=new Path2D();q2.rect(d0.x-2.4,d0.y-dh-2.4,dw+4.8,dh+2.4);gLine(1,1,q2);}
   // the light spilling out across the deck
   c.save();c.globalCompositeOperation='lighter';const sp=g2((K.door[0]+K.door[1])/2,K.d0-40);
   c.fillStyle=rad(c,sp.x,sp.y,4,90,[[0,rgba('#ffb866',.26)],[1,rgba('#ffb866',0)]]);c.save();c.translate(sp.x,sp.y);c.scale(1,.42);c.beginPath();c.arc(0,0,90,0,TAU);c.fill();c.restore();
   glow(c,d0.x+dw/2,d0.y-dh*.55,60,'#ffb866',.25);c.restore();
   // a brass plaque, and the lamp over the door
-  c.fillStyle=C.goldD;c.fillRect(d1.x+8,d1.y-62,16,10);c.fillStyle='#ffe9c0';c.fillRect(d0.x+dw/2-3,d0.y-dh-9,6,3);glow(c,d0.x+dw/2,d0.y-dh-8,22,'#ffc070',.5);}
+  c.fillStyle=C.goldD;c.fillRect(d1.x+8,d1.y-62,16,10);gRect(1,d1.x+8,d1.y-62,16,10);c.fillStyle='#ffe9c0';c.fillRect(d0.x+dw/2-3,d0.y-dh-9,6,3);glow(c,d0.x+dw/2,d0.y-dh-8,22,'#ffc070',.5);}
 // ---------- a floodlight on its pole at the back, aimed down at the pad ----------
 function flood(c,F){const b=g2(F.x,F.d),top=b.y-150;c.strokeStyle='#05060a';c.lineWidth=2.4;c.beginPath();c.moveTo(b.x,b.y);c.lineTo(b.x,top);c.stroke();
-  c.fillStyle=C.goldD;c.fillRect(b.x-2,b.y-40,4,3);c.fillRect(b.x-2,top+10,4,3);
+  c.fillStyle=C.goldD;c.fillRect(b.x-2,b.y-40,4,3);c.fillRect(b.x-2,top+10,4,3);gRect(1,b.x-2,b.y-40,4,3);gRect(1,b.x-2,top+10,4,3);
   const s=Math.sign(PAD.x-F.x)||1;c.fillStyle='#0a0b10';c.save();c.translate(b.x,top);c.rotate(s*.5);c.fillRect(-9,-5,18,10);c.fillStyle=rgba('#eaf2ff',.9);c.fillRect(-7,4,14,2);c.restore();
   glow(c,b.x+s*3,top+6,26,'#dfe9ff',.45);}
 // ---------- the helipad, painted flat on the deck (in plane units: x and depth) ----------
@@ -153,13 +165,14 @@ function pad(c){const {x,d,r}=PAD;
   c.setLineDash([7,6]);c.strokeStyle=rgba('#e8e4da',.25);c.lineWidth=1.2;c.beginPath();c.arc(x,d,r-12,0,TAU);c.stroke();c.setLineDash([]);
   // the gold ring
   const ro=r*.7,ri=r*.6;c.fillStyle=lin(c,x-ro,d-ro,x+ro,d+ro,[[0,C.goldD],[.35,C.gold],[.5,C.goldL],[.65,C.gold],[1,C.goldD]]);
-  c.beginPath();c.arc(x,d,ro,0,TAU);c.arc(x,d,ri,0,TAU,true);c.fill();
+  c.beginPath();c.arc(x,d,ro,0,TAU);c.arc(x,d,ri,0,TAU,true);c.fill();gPlane(2,q=>{q.moveTo(x+ro+.6,d);q.arc(x,d,ro+.6,0,TAU);q.moveTo(x+ri-.6,d);q.arc(x,d,ri-.6,0,TAU,true);});
   c.strokeStyle=rgba('#000000',.5);c.lineWidth=.8;c.beginPath();c.arc(x,d,ro,0,TAU);c.stroke();c.beginPath();c.arc(x,d,ri,0,TAU);c.stroke();
   // a vine running round inside the ring
   {const pts=[];for(let a=0;a<=TAU+.01;a+=TAU/80)pts.push({x:x+Math.cos(a)*(ri+ro)/2,y:d+Math.sin(a)*(ri+ro)/2});E.vine(c,pts,{w:.7,amp:1.2,leaf:2,col:'#3a2a0e',seed:5,shadow:false,every:3});}
   // the H, its bars along the depth so it reads from the approach
   const hw=46,hh=64,bw=13;c.fillStyle=lin(c,x-hw/2,d,x+hw/2,d,[[0,C.goldD],[.4,C.gold],[.55,C.goldL],[1,C.goldD]]);
   c.fillRect(x-hw/2,d-hh/2,bw,hh);c.fillRect(x+hw/2-bw,d-hh/2,bw,hh);c.fillRect(x-hw/2,d-bw/2,hw,bw);
+  gPlane(2,q=>{q.rect(x-hw/2-.5,d-hh/2-.5,bw+1,hh+1);q.rect(x+hw/2-bw-.5,d-hh/2-.5,bw+1,hh+1);q.rect(x-hw/2,d-bw/2,hw,bw);});
   c.strokeStyle=rgba('#000000',.45);c.lineWidth=.7;c.strokeRect(x-hw/2,d-hh/2,bw,hh);c.strokeRect(x+hw/2-bw,d-hh/2,bw,hh);
   // the edge lights' housings round the rim
   for(let k=0;k<PAD_N;k++){const a=k/PAD_N*TAU;c.fillStyle='#050508';c.beginPath();c.arc(x+Math.cos(a)*(r+5),d+Math.sin(a)*(r+5),2.8,0,TAU);c.fill();}}
@@ -190,13 +203,14 @@ function edge(c){
     for(let d=-290;d<PAR_D;d+=22){const x=EDGE+d*PSX,y=GB-d*PSY+12;if(r()<.5)continue;c.fillStyle=rgba(r()<.8?'#ffcf86':'#7ff3e3',.35);c.fillRect(x,y,1.6,5);}
     c.restore();}
   // the gold fin down the tower's corner, under the lip
-  {const a=g2(EDGE,PAR_D);c.fillStyle=lin(c,0,a.y,0,a.y+60,[[0,rgba(C.gold,.8)],[1,rgba(C.gold,0)]]);c.fillRect(a.x-.6,a.y,1.6,60);}
+  {const a=g2(EDGE,PAR_D);c.fillStyle=lin(c,0,a.y,0,a.y+60,[[0,rgba(C.gold,.8)],[1,rgba(C.gold,0)]]);c.fillRect(a.x-.6,a.y,1.6,60);gRect(3,a.x-1,a.y,2.4,60);}
   // the lip along the edge: its inner face, a gold top, its blue lights' housings
   {const a=g2(EDGE-7,PAR_D),b=g2(EDGE-7,-300),a2=g2(EDGE,PAR_D),b2=g2(EDGE,-300),h=9;
     c.fillStyle='#0b0b10';c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(b.x,b.y-h);c.lineTo(a.x,a.y-h);c.closePath();c.fill();
     c.fillStyle='#16161c';c.beginPath();c.moveTo(a.x,a.y-h);c.lineTo(b.x,b.y-h);c.lineTo(b2.x,b2.y-h);c.lineTo(a2.x,a2.y-h);c.closePath();c.fill();
     c.strokeStyle=C.gold;c.lineWidth=1.3;c.beginPath();c.moveTo(a2.x,a2.y-h);c.lineTo(b2.x,b2.y-h);c.stroke();
     c.strokeStyle=rgba(C.goldL,.55);c.lineWidth=.5;c.beginPath();c.moveTo(a.x,a.y-h);c.lineTo(b.x,b.y-h);c.stroke();
+    {const q=new Path2D();q.moveTo(a2.x,a2.y-h);q.lineTo(b2.x,b2.y-h);gLine(3,1.9,q);const q2=new Path2D();q2.moveTo(a.x,a.y-h);q2.lineTo(b.x,b.y-h);gLine(3,1,q2);}
     for(const d of EDGE_LIGHTS){const q=g2(EDGE-3.5,d);c.fillStyle='#04050a';c.fillRect(q.x-2,q.y-h-2.2,4,2.4);}}}
 const EDGE_LIGHTS=[-120,-80,-40,0,40,80,120,160,200];
 // ---------- the deck ----------
@@ -211,7 +225,7 @@ function deck(c,X0){
     c.fillStyle=rad(c,0,0,0,pr,[[0,'#0a1a20'],[.8,'#0c1418'],[1,rgba('#0c1418',0)]]);c.beginPath();c.arc(0,0,pr,0,TAU);c.fill();c.restore();}
   pad(c);
   // a gold line inlaid in the deck a stride in from the edge: the line not to cross
-  c.fillStyle=rgba(C.gold,.55);c.fillRect(EDGE-34,E.NEAR,1.8,PAR_D-E.NEAR);
+  c.fillStyle=rgba(C.gold,.55);c.fillRect(EDGE-34,E.NEAR,1.8,PAR_D-E.NEAR);gPlane(3,q=>q.rect(EDGE-34.4,E.NEAR,2.6,PAR_D-E.NEAR));
   c.restore();
   // the light on the deck: the crown's cyan over the back of it, the moon cold from the left, the pad's own glow
   c.save();c.globalCompositeOperation='lighter';
@@ -232,13 +246,13 @@ function plant(c){for(const [x0,x1,d0,d1,h] of [[118,196,196,228,44],[214,250,20
   const f=g2(157,212);c.fillStyle='#050508';c.beginPath();c.ellipse(f.x,f.y-44,16,6,0,0,TAU);c.fill();c.strokeStyle=rgba('#c8d4ff',.2);c.lineWidth=.6;c.beginPath();c.ellipse(f.x,f.y-44,16,6,0,Math.PI,TAU);c.stroke();}
 // ---------- the scene ----------
 function paint(c){
-  const X0=-160,X1=W+240,T0=-110;
+  const X0=-160,X1=W+240,T0=-110;giltNew();
   sky(c,X0,X1,T0);farCity(c,X0,X1);
   crown(c);mast(c);
   parapet(c,X0-40);
   // the stuff of the roof at the back: the stair head, the plant, the floodlights, the windsock's pole
   for(const F of FLOOD)flood(c,F);plant(c);kiosk(c);
-  {const b=g2(SOCK.x,SOCK.d);c.strokeStyle='#05060a';c.lineWidth=2;c.beginPath();c.moveTo(b.x,b.y);c.lineTo(b.x,b.y-118);c.stroke();c.fillStyle=C.gold;c.fillRect(b.x-2.5,b.y-120,5,3);
+  {const b=g2(SOCK.x,SOCK.d);c.strokeStyle='#05060a';c.lineWidth=2;c.beginPath();c.moveTo(b.x,b.y);c.lineTo(b.x,b.y-118);c.stroke();c.fillStyle=C.gold;c.fillRect(b.x-2.5,b.y-120,5,3);gRect(3,b.x-2.5,b.y-120,5,3);
     c.strokeStyle=rgba('#c8d4ff',.18);c.lineWidth=.5;c.beginPath();c.moveTo(b.x-.8,b.y);c.lineTo(b.x-.8,b.y-118);c.stroke();}
   deck(c,X0-40);edge(c);
   // the near edge of the picture: the deck going on toward us into the dark
@@ -252,16 +266,33 @@ function glowAt(x,y,r,col,a,sq){ctx.globalAlpha=a;ctx.drawImage(glowSpr(col),x-r
 const STREAKS=(()=>{const r=rng(5),a=[];for(let i=0;i<46;i++)a.push({y:-90+r()*560,len:30+r()*120,sp:500+r()*700,ph:r()*3000,a:.05+r()*.12,w:.4+r()*.6});return a;})();
 const WISPS=(()=>{const r=rng(7),a=[];for(let i=0;i<7;i++)a.push({y:120+r()*150,rx:90+r()*160,ry:4+r()*8,sp:40+r()*70,ph:r()*1600});return a;})();
 const GRIT=(()=>{const r=rng(9),a=[];for(let i=0;i<40;i++)a.push({d:-20+r()*230,sp:180+r()*260,ph:r()*1200,hop:1+r()*4});return a;})();
-function live(){const t=S.t;ctx.save();
+// the drain as the roof shows it, from the hero's (0 until the round, then up to 1 over 1.6 s, sk_story.js): d; the four rings'
+// (g: the crown's first, the edge's last, each over a little over half of it); and the crown's flare with the shot (f: up at once,
+// gone as the drain ends), read back from how far the drain has gone (the inverse of its smoothstep), so nothing is kept a frame
+const DR0={d:0,g:[0,0,0,0],f:0},TARN='#2a2e36',E32=Math.exp(-3.2);
+function drain(){const K=typeof hero==='function'?hero():null,d=K?clamp(K.drain||0,0,1):0;if(!(d>0))return DR0;
+  const u=.5-Math.sin(Math.asin(clamp(1-2*d,-1,1))/3),f=Math.min(1,u*25)*Math.max(0,(Math.exp(-u*3.2)-E32)/(1-E32));
+  return{d,g:[0,1,2,3].map(i=>{const v=clamp((d-i*.15)/.55,0,1);return v*v*(3-2*v);}),f};}
+function live(){const t=S.t,Dr=drain();ctx.save();
+  // the gilt going out: a dark tarnish laid over each ring's gold as its share of the drain comes, and the crown's cyan left on the
+  // dead blades, brighter while the flare lasts
+  if(Dr.d>0&&GILT){ctx.globalCompositeOperation='multiply';ctx.fillStyle=TARN;ctx.strokeStyle=TARN;ctx.lineCap='round';
+    for(let g=0;g<4;g++){const a=Dr.g[g];if(!(a>0))continue;ctx.globalAlpha=a;ctx.fill(GILT.f[g]);for(const L of GILT.s)if(L.g===g){ctx.lineWidth=L.w;ctx.stroke(L.p);}
+      ctx.save();ctx.transform(1,0,PSX,-PSY,0,GB);ctx.fill(GILT.pl[g]);ctx.restore();}
+    ctx.globalCompositeOperation='lighter';ctx.globalAlpha=Dr.g[0];ctx.strokeStyle=rgba(C.cyan,.32+.5*Dr.f);ctx.lineWidth=.8+.8*Dr.f;ctx.stroke(GILT.cy);
+    ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;}
   // cloud tearing past at the height of the roof
   const cs=cloudSpr();for(const w of WISPS){const x=((w.ph+t*w.sp)%1700)-300;ctx.globalAlpha=.4;ctx.drawImage(cs,x-w.rx,w.y-w.ry*4,w.rx*2,w.ry*8);}
   ctx.globalCompositeOperation='lighter';
   // the crown breathes, and two searchlights sweep the cloud from it
   {const b=g2(CROWN.x,CROWN.d),pulse=.55+.45*Math.sin(t*1.3),y0=b.y-118-150;glowAt(b.x,y0,170,C.cyan,.06+.06*pulse,.7);
+    // (the shot's own light: the crown flares as the round goes through him, its cyan out over the deck and the people on it)
+    if(Dr.f>.004){glowAt(b.x,b.y-70,250,C.cyan,.62*Dr.f,.9);glowAt(b.x,y0,160,C.cyanL,.6*Dr.f,.35);glowAt(b.x,y0-200,120,C.cyan,.3*Dr.f,2.4);
+      const q=g2(CROWN.x+140,PAR_D-90);glowAt(q.x,q.y,640,C.cyan,.24*Dr.f,.3);}
     // (soft beams fading into the cloud: the shared piece)
-    for(const [ph,sp] of [[0,.35],[2.4,.27]]){const a=-Math.PI/2+Math.sin(t*sp+ph)*.85;softCone(ctx,b.x,y0-60,4,62,900,'#dff6ff',.13,a-Math.PI/2,1.4);}}
+    for(const [ph,sp] of [[0,.35],[2.4,.27]]){const a=-Math.PI/2+Math.sin(t*sp+ph)*.85;softCone(ctx,b.x,y0-60,4,62,900,'#dff6ff',.13+.22*Dr.f,a-Math.PI/2,1.4);}}
   // the pad's edge lights, a slow chase round the ring
-  {const {x,d,r}=PAD;for(let k=0;k<PAD_N;k++){const a=k/PAD_N*TAU,q=g2(x+Math.cos(a)*(r+5),d+Math.sin(a)*(r+5)),ch=Math.pow(Math.max(0,Math.cos((k/PAD_N-t*.35)*TAU)),6),on=.45+.55*ch;
+  {const {x,d,r}=PAD;for(let k=0;k<PAD_N;k++){const a=k/PAD_N*TAU,q=g2(x+Math.cos(a)*(r+5),d+Math.sin(a)*(r+5)),ch=Math.pow(Math.max(0,Math.cos((k/PAD_N-t*.35)*TAU)),6),on=(.45+.55*ch)*(k%2?1-Dr.g[2]:1);if(on<=.004)continue;
     glowAt(q.x,q.y,7+5*ch,k%2?'#ffcf86':'#7ff3e3',.45*on);ctx.globalAlpha=.7*on;ctx.fillStyle='#fffaf0';ctx.fillRect(q.x-.8,q.y-.8,1.6,1.6);}}
   // blue lights along the edge, steady
   for(const d of EDGE_LIGHTS){const q=g2(EDGE-3.5,d);glowAt(q.x,q.y-11,9,'#6fb7ff',.5);ctx.globalAlpha=.8;ctx.fillStyle='#e0f0ff';ctx.fillRect(q.x-.8,q.y-12,1.6,1.6);}
@@ -275,9 +306,9 @@ function live(){const t=S.t;ctx.save();
   ctx.fillStyle='#8a8478';for(const g of GRIT){const x=((g.ph+t*g.sp)%1300)-200;if(x>EDGE)continue;const q=g2(x,g.d),hop=Math.abs(Math.sin(t*9+g.ph))*g.hop;ctx.globalAlpha=.35;ctx.fillRect(q.x,q.y-hop,1.2,.8);}
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
   // the windsock, snapping out from its pole
-  {const b=g2(SOCK.x,SOCK.d),y=b.y-112,L=40,fl=t*13;ctx.save();ctx.translate(b.x,y);
+  {const b=g2(SOCK.x,SOCK.d),y=b.y-112,L=40,fl=t*13,sockGold=Dr.g[3]>0?mix(C.gold,'#23231f',Dr.g[3]):C.gold;ctx.save();ctx.translate(b.x,y);
     const pts=[];for(let i=0;i<=8;i++){const u=i/8;pts.push({x:u*L,y:Math.sin(fl-u*4)*u*3+u*3});}
-    for(let i=0;i<8;i++){const a=pts[i],q=pts[i+1],w0=lerp(6,3,i/8),w1=lerp(6,3,(i+1)/8);ctx.fillStyle=i%2?'#0d0c10':C.gold;
+    for(let i=0;i<8;i++){const a=pts[i],q=pts[i+1],w0=lerp(6,3,i/8),w1=lerp(6,3,(i+1)/8);ctx.fillStyle=i%2?'#0d0c10':sockGold;
       ctx.beginPath();ctx.moveTo(a.x,a.y-w0);ctx.lineTo(q.x,q.y-w1);ctx.lineTo(q.x,q.y+w1);ctx.lineTo(a.x,a.y+w0);ctx.closePath();ctx.fill();}
     ctx.restore();}
   ctx.restore();}
@@ -286,8 +317,9 @@ const NEAR=(()=>{const r=rng(15),a=[];for(let i=0;i<14;i++)a.push({y:150+r()*360
 function fore(){const t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='#d8e2ff';ctx.lineWidth=.6;
   for(const s2 of NEAR){const x=((s2.ph+t*s2.sp)%1800)-400;ctx.globalAlpha=s2.a;ctx.beginPath();ctx.moveTo(x,s2.y);ctx.lineTo(x+s2.len,s2.y+s2.len*.03);ctx.stroke();}
   ctx.restore();}
-// the light that rims a fighter: the moon over the left of the sky
-function light(f){return{light:{x:MOON.x-f.dep*PSX,y:MOON.y+f.dep*PSY},col:'#c8d6ff'};}
+// the light that rims a fighter: the moon over the left of the sky (the crown's cyan while it flares with the shot)
+function light(f){const F=drain().f;if(!(F>.02))return{light:{x:MOON.x-f.dep*PSX,y:MOON.y+f.dep*PSY},col:'#c8d6ff'};
+  const b=g2(CROWN.x,CROWN.d);return{light:{x:lerp(MOON.x,b.x,F)-f.dep*PSX,y:lerp(MOON.y,b.y-190,F)+f.dep*PSY},col:mix('#c8d6ff','#8ff5ea',F)};}
 // where things are, for the scenes that use the roof
 const LAYOUT={edge:EDGE,parapet:PAR_D,pad:PAD,door:{x:(KIOSK.door[0]+KIOSK.door[1])/2,dep:KIOSK.d0},crown:CROWN,mast:MAST,horizon:HOR};
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the moon on the roof's deck and the parapet behind the fight

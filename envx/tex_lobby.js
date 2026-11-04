@@ -37,9 +37,10 @@ function greyStone(seed,w,h,o){o=o||{};return memo('grey'+seed+w+h+JSON.stringif
     const vv=(veinLine(u,v,1,1,wv,34)*m+veinLine(u,v,2,1,wv*1.3+1,60)*.6)*(o.veinK==null?.5:o.veinK);col=lerp3(col,vein,clamp(vv,0,1));
     const f=fbm(nF,u*64,v*64,2);col=lerp3(col,[0,0,0],(1-f)*.08);
     out[0]=col[0];out[1]=col[1];out[2]=col[2];});});}
-// ---------- honey onyx: bands of amber laid down in wavy layers, translucent; lit from behind it glows ----------
+// ---------- honey onyx: bands of gold laid down in wavy layers, translucent; lit from behind it glows (gold, not amber, since V81:
+// the family's rooms are lit gold, the style guide's rule 3) ----------
 function onyx(seed,w,h,o){o=o||{};return memo('onyx'+seed+w+h,()=>{const nL=noise2(seed,4),nM=noise2(seed+1,16),nF=noise2(seed+2,64);
-  const deep=hex('#7a3a10'),mid=hex('#d8862a'),pale=hex('#ffd88a'),milk=hex('#fff0cc');
+  const deep=hex('#7a5614'),mid=hex('#d8a432'),pale=hex('#ffdc8a'),milk=hex('#fff2d0');
   return pix(w,h,(u,v,out)=>{const warp=fbm(nL,u*4,v*4,4)*2.4+fbm(nM,u*16,v*16,3)*.35;
     const b=.5+.5*Math.sin((v*6+warp)*Math.PI*2),b2=.5+.5*Math.sin((v*17+warp*2.2)*Math.PI*2);
     let col=lerp3(deep,mid,ss(.1,.7,b));col=lerp3(col,pale,ss(.55,1,b)*.7);col=lerp3(col,milk,ss(.8,1,b2)*.35*b);

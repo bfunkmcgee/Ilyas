@@ -47,18 +47,18 @@ function paint(c){
   // the row nearest the cove takes its light, the rows over it the same lacquer in one tone, so the top row (RC's top, y -90 to -24)
   // goes on up the picture as it is (upTile: an upright phone's widest view of a fight sees a long way up)
   ceiling(c,X0,X1,T0,wt);
-  for(let x=-84;x<X1;x+=132){c.fillStyle='#000000';c.beginPath();c.ellipse(x,24,3.4,1.1,0,0,TAU);c.fill();c.fillStyle=rgba('#fff0d0',.85);c.beginPath();c.ellipse(x,24.3,2,.6,0,0,TAU);c.fill();glow(c,x,25,12,'#ffd090',.25);}
+  for(let x=-84;x<X1;x+=132){c.fillStyle='#000000';c.beginPath();c.ellipse(x,24,3.4,1.1,0,0,TAU);c.fill();c.fillStyle=rgba('#fff0d0',.85);c.beginPath();c.ellipse(x,24.3,2,.6,0,0,TAU);c.fill();glow(c,x,25,12,'#ffdc90',.25);}
   // ---- the walls: Nero Portoro, book-matched, brass reveals between the panels, a warm strip let into every third
   neroPanels(c,-150,X1,wt,bt,44,2,7,{tex:NERO_O});
-  for(let x=-150+44,i=0;x<X1;x+=46,i++){if(i%3!==1)continue;c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,x-14,0,x+16,0,[[0,rgba('#ffbe6e',0)],[.5,rgba('#ffbe6e',.07)],[1,rgba('#ffbe6e',0)]]);c.fillRect(x-14,wt+6,30,bt-wt-12);c.restore();
-    c.fillStyle=rgba('#ffe2b0',.5);c.fillRect(x+.6,wt+8,.8,bt-wt-16);}
+  for(let x=-150+44,i=0;x<X1;x+=46,i++){if(i%3!==1)continue;c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,x-14,0,x+16,0,[[0,rgba('#ffd16e',0)],[.5,rgba('#ffd16e',.07)],[1,rgba('#ffd16e',0)]]);c.fillRect(x-14,wt+6,30,bt-wt-12);c.restore();
+    c.fillStyle=rgba('#ffe6b0',.5);c.fillRect(x+.6,wt+8,.8,bt-wt-16);}
   // the cove: a line of gold light under the ceiling, washing down the stone; the marble holds a sheen of it
-  brassH(c,X0,wt-4,X1-X0,3);c.fillStyle=rgba('#ffdcaa',.9);c.fillRect(X0,wt-1,X1-X0,1.3);
-  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,wt,0,wt+70,[[0,rgba('#ffbe6e',.22)],[.4,rgba('#ffbe6e',.06)],[1,rgba('#ffbe6e',0)]]);c.fillRect(X0,wt,X1-X0,70);c.restore();
+  brassH(c,X0,wt-4,X1-X0,3);c.fillStyle=rgba('#ffe4aa',.9);c.fillRect(X0,wt-1,X1-X0,1.3);
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,wt,0,wt+70,[[0,rgba('#ffd16e',.22)],[.4,rgba('#ffd16e',.06)],[1,rgba('#ffd16e',0)]]);c.fillRect(X0,wt,X1-X0,70);c.restore();
   c.fillStyle=lin(c,0,wt,0,bt,[[0,rgba('#000000',0)],[.55,rgba('#000000',.12)],[1,rgba('#000000',.3)]]);c.fillRect(X0,wt,X1-X0,bt-wt);
   // ---- the base of the wall: black granite, polished, a brass line along its top
   c.fillStyle=pat(c,EnvTex.granite(19,128,64,{base:'#222026'}),0,bt,.25);c.fillRect(X0,bt,X1-X0,yb-bt);c.fillStyle=rgba('#000000',.35);c.fillRect(X0,bt,X1-X0,yb-bt);
-  brassH(c,X0,bt-1,X1-X0,2.2);c.fillStyle=lin(c,0,bt+1,0,bt+12,[[0,rgba('#ffd9a0',.12)],[1,rgba('#ffd9a0',0)]]);c.fillRect(X0,bt+1,X1-X0,11);
+  brassH(c,X0,bt-1,X1-X0,2.2);c.fillStyle=lin(c,0,bt+1,0,bt+12,[[0,rgba('#ffe1a0',.12)],[1,rgba('#ffe1a0',0)]]);c.fillRect(X0,bt+1,X1-X0,11);
   c.strokeStyle=rgba('#000000',.55);c.lineWidth=.8;c.beginPath();for(let x=-100;x<X1;x+=88){c.moveTo(x,bt+2);c.lineTo(x,yb);}c.stroke();
   // ---- the floor
   floor(c,X0,X1,yb,ox);
@@ -105,12 +105,12 @@ function floor(c,X0,X1,yb,ox){const SX=110,SD=66,gs=LT().greyStone(11,512,512,{b
   c.save();c.globalCompositeOperation='lighter';
   const streak=(x,w,len,col,a)=>{c.fillStyle=lin(c,0,yb,0,yb+len,[[0,rgba(col,a)],[.35,rgba(col,a*.35)],[1,rgba(col,0)]]);c.fillRect(x-w/2,yb,w,len);
     c.fillStyle=lin(c,x-w,0,x+w,0,[[0,rgba(col,0)],[.5,rgba(col,a*.25)],[1,rgba(col,0)]]);c.fillRect(x-w,yb,w*2,len*.6);};
-  c.fillStyle=lin(c,0,yb,0,yb+26,[[0,rgba('#ffbe6e',.1)],[1,rgba('#ffbe6e',0)]]);c.fillRect(X0,yb,X1-X0,26);
-  for(let x=-150+44,i=0;x<X1;x+=46,i++){if(i%3===1)streak(x+1,3,70,'#ffd2a0',.16);}
+  c.fillStyle=lin(c,0,yb,0,yb+26,[[0,rgba('#ffd16e',.1)],[1,rgba('#ffd16e',0)]]);c.fillRect(X0,yb,X1-X0,26);
+  for(let x=-150+44,i=0;x<X1;x+=46,i++){if(i%3===1)streak(x+1,3,70,'#ffe1a0',.16);}
   for(const w of [LG.winA,LG.winB])streak((w.x0+w.x1)/2,(w.x1-w.x0)*.8,110,'#7a96d8',.1);
-  {const a=pp(272,GB,196),b=pp(538,GB,196);c.fillStyle=lin(c,0,a.y,0,a.y+70,[[0,rgba('#ffa850',.28)],[1,rgba('#ffa850',0)]]);c.fillRect(a.x,a.y,b.x-a.x,70);}
-  for(const sx of [LG.dx0-48,LG.dx1+48])streak(sx,8,90,'#ffd09a',.3);
-  streak(LG.liftX,40,60,'#ffcf86',.08);
+  {const a=pp(272,GB,196),b=pp(538,GB,196);c.fillStyle=lin(c,0,a.y,0,a.y+70,[[0,rgba('#ffc850',.28)],[1,rgba('#ffc850',0)]]);c.fillRect(a.x,a.y,b.x-a.x,70);}
+  for(const sx of [LG.dx0-48,LG.dx1+48])streak(sx,8,90,'#ffdf9a',.3);
+  streak(LG.liftX,40,60,'#ffd986',.08);
   c.restore();c.restore();}
 // ---------- a window on the city far below: night, a moon, towers in the haze, the lights of the streets, and the room's lamps in the glass
 function cityWindow(c,w,seed){const {x0,x1,y0,y1}=w,ww=x1-x0,hh=y1-y0,r=rng(seed);
@@ -129,7 +129,7 @@ function cityWindow(c,w,seed){const {x0,x1,y0,y1}=w,ww=x1-x0,hh=y1-y0,r=rng(seed
     c.strokeStyle=rgba('#ffb060',.28);c.lineWidth=.6;for(let i=0;i<5;i++){const sx=x0+r()*ww,sy=y1;c.beginPath();c.moveTo(sx,sy);c.lineTo(sx+(r()-.5)*ww*.6,top+2);c.stroke();}
     c.fillStyle=rgba('#05040a',.85);c.beginPath();c.moveTo(x0,top+hh*.12);c.quadraticCurveTo(x0+ww*.5,top+hh*.08,x1,top+hh*.16);c.lineTo(x1,top+hh*.19);c.quadraticCurveTo(x0+ww*.5,top+hh*.12,x0,top+hh*.15);c.closePath();c.fill();}
   // the glass holds the room: a lamp's ring, the cove's line, a sheen
-  c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba('#ffd9a0',.12);c.lineWidth=1.4;c.beginPath();c.ellipse(x0+ww*.35,y0+hh*.3,12,3,0,0,TAU);c.stroke();
+  c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba('#ffe1a0',.12);c.lineWidth=1.4;c.beginPath();c.ellipse(x0+ww*.35,y0+hh*.3,12,3,0,0,TAU);c.stroke();
   c.fillStyle=rgba('#ffe8d0',.035);c.beginPath();c.moveTo(x0+ww*.15,y0);c.lineTo(x0+ww*.32,y0);c.lineTo(x0+ww*.02,y1);c.lineTo(x0-ww*.15,y1);c.closePath();c.fill();c.restore();
   c.restore();
   // bronze mullions and a transom
@@ -144,8 +144,8 @@ function featureWall(c,x0,x1,top,bt){const cx=(x0+x1)/2,cy=top+68,R=40;
   c.fillStyle=lin(c,0,top,0,bt,[[0,rgba('#000000',.0)],[1,rgba('#000000',.35)]]);c.fillRect(x0,top,x1-x0,bt-top);
   // the light from above: a cone from a slot in the ceiling, warm on the stone and the ring
   // (the shared soft piece: its sides feathered, fading as it comes down)
-  E.softCone(c,cx,top,16,150,176,'#ffd69a',.19,0,1);
-  c.save();c.globalCompositeOperation='lighter';c.fillStyle=rad(c,cx,cy,0,96,[[0,rgba('#ffc880',.16)],[1,rgba('#ffc880',0)]]);c.fillRect(cx-96,cy-96,192,192);c.restore();
+  E.softCone(c,cx,top,16,150,176,'#ffdf9a',.19,0,1);
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=rad(c,cx,cy,0,96,[[0,rgba('#ffd780',.16)],[1,rgba('#ffd780',0)]]);c.fillRect(cx-96,cy-96,192,192);c.restore();
   // the ring: polished brass, its gap, its moon and the bar; inside it a thread of cyan light
   c.save();c.lineCap='round';
   c.strokeStyle=rgba('#000000',.6);c.lineWidth=5;c.beginPath();c.arc(cx+1.4,cy+2,R,.35,TAU-.5);c.stroke();
@@ -170,18 +170,18 @@ function desk(c){const x0=272,x1=538,dF=196,dB=224,h=46,t0=pp(x0,GB-h,dF),t1=pp(
   // the front: five onyx panels lit from within, brass pilasters between them, a dark plinth at the foot
   const n=5,pil=4,fw=(t1.x-t0.x),ph=f0.y-t0.y-7;c.save();path(c,[t0,t1,{x:f1.x,y:f1.y-7},{x:f0.x,y:f0.y-7}]);c.clip();
   c.fillStyle=pat(c,LT().onyx(3,256,256),t0.x,t0.y,.22);c.fillRect(t0.x,t0.y,fw,ph);
-  c.fillStyle=lin(c,0,t0.y,0,t0.y+ph,[[0,rgba('#1e0a02',.66)],[.45,rgba('#1e0a02',.4)],[1,rgba('#1e0a02',.7)]]);c.fillRect(t0.x,t0.y,fw,ph);
-  for(let i=0;i<n;i++){const px=t0.x+(i+.5)*fw/n;c.save();c.globalCompositeOperation='lighter';c.fillStyle=rad(c,px,t0.y+ph*.55,2,fw/n*.7,[[0,rgba('#ffb040',.17)],[1,rgba('#ffb040',0)]]);c.fillRect(px-fw/n,t0.y,fw/n*2,ph);c.restore();}
+  c.fillStyle=lin(c,0,t0.y,0,t0.y+ph,[[0,rgba('#1e1604',.66)],[.45,rgba('#1e1604',.4)],[1,rgba('#1e1604',.7)]]);c.fillRect(t0.x,t0.y,fw,ph);
+  for(let i=0;i<n;i++){const px=t0.x+(i+.5)*fw/n;c.save();c.globalCompositeOperation='lighter';c.fillStyle=rad(c,px,t0.y+ph*.55,2,fw/n*.7,[[0,rgba('#ffc340',.17)],[1,rgba('#ffc340',0)]]);c.fillRect(px-fw/n,t0.y,fw/n*2,ph);c.restore();}
   for(let i=0;i<=n;i++){const px=t0.x+i*fw/n-pil/2;brassV(c,px,t0.y,pil,ph,1);c.fillStyle=rgba('#000000',.4);c.fillRect(px+pil,t0.y,.8,ph);}
   c.restore();
-  fillP(c,[{x:f0.x,y:f0.y-7},{x:f1.x,y:f1.y-7},f1,f0],'#060507');c.fillStyle=rgba('#ffb060',.7);c.fillRect(f0.x,f0.y-1.4,f1.x-f0.x,.9);
+  fillP(c,[{x:f0.x,y:f0.y-7},{x:f1.x,y:f1.y-7},f1,f0],'#060507');c.fillStyle=rgba('#ffcd60',.7);c.fillRect(f0.x,f0.y-1.4,f1.x-f0.x,.9);
   // the top: a slab of Portoro with a brass nosing, lit along its edge
   fillP(c,[t0,t1,b1,b0],pat(c,NERO(),b0.x,b0.y,.25));fillP(c,[t0,t1,b1,b0],rgba('#000000',.15));
   c.fillStyle=lin(c,0,t0.y-1,0,t0.y+3,[[0,GL],[1,GD]]);c.fillRect(t0.x-1,t0.y-.5,fw+2,3);c.fillStyle=rgba('#fff2d0',.9);c.fillRect(t0.x-1,t0.y-.6,fw+2,.7);
   // two brass lamps with silk shades, a bowl of white orchids, the brass bell
   for(const lx of [296,514]){const a=pp(lx,GB-h,210),s=a.y;c.fillStyle=lin(c,a.x-1.2,0,a.x+1.2,0,[[0,GD],[.5,GL],[1,GD]]);c.fillRect(a.x-1,s-15,2,15);c.fillStyle=GOLD;c.beginPath();c.ellipse(a.x,s-.6,4,1.2,0,0,TAU);c.fill();
     c.fillStyle=lin(c,0,s-24,0,s-14,[[0,'#f6e6c4'],[1,'#d8b878']]);c.beginPath();c.moveTo(a.x-8,s-14);c.lineTo(a.x-5,s-24);c.lineTo(a.x+5,s-24);c.lineTo(a.x+8,s-14);c.closePath();c.fill();
-    glow(c,a.x,s-16,40,'#ffc880',.3);c.fillStyle=rgba('#fff6e0',.9);c.fillRect(a.x-7.4,s-14.6,14.8,.8);}
+    glow(c,a.x,s-16,40,'#ffd780',.3);c.fillStyle=rgba('#fff6e0',.9);c.fillRect(a.x-7.4,s-14.6,14.8,.8);}
   {const o=pp(405,GB-h,208);c.fillStyle=lin(c,o.x-11,0,o.x+11,0,[[0,'#050406'],[.5,'#1c1a20'],[1,'#050406']]);c.fillRect(o.x-11,o.y-7,22,7);c.fillStyle=GOLD;c.fillRect(o.x-11,o.y-7.6,22,.9);
     c.strokeStyle='#3a5a32';c.lineWidth=1;c.beginPath();for(const a of [-.6,-.2,.25,.6]){c.moveTo(o.x,o.y-7);c.quadraticCurveTo(o.x+Math.sin(a)*6,o.y-15,o.x+Math.sin(a)*13,o.y-20);}c.stroke();
     for(const a of [-.6,-.2,.25,.6]){const fx=o.x+Math.sin(a)*13,fy=o.y-20;c.fillStyle='#f4f2ee';for(let k=0;k<5;k++){const aa=k/5*TAU;c.beginPath();c.ellipse(fx+Math.cos(aa)*1.4,fy+Math.sin(aa)*1.2,1.3,.9,aa,0,TAU);c.fill();}c.fillStyle='#c87aa0';c.fillRect(fx-.4,fy-.4,.8,.8);}}
@@ -195,7 +195,7 @@ function painting(c,x0,y0,w,h){c.fillStyle=rgba('#000000',.6);c.fillRect(x0-6,y0
   c.fillStyle='#050406';c.beginPath();c.moveTo(x0-4,y0+h*.58);c.lineTo(x0+w+4,y0+h*.3);c.lineTo(x0+w+4,y0+h*.5);c.lineTo(x0-4,y0+h*.8);c.closePath();c.fill();
   c.fillStyle='#4a1420';c.fillRect(x0,y0+h*.86,w,4);c.restore();
   // its picture light
-  brassH(c,x0+w/2-13,y0-14,26,3.4);c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,y0-12,0,y0+h,[[0,rgba('#ffd69a',.13)],[1,rgba('#ffd69a',0)]]);c.beginPath();c.moveTo(x0+w/2-12,y0-11);c.lineTo(x0+w/2+12,y0-11);c.lineTo(x0+w+18,y0+h);c.lineTo(x0-18,y0+h);c.closePath();c.fill();c.restore();}
+  brassH(c,x0+w/2-13,y0-14,26,3.4);c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,y0-12,0,y0+h,[[0,rgba('#ffdf9a',.13)],[1,rgba('#ffdf9a',0)]]);c.beginPath();c.moveTo(x0+w/2-12,y0-11);c.lineTo(x0+w/2+12,y0-11);c.lineTo(x0+w+18,y0+h);c.lineTo(x0-18,y0+h);c.closePath();c.fill();c.restore();}
 // ---------- the lift: brass doors under a floor dial, in a portal of black stone ----------
 function lift(c,yb){const A=LOBBY_LIFT,cx=LG.liftX,top=yb-A.h,ot=top-A.hd,x0=cx-A.w/2,x1=cx+A.w/2,fr=A.fr;
   // the portal: black stone, a brass architrave, the dial above
@@ -205,7 +205,7 @@ function lift(c,yb){const A=LOBBY_LIFT,cx=LG.liftX,top=yb-A.h,ot=top-A.hd,x0=cx-
   {const dy=ot-8,R=15;c.fillStyle='#050406';c.beginPath();c.arc(cx,dy,R+2,Math.PI,0);c.fill();c.fillStyle=rad(c,cx-4,dy-6,1,R,[[0,GL],[.6,GOLD],[1,GD]]);c.beginPath();c.arc(cx,dy,R,Math.PI,0);c.closePath();c.fill();
     c.fillStyle='#120e08';c.beginPath();c.arc(cx,dy,R-3,Math.PI,0);c.closePath();c.fill();c.strokeStyle=rgba(GL,.8);c.lineWidth=.5;c.beginPath();for(let i=0;i<=8;i++){const a=Math.PI+i*Math.PI/8;c.moveTo(cx+Math.cos(a)*(R-3.6),dy+Math.sin(a)*(R-3.6));c.lineTo(cx+Math.cos(a)*(R-6),dy+Math.sin(a)*(R-6));}c.stroke();
     c.strokeStyle=GL;c.lineWidth=.9;c.beginPath();c.moveTo(cx,dy);const na=Math.PI*1.86;c.lineTo(cx+Math.cos(na)*(R-4),dy+Math.sin(na)*(R-4));c.stroke();c.fillStyle=GOLD;c.beginPath();c.arc(cx,dy,1.6,0,TAU);c.fill();
-    glow(c,cx,dy-4,26,'#ffc880',.18);}
+    glow(c,cx,dy-4,26,'#ffd780',.18);}
   // the doors, shut: brushed brass, a ring cut half in each leaf, a seam of dark between them
   for(const s of [-1,1]){const a=s<0?x0:cx,b=s<0?cx:x1;c.fillStyle=lin(c,a,0,b,0,[[0,GD],[.3,GOLD],[.5,mix(GOLD,GL,.5)],[.75,GOLD],[1,GD]]);c.fillRect(a,top,b-a,A.h);
     c.fillStyle=rgba('#ffffff',.05);for(let x=a+1;x<b;x+=1.6)c.fillRect(x,top,.4,A.h);
@@ -216,11 +216,11 @@ function lift(c,yb){const A=LOBBY_LIFT,cx=LG.liftX,top=yb-A.h,ot=top-A.hd,x0=cx-
   c.fillStyle='#050406';c.fillRect(cx-.6,top,1.2,A.h);c.fillStyle=rgba(GL,.5);c.fillRect(cx+.6,top,.4,A.h);
   // the call buttons: a brass plate, the up button lit
   const bx=x1+fr+8;c.fillStyle=lin(c,bx,0,bx+9,0,[[0,GD],[.5,GOLD],[1,GD]]);c.fillRect(bx,yb-94,9,24);c.fillStyle='#0a0806';for(const [yy,lit] of [[yb-88,1],[yb-78,0]]){c.beginPath();c.arc(bx+4.5,yy,2.6,0,TAU);c.fill();c.fillStyle=lit?'#ffd890':'#3a3020';c.beginPath();c.arc(bx+4.5,yy,1.8,0,TAU);c.fill();c.fillStyle='#0a0806';}
-  glow(c,bx+4.5,yb-88,8,'#ffc070',.4);}
+  glow(c,bx+4.5,yb-88,8,'#ffd270',.4);}
 // ---------- the executive's doors: Macassar ebony inlaid with a gold sunburst, in a portal of black stone and brass, alabaster sconces ----------
 function execDoor(c,yb,wt){const x0=LG.dx0,x1=LG.dx1,top=LG.dTop,w=x1-x0,cx=(x0+x1)/2;
   // the wash of light from above the portal
-  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,wt,0,yb,[[0,rgba('#ffd69a',.18)],[1,rgba('#ffd69a',0)]]);c.beginPath();c.moveTo(cx-8,wt+2);c.lineTo(cx+8,wt+2);c.lineTo(x1+60,yb-8);c.lineTo(x0-60,yb-8);c.closePath();c.fill();c.restore();
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,wt,0,yb,[[0,rgba('#ffdf9a',.18)],[1,rgba('#ffdf9a',0)]]);c.beginPath();c.moveTo(cx-8,wt+2);c.lineTo(cx+8,wt+2);c.lineTo(x1+60,yb-8);c.lineTo(x0-60,yb-8);c.closePath();c.fill();c.restore();
   // the portal: black stone either side and over the top, a stepped brass architrave, the entablature with the ring on it
   c.fillStyle=pat(c,NERO(),x0-24,top-40,.32);c.fillRect(x0-24,top-40,w+48,yb-top+40);c.fillStyle=rgba('#000000',.25);c.fillRect(x0-24,top-40,w+48,yb-top+40);
   for(const [k,col] of [[10,GDD],[7,GOLD],[4,GD]]){c.fillStyle=col;c.fillRect(x0-k,top-k,w+2*k,yb-top+k);}
@@ -238,11 +238,11 @@ function execDoor(c,yb,wt){const x0=LG.dx0,x1=LG.dx1,top=LG.dTop,w=x1-x0,cx=(x0+
     c.fillStyle=lin(c,0,yb-20,0,yb-6,[[0,GL],[1,GD]]);c.fillRect(a+3,yb-20,w/2-6,14);}
   c.fillStyle='#050406';c.fillRect(cx-.7,top,1.4,yb-top);
   // a line of light under the doors
-  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,yb-3,0,yb,[[0,rgba('#ffc070',0)],[1,rgba('#ffc070',.6)]]);c.fillRect(x0+3,yb-3,w-6,3);c.restore();
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,yb-3,0,yb,[[0,rgba('#ffd270',0)],[1,rgba('#ffd270',.6)]]);c.fillRect(x0+3,yb-3,w-6,3);c.restore();
   // the sconces: alabaster in brass, the light up and down the stone
-  for(const sx of [x0-48,x1+48]){const sy=top+34;c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,sy-50,0,sy+80,[[0,rgba('#ffc888',0)],[.35,rgba('#ffc888',.22)],[.55,rgba('#ffc888',.2)],[1,rgba('#ffc888',0)]]);c.fillRect(sx-18,sy-50,36,130);c.restore();
-    glow(c,sx,sy+16,56,'#ffc070',.34);c.fillStyle='#0a0806';c.fillRect(sx-3,sy-4,6,44);
-    c.fillStyle=lin(c,sx-4,0,sx+4,0,[[0,'#d8b890'],[.5,'#fff2dc'],[1,'#d0ac80']]);c.beginPath();c.moveTo(sx-4.4,sy);c.lineTo(sx+4.4,sy);c.lineTo(sx+3.4,sy+34);c.lineTo(sx-3.4,sy+34);c.closePath();c.fill();
+  for(const sx of [x0-48,x1+48]){const sy=top+34;c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,sy-50,0,sy+80,[[0,rgba('#ffd988',0)],[.35,rgba('#ffd988',.22)],[.55,rgba('#ffd988',.2)],[1,rgba('#ffd988',0)]]);c.fillRect(sx-18,sy-50,36,130);c.restore();
+    glow(c,sx,sy+16,56,'#ffd270',.34);c.fillStyle='#0a0806';c.fillRect(sx-3,sy-4,6,44);
+    c.fillStyle=lin(c,sx-4,0,sx+4,0,[[0,'#d8c190'],[.5,'#fff2dc'],[1,'#d0b780']]);c.beginPath();c.moveTo(sx-4.4,sy);c.lineTo(sx+4.4,sy);c.lineTo(sx+3.4,sy+34);c.lineTo(sx-3.4,sy+34);c.closePath();c.fill();
     c.strokeStyle=rgba('#a87a40',.35);c.lineWidth=.4;c.beginPath();for(let k=0;k<4;k++){c.moveTo(sx-3.6,sy+6+k*7);c.quadraticCurveTo(sx,sy+3+k*7,sx+3.6,sy+8+k*7);}c.stroke();
     brassH(c,sx-6,sy-5,12,3);brassH(c,sx-6,sy+34,12,3);}
   // the plaque, and the keypad of black glass
@@ -282,7 +282,7 @@ function box(q,u0,u1,v0,v1,fz,bz,M){
   if(M.rim)segL(q(u0,v1,fz),q(u1,v1,fz),.7,rgba(M.rim,.5));}
 const shadowUnder=(q,d,rx)=>{const a=q(.5,0,d),g=S.arena.ground(0,d),s=P(a.x-d*PSX,g,d);ctx.save();ctx.fillStyle=rad(ctx,a.x,a.y,0,rx,[[0,'rgba(0,0,0,.45)'],[1,'rgba(0,0,0,0)']]);ctx.translate(a.x,a.y);ctx.scale(1,.26);ctx.beginPath();ctx.arc(0,0,rx,0,TAU);ctx.fill();ctx.restore();void s;};
 function brassLeg(q,u,d){const a=q(u-.025,0,d),b=q(u+.025,.15,d);ctx.fillStyle=lin(ctx,a.x,0,b.x,0,[[0,GDD],[.5,GL],[1,GD]]);poly2([q(u-.022,0,d),q(u+.022,0,d),q(u+.03,.15,d),q(u-.03,.15,d)]);ctx.fill();}
-function leatherM(q){const o=q(0,1,0);const L=patC(LT().leather(5,128,128),o.x,o.y,.25);return{front:L,top:L,side:L,topLit:'#ffd9a8',rim:'#ffcf86',frontHi:.05,frontLo:.4};}
+function leatherM(q){const o=q(0,1,0);const L=patC(LT().leather(5,128,128),o.x,o.y,.25);return{front:L,top:L,side:L,topLit:'#ffe3a8',rim:'#ffd986',frontHi:.05,frontLo:.4};}
 function velvetM(q,col,seed){const o=q(0,1,0);const V=patC(LT().velvet(seed||6,128,128,{base:col}),o.x,o.y,.25);return{front:V,top:V,side:V,topLit:'#fff0c8',rim:'#ffe2a0',frontHi:.06,frontLo:.42};}
 function prop(Pp){const t=Pp.type;if(!['sofa','lounger','pouf','sidetable','planter','plinth'].includes(t))return false;
   const q=lobbyFrame(Pp),d=Pp.dep;ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
@@ -291,7 +291,7 @@ function prop(Pp){const t=Pp.type;if(!['sofa','lounger','pouf','sidetable','plan
     box(q,.02,.98,.42,1,d+6,d+14,M);box(q,.02,.98,.12,.4,d-13,d+13,M);
     for(const [a,b] of [[.08,.5],[.5,.92]]){box(q,a,b-.005,.4,.52,d-13,d+8,M);box(q,a+.01,b-.015,.52,.97,d+2,d+8,M);
       // the back cushions buttoned in a diamond
-      for(let i=0;i<3;i++)for(let j=0;j<2;j++){const u=lerp(a+.04,b-.05,(i+(j%2)*.5)/2.5),v=.62+j*.18,s0=q(u,v,d+2);ctx.fillStyle=rgba('#000000',.6);ctx.beginPath();ctx.arc(s0.x,s0.y,.9,0,TAU);ctx.fill();ctx.fillStyle=rgba('#ffd9a8',.18);ctx.beginPath();ctx.arc(s0.x-.3,s0.y-.4,.4,0,TAU);ctx.fill();}}
+      for(let i=0;i<3;i++)for(let j=0;j<2;j++){const u=lerp(a+.04,b-.05,(i+(j%2)*.5)/2.5),v=.62+j*.18,s0=q(u,v,d+2);ctx.fillStyle=rgba('#000000',.6);ctx.beginPath();ctx.arc(s0.x,s0.y,.9,0,TAU);ctx.fill();ctx.fillStyle=rgba('#ffe3a8',.18);ctx.beginPath();ctx.arc(s0.x-.3,s0.y-.4,.4,0,TAU);ctx.fill();}}
     for(const u of [0,.93])box(q,u,u+.07,.1,.7,d-14,d+13,M);
     segL(q(.02,.4,d-13),q(.98,.4,d-13),1.2,GOLD);segL(q(.02,.4,d-13.4),q(.98,.4,d-13.4),.4,GL);
     segL(q(0,.7,d-14),q(.07,.7,d-14),1.1,GOLD);segL(q(.93,.7,d-14),q(1,.7,d-14),1.1,GOLD);}
@@ -354,7 +354,7 @@ function lamp(L){if(L.kind!=='ring')return false;const p=L.p,a=P(L.x,L.ay,L.dep)
   ctx.lineWidth=4;ctx.strokeStyle=lin(ctx,-22,0,22,0,[[0,GDD],[.3,GOLD],[.55,GL],[.8,GOLD],[1,GDD]]);ctx.beginPath();ctx.ellipse(0,0,21,6,0,Math.PI,TAU);ctx.stroke();
   ctx.lineWidth=2.6;ctx.strokeStyle=L.lit?'#fff2d4':'#2a2830';ctx.beginPath();ctx.ellipse(0,2,20,5.6,0,0,Math.PI);ctx.stroke();
   ctx.lineWidth=1.2;ctx.strokeStyle=GOLD;ctx.beginPath();ctx.ellipse(0,3.6,20.6,6,0,.05,Math.PI-.05);ctx.stroke();
-  if(L.lit){ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle=rgba('#ffd090',.35);ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(0,2,20,5.6,0,0,Math.PI);ctx.stroke();ctx.restore();}
+  if(L.lit){ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle=rgba('#ffdc90',.35);ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(0,2,20,5.6,0,0,Math.PI);ctx.stroke();ctx.restore();}
   ctx.restore();return true;}
 // ---------- the frosted partitions: Portoro below, frosted glass etched with a fan above, in brass ----------
 function div(it){const w=it.dv;if(w.mat!=='frost'||w.state==='broken')return false;const A=it.a,B=it.b,xr=divR(w),xl=divL(w),g=S.arena.ground(w.x,(A+B)/2),h=w.h,yt=g-h,base=g-44;
@@ -365,7 +365,7 @@ function div(it){const w=it.dv;if(w.mat!=='frost'||w.state==='broken')return fal
   // the etching: a fan of fine lines rising from the foot of each light, clear glass between
   for(let d=Math.ceil(w.d0/42)*42;d<w.d1;d+=42){if(d+42<A||d>B)continue;const cx=d+21,cy=base-4;ctx.strokeStyle=rgba('#ffffff',.3);ctx.lineWidth=.5;ctx.beginPath();for(let k=0;k<=8;k++){const aa=Math.PI+k*Math.PI/8;ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(aa)*19,cy+Math.sin(aa)*70);}ctx.stroke();
     ctx.strokeStyle=rgba('#ffffff',.22);for(const rr of [.35,.7]){ctx.beginPath();ctx.ellipse(cx,cy,19*rr,70*rr,0,Math.PI,TAU);ctx.stroke();}}
-  ctx.fillStyle=rgba('#ffd9a0',.08);ctx.fillRect(A,yt,B-A,24);
+  ctx.fillStyle=rgba('#ffe1a0',.08);ctx.fillRect(A,yt,B-A,24);
   // the brass: a mullion every light, a rail along the top
   for(let d=Math.ceil(w.d0/42)*42;d<=w.d1;d+=42){if(d<A-2||d>B+2)continue;ctx.fillStyle=lin(ctx,d-1.2,0,d+1.2,0,[[0,GD],[.5,GL],[1,GD]]);ctx.fillRect(d-1.2,yt,2.4,base-yt);}
   ctx.fillStyle=lin(ctx,0,yt-2,0,yt+2,[[0,GL],[1,GD]]);ctx.fillRect(A,yt-2,B-A,4);

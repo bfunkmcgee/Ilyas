@@ -399,9 +399,10 @@ function light(f){return{dir:{x:.12,y:-1},col:'#ffd9a0'};}
 const at=(q,d)=>P(q.x,q.y,d);
 function segP(a,b,d,w,col){const A=at(a,d),B=at(b,d);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();}
 function quad(p,col){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(p[0].x,p[0].y);for(const q of p.slice(1))ctx.lineTo(q.x,q.y);ctx.closePath();ctx.fill();}
-// a soft contact shadow on the floor under a piece of furniture, and the marble its tables are topped with
+// a soft contact shadow on the floor under a piece of furniture, and the marble its tables are topped with (an ivory marble, kept
+// under the fighters' contrast like the cloth: since V81)
 function shadowAt(q,d,rx,ry){const g=S.arena.ground(q.x,d),s=P(q.x,g,d);ctx.save();ctx.fillStyle=rad(ctx,s.x,s.y,0,rx,[[0,'rgba(0,0,0,.42)'],[1,'rgba(0,0,0,0)']]);ctx.translate(s.x,s.y);ctx.scale(1,ry/rx);ctx.translate(-s.x,-s.y);ctx.beginPath();ctx.arc(s.x,s.y,rx,0,TAU);ctx.fill();ctx.restore();}
-let MARBLE=null;function marblePat(){if(MARBLE&&MARBLE.ctx===ctx)return MARBLE.p;const p=ctx.createPattern(EnvTex.marble(4,256,256),'repeat');if(p.setTransform)p.setTransform(new DOMMatrix().scale(.25));MARBLE={ctx,p};return p;}
+let MARBLE=null;function marblePat(){if(MARBLE&&MARBLE.ctx===ctx)return MARBLE.p;const p=ctx.createPattern(EnvTex.marble(14,256,256,{base:'#c4b290',cloud:'#a8966f',vein:'#5a4a36'}),'repeat');if(p.setTransform)p.setTransform(new DOMMatrix().scale(.25));MARBLE={ctx,p};return p;}
 const WOOD='#1e100b',WOODL='#3a2014',WOODD='#0e0705';
 function prop(Pp){const p=Pp.pts,d=Pp.dep,dz=Pp.dz;ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
   if(Pp.type==='chair'){const bk=d+dz*.7,fr=d-dz*.7,s0=p[0],t=p[2];
@@ -433,7 +434,7 @@ function prop(Pp){const p=Pp.pts,d=Pp.dep,dz=Pp.dz;ctx.save();ctx.lineCap='round
     const b0=at(p[4],d),b1=at(p[5],d);ctx.strokeStyle=lin(ctx,b0.x-2,0,b0.x+2,0,[[0,C.goldDD],[.5,C.gold],[1,C.goldDD]]);ctx.lineWidth=3.4;ctx.beginPath();ctx.moveTo(b0.x,b0.y);ctx.lineTo(b1.x,b1.y);ctx.stroke();
     ctx.fillStyle=C.goldD;const kn=at({x:lerp(p[4].x,p[5].x,.55),y:lerp(p[4].y,p[5].y,.55)},d);ctx.beginPath();ctx.ellipse(kn.x,kn.y,3.4,2,0,0,TAU);ctx.fill();
     const ring=(o,col)=>{ctx.fillStyle=col;ctx.beginPath();for(let i=0;i<=28;i++){const a=i/28*TAU,q=P(mx+ux*Math.cos(a),my+uy*Math.cos(a)+o,d+dz*Math.sin(a));i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);}ctx.fill();};
-    ring(3.4,C.goldD);ring(1.6,'#b8a89a');
+    ring(3.4,C.goldD);ring(1.6,'#8e7e66');
     ctx.save();ring(0,marblePat());ctx.clip();ctx.strokeStyle=rgba('#7a6a6a',.35);ctx.lineWidth=.5;ctx.beginPath();{const a=P(mx-ux*.7,my-uy*.7,d+5),b=P(mx+ux*.1,my,d-3),e=P(mx+ux*.6,my,d-8);ctx.moveTo(a.x,a.y);ctx.quadraticCurveTo(b.x,b.y,e.x,e.y);}ctx.stroke();
     ctx.fillStyle=rgba('#ffcf86',.18);ctx.fillRect(P(mx-ux,my,d).x,P(mx,my,d+dz).y,ux*2.4,4);ctx.restore();}
   else if(Pp.type==='plant'){shadowAt({x:(p[2].x+p[3].x)/2,y:(p[2].y+p[3].y)/2},d,18,6);const pt=p[4],c0={x:(p[0].x+p[1].x)/2,y:(p[0].y+p[1].y)/2},ang=Math.atan2(pt.y-c0.y,pt.x-c0.x);
@@ -460,22 +461,23 @@ function lamp(L){const p=L.p,a=P(L.x,L.ay,L.dep),q=P(p.x,p.y,L.dep),k=lampGlow(L
   ctx.fillStyle='#0d0806';ctx.fillRect(-6.5,7,13,2);ctx.beginPath();ctx.moveTo(-3,9);ctx.lineTo(0,13);ctx.lineTo(3,9);ctx.fill();ctx.fillStyle=C.gold;ctx.fillRect(-6.5,7,13,.7);
   if(L.lit){ctx.fillStyle='#fff8e8';ctx.beginPath();ctx.ellipse(0,1,1.6,2.6,0,0,TAU);ctx.fill();}
   ctx.restore();return true;}
-// the long table under its cloth: a fall of white damask, a candelabrum's worth of light on it
+// the long table under its cloth: a fall of ivory damask, a candelabrum's worth of light on it (since V81 ivory and kept under the
+// fighters' contrast: white is the man in white's colour, the style guide's rule 3, and the cloth was the brightest thing on the floor)
 function table(){const T=S.table;if(!T||!T.on||T.state==='broken'||S.room!=='dining')return false;
   const Q=T.pts,bk=T.dep+TD,fr=T.dep-TD,lp=(a,b,u)=>({x:lerp(a.x,b.x,u),y:lerp(a.y,b.y,u)});
   const ux=(Q[1].x-Q[0].x),uy=(Q[1].y-Q[0].y),Lr=Math.hypot(ux,uy)||1,nx=-uy/Lr,ny=ux/Lr,o=(q,u,v)=>({x:q.x+ux/Lr*u+nx*v,y:q.y+uy/Lr*u+ny*v});
   ctx.save();ctx.lineCap='round';
   // the legs that show under the cloth
   const la=lp(Q[0],Q[1],.08),lb=lp(Q[0],Q[1],.92);segP(la,Q[3],bk,4,WOODD);segP(lb,Q[2],bk,4,WOODD);segP(la,Q[3],fr,4.4,WOOD);segP(lb,Q[2],fr,4.4,WOOD);
-  const a0=o(Q[0],-6,-1),a1=o(Q[1],6,-1);quad([at(a0,bk+4),at(a1,bk+4),at(a1,fr-4),at(a0,fr-4)],'#efe4d0');
+  const a0=o(Q[0],-6,-1),a1=o(Q[1],6,-1);quad([at(a0,bk+4),at(a1,bk+4),at(a1,fr-4),at(a0,fr-4)],'#c8b48e');
   // the drop at the front, scalloped, with folds
   const N=12,dr=[];for(let i=0;i<=N;i++)dr.push(at({x:lerp(a0.x,a1.x,i/N),y:lerp(a0.y,a1.y,i/N)},fr-4));
   for(let i=N;i>=0;i--){const b={x:lerp(a0.x,a1.x,i/N),y:lerp(a0.y,a1.y,i/N)};dr.push(at(o(b,0,17+(i%2?3:0)),fr-4));}
-  ctx.fillStyle=lin(ctx,0,dr[0].y,0,dr[dr.length-1].y+20,[[0,'#e6d8c0'],[1,'#b8a488']]);quad(dr,ctx.fillStyle);
+  ctx.fillStyle=lin(ctx,0,dr[0].y,0,dr[dr.length-1].y+20,[[0,'#bba680'],[1,'#8a7656']]);quad(dr,ctx.fillStyle);
   ctx.strokeStyle=rgba('#7a6a50',.35);ctx.lineWidth=.6;for(let i=1;i<N;i++){const b={x:lerp(a0.x,a1.x,i/N),y:lerp(a0.y,a1.y,i/N)},t1=at(b,fr-4),t2=at(o(b,0,16),fr-4);ctx.beginPath();ctx.moveTo(t1.x,t1.y+2);ctx.lineTo(t2.x,t2.y);ctx.stroke();}
   ctx.strokeStyle=rgba(C.gold,.6);ctx.lineWidth=.7;ctx.beginPath();for(let i=0;i<=N;i++){const b={x:lerp(a0.x,a1.x,i/N),y:lerp(a0.y,a1.y,i/N)},t2=at(o(b,0,15+(i%2?3:0)),fr-4);i?ctx.lineTo(t2.x,t2.y):ctx.moveTo(t2.x,t2.y);}ctx.stroke();
-  for(const [q,sg] of [[a0,-1],[a1,1]])quad([at(q,bk+4),at(q,fr-4),at(o(q,sg*2,17),fr-4),at(o(q,sg*2,17),bk+4)],'#d8c8b0');
-  ctx.strokeStyle=rgba('#ffffff',.6);ctx.lineWidth=.8;ctx.beginPath();{const t1=at(a0,fr-4),t2=at(a1,fr-4);ctx.moveTo(t1.x,t1.y);ctx.lineTo(t2.x,t2.y);}ctx.stroke();
+  for(const [q,sg] of [[a0,-1],[a1,1]])quad([at(q,bk+4),at(q,fr-4),at(o(q,sg*2,17),fr-4),at(o(q,sg*2,17),bk+4)],'#ad9874');
+  ctx.strokeStyle=rgba('#ffeccc',.32);ctx.lineWidth=.8;ctx.beginPath();{const t1=at(a0,fr-4),t2=at(a1,fr-4);ctx.moveTo(t1.x,t1.y);ctx.lineTo(t2.x,t2.y);}ctx.stroke();
   ctx.restore();return true;}
 // candles burn: a flame and its glow over the wax
 function ware(it){if(it.kind!=='candle'||it.gone||it.sil)return false;const q=P(it.x,it.y,it.dep);ctx.save();ctx.translate(q.x,q.y);ctx.rotate(it.ang||0);

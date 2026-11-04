@@ -680,7 +680,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below). The colour script (K1 on) is next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below). The drawing, place by place (D1 on) is next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -732,12 +732,12 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V81 ..." (V80 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V82 ..." (V81 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V80: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V81: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -855,6 +855,30 @@ was checked, and anything that did not work, plainly.
   balance and Broken pulsing on it), the guard's arc and the pose say how a man stands. The Flow count is the corner badge's alone.
   A table's, a wall's or a screen's result is said where it happened (`popAt`). The enemies' intent boxes on your turn stay as they
   were. The look suite checks it through a crowded fight in the dining room.
+- The colour script (since V81, the style guide's rules 3 and 4). Gold is the gilt and the family's money: the office's and the
+  lobby's lamps are lit gold (#e2b65a's hue, their light and glows turned from the amber they had: `glowSprites()` gives those two
+  rooms gold sprites, `GLOW_AU` in sk_envui.js), the office's oak and burl and the lobby's onyx gilded to match, so gold at least
+  matches sodium in both (at 412x714 the office 31 to 32% of its light gold to 24 to 27% sodium, the lobby 13 to 16% to 8%; V80's
+  office was 63% sodium to 6% gold). The Pit has none: the landing's hay is straw (under .45 saturation in the gold hues, env_sumproof.js),
+  and the yard's lamplight at night is the poor's orange, its door and window painted dark because the yard's set light (a dodge)
+  lifts what is painted by its pools, and a bright orange lifted that way clips to yellow (gold in the yard at night 1.5% to .3%).
+  The roof's betrayal drains the gold: paint() keeps each gold shape as it draws it (`GILT` in env_roof.js: the crown's blades and
+  mullions, the coping, the stair head's trim, the pad's ring and H in the deck's plane, the edge's lip and the line by it), in
+  four rings out from the crown, and live() lays a dark tarnish (multiply, #2a2e36) over each ring as hero().drain rises after the
+  round (sk_story.js: 0 to 1 over 1.6 s), the crown's cyan left on the dead blades; the crown flares cyan as the round lands, read
+  back from how far the drain has gone (nothing kept a frame), and the roof's `light(f)` turns the rim to the crown's cyan while it
+  lasts. The helicopter keeps its trim (the family's). The camera eases after him as he backs to the edge (sk_story.js), so the
+  gilt going dark on him is in the picture. The audit's roof has frames as the round lands (t32.9, at 32.1: the game slows there)
+  and after the drain (t33.9, at 33.4): gold 2.8% of the light before it, .7% after. The Pit by day has a sun
+  (`pitKit.sun()`: about #ffd6a0 low over the rim at the left; by morning #ffe2bf from the right, cooler; none at dusk or at night)
+  and `pitKit.sunlight(c, P, x0, x1, y0, y1, o)` lays its light into a place's layer and the picture above it alike, from the rim
+  (y -640) down: the side toward it warmer, soft shafts slanting down the terraces (softCone), the far side and the low air cooled
+  toward slate. The day's palette has the sun's light on the tops of things, the high haze warm and the shadows and the low air
+  slate; the morning's blue haze and mist with the cooler sun through them. The figures' rim comes from the sun by day and by
+  morning (the yard, the stairs); the Shelf's stall lamps light their shelves (a cone down from each) and their counters' tops.
+  Saturation at 412x714: the yard by day .32, the stairs .27 to .30, the Shelf .26 to .28, the mornings .15 to .18 (V80: .24, .18
+  to .23, .27, .09 to .10). The dining room's cloths and its tables' marble are ivory and lower (white 3.4% of the light to
+  under 1%): white is the man in white's. The look suite checks the drain and the sun.
 - Time a painter on a phone's screen by drawing the same moment over and over with a part left out by turns (as the V72 dream was
   timed): one run against another on this machine differs by 2 ms or more.
 - What a pass over the whole frame costs is its pixels times its blend, and in a CPU canvas it is dear: on a phone's 1.2 million

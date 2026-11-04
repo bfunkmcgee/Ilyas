@@ -298,6 +298,8 @@ function counterPiece(s){const P=K.pal(),x0=s.x-s.w/2+4,x1=s.x+s.w/2-4,h=s.id===
     c.fillStyle=sh('#22180f',1.4);K.poly(c,[B,Q(x1,0,ST.cb),Q(x1,h,ST.cb),Bt]);c.fill();
     c.fillStyle=K.topLit(P,'#4a3a2a',.6);K.poly(c,[Q(x0-3,h,ST.cf-2),Q(x1+3,h,ST.cf-2),Q(x1+3,h,ST.cb+1),Q(x0-3,h,ST.cb+1)]);c.fill();
     c.fillStyle=rgba('#000000',.4);c.fillRect(At.x-3,At.y,Bt.x-At.x+6,2);c.fillStyle=rgba(P.light,.08+.3*P.lightA);c.fillRect(At.x-3,At.y-1.5,Bt.x-At.x+6,.8);
+    // the stall's two lamps on its top and its edge: a warm pool under each (since V81: the lamps lit nothing)
+    c.save();c.globalCompositeOperation='lighter';for(const px of [s.x-s.w/2+12,s.x+s.w/2-12]){const q=Q(px,h,(ST.cf+ST.cb)/2);K.cRad(c,q.x,q.y,2,30,'#ffb860',.2+.16*P.lamp,.4);const e=Q(px,h,ST.cf-2);K.cRad(c,e.x,e.y-.7,1,22,'#ffc070',.22+.14*P.lamp,.12);}c.restore();
     // what is set out on it
     const top=(x,dd)=>Q(x,h,dd||188);ON[s.id]&&ON[s.id](c,P,s,x0,x1,h,top,r);});}
 const ON={
@@ -348,11 +350,16 @@ function grinderPiece(s){const P=K.pal(),gx=s.x+s.w/2+8,gd=ST.gd,a=Q(gx-30,80,gd
 // (a counter goes down at its front's depth: its keeper, behind it, is drawn first; a buyer at the front of it after)
 function pieces(){syncST();const out=[];for(const s of stalls()){out.push({d:ST.cf,draw:c=>K.drawPiece(c,counterPiece(s))});if(s.id==='grind')out.push({d:ST.gd,draw:c=>K.drawPiece(c,grinderPiece(s))});}return out;}
 // ---------- the scene ----------
-// the light: the lamps' pools on the floor before the counters, the daylight come down the Pit over the middle of the ledge
+// the sun's light (the kit's), the same in the layer and in the picture above it (upperPaint), from the rim
+const SUNO={n:7,seed:53};
+// the light: the lamps' pools on the floor before the counters, the daylight come down the Pit over the middle of the ledge; each
+// stall's lamps lighting its shelves and wares under the tarp (a soft cone down from each, the shared piece); the sun's light
 function lightPass(c,P){const pts=floorPts();c.save();K.poly(c,pts);c.clip();c.globalCompositeOperation='lighter';
-  for(const L2 of LAMPS)if(L2.pool)K.cRad(c,L2.pool.x,L2.pool.y,4,46,'#ffb25e',.05+.07*P.lamp,.36);
-  {const m=Q(450,0,110);K.cRad(c,m.x,m.y,20,520,P.light,.06,.4);}
-  c.restore();}
+  for(const L2 of LAMPS)if(L2.pool)K.cRad(c,L2.pool.x,L2.pool.y,4,58,'#ffb25e',.08+.1*P.lamp,.36);
+  {const m=Q(450,0,110);K.cRad(c,m.x,m.y,20,520,P.light,.05,.4);}
+  c.restore();
+  for(const L2 of LAMPS)if(L2.pool)EnvLook.softCone(c,L2.x,L2.y-2,4,70,74,'#ffc27a',.26+.16*P.lamp,0,1.1);
+  K.sunlight(c,P,-200,1240,-640,GB+40,SUNO);}
 function paint(c){syncST();const P=K.pal(),X0=-170,X1=W+250,T0=-110;LAMPS=[];SMOKES=[];TOPS=[];
   backdrop(c,P,X0,X1,T0);front(c,P);ledge(c,P);between(c,P);stair(c,P);for(const s of stalls())stall(c,P,s);derrick(c,P);lightPass(c,P);
   TOPS.sort((a,b)=>a.x-b.x);}
@@ -375,7 +382,7 @@ function upperPaint(c,P,x0,x1,y0,y1){const X0=-170,X1=W+250;
   farSide(c,P,X0,X1,-650,y1+1,{});
   edgeLines(c,P);
   c.fillStyle=lin(c,0,-640,0,-470,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,170);
-  K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});}
+  K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1240,-640,GB+40,SUNO);}
 // ---------- what moves ----------
 // smoke from the kettle and up the wall and out of the drop; the fires below and the lamps breathing; the tarps' torn valances and
 // the bunting stirring in the draught that comes up the Pit

@@ -20,7 +20,7 @@ const SHOTS=[
   {id:'roadblock',stage:'roadblock',at:['t2','f4']},{id:'vargo',stage:'vargo',at:['t3','f4']},{id:'dining',stage:'dining',at:['f2','f5']},
   {id:'kitchen',stage:'kitchen',at:['f2','f5']},{id:'platform',stage:'platform',at:['t3','t8']},{id:'line',stage:'line',at:['f2','f5']},
   {id:'deep',stage:'deep',at:['t3','f4']},{id:'lobby',stage:'lobby',at:['t3','f4']},{id:'office',stage:'office',at:['t3','f4']},
-  {id:'roof',stage:'roof',at:['t4','t10','t16','t22']},{id:'fall',stage:'fall',at:['t4','t24','t37','t46.5'],draw:'all'},
+  {id:'roof',stage:'roof',at:['t4','t10','t16','t22','t32.9','t33.9']},{id:'fall',stage:'fall',at:['t4','t24','t37','t46.5'],draw:'all'},
   {id:'roof1',stage:'roof1',at:['t3','t9']},{id:'kitchen1',stage:'kitchen1',at:['t3','t8']},{id:'backroom',stage:'backroom',at:['t4','t12']},
   {id:'lostprop',stage:'lostprop',at:['t4','t12']},{id:'yard1',stage:'yard1',at:['t5','t15']},{id:'list',stage:'list',at:['t5','t15']},
   {id:'stairsup',stage:'stairsup',at:['t5','t15']},{id:'shelfstair',stage:'shelfstair',at:['t5','t12']},{id:'shelf',stage:'shelf',at:['t5','t15']},

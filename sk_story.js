@@ -1383,8 +1383,9 @@ STAGES.push({key:'roof',num:'XI',title:'The Roof',sub:'Midnight, at the top of t
     for(let i=0;i<K.p.length;i++){if(i===TIP)continue;const q=K.p[i];q.px-=fa*(i===CHE?260:120)*DT;q.py+=40*DT;}
     K.drain=0;K.hp=Math.max(1,Math.round(K.hp*.15));S.hooks.status();
     S.hooks.sound('aether_drain',1);const drain=(function*(){const t0=S.t;while(S.t<t0+1.6){K.drain=sstep((S.t-t0)/1.6);yield;}K.drain=1;})();
-    // he goes back, a step at a time, to the edge
-    standEasy(K);const x0=K.station,edge=ROOF_EDGE+14;
+    // he goes back, a step at a time, to the edge (the camera easing after him, so that the gilt going dark on him and the edge he goes
+    // over are in the picture, and he is not pressed into its darkened side)
+    standEasy(K);const x0=K.station,edge=ROOF_EDGE+14;camTo(700,900,1.4);
     K.action={t0:S.t,end:2.2,body:[{t:0,v:()=>({...easyBody(K),px:x0,lean:-.2,crouch:.86})},{t:.6,v:()=>({...easyBody(K),px:lerp(x0,edge,.3),lean:-.05,crouch:.8}),e:eOut},
       {t:1.4,v:()=>({...easyBody(K),px:lerp(x0,edge,.72),lean:-.3,crouch:.82}),e:sstep},{t:2.2,v:()=>({...easyBody(K),px:edge,lean:-.6,crouch:.8}),e:sstep}],
       arm:[{t:0,v:K.curArm},{t:.4,v:{hand:{sh:[.1*a,.1*a]},wAng:1.2,off:{sh:[.05*a,.08*a]},tilt:.3},e:eOut},{t:2.2,v:{hand:{sh:[-.2*a,.3*a]},wAng:1.6,off:{sh:[.2*a,.1*a]},tilt:.2}}]};
