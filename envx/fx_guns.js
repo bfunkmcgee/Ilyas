@@ -290,7 +290,7 @@ function vine(c,pts,w,leaf,col,seed){const S=[];for(let i=0;i<pts.length-1;i++){
 // ---------- the guns ----------
 // H the hand on the grip, M the muzzle on the bore (v=0), B the back end, F the foregrip (or null), all in design units; k the scale
 const D={
-  rifle:{k:.88,H:[-1.6,-6.6],M:62.4,B:-31.4,F:29.1,stock:true,name:'Veskar VS-8 Scour'},
+  rifle:{k:.88,H:[-1.6,-6.6],M:62.4,B:-31.4,F:25.7,stock:true,name:'Veskar VS-8 Scour'},
   pistol:{k:1,H:[-1.1,-4.4],M:12.6,B:-3.2,F:null,stock:false,name:'Hallowell Guardian Nine'},
   smg:{k:1,H:[.6,-5.6],M:26,B:-16.6,F:17,stock:true,name:'Hallowell Skyline PDX'},
   hexpistol:{k:1,H:[-3,-4.8],M:24.4,B:-9.2,F:null,stock:false,name:'Maben Register pistol'}};

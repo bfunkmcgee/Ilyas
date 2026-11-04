@@ -712,12 +712,15 @@ function coverStruck(s){const w=s.cover,q=s.to;if(!w||S.warming)return;
 
 // a rifleman's ready (since V85: the rifle hung across him, its stock up behind his head where it met the concrete): shouldered and
 // laid on whoever he faces, the muzzle a little down and his head up behind the sight; at the concrete, laid over the top, the muzzle
-// only just down; down behind it, the rifle upright in front of him, muzzle up and clear of the top
+// only just down; down behind it, the rifle upright in front of him, muzzle up and clear of the top. The muzzle comes down about
+// the butt, which stays in his shoulder (rifleDip): the hand on the grip goes down with it.
+function rifleDip(f,A,dip,tilt){const L=f.wp.butt,[hx,hy]=A.hand.sh,a0=A.wAng,bx=hx-Math.cos(a0)*L,by=hy-Math.sin(a0)*L,a1=a0+dip;
+  return{...A,hand:{sh:[bx+Math.cos(a1)*L,by+Math.sin(a1)*L]},wAng:a1,tilt:tilt??A.tilt};}
 {const ga=Fighter.prototype.guardArm;Fighter.prototype.guardArm=function(){const g=ga.call(this);
   if(!isGun(this)||this.wp.gun.kind!=='rifle'||this.downed||this.mount)return g;
   const D=targetOf(this);if(!D)return g;const w=coverFrom(this,D),a=this.arm;
   if(this.guarding)return w&&!D.downed?brawlArm(this,{hand:{sh:[.16*a,.5*a]},wAng:-1.35,off:'grip',tilt:0}):g;
-  const A=aimArm(this,D,0);return brawlArm(this,w?{...A,wAng:A.wAng+.14}:{...A,wAng:A.wAng+.34,tilt:.16});};}
+  const A=aimArm(this,D,0);return brawlArm(this,w?rifleDip(this,A,.14,.6):rifleDip(this,A,.34,.3));};}
 // ---------- the burning carrier ----------
 // The wreck lies across the end of the road and nobody goes round behind it (since V85: an officer could step out along its flank
 // and behind it): along its length a man keeps to this side, APC_NEAR short of its depth. No move of the fight puts him there
