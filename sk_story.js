@@ -111,6 +111,48 @@ function gaitOf(f){const G=f.gait;return G&&G.on&&f.cutWalk&&!f.mount&&!f.dead&&
 function standEasy(f,on=true){if(on){f.guardBody=()=>easyBody(f);f.guardArm=()=>easyArm(f);}else{delete f.guardBody;delete f.guardArm;}}
 // the arc-blade rolled up inside its hilt and clipped to his belt (f.stow: the page draws the hilt there, not in his hand)
 function stowBlade(f,on=true){f.stow=on;f.arcRev=null;f.arc=on?{t0:1e9,unroll:[0,0],lock:[0,0]}:null;}
+// ---------- an elf's dash ----------
+// Kael across open ground in a scene at an elf's speed (since V85): down into the run, low and leaning with his arms trailing, the
+// afterimages streaming off him (f.blur), over a barrier in his stride (a bound with the knees drawn up; f.vaultDiv lets him by
+// while he is over it), and a slide onto his mark, down low, before he comes up again. o.v: the run's pace in units a second (the
+// fight's dash is 430 over a step or two; this one is held); o.low: he stays down at the end (to take something off the ground).
+// The pelvis is carried along the keys at an even pace (lin), so the run does not slow at every key; his feet keep up as they do in
+// a fight, and his body answers as quickly (f.sceneAgile) while he runs.
+const lin=u=>u;
+function dashPlan(f,x1,z1,o={}){const x0=f.station,z0=f.lane,dir=Math.sign(x1-x0)||f.facing,leg=f.leg,a=f.arm,v=o.v||600,dx=x1-x0,dz=z1-z0;
+  const dist=Math.hypot(dx,dz*.8),G=.12,T=clamp(dist/v,.24,1.3),tt=u=>G+T*u,at=u=>({px:x0+dx*u,pz:z0+dz*u}),st=(F,B)=>({stF:F*leg,stB:B*leg});
+  const run=u=>({...at(u),crouch:.76,lean:.4,...st(.3,-.36),th:.42,lift:0});
+  // the barriers on the way, and where along the run he meets each
+  const hops=[];for(const w of S.divs||[]){if(w.mat!=='concrete'||!divSolid(w)||Math.abs(dx)<1)continue;const u=(w.x-x0)/dx;if(u<=.04||u>=.96)continue;const z=z0+dz*u;
+    if(z<w.d0-8||z>w.d1+8)continue;const top=S.arena.ground(w.x,z)-w.h,L=Math.max(30,f.pelvisY(w.x,.86)+leg*.45-top+18),du=(w.t/2+44)/Math.abs(dx);hops.push({w,u,du,L});}
+  hops.sort((p,q)=>p.u-q.u);
+  const b0={...(f.curBody||f.guardBody())},a0={...(f.curArm||f.guardArm())};
+  const runArm={hand:{sh:[-.12*a,.6*a]},wAng:2.3,off:{sh:[.42*a,.16*a]},tilt:.16},boundArm={hand:{sh:[.3*a,.22*a]},wAng:1.2,off:{sh:[.4*a,.08*a]},tilt:.05},
+    landArm={hand:{sh:[.24*a,.5*a]},wAng:1.4,off:{sh:[.36*a,.3*a]},tilt:.1};
+  const body=[{t:0,v:b0},{t:G,v:{...at(.015),crouch:.8,lean:.3,...st(.2,-.3),th:.35,lift:0},e:eOut}],arm=[{t:0,v:a0},{t:G,v:runArm,e:eOut}];
+  // the run, with each bound in it: in, up off the near foot, over the top, down, and on
+  let u=.12;body.push({t:tt(u),v:run(u),e:eIn});
+  for(const h of hops){const u0=Math.max(u+.01,h.u-h.du),u3=Math.min(.97,h.u+h.du);if(u0>u+.02)body.push({t:tt(u0),v:run(u0),e:lin});
+    body.push({t:tt(lerp(u0,h.u,.6)),v:{...at(lerp(u0,h.u,.6)),crouch:.82,lean:.2,...st(.28,-.3),th:.95,lift:h.L*.75},e:eOut},
+      {t:tt(h.u),v:{...at(h.u),crouch:.84,lean:.12,...st(.28,-.3),th:.95,lift:h.L},e:lin},
+      {t:tt(lerp(h.u,u3,.55)),v:{...at(lerp(h.u,u3,.55)),crouch:.8,lean:.22,...st(.3,-.32),th:.9,lift:h.L*.4},e:lin},
+      {t:tt(u3),v:{...run(u3),crouch:.72},e:eIn});
+    arm.push({t:tt(u0),v:runArm},{t:tt(lerp(u0,h.u,.5)),v:boundArm,e:eOut},{t:tt(u3),v:landArm,e:sstep},{t:tt(Math.min(.99,u3+.06)),v:runArm,e:sstep});u=u3;}
+  if(u<.86)body.push({t:tt(.86),v:run(.86),e:lin});
+  // the slide onto the mark, down low
+  const low={...at(1),crouch:.66,lean:.3,...st(.36,-.3),th:.3,lift:0},end=tt(1)+.34;
+  body.push({t:tt(1),v:{...at(1),crouch:.7,lean:.22,...st(.38,-.3),th:.3,lift:0},e:eOut},{t:end,v:o.low?low:()=>({...easyBody(f),px:x1,pz:z1}),e:sstep});
+  arm.push({t:tt(.86),v:runArm},{t:tt(1),v:landArm,e:sstep},{t:end,v:o.low?landArm:()=>easyArm(f),e:sstep});
+  return{act:{t0:S.t,end,body,arm,quiet:true},hops,G,T,tt,dir,end};}
+function* dashTo(f,x,z,o={}){const P=dashPlan(f,x,z,o),A=P.act,ag=f.sceneAgile;
+  f.facing=P.dir;f.action=A;f.station=x;f.lane=z;f.sceneAgile=true;f.blur=S.t+P.end;if(f===S.F[0])f.flare=Math.max(f.flare||0,.6);
+  const at=k=>A.t0+k,ev=[{t:P.G,fn:()=>{dust(f.p[FTB].x,f.gr(f.p[FTB].x),.8,f.dep);S.hooks.sound('vault',.7);}}];
+  for(const h of P.hops)ev.push({t:P.tt(h.u-h.du),fn:()=>{f.vaultDiv=h.w;}},{t:P.tt(h.u-h.du*.4),fn:()=>S.hooks.sound('vault',1)},
+    {t:P.tt(h.u+h.du),fn:()=>{f.vaultDiv=null;dust(f.p[FTF].x,f.gr(f.p[FTF].x),.6,f.dep);S.hooks.sound('thud',120);}});
+  ev.push({t:P.tt(1),fn:()=>{dust(f.p[FTF].x,f.gr(f.p[FTF].x),.9,f.dep);S.hooks.sound('thud',90);}});
+  ev.sort((p,q)=>p.t-q.t);
+  while(f.action===A&&S.t<at(A.end)){while(ev.length&&S.t>=at(ev[0].t))ev.shift().fn();yield;}
+  for(const e of ev)e.fn();f.vaultDiv=null;f.sceneAgile=ag;f.velX=0;}
 
 // ---------- vehicles ----------
 // A bike in its own frame: x forward along its facing, y up from the ground. Its painter (VehLook in the page) draws the same frame.
@@ -475,7 +517,7 @@ STAGES.push({key:'sundown',num:'',title:'',sub:'',arena:'outskirts',next:'field'
 // A farm track on the edge of the city at night. Kael has left his bike at the edge of the clearing with his rifle in its holster;
 // Hallowell has sent a crew of six hired men for him, and they come out of the maize three at a time. They are farm hands and drivers
 // with blades and clubs, and against the arc-blade in the hands of a master each of them lasts a cut or two: the fight is here to
-// show what Kael is. When they are all down he rolls the blade up, gets on the bike and is gone toward the tower.
+// show what Kael is. When they are all down he rolls the blade up, is at the bike in a dash and on it, and is gone toward the tower.
 const FIELD_CREW=[{seed:4307,weapon:'spear',skill:1,temper:'rusher'},{seed:4349,weapon:'dagger',skill:1,temper:'brute'},{seed:4391,weapon:'sword',skill:1,temper:'rusher'}];
 STAGES.push({key:'field',num:'I',title:'The Field',sub:'The Sprawl’s farm edge, an hour before midnight',arena:'crops',next:'chase',
   foes:[{name:'Field hand',human:true,ward:'field',arms:'street',seed:4101,weapon:'sword',skill:1,temper:'brute',hp:16,color:'#c98a5a'},
@@ -506,9 +548,9 @@ STAGES.push({key:'field',num:'I',title:'The Field',sub:'The Sprawl’s farm edge
   *outro(st){const K=hero(),B=S.story.bike;
     letter(1);camTo(Math.max(260,Math.min(640,(K.station+B.x)/2)),760,1.2);
     standEasy(K);K.guarding=false;
-    // the blade rolls back up into its hilt
+    // the blade rolls back up into its hilt, and he is at the bike in a dash (since V85: he walked)
     yield* act(K,rollUpAction(K,S.t));stowBlade(K);
-    yield* goTo(K,B.x-B.fa*12,B.dep-1,92);
+    yield* dashTo(K,B.x-B.fa*12,B.dep-1,{v:640});
     K.facing=B.fa;
     // on: the far leg over the seat, hips down, hands to the bars
     mount(K,B,.7);B.light=.25;yield* wait(.75);
@@ -577,7 +619,8 @@ STAGES.push({key:'chase',num:'II',title:'The Avenue',sub:'Into the city, a quart
 // Where the avenue meets the tower district the police have closed the road: barricades, floodlights, an armoured carrier with a
 // gun on its roof and four officers. Kael goes through it the hard way: up off the bike with the rifle out of its scabbard, the bike
 // on into the carrier, one round into its tank. Then the four with their handguns against his rifle. When it is over he drops the
-// rifle, walks down the street and takes a grenade off the dead gunner's belt on the way past the wreck.
+// rifle, dashes down the street to the dead gunner, takes the grenade off his belt, sweeps his coat open and stows it in its lining,
+// and is gone up the road in another dash.
 storyArena('roadblock',{label:'Roadblock',name:'The checkpoint',ground:()=>GB,wall:null,far:230});
 // ---------- the carrier ----------
 // drawn by ApcLook when the page has it; these are its box, the hatch where the gunner stands and the gun's muzzle
@@ -667,6 +710,24 @@ function coverStruck(s){const w=s.cover,q=s.to;if(!w||S.warming)return;
   if(!A.guarding&&GUN_KINDS.includes(A.lastAct)&&r()<.55&&ok('guard'))return'guard';
   const c=gc(A,D);if((c==='advance'||c==='withdraw'||c==='sidestep')&&ok('shoot'))return'shoot';return c;};}
 
+// a rifleman's ready (since V85: the rifle hung across him, its stock up behind his head where it met the concrete): shouldered and
+// laid on whoever he faces, the muzzle a little down and his head up behind the sight; at the concrete, laid over the top, the muzzle
+// only just down; down behind it, the rifle upright in front of him, muzzle up and clear of the top
+{const ga=Fighter.prototype.guardArm;Fighter.prototype.guardArm=function(){const g=ga.call(this);
+  if(!isGun(this)||this.wp.gun.kind!=='rifle'||this.downed||this.mount)return g;
+  const D=targetOf(this);if(!D)return g;const w=coverFrom(this,D),a=this.arm;
+  if(this.guarding)return w&&!D.downed?brawlArm(this,{hand:{sh:[.16*a,.5*a]},wAng:-1.35,off:'grip',tilt:0}):g;
+  const A=aimArm(this,D,0);return brawlArm(this,w?{...A,wAng:A.wAng+.14}:{...A,wAng:A.wAng+.34,tilt:.16});};}
+// ---------- the burning carrier ----------
+// The wreck lies across the end of the road and nobody goes round behind it (since V85: an officer could step out along its flank
+// and behind it): along its length a man keeps to this side, APC_NEAR short of its depth. No move of the fight puts him there
+// (laneOK, clampSt), and one the blast threw there walks back out.
+const APC_NEAR=24;
+function stageApc(){const st=S.story;return st&&st.key==='roadblock'&&st.apc?st.apc:null;}
+function apcLaneMax(x){const A=stageApc();return A&&x>apcBox(A).l-50?A.dep-APC_NEAR:DEP_MAX;}
+{const lo=laneOK;laneOK=function(f,z,x=f.station){if(!f.npc&&z>apcLaneMax(x))return false;return lo(f,z,x);};}
+{const cs=clampSt;clampSt=function(f,x,d){x=cs(f,x,d);const A=stageApc();if(A&&!f.npc&&(d??f.lane)>A.dep-APC_NEAR)x=Math.min(x,apcBox(A).l-50);return x;};}
+V11.step.push(()=>{if(!stageApc())return;for(const f of S.F){if(f.dead||f.npc||f.offstage||f.cutWalk)continue;const m=apcLaneMax(f.station);if(f.lane>m)f.lane=m;}});
 // ---------- Kael's way through ----------
 // up off the pegs, the rifle out of the scabbard on the way, a high arc while the bike goes on, one round at the top of it, and
 // down onto one knee. x0 is where he leaves the bike, x1 where he lands, aimAt() the point the round is for.
@@ -789,26 +850,36 @@ STAGES.push({key:'roadblock',num:'III',title:'The Checkpoint',sub:'The Tower Dis
     yield* wait(.3);K.facing=-1;
     yield* act(K,{t0:S.t,end:.55,body:[{t:0,v:()=>K.guardBody()}],arm:[{t:0,v:K.curArm||K.guardArm()},{t:.3,v:{hand:{sh:[-.3*K.arm,.3*K.arm]},wAng:1.3,off:{sh:[.1*K.arm,.5*K.arm]},tilt:0},e:eOut},{t:.55,v:easyArm(K)}]});
     dropWeapon(K,-1,false);K.setWeapon('elven');stowBlade(K);standEasy(K);K.facing=1;S.hooks.sound('thud',120,{s:'drop_gun',take:2});
-    yield* wait(.5);
-    // over the concrete, down the street, past the wreck, and down on one knee by the man thrown off its roof (on this side of him,
-    // unless a barrier stands there)
-    const gx=G.p[PEL].x,gz=clamp(G.dep+4,DEP_MIN,DEP_MAX);let sx=gx-36;if(divOnSeg(gx-40,gz,gx,gz,6))sx=gx+36;
-    yield* crossTo(K,sx,gz,90);K.facing=Math.sign(gx-sx)||1;camTo(clamp(sx,300,620),700,.8);
-    const a=K.arm,low=()=>({...easyBody(K),crouch:.5,lean:.95,stF:.24*K.leg,stB:-.22*K.leg}),belt={hand:{fn:()=>grenadeAt(G)},wAng:1.2,off:{sh:[.1*a,.6*a]},tilt:.25};
-    K.action={t0:S.t,end:1.5,body:[{t:0,v:()=>easyBody(K)},{t:.4,v:low,e:sstep},{t:1.0,v:low},{t:1.5,v:()=>easyBody(K),e:sstep}],
-      arm:[{t:0,v:easyArm(K)},{t:.5,v:belt,e:eOut},{t:.75,v:belt},{t:1.05,v:{hand:{sh:[.36*a,.2*a]},wAng:-.4,off:{sh:[.1*a,.6*a]},tilt:.25},e:sstep},{t:1.5,v:{hand:{sh:[.36*a,.2*a]},wAng:-.4,off:{sh:[.1*a,.6*a]},tilt:.1}}]};
+    yield* wait(.35);
+    // the grenade on the gunner's belt (since V85 he goes for it in a dash): over the concrete in his stride, and in low beside the
+    // man thrown off the carrier's roof (on this side of him, unless a barrier stands there), his hand going to the belt as he lands
+    const a=K.arm,gx=G.p[PEL].x;let gz=clamp(G.dep+4,DEP_MIN,DEP_MAX),sx=gx-36;if(divOnSeg(gx-40,gz,gx,gz,6))sx=gx+36;gz=Math.min(gz,apcLaneMax(sx));
+    camTo(clamp(sx,300,620),700,.7);
+    yield* dashTo(K,sx,gz,{low:true});K.facing=Math.sign(gx-sx)||1;
+    const low=()=>({...easyBody(K),crouch:.56,lean:.85,stF:.3*K.leg,stB:-.26*K.leg}),belt={hand:{fn:()=>grenadeAt(G)},wAng:1.2,off:{sh:[.1*a,.6*a]},tilt:.25},
+      up={hand:{sh:[.3*a,.3*a]},wAng:-.3,off:{sh:[.1*a,.6*a]},tilt:.1};
+    K.action={t0:S.t,end:.95,body:[{t:0,v:{...(K.curBody||low())}},{t:.22,v:low,e:sstep},{t:.5,v:low},{t:.95,v:()=>easyBody(K),e:sstep}],
+      arm:[{t:0,v:{...(K.curArm||easyArm(K))}},{t:.24,v:belt,e:eOut},{t:.4,v:belt},{t:.7,v:up,e:sstep},{t:.95,v:up}]};
     // the pin's ring on his finger, the body of it in his palm: it comes off the belt
-    yield* wait(.66);G.grenade=null;K.grenade='hand';S.hooks.sound('click',1,{s:'grenade_unclip'});
-    yield* until(()=>!K.action,2);yield* wait(.2);
-    // into the coat: he opens it with the other hand and the grenade goes into a leather loop on its lining (where the bistro's
-    // outro finds it)
-    K.action={t0:S.t,end:1,body:[{t:0,v:()=>easyBody(K)}],arm:[{t:0,v:K.curArm},{t:.35,v:{hand:{sh:[.12*a,.28*a]},wAng:1.4,off:{sh:[.3*a,.2*a]},tilt:.12},e:eOut},{t:.6,v:{hand:{sh:[.06*a,.3*a]},wAng:1.4,off:{sh:[.3*a,.22*a]},tilt:.12}},{t:1,v:easyArm(K),e:sstep}]};
-    yield* wait(.55);K.grenade='coat';S.story.flags.grenade=true;
-    yield* until(()=>!K.action,2);yield* wait(.2);
+    yield* wait(.34);G.grenade=null;K.grenade='hand';S.hooks.sound('click',1,{s:'grenade_unclip'});
+    yield* until(()=>!K.action,2);
+    // into the coat, the way it comes out again at the bistro's door: the back of the hand that holds it sweeps the front of the coat
+    // back to his hip, the grenade goes into the leather loop on the lining (where the bistro's outro finds it), and the coat falls to
+    camTo(clamp(K.station,300,620),620,.9);
+    {const easy=easyArm(K),off={sh:[.08*a,.66*a]},chest={hand:{sh:[.26*a,.36*a]},wAng:1.1,off,tilt:.05},back={hand:{sh:[-.4*a,.78*a]},wAng:1.6,off,tilt:.1},
+        loop={hand:{sh:[-.3*a,.6*a]},wAng:1.5,off,tilt:.1};
+      K.coatOpen=0;K.action={t0:S.t,end:1.55,body:[{t:0,v:()=>easyBody(K)},{t:.45,v:()=>({...easyBody(K),lean:.1})},{t:1.15,v:()=>({...easyBody(K),lean:.06})},{t:1.55,v:()=>easyBody(K),e:sstep}],
+        arm:[{t:0,v:{...(K.curArm||up)}},{t:.24,v:chest,e:eOut},{t:.58,v:back,e:sstep},{t:.82,v:loop,e:sstep},{t:1.02,v:loop},{t:1.55,v:easy,e:sstep}]};
+      const t0=S.t;let swept=false,stowed=false;
+      while(S.t<t0+1.55){const lt=S.t-t0,u=(lt-.2)/.36;K.coatOpen=lt<1.05?clamp(u,0,1):1-sstep((lt-1.05)/.34);
+        if(!swept&&u>0){swept=true;S.hooks.sound('coat_sweep',1);}
+        if(!stowed&&lt>=.9){stowed=true;K.grenade='coat';S.story.flags.grenade=true;S.hooks.sound('click',1,{s:'grenade_unclip'});}
+        yield;}
+      K.coatOpen=0;}
     yield* speak(HERO_NAME,'Qadir always did like a big entrance.',{dur:2.4});
-    // and on toward the bistro, along the near side of the road
-    camTo(700,900,.9);
-    yield* crossTo(K,K.station+40,20,90);K.offstage=true;yield* crossTo(K,1040,20,100);},
+    // and he is gone up the road toward the bistro in a dash, along the near side, out of the picture
+    camTo(700,900,.9);K.offstage=true;
+    yield* dashTo(K,1060,20,{v:700});},
   outroSkip(st){}});
 // where the grenade hangs on a body's belt, and the moment it changes hands
 function grenadeAt(f){const P0=f.p[PEL],C=f.p[CHE],fa=f.facing,dx=C.x-P0.x,dy=C.y-P0.y,L=Math.hypot(dx,dy)||1;return{x:P0.x+dx/L*6-dy/L*fa*7,y:P0.y+dy/L*6+dx/L*fa*7};}

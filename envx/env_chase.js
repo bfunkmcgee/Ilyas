@@ -1,9 +1,10 @@
 // ===== ENV CHASE =====
 // The avenue: the chase runs east down a four-lane avenue of the Lamplight Street city at night, after rain. The riders keep to the
 // middle of the frame and the city goes past them in bands, each painted once into a strip that repeats and slid along by S.scroll at
-// its own pace: far towers in the haze, the tall houses of the middle city, then the avenue's own row in brick and stucco (a tailor, an
-// elven café under cyan light, the Lyric picture house, a pawnbroker shut for the night, a little square, books, an oyster bar in red
-// neon, the Hotel Argent, a barber) behind elven gas lamps on the far kerb; the wet asphalt with its lanes, seams and manholes holding
+// its own pace: far towers in the haze, the tall houses of the middle city, then the avenue's own row in brick and stucco, three
+// blocks of it that come by in no fixed order (since V85; the first: a tailor, an elven café under cyan light, the Lyric picture
+// house, a pawnbroker shut for the night, a little square, books, an oyster bar in red neon, the Hotel Argent, a barber; the
+// others below) behind elven gas lamps on the far kerb; the wet asphalt with its lanes, seams and manholes holding
 // every light; and the near kerb's bollards, quickest of all. The sky, the moon and the Hallowell tower stay put, far off to the right.
 // Brick, stucco, granite and flags come from EnvTex; the asphalt is made here, pixel by pixel, the same way.
 (()=>{const E=EnvLook,{C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,haze,vine,scroll,gilt,windowPane,wetStreak,stars,moon,cloudBank,skyline,hallTower,rng,lerp,clamp,TAU}=E;
@@ -18,14 +19,14 @@ const yR=d=>GB-d*PSY,yP=d=>GB-KH-d*PSY,FB=()=>yP(DF);
 // kept in parts by rows: [y0, y1, solid, square]. A solid part has no sky in it and goes on as an opaque copy, the cheapest there is;
 // a square part lies behind the houses everywhere but the little square, and is only drawn where the square has come round
 const BAND={far:{P:2600,f:.15,y0:40,y1:176,parts:[[40,146],[146,176,0,1]]},mid:{P:1950,f:.45,y0:4,y1:214,parts:[[4,146],[146,214,0,1]]},
-  street:{P:1560,f:1,y0:26,y1:484,parts:[[26,212],[212,484,1]]},near:{P:1170,f:1.15,y0:440,y1:510,parts:[[440,476],[476,510,1]]},
+  street:{P:1560,f:1,y0:26,y1:484,parts:[[26,212],[212,484,1]]},near:{P:3510,f:1.15,y0:440,y1:510,parts:[[440,476],[476,510,1]]},
   front:{P:1170,f:1.15,y0:500,y1:1010,lo:.5,parts:[[500,1010,1]]}};
-const ORDER=['far','mid','street','near','front'],SQ=[712,834];
+const ORDER=['far','mid','street','near','front'];
 // the lamps on the far kerb, by where each post stands in the street's strip: one every 260, but none by the shut pawnshop and the
 // square, where the moon has the light
-const LX=[130,390,910,1170,1430],lampHead=lx=>({x:lx+16,y:yP(LAMPD)-141});
+let LX=[130,390,910,1170,1430];const lampHead=lx=>({x:lx+16,y:yP(LAMPD)-141});
 const lampNear=x=>{let k=0;for(const lx of LX){const dd=Math.abs(lampHead(lx).x-x);k=Math.max(k,clamp(1-dd/120,0,1));}return k;};
-const MOON={x:196,y:38,r:11},TOWER={x:720,base:238,top:6,w:46},MARQ={x:459,y:228};
+const MOON={x:196,y:38,r:11},TOWER={x:720,base:238,top:6,w:46};
 // what the fronts give out as they are drawn: light onto the flags (SPILL), lights the wet road mirrors (REFL), the marquee's bulbs
 let SPILL=[],REFL=[],BULBS=[];
 // lengths that fill 0..P exactly, each w0..w1
@@ -293,7 +294,7 @@ function cinema(c,b){const base=FB(),x0=b.x0,x1=b.x1,w=x1-x0,top=b.top,gTop=base
     c.fillStyle=rgba(C.gold,.5);c.fillRect(wx-1,wy-2.6,ww+2,.6);}
   // the name: LYRIC in gilt on black, ringed with bulbs
   const ny0=top+6,ny1=top+38,nx0=B0+5,nx1=B1-5;c.fillStyle='#050407';c.fillRect(nx0,ny0,nx1-nx0,ny1-ny0);c.strokeStyle=rgba(C.gold,.85);c.lineWidth=1.13;c.strokeRect(nx0+2.4,ny0+2.4,nx1-nx0-4.8,ny1-ny0-4.8);
-  bloom(c,nx0,ny0,nx1-nx0,ny1-ny0,3.2,.55,g=>{g.font='700 19px "Alegreya SC", Georgia, serif';g.textAlign='center';g.letterSpacing='3px';g.fillStyle=C.amber;g.fillText('LYRIC',cx,ny1-8.5);});gilt(c,'LYRIC',cx,ny1-8.5,19,{style:'700',track:3});
+  const title=b.title||'LYRIC';bloom(c,nx0,ny0,nx1-nx0,ny1-ny0,3.2,.55,g=>{g.font='700 19px "Alegreya SC", Georgia, serif';g.textAlign='center';g.letterSpacing='3px';g.fillStyle=C.amber;g.fillText(title,cx,ny1-8.5);});gilt(c,title,cx,ny1-8.5,19,{style:'700',track:3});
   for(let x=nx0+1.5;x<=nx1-1.4;x+=3.6)bulb(c,x,ny0-1.6);for(let y=ny0+2;y<=ny1-1;y+=3.6)bulb(c,nx1+1.6,y);for(let x=nx1-1.5;x>=nx0+1.4;x-=3.6)bulb(c,x,ny1+1.6);for(let y=ny1-2;y>=ny0+1;y-=3.6)bulb(c,nx0-1.6,y);
   REFL.push({x:cx,w:44,y:(ny0+ny1)/2,col:'#ffd890',a:.12});
   // the tall window under it: dim inside, a gilt sunburst in its head
@@ -320,7 +321,7 @@ function cinema(c,b){const base=FB(),x0=b.x0,x1=b.x1,w=x1-x0,top=b.top,gTop=base
   c.fillStyle=lin(c,0,my,0,fy0,[[0,rgba('#ffcf86',.05)],[1,rgba('#ffcf86',.16)]]);c.fill();
   const fx0=mx0+ddx,fx1=mx1+ddx;c.fillStyle=lin(c,0,fy0,0,fy1,[[0,'#1c1418'],[1,'#0a080b']]);c.fillRect(fx0,fy0,fx1-fx0,fh);
   c.fillStyle=lin(c,0,fy0+3.6,0,fy1-3.6,[[0,'#f6e8c6'],[1,'#e0c690']]);c.fillRect(fx0+7,fy0+3.6,fx1-fx0-14,fh-7.2);
-  c.save();c.textAlign='center';c.fillStyle='#1a0f0c';c.font='700 12px "Alegreya SC", Georgia, serif';c.letterSpacing='.6px';c.fillText('THE GILDED HOUR',cx+ddx,fy0+13.6);c.restore();
+  c.save();c.textAlign='center';c.fillStyle='#1a0f0c';c.font='700 12px "Alegreya SC", Georgia, serif';c.letterSpacing='.6px';c.fillText(b.bill||'THE GILDED HOUR',cx+ddx,fy0+13.6);c.restore();
   c.fillStyle=lin(c,0,fy0,0,fy0+2,[[0,C.goldL],[1,C.goldD]]);c.fillRect(fx0,fy0,fx1-fx0,1.2);c.fillRect(fx0,fy1-1.2,fx1-fx0,1.2);c.fillRect(fx0,fy0,1.2,fh);c.fillRect(fx1-1.2,fy0,1.2,fh);
   for(let x=fx0+3.5;x<=fx1-3.4;x+=3.6)bulb(c,x,fy0+2.2);for(let x=fx1-3.5;x>=fx0+3.4;x-=3.6)bulb(c,x,fy1-2.2);
   // its light on the doors under it and out over the flags
@@ -431,6 +432,215 @@ const ROW=[
   {alley:[1166,1188],top:104},
   {x0:1188,x1:1404,top:82,roof:'mansard',rh:30,floors:3,seed:29,stucco:'#3c3632',litP:.5,shop:'hotel',gild:true,dorm:34,shopH:70,chim:[1196,1384]},
   {x0:1404,x1:1560,top:134,roof:'gable',rh:36,floors:2,seed:31,bs:3,brick:true,litP:.28,shop:'barber'}];
+// ---------- the avenue's other blocks (since V85) ----------
+// The avenue is three blocks of shops that come by in no fixed order (VARS, SEQ below): the first one above; the market end, with a
+// florist, a chemist with his carboys lit, the Bank of the Towers, a wine merchant, Kestrel Gardens behind their railings, a
+// jeweller, an elven teahouse, a clockmaker and a bakery shut for the night; and the theatre end, with a noodle bar in yellow neon,
+// a newsagent, a building site behind its hoarding of bills, the chapel of the Lamp with its rose window lit, a hatter, the
+// Royal, a grocer shut, the Maison and a tobacconist. Each is painted once into its own strip, as the first is.
+Object.assign(GOODS,{
+  florist:(c,x,y,w,h)=>{const r=rng(31),cols=['#c8283c','#f0c040','#e8e0f0','#d85a8a','#f08a3a','#9a4ad0'];
+    for(let k=0;k<6;k++){const bx=x+4+k*(w-8)/5,by=y+h*.9;
+      for(let s=0;s<6;s++){const fx=bx+(r()-.5)*6,fy=by-7-r()*h*.38;c.strokeStyle=rgba('#1c3a1e',.92);c.lineWidth=1.5;c.beginPath();c.moveTo(bx,by-5);c.quadraticCurveTo((bx+fx)/2+(r()-.5)*2,(by+fy)/2,fx,fy);c.stroke();
+        c.fillStyle=rgba(cols[(r()*cols.length)|0],.92);c.beginPath();c.arc(fx,fy,1.5+r()*.9,0,TAU);c.fill();}
+      c.fillStyle=rgba(C.ink,.92);c.beginPath();c.moveTo(bx-3,by-6);c.lineTo(bx+3,by-6);c.lineTo(bx+2.4,by);c.lineTo(bx-2.4,by);c.closePath();c.fill();c.fillStyle=rgba(C.rim,.22);c.fillRect(bx-3,by-6,6,.6);}},
+  chemist:(c,x,y,w,h)=>{const r=rng(37);
+    for(const f of [.4,.72]){const sy=y+h*f;c.fillStyle=rgba(C.ink,.9);c.fillRect(x+w*.3,sy,w*.4,1);for(let k=0;k<6;k++){const jx=x+w*.31+k*w*.065;c.fillStyle=rgba(mix('#1a2a2a','#3a1a14',r()),.95);c.fillRect(jx,sy-4.4,w*.05,4.4);c.fillStyle=rgba('#e8e0c8',.5);c.fillRect(jx,sy-3,w*.05,1);}}
+    // the two carboys, big glass globes of coloured water lit from behind
+    for(const [f,col] of [[.15,'#d0203a'],[.86,'#20a060']]){const gx=x+w*f,gy=y+h*.5,R=Math.min(6.5,w*.1);glow(c,gx,gy,R*3.4,col,.4);
+      c.fillStyle=rad(c,gx-R*.3,gy-R*.3,0,R,[[0,mix(col,'#ffffff',.45)],[.6,col],[1,mix(col,'#000000',.45)]]);c.beginPath();c.arc(gx,gy,R,0,TAU);c.fill();
+      c.fillStyle=rgba(C.ink,.92);c.fillRect(gx-1.2,gy-R-5,2.4,5);c.fillRect(gx-2.4,gy+R-1,4.8,h*.5-R);c.fillStyle=rgba('#ffffff',.5);c.fillRect(gx-R*.5,gy-R*.55,1,R*.5);
+      REFL.push({x:gx,w:6,y:gy,col,a:.2});}},
+  wine:(c,x,y,w,h)=>{const r=rng(41);
+    for(const f of [.3,.58,.86]){const sy=y+h*f;c.fillStyle=rgba(C.ink,.92);c.fillRect(x+1.5,sy,w-3,1);for(let bx=x+2.5;bx<x+w-3;bx+=3.2){c.fillStyle=rgba(r()<.5?'#14240e':'#2a0a10',.96);c.fillRect(bx,sy-6.4,2.2,6.4);c.fillRect(bx+.6,sy-8.6,1,2.2);
+      if(r()<.45){c.fillStyle=rgba('#ffd9a0',.45);c.fillRect(bx+.4,sy-6,.6,4);}}}
+    const kx=x+w*.82,ky=y+h;c.fillStyle=rgba('#140c08',.95);c.beginPath();c.ellipse(kx,ky-7,6,7.4,0,0,TAU);c.fill();c.fillStyle=rgba(C.gold,.5);c.fillRect(kx-6,ky-11,12,.8);c.fillRect(kx-6,ky-3.6,12,.8);},
+  jeweller:(c,x,y,w,h)=>{const r=rng(43);c.fillStyle=rgba('#2a0810',.9);c.fillRect(x+2,y+h*.62,w-4,h*.38);
+    for(let k=0;k<4;k++){const tx=x+4+k*(w-8)/4,ty=y+h*.62;c.fillStyle=rgba('#1a0408',.95);c.fillRect(tx,ty-2.6,(w-8)/4-2,2.6);
+      for(let j=0;j<5;j++){c.fillStyle=rgba(r()<.6?C.goldL:'#e8eef8',.85);c.fillRect(tx+1+j*((w-8)/4-3)/5,ty-1.8,1,1);}}
+    // a bust in the middle wearing the window's best necklace
+    const bx=x+w*.5,by=y+h*.6;c.fillStyle=rgba(C.ink,.92);c.beginPath();c.arc(bx,by-15,3,0,TAU);c.fill();c.beginPath();c.moveTo(bx-7,by);c.quadraticCurveTo(bx-6,by-10,bx-1.4,by-11.4);c.lineTo(bx+1.4,by-11.4);c.quadraticCurveTo(bx+6,by-10,bx+7,by);c.fill();
+    c.strokeStyle=rgba(C.goldL,.9);c.lineWidth=1;c.beginPath();c.arc(bx,by-11,3.4,.3,Math.PI-.3);c.stroke();c.fillStyle=rgba('#7ff3e3',.95);c.beginPath();c.arc(bx,by-7.4,1,0,TAU);c.fill();glow(c,bx,by-7.4,6,'#7ff3e3',.4);},
+  clocks:(c,x,y,w,h)=>{const r=rng(47);for(let k=0;k<7;k++){const cx=x+5+r()*(w-10),cy=y+4+r()*(h*.6),R=2.4+r()*3;c.fillStyle=rgba(C.ink,.92);c.beginPath();c.arc(cx,cy,R+1,0,TAU);c.fill();
+      c.fillStyle=rgba('#e8dcc0',.88);c.beginPath();c.arc(cx,cy,R,0,TAU);c.fill();const a1=r()*TAU,a2=r()*TAU;c.strokeStyle=rgba('#120c08',.95);c.lineWidth=1.5;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a1)*R*.55,cy+Math.sin(a1)*R*.55);c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a2)*R*.85,cy+Math.sin(a2)*R*.85);c.stroke();}
+    const gx=x+w*.8,gy=y+h;c.fillStyle=rgba('#140c08',.95);c.fillRect(gx-4,gy-h*.8,8,h*.8);c.fillStyle=rgba('#e8dcc0',.85);c.beginPath();c.arc(gx,gy-h*.68,2.6,0,TAU);c.fill();c.fillStyle=rgba(C.gold,.7);c.fillRect(gx-.4,gy-h*.5,.8,h*.3);},
+  noodle:(c,x,y,w,h)=>{const r=rng(53);
+    for(const f of [.2,.45,.7]){const lx=x+w*f,ly=y+h*.12;c.fillStyle=rgba('#ff9a30',.9);c.beginPath();c.ellipse(lx,ly+2,2.6,3.2,0,0,TAU);c.fill();glow(c,lx,ly+2,10,'#ffb040',.45);c.fillStyle=rgba(C.ink,.9);c.fillRect(lx-.4,y,.8,ly-y);}
+    c.fillStyle=rgba(C.ink,.85);for(const f of [.18,.42,.66,.88]){const fx=x+w*f+(r()-.5)*3,fy=y+h*.42;c.beginPath();c.arc(fx,fy,2,0,TAU);c.fill();c.beginPath();c.moveTo(fx-3.2,y+h*.8);c.quadraticCurveTo(fx-3,fy+3,fx,fy+2.4);c.quadraticCurveTo(fx+3,fy+3,fx+3.2,y+h*.8);c.fill();}
+    c.fillStyle=lin(c,0,y+h*.72,0,y+h*.8,[[0,'#7a4a2a'],[1,'#3a2010']]);c.fillRect(x+1,y+h*.72,w-2,h*.06);c.fillStyle=rgba(C.ink,.85);c.fillRect(x+1,y+h*.78,w-2,h*.22);
+    c.save();c.globalCompositeOperation='lighter';for(let k=0;k<5;k++){const sx=x+w*(.15+k*.18),sy=y+h*.62;c.fillStyle=rad(c,sx,sy,0,6,[[0,rgba('#f0e8e0',.12)],[1,rgba('#f0e8e0',0)]]);c.beginPath();c.arc(sx,sy,6,0,TAU);c.fill();}c.restore();},
+  news:(c,x,y,w,h)=>{const r=rng(59),cols=['#c8c0a8','#e0d8c0','#a83a2a','#2a4a6a','#d8b040','#3a6a3a'];
+    for(let k=0;k<12;k++){const px=x+3+(k%6)*(w-6)/6,py=y+4+Math.floor(k/6)*h*.38;c.fillStyle=rgba(cols[(r()*cols.length)|0],.85);c.fillRect(px,py,(w-6)/6-1.6,h*.3);c.fillStyle=rgba('#141010',.7);c.fillRect(px+1,py+2,(w-6)/6-3.6,1.4);}},
+  hatter:(c,x,y,w,h)=>{const r=rng(61);for(let k=0;k<5;k++){const hx=x+6+k*(w-12)/4,hy=y+h*(.32+(k%2)*.22);c.fillStyle=rgba(C.ink,.92);c.fillRect(hx-.5,hy,1,y+h-hy);c.fillRect(hx-3,y+h-1.2,6,1.2);
+      if(k%2){c.fillRect(hx-5,hy-1,10,1.4);c.fillRect(hx-3.4,hy-8,6.8,7);}else{c.beginPath();c.ellipse(hx,hy-2.6,4,3.2,0,Math.PI,0);c.fill();c.fillRect(hx-5.6,hy-2.8,11.2,1.3);}
+      c.fillStyle=rgba(r()<.5?'#6a1a20':'#c8a060',.8);c.fillRect(hx-3.4,hy-2.6,6.8,.9);}},
+  tobacco:(c,x,y,w,h)=>{const r=rng(67);for(const f of [.4,.78]){const sy=y+h*f;c.fillStyle=rgba(C.ink,.9);c.fillRect(x+1.5,sy,w-3,1);
+      for(let bx=x+3;bx<x+w-6;bx+=6.4){c.fillStyle=rgba(['#6a3a1a','#2a4a3a','#7a1a1a','#c8a050'][(r()*4)|0],.9);c.fillRect(bx,sy-5,5,5);c.fillStyle=rgba(C.gold,.5);c.fillRect(bx+.6,sy-3.4,3.8,.6);}}},
+  maison:(c,x,y,w,h)=>{cafeInside(c,x,y,w,h,71);for(const f of [.25,.55,.85]){const cx=x+w*f,cy=y+h*.7;c.fillStyle=rgba('#fff0d0',.9);c.fillRect(cx-.4,cy-3,.8,2.4);glow(c,cx,cy-3,6,'#ffc070',.5);}}});
+// ----- the market end's shops -----
+Object.assign(SHOP,{
+  florist(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'FLOWERS',paint:'#0f1a12',size:12,fasciaH:16,lit:.7,lights:3,door:[b.x1-28,14],inside:GOODS.florist});
+    awning(c,b.x0+10,b.x1-10,gTop+12,{a:'#23452a',b:'#e0d8c0',stripe:14,seed:11});},
+  chemist(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'CHEMIST',paint:'#10141c',size:12,fasciaH:16,lit:.65,lights:3,door:[b.x0+12,14],inside:GOODS.chemist});
+    // the pestle and mortar on its bracket, gilt
+    const mx=b.x1-18,my=gTop-10;c.strokeStyle=C.gold;c.lineWidth=1.5;c.beginPath();c.moveTo(b.x1-8,gTop-3);c.lineTo(b.x1-8,my-5);c.lineTo(mx,my-5);c.stroke();
+    c.fillStyle=lin(c,mx-5,0,mx+5,0,[[0,C.goldD],[.5,C.goldL],[1,C.goldD]]);c.beginPath();c.moveTo(mx-5,my-2);c.lineTo(mx+5,my-2);c.quadraticCurveTo(mx+4.4,my+4,mx,my+4.4);c.quadraticCurveTo(mx-4.4,my+4,mx-5,my-2);c.fill();
+    c.strokeStyle=C.goldL;c.lineWidth=1.6;c.beginPath();c.moveTo(mx+1,my-1);c.lineTo(mx+5,my-8);c.stroke();},
+  wine(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'VINTNER',paint:'#1a0c10',size:12,fasciaH:16,lit:.55,lights:2,door:[b.x0+12,14],inside:GOODS.wine});},
+  jeweller(c,b,gTop,base){const f=shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'JEWELLER',paint:'#0c0a10',size:12,fasciaH:16,lit:.85,lights:2,door:[b.x1-28,14],inside:GOODS.jeweller});
+    // a gilt clock hung out over the pavement on a scrolled bracket
+    const cx=b.x0+22,cy=gTop-16;c.strokeStyle=C.gold;c.lineWidth=1.6;c.beginPath();c.moveTo(b.x0+8,gTop-4);c.lineTo(b.x0+8,cy);c.lineTo(cx-5,cy);c.stroke();scroll(c,b.x0+11,gTop-8,2.4,1,C.gold,.5,1.2);
+    c.fillStyle=lin(c,cx-6,0,cx+6,0,[[0,C.goldD],[.5,C.goldL],[1,C.goldD]]);c.beginPath();c.arc(cx,cy,6,0,TAU);c.fill();c.fillStyle='#f0e6cc';c.beginPath();c.arc(cx,cy,4.6,0,TAU);c.fill();
+    c.strokeStyle='#120c08';c.lineWidth=1.5;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx,cy-3.4);c.moveTo(cx,cy);c.lineTo(cx+2.4,cy+.8);c.stroke();glow(c,cx,cy,14,'#ffe0a0',.2);
+    REFL.push({x:(f.win0+f.win1)/2,w:20,y:f.wy+10,col:'#fff0c8',a:.14});},
+  teahouse(c,b,gTop,base){const x0=b.x0+5,x1=b.x1-5,w=x1-x0,o={paint:'#0a1618'},fh=13,P=6,cx=(x0+x1)/2;timber(c,o,x0,gTop,w,base-gTop);
+    fascia(c,x0+P,gTop,w-2*P,fh,{});elvenName(c,'Ithrel',cx,gTop+fh*.82,12);
+    for(const px of [x0,x1-P]){timber(c,o,px,gTop,P,base-gTop,true);c.fillStyle=rgba(C.rim,.22);c.fillRect(px+P-.7,gTop,.5,base-gTop);stone(c,px-.4,base-4,P+.8,4,{lit:.2,dark:.55});}
+    const wy=gTop+fh+4,st=9,wh=base-st-wy,dw=16,dx=cx-dw/2;
+    for(const [a,bb] of [[x0+P+1,dx-3],[dx+dw+3,x1-P-1]]){windowPane(c,a,wy,bb-a,wh,.9,{mull:0,fw:.01,frame:'#0a0808',spill:false});cafeInside(c,a,wy,bb-a,wh,a*3);
+      // paper lanterns hung across the room
+      for(let k=0;k<3;k++){const lx=a+(k+.5)*(bb-a)/3,ly=wy+5;c.fillStyle=rgba('#ffb060',.92);c.beginPath();c.ellipse(lx,ly,2.2,2.8,0,0,TAU);c.fill();glow(c,lx,ly,9,'#ffb060',.4);}
+      c.strokeStyle='#060405';c.lineWidth=1.7;c.strokeRect(a,wy,bb-a,wh);glassSheen(c,a,wy,bb-a,wh,.04);panel(c,o,a+1,wy+wh+2.2,bb-a-2,st-3.6);
+      SPILL.push({x0:a,x1:bb,a:.7});REFL.push({x:(a+bb)/2,w:(bb-a)*.5,y:wy+wh*.6,col:'#ffb060',a:.18});}
+    shopDoor(c,o,dx,wy-2,dw,base,.8);REFL.push({x:cx,w:30,y:gTop+6,col:C.cyan,a:.16});},
+  clocks(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'CLOCKS · WATCHES',paint:'#12100c',size:12,fasciaH:16,lit:.6,lights:3,door:[b.x0+12,14],inside:GOODS.clocks});},
+  bakery(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'BAKERY',paint:'#1c1410',size:12,fasciaH:16,shut:true,seed:b.seed});},
+  // ----- the theatre end's -----
+  noodle(c,b,gTop,base){const f=shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'NOODLE HOUSE',paint:'#140c08',size:12,fasciaH:16,lit:.8,lights:2,door:[b.x1-28,15],inside:GOODS.noodle,reflCol:'#ffb050'});
+    neon(c,'Noodles',(f.win0+f.win1)/2,f.wy+12,12,'#ffb020',{core:'#fff0c0'});REFL.push({x:(f.win0+f.win1)/2,w:28,y:f.wy+8,col:'#ffc040',a:.2});},
+  news(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'NEWS',paint:'#14161c',size:12,fasciaH:16,lit:.6,lights:2,door:[b.x0+12,14],inside:GOODS.news});},
+  hatter(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'HATTER',paint:'#16101a',size:12,fasciaH:16,lit:.6,lights:3,door:[b.x1-28,14],inside:GOODS.hatter});
+    awning(c,b.x0+10,b.x1-10,gTop+12,{a:'#2a1a3a',b:'#c8b8a0',stripe:16,seed:13});},
+  grocer(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'GROCER',paint:'#141a10',size:12,fasciaH:16,shut:true,seed:b.seed});},
+  maison(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'MAISON',paint:'#1a0a0e',size:12,fasciaH:16,lit:.85,lights:3,door:[b.x0+14,15],inside:GOODS.maison,reflCol:'#ffb070'});
+    awning(c,b.x0+10,b.x1-10,gTop+12,{a:'#5a0e18',b:'#2a0810',stripe:12,seed:17});},
+  tobacco(c,b,gTop,base){shopfront(c,b.x0+6,b.x1-6,gTop,base,{name:'TOBACCO',paint:'#1a1208',size:12,fasciaH:16,lit:.5,lights:2,door:[b.x0+12,14],inside:GOODS.tobacco});}});
+// the Bank of the Towers: a temple of dressed stone, four columns up its whole height under a pediment, the name cut in the frieze
+// and gilt, bronze doors shut behind a lantern either side
+function bank(c,b){const base=FB(),x0=b.x0,x1=b.x1,w=x1-x0,top=b.top,cx=(x0+x1)/2;
+  stone(c,x0,top,w,base-top,{dark:.6,lit:.15});
+  c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.6;c.beginPath();for(let y=top+30;y<base-14;y+=8){c.moveTo(x0,y);c.lineTo(x1,y);}c.stroke();
+  // the pediment and the frieze
+  c.fillStyle=patAt(c,TX().granite(61,96,96,{base:'#7a726a'}),x0,top-28,.25);c.beginPath();c.moveTo(x0-6,top);c.lineTo(cx,top-28);c.lineTo(x1+6,top);c.closePath();c.fill();
+  c.fillStyle=rgba('#05040a',.58);c.fill();line(c,[{x:x0-6,y:top},{x:cx,y:top-28},{x:x1+6,y:top}],rgba(C.rim,.4),1);
+  stone(c,x0-6,top,w+12,6,{lit:.35,dark:.5});stone(c,x0-4,top+6,w+8,18,{lit:.15,dark:.62});stone(c,x0-6,top+24,w+12,4,{lit:.3,dark:.5});
+  gilt(c,'BANK OF THE TOWERS',cx,top+20,12,{style:'700',track:.8});
+  // the columns, fluted, on their bases
+  const n=4,cw=12,gap=(w-24-n*cw)/(n-1);for(let i=0;i<n;i++){const px=x0+12+i*(cw+gap);c.fillStyle=lin(c,px,0,px+cw,0,[[0,'#2a2628'],[.55,'#5a5454'],[1,'#1a1618']]);c.fillRect(px,top+28,cw,base-top-40);
+    c.fillStyle=rgba('#000000',.32);for(const f of [2.4,5,7.6,10.2])c.fillRect(px+f-.3,top+32,.6,base-top-48);stone(c,px-2,top+28,cw+4,3.4,{lit:.35});stone(c,px-2.6,base-14,cw+5.2,4,{lit:.25,dark:.5});}
+  // the doors between the middle columns, shut, a lit lamp either side
+  const dw=26,dx=cx-dw/2,dy=base-56;c.fillStyle='#07060a';c.fillRect(dx-3,dy-3,dw+6,56-7);c.fillStyle=lin(c,dx,0,dx+dw,0,[[0,'#2a1c10'],[.5,'#5a4020'],[1,'#2a1c10']]);c.fillRect(dx,dy,dw,46);
+  c.fillStyle=rgba('#000000',.5);c.fillRect(cx-.5,dy,1,46);for(const yy of [dy+12,dy+28])c.fillRect(dx+2,yy,dw-4,.8);
+  for(const lx of [dx-12,dx+dw+12]){c.fillStyle='#09080c';c.fillRect(lx-1.6,dy+6,3.2,12);c.fillStyle=lin(c,0,dy-2,0,dy+6,[[0,'#fff6dc'],[1,'#ffc272']]);c.fillRect(lx-2.6,dy-2,5.2,8);glow(c,lx,dy+2,22,'#ffb866',.35);
+    REFL.push({x:lx,w:6,y:dy+2,col:'#ffc070',a:.16});}
+  for(let i=0;i<3;i++)stone(c,x0+6-i*3,base-6+i*2,w-12+i*6,2.2,{lit:.32,dark:.48});
+  lampWash(c,x0,x1,top-28,base);}
+// Kestrel Gardens: a little park behind iron railings, lawns and paths under old plane trees, a gas lamp by its gate
+function park(c,x0,x1){const base=FB(),r=rng(23),bk=base-30,hT=BAND.mid.y1-10,cx=(x0+x1)/2;
+  c.fillStyle=lin(c,0,bk,0,base,[[0,'#0e120e'],[1,'#141812']]);c.fillRect(x0,bk,x1-x0,base-bk+1);
+  for(let i=0;i<90;i++){c.fillStyle=rgba(r()<.5?'#1e2a1c':'#06080a',.5);c.fillRect(x0+r()*(x1-x0),bk+r()*(base-bk),1+r()*2.4,.6);}
+  // the hedge at the back, clipped flat, the moon along its top
+  c.fillStyle=lin(c,0,hT,0,bk,[[0,'#0b120d'],[1,'#070a08']]);c.fillRect(x0,hT,x1-x0,bk-hT+2);
+  for(let i=0;i<220;i++){const lx=x0+r()*(x1-x0),ly=hT+r()*(bk-hT),k=clamp(1-(ly-hT)/14,0,1);c.fillStyle=mix('#070c08',r()<.5?'#2e4630':'#3a4a34',.25+k*.45*r());c.beginPath();c.ellipse(lx,ly,1.2,.6,r()*Math.PI,0,TAU);c.fill();}
+  c.fillStyle=rgba('#9aa6d0',.14);c.fillRect(x0,hT,x1-x0,.8);
+  // a gravel path in from the gate
+  c.fillStyle=rgba('#4a4238',.35);c.beginPath();c.moveTo(cx-8,base);c.lineTo(cx+8,base);c.lineTo(cx+4,bk+4);c.lineTo(cx-4,bk+4);c.closePath();c.fill();
+  // the trees: three planes, their crowns up against the city, the moon on their tops
+  for(const [tx,tr] of [[x0+22,30],[cx+2,36],[x1-20,28]]){c.fillStyle='#09080a';c.fillRect(tx-1.8,hT-8,3.6,bk-hT+10);
+    const cyy=hT-tr*.65;for(let k=0;k<12;k++){const a=k/12*TAU,px=tx+Math.cos(a)*tr*.66,py=cyy+Math.sin(a)*tr*.44;c.fillStyle=lin(c,0,py-tr*.5,0,py+tr*.5,[[0,'#0e1410'],[1,'#080b09']]);c.beginPath();c.arc(px,py,tr*.5,0,TAU);c.fill();}
+    for(let i=0;i<150;i++){const a=r()*TAU,rr=Math.sqrt(r())*tr,lx=tx+Math.cos(a)*rr*1.05,ly=cyy+Math.sin(a)*rr*.8,k=clamp((cyy-ly)/tr*.5+(tx-lx)/tr*.35+.3,0,1);
+      c.fillStyle=mix('#070b08',r()<.5?'#2a3e2c':'#36463a',k*.6);c.beginPath();c.ellipse(lx,ly,1.6,.8,r()*Math.PI,0,TAU);c.fill();}
+    c.strokeStyle=rgba('#a8b4d8',.22);c.lineWidth=1.2;c.beginPath();c.arc(tx-2,cyy-2,tr*.95,-Math.PI*.9,-Math.PI*.45);c.stroke();}
+  // a bench and a lamp inside
+  {const bx=x0+34,by=bk+14;c.fillStyle='#0a090c';c.fillRect(bx,by-5,18,1.4);c.fillRect(bx,by-9,18,1.2);c.fillRect(bx+1,by-5,1.2,5);c.fillRect(bx+16,by-5,1.2,5);c.fillStyle=rgba('#a8b4d8',.25);c.fillRect(bx,by-9,18,.45);}
+  {const lx=x1-40,ly=bk+10;c.fillStyle='#09080c';c.fillRect(lx-1,ly-38,2,38);c.fillStyle=lin(c,0,ly-46,0,ly-38,[[0,'#fff6dc'],[1,'#ffc272']]);c.fillRect(lx-2.6,ly-46,5.2,8);glow(c,lx,ly-42,30,'#ffb866',.32);
+    REFL.push({x:lx,w:6,y:ly-42,col:'#ffc070',a:.14});}
+  // the railings, a gate in the middle, gilt spikes, and the gardens' name on the gate's arch
+  const ry=base+.5;c.strokeStyle='#08070b';c.lineWidth=1.78;c.beginPath();c.moveTo(x0,ry-13);c.lineTo(cx-12,ry-13);c.moveTo(cx+12,ry-13);c.lineTo(x1,ry-13);c.moveTo(x0,ry-3);c.lineTo(x1,ry-3);
+  for(let x=x0+1;x<=x1-1;x+=3.4){if(Math.abs(x-cx)<12)continue;c.moveTo(x,ry);c.lineTo(x,ry-16);}c.stroke();
+  c.fillStyle=C.gold;for(let x=x0+1;x<=x1-1;x+=3.4){if(Math.abs(x-cx)<12)continue;c.beginPath();c.moveTo(x-.9,ry-16);c.lineTo(x,ry-19);c.lineTo(x+.9,ry-16);c.fill();}
+  for(const px of [cx-12,cx+12]){stone(c,px-3,ry-24,6,24,{dark:.5,lit:.25});c.fillStyle=lin(c,px-3,0,px+3,0,[[0,C.goldD],[.5,C.goldL],[1,C.goldD]]);c.beginPath();c.arc(px,ry-26,2.4,Math.PI,0);c.fill();}
+  c.strokeStyle='#08070b';c.lineWidth=1.8;c.beginPath();c.moveTo(cx-10,ry-22);c.quadraticCurveTo(cx,ry-32,cx+10,ry-22);c.stroke();
+  {const sy=ry-44;c.fillStyle='#08070a';c.fillRect(cx-58,sy-13,116,16);c.strokeStyle=rgba(C.gold,.7);c.lineWidth=1.19;c.strokeRect(cx-56.5,sy-11.5,113,13);
+    c.save();c.font='700 12px "Alegreya SC", Georgia, serif';c.textAlign='center';c.fillStyle=C.goldL;c.fillText('KESTREL GDNS.',cx,sy-1);c.restore();c.fillStyle='#0a090c';c.fillRect(cx-.6,sy+3,1.2,ry-26-sy-3);}}
+// the chapel of the Lamp: grey stone, buttressed, a pointed door, and over it a rose window lit from within in the old colours
+function chapel(c,b){const base=FB(),x0=b.x0,x1=b.x1,w=x1-x0,top=b.top,cx=(x0+x1)/2;
+  c.save();c.beginPath();c.moveTo(x0,base);c.lineTo(x0,top);c.lineTo(cx,top-40);c.lineTo(x1,top);c.lineTo(x1,base);c.closePath();c.clip();
+  c.fillStyle=patAt(c,TX().granite(67,96,96,{base:'#6a6670'}),x0,top-40,.25);c.fillRect(x0,top-40,w,base-top+40);c.fillStyle=rgba('#05040a',.66);c.fillRect(x0,top-40,w,base-top+40);
+  c.strokeStyle=rgba('#000000',.45);c.lineWidth=1.6;c.beginPath();for(let y=top-36,k=0;y<base;y+=7,k++){c.moveTo(x0,y);c.lineTo(x1,y);for(let x=x0+(k%2)*11;x<x1;x+=22){c.moveTo(x,y);c.lineTo(x,y+7);}}c.stroke();c.restore();
+  line(c,[{x:x0-3,y:top+1},{x:cx,y:top-41},{x:x1+3,y:top+1}],rgba(C.rim,.38),1.2);
+  // a cross of gilt at the gable's peak, buttresses at the corners
+  c.fillStyle=C.gold;c.fillRect(cx-.8,top-56,1.6,16);c.fillRect(cx-5,top-51,10,1.6);
+  for(const px of [x0,x1-10]){stone(c,px,top+6,10,base-top-6,{dark:.5,lit:.22});stone(c,px-1,top+40,12,3,{lit:.3});}
+  // the rose window: a wheel of tracery, the glass in ruby, sapphire and gold
+  const rx=cx,ry=top+40,R=30,rr=rng(73),cols=['#c01830','#1a3aa0','#e8b030','#2a8a50','#8a2a9a'];glow(c,rx,ry,R*2.4,'#ffb070',.2);
+  c.fillStyle='#0a080c';c.beginPath();c.arc(rx,ry,R+3,0,TAU);c.fill();
+  for(let k=0;k<12;k++){const a0=k/12*TAU,a1=(k+1)/12*TAU;c.fillStyle=mix(cols[(rr()*cols.length)|0],'#000000',.15);c.beginPath();c.moveTo(rx,ry);c.arc(rx,ry,R,a0,a1);c.closePath();c.fill();}
+  c.fillStyle=rad(c,rx,ry,0,R,[[0,rgba('#fff0c8',.5)],[.4,rgba('#ffd890',.14)],[1,rgba('#ffd890',0)]]);c.beginPath();c.arc(rx,ry,R,0,TAU);c.fill();
+  c.strokeStyle='#0a080c';c.lineWidth=2.2;c.beginPath();for(let k=0;k<12;k++){const a=k/12*TAU;c.moveTo(rx+Math.cos(a)*R*.3,ry+Math.sin(a)*R*.3);c.lineTo(rx+Math.cos(a)*R,ry+Math.sin(a)*R);}c.stroke();
+  for(const f of [.3,.66]){c.beginPath();c.arc(rx,ry,R*f,0,TAU);c.stroke();}c.strokeStyle=rgba(C.rim,.3);c.lineWidth=1.2;c.beginPath();c.arc(rx,ry,R+2.4,Math.PI*1.1,Math.PI*1.9);c.stroke();
+  REFL.push({x:rx,w:30,y:ry,col:'#ff8a5a',a:.14},{x:rx,w:14,y:ry,col:'#6a8aff',a:.1});
+  // the door: pointed, in a deep moulded arch, its oak studded, a lamp over it
+  const dw=26,dx=cx-dw/2,dy=base-48;c.fillStyle='#050408';c.beginPath();c.moveTo(dx-5,base);c.lineTo(dx-5,dy+10);c.quadraticCurveTo(cx-5,dy-14,cx,dy-18);c.quadraticCurveTo(cx+5,dy-14,dx+dw+5,dy+10);c.lineTo(dx+dw+5,base);c.closePath();c.fill();
+  c.fillStyle=patAt(c,TX().wood(11,256,128,{dark:'#120705',mid:'#2e140b',light:'#55271a',rings:7,sharp:3}),dx,dy,.25,90);c.beginPath();c.moveTo(dx,base);c.lineTo(dx,dy+10);c.quadraticCurveTo(cx-4,dy-9,cx,dy-12);c.quadraticCurveTo(cx+4,dy-9,dx+dw,dy+10);c.lineTo(dx+dw,base);c.closePath();c.fill();
+  c.fillStyle=rgba('#000000',.4);c.fill();c.fillStyle=rgba(C.gold,.6);for(let y=dy+6;y<base-4;y+=7)for(const x of [dx+4,cx-3,cx+3,dx+dw-4])c.fillRect(x-.6,y,1.2,1.2);c.fillStyle='#000000';c.fillRect(cx-.6,dy-11,1.2,base-dy+11);
+  const ly=dy-26;c.fillStyle='#09080c';c.fillRect(cx-3,ly-1,6,2);c.fillStyle=lin(c,0,ly,0,ly+7,[[0,'#fff6dc'],[1,'#ffc272']]);c.fillRect(cx-2.4,ly+1,4.8,6);glow(c,cx,ly+4,20,'#ffb866',.35);
+  for(let i=0;i<3;i++)stone(c,dx-8-i*4,base-5.6+i*1.9,dw+16+i*8,2.2,{lit:.32,dark:.48});
+  lampWash(c,x0,x1,top-40,base);}
+// a building site: a hoarding of boards pasted with bills, scaffold poles and planks up behind it against the city, a work lamp
+function hoarding(c,x0,x1){const base=FB(),r=rng(29),ht=base-72,w=x1-x0;
+  // the scaffold behind, against the sky: poles, ledgers and boards, a tarpaulin hung from it
+  c.strokeStyle='#0a090c';c.lineWidth=2;c.beginPath();for(let x=x0+10;x<x1;x+=26){c.moveTo(x,ht);c.lineTo(x,BAND.mid.y1-60);}for(let y=ht-26;y>BAND.mid.y1-60;y-=26){c.moveTo(x0+4,y);c.lineTo(x1-4,y);}c.stroke();
+  for(let y=ht-26;y>BAND.mid.y1-60;y-=26){c.fillStyle='#120f0c';c.fillRect(x0+6,y-2.6,w-12,2.6);c.fillStyle=rgba(C.rim,.18);c.fillRect(x0+6,y-2.6,w-12,.5);}
+  c.fillStyle=rgba('#1a2a3a',.75);c.beginPath();c.moveTo(x0+36,ht-52);c.lineTo(x0+88,ht-52);c.lineTo(x0+86,ht-4);c.quadraticCurveTo(x0+62,ht-10,x0+38,ht-4);c.closePath();c.fill();
+  // the hoarding: planks, black with rain, bills over bills
+  c.fillStyle=patAt(c,TX().wood(19,256,128,{dark:'#100c0a',mid:'#241a14',light:'#3a2c20',rings:5,sharp:2}),x0,ht,.25,90);c.fillRect(x0,ht,w,base-ht);c.fillStyle=rgba('#000000',.45);c.fillRect(x0,ht,w,base-ht);
+  c.fillStyle=rgba('#000000',.55);for(let x=x0+9;x<x1;x+=9)c.fillRect(x,ht,.8,base-ht);
+  const pc=['#c8b890','#d8c8a0','#a83a2a','#2a4a6a','#e0b040','#cfc6b4'];
+  for(let k=0;k<14;k++){const px=x0+3+r()*(w-24),py=ht+3+r()*(base-ht-22),pw=12+r()*12,ph=14+r()*8,a=(r()-.5)*.12;c.save();c.translate(px,py);c.rotate(a);
+    c.fillStyle=rgba(pc[(r()*pc.length)|0],.62);c.fillRect(0,0,pw,ph);c.fillStyle=rgba('#140e0c',.55);c.fillRect(2,2,pw-4,3);for(let j=0;j<3;j++)c.fillRect(2,7+j*2.4,(pw-4)*(.5+r()*.5),.9);
+    if(r()<.4){c.fillStyle=rgba('#100c0a',.9);c.beginPath();c.moveTo(pw,ph*.5);c.lineTo(pw,ph);c.lineTo(pw*.6,ph);c.closePath();c.fill();}c.restore();}
+  stone(c,x0-1,ht-2,w+2,2.4,{lit:.3,dark:.6});
+  // a red work lamp on the hoarding's corner
+  const lx=x1-8,ly=ht-6;c.fillStyle='#ff3020';c.beginPath();c.arc(lx,ly,1.8,0,TAU);c.fill();glow(c,lx,ly,14,'#ff4030',.5);REFL.push({x:lx,w:6,y:ly,col:'#ff4030',a:.16});}
+const ROW_B=[
+  {x0:0,x1:150,top:120,roof:'flat',cornice:true,floors:2,seed:41,brick:true,bc:'#3e2420',bc2:'#2a1816',bc3:'#4e2a22',litP:.3,shop:'florist',boxes:true},
+  {x0:150,x1:330,top:96,roof:'mansard',rh:28,floors:3,seed:43,stucco:'#3a3a44',litP:.4,shop:'chemist',gild:true,chim:[160,312]},
+  {alley:[330,350],top:100},
+  {x0:350,x1:560,top:98,seed:45,bank:true},
+  {x0:560,x1:700,top:132,roof:'gable',rh:34,floors:2,seed:47,bs:5,brick:true,litP:.25,shop:'wine'},
+  {park:[700,846]},
+  {x0:846,x1:1010,top:110,roof:'flat',balus:true,floors:2,seed:49,stucco:'#40383a',litP:.35,shop:'jeweller',arch:true},
+  {x0:1010,x1:1180,top:118,roof:'mansard',rh:26,floors:2,seed:51,brick:true,bc:'#2e2a30',bc2:'#201c22',bc3:'#3a3238',litP:.4,shop:'teahouse',boxes:true,chim:[1018,1160]},
+  {alley:[1180,1200],top:112},
+  {x0:1200,x1:1400,top:100,roof:'flat',cornice:true,floors:3,seed:53,stucco:'#3c3836',litP:.32,shop:'clocks',gild:true},
+  {x0:1400,x1:1560,top:130,roof:'gable',rh:34,floors:2,seed:55,bs:7,brick:true,litP:.2,shop:'bakery'}];
+const ROW_C=[
+  {x0:0,x1:170,top:116,roof:'mansard',rh:26,floors:2,seed:61,stucco:'#3a3438',litP:.4,shop:'noodle',chim:[10,150]},
+  {x0:170,x1:300,top:128,roof:'flat',cornice:true,floors:2,seed:63,brick:true,bc:'#36262a',bc2:'#26181c',bc3:'#462a28',litP:.3,shop:'news'},
+  {hoarding:[300,430]},
+  {x0:430,x1:640,top:104,seed:65,chapel:true},
+  {x0:640,x1:790,top:104,roof:'flat',cornice:true,floors:3,seed:67,brick:true,litP:.35,shop:'hatter'},
+  {alley:[790,812],top:108},
+  {x0:812,x1:1056,top:92,seed:69,cinema:true,title:'ROYAL',bill:'THE NIGHT TRAIN'},
+  {x0:1056,x1:1220,top:122,roof:'mansard',rh:24,floors:2,seed:71,stucco:'#383440',litP:.3,shop:'grocer',boxes:true},
+  {x0:1220,x1:1400,top:96,roof:'flat',balus:true,urns:true,floors:2,seed:73,stucco:'#423a36',litP:.45,shop:'maison',arch:true,balcony:0},
+  {x0:1400,x1:1560,top:134,roof:'gable',rh:36,floors:2,seed:75,bs:9,brick:true,litP:.25,shop:'tobacco'}];
+// a florist's zinc bucket of cut flowers out on the flags
+function flowerBucket(c,x,y){const r=rng((x*13)|0),cols=['#c8283c','#f0c040','#e8e0f0','#d85a8a','#f08a3a'];c.fillStyle=rgba('#000000',.45);c.beginPath();c.ellipse(x+1,y,5,1.2,0,0,TAU);c.fill();
+  for(let k=0;k<9;k++){const fx=x+(r()-.5)*9,fy=y-9-r()*9;c.strokeStyle=rgba('#1c3a1e',.95);c.lineWidth=1.5;c.beginPath();c.moveTo(x,y-6);c.lineTo(fx,fy);c.stroke();c.fillStyle=cols[(r()*cols.length)|0];c.beginPath();c.arc(fx,fy,1.6+r()*.8,0,TAU);c.fill();}
+  c.fillStyle=lin(c,x-4,0,x+4,0,[[0,'#3a3c44'],[.5,'#6a6e78'],[1,'#2a2c32']]);c.beginPath();c.moveTo(x-4,y-7);c.lineTo(x+4,y-7);c.lineTo(x+3.2,y);c.lineTo(x-3.2,y);c.closePath();c.fill();c.fillStyle=rgba(C.rim,.4);c.fillRect(x-4,y-7,8,.6);}
+// the blocks: each one's row, its lamps (none by a gap where the moon has the light), where its sky shows the city behind (sq),
+// the marquee whose light rims a rider and whose bulbs chase (marq, cine), and what stands out on its flags
+const VARS=[
+  {row:ROW,lx:[130,390,910,1170,1430],sq:[[712,834]],marq:{x:459,y:228},cine:[340,584],flags:c=>{cafeTable(c,190,yP(229));cafeTable(c,284,yP(229));chalkBoard(c,236,yP(230));}},
+  {row:ROW_B,lx:[130,390,650,1040,1300],sq:[[700,846]],marq:null,cine:null,flags:c=>{for(const x of [26,50,74,118])flowerBucket(c,x,yP(229));chalkBoard(c,1096,yP(230));}},
+  {row:ROW_C,lx:[130,610,780,1170,1430],sq:[[300,430]],marq:{x:931,y:228},cine:[812,1056],flags:c=>{cafeTable(c,1262,yP(229));cafeTable(c,1356,yP(229));chalkBoard(c,1310,yP(230));}}];
+// the order they come by in: a seeded round of 24 with no block twice running (the first block first)
+const SEQ=(()=>{const r=rng(87),out=[0];while(out.length<24){let v=Math.floor(r()*VARS.length)%VARS.length;if(v===out[out.length-1])v=(v+1)%VARS.length;out.push(v);}
+  if(out[23]===out[0])out[23]=(out[0]+1)%VARS.length;if(out[23]===out[22])out[23]=3-out[0]-out[22];return out;})();
+const seqAt=k=>SEQ[((k%SEQ.length)+SEQ.length)%SEQ.length];
+let CUR=VARS[0];
 // ---------- the lamps ----------
 // an elven gas lamp: a cast-iron post wound with the gold vine, a scrolled bracket, a lantern of glass burning warm
 function lampPost(c,lx){const x=lx,base=yP(LAMPD),top=base-150;
@@ -453,10 +663,12 @@ function lampPost(c,lx){const x=lx,base=yP(LAMPD),top=base-150;
 // ---------- the street's strip ----------
 // a point of the road (world x, depth) for one seen at (sx, sy) on the screen
 const onRoad=(sx,sy)=>{const d=(GB-sy)/PSY;return{x:sx-d*PSX,d};};
-function paintStreet(c,P){SPILL=[];REFL=[];BULBS=[];const base=FB();
-  // the row: alleys and the square first, the houses over their edges
-  for(const b of ROW)if(b.alley)alley(c,b.alley[0],b.alley[1],b.top);else if(b.square)square(c,b.square[0],b.square[1]);
-  for(const b of ROW){if(b.alley||b.square)continue;if(b.cinema){cinema(c,b);continue;}const f=house(c,b);SHOP[b.shop](c,b,f.gTop,f.base);}
+function paintStreet(c,P){SPILL=[];REFL=[];BULBS=[];const V=CUR,base=FB();LX=V.lx;
+  // the row: alleys and the gaps first, the houses over their edges
+  for(const b of V.row)if(b.alley)alley(c,b.alley[0],b.alley[1],b.top);else if(b.square)square(c,b.square[0],b.square[1]);else if(b.park)park(c,b.park[0],b.park[1]);
+    else if(b.hoarding)hoarding(c,b.hoarding[0],b.hoarding[1]);
+  for(const b of V.row){if(b.alley||b.square||b.park||b.hoarding)continue;if(b.cinema){cinema(c,b);continue;}if(b.bank){bank(c,b);continue;}if(b.chapel){chapel(c,b);continue;}
+    const f=house(c,b);SHOP[b.shop](c,b,f.gTop,f.base);}
   // the far pavement: flags in the ground plane, wet, darker toward the kerb
   {const g=GB-KH;c.save();c.transform(1,0,PSX,-PSY,0,g);const pf=c.createPattern(flags(),'repeat');if(pf.setTransform)pf.setTransform(new DOMMatrix().translate(0,FK).scale(.4));
     c.fillStyle=pf;c.fillRect(-80,FK,P+120,DF-FK+2);c.restore();
@@ -466,8 +678,8 @@ function paintStreet(c,P){SPILL=[];REFL=[];BULBS=[];const base=FB();
       c.fillStyle=lin(c,0,DF,0,FK+2,[[0,rgba('#ffb060',.2*s.a)],[1,rgba('#ffb060',0)]]);c.beginPath();c.moveTo(a,DF);c.lineTo(bb,DF);c.lineTo(bb+8,FK+2);c.lineTo(a-8,FK+2);c.closePath();c.fill();}c.restore();
     for(const lx of LX){glow(c,lx+6,yP(LAMPD+2),64,'#ffb866',.2,.22);wetStreak(c,lx+16,base+2,yP(FK)-.5,14,'#ffc477',.3,lx);}
     const r=rng(29);for(let i=0;i<30;i++){const lx=r()*P,ly=yP(FK+2+r()*(DF-FK-4));c.fillStyle=rgba(r()<.5?'#3a2414':'#4a3018',.6);c.beginPath();c.ellipse(lx,ly,1.1,.5,r()*Math.PI,0,TAU);c.fill();}}
-  // on the flags: the café's tables and its board, the hotel's bay trees
-  cafeTable(c,190,yP(229));cafeTable(c,284,yP(229));chalkBoard(c,236,yP(230));
+  // on the flags: the block's own (the café's tables and its board, a florist's buckets)
+  V.flags(c);
   // the kerb: granite blocks of uneven length, a chipped arris lit along the top
   {const yt=yP(FK),yb=yR(FK);c.fillStyle=patAt(c,TX().granite(77,128,64,{base:'#5e5860'}),0,yt,32.5/128);c.fillRect(0,yt,P,yb-yt+.6);
     c.fillStyle=lin(c,0,yt,0,yb,[[0,rgba('#05040a',.22)],[.18,rgba('#05040a',.45)],[1,rgba('#05040a',.8)]]);c.fillRect(0,yt,P,yb-yt+.6);
@@ -610,7 +822,7 @@ function paintFar(c,P){const r=rng(53),base=BAND.far.y1,col=mix('#181a2a','#3a2a
   c.fillStyle=lin(c,0,base-90,0,base,[[0,rgba('#3a2a36',0)],[.6,rgba('#3a2a36',.45)],[1,rgba('#3a2a36',.85)]]);c.fillRect(0,base-90,P,90);}
 // ---------- the near kerb ----------
 // what stands at the edge of our own pavement, close enough to go by quickest of all: cast-iron bollards with a gilt band, an elven
-// pillar box, a short lamp of the pavement's own. Each is dark toward us and lit round its edges from the lamps across the road
+// pillar box, a short lamp of the pavement's own, a bench, a fire point. Each is dark toward us and lit round its edges from the lamps across the road
 function bollard(c,x,y){const h=30;c.fillStyle=rgba('#000000',.5);c.beginPath();c.ellipse(x+1.5,y+.5,7,1.7,0,0,TAU);c.fill();
   const body=()=>{c.beginPath();c.moveTo(x-4.4,y);c.lineTo(x-3.6,y-h+7);c.quadraticCurveTo(x-3.8,y-h,x,y-h-.6);c.quadraticCurveTo(x+3.8,y-h,x+3.6,y-h+7);c.lineTo(x+4.4,y);c.closePath();};
   body();c.fillStyle=lin(c,x-4.4,0,x+4.4,0,[[0,'#060509'],[.66,'#141219'],[1,'#050408']]);c.fill();
@@ -630,6 +842,16 @@ function pillarBox(c,x,y){const w=15,h=38,x0=x-w/2;c.fillStyle=rgba('#000000',.5
   c.strokeStyle=rgba('#000000',.55);c.lineWidth=1;c.strokeRect(x-5,y-h+14,10,15);c.fillStyle=rgba(C.gold,.8);c.beginPath();c.arc(x,y-h+18.5,1.8,0,TAU);c.fill();c.fillStyle='#2a0609';c.beginPath();c.arc(x+.5,y-h+18.1,1.2,0,TAU);c.fill();
   c.fillStyle=rgba('#e8dcc0',.5);c.fillRect(x-3,y-h+23,6,3.2);c.fillStyle=rgba('#1a0a0a',.6);for(let k=0;k<3;k++)c.fillRect(x-2.4,y-h+23.6+k*.9,4.8,.35);
   c.fillStyle=lin(c,x0+w-3,0,x0+w,0,[[0,rgba(C.rim,0)],[1,rgba(C.rim,.32)]]);c.fillRect(x0+w-3,y-h+4,3,h-7);}
+// (since V85) a bench of iron and slats, and a fire point: a short iron post with its brass cap and the city's red
+function bench(c,x,y){c.fillStyle=rgba('#000000',.5);c.beginPath();c.ellipse(x+1.5,y+.5,19,2,0,0,TAU);c.fill();
+  c.fillStyle='#09080c';for(const px of [x-15,x+13]){c.fillRect(px,y-11,2.4,11);c.fillRect(px-1.4,y-1.6,5.2,1.6);}
+  c.fillStyle=lin(c,0,y-12,0,y-9,[[0,'#3a2a20'],[1,'#1a120e']]);c.fillRect(x-18,y-12,36,2.4);c.fillStyle=lin(c,0,y-21,0,y-14,[[0,'#3a2a20'],[1,'#1a120e']]);c.fillRect(x-17,y-21,34,2);c.fillRect(x-17,y-17,34,2);
+  c.fillStyle='#09080c';for(const px of [x-15,x+13])c.fillRect(px,y-22,2.2,11);c.fillStyle=rgba(C.rim,.32);c.fillRect(x-18,y-12,36,.5);c.fillRect(x-17,y-21,34,.5);
+  c.fillStyle=lin(c,0,y-12,0,y-11,[[0,C.goldL],[1,C.goldD]]);c.fillRect(x-1,y-22,2,1);}
+function hydrant(c,x,y){c.fillStyle=rgba('#000000',.5);c.beginPath();c.ellipse(x+1.5,y+.5,6,1.5,0,0,TAU);c.fill();
+  c.fillStyle=lin(c,x-4,0,x+4,0,[[0,'#1c0406'],[.6,'#5a1018'],[1,'#140305']]);c.fillRect(x-3.4,y-15,6.8,15);c.fillRect(x-5.4,y-10,10.8,3);
+  c.fillStyle=lin(c,x-4,0,x+4,0,[[0,C.goldDD],[.55,C.goldL],[1,C.goldDD]]);c.beginPath();c.moveTo(x-4,y-15);c.quadraticCurveTo(x-4,y-19.5,x,y-19.8);c.quadraticCurveTo(x+4,y-19.5,x+4,y-15);c.closePath();c.fill();
+  c.fillStyle='#0a090d';c.fillRect(x-5,y-2,10,2);c.fillStyle=rgba(C.rim,.3);c.fillRect(x+2,y-15,1,13);}
 function pavementLamp(c,x,y){c.fillStyle=rgba('#000000',.5);c.beginPath();c.ellipse(x+1.5,y+.5,8,1.8,0,0,TAU);c.fill();
   c.fillStyle=lin(c,x-5,0,x+5,0,[[0,'#060509'],[.66,'#15131a'],[1,'#050408']]);c.fillRect(x-5,y-6,10,6);c.beginPath();c.moveTo(x-3.4,y-6);c.lineTo(x-2,y-12);c.lineTo(x+2,y-12);c.lineTo(x+3.4,y-6);c.fill();c.fillRect(x-1.8,y-34,3.6,23);
   c.fillStyle=rgba(C.rim,.3);c.fillRect(x-5,y-6,10,.5);c.fillRect(x+1.2,y-33,.6,21);
@@ -648,9 +870,15 @@ function paintNear(c,P){const g=GB-KH,r=rng(17);
     c.strokeStyle=rgba('#000000',.6);c.lineWidth=1.8;for(let x=6+r()*10;x<P-6;x+=34+r()*24){c.beginPath();c.moveTo(x,yt);c.lineTo(x-1.2,yb);c.stroke();}
     c.fillStyle=rgba(C.rim,.45);c.fillRect(0,yt-.4,P,.9);c.fillStyle=rgba('#000000',.45);c.fillRect(0,yb,P,.7);}
   for(let i=0;i<16;i++){const lx=r()*P,ly=yP(NK-9-r()*30);c.fillStyle=rgba(r()<.5?'#4a2c16':'#5a3a1c',.55);c.beginPath();c.ellipse(lx,ly,1.5,.65,r()*Math.PI,0,TAU);c.fill();}
-  const y=yP(-31);
-  for(const x of [56,104,152,640,688,1050,1098])bollard(c,x,y);
-  pillarBox(c,312,y+1);pavementLamp(c,470,y);pavementLamp(c,880,y);}
+  // along it, from its seed (since V85: three times as long, so it comes round every three seconds, not every one): bollards in twos
+  // and threes, a pillar box, the pavement's own lamps, a bench, a fire point
+  const y=yP(-31),rr=rng(19);let x=56;
+  while(x<P-70){const u=rr();
+    if(u<.34){const n=rr()<.4?3:2;for(let i=0;i<n;i++)bollard(c,x+i*48,y);x+=n*48+70+rr()*130;}
+    else if(u<.48){pillarBox(c,x,y+1);x+=90+rr()*140;}
+    else if(u<.7){pavementLamp(c,x,y);x+=120+rr()*170;}
+    else if(u<.85){bench(c,x+18,y);x+=130+rr()*120;}
+    else{hydrant(c,x,y);x+=80+rr()*120;}}}
 // our own pavement on toward us past the bollards, under the picture's foot where an upright phone's widest view of the road reaches:
 // the same flags going by with the kerb, darker as they come, a puddle holding a lamp across the road now and then (made at half the
 // screen's scale: it is dark, and the nearest thing going by)
@@ -672,9 +900,12 @@ function makeBand(k,sc,draw){const b=BAND[k],w=Math.round(b.P*sc),s=w/b.P,h=Math
 function bulbSprite(sc){const n=Math.ceil(8*sc),cn=document.createElement('canvas');cn.width=cn.height=n;const c=cn.getContext('2d');c.setTransform(n/8,0,0,n/8,4*n/8,4*n/8);
   glow(c,0,0,4,'#ffcf86',.8);c.fillStyle='#fff6e0';c.beginPath();c.arc(0,0,.8,0,TAU);c.fill();return cn;}
 function strips(){const sc=wantScale();if(ST&&Math.abs(sc/ST.sc-1)<.15)return ST;
-  if(ST)for(const k of ORDER)for(const p of ST[k].parts)p.cv.width=p.cv.height=0;
-  const t0=performance.now();ST={sc};BULB=bulbSprite(wantScale());for(const k of ORDER)ST[k]=makeBand(k,sc*(BAND[k].lo||1),k==='far'?paintFar:k==='mid'?paintMid:k==='street'?paintStreet:k==='near'?paintNear:paintFront);
-  ST.bulb=BULB;ST.ms=performance.now()-t0;return ST;}
+  if(ST)for(const k of ORDER)for(const B of k==='street'?ST.streets:[ST[k]])for(const p of B.parts)p.cv.width=p.cv.height=0;
+  const t0=performance.now();ST={sc};BULB=bulbSprite(wantScale());
+  for(const k of ORDER){if(k!=='street'){ST[k]=makeBand(k,sc*(BAND[k].lo||1),k==='far'?paintFar:k==='mid'?paintMid:k==='near'?paintNear:paintFront);continue;}
+    // the street: a strip for each block, with what its painting noted (its marquee's bulbs)
+    ST.streets=VARS.map(v=>{CUR=v;const B=makeBand('street',sc,paintStreet);B.v=v;B.bulbs=BULBS;return B;});ST.street=ST.streets[0];}
+  CUR=VARS[0];LX=CUR.lx;ST.bulb=BULB;ST.ms=performance.now()-t0;return ST;}
 const scrollAt=()=>{const v=typeof S!=='undefined'&&S?+S.scroll:0;return isFinite(v)?v:0;};
 const offOf=b=>{const o=(scrollAt()*b.f)%b.P;return o<0?o+b.P:o;};
 // one part of a band on the screen, over the given stretches of the world's x (all of the view if none): in whole device pixels when the
@@ -688,6 +919,16 @@ function blitPart(p,b,o,wins){const m=ctx.getTransform(),cw=ctx.canvas.width,ch=
   const u=1/b.sc;let x=-o;while(x>L)x-=b.P;
   for(;x<R;x+=b.P)for(const [a,bb] of rs){const sx=Math.max(0,Math.floor((a-x)*b.sc)),ex=Math.min(W0,Math.ceil((bb-x)*b.sc));if(ex>sx)ctx.drawImage(p.cv,sx,0,ex-sx,H0,x+sx*u,p.y0,(ex-sx)*u,H0*u);}}
 function blit(b,sqWin){const o=offOf(b);for(const p of b.parts)blitPart(p,b,o,p.sq?sqWin:null);}
+// one block of the street, its left edge at world x X; dev: its left edge in device pixels when the screen's scale is the strip's own
+// (each next block one strip's width on, so no seam opens between them)
+function blitOne(p,b,X,dev){const m=ctx.getTransform(),cw=ctx.canvas.width,W0=p.cv.width,H0=p.cv.height,L=-m.e/m.a,R=(cw-m.e)/m.a,a=Math.max(L,X),bb=Math.min(R,X+b.P);if(bb<=a)return;
+  if(dev!=null){const ch=ctx.canvas.height,dy=Math.round(m.d*p.y0+m.f);if(dy>=ch||dy+H0<=0)return;const sx=Math.max(0,Math.floor(m.a*a+m.e)-dev),ex=Math.min(W0,Math.ceil(m.a*bb+m.e)-dev);
+    if(ex>sx){ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(p.cv,sx,0,ex-sx,H0,dev+sx,dy,ex-sx,H0);ctx.restore();}return;}
+  const u=1/b.sc,sx=Math.max(0,Math.floor((a-X)*b.sc)),ex=Math.min(W0,Math.ceil((bb-X)*b.sc));if(ex>sx)ctx.drawImage(p.cv,sx,0,ex-sx,H0,X+sx*u,p.y0,(ex-sx)*u,H0*u);}
+// the blocks of the street in view (and a little either side), in their order: block k's left edge at k P less how far the riders
+// have come
+function streetBlocks(T,L,R){const st=T.street,P=st.P,s0=scrollAt()*st.f,k0=Math.floor((L+s0)/P),k1=Math.floor((R+s0)/P),out=[];
+  for(let k=k0;k<=k1;k++)out.push({B:T.streets[seqAt(k)],x:k*P-s0,k});return out;}
 // ---------- the scene ----------
 // what stays still: the night sky with its stars and moon and the clouds lit from under by the city, the farthest towers low in the
 // haze, and the Hallowell tower with its ring of cyan light, far off to the right
@@ -711,27 +952,29 @@ const STK={};function streakSpr(col){let c0=STK[col];if(c0)return c0;c0=STK[col]
 function speedOf(){const v=typeof S!=='undefined'&&S?Math.abs(+S.scrollV||0):0;return isFinite(v)?clamp((v-120)/900,0,1):0;}
 // what goes by: the bands at their own paces, then the lamps' flames and the Lyric's chasing bulbs over the street's strip
 function live(){const T=strips(),t=(typeof S!=='undefined'&&S.t)||0,st=T.street,o=offOf(st),sq=[],sp=speedOf();
-  for(let n=-1;n<=1;n++)sq.push([SQ[0]-o+n*st.P-1,SQ[1]-o+n*st.P+1]);
-  blit(T.far,sq);blit(T.mid,sq);blit(st);
-  const m=ctx.getTransform(),L=-m.e/m.a,R=(ctx.canvas.width-m.e)/m.a;
+  const m=ctx.getTransform(),L=-m.e/m.a,R=(ctx.canvas.width-m.e)/m.a,BK=streetBlocks(T,L-60,R+60);
+  for(const q of BK)for(const [a,bb] of q.B.v.sq)sq.push([a+q.x-1,bb+q.x+1]);
+  blit(T.far,sq);blit(T.mid,sq);
+  {const fast=Math.abs(m.a/st.sc-1)<.004&&!m.b&&!m.c,W0=st.parts[0].cv.width,d0=fast?Math.round(m.a*BK[0].x+m.e):null;
+    BK.forEach((q,i)=>{for(const p of q.B.parts)blitOne(p,q.B,q.x,fast?d0+i*W0:null);});}
   ctx.save();
   if(sp>0){ctx.globalCompositeOperation='lighter';const sw=streakSpr('#ffc98a'),sc=streakSpr('#cfe0ff');for(const q of RSTREAK){const y=yR(q.d)+1,len=q.len*sp;for(let n=-1;n<=1;n++){const x=q.x-o+n*st.P;if(x+len<L||x>R)continue;
       ctx.globalAlpha=q.a*sp;ctx.drawImage(q.warm?sw:sc,x,y-.5,len,1);}}
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}
-  for(let n=-1;n<=1;n++){const ox=-o+n*st.P;
-    for(const lx of LX){const q=lampHead(lx),x=q.x+ox;if(x<L-40||x>R+40)continue;const f=.93+.07*Math.sin(t*7+lx)*Math.sin(t*3.1+lx*.3);glow(ctx,x,q.y,22,'#fff0cc',.9*f);
+  for(const bk of BK){const ox=bk.x,BB=bk.B.bulbs,cn=bk.B.v.cine;
+    for(const lx of bk.B.v.lx){const q=lampHead(lx),x=q.x+ox;if(x<L-40||x>R+40)continue;const f=.93+.07*Math.sin(t*7+lx)*Math.sin(t*3.1+lx*.3);glow(ctx,x,q.y,22,'#fff0cc',.9*f);
       if(sp>0){const len=120*sp,sl=streakSpr('#ffe2b0');ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.46*sp;ctx.drawImage(sl,x,q.y-1.4,len,2.8);ctx.globalAlpha=.23*sp;ctx.drawImage(sl,x,q.y-4,len*.6,8);
         ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}}
-    if(ox+584>L&&ox+340<R&&BULBS.length){ctx.globalCompositeOperation='lighter';const ph=Math.floor(t*9)%3;
-      for(let i=0;i<BULBS.length;i++){if((i+ph)%3)continue;const bb=BULBS[i];ctx.drawImage(T.bulb,ox+bb.x-4,bb.y-4,8,8);}ctx.globalCompositeOperation='source-over';}}
+    if(cn&&ox+cn[1]>L&&ox+cn[0]<R&&BB.length){ctx.globalCompositeOperation='lighter';const ph=Math.floor(t*9)%3;
+      for(let i=0;i<BB.length;i++){if((i+ph)%3)continue;const bb=BB[i];ctx.drawImage(T.bulb,ox+bb.x-4,bb.y-4,8,8);}ctx.globalCompositeOperation='source-over';}}
   ctx.restore();
   blit(T.front);blit(T.near);
   if(sp>0){const b=T.near,dx=14*sp;ctx.save();ctx.globalAlpha=.32*sp;for(const p of b.parts)blitPart(p,b,offOf(b)-dx,null);ctx.restore();}}
 // the light that rims a rider: the lamps as they pass, the Lyric's marquee, and the moon when nothing nearer is lit
-function light(f){const P=BAND.street.P,o=offOf(BAND.street),pel=f.p[typeof PEL==='number'?PEL:0],px=pel.x+f.dep*PSX;let wx=0,wy=0,ws=0;
-  const add=(x,y,Rr,k)=>{for(let n=-1;n<=1;n++){const sx=x-o+n*P,dd=Math.abs(sx-px);if(dd>=Rr)continue;const w=k*(1-dd/Rr)*(1-dd/Rr);wx+=w*sx;wy+=w*y;ws+=w;}};
-  for(const lx of LX){const q=lampHead(lx);add(q.x,q.y,210,1);}
-  add(MARQ.x,MARQ.y,190,.8);
+function light(f){const P=BAND.street.P,s0=scrollAt()*BAND.street.f,pel=f.p[typeof PEL==='number'?PEL:0],px=pel.x+f.dep*PSX;let wx=0,wy=0,ws=0;
+  const add=(sx,y,Rr,k)=>{const dd=Math.abs(sx-px);if(dd>=Rr)return;const w=k*(1-dd/Rr)*(1-dd/Rr);wx+=w*sx;wy+=w*y;ws+=w;};
+  for(let k=Math.floor((px-230+s0)/P);k<=Math.floor((px+230+s0)/P);k++){const v=VARS[seqAt(k)],ox=k*P-s0;
+    for(const lx of v.lx){const q=lampHead(lx);add(q.x+ox,q.y,210,1);}if(v.marq)add(v.marq.x+ox,v.marq.y,190,.8);}
   wx+=.06*MOON.x;wy+=.06*MOON.y;ws+=.06;
   return{light:{x:wx/ws-f.dep*PSX,y:wy/ws+f.dep*PSY},col:'#ffc98a'};}
 // (the pavement runs on under the layer in live(): the front band; past even that, the dark it goes into)

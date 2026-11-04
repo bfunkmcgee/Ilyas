@@ -239,6 +239,66 @@ const DIN=[[BG.W1,92,['watch','duck','leave'],.7],[BG.W2,93,['leave','watch','du
       dir:i===0?-1:i===2?1:(r()<.5?-1:1),rise:Math.max(0,Math.min(9,hy0-top*s-(yc+16)))};});
   const mw=w*.36,mh=h*.2,mx=x0+w*mir-mw/2,my=y0+h*.34;
   return{x0,x1,w,h,y0,y1,yc,rod,cx:(x0+x1)/2,ds,waiter:wi===1,lan:[0,1].map(i=>({x:x0+w*(.18+i*.64),y:y0+h*.265})),sc:[{x:mx-2.4*DK,y:my+mh*.3},{x:mx+mw+2.4*DK,y:my+mh*.3}]};});
+// ---------- the diners, drawn by the cast (since V85) ----------
+// Each diner and the waiter is one of the game's people, drawn by CastLook (planes, a rim of the candle's light, an elf's eyes
+// alight; a jacket's piping, a tie, a sash, hair in its shape) into a sprite once for each way he is seen: at supper in profile,
+// a glass on the way up and at his lips, half turned to the window, and on his feet facing it (the waiter: with his tray up, and
+// facing the window). liveDiner and liveWaiter set them down where the room puts them, mirrored for whoever faces left; nothing
+// of the game is touched. Without CastLook (or Path2D) the old silhouettes stand in. DS_R: the sprites' pixels a unit of the
+// figure; DS_K: the figure's size in the window for a diner's s (his head about 5 s high). They sit a little higher than the old
+// silhouettes did, their shoulders and the tops of their jackets over the curtain.
+const DS_R=2.5,DS_K=.27,DS_BOX={x0:-32,y0:-102,w:90,h:100};
+const DINE_ACC=['#ffd27a','#9fd8ff','#ff9ab0','#c8a8ff','#a8e6a0','#ffb38a','#7ff3e3'],DINE_HAIR=['#d9dce6','#2a1f1a','#f1e2b8','#3a2a20','#b0b6c8','#5a3a2a','#8a2a24','#e7e0cf'],
+  DINE_DRESS=['#3a0e18','#14243a','#1e3020','#2c1838','#3a2a10','#101014'];
+// a diner at the Lantern Bistro, dressed for supper: an elf (most of them) or a human, a man or a woman, from his seed
+function dinerSpec(seed,woman){const CL=CastLook,mid=CL.shapes.mid,r=rng(seed),pk=a=>a[Math.floor(r()*a.length)%a.length],elf=r()<.6,hc=pk(DINE_HAIR),hs=mid(hc,'#000000',.45),hh=mid(hc,'#ffffff',.35);
+  if(elf){const col=CL.elfCol(pk(DINE_ACC),{hair:hc,hairShade:hs,hairHi:hh,dark:'#0e0c10'});
+    if(woman){const top=pk(['vestTop','coat','blazer']);return{race:'elf',col,trail:null,head:{skull:pk(['soft','long']),ear:pk(['swept','long','short']),hair:pk(['longfall','platinum','lowtail','pixie'])},
+      outfit:{top,sleeves:top==='vestTop'?'bare':'jacket',neck:top==='blazer'?'turtle':'collar',piping:1,sash:top==='vestTop'&&r()<.6?1:0,coat:top==='coat'?{len:44}:null}};}
+    const top=pk(['suit','double','coat']);return{race:'elf',col,trail:null,head:{skull:pk(['hawk','long','old','soft']),ear:pk(['swept','long','short','notched']),hair:pk(['slick','sidepart','silver','lowtail','crop','topknot'])},
+      outfit:{top,sleeves:'jacket',neck:'collar',tie:pk(['tie','cravat','bow']),piping:1,square:r()<.5?1:0,coat:top==='coat'?{len:40}:null}};}
+  if(woman){const dress=pk(DINE_DRESS),top=pk(['vestTop','blazer']);return{race:'human',trail:null,
+    col:CL.humanCol({suit:dress,suitFar:mid(dress,'#3a3346',.3),lapel:mid(dress,'#000000',.2),vest:dress,shirt:mid(dress,'#ffffff',.15),sleeve:mid(dress,'#ffffff',.1),hair:hc,hairShade:hs,hairHi:hh}),
+    head:{skull:pk(['soft','round']),ear:'human',hair:'pulled'},outfit:{top,sleeves:top==='vestTop'?'bare':'jacket',neck:'collar',sash:r()<.5?1:0}};}
+  return{race:'human',trail:null,col:CL.humanCol({suit:'#1a1820',suitFar:'#2c2a34',lapel:'#24222c',shirt:'#bdb4a2',shirtFar:'#7c766a',tie:pk(['#3a0e14','#0e0c0a','#1a2a3a']),hair:hc,hairShade:hs,beard:mid(hc,'#000000',.15)}),
+    head:{skull:pk(['human','flat','round','gaunt']),ear:'human',hair:pk(['crop','sidepart','curly','bald']),beard:pk([null,null,'short','full','goatee'])},
+    outfit:{top:'suit',sleeves:'jacket',neck:'collar',tie:pk(['tie','bow']),square:1}};}
+// the poses, in the figure's own frame (facing +x, the hips at 0,0, y down): the joints in the game's order (hips, chest, head, near
+// elbow and hand, far elbow and hand, knees and feet, the near hand's tip)
+const DPOSE=(()=>{const V=(x,y)=>({x,y}),legs=[V(34,-2),V(36,34),V(32,0),V(30,35)],up=[V(10,22),V(12,58),V(4,22),V(-2,58)];
+  return{sit:[V(0,0),V(5,-44),V(8,-59),V(12,-20),V(32,-26),V(8,-21),V(28,-29),...legs,V(38,-26)],
+    lift:[V(0,0),V(5,-44),V(8,-59),V(16,-24),V(26,-38),V(8,-21),V(28,-29),...legs,V(26,-46)],
+    drink:[V(0,0),V(5,-44),V(8,-59),V(18,-28),V(19,-50),V(8,-21),V(28,-29),...legs,V(19,-58)],
+    stand:[V(0,-16),V(2,-60),V(4,-75),V(10,-38),V(22,-28),V(4,-38),V(18,-30),...up,V(28,-28)],
+    tray:[V(0,-16),V(3,-60),V(5,-75),V(14,-52),V(26,-66),V(4,-38),V(14,-26),...up,V(26,-74)]};})();
+// a glass of red in the hand, upright; the waiter's tray on his palm with a bottle and two glasses
+function dGlass(c){return F=>{const h=F.p[4],t=F.p[11];c.save();c.translate(h.x,h.y);c.rotate(Math.atan2(t.y-h.y,t.x-h.x)+Math.PI/2);
+  c.strokeStyle=rgba('#e8dcce',.55);c.lineWidth=1;c.beginPath();c.moveTo(0,2);c.lineTo(0,-5);c.stroke();
+  c.fillStyle=rgba('#e8d8c8',.35);c.beginPath();c.moveTo(-3,-12);c.lineTo(3,-12);c.quadraticCurveTo(3.2,-6,0,-5);c.quadraticCurveTo(-3.2,-6,-3,-12);c.fill();
+  c.fillStyle=rgba('#7a0c14',.92);c.beginPath();c.moveTo(-2.6,-9.5);c.lineTo(2.6,-9.5);c.quadraticCurveTo(2.6,-6.2,0,-5.6);c.quadraticCurveTo(-2.6,-6.2,-2.6,-9.5);c.fill();
+  c.fillStyle=rgba('#fff0d8',.8);c.fillRect(-2,-11.5,.8,3);c.restore();};}
+function dTray(c){return F=>{const h=F.p[4];c.save();c.translate(h.x,h.y-2);c.fillStyle='#d8c8a8';c.beginPath();c.ellipse(0,0,14,2.2,0,0,TAU);c.fill();c.fillStyle=rgba('#000000',.4);c.fillRect(-14,0,28,1.2);
+  c.fillStyle='#0a0504';c.fillRect(-4,-14,3.4,13);c.fillRect(-3.1,-19,1.6,5);c.fillStyle=rgba('#ffe0b0',.5);c.fillRect(-3.4,-13,.8,9);
+  c.fillStyle=rgba('#e8d8c8',.4);for(const x of [4,9]){c.beginPath();c.moveTo(x-2,-9);c.lineTo(x+2,-9);c.quadraticCurveTo(x+2,-4,x,-3.4);c.quadraticCurveTo(x-2,-4,x-2,-9);c.fill();c.fillRect(x-.3,-3.4,.6,3);}c.restore();};}
+// one sprite: the figure drawn in its pose, lit from the candle (low and in front of him), at DS_R pixels a unit
+function dSprite(spec,pose,o){const B=DS_BOX,cn=document.createElement('canvas');cn.width=Math.ceil(B.w*DS_R);cn.height=Math.ceil(B.h*DS_R);const c=cn.getContext('2d');
+  c.setTransform(DS_R,0,0,DS_R,-B.x0*DS_R,-B.y0*DS_R);
+  const F={p:DPOSE[pose].map(q=>({x:q.x,y:q.y})),facing:1,body:{h:1,bulk:o.bulk||1,headR:10.5},scarf:[],ground:60,t:0,weaponKey:o.other?'glass':'unarmed',wp:{unarmed:!o.other},dead:false};
+  CastLook.draw(c,F,spec,{dir:{x:.5,y:.85},key:'#ffb070',rimK:1.3,now:0,yaw:o.yaw||0,drawOther:o.other?o.other(c):null});
+  const H=DPOSE[pose][2];return{cn,hx:(H.x-B.x0)*DS_R,hy:(H.y-B.y0)*DS_R};}
+// the room's people as sprites, made the first time they are wanted (null: the old silhouettes)
+let DSPR;
+function dinerSprites(){if(DSPR!==undefined)return DSPR;DSPR=null;
+  if(typeof CastLook==='undefined'||!CastLook.ok||typeof document==='undefined')return null;
+  try{const out={diners:new Map(),waiter:null};
+    DIN.forEach((W,wi)=>W.ds.forEach((d,i)=>{const r=rng(5101+wi*97+i*31),woman=d.hat==='bun'||r()<.3,sp=dinerSpec(7001+wi*131+i*17,woman),bulk=.92+r()*.24;
+      out.diners.set(d,{sit:dSprite(sp,'sit',{bulk}),lift:dSprite(sp,'lift',{bulk,other:dGlass}),drink:dSprite(sp,'drink',{bulk,other:dGlass}),
+        turn:dSprite(sp,'sit',{bulk,yaw:-.6}),watch:dSprite(sp,'stand',{bulk,yaw:-1.15})});}));
+    const wt=CastLook.crewSpec('dining',7),ws={...wt,head:{...wt.head,hat:null}};out.waiter={tray:dSprite(ws,'tray',{other:dTray}),watch:dSprite(ws,'stand',{yaw:-1.15})};
+    DSPR=out;}catch(e){DSPR=null;}
+  return DSPR;}
+// a sprite set down with its head at (hx, hy), s the diner's size, facing sd (+1 right), at the current alpha
+function dPut(S0,hx,hy,s,sd){const k=s*DS_K/DS_R;ctx.save();ctx.translate(hx,hy);ctx.scale(sd*k,k);ctx.drawImage(S0.cn,-S0.hx,-S0.hy);ctx.restore();}
 // where the room is: a: they have the fight in front of them; ft: seconds since it began; out: seconds since it ended
 function dinAlarm(t){const st=S.story,g=S.game;
   if(st&&st.key==='vargo'){if(st.step==='fight'||st.step==='fallen')return{a:1,ft:st.fightT0!=null?t-st.fightT0:30,out:null,lab:false};
@@ -270,7 +330,16 @@ function liveDiner(W,d,A,t,P,calm){
   const up=A.a?look*(d.temper==='watch'?1:d.temper==='duck'?.4:.8):0,s=d.s*(1-.14*gone),
     bob=calm?0:Math.sin(t*1.9+d.ph)*.25*s*(1-look)+Math.sin(t*3.1+d.ph*2)*.12*s,fl=(d.temper==='duck'?6:2.2)*s*P*look,
     hx=d.x+d.dir*gone*W.w*.55,hy=W.rod-4.2*s-1-d.rise*up+bob+fl,face=look>.5,sd=calm?d.sd:(Math.sin(t*.23+d.ph)>=0?1:-1)*d.sd;
-  ctx.globalAlpha=1-gone*gone;ctx.fillStyle='#0c0605';
+  ctx.globalAlpha=1-gone*gone;
+  const SP=dinerSprites(),DV=SP&&SP.diners.get(d);
+  if(DV){// at supper: a glass up to his lips now and then; with the fight on, turning to the window and up on his feet to see it
+    let v=DV.sit;if(look>=.55)v=DV.watch;else if(look>=.2)v=DV.turn;else if(d.glass&&look<.3){const q=Math.sin(t*.55+d.ph);if(q>.62)v=DV.drink;else if(q>.5)v=DV.lift;}
+    dPut(v,hx,hy-1.6*s,s,look>=.2?d.sd:sd);
+    // the candle on the table, warm on the face that is turned to it
+    const fk=calm?1:.84+.16*Math.sin(t*9.3+d.ph*3)*Math.sin(t*3.7+d.ph),a=ctx.globalAlpha,lx=hx+(face?0:sd*1.6*s),ly=hy+2.2*s;
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=rad(ctx,lx,ly,0,3.4*s,[[0,rgba('#ff9a50',.28*fk*a)],[1,rgba('#ff9a50',0)]]);ctx.fillRect(lx-3.4*s,ly-3.4*s,6.8*s,6.8*s);ctx.restore();
+    ctx.globalAlpha=1;return;}
+  ctx.fillStyle='#0c0605';
   ctx.beginPath();ctx.moveTo(hx-5.4*s,W.rod+1);ctx.quadraticCurveTo(hx-5*s,hy+3.4*s,hx-1.2*s,hy+2.6*s);ctx.lineTo(hx+1.2*s,hy+2.6*s);ctx.quadraticCurveTo(hx+5*s,hy+3.4*s,hx+5.4*s,W.rod+1);ctx.fill();
   ctx.beginPath();ctx.ellipse(hx,hy,2.1*s,2.5*s,0,0,TAU);ctx.fill();
   if(!face){ctx.beginPath();ctx.moveTo(hx+sd*1.8*s,hy-.4*s);ctx.lineTo(hx+sd*2.7*s,hy+.5*s);ctx.lineTo(hx+sd*1.8*s,hy+1*s);ctx.fill();}
@@ -295,7 +364,10 @@ function liveWaiter(W,A,t,P,calm){const k=DK;let go=-1;if(A.a&&!A.lab)go=A.ft-7.
   const gone=eas(clamp(go/1.6,0,1));if(gone>=1)return;
   const look=A.a?eas(clamp((A.ft-.5)/.8,0,1)):0,ph=t*.32,walk=calm?0:Math.sin(ph),up=look<.5&&!gone,fa=gone>0?1:Math.cos(ph)>=0?1:-1,
     wx=lerp(W.x0+W.w*(.5+.28*walk),W.x0+W.w*.6,look)+gone*W.w*.62,wt=W.rod-12*k+(calm||!up?0:Math.abs(Math.sin(t*2.6))*.6)+(calm?0:P*look*2),a=1-gone*gone;
-  ctx.globalAlpha=a;ctx.fillStyle='#0a0504';ctx.beginPath();ctx.arc(wx,wt,2.2*k,0,TAU);ctx.fill();
+  ctx.globalAlpha=a;
+  const SP=dinerSprites();
+  if(SP&&SP.waiter){const s=k*1.02,v=up?SP.waiter.tray:SP.waiter.watch;dPut(v,wx,wt-1.2*k,s,up?fa:1);if(up)glow(ctx,wx+fa*5.6*k,wt-.4*k,5*k,'#fff0d0',.3*a);ctx.globalAlpha=1;return;}
+  ctx.fillStyle='#0a0504';ctx.beginPath();ctx.arc(wx,wt,2.2*k,0,TAU);ctx.fill();
   ctx.beginPath();ctx.moveTo(wx-3.6*k,W.rod+2);ctx.lineTo(wx-3*k,wt+3*k);ctx.lineTo(wx+3*k,wt+3*k);ctx.lineTo(wx+3.6*k,W.rod+2);ctx.fill();
   if(up){ctx.strokeStyle='#0a0504';ctx.lineWidth=1.2*k;ctx.beginPath();ctx.moveTo(wx+fa*2.6*k,wt+4*k);ctx.lineTo(wx+fa*6*k,wt+k);ctx.stroke();
     ctx.fillStyle='#d8c8a8';ctx.fillRect(fa>0?wx+3.2*k:wx-9.2*k,wt-.4*k,6*k,.8*k);ctx.fillStyle='#0a0504';ctx.fillRect(wx+fa*5.1*k-.5*k,wt-3.6*k,1*k,3.2*k);

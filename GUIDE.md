@@ -96,6 +96,23 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   share of its speed is moved straight into his body each step, so his saddle's springs follow only the rest): the field's ride-out
   (since V83, asked for) goes flat out to 1300 units a second in under a second with three quarters carried, the front up through
   the shift, a second rev, and off the edge of the picture.
+- An elf's dash in a scene (since V85, asked for): `dashTo(f, x, z, o)` (`dashPlan` the keys) drops him into the run, low and leaning
+  with his arms trailing, carries his hips to the mark at an even pace (`lin` between the keys; `o.v` units a second, 600 unless
+  said), bounds any concrete barrier on the way with his knees drawn up (`f.vaultDiv` lets him through it while he is over it), and
+  slides onto the mark low (`o.low`: he stays down, to take something off the ground). `f.blur` streams the afterimages off him and
+  `f.sceneAgile` lets his body answer as quickly as in a fight. The field's outro dashes him to the bike; the checkpoint's outro
+  drops the rifle, dashes him over the concrete to the gunner thrown off the carrier, takes the grenade off his belt, sweeps the
+  coat open with the hand that holds it (as at the bistro's door: `K.coatOpen`), puts it in the loop on the lining, says his line
+  and dashes him up the road out of the picture.
+- The checkpoint's carrier is a wall (since V85, asked for: an officer could step along its flank and behind it): along its length
+  (from 50 short of its nose) nobody stands deeper than `APC_NEAR` (24) short of its depth (`apcLaneMax`): `laneOK` refuses such a
+  lane, `clampSt` keeps a man at such a depth short of it, and a step moves anyone the blast threw there back out.
+- A rifleman's stance (since V85, asked for: the ready hung the rifle across him, and at the concrete its muzzle went into the
+  barrier and pushed the stock up behind his head): the rifle is in his shoulder in every stance. GUARD.rifle (sk_guns.js): his
+  weight forward, the feet a short stride apart and both knees soft, the support hand well out on the handguard (`off` 27, the
+  foregrip of GunLook's rifle with it); AIM.rifle's `tilt` (.42) brings his cheek down onto the stock and his eye behind the sight,
+  and `aimBody` leans him into it. sk_story.js lays the ready on whoever he faces (shouldered, the muzzle a little down), over the
+  top of a barrier he stands at, and upright in front of him when he is down behind it.
 - The opening, `sundown` (since V58; no number, no title, so not a chapter: Begin plays it): the road outside the Sprawl at sundown
   (arena `outskirts`, envx/env_outskirts.js: the sun going down behind hills on the left, `sunNow()` sinking it over the scene from `S.story.sun.t0`,
   the city with the Hallowell tower on the right, poplars on the brow, the road along the rise bending over it on the right:
@@ -134,7 +151,22 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   window, stand to see it and flinch at its flashes; one in each window goes to the back a few seconds in, the waiter a while after,
   and the rest one by one once Qadir is down, so the room is empty when the grenade comes. It reads `S.story.fightT0` and `outroT0`
   (storyFight and storyCleared set them) and `S.flashes`, and keeps nothing; with reduced motion nobody bobs or flinches; in the
-  lab they watch and stay.
+  lab they watch and stay. Since V85 (asked for) they are the game's own people: each diner (`dinerSpec`: an elf or a human, a man
+  or a woman, dressed for supper) and the waiter (the dining room's crew) is drawn by CastLook into sprites once (`dinerSprites`,
+  at `DS_R` pixels a unit, the figure `DS_K` times a diner's size), one for each way he is seen (`DPOSE`: at supper, a glass on the
+  way up and at his lips, half turned to the window, on his feet facing it; the waiter with his tray up, and facing the window),
+  lit from the candle on the table, and `liveDiner` and `liveWaiter` set them down (`dPut`), mirrored for whoever faces left.
+  Without CastLook the old silhouettes stand in.
+- The avenue (envx/env_chase.js; since V85, asked for: one block of shops came round every second and a half): the street's strip
+  is three blocks of 1560 (`VARS`: each one's row, lamps, the gaps where the city behind shows (`sq`), its marquee (`marq`, `cine`)
+  and what stands on its flags), painted once each (`ST.streets`) and set side by side in a seeded round of 24 with no block twice
+  running (`SEQ`, `seqAt`, `streetBlocks`, `blitOne`; a block's device pixels follow from the first one's, so no seam opens). The
+  first block is the old row; the market end has a florist, a chemist with his carboys lit, the Bank of the Towers, a vintner,
+  Kestrel Gardens behind their railings, a jeweller, the elven teahouse Ithrel, a clockmaker and a bakery shut; the theatre end a
+  noodle house in yellow neon, a newsagent, a building site behind a hoarding of bills, the chapel of the Lamp with its rose window
+  lit, a hatter, the Royal, a grocer shut, the Maison and a tobacconist. `light(f)` and the lamps' flames follow the blocks. Our own
+  kerb is three times as long (3510) and laid out from its seed: bollards in twos and threes, pillar boxes, the pavement's lamps,
+  benches and fire points. The strips take about twice as long to make when the stage starts (about half a second here).
 - The held sounds (sk_storyui.js, run from `V11UI.tick`): the bike's engine (`engineFrame`: the first bike in `S.veh` with `run`
   above 0 and near the picture; its level `ENG_LVL` x run, a quarter when far), the rails (`railFrame`) and the wind (`windFrame`).
   Each is one voice made once and set every frame. A held voice's modulation must work on a gain of its own ahead of the level,
@@ -694,7 +726,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below); V82 (Nov 4) drew the places' faults (D1 to D25: the sundown's cirrus and dust, the avenue's speed, the checkpoint's firelight, a blow's flash, the station's crystals, clean trails, the roof's cloud, the hay's straw, the back room's lamp, the Pit's wall, floors and skies, `pitKit.mottle`, below); V83 (Nov 4) set the fine marks (T1 to T6: the places' thin lines brought to the drawing guide's widths from where they land, `uiwork/look/lines.js`; the world's signs in Alegreya SC, 12 units where they are read, the checkpoint's message board in hand-drawn lamps, below) and, asked for, brought the bistro's dining room to life behind its windows in the Qadir fight and made the ride out of the field fast. The remediation list is done; V84 (Nov 4, asked for) gave the fighters the same line pass (Ilyas, the weapons, the guns, the beasts and the figure kit's folds, below); phase 4 (a reviewer, checks and a lookbook) is next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below); V82 (Nov 4) drew the places' faults (D1 to D25: the sundown's cirrus and dust, the avenue's speed, the checkpoint's firelight, a blow's flash, the station's crystals, clean trails, the roof's cloud, the hay's straw, the back room's lamp, the Pit's wall, floors and skies, `pitKit.mottle`, below); V83 (Nov 4) set the fine marks (T1 to T6: the places' thin lines brought to the drawing guide's widths from where they land, `uiwork/look/lines.js`; the world's signs in Alegreya SC, 12 units where they are read, the checkpoint's message board in hand-drawn lamps, below) and, asked for, brought the bistro's dining room to life behind its windows in the Qadir fight and made the ride out of the field fast. The remediation list is done; V84 (Nov 4, asked for) gave the fighters the same line pass (Ilyas, the weapons, the guns, the beasts and the figure kit's folds, below); V85 (Nov 4, asked for) drew the bistro's diners as the game's people, made the avenue three blocks in a seeded order, dashed him to the bike and to the grenade, walled the checkpoint's carrier and shouldered his rifle (above); phase 4 (a reviewer, checks and a lookbook) is next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -746,12 +778,12 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V85 ..." (V84 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V86 ..." (V85 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V84: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V85: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
