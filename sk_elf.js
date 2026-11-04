@@ -318,7 +318,7 @@ function galeHit(A,D,sr,fa,ex){if(D.dead||D.carry)return;const out=ex.galeOut;le
   try{
     if(D.downed){for(const q of D.p)q.px-=fa*160*DT;D.station=clampSt(D,D.p[PEL].x+fa*30);dmg=2;D.hp=Math.max(0,D.hp-dmg);label='Swept along';if(D.hp<=0)kill(D,fa);}
     else if(!sr.ok){for(let i=0;i<D.p.length;i++){if(i===TIP)continue;const q=D.p[i];q.px-=fa*(i===FTF||i===FTB?40:120)*DT;}D.station=clampSt(D,D.station+fa*16);knockBalance(D,2,A);D.motor=Math.min(D.motor,.6);
-      popup(D,'Braces','#a5dcff','against the wind',19);label='Braces';}
+      logNote(D,'Braces','against the wind');label='Braces';}
     else{const D2=dominoPartner(A,D);dmg=2+Math.floor(S.rng()*4)+(sr.crush?3:0);D.hp=Math.max(0,D.hp-dmg);
       const np=S.popups.length;doShove(A,D,{...sr,shoulder:false,push:false});S.popups.length=Math.min(S.popups.length,np);
       const hit=!!(info&&(info.tableDmg||info.wallDmg||info.divDmg||info.propDmg));

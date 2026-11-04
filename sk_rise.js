@@ -22,7 +22,7 @@ V11.duelStart.push(()=>{for(const f of S.F)f.noRise=false;S._riseCont=null;S._ri
 // anyone else takes the blow and loses the free rise
 {const ai=applyImpact;applyImpact=function(ex,A,D,res){const was=!!(D&&D.downed&&!D.dead);const r=ai.apply(this,arguments);
   if(DOWNF.on&&was&&!D.dead&&D.downed&&res&&(res.out==='hit'||res.out==='crit')&&!res.weaponHit&&!D.noRise){D.noRise=true;
-    popup(D,'No free rise','#ff9a7a','struck on the floor',17,-62);if(S.hooks.downStruck)S.hooks.downStruck(D,A);}
+    logNote(D,'No free rise','struck on the floor');if(S.hooks.downStruck)S.hooks.downStruck(D,A);}
   return r;};}
 // Kael's stab on the way past a man on the floor counts the same (a crew man never gets up from it already)
 {const is=insuranceStab;insuranceStab=function(I){const r=is.apply(this,arguments);if(r&&DOWNF.on&&I&&I.E&&!I.E.dead&&I.E.downed)I.E.noRise=true;return r;};}
@@ -36,7 +36,7 @@ V11.duelStart.push(()=>{for(const f of S.F)f.noRise=false;S._riseCont=null;S._ri
   const F=S.F[i],g=S.game;if(!freeRiseOK(F)||g.active!==i||g.phase!=='input')return;
   g.phase='exchange';g.aiAt=null;F.intent=null;F.lastAct='getup';
   const D=targetOf(F),ex={A:F,D,t0:S.t,cmd:'getup',perf:{},depth:0,rise:true},plan=planGetUp(F);g.ex=ex;ex.plan=plan;ex.dur=plan.Tend;
-  popup(F,'Rises','#cfe3ff',DOWNF.rise==='off'?'off balance':'committed',18,-44);
+  logNote(F,'Rises',DOWNF.rise==='off'?'off balance':'committed');
   if(S.hooks.freeRise)S.hooks.freeRise(F);
   S.hooks.log({type:'getup',A:F,D,ex,free:true});S.hooks.status();};}
 {const fe=finishExchange;finishExchange=function(){const ex=S.game.ex;

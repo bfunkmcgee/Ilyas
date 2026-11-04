@@ -266,7 +266,7 @@ const RIDE_NO=['grab','throw','flank','pincer','bind','pickup','draw','helpup','
 // A rider put down comes off: thrown up and back, and his bike goes down and slides. Kael keeps his seat, rocked back instead.
 {const kd=knockDown;knockDown=function(D){
   if(D&&D.mount&&!D.dead&&D.mount.ctl==='rider'){
-    if(D===hero()){D.posture='off';D.motor=Math.min(D.motor,.4);if(!S.warming)popup(D,'Keeps his seat','#a9e88c',null,18,-52);return;}
+    if(D===hero()){D.posture='off';D.motor=Math.min(D.motor,.4);if(!S.warming)logNote(D,'Keeps his seat');return;}
     kd(D);D.thrown={x:-D.mount.fa*170,y:-240};return;}
   kd(D);};}
 // a rider killed in the saddle goes back off it the way the blow came

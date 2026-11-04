@@ -251,7 +251,7 @@ the toll) still wrap them.
   of its own (`ex.rise`; the log's 'getup' entry with `free`; `S.hooks.freeRise`), and when it ends the same turn goes on
   (`riseContinue`, `S._riseCont`), Off balance (`DOWNF.rise` 'off'; 'committed' gives three pips). A blow that lands on a man on the
   floor kills a crew man (`hench`) with his weapon's finisher (the resolveAttack wrapper; not in a stage that spares everyone,
-  `act1Spare`), and anyone else loses the free rise (`f.noRise`, the 'No free rise' popup, `S.hooks.downStruck`) and gets up as
+  `act1Spare`), and anyone else loses the free rise (`f.noRise`, 'No free rise' in the log, `S.hooks.downStruck`) and gets up as
   before. The page labels a man on the floor (`intentLabel`: Rises free, Must get up) and the tip line says what it means.
 - The stances (sk_stances.js, sk_stancesui.js, sk_css_stances.css): while Ilyas fights with the arc-blade and is not drained
   (`stanceOn`) he holds one of three (`f.stance`, STANCES): Bound (the blade locked: the crescents and the two-man strokes, a short
@@ -289,7 +289,7 @@ move's exchange ends (`wasDown`): their runs play on into his free rise.
 making the move) that meets a standing man's HEAD-PEL capsule at a closing speed over ROOMEV.hit is an impact of speed x weight ratio:
 over ROOMEV.down (a boss more) he goes down, under it he is knocked back two pips. `onDivHit`, `lampHit` and `onTableContact` are
 wrapped: a flying body over ROOMEV.burst[mat] bursts a pane, over lampFall brings a lamp down, over tableBreak from above breaks the
-table, over tableTip into its side spins it about its far feet (`roomSpin`). Each is a `roomEvent` (slow motion .6 s, a big callout
+table, over tableTip into its side spins it about its far feet (`roomSpin`). Each is a `roomEvent` (slow motion .6 s, its name over the man
 kept under the top bar, S.hooks.roomEvent for the log); a man Kael set going counts toward his flow (`roomBy`, `f._roomBy`,
 `roomTakedown`). Aimed drives and throws keep their own rules (`ex.divSlam`, `ex.res.table`, `ex.domino`, a throw's body hazard).
 Room moves: `roomMoves(A)` offers up to two (hurl, pane, flip including a man sprawled on the table `m.on`, lamp), one of each kind;
@@ -628,7 +628,7 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
 - Node logic checks: `const core=require('./sk_src.js')(); eval(core+'...')` (see sk_v12test.js: FORCE dice, expect(), act()).
 - If drawfree reports a difference, some drawing code changes the game. `node probes/lockstep.js` steps a drawn and an undrawn page
   side by side and names the first field where they part; `node probes/render_writes.js` lists what a call of render() changes
-  (known drawing caches: `_turn`, `S._rf`, popup layout `nx`/`ny`/`w`, `S.breach.fl0`, `S.finale.smear.a`; a popup that would rise
+  (known drawing caches: `_turn`, `S._rf`, a result word's layout `nx`/`ny`/`w`/`wt`, `S.breach.fl0`, `S.finale.smear.a`; a popup that would rise
   under the top bar or a letterbox stops below it: `ny`, since V61). Move the write to
   `V11UI.tick`, or make the game-time code stop reading the cache.
 - `DRAW_EVERY=1 node probes/draw_free.js` prints one way's lines (1 draws every frame, as the real page does); `PART=rooms` runs
@@ -649,8 +649,9 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   audit.json from the game's canvas between the bars: its average colour and what its light is made of (six clusters of the lit
   pixels), how light, how varied, how saturated, how much of it is flat black (`empty`), how much of Ilyas's outline reads against
   what is next to it (`hero.read`, with the marks on the fight hidden and only what of him shows; `hero.Lb` the ground round him;
-  the style guide's rule 8, below), and what it costs to draw; a quarter-size picture of the canvas and the frame round him at full
-  size. It ends with the frames that break rule 8. The fast-forward to each moment is not drawn, then two seconds are; the fall is
+  the style guide's rule 8, below), what it costs to draw, and the fight's words over the fighters (`words`: how many are drawn and
+  how many the game has said; rule 7); a quarter-size picture of the canvas and the frame round him at full size. It ends with the
+  most words drawn at once and the frames that break rule 8. The fast-forward to each moment is not drawn, then two seconds are; the fall is
   drawn all the way. About a quarter of an hour for all 65 frames at 412x714. Each frame's cost is the median of 6 draws (COSTN=<n>
   for more: single draws here wander by several milliseconds; compare two builds with them timed by turns, below).
 - `node uiwork/look/push.js <stage|lab_arena> <outprefix> [w h] [reduce]`: the push-in as a player meets it (since V74): the fight
@@ -679,7 +680,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below). The fight's words (W1 on) are next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below). The colour script (K1 on) is next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -731,12 +732,12 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V80 ..." (V79 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V81 ..." (V80 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V79: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V80: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -800,7 +801,7 @@ was checked, and anything that did not work, plainly.
   V79) is laid into each made picture that goes by in its band, the wall, its passages, the old station and the far rail, as it is
   made (`lit` in env_tunnel.js), and into the layer for the deck: the band runs the same all along the line. The
   flatcar's deck is a lit grey plate and the station's bores carry the far lamp's light in their air, the two dark grounds the light
-  cannot lift. The audit reads his outline on the frame drawn again without the footing rings, their words, the head bars and the
+  cannot lift. The audit reads his outline on the frame drawn again without the footing rings, the head bars and the
   labels, once more without him and once without anyone (their shadows kept), so only what of him shows counts (`shown`) and only
   where it is against the ground (`alone`: Tamm holding him up is left out); an outline mostly hidden (under 24 points of it), or
   one with a blow's flash on him (`FXL.struck` over .25: struck white, an impact where he is) is not judged, and the run ends with
@@ -837,6 +838,23 @@ was checked, and anything that did not work, plainly.
   to 39 ms, the kitchen's 43 to 36, the dining room's 45 to 37, the lab's street 41 to 31, the checkpoint's 33 to 28, the train's
   33 to 25; the fall's two dearest frames 41 to 38 and 40 to 35 (its finish is cheaper too). The deep station is the one place
   near the fall's cost (39 against 38 by turns): its lizard alone draws in 5 to 6 ms.
+- The fight's words (since V80, the style guide's rule 7). At most two over the fighters: the move's name (a callout, over the
+  mover as it starts) and its result (a popup, over the one it lands on), both Alegreya SC in cream #f3ead6 with the dark stroke,
+  the name 15 units and underlined in the mover's colour, the result 19 with the damage beside its word, both in the world's units
+  as the fighters are and kept inside the view and under the top bar (`WORD`, `fightWords`, `drawCallouts`, `drawResult` in
+  sk_ui.js; sk_finaleui.js and sk_roomui.js wrap drawCallouts). A new name replaces the last. The result is the newest move's
+  biggest: each popup is kept as it was said (the checks read them), with its rank (`POP_RANK`, sk_core.js: a kill 10, Broken 9,
+  Disarmed 8, Guard broken 7, a fall 6, Critical 5, anything else it did 4.5, plain damage 4, Blocked, Deflected or Countered 2, a
+  miss 1), its damage, its fighter and its move (`g`: each exchange its own, and each stretch between them); a lesser one than the
+  move has said goes when that one does, and the damage the move did to that man stands beside the word ("Knocked down 14"). A
+  number's second line that is a result (Out, Knocked down, Swept, Critical, Dazed) is its word; any other second line goes to the
+  log (`logNote`, `S.hooks.note`: a line in the exchange's entry, or an entry of its own), and so do the routine states, which get
+  no word at all: Keeps his feet, Braced, Steps in, Glass underfoot, Spear set, Covered, Back up, Freed, Breaks free, Overdrive,
+  Gilt edge, Whetted edge, Salve, Down on the steps, No free rise, Rises, Clear, Braces, Stuck, Dagger drawn, Overextended, Twists
+  free, On the glass, Lamp out, The knife, Keeps his seat. Nothing is written at the feet: the footing ring (the balance bar, off
+  balance and Broken pulsing on it), the guard's arc and the pose say how a man stands. The Flow count is the corner badge's alone.
+  A table's, a wall's or a screen's result is said where it happened (`popAt`). The enemies' intent boxes on your turn stay as they
+  were. The look suite checks it through a crowded fight in the dining room.
 - Time a painter on a phone's screen by drawing the same moment over and over with a part left out by turns (as the V72 dream was
   timed): one run against another on this machine differs by 2 ms or more.
 - What a pass over the whole frame costs is its pixels times its blend, and in a CPU canvas it is dear: on a phone's 1.2 million

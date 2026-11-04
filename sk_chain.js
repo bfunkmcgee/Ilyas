@@ -13,8 +13,8 @@ S.chain={n:0,live:false,last:0,seq:0,hp:0};Object.defineProperty(S.chain,'game',
 function chainSt(){const c=S.chain;if(c.game!==S.game){c.game=S.game;c.n=0;c.live=false;c.last=0;c.seq++;}return c;}
 function chainEnd(){const c=chainSt();if(!c.live)return;c.live=false;c.last=c.n;c.n=0;c.seq++;}
 // one more for the run: a takedown or a break by Kael
-function chainAdd(){const c=chainSt(),K=hero();if(!c.live){c.live=true;c.n=0;}c.n++;c.seq++;c.hp=K?K.hp:0;
-  if(c.n>=2&&K)S.callouts.push({i:K.idx,text:'Flow ×'+c.n,age:0,life:1.5,dx:K.facing*6,dy:-30,big:true});}
+// (the badge in the corner counts it, sk_chainui.js: no word over him, the two over the fighters being the move's and its result's)
+function chainAdd(){const c=chainSt(),K=hero();if(!c.live){c.live=true;c.n=0;}c.n++;c.seq++;c.hp=K?K.hp:0;}
 // Flow target for Kael: the nearest upright enemy within 110 units past striking distance and 70 units of depth, measured from where
 // the bodies are now (the run-in of the blow that just landed has not reached the logical stations yet)
 const chainX=f=>f.curBody&&!f.dead?f.curBody.px:f.station,chainZ=f=>f.curBody&&f.curBody.pz!=null&&!f.dead?f.curBody.pz:f.lane;

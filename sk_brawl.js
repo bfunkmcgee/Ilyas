@@ -163,7 +163,7 @@ function knockDown(D){
   if(D.dead)return;
   D.downed=true;D.knockUntil=Infinity;D.motor=Math.min(D.motor,.03);D.wasDown=true;D.posture='off';D.guarding=false;D.counter=false;D.setSpear=false;D.circleGuard=false;D.intent=null;D.action=null;
   // going down on broken glass cuts
-  if(!S.warming&&D.hp>1&&onGlass(D)){D.hp=Math.max(1,D.hp-3);popup(D,'On the glass','#d6f3f5','−3',16,-20);bleed(D.p[PEL],0,8,D.dep,.8);}
+  if(!S.warming&&D.hp>1&&onGlass(D)){D.hp=Math.max(1,D.hp-3);logNote(D,'On the glass','−3');bleed(D.p[PEL],0,8,D.dep,.8);}
   endClinch(D);
 }
 function kill(D,dir){

@@ -244,19 +244,8 @@ function drawFooting(f){
   // a raised guard: a man down in cover from the guns, or one covering his partner (an answer to a single blow is not shown here)
   const gd=f.guarding&&!f.react;
   if(gd){ctx.strokeStyle='#a5dcff';ctx.globalAlpha=.75;ctx.beginPath();ctx.ellipse(q.x,q.y+2,28+f.body.bulk*5,7,0,Math.PI*1.05,Math.PI*1.95);ctx.stroke();}
-  ctx.globalAlpha=set&&!bk?.6:.95;ctx.font='700 10px system-ui,sans-serif';ctx.textAlign='center';ctx.lineJoin='round';
-  const gl=f.covering?'Covering':'Guard',st=f.downed?'Down':f.clinch?(f.clinch.a===f?'Holding':'Held'):'';
-  let t=bk?'Broken':set?(gd?gl:''):ps.name+(gd?' · '+gl:'');if(st)t=st+(f.downed?'':t?' · '+t:'');if(f.daze&&!f.downed)t=(t?t+' · ':'')+'Dazed';t=t.toUpperCase();
-  ctx.restore();
-  return t?{t,x:q.x,y:q.y+19,color:bk?'#ffb347':set?'#a5dcff':ps.color,a:set&&!bk?.6:.95}:null;
-}
-// footing labels of fighters standing close together are stacked instead of printed over each other
-function drawFootLabels(L){
-  ctx.save();ctx.font='700 10px system-ui,sans-serif';ctx.textAlign='center';ctx.lineJoin='round';ctx.lineWidth=3;ctx.strokeStyle='rgba(11,8,32,.7)';
-  for(const l of L){const m=ctx.measureText(l.t);l.w=((m&&m.width)||l.t.length*6)+10;}
-  L.sort((a,b)=>a.y-b.y||a.x-b.x);
-  for(let i=1;i<L.length;i++)for(let j=0;j<i;j++){const a=L[j],b=L[i];if(Math.abs(a.y-b.y)<12&&Math.abs(a.x-b.x)<(a.w+b.w)/2){b.y=a.y+12;j=-1;}}
-  for(const l of L){ctx.globalAlpha=l.a;ctx.strokeText(l.t,l.x,l.y);ctx.fillStyle=l.color;ctx.fillText(l.t,l.x,l.y);}
+  // (no word at his feet, since V80: the ring, the guard over it and his pose say how he stands, the log what happened; the
+  // style guide's rule 7)
   ctx.restore();
 }
 function drawTable(){
@@ -434,50 +423,47 @@ function drawFx(){
   // over it (since V79; the fall's alone before, after all of them); a fault in it costs the player only that pass, and the checks
   // hear of it
   if(typeof sceneFinish==='function')try{sceneFinish();}catch(e){if(typeof window!=='undefined'&&window.SK_TEST)throw e;}
-  ctx.textAlign='center';ctx.lineJoin='round';
-  placePopups();
-  for(const p of S.popups){const a=p.age,rise=-28*eOut(a/.55)-a*6,sc=1+.55*(1-eOut(a/.16));
-    ctx.save();ctx.globalAlpha=1-clamp((a-.95)/.38,0,1);ctx.translate(prjX(p.x,p.d)+(p.nx||0),prjY(p.y,p.d)+rise+(p.ny||0));ctx.scale(sc,sc);
-    ctx.font=`italic 700 ${p.size}px "Barlow Semi Condensed","Arial Narrow",sans-serif`;
-    ctx.lineWidth=5;ctx.strokeStyle='#0b0820';ctx.strokeText(p.text,0,0);ctx.fillStyle=p.color;ctx.fillText(p.text,0,0);
-    if(p.sub){ctx.font='700 14px "Alegreya SC",Georgia,serif';ctx.lineWidth=4;ctx.strokeText(p.sub.toUpperCase(),0,-p.size*.95);ctx.fillStyle='#ffd36b';ctx.fillText(p.sub.toUpperCase(),0,-p.size*.95);}
-    ctx.restore();}
-  drawCallouts();
+  drawWords();
 }
-// popups step sideways off the technique callouts and off each other, oldest first, easing into place; one that would rise under the
-// top bar (or a scene's letterbox) stops below it
-function placePopups(){
-  if(!S.popups.length)return;
-  const boxes=[],hit=(b,l,r,t,bt)=>l<b.r&&r>b.l&&t<b.b&&bt>b.t,
-    lim=camTop()+(Math.max(HUD_IN.top,typeof ST_LB!=='undefined'?cssH*.105*ST_LB:0)+4)*cam.viewW/Math.max(1,cssW);
-  ctx.save();ctx.font='800 16px "Alegreya SC",Georgia,serif';
-  for(const c of S.callouts){const f=S.F[c.i];if(!f)continue;const u=c.age/c.life,h=f.p[HEAD],q=P(h.x+(c.dx||0),h.y-f.body.headR-34+(c.dy||0),f.dep);
-    ctx.font=c.big?'800 22px "Alegreya SC",Georgia,serif':'800 16px "Alegreya SC",Georgia,serif';
-    const t=c.text.toUpperCase(),m=ctx.measureText(t),w=((m&&m.width)||t.length*(c.big?12:9))/2+4,y=q.y-12*eOut(u)-(c.big?8:0);boxes.push({l:q.x-w,r:q.x+w,t:y-(c.big?23:17),b:y+9});}
-  for(const p of S.popups){
-    if(p.w==null){ctx.font=`italic 700 ${p.size}px "Barlow Semi Condensed","Arial Narrow",sans-serif`;const m=ctx.measureText(p.text);let w=(m&&m.width)||p.text.length*p.size*.5;
-      if(p.sub){ctx.font='700 14px "Alegreya SC",Georgia,serif';const m2=ctx.measureText(p.sub.toUpperCase());w=Math.max(w,(m2&&m2.width)||p.sub.length*9);}p.w=w/2+5;}
-    const a=p.age,x0=prjX(p.x,p.d),y1=prjY(p.y,p.d)-28*eOut(a/.55)-a*6;p.ny=Math.max(0,lim-(y1-p.size*.82-(p.sub?p.size*.95:0)));
-    const y0=y1+p.ny,t=y0-p.size*.82-(p.sub?p.size*.95:0),bt=y0+5;
-    const free=dx=>!boxes.some(b=>hit(b,x0+dx-p.w,x0+dx+p.w,t,bt));
-    let best=0;
-    if(!free(0)){const cand=[];for(const b of boxes)if(t<b.b&&bt>b.t)cand.push(b.r+p.w+2-x0,b.l-p.w-2-x0);
-      cand.sort((u,v)=>Math.abs(u)-Math.abs(v));best=cand.find(free)??0;}
-    p.nx=p.nx==null?best:p.nx+(best-p.nx)*.3;
-    boxes.push({l:x0+p.nx-p.w,r:x0+p.nx+p.w,t,b:bt});}
-  ctx.restore();
-}
-// the technique's name over the fighter as the move starts
-function drawCallouts(){
-  for(const c of S.callouts){const f=S.F[c.i];if(!f)continue;const u=c.age/c.life,h=f.p[HEAD],q=P(h.x+(c.dx||0),h.y-f.body.headR-34+(c.dy||0),f.dep);
-    const a=u<.1?u/.1:u>.62?1-(u-.62)/.38:1,sc=1+(c.big?.6:.35)*(1-eOut(Math.min(1,u/.1))),t=c.text.toUpperCase();
-    ctx.save();ctx.globalAlpha=clamp(a,0,1);ctx.translate(q.x,q.y-12*eOut(u)-(c.big?8:0));ctx.scale(sc,sc);
-    ctx.font=c.big?'800 22px "Alegreya SC",Georgia,serif':'800 16px "Alegreya SC",Georgia,serif';ctx.textAlign='center';ctx.lineJoin='round';
-    const m=ctx.measureText(t),w=((m&&m.width)||t.length*(c.big?12:9))/2,k=eOut(Math.min(1,u/.3));
-    ctx.lineWidth=c.big?6:5;ctx.strokeStyle='rgba(11,8,32,.9)';ctx.strokeText(t,0,0);ctx.fillStyle=c.big?'#ffd36b':'#fff3dc';ctx.fillText(t,0,0);
-    ctx.strokeStyle=f.color;ctx.lineWidth=2.4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-w*k,6);ctx.lineTo(w*k,6);ctx.stroke();
-    ctx.restore();}
-}
+// ---------- the fight's words (the style guide's rule 7, since V80) ----------
+// At most two over the fighters: the move's name over the mover as it starts, and its result over the one it lands on. Both are
+// Alegreya SC in cream with the dark stroke, the name the smaller and underlined in the mover's colour, the result a size up with
+// the damage beside its word. A new name replaces the last; the result is the newest move's biggest (popRec's rank, sk_core.js: a
+// kill and Broken first, a miss last). A routine state has no word: the poses, the footing ring and the log say it (logNote). The
+// words are sized in the world's units, as the fighters are, and kept inside the view and under the top bar (or a letterbox).
+const WORD={name:15,res:19,ink:'#f3ead6',edge:'rgba(11,8,32,.9)',face:'"Alegreya SC",Georgia,serif'};
+// what is said over the fighters now: {c: the name (a callout), r: {p: the result's popup, text}, n: how many}
+function fightWords(){let c=null;for(let i=S.callouts.length-1;i>=0;i--){const q=S.callouts[i];if(q.age>=0&&S.F[q.i]){c=q;break;}}
+  let g=-1;for(const p of S.popups)if((p.g||0)>g)g=p.g||0;
+  let best=null;const dm=new Map();
+  for(const p of S.popups){if((p.g||0)!==g)continue;if(p.dmg)dm.set(p.f,(dm.get(p.f)||0)+p.dmg);if(!best||(p.rank??4)>=(best.rank??4))best=p;}
+  let r=null;if(best){const d=dm.get(best.f)||best.dmg||0,w=best.word===undefined?best.text:best.word;r={p:best,text:w?(d?w+' '+d:w):String(d)};}
+  return{c,r,n:(c?1:0)+(r?1:0)};}
+// where a word may stand (world units): inside the view, and under the top bar or a scene's letterbox
+function wordBounds(){const k=cam.viewW/Math.max(1,cssW),L=cam.x-cam.viewW/2;
+  return{l:L+8*k,r:L+cam.viewW-8*k,t:camTop()+(Math.max(HUD_IN.top,typeof ST_LB!=='undefined'?cssH*.105*ST_LB:0)+4)*k};}
+// (the name first, then the result, which steps aside off the name's place: WORD_BOX)
+let WORD_BOX=null;
+function drawWords(){drawCallouts();drawResult();}
+// the name: the newest callout, over the mover as the move starts (sk_finaleui.js and sk_roomui.js wrap this)
+function drawCallouts(){WORD_BOX=null;const c=fightWords().c;if(!c)return;const B=wordBounds(),f=S.F[c.i],u=c.age/c.life,h=f.p[HEAD],q=P(h.x+(c.dx||0),h.y-f.body.headR-34+(c.dy||0),f.dep);
+  const a=u<.1?u/.1:u>.62?1-(u-.62)/.38:1,sc=1+.35*(1-eOut(Math.min(1,u/.1))),t=c.text.toUpperCase();
+  ctx.save();ctx.textAlign='center';ctx.lineJoin='round';ctx.font=`800 ${WORD.name}px ${WORD.face}`;const m=ctx.measureText(t),w=((m&&m.width)||t.length*9)/2,k=eOut(Math.min(1,u/.3));
+  const x=B.r-B.l>2*w?clamp(q.x,B.l+w,B.r-w):q.x,y=Math.max(q.y-12*eOut(u),B.t+WORD.name);WORD_BOX={l:x-w-4,r:x+w+4,t:y-WORD.name-2,b:y+9};
+  ctx.globalAlpha=clamp(a,0,1);ctx.translate(x,y);ctx.scale(sc,sc);
+  ctx.lineWidth=5;ctx.strokeStyle=WORD.edge;ctx.strokeText(t,0,0);ctx.fillStyle=WORD.ink;ctx.fillText(t,0,0);
+  ctx.strokeStyle=f.color;ctx.lineWidth=2.4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-w*k,6);ctx.lineTo(w*k,6);ctx.stroke();ctx.restore();}
+// the result: over the one it lands on, rising and fading; stepping sideways off the name, easing into place; one that would rise
+// under the top bar stops below it
+function drawResult(){const R=fightWords().r;if(!R)return;const B=wordBounds(),box=WORD_BOX,p=R.p,t=R.text,a=p.age,rise=-28*eOut(a/.55)-a*6,sc=1+.55*(1-eOut(a/.16));
+  ctx.save();ctx.textAlign='center';ctx.lineJoin='round';ctx.font=`800 ${WORD.res}px ${WORD.face}`;
+  if(p.wt!==t){const m=ctx.measureText(t);p.w=((m&&m.width)||t.length*WORD.res*.55)/2+5;p.wt=t;}
+  const x0=prjX(p.x,p.d),y1=prjY(p.y,p.d)+rise;p.ny=Math.max(0,B.t+WORD.res*.82-y1);const y0=y1+p.ny,tp=y0-WORD.res*.82,bt=y0+5;
+  const inside=x=>B.r-B.l>2*p.w?clamp(x,B.l+p.w,B.r-p.w):x,over=x=>!!box&&tp<box.b&&bt>box.t&&x+p.w>box.l&&x-p.w<box.r;
+  let want=inside(x0);if(over(want)){const cand=[box.r+p.w+2,box.l-p.w-2].map(inside).filter(x=>!over(x)).sort((u,v)=>Math.abs(u-x0)-Math.abs(v-x0));if(cand.length)want=cand[0];}
+  p.nx=p.nx==null?want-x0:p.nx+(want-x0-p.nx)*.3;
+  ctx.globalAlpha=1-clamp((a-.95)/.38,0,1);ctx.translate(x0+p.nx,y0);ctx.scale(sc,sc);
+  ctx.lineWidth=5;ctx.strokeStyle=WORD.edge;ctx.strokeText(t,0,0);ctx.fillStyle=WORD.ink;ctx.fillText(t,0,0);ctx.restore();}
 function intentLabel(f){const it=f.intent;if(!it)return'';const K=targetOf(f)||S.F[0];return ATTACKS.includes(it.cmd)?pickTechnique(f,K,it.cmd).name:DIRTY.includes(it.cmd)?dirtyTech(f,K,it.cmd).name:it.cmd==='wait'&&f.clinch?'Keep the hold':it.cmd==='wait'?'Hold':it.cmd==='grab'&&facingAway(K,f)?'Grab from behind':ACTIONS[it.cmd].name;}
 // on a narrow screen the scene carries its own HP bars, since the status panel sits below the commands
 // (an upright phone's top bar keeps only the hero's plate and his target's: sk_hudui.js, hudFocus)
@@ -627,7 +613,7 @@ function render(){
   drawSpills();drawLampPools();
   drawStains();drawRestingShards();
   drawShadows();drawEnvShadows();
-  const fl=[];for(const f of S.F){const l=drawFooting(f);if(l)fl.push(l);}drawFootLabels(fl);
+  for(const f of S.F)drawFooting(f);
   // everything that stands on the floor, far to near
   const ex=S.game.ex,items=[];
   for(const f of S.F)if(!f.gone)items.push({d:f.dep-(ex&&ex.A===f?.05:0)+(f.dead?.03:0),f});
@@ -1027,6 +1013,11 @@ function defNote(dm){const t=(dm||[]).filter(m=>m[1]!==0).map(m=>`${m[0]} ${sign
 function footNote(ex){const pn=f=>f.broken&&!f.downed?'broken':post(f).name.toLowerCase();return`${ex.A.name} ${pn(ex.A)} ${ex.A.foot}/${footMaxOf(ex.A)} · ${ex.D.name} ${pn(ex.D)} ${ex.D.foot}/${footMaxOf(ex.D)}`;}
 function newEntry(chain){const ph=logEl.querySelector('.lg-empty');if(ph)ph.remove();const li=document.createElement('li');li.className='lg'+(chain?' chain':'');return li;}
 function pushEntry(li){logEl.prepend(li);while(logEl.children.length>50)logEl.lastChild.remove();}
+// a routine state, or what a result's second line said (logNote, sk_core.js; the style guide's rule 7): a line in the entry of the
+// exchange it came in, else an entry of its own
+S.hooks.note=(f,text,sub)=>{const ex=S.game&&S.game.ex,li=ex&&ex.li&&ex.li.isConnected?ex.li:null,d=document.createElement('div');d.className='lg-read lg-note';
+  d.innerHTML=`${who(f)}<span>: ${text}${sub?', '+sub:''}</span>`;
+  if(li)li.insertBefore(d,li.querySelector('.lg-perf'));else{const e=newEntry(false);e.appendChild(d);pushEntry(e);}};
 function modsText(mods){return mods.filter(m=>m[0]==='skill'||m[1]!==0).map(m=>`${signed(m[1])} ${m[0]}`).join(' ');}
 S.hooks.log=e=>{
   const chain=e.ex&&e.ex.chain;const li=newEntry(chain&&e.type!=='hold');

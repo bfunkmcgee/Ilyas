@@ -105,7 +105,7 @@ function roomLampHit(L,O,by,dr){
   if(dr)roomEvent('lamp',O,by,'Down comes the lamp',O,{L,hit:true,dmg});
   else if(roomLive())S.hooks.roomEvent({kind:'lamp',f:O,by,text:'Under the lamp',at:O,L,hit:true,dmg,quiet:true});
   roomTakedown(by,O);if(dr&&dr.ex)S.hooks.roomDone(dr.ex,{ok:true,label:'The lamp',dmg});}
-function roomLampMiss(L,O){popup(O,'Clear','#c9d0f5','the lamp just misses',17);S.hooks.sound('glass',.6,{s:'lamp_fall'});const dr=L.drop;if(dr&&dr.ex)S.hooks.roomDone(dr.ex,{ok:false,label:'Missed'});}
+function roomLampMiss(L,O){logNote(O,'Clear','the lamp just misses');S.hooks.sound('glass',.6,{s:'lamp_fall'});const dr=L.drop;if(dr&&dr.ex)S.hooks.roomDone(dr.ex,{ok:false,label:'Missed'});}
 
 // a flying body that comes down on the table hard breaks it; one that hits its side hard tips it over
 {const otc=onTableContact;onTableContact=function(f,q,spd){
@@ -213,7 +213,7 @@ function planHurl(A,D,tr,info){
     const body=bodyKeys(A,[[0,'now'],[T0,'tossGrab',{px:sx},eOut],[T0+.26,'tossFail',{px:sx}],[Te,'guard',sstep]]);
     const armK=armKeys(A,[[0,'now'],[T0,reach,eOut],[Te,'guard',sstep]]);
     const events=[{t:T0+.03,fn:()=>{spendFoot(A,1);A.ready+=10;D.station=clampSt(D,D.station+dP*14);for(const q of D.p)q.px-=dP*90*DT;
-      popup(D,'Braces','#a5dcff',null,19);S.hooks.sound('thud',220);S.hooks.roomDone(ex,{ok:false,label:'Braced'});S.hooks.status();}}];
+      logNote(D,'Braces');S.hooks.sound('thud',220);S.hooks.roomDone(ex,{ok:false,label:'Braced'});S.hooks.status();}}];
     return{att:{t0:S.t,end:Te,body,arm:armK},Tend:Te+.1,events,dash,strikeX:sx,Cfn:grip};}
   const lift={fn:()=>{const c=A.p[CHE];return{x:c.x+dP*.5*arm,y:c.y-.45*arm};}},heave=armPose(A,poseA(A,'tossHeave'),one?{off:lift}:{hand:lift});
   const body=bodyKeys(A,[[0,'now'],[T0,'hurlLoad',{px:sx},eOut],[T0+air*.4,'hurlTurn',{px:sx},sstep],[Tl,'guard',{px:sx},sstep],[Tend,'guard',sstep]]);

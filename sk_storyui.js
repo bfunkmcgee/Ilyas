@@ -322,8 +322,6 @@ V11UI.init.push(()=>{const lg=S.hooks.log;S.hooks.log=e=>{lg(e);if(e.type!=='gua
   const w=coverFrom(e.A,targetOf(e.A)),l=li.querySelector('.lg-l > span:not([class])'),o=li.querySelector('.out-guard'),pf=li.querySelector('.lg-perf');
   if(l)l.textContent=w?'gets down behind the barrier':'gets down low';if(o)o.textContent=w?'DEF +6':'DEF +4';
   if(pf)pf.textContent=`balance ${e.A.foot}/${footMaxOf(e.A)} · ${w?'+6 DEF against shots · a round that misses goes into the concrete':'+4 DEF against shots'} · he comes up to shoot`;};});
-// under him on the floor: IN COVER for a gunman taking cover, not the swordsman's GUARD
-{const df=drawFooting;drawFooting=function(f){const r=df(f);if(r&&isGun(f)&&f.guarding&&!f.downed)r.t=r.t.replace('GUARD','IN COVER');return r;};}
 {const ut=updateTags;updateTags=function(){ut();for(const f of S.F){if(f.dead||!isGun(f)||!f.guarding||f.downed)continue;const el=$('tags'+f.idx);if(!el)continue;
   const w=coverFrom(f,targetOf(f)),tip=w?'Down behind the barrier: +6 DEF against shots, and a round that misses goes into the concrete':'Crouched low: +4 DEF against shots';
   const h=el.innerHTML.replace(/<span class="tag" style="color:var\(--block\)"[^>]*>Guard<\/span>/,`<span class="tag" style="color:var(--block)" title="${tip}">In cover</span>`);if(h!==el.innerHTML)el.innerHTML=h;}};}

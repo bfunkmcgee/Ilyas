@@ -89,7 +89,7 @@ function planCover(A,info){
   A.station=info.x;A.lane=info.z;A.facing=info.side;A.guarding=true;gainFoot(A,FOOT_GAIN.cover);A.circleGuard=false;A.covering=info.P;
   const body=bodyKeys(A,[[0,'now',{pz:z0}],[t1,'guard',{px:info.x,pz:info.z},sstep],[Tend,'guard']]);
   const arm=armKeys(A,[[0,'now'],[t1,'guard',sstep],[Tend,'guard']]);
-  popup(info.P,'Covered','#a9e88c',`by ${A.name}`,18,-30);
+  logNote(info.P,'Covered',`by ${A.name}`);
   return{att:{t0:S.t,end:Tend,body,arm},Tend:Tend+.05,events:[],dash:Math.round(dist),strikeX:info.x,Cfn:()=>({x:info.x,y:A.gr(info.x)-80})};
 }
 function coverFor(X,D){
@@ -116,7 +116,7 @@ function planHelp(A,info){
   const arm=armKeys(A,[[0,'now'],[Tc,'helpReach',{off:{fn:reach}},eOut],[Tc+.35,'helpPull'],[Tend,'guard',sstep]]);
   const events=[{t:Tc,fn:()=>{if(!P.downed||P.dead)return;standUp(P);P.foot=Math.max(P.foot,FOOT_RISE);
     for(const i of [CHE,HEAD,PEL])P.p[i].py+=(i===PEL?80:140)*DT;
-    popup(P,'Back up','#a9e88c',`pulled up by ${A.name}`,19,-30);S.hooks.sound('thud',120);S.hooks.helped(S.game.ex,{A,P});S.hooks.status();}}];
+    logNote(P,'Back up',`pulled up by ${A.name}`);S.hooks.sound('thud',120);S.hooks.helped(S.game.ex,{A,P});S.hooks.status();}}];
   return{att:{t0:S.t,end:Tend,body,arm},Tend:Tend+.05,events,dash:Math.round(dist),strikeX:info.x,Cfn:reach};
 }
 
@@ -124,7 +124,7 @@ function planHelp(A,info){
 // a blow or a shove on the one holding your partner makes them let go
 function rescueFrom(A,D){
   const c=D&&D.clinch;if(!c||c.a!==D||D.dead)return null;const H=c.b;if(!H||H===A||H.team!==A.team)return null;
-  endClinch(D);popup(H,'Freed','#a9e88c',`by ${A.name}`,19,-30);S.hooks.status();return H;
+  endClinch(D);logNote(H,'Freed',`by ${A.name}`);S.hooks.status();return H;
 }
 function rescueShoveOK(A,D){const c=D&&D.clinch;return!!(c&&c.a===D&&c.b!==A&&c.b.team===A.team);}
 
@@ -142,7 +142,7 @@ function stabTech(A,D){
     rising:false,descend:false,windCap:null,passing:false,flair:null,multi:null,knock:.3,kdEase:0,dirty:true,stab:true,edge:true,dice:[2,4,10],zone:'body',rear:!!i.rear,back:!!i.back,drawn:!!i.drawn};
   if(i.back)Object.assign(T,{name:'Backward stab',why:'Pinned from behind, the free hand finds the hip dagger and stabs back into the one holding him. If it lands, the grip breaks.',
     onHit:(A2,D2)=>{if(A2.clinch&&heldBy(A2)===D2){endClinch(A2);const d=Math.sign(D2.station-A2.station)||-A2.facing;D2.station=clampSt(D2,D2.station+d*22);knockBalance(D2,FOOT_HIT,A2);
-      for(const q of [D2.p[CHE],D2.p[HEAD]])q.px-=d*90*DT;A2.facing=d;popup(A2,'Breaks free','#a5dcff',null,19,-30);S.hooks.status();}}});
+      for(const q of [D2.p[CHE],D2.p[HEAD]])q.px-=d*90*DT;A2.facing=d;logNote(A2,'Breaks free');S.hooks.status();}}});
   else if(i.rear)Object.assign(T,{name:i.drawn?'Knife to the ribs':'Draw and stab',why:'Holding them from behind, the free hand draws the dagger and drives it into their side.'});
   else Object.assign(T,{name:i.drawn?'Dagger stab':'Draw and stab',why:'Chest to chest, the free hand pulls the dagger from the hip and stabs up under the ribs.'});
   return T;

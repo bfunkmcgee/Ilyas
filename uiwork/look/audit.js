@@ -49,15 +49,15 @@ function frameStats(){const W2=cv.width,H2=cv.height,lb=typeof ST_LB==='number'?
   return{mean:'#'+[sr,sg,sb].map(v=>Math.round(v/n*255).toString(16).padStart(2,'0')).join(''),L:+m.toFixed(3),Lsd:+Math.sqrt(Math.max(0,sL2/n-m*m)).toFixed(3),
     sat:+(sS/n).toFixed(3),dark:+(dk/n).toFixed(3),bright:+(br/n).toFixed(3),empty:+(er/rows).toFixed(2),hues:hue.map(v=>+(v/ht).toFixed(3)),lit:+(np/n).toFixed(3),main:pick.map(p=>[p.hex,p.w,p.L])};}
 // (in the page) Ilyas against what is right round him: his drawn pixels (where his sprite is solid) against the ring just outside.
-// He is measured on the frame drawn again without the page's marks on the fight (the footing rings and their words, the head bars,
+// He is measured on the frame drawn again without the page's marks on the fight (the footing rings, the head bars,
 // the intent labels: a ring under him is not his outline reading), once more without him, and once without anyone (the shadows all
 // kept): where the first two differ is where he shows, so a part of him behind something (a blanket over him, a counter in front, a
 // word of the fight's over his shoulder) is left out of his outline instead of read as a part of it that does not stand out; where
 // the last two differ is where someone else is, so his outline against another man (Tamm holding him up) is left out too: the rule is
 // about him against the ground. The frame is drawn once more with everything for the shot.
 function heroStats(){const K=typeof hero==='function'?hero():null;if(!K||typeof FXL==='undefined'||!FXL.sprite)return null;
-  const MARKS=['drawFooting','drawFootLabels','drawHeadBars','drawLabels'],keep=MARKS.map(k=>window[k]);
-  window.drawFooting=()=>null;window.drawFootLabels=()=>{};window.drawHeadBars=()=>{};window.drawLabels=()=>{};let M=null;
+  const MARKS=['drawFooting','drawHeadBars','drawLabels'],keep=MARKS.map(k=>window[k]);
+  window.drawFooting=()=>null;window.drawHeadBars=()=>{};window.drawLabels=()=>{};let M=null;
   // (the finish's grain moves each frame on a wide screen: held still while he is measured, or the frames drawn again differ by it
   // everywhere and it reads as him)
   const fin=EnvLook.finish,rf=S._rf||0;EnvLook.finish=function(o){const r=S._rf;S._rf=rf;try{return fin.call(this,o);}finally{S._rf=r;}};
@@ -100,12 +100,14 @@ function heroRead(M){const {R,pad,x0,y0,x1,y1,S:S2,A:F,B,C:Cf}=M,W2=x1-x0,a=(x,y
       window.R0=window.render;window.drawing=on=>{window.render=on?window.R0:()=>{};};
       window.small=()=>{const lb=typeof ST_LB==='number'?ST_LB:0,y0=Math.floor(cv.height*.105*lb),h=cv.height-2*y0,c=document.createElement('canvas');c.width=Math.round(cv.width/4);c.height=Math.round(h/4);
         c.getContext('2d').drawImage(cv,0,y0,cv.width,h,0,0,c.width,c.height);return c.toDataURL('image/png');};
+      // the fight's words over the fighters (the style guide's rule 7): how many are drawn, and how many the game has said and keeps
+      window.words=()=>typeof fightWords==='function'?{n:fightWords().n,said:S.popups.length+S.callouts.length}:null;
       window.cost=()=>{const n=window.__costN,T=[];for(let i=0;i<n;i++){ctx.getImageData(0,0,1,1);const s0=performance.now();window.R0();ctx.getImageData(0,0,1,1);T.push(performance.now()-s0);}T.sort((x,y)=>x-y);return+((T[(n-1)>>1]+T[n>>1])/2).toFixed(1);};},
       [frameStats.toString(),heroStats.toString(),heroRead.toString()]);
     await p.evaluate(n=>{window.__costN=n;},Math.max(2,+(process.env.COSTN||6)));
     if(sh.lab){const r=await p.evaluate(g=>{S.arenaKey=g;S.backroom=false;S.deep=false;S.introOn=false;S.cfg.n=2;S.cfg.crew=false;S.cfg.ally.on=true;S.auto=true;S.allyAuto=true;S.F=[];rosterBuild();restart();
         drawing(false);let n=0,t0=null;while(n<9000){step(1);n++;if(S.game.phase==='exchange'&&S.game.ex){if(t0==null)t0=S.t;if(S.t>t0+2)break;}}drawing(true);step(120);
-        return{scene:envKey(),stats:frameStats(),hero:heroStats(),ms:cost(),fx:FXL.q,canvas:small()};},sh.lab);
+        return{scene:envKey(),stats:frameStats(),hero:heroStats(),ms:cost(),fx:FXL.q,words:words(),canvas:small()};},sh.lab);
       const file=sh.id+'.jpg';await p.screenshot({path:path.join(OUT,file),type:'jpeg',quality:82});
       fs.writeFileSync(path.join(OUT,sh.id+'_canvas.png'),Buffer.from(r.canvas.split(',')[1],'base64'));delete r.canvas;
       if(r.hero&&r.hero.crop){fs.writeFileSync(path.join(OUT,sh.id+'_hero.png'),Buffer.from(r.hero.crop.split(',')[1],'base64'));delete r.hero.crop;}res.push({id:sh.id,moment:'fight',file,...r,errs:errs.slice(0,3)});console.log(sh.id,r.scene,JSON.stringify(r.stats.L),r.ms);}
@@ -115,7 +117,7 @@ function heroRead(M){const {R,pad,x0,y0,x1,y1,S:S2,A:F,B,C:Cf}=M,W2=x1-x0,a=(x,y
           const due=()=>{if(fight){if(window.__tf==null){if(inFight())window.__tf=S.t;else return false;}return S.t>=window.__tf+T-(all?0:2);}return S.t>=window.__t0+T-(all?0:2);};
           while(still()&&!due()&&n<12000){step(1);n++;}if(!still())return{gone:true};
           if(!all){drawing(true);step(120);drawing(false);}
-          return{scene:envKey(),t:+(S.t-window.__t0).toFixed(1),step:S.story.step,phase:S.game.phase,stats:frameStats(),hero:heroStats(),ms:cost(),fx:FXL.q,canvas:small()};},[m,sh.draw==='all']);
+          return{scene:envKey(),t:+(S.t-window.__t0).toFixed(1),step:S.story.step,phase:S.game.phase,stats:frameStats(),hero:heroStats(),ms:cost(),fx:FXL.q,words:words(),canvas:small()};},[m,sh.draw==='all']);
         if(r.gone){res.push({id:sh.id,moment:m,gone:true});console.log(sh.id,m,'gone');continue;}
         // (the shot is of the frame just drawn; the cost's six draws are of the same moment)
         const file=sh.id+'_'+m+'.jpg';await p.screenshot({path:path.join(OUT,file),type:'jpeg',quality:82});
@@ -125,4 +127,5 @@ function heroRead(M){const {R,pad,x0,y0,x1,y1,S:S2,A:F,B,C:Cf}=M,W2=x1-x0,a=(x,y
     await p.context().close();}
   fs.writeFileSync(path.join(OUT,'audit.json'),JSON.stringify({w:VW,h:VH,dpr:DPR,when:new Date().toISOString(),shots:res},null,0));
   const bad=res.filter(r=>r.hero&&r.hero.fails&&r.hero.fails.length).map(r=>r.id+(r.moment&&r.moment!=='fight'?'_'+r.moment:'')+' '+r.hero.fails.join('+')+' (read '+r.hero.read+', ground '+r.hero.Lb+')');
+  {const W=res.map(r=>r.words).filter(Boolean);if(W.length)console.log('words over the fighters: at most',Math.max(...W.map(w=>w.n)),'of',Math.max(...W.map(w=>w.said)),'said');}
   console.log('shots',res.length,'errors',JSON.stringify(res.flatMap(r=>r.errs||[]).slice(0,5)));console.log('rule 8 fails',bad.length+(bad.length?':\n  '+bad.join('\n  '):''));await b.close();})();

@@ -30,8 +30,8 @@ V11.duelStart.push(()=>{const st=act1Stage(),A=S.act1;if(!st||!A||!A.errand||!st
     const i=E.bag.indexOf('salve');if(i>=0)E.bag.splice(i,1);else if(E.hand==='salve')E.hand=null;A.salveUsed={n,shown:false};}});
 // (said when the fight starts: the edge, the salve)
 {const sf=storyFight;storyFight=function(){sf.apply(this,arguments);const A=S.act1,K=S.F[0];if(!act1On()||!A||!K)return;
-  if(K.whet&&!A.whetShown){A.whetShown=true;popup(K,'Whetted edge','#e2b65a','+'+ACT1_GOODS.whet+' on a cut, this fight',20,-52);}
-  if(A.salveUsed&&!A.salveUsed.shown){A.salveUsed.shown=true;popup(K,'Salve','#a9e88c','+'+A.salveUsed.n,20,-30);}};}
+  if(K.whet&&!A.whetShown){A.whetShown=true;logNote(K,'Whetted edge','+'+ACT1_GOODS.whet+' on a cut, this fight');}
+  if(A.salveUsed&&!A.salveUsed.shown){A.salveUsed.shown=true;logNote(K,'Salve','+'+A.salveUsed.n);}};}
 // the edge is spent once the fight it was for is over
 {const sc=storyCleared;storyCleared=function(){const A=S.act1,K=S.F[0];if(act1On()&&K&&K.whet&&A&&A.errand){A.errand.sharp=false;K.whet=false;}return sc.apply(this,arguments);};}
 {const k=kill;kill=function(D,dir){if(act1Spare(D)&&!D.dead){D.hp=Math.max(1,D.hp);if(!D.downed)knockDown(D);return;}return k.apply(this,arguments);};}
@@ -97,7 +97,7 @@ V11.exchangeEnd.push(()=>{const T=tollRec();if(!T||T.gang!=='held')return;const 
   if(out&&!K.downed){T.gang=null;return;}
   if(!out&&T.hits<TOLL.gangHits&&T.heldTurns<=TOLL.heldTurns)return;
   endClinch(K);T.gang=null;T.pinDowns++;if(!K.broken)breakFighter(K,tollSmall()||B);if(!K.downed)knockDown(K);S.shake=Math.max(S.shake,6);
-  popup(K,'Down on the steps','#ffb347',null,20,-30);S.hooks.sound('thud',300);});
+  logNote(K,'Down on the steps');S.hooks.sound('thud',300);});
 // what counts: each time he is Broken once the pin has put him down the first time (that is the first), and a collector put down by him
 {const bf=breakFighter;breakFighter=function(D){bf.apply(this,arguments);const T=tollRec();if(T&&D===S.F[0]&&tollFighting()&&T.pinDowns>0)T.breaks++;};}
 {const kd=knockDown;knockDown=function(D){const was=D&&D.downed;kd.apply(this,arguments);const T=tollRec();

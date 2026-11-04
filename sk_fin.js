@@ -175,7 +175,7 @@ function makeStuck(A,D,R){
   const fa=A.facing;for(const i of [CHE,HEAD,ELF,ELB,HAF,HAB])D.p[i].px-=fa*70*DT;for(const i of [KNF,FTF,KNB,FTB])D.p[i].px+=fa*25*DT;
   if(side)A.sidearm='lost';else if(realWeapon(wk)&&!A.ownWeapon)A.ownWeapon=wk;
   A.setWeapon('fists');
-  popup(A,'Stuck','#ffc163',`${wp.short} stuck in ${D.name}`,20,-30);S.hooks.sound('thud',200);
+  logNote(A,'Stuck',`${wp.short} stuck in ${D.name}`);S.hooks.sound('thud',200);
   S.hooks.stuck(R.ex,{A,D,key:wk});S.hooks.status();
 }
 function stuckStep(){
@@ -211,6 +211,6 @@ function drawSidearm(A){
   if(!A.wp.unarmed)dropWeapon(A,-A.facing,false);
   A.setWeapon('dagger');A.sidearm='drawn';
   const h=A.p[HAF],t=A.p[TIP];t.x=t.px=h.x-A.facing*4;t.y=t.py=h.y+A.wp.len*.95;
-  popup(A,'Dagger drawn','#ffd9a8',null,19,-26);S.hooks.sound('clang',.4);S.hooks.status();
+  logNote(A,'Dagger drawn');S.hooks.sound('clang',.4);S.hooks.status();
 }
 // ===== FINISHERS END =====

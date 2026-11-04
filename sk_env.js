@@ -97,7 +97,7 @@ function divStrike(w,A,C,fa,struct){
   if(w.hp-struct<=0){breakDivider(w,fa);return true;}
   w.hp-=struct;w.marks.push({d:clamp(A.lane,w.d0+5,w.d1-5),y:C.y,k:struct,s:(Math.random()*1e6)|0,side:-fa,cut:true});if(w.marks.length>8)w.marks.shift();
   w.wobV+=fa*(1.6+struct);sparks(C,8,divChip(w),A.lane);dust(C.x,C.y,.7,A.lane);S.shake=Math.max(S.shake,4);S.hooks.sound(M.snd,.6);
-  S.popups.push({x:C.x,y:C.y-16,d:A.lane,text:w.hp<=1?'Cracked':'Struck',color:'#ffc163',sub:cap(divWord(w)),size:18,age:0});
+  popAt(C.x,C.y-16,A.lane,w.hp<=1?'Cracked':'Struck','#ffc163',cap(divWord(w)),18,null);
   return false;}
 function divChip(w){return{paper:'#f3dcb0',glass:'#d6f3f5',plaster:'#d8b9ae',plank:'#8a6a52',shelf:'#efe4d6',slats:'#a0805e'}[w.mat];}
 // physical contact from a fighter's particle
@@ -106,7 +106,7 @@ function onDivHit(w,f,q,i,spd){
   if(spd<170||S.t-w.lastHit<.28)return false;w.lastHit=S.t;
   w.wobV+=-divSide(f,w)*Math.min(3.2,spd/260);dust(q.x,q.y,.8,f.dep);S.shake=Math.max(S.shake,i===TIP?2:5);S.hooks.sound(i===TIP?'thud':DIV_MAT[w.mat].snd,i===TIP?120:.5);
   const ex=S.game.ex;
-  if(ex&&ex.divSlam===w&&ex.D===f&&!ex.divShown&&i!==TIP){ex.divShown=true;S.popups.push({x:q.x-divSide(f,w)*14,y:q.y-10,d:f.dep,text:'+'+ex.divDmg+' '+divWord(w),color:'#ffc163',sub:null,size:17,age:0});}
+  if(ex&&ex.divSlam===w&&ex.D===f&&!ex.divShown&&i!==TIP){ex.divShown=true;popAt(q.x-divSide(f,w)*14,q.y-10,f.dep,'+'+ex.divDmg+' '+divWord(w),'#ffc163',null,17,f);}
   return false;}
 // keep a fighter's particle on the fighter's side of each standing divider
 function divCollideQ(f,q,i,final){
@@ -159,7 +159,7 @@ function breakDivider(w,dir){
   const puffs=w.mat==='plaster'?3:w.mat==='plank'?2:w.mat==='paper'?1:0;for(let i=0;i<puffs;i++)dust(w.x+dir*6,g-i*36,1.2,cd);
   S.shake=Math.max(S.shake,15);S.freeze=Math.max(S.freeze,.07);S.slowT=Math.max(S.slowT,.4);if(!S.warming)S.punch={x:prjX(w.x,cd),t:0};
   S.hooks.sound(M.snd,1.4);S.hooks.sound('crack',1,M.snd==='glass'?{skip:'glass_large'}:M.snd==='paper'?{skip:'paper'}:undefined);
-  const ex=S.game.ex;if(ex&&ex.divDmg&&ex.divSlam===w&&!ex.divShown){ex.divShown=true;S.popups.push({x:w.x+dir*12,y:cy-40,d:cd,text:'+'+ex.divDmg+' '+divWord(w),color:'#ffc163',sub:'Breach',size:20,age:0});}
+  const ex=S.game.ex;if(ex&&ex.divDmg&&ex.divSlam===w&&!ex.divShown){ex.divShown=true;popAt(w.x+dir*12,cy-40,cd,'+'+ex.divDmg+' '+divWord(w),'#ffc163','Breach',20,ex.D);}
   bill(M.bill,M.name);S.hooks.status();
 }
 
@@ -307,7 +307,7 @@ function addLamp(x,dep,shadeY,kind){const ay=20+dep*PSY,p={x,y:shadeY,px:x,py:sh
 function lampHit(L,vn,f){
   if(vn>120&&S.t-(L.lastHit||-9)>.2){L.lastHit=S.t;S.hooks.sound('clang',.25,{s:'lamp_knock'});L.flick=.35;}
   if(L.lit&&vn>330){L.lit=false;L.dead=S.t;const p=L.p;flash(p,40,'#fff3cf',L.dep);sparks(p,16,'#fff3cf',L.dep);for(let i=0;i<10;i++)shard('glass',p.x,p.y+4,L.dep,Math.sign(f.p[PEL].vx0)||1,.6);
-    popup(f,'Lamp out','#ffc163',null,16,-38);S.hooks.sound('glass',.8);bill('lamp');}
+    logNote(f,'Lamp out');S.hooks.sound('glass',.8);bill('lamp');}
   if(vn>620&&!L.fallen){L.fallen=true;S.hooks.sound('crack',.4);}
 }
 function lampsStep(final){

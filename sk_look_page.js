@@ -297,6 +297,20 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   expect('the shared finish: every frame a place draws blooms and darkens at the edges at its world\'s strengths at Full, darkens the edges alone at Lite and draws none of it at Off; the page\'s vignette stands down where it draws',
     [['street',.3,.5],['yard',.2,.62]].every(([k,g,e])=>{const o=fin[k];return o.scene===k&&o.full.frames>0&&o.full.n===o.full.frames&&o.full.bloom===g&&o.full.vig===e&&o.full.fin==='1'&&
       o.lite.n===o.lite.frames&&o.lite.bloom===0&&o.lite.vig===e&&o.lite.fin==='1'&&o.off.n===0&&o.off.frames>0&&o.off.fin==='0';}),JSON.stringify(fin));
+  // the fight's words (the style guide's rule 7, since V80): through a crowded fight in the dining room never more than two over the
+  // fighters, the newest move's name and its result, though the game says more at once; both in Alegreya SC in cream; a result with
+  // damage carries the number beside its word; what else was said goes to the log
+  const wd=await ev(()=>{const out={frames:0,max:0,two:0,said:0,styles:[],bad:[],withDmg:0,notes:0,lines:0};const st=new Set();
+    const lg=S.hooks.note;S.hooks.note=function(){out.notes++;return lg.apply(this,arguments);};const n0=document.querySelectorAll('#log .lg-note').length;
+    const ft=CanvasRenderingContext2D.prototype.fillText;let W=null;
+    CanvasRenderingContext2D.prototype.fillText=function(t){if(W&&((W.c&&t===W.c.text.toUpperCase())||(W.r&&t===W.r.text)))st.add(this.font.replace(/^\d+\s+/,'').replace(/\d+px/,'')+'|'+this.fillStyle);return ft.apply(this,arguments);};
+    try{fight({arena:'restaurant',n:3,crew:true,ally:true,auto:true});
+      for(let i=0;i<900;i++){step(1);W=fightWords();if(i%10===0)render();out.frames++;out.max=Math.max(out.max,W.n);if(W.n===2)out.two++;
+        out.said=Math.max(out.said,S.popups.length+S.callouts.length);if(W.r&&/ \d+$/.test(W.r.text))out.withDmg++;}}
+    finally{CanvasRenderingContext2D.prototype.fillText=ft;S.hooks.note=lg;}
+    out.styles=[...st];out.lines=document.querySelectorAll('#log .lg-note').length-n0;return out;});
+  expect('the fight\'s words: never more than two over the fighters (the move\'s name and its result) though the game says more at once, both in Alegreya SC in cream, a hit\'s word with its damage beside it; the rest goes to the log',
+    wd.frames>800&&wd.max<=2&&wd.two>0&&wd.said>2&&wd.withDmg>0&&wd.styles.length>0&&wd.styles.every(s=>/Alegreya SC/.test(s)&&/#f3ead6$/.test(s))&&wd.notes>0&&wd.lines>0,JSON.stringify(wd));
   // the prologue opens at sundown: Begin plays it first (it is not a chapter of its own), him on his bike on the road above the farms,
   // upright in the saddle; his three lines in order; the sand blowing past the bike only while he talks about the wire (drawn then, and
   // never otherwise); the sun going down; then he rides off the right edge of the picture and the field begins with him on foot

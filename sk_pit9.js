@@ -151,7 +151,7 @@ V11.step.push(()=>{if(!shRec())return;for(const f of S.F){const w=f.wounds;if(w&
   const h=A.p[HAF];for(const i of [HAF,ELF,TIP]){const q=A.p[i];q.px+=fa*120*DT;}
   flash(h,16,'#ffe3b0',A.dep);popup(A,'Touch','#ffffff','the wrist',22);S.hooks.sound('hit',2);knockBalance(A,SHORT_HAND.toll.pips,D);return 0;};}
 V11.turnStart.push(i=>{const K=S.F[0];if(!shRec()||S.F[i]!==K||K.weaponKey==='dagger'||K.downed||K.dead)return;
-  const j=S.items.findIndex(it=>it.key==='dagger'&&it.owner===K.idx);if(j>=0)S.items.splice(j,1);K.setWeapon('dagger');shApply(K);popup(K,'The knife','#9fd8d0','back in his hand',18,-40);});
+  const j=S.items.findIndex(it=>it.key==='dagger'&&it.owner===K.idx);if(j>=0)S.items.splice(j,1);K.setWeapon('dagger');shApply(K);logNote(K,'The knife','back in his hand');});
 
 // ---------- the flow of a lesson ----------
 // drill, then (after a beat) the bout; the bout ends on his touches

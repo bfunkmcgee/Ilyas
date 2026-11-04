@@ -111,7 +111,7 @@ function stallTurn(A,D){if(A.dead||A.downed||!A.spin)return;
   for(const q of A.scarf||[]){q.x=m(q.x);q.px=m(q.px);}
   for(const s of A.steps){if(s.plant)s.plant={x:m(s.plant.x),y:s.plant.y};if(s.from)s.from={x:m(s.from.x),y:s.from.y};if(s.to)s.to={x:m(s.to.x)};}
   A.facing=-A.facing;A.spin=null;A.tailAct=null;A.overext={t0:S.t,by:D?D.idx:null};
-  popup(A,'Overextended','#ffc163',`back turned, tail out`,18,-44);}
+  logNote(A,'Overextended','back turned, tail out');}
 V11.turnStart.push(()=>{for(const f of S.F)if(f.overext)f.overext=null;});
 // a read on a lizard left with his back turned is never missed
 {const rr=readRoll;readRoll=function(f,opp,src,depth){const r=rr(f,opp,src,depth);if(opp&&opp.overext&&tailIntact(opp)&&!f.beast){r.ok=true;r.total=Math.max(r.total,r.dc);}return r;};}
@@ -271,7 +271,7 @@ function planToss(A,D,tr,info){
     const body=bodyKeys(A,[[0,'now'],[T0,'tossGrab',{px:sx},eOut],[T0+.26,'tossFail',{px:sx}],[Te,'guard',sstep]]);
     const armK=armKeys(A,[[0,'now'],[T0,reach,eOut],[Te,'guard',sstep]]);
     const events=[{t:T0+.03,fn:()=>{spendFoot(A,1);A.ready+=10;D.station=clampSt(D,D.station+dP*18);for(const q of D.p)q.px-=dP*110*DT;
-      popup(D,'Twists free','#a5dcff',null,19);S.hooks.sound('squeal',.6);if(ex)considerOpening(ex,D,A,'brace');S.hooks.status();}}];
+      logNote(D,'Twists free');S.hooks.sound('squeal',.6);if(ex)considerOpening(ex,D,A,'brace');S.hooks.status();}}];
     return{att:{t0:S.t,end:Te,body,arm:armK},Tend:Te+.1,events,dash,strikeX:sx,Cfn:grip};}
   const tl=Math.sign(info.x-D.station)||dP,over=tl!==dP;
   // into the scruff, down on the legs, then the whole body turned into the throw (over the shoulder when it goes behind him)

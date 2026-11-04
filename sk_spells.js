@@ -36,7 +36,7 @@ REACT_NAME.ward='Ward';
 function aetherShort(A,k){const s=SPELLS[k];return s&&A?Math.max(0,s.cost-(A.aether||0)):0;}
 function overdriveOK(A,k){const n=aetherShort(A,k);return SPELL2.on&&!SPELL2.off.includes('overdrive')&&n>0&&n<=OVERDRIVE.max&&!!A&&A.hp>n*OVERDRIVE.hp;}
 function overdriveBurn(A,n){const hp=n*OVERDRIVE.hp;A.hp=Math.max(1,A.hp-hp);A.flare=1.8;A.overdriveT=S.t;
-  popup(A,'Overdrive','#ff9a5c',`−${hp} health`,19,-70);
+  logNote(A,'Overdrive',`−${hp} health`);
   if(!S.warming){const c=A.p[CHE];addMotes(c.x,c.y,A.dep,12,{spread:70,vy:-60,cyan:0});flash({x:c.x,y:c.y},30,'#ff9a5c',A.dep);}
   if(S.hooks.overdrive)S.hooks.overdrive(A,hp);S.hooks.status();}
 // the store is checked as if it held the spell's cost when Overdrive covers the rest; every other rule stands as it is
@@ -117,7 +117,7 @@ function edgeOK(A){return SPELL2.on&&!SPELL2.off.includes('edge')&&!!A&&A===hero
 // lit on his turn, before he acts: free, and it lasts till his next turn
 function lightEdge(A){const g=S.game;if(!edgeOK(A)||g.phase!=='input'||g.active!==A.idx||S.opening)return false;const short=aetherShort(A,'edge');
   A.aether=Math.max(0,(A.aether||0)-SPELLS.edge.cost);A.edge={t:S.t,turn:g.turnNo};A.flare=1.2;A.castT=S.t;glyphAt(A,HAB,.3);
-  popup(A,'Gilt edge','#ffe299',{bound:'+1, through a guard',unbound:'the tip burns',close:'the hilt sears'}[edgeStance(A)],18,-62);
+  logNote(A,'Gilt edge',{bound:'+1, through a guard',unbound:'the tip burns',close:'the hilt sears'}[edgeStance(A)]);
   S.hooks.sound('blink',.35);if(short)overdriveBurn(A,short);S.hooks.status();return true;}
 V11.turnStart.push(i=>{const f=S.F[i];if(f&&f===S.F[0]&&f.edge)f.edge=null;});
 V11.duelStart.push(()=>{for(const f of S.F){f.edge=null;f.glare=null;f.wardT=null;f.wardHitT=null;}S.lines=[];S.glares=[];});

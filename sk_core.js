@@ -223,7 +223,7 @@ const S={arenaKey:'street',arena:null,t:0,F:[],flashes:[],sparks:[],dusts:[],pop
   divs:[],props:[],wares:[],lamps:[],shards:[],spills:[],bill:{total:0,items:{}},divOn:true,showcase:false,
   cfg:{n:2,ally:{on:false,seed:6427,weapon:'spear',skill:3},hero:{seed:2207,weapon:'sword',skill:4},foes:[{seed:5113,weapon:'axe',skill:3,temper:'brute'},{seed:7741,weapon:'spear',skill:2,temper:'keeper'},{seed:3190,weapon:'dagger',skill:2,temper:'rusher'}]},
   game:{phase:'idle',turnNo:1,active:0,ex:null,aiAt:null},
-  hooks:{body(f,b){return b;},skill(f,s){return s;},arms(){return null;},feint(){},sound(){},log(){},perf(){},perf2(){},domino(){},status(){},turn(){},over(){},read(){},opening(){},shove(){},wound(){},rip(){},grab(){},throwLand(){},breakfree(){},pickup(){},fin(){},stuck(){},cover(){},helped(){},bill(){},kick(){},bottle(){}}};
+  hooks:{body(f,b){return b;},skill(f,s){return s;},arms(){return null;},feint(){},sound(){},log(){},perf(){},perf2(){},domino(){},status(){},turn(){},over(){},read(){},opening(){},shove(){},wound(){},rip(){},grab(){},throwLand(){},breakfree(){},pickup(){},fin(){},stuck(){},cover(){},helped(){},bill(){},kick(){},bottle(){},note(){}}};
 S.arena=ARENAS[S.arenaKey];
 // V11 extension points: each feature module pushes its own listeners here instead of editing the functions that call them
 // exchangeEnd(last): an exchange has finished, before the end-of-fight checks; kill(D,dir): someone has just died;
@@ -527,7 +527,7 @@ function onTableContact(f,q,spd){
   const T=S.table,ex=S.game.ex;
   if(T.state==='breaking'&&f===T.breakFrom){breakTable();return;}
   if(spd>140&&S.t-T.slamT>.35){T.slamT=S.t;dust(q.x,q.y,.8,f.dep);S.shake=Math.max(S.shake,5);S.hooks.sound('thud',spd);kickProps(Math.sign(q.vx0)||-f.facing,.8);
-    if(ex&&ex.res&&ex.res.table==='slam'&&ex.D===f&&!ex.tableShown){ex.tableShown=true;S.popups.push({x:q.x,y:q.y-14,d:f.dep,text:'+'+ex.res.tableDmg+' table',color:'#ffc163',sub:null,size:17,age:0});}}
+    if(ex&&ex.res&&ex.res.table==='slam'&&ex.D===f&&!ex.tableShown){ex.tableShown=true;popAt(q.x,q.y-14,f.dep,'+'+ex.res.tableDmg+' table','#ffc163',null,17,f);}}
 }
 function kickProps(dir,pow){const T=S.table;if(!T)return;const top=T.state!=='broken'?tableBox().t:1e9;
   for(const q of T.props){if(q.y>top+8)continue;q.px=q.x-dir*(1+Math.random()*2.2)*pow;q.py=q.y+(2+Math.random()*3)*pow;q.spin=(Math.random()-.5)*.5*pow;}
@@ -542,7 +542,7 @@ function breakTable(){
   piece(lp(P[0],P[1],.1),lp(P[3],P[3],0),4.5,.5,TD-4);piece(lp(P[0],P[1],.9),P[2],4.5,.5,-TD+4);
   sparks(mid,26,'#d9a06a',T.dep);dust(mid.x,S.arena.ground(mid.x,T.dep),1.5,T.dep);S.shake=Math.max(S.shake,12);S.freeze=Math.max(S.freeze,.06);
   kickProps(dir,1.6);S.hooks.sound('crack',1,{s:'table_break'});bill(S.room==='kitchen'?'preptable':S.room==='lobby'?'lobbytable':'table');
-  const ex=S.game.ex;if(ex&&ex.tableDmg&&!ex.tableShown){ex.tableShown=true;S.popups.push({x:mid.x,y:mid.y-22,d:T.dep,text:'+'+ex.tableDmg+' table',color:'#ffc163',sub:'Crash',size:20,age:0});}
+  const ex=S.game.ex;if(ex&&ex.tableDmg&&!ex.tableShown){ex.tableShown=true;popAt(mid.x,mid.y-22,T.dep,'+'+ex.tableDmg+' table','#ffc163','Crash',20,ex.D);}
 }
 function breachWall(){
   const w=S.wall;if(!w||w.state==='breached')return;w.state='breached';w.hp=0;
@@ -554,7 +554,7 @@ function breachWall(){
     S.rubble.push({a:{x:cx-ca,y:cy-sa,px:cx-ca-kx,py:cy-sa-ky,r:3.5,im:.35,vx0:0,vy0:0},b:{x:cx+ca,y:cy+sa,px:cx+ca-kx*1.1,py:cy+sa-ky,r:3.5,im:.35,vx0:0,vy0:0},len:l,w:9+rn()*7,dep:clamp(i<14?dz+(rn()-.5)*70:DEP_MIN+rn()*(DEP_MAX-DEP_MIN),DEP_MIN-10,DEP_MAX+10)});}
   for(let i=0;i<4;i++)dust(wx+13,g-i*40,1.6,dz);
   sparks({x:wx+10,y:g-90},18,'#cdb7a0',dz);S.shake=Math.max(S.shake,16);S.freeze=Math.max(S.freeze,.07);S.hooks.sound('crack',1);S.hooks.sound('thud',400);
-  const ex=S.game.ex;if(ex&&ex.wallDmg&&!ex.wallShown){ex.wallShown=true;S.popups.push({x:wx-10,y:g-150,d:dz,text:'+'+ex.wallDmg+' wall',color:'#ffc163',sub:'Breach',size:20,age:0});}
+  const ex=S.game.ex;if(ex&&ex.wallDmg&&!ex.wallShown){ex.wallShown=true;popAt(wx-10,g-150,dz,'+'+ex.wallDmg+' wall','#ffc163','Breach',20,ex.D);}
   S.hooks.status();
 }
 
@@ -806,7 +806,32 @@ function flairStep(f){
 }
 
 // ---------- effects (each one remembers its depth) ----------
-function popup(f,text,color,sub,size,dy){const h=f.p[HEAD];S.popups.push({x:h.x,y:h.y-26+(dy||0),d:f.dep,text,color,sub:sub||null,size:size||22,age:0});}
+// ---------- the fight's words (the style guide's rule 7; sk_ui.js draws them) ----------
+// What a move did, each said as a result over the one it landed on and kept as it was said (the checks read them): its word, its
+// damage, its rank (how much it changes the fight: a kill, Broken, Disarmed, Guard broken, a fall, Critical, whatever else it did,
+// plain damage, and last Blocked, Deflected or Countered, then a miss), the fighter (f) and the move it came from (g: each exchange
+// its own, and each stretch between them). The drawing shows the newest move's biggest only, with the damage beside its word; a
+// lesser one than the move has already said goes when that one does. What a result's second line said goes to the log (logNote),
+// and so does a routine state, which gets no word at all: the poses and the footing ring show it.
+const POP_RANK={Out:10,Finished:10,Broken:9,Disarmed:8,'Haft cut':8,'Tail severed':8,'Guard broken':7,Tripped:6,'Knocked down':6,Swept:6,
+  'Bowled over':6,'On the ground':6,Critical:5,Blocked:2,Deflected:2,Countered:2,Parried:2,'Beaten aside':2,'On the blade':2,
+  'Inside the swing':2,'Inside the cut':2,'Arm caught':2,'Reads the feint':2,'Holds the line':2,'Slipped the grab':2,'Into cover':2,
+  Miss:1,Wide:1,Slipped:1,'Out of reach':1,'Ducks it':1,'Leaps it':1,'Spins away':1,'Steps past it':1,'Rolls clear':1,'Steps clear':1};
+// (the words a number's second line may carry that are results themselves; any other is told in the log)
+const POP_SUBWORD=new Set(['Out','Finished','On the ground','Knocked down','Swept','Bowled over','Critical','Dazed']);
+let POP_EX,POP_G=0;
+function popRec(p,fi){const ex=S.game?S.game.ex:null;if(ex!==POP_EX){POP_EX=ex;POP_G++;}p.g=POP_G;p.f=fi;
+  const m=/^\+?(\d+)\b/.exec(p.text);
+  if(m){p.dmg=+m[1];if(p.sub&&POP_SUBWORD.has(p.sub)){p.word=p.sub;p.rank=Math.max(4,POP_RANK[p.sub]??4.5);}else{p.word=null;p.rank=4;}}
+  else{p.dmg=0;p.word=p.text;p.rank=POP_RANK[p.text]??4.5;}
+  let best=null;for(const q of S.popups)if(q.g===p.g&&(!best||q.rank>best.rank))best=q;if(best&&best.rank>p.rank)p.age=best.age;
+  S.popups.push(p);
+  if(p.sub&&p.sub!==p.word&&fi>=0)logNote(S.F[fi],p.word||p.dmg+' damage',p.sub);}
+function popup(f,text,color,sub,size,dy){const h=f.p[HEAD];popRec({x:h.x,y:h.y-26+(dy||0),d:f.dep,text,color,sub:sub||null,size:size||22,age:0},f.idx);}
+// (a result said where it happened rather than over a fighter's head: a table, a wall, a screen; f, whose it is, if anyone's)
+function popAt(x,y,d,text,color,sub,size,f){popRec({x,y,d,text,color,sub:sub||null,size:size||20,age:0},f?f.idx:-1);}
+// a routine state, or what a result's second line said: to the log (sk_ui.js), never over the fighters
+function logNote(f,text,sub){if(f&&S.hooks.note)S.hooks.note(f,text,sub||null);}
 function flash(c,r,color,d){S.flashes.push({x:c.x,y:c.y,d:d||0,r,color,age:0,life:.24});}
 function sparks(c,n,color,d){for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-.5)*2.9,s=140+Math.random()*320;
   S.sparks.push({x:c.x,y:c.y,d:d||0,vx:Math.cos(a)*s,vy:Math.sin(a)*s,age:0,life:.22+Math.random()*.3,color});}}
@@ -827,7 +852,7 @@ function onWallHit(f,q,spd){
   if(S.wall&&S.wall.state==='breaching'&&f===S.wall.breakFrom){breachWall();return;}
   dust(q.x-4,q.y,1.1,f.dep);S.shake=Math.max(S.shake,6);S.hooks.sound('thud',spd);
   const ex=S.game.ex;
-  if(ex&&ex.res&&ex.res.wallRes==='slam'&&ex.D===f&&!ex.wallShown){ex.wallShown=true;S.popups.push({x:q.x-18,y:q.y-10,d:f.dep,text:'+'+ex.res.wall+' wall',color:'#ffc163',sub:null,size:17,age:0});}
+  if(ex&&ex.res&&ex.res.wallRes==='slam'&&ex.D===f&&!ex.wallShown){ex.wallShown=true;popAt(q.x-18,q.y-10,f.dep,'+'+ex.res.wall+' wall','#ffc163',null,17,f);}
 }
 
 // ---------- techniques: the command adapts to the moment ----------
@@ -1633,7 +1658,7 @@ function applyImpact(ex,A,D,res,Cfn,contactVel,slip,fa,primary){
     // every blow that lands takes balance: three pips for a heavy one (an Overhead, a Sweep, a crit, a slam), two for the rest
     else if(!down){const heavy=sweep||crit||res.kind==='overhead'||res.kind==='knee'||res.table==='slam'||res.wallRes==='slam'||res.divRes==='slam'||res.kdSaved;
       knockBalance(D,heavy?hitFoot(A,D):Math.max(1,BAL.hit-outclass(A,D)),A);
-      if(res.kdSaved||res.divRes==='breach')popup(D,'Keeps his feet','#a9e88c',null,18,-52);}
+      if(res.kdSaved||res.divRes==='breach')logNote(D,'Keeps his feet');}
     if(res.guardBreak&&!down&&!D.dead&&D.hp>0){D.ready+=15;popup(D,'Guard broken','#ffc163','+15 tempo',19,-40);S.hooks.sound('clang',.8);}
     if(T.stop&&!down&&!D.dead&&D.hp>0){knockBalance(D,hitFoot(A,D),A);popup(D,'Stopped','#ff8a5c','on the point',19,-40);}
     if(T.murder&&!down&&!D.dead&&D.hp>0){D.daze=1;popup(D,'Dazed','#ffd36b','the crossguard',17,-62);}
@@ -1649,7 +1674,7 @@ function applyImpact(ex,A,D,res,Cfn,contactVel,slip,fa,primary){
     if(showy){flash(C,crit?70:50,A.color,D.dep);sparks(C,8,A.color,D.dep);}
     impactFeel(A,res,fa,'hit');if(crit)S.slowT=.5;
     if(!S.warming&&(T.flair==='leap'||!primary||(crit&&showy)||res.dmg>=26))S.punch={x:prjX(C.x,D.dep),t:0};
-    popup(D,String(res.dmg),crit?'#ffd36b':'#ffffff',crit?'Critical':D.dead?'Out':down?'On the ground':D.downed?(sweep?'Swept':'Knocked down'):D.daze&&zone==='head'?'Dazed':res.back?'From behind':sweep?'Off balance':null,crit?34:28);
+    popup(D,String(res.dmg),crit?'#ffd36b':'#ffffff',D.dead?'Out':down?'On the ground':D.downed?(sweep?'Swept':'Knocked down'):crit?'Critical':D.daze&&zone==='head'?'Dazed':res.back?'From behind':sweep?'Off balance':null,crit?34:28);
     if(res.shatter&&A.wp.shatter)shatterBottle(A,D,C);
     S.hooks.sound(crit?'crit':'hit',res.dmg,{A,D});
     if(hurt||tripped)S.hooks.wound(ex,D,{zone,hurt,tripped,primary});
@@ -1727,7 +1752,7 @@ function doShove(A,D,sr){
     for(const i of [PEL,CHE,HEAD,HAF,HAB,TIP]){const q=A.p[i];q.px+=fa*(i===PEL?90:130)*DT;}
     const before=D.station;D.station=clampSt(D,D.station+fa*6);
     D.motor=Math.min(D.motor,.85);knockBalance(A,FOOT_HIT,D);A.ready+=15;A.motor=Math.min(A.motor,.6);
-    flash({x:C.x,y:C.y},14,'#a5dcff',D.dep);S.shake=Math.max(S.shake,3);popup(D,'Braced','#a5dcff','Shover off balance',20);S.hooks.sound('thud',150);
+    flash({x:C.x,y:C.y},14,'#a5dcff',D.dep);S.shake=Math.max(S.shake,3);logNote(D,'Braced','the shover off balance');S.hooks.sound('thud',150);
     if(ex)ex.perf.knock=Math.round(Math.abs(D.station-before));
     S.hooks.shove(ex,{pushed:Math.round(Math.abs(D.station-before)),tableDmg:0,wallDmg:0,ok:false,label:'Braced'});
     if(ex)considerOpening(ex,D,A,freshBreak(A)?'broken':'brace');S.hooks.status();return;}
@@ -1759,7 +1784,7 @@ function doShove(A,D,sr){
   const keeps=floored&&!D.dead&&kdBlocked(A,D,sr.crush);
   if(floored&&!D.dead&&!keeps)knockDown(D);
   else if(dmg&&!D.dead)D.daze=1;
-  if(keeps)popup(D,'Keeps his feet','#a9e88c',null,18,-52);
+  if(keeps)logNote(D,'Keeps his feet');
   knockBalance(D,hitFoot(A,D),A);if(!D.wasDown)D.motor=Math.min(D.motor,.5);
   D.ready+=sr.push?12:25;
   const pushed=Math.round(Math.abs(D.station-before));
@@ -1935,7 +1960,7 @@ function launchThrow(A,D,ex,opening){
 function launchAttack(A,D,kind,ex,opening,popts){
   A.holdFace=null;faceToward(A,D.station);
   const Cv=coverFor(A,D);
-  if(Cv){const W=D;D=Cv;ex.D=D;Cv.covering=null;faceToward(A,D.station);ex.covered=W;popup(Cv,'Steps in','#a9e88c',`covering ${W.name}`,19,-30);S.hooks.cover(ex,{C:Cv,W});}
+  if(Cv){const W=D;D=Cv;ex.D=D;Cv.covering=null;faceToward(A,D.station);ex.covered=W;logNote(Cv,'Steps in',`covering ${W.name}`);S.hooks.cover(ex,{C:Cv,W});}
   let T=pickTechnique(A,D,kind);
   if(ex.chain==='stop'&&kind==='thrust')T=stopTech(T,D,ex);
   let res=resolveAttack(A,D,kind,opening,T);
@@ -2154,7 +2179,7 @@ function startTurn(i){
   // his turn: a break is over, and two pips of balance come back (a crew man or a boss is held to his own bar)
   for(const f of alive)if(f.foot>footMaxOf(f))f.foot=footMaxOf(f);
   {const F=S.F[i];if(F&&!F.dead){F.broken=null;F.react=null;gainFoot(F,BAL.recover);}}
-  {const F=S.F[i];if(F&&!F.dead&&!F.downed&&!F.clinch&&onGlass(F)){spendFoot(F,1);popup(F,'Glass underfoot','#d6f3f5','−1 balance',16,-30);S.hooks.sound('glass',.25);}}
+  {const F=S.F[i];if(F&&!F.dead&&!F.downed&&!F.clinch&&onGlass(F)){spendFoot(F,1);logNote(F,'Glass underfoot','−1 balance');S.hooks.sound('glass',.25);}}
   ensureIntents();
   g.aiAt=isAI(i)?S.t+.55:null;S.hooks.turn(i);S.hooks.status();
 }
@@ -2197,7 +2222,7 @@ function command(i,cmd,opts){
   else if(cmd==='feint'){const res=resolveFeint(A,D),plan=planFeint(A,D,res);beginAction(A,'feint');A.guarding=false;A.circleGuard=false;
     A.action=plan.att;ex.res=res;ex.plan=plan;ex.dur=plan.Tend;S.hooks.log({type:'feint',A,D,ex,res});}
   else if(cmd==='wait'){beginAction(A,'wait');if(!A.downed&&!A.clinch){A.guarding=false;A.circleGuard=false;
-      if(setSpearOK(A)){A.setSpear=true;popup(A,'Spear set','#9fd8ff','for whoever closes',17,-40);}}
+      if(setSpearOK(A)){A.setSpear=true;logNote(A,'Spear set','for whoever closes');}}
     ex.dur=.45;S.hooks.log({type:'wait',A,D,ex,counter:false,setSpear:!!A.setSpear});}
   else if(cmd==='getup'){const plan=planGetUp(A);ex.plan=plan;ex.dur=plan.Tend;S.hooks.log({type:'getup',A,D,ex});}
   else if(cmd==='roll'){const info=rollInfo(A),plan=planRoll(A,info);ex.plan=plan;ex.dur=plan.Tend;S.hooks.log({type:'roll',A,D,ex});}
