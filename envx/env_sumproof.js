@@ -351,7 +351,15 @@ function deck(c,G){const L=G.L,far=L.far,r=rng(71),X0=-300,X1=1300,D0=-340;
 // hut's door, the front by the sign's glow; straw over all of it. front: only the part in front of the middle, its top raised a
 // little, which goes over whoever lies in it (fore). (Straw, dulled under .4 saturation since V81: its flat yellow read as gilt, and
 // the Pit has no gold but what fell with him, the style guide's rule 3)
-function hayHeap(c,L,front){const H=L.hay,r=rng(front?303:202),N=26;
+// a tile of loose straw, made once: short stalks every way in its three colours, with dark between (laid over each slice of the heap,
+// so it reads as straw and not as one bright shape: since V82)
+let STRAW=null;
+function strawTile(){if(STRAW)return STRAW;const n=96,cv=document.createElement('canvas');cv.width=cv.height=n;const g=cv.getContext('2d'),r=rng(77);
+  g.lineCap='round';for(let i=0;i<520;i++){const x=r()*n,y=r()*n,a=(r()-.5)*1.4+(r()<.35?Math.PI/2:0),l=3+r()*7,k=r();
+    g.strokeStyle=k<.3?'rgba(20,14,8,.5)':k<.62?'rgba(240,217,154,.55)':k<.85?'rgba(154,136,99,.5)':'rgba(200,176,128,.55)';g.lineWidth=.5+r()*.6;
+    for(const [ox,oy] of [[0,0],[n,0],[-n,0],[0,n],[0,-n]]){g.beginPath();g.moveTo(x+ox,y+oy);g.lineTo(x+ox+Math.cos(a)*l,y+oy+Math.sin(a)*l);g.stroke();}}
+  return STRAW=cv;}
+function hayHeap(c,L,front){const H=L.hay,r=rng(front?303:202),N=26,sp=c.createPattern(strawTile(),'repeat');if(sp.setTransform)sp.setTransform(new DOMMatrix().scale(.5));
   const v0=front?0:34,lift=u=>front?(5.5+1.2*Math.sin(u*9))*Math.pow(Math.max(0,1-u*u),.35):0;
   for(let v=v0;v>=-34;v-=3.4){const d=H.d+v,pts=[];
     for(let i=0;i<=N;i++){const u=i/N*2-1,x=H.x+u*H.w;pts.push(q(x,hayH(L,x,d)+(v===v0?lift(u):0)+(front?0:Math.sin(u*9+v)*.8),d));}
@@ -359,6 +367,11 @@ function hayHeap(c,L,front){const H=L.hay,r=rng(front?303:202),N=26;
     c.beginPath();c.moveTo(base0.x,base0.y);for(const p of pts)c.lineTo(p.x,p.y);c.lineTo(base1.x,base1.y);c.closePath();
     // the light across it: the dark on the left, the hut's door warm on the right
     c.fillStyle=lin(c,base0.x,0,base1.x,0,[[0,dim(col,'#000000',.3)],[.5,col],[1,dim(col,'#ffdba3',.18)]]);c.fill();
+    // its planes: the face toward us darker as it falls away from the crest, the straw's own grain over it, the crest of each slice
+    // catching the hut's light
+    {const ty=Math.min(...pts.map(p=>p.y));c.save();c.clip();c.fillStyle=lin(c,0,ty,0,base0.y,[[0,'rgba(0,0,0,0)'],[.55,'rgba(10,6,2,.18)'],[1,'rgba(10,6,2,.34)']]);c.fillRect(base0.x-6,ty-2,base1.x-base0.x+12,base0.y-ty+4);
+      c.globalAlpha=.55;c.fillStyle=sp;c.fillRect(base0.x-6,ty-2,base1.x-base0.x+12,base0.y-ty+4);c.restore();}
+    if(v>-20){c.strokeStyle=rgba('#ffdba3',.16+.1*(v+20)/54);c.lineWidth=.7;c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();}
     // clumps of it, darker where they turn from the light
     for(let i=0;i<3;i++){const u=r()*1.8-.9,x=H.x+u*H.w,p=q(x,hayH(L,x,d)*(.4+r()*.5),d);c.fillStyle=rgba(r()<.5?'#3a3225':'#f0d99a',r()<.5?.12:.08);c.beginPath();c.ellipse(p.x,p.y,4+r()*8,1.6+r()*2.4,(r()-.5)*.4,0,TAU);c.fill();}}
   // straws all over it, in three colours (a path each)

@@ -680,7 +680,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below). The drawing, place by place (D1 on) is next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below); V82 (Nov 4) drew the places' faults (D1 to D25: the sundown's cirrus and dust, the avenue's speed, the checkpoint's firelight, a blow's flash, the station's crystals, clean trails, the roof's cloud, the hay's straw, the back room's lamp, the Pit's wall, floors and skies, `pitKit.mottle`, below). The fine marks (the next section of the list) are next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -732,12 +732,12 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V82 ..." (V81 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V83 ..." (V82 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
-so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
+so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V81: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V82: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -879,6 +879,25 @@ was checked, and anything that did not work, plainly.
   Saturation at 412x714: the yard by day .32, the stairs .27 to .30, the Shelf .26 to .28, the mornings .15 to .18 (V80: .24, .18
   to .23, .27, .09 to .10). The dining room's cloths and its tables' marble are ivory and lower (white 3.4% of the light to
   under 1%): white is the man in white's. The look suite checks the drain and the sun.
+- The drawing, place by place (since V82, the remediation list's D rows; `faults.py` measures the flat patches and the repeats). The
+  road at sundown has high cirrus combed across its sky (the flat patch there 14% of the picture to none early on, 5% as the light goes) and dust hanging in the low
+  sun. The avenue shows its speed while the road goes by (`S.scrollV`): the far kerb's lamps drawn out behind them, the wet road's
+  lights streaking past, the kerb and its bollards smeared by a faint second copy a little behind. Near the burning carrier the
+  checkpoint's `light(f)` takes the fire's orange and its place for the officers' rims and planes, the nearer the more. A man
+  struck is lit from where the blow landed (`hitFrom`, sk_lightui.js: the nearest of the moment's flashes), never filled white, and a
+  big blow's flash over him is softer. The station's crystals burn cyan with a white heart in their gold cages, their light cyan
+  and the brass gold, on the platform and in the deep station. A weapon's trail thins toward its tip as it ages and fades faster
+  than it thins (`drawTrail`), so the old part of a swing goes instead of piling into a smear. A rack of cloud goes over the roof,
+  its underside warm with the city (one sprite each, six of them). The landing's hay has a straw tile (`strawTile`) over each
+  slice, the face toward us darker and each crest catching the hut's light. The back room's lamp pools on the floor and the cot.
+  The Pit's wall: each row of shacks its own height (a quarter more or less), lean, value and how much it has given way, with bands
+  of smoke and haze across it at their own heights (`shackRows`); its floors and its skies carry `pitKit.mottle(c, x0, y0, x1, y1, k,
+  o)`, a soft tile laid on with 'overlay' (made once from EnvTex's noise), and the skies over the rim haze streaks by day, morning
+  and dusk; the yard's floor more grit and, by day and by morning, the sun's long shadows across it. The Shelf's and the stairs'
+  rail posts are set by hand (their spacing two fifths either way). Judged and kept: Lamplight Street's lamps keep their beat
+  (machine-made, and `faults.py` finds no repeat there now), the dream's open sky stays clean (the one clean sky in the game), and
+  the far city on the ledge no longer repeats. Already holding from earlier versions: the sundown's verge, the field's maize, the
+  avenue's fronts, the tunnel's ribs and lamps, the platform's push-in, the lab's grounds (the hill's pools of light are wider).
 - Time a painter on a phone's screen by drawing the same moment over and over with a part left out by turns (as the V72 dream was
   timed): one run against another on this machine differs by 2 ms or more.
 - What a pass over the whole frame costs is its pixels times its blend, and in a CPU canvas it is dear: on a phone's 1.2 million

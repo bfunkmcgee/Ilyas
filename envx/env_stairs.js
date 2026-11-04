@@ -434,7 +434,8 @@ function lightPass(c,P){c.save();c.globalCompositeOperation='lighter';
   c.fillStyle=lin(c,0,GB-40,0,GB+120,[[0,rgba('#000000',0)],[1,rgba('#000000',.55)]]);c.fillRect(-200,GB-40,1400,170);}
 // ---------- the scene ----------
 function paint(c){const P=K.pal(),X0=-170,X1=W+250,T0=-110,T=treads();
-  backdrop(c,P,X0,X1,T0);backWall(c,P);drop(c,P,T);face(c,P,T);street(c,P,T);lightPass(c,P);}
+  // (the kit's mottle over the wall and the drop, under the treads: neither is one flat fill deep in its haze, since V82)
+  backdrop(c,P,X0,X1,T0);backWall(c,P);drop(c,P,T);K.mottle(c,X0,T0,X1,GB+320,P.key==='night'?.2:.28);face(c,P,T);street(c,P,T);lightPass(c,P);}
 // ---------- the pieces among the people: the row's tin cups ----------
 // a tin cup set on the step before each of the silent row and the old man (the row's places are the game's: beggars x0..x1 by n, the
 // old man at oldman.x); each painted once, set down at its depth in the floor's list
@@ -457,7 +458,8 @@ function fore(c){c=c||ctx;const P=K.pal(),R=Y(),d=R.rail.d,sh=(col,k)=>K.shade(P
   if(A&&A.spikeView>=1)return;
   c.save();c.lineCap='round';
   // posts
-  c.fillStyle=sh('#2a1e14',1.1);for(let x=-150;x<1150;x+=44){const h=sy(x),p=Q(x,h,d),q=Q(x,railTop(x)+2,d);c.fillRect(p.x-2.2,q.y,4.4,p.y-q.y);}
+  // (set by hand: their spacing two fifths either way, their thickness too, since V82; the drawing guide's rule 6)
+  {const rp=rng(67);c.fillStyle=sh('#2a1e14',1.1);for(let x=-150;x<1150;x+=44*(.8+.4*rp())){const h=sy(x),p=Q(x,h,d),q=Q(x,railTop(x)+2+(rp()-.5)*3,d),w=3.6+rp()*1.8;c.fillRect(p.x-w/2,q.y,w,p.y-q.y);}}
   // the rails
   const pts=[],mid=[];for(let x=-170;x<=1150;x+=8){pts.push(Q(x,railTop(x),d));mid.push(Q(x,railTop(x)-16,d));}
   c.strokeStyle=sh('#33251a',1.1);c.lineWidth=3.4;c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();
@@ -479,7 +481,7 @@ function live(){const t=S.t,P=K.pal(),T=P.key,fl=flight();ctx.save();
   K.upper('stairs:'+T+':'+fl,-1000,(c,x0,x1,y0,y1)=>{c.fillStyle=P.air[0];c.fillRect(x0,y0,x1-x0,y1-y0);
     K.shackRows(c,Object.assign({pal:P,x0:-170,x1:W+250,yTop:-650,clip:[-650,y1]},rows()));
     c.fillStyle=lin(c,0,-640,0,-470,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,170);
-    K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1400,-640,GB+40,SUNO);
+    K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1400,-640,GB+40,SUNO);K.mottle(c,x0,-636,x1,y1,P.key==='night'?.22:.3);
     if(T==='dusk'){c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,-640,0,-200,[[0,rgba('#ff9a5a',.18)],[1,rgba('#ff9a5a',0)]]);c.fillRect(x0,-640,x1-x0,440);c.restore();}});
   K.tram(ctx,t,P,-760);
   // smoke: the skewer grill and the brazier, the tea kettle's steam, the cookshop's chimney, the chimneys up the wall, the drop's fires
@@ -541,6 +543,8 @@ function spikePaint(w,h,P){const cvs=document.createElement('canvas');cvs.width=
   G.cx=ax+ux*Lh*.62;G.cy=ay+uy*Lh*.62;
   // the haze between, thick over the bottom of the picture
   g.fillStyle=lin(g,0,H*.55,0,H,[[0,rgba(P.air[1],0)],[1,rgba(P.air[2],.6)]]);g.fillRect(0,H*.55,900,H*.45);
+  // the sun across the Pit by day (the kit's), and its mottle over the wall far below in the haze (since V82)
+  K.sunlight(g,P,-40,940,skyH,H,{n:6,seed:59});K.mottle(g,0,skyH,900,H,.3);
   g.fillStyle=rad(g,450,H*.45,Math.min(900,H)*.3,Math.max(900,H)*.8,[[0,'rgba(0,0,0,0)'],[1,'rgba(0,0,0,.5)']]);g.fillRect(0,0,900,H);
   return{cv:cvs,w,h,s,G,k:P.key};}
 // the light that rims a man on the stair: at dusk the nearest lamp, by day and by morning the sun's over the rim, else the light from

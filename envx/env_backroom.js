@@ -257,7 +257,11 @@ function lamp(c,G){const Lm=G.lamp,p=q(Lm.x,Lm.h,Lm.d),top=q(Lm.x,Lm.h+220,Lm.d)
   c.fillStyle=rgba('#f0e6d0',.45);c.beginPath();c.moveTo(p.x-3,p.y-11);c.quadraticCurveTo(p.x-5,p.y-4,p.x-3.4,p.y+2);c.lineTo(p.x+3.4,p.y+2);c.quadraticCurveTo(p.x+5,p.y-4,p.x+3,p.y-11);c.closePath();c.fill();
   c.fillStyle='#8a6a32';c.beginPath();c.ellipse(p.x,p.y+5,7,3.6,0,0,TAU);c.fill();c.fillStyle='#5a4420';c.fillRect(p.x-6,p.y+5,12,3);
   glowAt(c,p.x,p.y-3,46,'#ffd27a',.28);
-  c.save();c.globalCompositeOperation='lighter';floorT(c);c.translate(Lm.x,Lm.d-10);c.scale(1.8,1);c.fillStyle=rad(c,0,0,4,70,[[0,rgba('#ffcf86',.1)],[1,rgba('#ffcf86',0)]]);c.fillRect(-70,-70,140,140);c.restore();}
+  // its light on the floorboards under it and out round it, and on the cot and the blanket on it (since V82: the lamp's light barely
+  // reached the floor), warm, falling away with the distance
+  c.save();c.globalCompositeOperation='lighter';floorT(c);c.translate(Lm.x,Lm.d-10);c.scale(1.8,1);c.fillStyle=rad(c,0,0,4,110,[[0,rgba('#ffcf86',.2)],[.45,rgba('#ffb866',.08)],[1,rgba('#ffb866',0)]]);c.fillRect(-110,-110,220,220);c.restore();
+  {const C=G.L.cot,cx=lerp(C.x0,C.x1,.82),cd=(C.d0+C.d1)/2,cp=q(cx,C.top+2,cd);c.save();c.globalCompositeOperation='lighter';c.translate(cp.x,cp.y);c.scale(1,.32);
+    c.fillStyle=rad(c,0,0,2,90,[[0,rgba('#ffcf86',.2)],[1,rgba('#ffcf86',0)]]);c.beginPath();c.arc(0,0,90,0,TAU);c.fill();c.restore();}}
 
 // ---------- the scene ----------
 let LIVE=null;

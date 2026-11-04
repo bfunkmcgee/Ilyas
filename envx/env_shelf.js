@@ -357,16 +357,19 @@ const SUNO={n:7,seed:53};
 function lightPass(c,P){const pts=floorPts();c.save();K.poly(c,pts);c.clip();c.globalCompositeOperation='lighter';
   for(const L2 of LAMPS)if(L2.pool)K.cRad(c,L2.pool.x,L2.pool.y,4,58,'#ffb25e',.08+.1*P.lamp,.36);
   {const m=Q(450,0,110);K.cRad(c,m.x,m.y,20,520,P.light,.05,.4);}
+  K.mottle(c,-200,0,1240,700,.24,{sc:1.3,sy:.55});
   c.restore();
   for(const L2 of LAMPS)if(L2.pool)EnvLook.softCone(c,L2.x,L2.y-2,4,70,74,'#ffc27a',.26+.16*P.lamp,0,1.1);
   K.sunlight(c,P,-200,1240,-640,GB+40,SUNO);}
 function paint(c){syncST();const P=K.pal(),X0=-170,X1=W+250,T0=-110;LAMPS=[];SMOKES=[];TOPS=[];
-  backdrop(c,P,X0,X1,T0);front(c,P);ledge(c,P);between(c,P);stair(c,P);for(const s of stalls())stall(c,P,s);derrick(c,P);lightPass(c,P);
+  // (the kit's mottle over the wall and the drop under the ledge, under the market: since V82)
+  backdrop(c,P,X0,X1,T0);front(c,P);K.mottle(c,X0,T0,X1,700,.28);ledge(c,P);between(c,P);stair(c,P);for(const s of stalls())stall(c,P,s);derrick(c,P);lightPass(c,P);
   TOPS.sort((a,b)=>a.x-b.x);}
 // ---------- the rail along the edge, over the people ----------
 // posts and two rails, a sack hung over it to air, a lamp on a post at each end of the market
 function fore(c){c=c||ctx;const P=K.pal(),e=ED()+2,sh=(col,k)=>K.shade(P,col,k),x0=LEDGE.x0+LEDGE.in-4,x1=LEDGE.x1-LEDGE.in+4,h=36;c.save();
-  c.fillStyle=sh('#2a1e14',1.1);for(let x=x0;x<=x1;x+=46){const a=Q(x,0,e),b=Q(x,h+3,e);c.fillRect(a.x-2.2,b.y,4.4,a.y-b.y);}
+  // (the posts set by hand: their spacing two fifths either way, their thickness too, since V82; the drawing guide's rule 6)
+  {const rp=rng(61);c.fillStyle=sh('#2a1e14',1.1);for(let x=x0;x<=x1;x+=46*(.8+.4*rp())){const a=Q(x,0,e),b=Q(x,h+3+(rp()-.5)*3,e),w=3.6+rp()*1.8;c.fillRect(a.x-w/2,b.y,w,a.y-b.y);}}
   for(const [hh,lw] of [[h,3.2],[h-16,2]]){const a=Q(x0,hh,e),b=Q(x1,hh,e);c.strokeStyle=sh('#33251a',1.1);c.lineWidth=lw;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}
   {const a=Q(x0,h,e),b=Q(x1,h,e);c.strokeStyle=rgba(P.light,.1+.4*P.lightA);c.lineWidth=.9;c.beginPath();c.moveTo(a.x,a.y-1.4);c.lineTo(b.x,b.y-1.4);c.stroke();}
   {const p=Q(232,h,e);c.fillStyle=sh('#6a5a3e');c.beginPath();c.moveTo(p.x-12,p.y-1);c.lineTo(p.x+12,p.y-1);c.lineTo(p.x+11,p.y+14);c.lineTo(p.x-10,p.y+12);c.closePath();c.fill();
@@ -382,7 +385,7 @@ function upperPaint(c,P,x0,x1,y0,y1){const X0=-170,X1=W+250;
   farSide(c,P,X0,X1,-650,y1+1,{});
   edgeLines(c,P);
   c.fillStyle=lin(c,0,-640,0,-470,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,170);
-  K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1240,-640,GB+40,SUNO);}
+  K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1240,-640,GB+40,SUNO);K.mottle(c,x0,-636,x1,y1,.3);}
 // ---------- what moves ----------
 // smoke from the kettle and up the wall and out of the drop; the fires below and the lamps breathing; the tarps' torn valances and
 // the bunting stirring in the draught that comes up the Pit

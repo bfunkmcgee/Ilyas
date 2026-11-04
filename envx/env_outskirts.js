@@ -118,6 +118,11 @@ function paint(c){
   // clouds: long thin streaks, gold underneath near the sun, violet away from it
   for(const [cx,cy,w,h] of [[60,214,210,7],[300,186,260,6],[520,150,300,8],[-60,150,240,7],[760,212,240,5],[420,252,200,4],[180,120,280,9],[880,96,320,8],[40,268,150,3.5]]){
     const near=clamp(1-Math.hypot(cx-SUN.x,(cy-SUN.y0)*1.6)/520,0,1);streak(c,cx,cy,w,h,near);}
+  // the high cirrus combed out along the wind over the whole sky, lighter where the sun reaches it, a darker thread here and there
+  // (since V82: the upper sky was a bare gradient, a flat patch of 14% of the picture)
+  {const R=rng(71);for(let i=0;i<760;i++){const y=lerp(T0+4,HOR-60,R()),x=X0+R()*(X1-X0),w=16+R()*120,h=.5+R()*1.7,
+      near=clamp(1-Math.hypot(x-SUN.x,(y-SUN.y0)*1.4)/760,0,1),lit=R()<.6;
+    c.fillStyle=rgba(lit?mix('#b890c8','#ffc890',near):'#120a24',(lit?.05+.07*near:.08)*(.45+R()*.55));c.beginPath();c.ellipse(x,y,w,h,(R()-.5)*.04,0,TAU);c.fill();}}
   // ---- the hills under the sun: the far rank hazed purple, its crest edged in gold; the nearer rank darker
   {c.beginPath();c.moveTo(X0,HOR+6);for(let x=X0;x<=640;x+=4)c.lineTo(x,hillA(x));c.lineTo(640,HOR+6);c.closePath();
     c.fillStyle=lin(c,0,HOR-26,0,HOR+6,[[0,'#5a2c3e'],[1,'#7a3e3e']]);c.fill();
@@ -209,6 +214,10 @@ function live(){const t=S.t,sn=sunNow();ctx.save();
   {const k=1-.7*sn.u;ctx.save();ctx.globalCompositeOperation='lighter';
     ctx.fillStyle=lin(ctx,sn.x-280,0,sn.x+280,0,[[0,rgba('#ffd890',0)],[.5,rgba('#ffe4a8',.3*k)],[1,rgba('#ffd890',0)]]);ctx.fillRect(sn.x-280,sn.y-.6,560,1.2);
     ctx.fillStyle=lin(ctx,sn.x-190,0,sn.x+190,0,[[0,rgba('#ff9a50',0)],[.5,rgba('#ffb060',.09*k)],[1,rgba('#ff9a50',0)]]);ctx.fillRect(sn.x-190,sn.y-4,380,8);ctx.restore();}
+  // dust hanging in the low sun over the brow and the valley, drifting on the wind, lit where it is near the sun
+  {const R=rng(17);ctx.save();ctx.globalCompositeOperation='lighter';for(let i=0;i<56;i++){const x0=R()*720-60,y0=HOR-70+R()*120,sp=3+R()*5,ph=R()*TAU,
+      x=((x0+t*sp)%780+780)%780-60,y=y0+Math.sin(t*.4+ph)*3,near=clamp(1-Math.hypot(x-sn.x,(y-sn.y)*1.3)/330,0,1);if(near<=.02)continue;
+    ctx.globalAlpha=near*(.25+.35*R())*(1-.5*sn.u);ctx.fillStyle='#ffdcaa';const z=.7+R()*.9;ctx.fillRect(x,y,z,z);}ctx.restore();}
   // birds going home across the sky, slow
   ctx.strokeStyle='#1a1018';ctx.lineWidth=.8;ctx.lineCap='round';
   for(const b of BIRDS){const x=b.x-t*b.sp,y=b.y+Math.sin(t*.5+b.ph)*2,f=Math.sin(t*7+b.ph)*1.6*b.s,w=3.2*b.s;if(x<-200)continue;ctx.beginPath();ctx.moveTo(x-w,y-f);ctx.quadraticCurveTo(x-w*.4,y-1.2,x,y);ctx.quadraticCurveTo(x+w*.4,y-1.2,x+w,y-f);ctx.stroke();}

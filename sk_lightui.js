@@ -4,7 +4,8 @@
 // near him throws, sheared away from the lamp, darkest at his feet and fading toward his head; and on a wet or polished floor turned
 // over under him as his reflection, rippling on the street. The game's own flashes, sparks, bolts, muzzle flashes, blasts and fires are
 // lights as well: each throws a pool on the floor (and a streak down a wet one) and lights the fighters near it in its own colour,
-// and a man struck goes white for an instant. The impacts are drawn as light (a hot core, a glow, rays and a streak on the big ones),
+// and a man struck is lit for an instant from where the blow landed. The impacts are drawn as light (a hot core, a glow, rays and a
+// streak on the big ones),
 // the sparks as glowing streaks, the dust as soft puffs. Each ground has its air: rain lit by the street lamps and splashing on the
 // flags, a low mist, dust turning in the lamplight of the rooms, steam off the kitchen range, fireflies in the fields, embers off the
 // torches, braziers and fires. A vignette over the stage (in the page's own style, so the canvas never pays for it) holds the eye in the
@@ -131,12 +132,16 @@ function slot(i,w,h){let P0=POOL[i];const W2=Math.ceil(w/64)*64,H2=Math.ceil(h/6
   if(!P0){const c=mk(W2,H2);P0=POOL[i]={cv:c,g:c.getContext('2d')};}
   else if(P0.cv.width<w||P0.cv.height<h){P0.cv.width=Math.max(W2,P0.cv.width);P0.cv.height=Math.max(H2,P0.cv.height);P0.g=P0.cv.getContext('2d');}
   return P0;}
-// struck: the man goes white for a moment (by the game's clock, and never longer than a quarter of a second of the real one)
+// struck: the blow's flash lights the man for a moment from where it landed (by the game's clock, and never longer than a quarter of
+// a second of the real one): his side toward it, his planes and edges there, never a white fill over all of him (since V82, the
+// drawing guide's D8: a crit's flash bleached him white)
 const HP=new WeakMap();
 function hitNow(f){let h=HP.get(f);const now=performance.now();
   if(!h){h={hp:f.hp,t0:-9,r0:-1e9};HP.set(f,h);}
   if(f.hp<h.hp-2){h.t0=S.t;h.r0=now;}h.hp=f.hp;
   const u=Math.max((S.t-h.t0)/.13,(now-h.r0)/250);return u>=0&&u<1?1-u:0;}
+// where the blow that struck him landed, on the screen: the nearest of the moment's flashes to his chest, else his chest
+function hitFrom(f,cx,cy){let best=null,bd=90;for(const e of S.flashes){const x=prjX(e.x,e.d),y=prjY(e.y,e.d),d=Math.hypot(x-cx,y-cy);if(d<bd){bd=d;best={x,y};}}return best||{x:cx,y:cy};}
 // a man drawn about his middle from the way he faced: in a spin, or turning round (drawTurned, sk_ui.js: his turn not yet done)
 function mirrored(f){if(f.spin)return true;const T=f._turn;if(!T)return false;return T.fa!==f.facing||!!T.snap||Math.abs(T.ang-(f.facing>0?0:Math.PI))>1e-3;}
 // the draw list's own order for the fighters, far to near
@@ -183,9 +188,10 @@ const LM={cv:null,g:null};
 function lightSprite(R){
   const f=R.f,g=R.g,cx=prjX(f.p[CHE].x,f.dep),cy=prjY(f.p[CHE].y,f.dep),hit=hitNow(f);
   const near=[];for(const l of LIT){const d=Math.hypot(l.sx-cx,l.sy-cy),reach=l.r+70,a=Math.min(.5,l.k*.45*(1-d/reach));if(d<reach&&a>=.02)near.push([l,a]);}
-  const n=near.length+(hit>0?1:0);if(!n)return;
+  const n=near.length+(hit>0?1:0);if(!n)return;const H=hit>0?hitFrom(f,cx,cy):null;
   const one=(c,k)=>{for(const [l,a] of near){const rr=Math.max(46,l.r*.85);c.globalAlpha=a;c.drawImage(glow(l.col),l.sx-rr,l.sy-rr,rr*2,rr*2);}
-    if(hit>0){c.setTransform(1,0,0,1,0,0);c.globalAlpha=.42*hit*hit;c.fillStyle='#fff6e8';c.fillRect(0,0,Math.ceil(R.w/k),Math.ceil(R.h/k));}};
+    if(H){const g2=c.createRadialGradient(H.x,H.y,0,H.x,H.y,74);g2.addColorStop(0,'rgba(255,242,224,.66)');g2.addColorStop(.42,'rgba(255,242,224,.28)');g2.addColorStop(1,'rgba(255,242,224,0)');
+      c.globalAlpha=hit*hit;c.fillStyle=g2;c.fillRect(H.x-74,H.y-74,148,148);}};
   if(n===1){g.save();g.setTransform(V.s,0,0,V.s,(-V.L+V.ox)*V.s-R.x,(-V.T+V.oy)*V.s-R.y);g.globalCompositeOperation='source-atop';one(g,1);g.restore();return;}
   const k=4,w=Math.ceil(R.w/k),h=Math.ceil(R.h/k);if(!LM.cv){LM.cv=mk(w,h);LM.g=LM.cv.getContext('2d');}
   if(LM.cv.width<w||LM.cv.height<h){LM.cv.width=Math.max(w,LM.cv.width);LM.cv.height=Math.max(h,LM.cv.height);LM.g=LM.cv.getContext('2d');}
@@ -378,8 +384,8 @@ function fx(){
     if(u<.45){ctx.globalAlpha=(1-u/.45)*.42;ctx.drawImage(glow(s.color),q.x-6,q.y-6,12,12);}}
   // the flash of each blow: a glow in its colour, a white-hot core, and on the big ones rays and a streak across
   for(const e of S.flashes){const u=clamp(e.age/e.life,0,1),a=1-u,q=P(e.x,e.y,e.d),big=e.r>=40;
-    let R=e.r*(1.15+.55*eOut(u));ctx.globalAlpha=a*a*.9;ctx.drawImage(glow(e.color),q.x-R,q.y-R,R*2,R*2);
-    if(u<.45){R=e.r*.5*(1-u*.7);ctx.globalAlpha=1-u/.45;ctx.drawImage(glow('#ffffff'),q.x-R,q.y-R,R*2,R*2);}
+    let R=e.r*(1.15+.55*eOut(u));ctx.globalAlpha=a*a*(big?.6:.9);ctx.drawImage(glow(e.color),q.x-R,q.y-R,R*2,R*2);
+    if(u<.45){R=e.r*(big?.36:.5)*(1-u*.7);ctx.globalAlpha=1-u/.45;ctx.drawImage(glow('#ffffff'),q.x-R,q.y-R,R*2,R*2);}
     if(big&&u<.75){const n=8,rot=hs(Math.round(e.x*7+e.y*13+e.d*17))*TAU,Lr=e.r*(.8+1.5*eOut(u/.75)),w=Math.max(.9,e.r*.045);ctx.globalAlpha=(1-u/.75)*.8;ctx.fillStyle=e.color;
       ctx.beginPath();for(let i=0;i<n;i++){const an=rot+i*TAU/n,l=Lr*(i%2?.55:1),c=Math.cos(an),sn=Math.sin(an),r0=e.r*.18;
         ctx.moveTo(q.x+c*r0-sn*w,q.y+sn*r0+c*w);ctx.lineTo(q.x+c*l,q.y+sn*l);ctx.lineTo(q.x+c*r0+sn*w,q.y+sn*r0-c*w);ctx.closePath();}ctx.fill();}

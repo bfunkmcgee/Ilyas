@@ -201,7 +201,7 @@ function platform(c){const X0=-220,X1=1160;
     c.fillStyle=rgba(C.gold,.55);const r=rng(d0|0);for(let x=X0;x<X1;x+=4.2){if(r()<.12)continue;c.fillRect(x,d0+(d1-d0)*.42,2.4,1.6);}}
   {const r=rng(41);for(const d of [NEAR+1.4,EDGE-1.8]){for(let x=X0;x<X1;x+=6){if(r()<.18)continue;c.fillStyle=rgba(mix(C.goldD,C.gold,r()),.75);c.fillRect(x,d-1.1,5.4,2.2);}}}
   // the light under each hanging lamp
-  c.globalCompositeOperation='lighter';for(const L of PEND){if(L.dead)continue;c.fillStyle=rad(c,L.x,L.d,4,150,[[0,rgba('#bfe9e0',.13)],[.4,rgba('#e8c88a',.05)],[1,rgba('#e8c88a',0)]]);c.save();c.translate(L.x,L.d);c.scale(1,.8);c.translate(-L.x,-L.d);c.beginPath();c.arc(L.x,L.d,150,0,TAU);c.fill();c.restore();}
+  c.globalCompositeOperation='lighter';for(const L of PEND){if(L.dead)continue;c.fillStyle=rad(c,L.x,L.d,4,150,[[0,rgba(C.cyan,.16)],[.4,rgba(C.gold,.06)],[1,rgba(C.gold,0)]]);c.save();c.translate(L.x,L.d);c.scale(1,.8);c.translate(-L.x,-L.d);c.beginPath();c.arc(L.x,L.d,150,0,TAU);c.fill();c.restore();}
   c.globalCompositeOperation='source-over';
   // puddles under the drips, black and holding a little of the lamps
   {const r=rng(55);for(const [x,d,w] of [[248,52,34],[566,140,40],[690,62,26],[96,150,30],[420,30,22]]){c.fillStyle=rgba('#020203',.6);c.beginPath();c.ellipse(x,d,w,w*.42,0,0,TAU);c.fill();
@@ -289,7 +289,7 @@ function paint(c){const X0=-160,X1=W+240,T0=-130;
   const lan=END()==='lantern';
   roundel(c);if(lan){kitLanding(c);serviceGate(c);}else sealedDoor(c);for(const S0 of SCONCE)sconce(c,S0);
   // the wall's lamps throw their light down the tiles
-  for(const S0 of SCONCE){const p=q(S0.x,yW(S0.h)+8,WALL);glow(c,p.x,p.y+30,120,'#e8c88a',.08,1.4);}
+  for(const S0 of SCONCE){const p=q(S0.x,yW(S0.h)+8,WALL);glow(c,p.x,p.y+30,120,C.cyan,.08,1.4);glow(c,p.x,p.y+16,60,C.gold,.05,1.2);}
   mainPit(c);platform(c);if(!lan)shaft(c);nest(c);litter(c);if(lan)crates(c);nearEdge(c);
   // the hanging lamps: chains up out of the picture, the brass cages (lit in live())
   for(const L of PEND){const p=q(L.x,yW(L.h),L.d),top=q(L.x,yW(L.h+260),L.d);c.strokeStyle='#08080a';c.lineWidth=1.4;c.beginPath();c.moveTo(p.x,p.y-14);c.lineTo(top.x,top.y);c.stroke();
@@ -307,9 +307,12 @@ function lampLight(L,t){if(L.dead)return Math.pow(Math.max(0,Math.sin(t*13+L.x)*
 function live(){const t=S.t;ctx.save();
   // the lamps
   ctx.globalCompositeOperation='lighter';
-  for(const L of PEND){const k=lampLight(L,t),p=q(L.x,yW(L.h),L.d);if(k<.02)continue;glow(ctx,p.x,p.y,70,C.cyan,.22*k);glow(ctx,p.x,p.y,26,'#e8c88a',.3*k);
-    ctx.fillStyle=rgba(C.cyanL,.95*k);ctx.beginPath();ctx.moveTo(p.x,p.y-13);ctx.lineTo(p.x+6,p.y-3);ctx.lineTo(p.x,p.y+7);ctx.lineTo(p.x-6,p.y-3);ctx.closePath();ctx.fill();}
-  for(const S0 of SCONCE){const k=lampLight({x:S0.x,d:0},t),p=q(S0.x,yW(S0.h)+8,WALL);glow(ctx,p.x,p.y,36,C.cyan,.25*k);ctx.fillStyle=rgba(C.cyanL,.9*k);ctx.beginPath();ctx.moveTo(p.x,p.y-9);ctx.lineTo(p.x+4,p.y-2);ctx.lineTo(p.x,p.y+5);ctx.lineTo(p.x-4,p.y-2);ctx.closePath();ctx.fill();}
+  // (each crystal cyan in its gold cage, a white heart in it, its light cyan going out and the brass round it gold: since V82 the drawing
+  // guide's D9, the crystals had burned white)
+  const gem=(p,s,k)=>{ctx.fillStyle=rgba(C.cyan,.85*k);ctx.beginPath();ctx.moveTo(p.x,p.y-13*s);ctx.lineTo(p.x+6*s,p.y-3*s);ctx.lineTo(p.x,p.y+7*s);ctx.lineTo(p.x-6*s,p.y-3*s);ctx.closePath();ctx.fill();
+    ctx.fillStyle=rgba(C.cyanL,.7*k);ctx.beginPath();ctx.moveTo(p.x,p.y-8*s);ctx.lineTo(p.x+2.6*s,p.y-3*s);ctx.lineTo(p.x,p.y+2*s);ctx.lineTo(p.x-2.6*s,p.y-3*s);ctx.closePath();ctx.fill();};
+  for(const L of PEND){const k=lampLight(L,t),p=q(L.x,yW(L.h),L.d);if(k<.02)continue;glow(ctx,p.x,p.y,86,C.cyan,.32*k);glow(ctx,p.x,p.y+2,30,C.gold,.2*k);gem(p,1,k);}
+  for(const S0 of SCONCE){const k=lampLight({x:S0.x,d:0},t),p=q(S0.x,yW(S0.h)+8,WALL);glow(ctx,p.x,p.y,44,C.cyan,.3*k);glow(ctx,p.x,p.y+1,16,C.gold,.16*k);gem(p,.68,k);}
   // dust in the light
   for(const m of MOTES){const p=q(m.x+Math.sin(t*m.sp+m.ph)*14,GB-m.h-Math.sin(t*m.sp*.7+m.ph)*10,m.d),a=.1+.12*Math.sin(t*1.3+m.ph);ctx.fillStyle=rgba('#e8f4f0',Math.max(0,a));ctx.fillRect(p.x,p.y,.9,.9);}
   ctx.globalCompositeOperation='source-over';

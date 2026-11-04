@@ -376,12 +376,18 @@ function drawSheath(f){
   seg(k.guard,k.tip,3.6,SIL);seg({x:lerp(k.guard.x,k.tip.x,.08),y:lerp(k.guard.y,k.tip.y,.08)},{x:lerp(k.guard.x,k.tip.x,.9),y:lerp(k.guard.y,k.tip.y,.9)},.9,HL);
   if(f.sidearm==='sheathed'){seg(k.cross[0],k.cross[1],2.6,SIL);seg(k.guard,k.pommel,3,SIL);ctx.fillStyle=SIL;circ(k.pommel,2.3);seg(k.grip,k.pommel,.8,HL);}
 }
+// a weapon's trail: the band its blade swept, thinning toward its tip as it ages and fading faster than it thins, so the old part of
+// a fast swing is a line that goes, not a smear (since V82, the drawing guide's D11: coloured trails, laid on as light, piled up into
+// smears where a swing turned back on itself)
 function drawTrail(tr){
   if(!tr||tr.length<2)return;
-  for(let i=1;i<tr.length;i++){const a=tr[i-1],b=tr[i];if(b.t-a.t>DT*2.5)continue;const al=(1-b.age/b.life)*(b.c?.4:.34);if(al<=0)continue;
+  const w=p=>{const u=clamp(p.age/p.life,0,1);return 1-u*u;};
+  for(let i=1;i<tr.length;i++){const a=tr[i-1],b=tr[i];if(b.t-a.t>DT*2.5)continue;const u=clamp(b.age/b.life,0,1),al=(1-u)*(1-u)*(b.c?.42:.34);if(al<=.004)continue;
+    const wa=w(a),wb=w(b),ahx=lerp(a.tx,a.hx,wa),ahy=lerp(a.ty,a.hy,wa),bhx=lerp(b.tx,b.hx,wb),bhy=lerp(b.ty,b.hy,wb);
     ctx.globalAlpha=al;ctx.fillStyle=b.c||'#ffecd0';if(b.c)ctx.globalCompositeOperation='lighter';
-    ctx.beginPath();ctx.moveTo(a.hx,a.hy);ctx.lineTo(a.tx,a.ty);ctx.lineTo(b.tx,b.ty);ctx.lineTo(b.hx,b.hy);ctx.closePath();ctx.fill();
-    if(b.c){ctx.globalAlpha=al*.9;ctx.strokeStyle='#fff6e0';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(a.tx,a.ty);ctx.lineTo(b.tx,b.ty);ctx.stroke();ctx.globalCompositeOperation='source-over';}}
+    ctx.beginPath();ctx.moveTo(ahx,ahy);ctx.lineTo(a.tx,a.ty);ctx.lineTo(b.tx,b.ty);ctx.lineTo(bhx,bhy);ctx.closePath();ctx.fill();
+    if(b.c&&u<.5){ctx.globalAlpha=al*.9*(1-u*2);ctx.strokeStyle='#fff6e0';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(a.tx,a.ty);ctx.lineTo(b.tx,b.ty);ctx.stroke();}
+    if(b.c)ctx.globalCompositeOperation='source-over';}
   ctx.globalAlpha=1;
 }
 // a turning fighter: the weapon's path drawn as an arc around the body, the far half behind it and the near half in front

@@ -29,6 +29,15 @@ function pal(){return PAL[tod()];}
 // how much more its shafts show (the morning's mist holds them); cool: how much deeper its shadow side goes to slate
 const SUN={day:{x:-420,y:-560,col:'#ffd6a0',ang:-.42},morning:{x:1340,y:-520,col:'#ffe2bf',ang:.4,mist:1.35,cool:1.8}};
 function sun(){return SUN[tod()]||null;}
+// a soft mottle for a big surface, made once and laid on with 'overlay': its value wanders a little every few units, so that a wall
+// deep in its haze, a floor under the mist or a sky over the rim is not one flat fill (the drawing guide's flat patches, since V82).
+// k: how much; o.sc: its scale (a plane's floor takes it squashed)
+let MOT=null;
+function mottleTile(){if(MOT)return MOT;const T=typeof EnvTex!=='undefined'?EnvTex:null;if(!T)return null;const a=T.noise2(91,16),b=T.noise2(97,32);
+  return MOT=T.pix(128,128,(u,v,out)=>{const w=.6*a(u*16,v*16)+.4*b(u*32,v*32),g=clamp(Math.round(128+(w-.5)*170),0,255);out[0]=out[1]=out[2]=g;});}
+function mottle(c,x0,y0,x1,y1,k,o){const tl=mottleTile();if(!tl||!(k>0))return;const p=c.createPattern(tl,'repeat');o=o||{};
+  if(p.setTransform&&(o.sc||o.sy))p.setTransform(new DOMMatrix().scale(o.sc||1,o.sy||o.sc||1));
+  c.save();c.globalCompositeOperation='overlay';c.globalAlpha=k;c.fillStyle=p;c.fillRect(x0,y0,x1-x0,y1-y0);c.restore();}
 // its light in a place's layer, x0..x1 across and from y0 (over the rim) down to y1 (the floor): the side toward it warmer and
 // lighter, soft shafts slanting down the terraces (EnvLook.softCone), and the side away and the low air cooled toward slate.
 // o: n (shafts), k (strength), seed
@@ -128,12 +137,16 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
   const lit=[],signs=[],bulbs=[],boardsW=[];out.fires=out.fires||[];out.chims=out.chims||[];
   const hzOf=y=>clamp((1-Math.exp(-Math.max(0,yb-y)/span))*.94,0,1),HC=y=>jm(P.air[1],P.air[0],hzOf(y)),col=(base,y,k)=>jm(shade(P,base,k),HC(y),hzOf(y)*.86);
   const ya=o.clip?o.clip[0]:-1e9,yz=o.clip?o.clip[1]:1e9;
-  const rows=[];{let ry=yb,j=0;while(ry>yt-rs&&j<140){const s=lerp(1,shrink,clamp((yb-ry)/sspan,0,1));rows.push([ry,j,s]);ry-=rs*s;j++;}}
-  for(let i=rows.length-1;i>=0;i--){const [ry,j,s]=rows[i],ur=u*s,rr=rs*s,r=rng(seed*7919+j*104729),bh=rr*.2;if(ry-rr*1.25>yz||ry+rr<ya)continue;
-    // the rock behind the row
-    c.fillStyle=lin(c,0,ry-rr,0,ry,[[0,col(P.wall,ry-rr)],[1,col(P.wall,ry)]]);c.fillRect(x0,ry-rr-.5,x1-x0,rr+1);
+  // (each row its own height, a quarter more or less, and its own lean and how close its shacks crowd, since V82: the rows went up
+  // the wall alike, one value over half the screen; rv keeps those apart from the seeds of what is on each row)
+  const rows=[];{const rv=rng(seed*13+5);let ry=yb,j=0;while(ry>yt-rs&&j<140){const s=lerp(1,shrink,clamp((yb-ry)/sspan,0,1));
+    rows.push([ry,j,s,{lean:(rv()-.5)*2,ph:rv()*TAU,fq:.004+rv()*.006,gap:.6+rv()*1.1,val:.9+rv()*.32}]);ry-=rs*s*(.76+.48*rv());j++;}}
+  for(let i=rows.length-1;i>=0;i--){const [ry,j,s,V]=rows[i],ur=u*s,rr=rs*s,r=rng(seed*7919+j*104729),bh=rr*.2;if(ry-rr*1.25>yz||ry+rr<ya)continue;
+    // the rock behind the row, darker or paler row by row
+    c.fillStyle=lin(c,0,ry-rr,0,ry,[[0,col(P.wall,ry-rr,V.val)],[1,col(P.wall,ry,V.val*1.06)]]);c.fillRect(x0,ry-rr-.5,x1-x0,rr+1);
     // the walkway in lengths, each a step higher or lower than the last
-    const segs=[];for(let x=x0-80;x<x1+80;){const len=(110+r()*260)*ur,off=Math.round((r()-.5)*5)*2.8*ur;segs.push([x,x+len,off]);x+=len;}
+    // (the row leans and sags along its length: each length set a little higher or lower on the row's slow swell)
+    const segs=[];for(let x=x0-80;x<x1+80;){const len=(110+r()*260)*ur,off=Math.round((r()-.5)*5)*2.8*ur+Math.round(V.lean*7*Math.sin((x+len/2)*V.fq+V.ph))*ur;segs.push([x,x+len,off]);x+=len;}
     const offAt=x=>{for(const sg of segs)if(x<sg[1])return sg[2];return 0;};
     for(const [a,b,off] of segs){const y=ry+off;
       c.fillStyle=col('#141110',y+bh/2,1.2);c.fillRect(a,y,b-a,bh+2.6*ur);
@@ -165,7 +178,7 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
         const n=Math.max(4,Math.round(rr/(3.4*ur)));c.fillStyle=jm(col('#5a4a3a',y1),P.light,P.lightA*.7);for(let q=0;q<n;q++){const u2=(q+.5)/n;c.fillRect(x+sw*u2-1.6*ur,lerp(y0,y1,u2)-.6*ur,3.4*ur,.9*ur);}
         c.strokeStyle=col('#2a221e',y1);c.lineWidth=.7*ur;c.beginPath();c.moveTo(x,y0-9*ur);c.lineTo(x+sw,y1-9*ur);for(let q=0;q<=3;q++){const u2=q/3;c.moveTo(x+sw*u2,lerp(y0,y1,u2));c.lineTo(x+sw*u2,lerp(y0,y1,u2)-9*ur);}c.stroke();
         x+=sw+(4+r()*8)*ur;continue;}
-      if(k<.16){// a gap, junk heaped in it
+      if(k<.09+.07*V.gap){// a gap, junk heaped in it (more of them along a row that has given way more)
         const gw=w*.8;c.fillStyle=col('#1a1614',gy-4,1.1);c.beginPath();c.moveTo(x,gy-1.6*ur);c.quadraticCurveTo(x+gw/2,gy-h*.7,x+gw,gy-1.6*ur);c.closePath();c.fill();
         for(let q=0;q<4;q++){c.fillStyle=col(JUNKC[(r()*JUNKC.length)|0],gy-6,1);c.fillRect(x+gw*(.1+.7*r()),gy-1.6*ur-h*(.15+.35*r()),(4+r()*7)*ur,(3+r()*4)*ur);}
         x+=gw;continue;}
@@ -194,6 +207,10 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
       if(r()<.08){const lx=x+w*.5;c.strokeStyle=col('#241c1a',gy+rr*.5);c.lineWidth=.8*ur;c.beginPath();c.moveTo(lx,gy);c.lineTo(lx,gy+rr-2);c.moveTo(lx+5*ur,gy);c.lineTo(lx+5*ur,gy+rr-2);for(let q=4*ur;q<rr;q+=6*ur){c.moveTo(lx,gy+q);c.lineTo(lx+5*ur,gy+q);}c.stroke();}
       if(r()<.035)out.fires.push({x:x+w+3*ur,y:gy-3*ur,s:ur,hz:hzOf(gy)});
       const gap=r()<.18?(8+r()*30)*ur:(1+r()*3)*ur;x+=w+gap;}}
+  // bands of smoke and haze lying across the wall at their own heights, the higher the thicker (the distance), so that the wall is not
+  // one field of shacks at one value (since V82)
+  {const rh=rng(seed*97+3),hc=jm(P.air[0],P.smoke,.4);for(let q=0;q<(o.bands??5);q++){const by=lerp(yt+40,yb-60,rh()),bhh=(26+rh()*70)*u,a=(.05+.1*rh())*(.45+hzOf(by));if(by-bhh>yz||by+bhh<ya)continue;
+    c.fillStyle=lin(c,0,by-bhh,0,by+bhh,[[0,rgba(hc,0)],[.5,rgba(hc,a)],[1,rgba(hc,0)]]);c.fillRect(x0,by-bhh,x1-x0,bhh*2);}}
   // slopes of junk spilling down the wall over two or three rows, where the shacks have given way
   {const r=rng(seed*53+11);for(let q=0;q<(o.slides??5);q++){const sx=x0+(x1-x0)*r(),sy=yb-60-r()*1000,sw=(90+r()*140)*u,sh2=(70+r()*60)*u;if(sy-sh2>yz||sy<ya)continue;
     const s2=lerp(1,shrink,clamp((yb-sy)/sspan,0,1)),w=sw*s2,h=sh2*s2,n=12,tops=[];for(let k=0;k<=n;k++){const u2=k/n;tops.push([sx+w*u2,sy-h*(.25+.75*Math.pow(Math.sin(u2*Math.PI),.7))*(.55+r()*.45)]);}
@@ -268,6 +285,8 @@ function upper(key,y0,fn){if(typeof camTop!=='function'||typeof RC==='undefined'
 // the tower's foot going up out of the picture
 function skyTop(c,x0,x1,y0,y1,P,o){o=o||{};c.fillStyle=lin(c,0,y0,0,y1,[[0,P.sky[0]],[1,P.sky[1]]]);c.fillRect(x0,y0,x1-x0,y1-y0);
   if(P.key==='night'){const r=rng(17);for(let i=0;i<70;i++){c.fillStyle=rgba('#fff4e0',.25+.5*r());c.fillRect(lerp(x0,x1,r()),lerp(y0,y1-30,r()),r()<.9?.8:1.4,r()<.9?.8:1.4);}}
+  if(P.key!=='night'){const rz=rng(31),hz2=jm(P.sky[0],P.light,.35);for(let i=0;i<46;i++){const yy=lerp(y0+10,y1-30,rz()),xx=lerp(x0,x1,rz()),w=60+rz()*220,h=1+rz()*3.2;
+      c.fillStyle=rgba(rz()<.6?hz2:jm(P.sky[1],'#000000',.25),.06+.08*rz());c.beginPath();c.ellipse(xx,yy,w,h,0,0,TAU);c.fill();}mottle(c,x0,y0,x1,y1,.3);}
   const ry=y1-(o.rim||24),r=rng(23),dk=jm(jm(P.air[0],'#000000',.45),P.sky[1],.15);c.fillStyle=dk;c.beginPath();c.moveTo(x0,y1);
   for(let x=x0;x<=x1;){const w=10+r()*30,h=r()<.6?4+r()*12:0;c.lineTo(x,ry-h);c.lineTo(x+w,ry-h);x+=w;}c.lineTo(x1,y1);c.closePath();c.fill();
   if(P.key!=='day'&&P.key!=='morning'){const r2=rng(29);for(let i=0;i<14;i++){c.fillStyle=rgba('#ffcf86',.5+.4*r2());c.fillRect(lerp(x0,x1,r2()),ry-2-r2()*8,1.6,1.4);}}
@@ -294,7 +313,7 @@ function puddle(c,P,x,d,rx,seed,k,warm){c.save();c.translate(x,d);
   c.fillStyle=jm(jm(P.dirt[1],'#000000',.55),sky,(.08+.1*P.lightA)*(k??1));c.fill();
   c.save();c.clip();c.fillStyle=rgba(warm||sky,(warm?.4:.1+.22*P.lightA)*(k??1));c.fillRect(-rx*.9,rx*.18,rx*1.2,rx*.06);c.restore();
   c.restore();}
-E.pitKit={tod,pal,PAL,sun,sunlight,jm,shade,topLit,Q,poly,blob,spr,glowSpr,puffSpr,glowAt,smoke,boards,tin,oilcloth,facade,shackRows,drop,lantern,piece,drawPiece,upper,skyTop,cRad,puddle,tram,
+E.pitKit={tod,pal,PAL,sun,sunlight,mottle,jm,shade,topLit,Q,poly,blob,spr,glowSpr,puffSpr,glowAt,smoke,boards,tin,oilcloth,facade,shackRows,drop,lantern,piece,drawPiece,upper,skyTop,cRad,puddle,tram,
   SHACK,TINC,TARPC,CLOTH,JUNKC,WINC};
 })();
 
@@ -347,7 +366,9 @@ function backdrop(c,P,X0,X1,T0){
   OUT={fires:[],chims:[],lit:[]};
   K.shackRows(c,Object.assign({pal:P,x0:X0,x1:X1,yTop:T0,out:OUT},ROWS));
   // the air between the wall and the yard: the haze low over the floor
-  c.fillStyle=lin(c,0,140,0,250,[[0,rgba(P.air[1],0)],[1,rgba(P.air[1],.5)]]);c.fillRect(X0,140,X1-X0,110);}
+  c.fillStyle=lin(c,0,140,0,250,[[0,rgba(P.air[1],0)],[1,rgba(P.air[1],.5)]]);c.fillRect(X0,140,X1-X0,110);
+  // (the wall not one flat fill deep in its haze: the kit's mottle over it, under what stands in front of it)
+  K.mottle(c,X0,T0,X1,340,P.key==='night'?.2:.28);}
 // the shacks of the floor round the yard: their fronts over the yard wall and past the Sump's corner, chimneys, a water tank on legs,
 // a pole carrying wire
 function neighbours(c,P){const sh=(col,k)=>K.shade(P,col,k);
@@ -568,12 +589,14 @@ function drumFire(c,P){const p=Q(DRUM.x,0,DRUM.d);barrel(c,P,p.x,p.y,11,28,'#3a2
 function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.key==='night';
   const pts=[Q(X0,0,far+40),Q(X1,0,far+40),Q(X1,0,E.NEAR),Q(X0,0,E.NEAR)];
   c.fillStyle=lin(c,0,pts[0].y,0,GB+60,[[0,P.dirt[0]],[.55,mix(P.dirt[0],P.dirt[1],.5)],[1,P.dirt[1]]]);K.poly(c,pts);c.fill();
-  c.save();K.poly(c,pts);c.clip();c.transform(1,0,PSX,-PSY,0,GB);
+  c.save();K.poly(c,pts);c.clip();K.mottle(c,X0,pts[0].y,X1,GB+200,night?.2:.3,{sc:1.3,sy:.55});c.transform(1,0,PSX,-PSY,0,GB);
   const tx=typeof EnvTex!=='undefined'?EnvTex.plaster(57,128,128,{base:'#808080'}):null;
   if(tx){const pt=c.createPattern(tx,'repeat');if(pt.setTransform)pt.setTransform(new DOMMatrix().scale(.7,.35));c.globalCompositeOperation='multiply';c.globalAlpha=.55;c.fillStyle=pt;c.fillRect(X0,E.NEAR-10,X1-X0,far+50-E.NEAR);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
   for(let i=0;i<900;i++){const x=X0+r()*(X1-X0),d=-60+r()*(far+90),v=r();c.fillStyle=v<.5?rgba('#000000',.1+.14*r()):rgba(P.light,.03+.07*r()*(.4+P.lightA));c.fillRect(x,d,.8+r()*2.4,.6+r()*1.4);}
+  // (more of it, finer, over the whole floor, since V82: the packed dirt read as one flat fill near us)
+  {const rf=rng(103);for(let i=0;i<1800;i++){const x=X0+rf()*(X1-X0),d=E.NEAR+rf()*(far+40-E.NEAR),v=rf();c.fillStyle=v<.5?rgba('#000000',.08+.1*rf()):rgba(P.light,.025+.05*rf()*(.4+P.lightA));c.fillRect(x,d,.7+rf()*1.6,.5+rf()*.9);}}
   // (the grit runs on toward us in front of the fight, a little coarser for being near; its own dice)
-  {const rn=rng(102);for(let i=0;i<1200;i++){const x=X0+rn()*(X1-X0),d=E.NEAR+rn()*(-60-E.NEAR),v=rn();c.fillStyle=v<.55?rgba('#000000',.12+.16*rn()):rgba(P.light,.03+.06*rn()*(.4+P.lightA));c.fillRect(x,d,1+rn()*3,.8+rn()*1.8);}}
+  {const rn=rng(102);for(let i=0;i<2400;i++){const x=X0+rn()*(X1-X0),d=E.NEAR+rn()*(-60-E.NEAR),v=rn();c.fillStyle=v<.55?rgba('#000000',.12+.16*rn()):rgba(P.light,.03+.06*rn()*(.4+P.lightA));c.fillRect(x,d,1+rn()*3,.8+rn()*1.8);}}
   // the path, packed harder, and the ruts in from the gate
   c.strokeStyle=rgba(jm2(P.dirt[0],'#d8ccb8',.2),night?.05:.13);c.lineCap='round';c.lineJoin='round';c.lineWidth=20;c.beginPath();c.moveTo(Yd.door.x,Yd.step.d-14);c.quadraticCurveTo(330,150,Yd.pump.x-24,Yd.pump.d-4);c.quadraticCurveTo(700,100,FENCE.x,Yd.gate.d);c.stroke();
   c.lineWidth=8;c.strokeStyle=rgba(jm2(P.dirt[0],'#d8ccb8',.2),night?.03:.08);c.beginPath();c.moveTo(Yd.sidestair.x1+6,Yd.sidestair.d-6);c.quadraticCurveTo(180,140,Yd.pump.x-30,Yd.pump.d-4);c.stroke();
@@ -582,6 +605,11 @@ function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.
   for(const [px,pd,pr] of [[560,104,40],[180,170,46],[700,40,50],[380,30,40]]){c.fillStyle=rgba('#000000',.1);K.blob(c,px,pd,pr,pr*.7,rng(px));c.fill();}
   // the edge under the walls dark
   c.fillStyle=lin(c,0,far-50,0,far+10,[[0,rgba('#000000',0)],[1,rgba('#000000',.4)]]);c.fillRect(X0,far-50,X1-X0,60);
+  // by day and by morning the sun's shadows across it: long and soft, thrown from the shacks and poles off on its side, running away
+  // from it a little toward us (the kit's sun; since V82)
+  {const S2=K.sun();if(S2){const sx=S2.x<500?1:-1,rs2=rng(117);for(let q=0;q<7;q++){const d0=-50+rs2()*(far+30),x0=sx>0?X0+rs2()*520:X1-rs2()*520,len=240+rs2()*380,w=10+rs2()*26,x1=x0+sx*len;
+      const g=c.createLinearGradient(x0,0,x1,0);g.addColorStop(0,rgba('#121824',.2+.08*rs2()));g.addColorStop(.7,rgba('#121824',.08));g.addColorStop(1,rgba('#121824',0));c.fillStyle=g;
+      c.beginPath();c.moveTo(x0,d0);c.lineTo(x1,d0-len*.1);c.lineTo(x1,d0-len*.1-w*1.8);c.lineTo(x0,d0-w);c.closePath();c.fill();}}}
   // puddles, the biggest away from the middle of the yard
   for(const [px,pd,pr,sd] of [[612,40,26,3],[548,96,18,5],[420,58,14,7],[150,112,16,9],[300,20,30,11],[82,62,22,13],[772,150,12,15],[740,72,10,17]])K.puddle(c,P,px,pd,pr,sd,1);
   // straw blown off the roof, feathers, stones
@@ -662,7 +690,9 @@ function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
   E.fallKeep(c,-200,1240,GB-40,[[GB-40,0],[GB+130,T==='night'?.6:.48]],null,.06);
   if(T==='morning'){// mist lying on the floor of the Pit: over the far shacks' feet, along the yard's walls, low over the yard (blue in
     // the shade, as the sun's shafts cross it warm: since V81, a pale grey that took the colour out of everything)
-    c.fillStyle=lin(c,0,110,0,GB,[[0,rgba('#b4c4dc',0)],[.32,rgba('#b4c4dc',.27)],[.5,rgba('#b4c4dc',.18)],[.75,rgba('#b4c4dc',.09)],[1,rgba('#b4c4dc',.04)]]);c.fillRect(-200,110,1400,GB-110);}}
+    c.fillStyle=lin(c,0,110,0,GB,[[0,rgba('#b4c4dc',0)],[.32,rgba('#b4c4dc',.27)],[.5,rgba('#b4c4dc',.18)],[.75,rgba('#b4c4dc',.09)],[1,rgba('#b4c4dc',.04)]]);c.fillRect(-200,110,1400,GB-110);
+    // (lying in wisps, not one even veil: the kit's mottle over it)
+    K.mottle(c,-200,110,1240,GB+40,.26,{sc:1.4,sy:.5});}}
 // ---------- the scene ----------
 function paint(c){const P=K.pal(),X0=-170,X1=W+250,T0=-110;
   backdrop(c,P,X0,X1,T0);neighbours(c,P);beyond(c,P);
@@ -743,7 +773,7 @@ function live(){const t=S.t,P=K.pal(),T=P.key,Yd=Y();ctx.save();
   K.upper('yard:'+T,-1000,(c,x0,x1,y0,y1)=>{c.fillStyle=P.air[0];c.fillRect(x0,y0,x1-x0,y1-y0);
     K.shackRows(c,Object.assign({pal:P,x0:-170,x1:W+250,yTop:-650,clip:[-650,y1]},ROWS));
     c.fillStyle=lin(c,0,-640,0,-480,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,160);
-    K.skyTop(c,x0,x1,y0,-636,P,{tower:150});K.sunlight(c,P,-200,1240,-640,GB+30,SUNO);});
+    K.skyTop(c,x0,x1,y0,-636,P,{tower:150});K.sunlight(c,P,-200,1240,-640,GB+30,SUNO);K.mottle(c,x0,-636,x1,y1,T==='night'?.2:.32);});
   K.tram(ctx,t,P,-760);
   // the far wall's chimneys smoking, its fires, a few of its windows going dark a moment (a lamp moved, someone passing): only where
   // the far wall shows

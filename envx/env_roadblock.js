@@ -358,8 +358,13 @@ function live(){const t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';
   // the red light on the tower's needle
   {const x=TOWER.x,y=TOWER.top-75,on=Math.pow(Math.max(0,Math.sin(t*2.4)),8);if(on>.02){glow(ctx,x,y,10,'#ff3a2a',.8*on);ctx.fillStyle=rgba('#ffd0c0',on);ctx.fillRect(x-.7,y-.7,1.4,1.4);}}
   ctx.restore();}
-// the light that rims a fighter: the floods on the light tower, high on the right
-function light(f){const L=mastLamp(),d=f.dep||0;return{light:{x:L.x-14-d*PSX,y:L.y-4+d*PSY},col:'#e0eaff'};}
+// the light that rims a fighter: the floods on the light tower, high on the right; near the burning carrier its fire (since V82: the
+// officers there were dark against it), its flames' orange on their planes and rims, the nearer the more, from where the fire stands
+function light(f){const L=mastLamp(),d=f.dep||0,pel=f.p&&f.p[typeof PEL==='number'?PEL:0],px=pel?pel.x+d*PSX:0;let best=null,bk=0;
+  for(const F of (typeof S!=='undefined'&&S.fires)||[]){const fx=F.x+(F.dep||0)*PSX,k=clamp(1-Math.hypot(fx-px,((F.dep||0)-d)*1.6)/340,0,1)*Math.min(1,F.k||1);if(k>bk){bk=k;best=F;}}
+  if(best&&bk>.08){const u=clamp(bk*1.5,0,1),fx=best.x+(best.dep||0)*PSX,fy=best.y-(best.h||60)*.45-(best.dep||0)*PSY;
+    return{light:{x:lerp(L.x-14,fx,u)-d*PSX,y:lerp(L.y-4,fy,u)+d*PSY},col:mix('#e0eaff','#ff9a4a',u)};}
+  return{light:{x:L.x-14-d*PSX,y:L.y-4+d*PSY},col:'#e0eaff'};}
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the floods' light on the road behind the fight
 const SET={col:'#e8efff',soft:.5,y:[GB-360,GB-280,GB-60,GB+20]};
 E.S.roadblock={set:SET,paint,live,light,mast:MAST,div:it=>it.dv&&it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'town'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('town'):false};

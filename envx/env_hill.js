@@ -140,7 +140,8 @@ function paint(c){
   const STONES=[[-90,236,30,9],[-30,262,26,8],[40,218,34,10],[118,250,24,8],[176,226,38,11],[262,244,28,9],[330,212,32,10],[402,258,22,8],[468,230,36,10],[548,248,26,9],[612,214,30,9],[690,236,34,10],[770,256,24,8],[842,222,32,10],[918,246,28,9],[990,228,30,9]];
   const lamps=[],KIND={3:'round',5:'obelisk',8:'round',11:'round',12:'obelisk',15:'round'};STONES.sort((a,b)=>b[1]-a[1]).forEach(([x,d,h,w],i)=>{const q=gp(x,d),rr=rng(x*7+d),kind=KIND[i]||'stela';stela(c,q.x,q.y,{h:kind==='obelisk'?h*1.5:kind==='round'?h*.75:h,w:kind==='round'?w*1.25:w,tilt:kind==='obelisk'?0:(rr()-.5)*.22,seed:300+i,broken:i===6,kind});if([2,9,13].includes(i)){lamps.push({x:q.x+w/2+5,y:q.y});graveLamp(c,q.x+w/2+5,q.y);}});
   // the cold light of the elven lamps on the turf about them
-  c.save();c.globalCompositeOperation='lighter';for(const L of lamps){c.save();c.translate(L.x,L.y);c.scale(1,.36);c.fillStyle=rad(c,0,0,1,60,[[0,rgba(C.cyan,.16)],[1,rgba(C.cyan,0)]]);c.beginPath();c.arc(0,0,60,0,TAU);c.fill();c.restore();}c.restore();
+  // (wider and brighter since V82, pools the fight can be seen in: the drawing guide's D23)
+  c.save();c.globalCompositeOperation='lighter';for(const L of lamps){c.save();c.translate(L.x,L.y);c.scale(1,.36);c.fillStyle=rad(c,0,0,1,88,[[0,rgba(C.cyan,.24)],[.5,rgba(C.cyan,.08)],[1,rgba(C.cyan,0)]]);c.beginPath();c.arc(0,0,88,0,TAU);c.fill();c.restore();}c.restore();
   // mist in the hollows of the hill and over the brow, moonlit
   haze(c,X0,X1,150,210,'#8a98bc',.08);haze(c,X0,X1,210,310,'#8a98bc',.08,true);
   c.save();c.globalAlpha=.1;for(let i=0;i<10;i++){const x=X0+r()*(X1-X0),y=crestY(x)+20+r()*50;c.fillStyle=rad(c,x,y,0,90,[[0,'#9aa8c8'],[1,rgba('#9aa8c8',0)]]);c.save();c.translate(x,y);c.scale(1,.18);c.beginPath();c.arc(0,0,90,0,TAU);c.fill();c.restore();}c.restore();

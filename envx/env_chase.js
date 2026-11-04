@@ -701,18 +701,31 @@ function paint(c){const X0=RC.x0-20,X1=RC.x0+RC.w+20,T0=RC.y0-30,B0=RC.y0+RC.h+2
   haze(c,X0,X1,170,290,'#4a2c30',.35);
   c.fillStyle='#0d0b0f';c.fillRect(X0,290,X1-X0,B0-290);
   strips();}
+// the speed in the picture (since V82): the lamps' light drawn out behind them, the wet road's lights streaking past, the kerb and its
+// bollards smeared (a second faint copy a little behind), all as long as the road goes by fast (S.scrollV); none when it stops
+const RSTREAK=(()=>{const r=rng(83),a=[];for(let i=0;i<52;i++)a.push({x:r()*BAND.street.P,d:NK+6+r()*(FK-NK-12),len:50+r()*190,a:.06+r()*.1,warm:r()<.75});return a;})();
+// (each streak stamped from a small gradient made once for its colour: a gradient made for each, each frame, cost a CPU canvas 4 ms)
+const STK={};function streakSpr(col){let c0=STK[col];if(c0)return c0;c0=STK[col]=document.createElement('canvas');c0.width=64;c0.height=2;const g=c0.getContext('2d'),gr=g.createLinearGradient(0,0,64,0);
+  gr.addColorStop(0,rgba(col,1));gr.addColorStop(.7,rgba(col,.25));gr.addColorStop(1,rgba(col,0));g.fillStyle=gr;g.fillRect(0,0,64,2);return c0;}
+function speedOf(){const v=typeof S!=='undefined'&&S?Math.abs(+S.scrollV||0):0;return isFinite(v)?clamp((v-120)/900,0,1):0;}
 // what goes by: the bands at their own paces, then the lamps' flames and the Lyric's chasing bulbs over the street's strip
-function live(){const T=strips(),t=(typeof S!=='undefined'&&S.t)||0,st=T.street,o=offOf(st),sq=[];
+function live(){const T=strips(),t=(typeof S!=='undefined'&&S.t)||0,st=T.street,o=offOf(st),sq=[],sp=speedOf();
   for(let n=-1;n<=1;n++)sq.push([SQ[0]-o+n*st.P-1,SQ[1]-o+n*st.P+1]);
   blit(T.far,sq);blit(T.mid,sq);blit(st);
   const m=ctx.getTransform(),L=-m.e/m.a,R=(ctx.canvas.width-m.e)/m.a;
   ctx.save();
+  if(sp>0){ctx.globalCompositeOperation='lighter';const sw=streakSpr('#ffc98a'),sc=streakSpr('#cfe0ff');for(const q of RSTREAK){const y=yR(q.d)+1,len=q.len*sp;for(let n=-1;n<=1;n++){const x=q.x-o+n*st.P;if(x+len<L||x>R)continue;
+      ctx.globalAlpha=q.a*sp;ctx.drawImage(q.warm?sw:sc,x,y-.5,len,1);}}
+    ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}
   for(let n=-1;n<=1;n++){const ox=-o+n*st.P;
-    for(const lx of LX){const q=lampHead(lx),x=q.x+ox;if(x<L-40||x>R+40)continue;const f=.93+.07*Math.sin(t*7+lx)*Math.sin(t*3.1+lx*.3);glow(ctx,x,q.y,22,'#fff0cc',.9*f);}
+    for(const lx of LX){const q=lampHead(lx),x=q.x+ox;if(x<L-40||x>R+40)continue;const f=.93+.07*Math.sin(t*7+lx)*Math.sin(t*3.1+lx*.3);glow(ctx,x,q.y,22,'#fff0cc',.9*f);
+      if(sp>0){const len=120*sp,sl=streakSpr('#ffe2b0');ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.46*sp;ctx.drawImage(sl,x,q.y-1.4,len,2.8);ctx.globalAlpha=.23*sp;ctx.drawImage(sl,x,q.y-4,len*.6,8);
+        ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}}
     if(ox+584>L&&ox+340<R&&BULBS.length){ctx.globalCompositeOperation='lighter';const ph=Math.floor(t*9)%3;
       for(let i=0;i<BULBS.length;i++){if((i+ph)%3)continue;const bb=BULBS[i];ctx.drawImage(T.bulb,ox+bb.x-4,bb.y-4,8,8);}ctx.globalCompositeOperation='source-over';}}
   ctx.restore();
-  blit(T.front);blit(T.near);}
+  blit(T.front);blit(T.near);
+  if(sp>0){const b=T.near,dx=14*sp;ctx.save();ctx.globalAlpha=.32*sp;for(const p of b.parts)blitPart(p,b,offOf(b)-dx,null);ctx.restore();}}
 // the light that rims a rider: the lamps as they pass, the Lyric's marquee, and the moon when nothing nearer is lit
 function light(f){const P=BAND.street.P,o=offOf(BAND.street),pel=f.p[typeof PEL==='number'?PEL:0],px=pel.x+f.dep*PSX;let wx=0,wy=0,ws=0;
   const add=(x,y,Rr,k)=>{for(let n=-1;n<=1;n++){const sx=x-o+n*P,dd=Math.abs(sx-px);if(dd>=Rr)continue;const w=k*(1-dd/Rr)*(1-dd/Rr);wx+=w*sx;wy+=w*y;ws+=w;}};

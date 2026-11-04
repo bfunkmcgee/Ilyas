@@ -85,18 +85,21 @@ const ev=(p,f,a)=>p.evaluate(f,a);
   expect('on the wet street a man\'s reflection hangs from his feet: his hips show as far below the flags as they stand above them',w.wet>=.3&&w.diff>2,JSON.stringify(w));
   await p.context().close();}
 
-// ---- a man struck goes white for a moment; a blow's light falls on the floor and on the men by it
+// ---- a man struck is lit for a moment from where the blow landed (his chest here: no flash of the game's), the light falling away
+// across him so his feet keep their dark (since V82: he was filled white); a blow's light falls on the floor and on the men by it
 {const p=await open();
   const r=await ev(p,()=>{pose('street',360,90,470,90);const V=S.F[1],R0=FXL.sprite(V);const box=()=>{const R=FXL.sprite(V);return[R.x+Math.round(R.w*.3),R.y+Math.round(R.h*.2),Math.round(R.w*.4),Math.round(R.h*.4)];};
-    render();const b0=lum(...box());V.hp-=12;render();const b1=lum(...box());const f1=FXL.sprite(V)?1:0;
+    const foot=()=>{const q=feet(V);return[Math.round(q.x)-10,Math.round(q.y)-16,20,12];};
+    render();const b0=lum(...box()),k0=lum(...foot());V.hp-=12;render();const b1=lum(...box()),k1=lum(...foot());const f1=FXL.sprite(V)?1:0;
     // and after it, back to himself
     step(30);const b2=lum(...box());
     // a flash of the game's at the floor between them
     const F=feet(V),gx=(S.F[0].p[CHE].x+V.p[CHE].x)/2,fy=V.gr(gx);
     const fl0=lum(Math.round(F.x)-120,Math.round(F.y)-6,100,14);S.flashes.push({x:gx,y:fy-60,d:90,r:48,color:'#fff1c9',age:0,life:.24});render();
     const lights=FXL.dbg().lights,fl1=lum(Math.round(F.x)-120,Math.round(F.y)-6,100,14);S.flashes.length=0;
-    return{b0:+b0.toFixed(1),b1:+b1.toFixed(1),b2:+b2.toFixed(1),f1,lights,fl0:+fl0.toFixed(1),fl1:+fl1.toFixed(1)};});
-  expect('struck (his hit points drop), a man goes white for an instant and then is himself again',r.b1>r.b0+25&&Math.abs(r.b2-r.b0)<6,JSON.stringify(r));
+    return{b0:+b0.toFixed(1),b1:+b1.toFixed(1),b2:+b2.toFixed(1),k0:+k0.toFixed(1),k1:+k1.toFixed(1),f1,lights,fl0:+fl0.toFixed(1),fl1:+fl1.toFixed(1)};});
+  expect('struck (his hit points drop), a man is lit for an instant from where the blow landed, his feet keeping their dark, and then is himself again',
+    r.b1>r.b0+18&&r.k1-r.k0<(r.b1-r.b0)*.5&&Math.abs(r.b2-r.b0)<6,JSON.stringify(r));
   expect('the flash of a blow is a light: it throws a pool on the floor round it',r.lights>=1&&r.fl1>r.fl0+4,JSON.stringify(r));
   await p.context().close();}
 

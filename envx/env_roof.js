@@ -265,6 +265,11 @@ const cloudSpr=()=>sprite('cloud',128,64,(g,w,h)=>{g.save();g.scale(1,h/w);g.fil
 function glowAt(x,y,r,col,a,sq){ctx.globalAlpha=a;ctx.drawImage(glowSpr(col),x-r,y-r*(sq||1),r*2,r*2*(sq||1));}
 const STREAKS=(()=>{const r=rng(5),a=[];for(let i=0;i<46;i++)a.push({y:-90+r()*560,len:30+r()*120,sp:500+r()*700,ph:r()*3000,a:.05+r()*.12,w:.4+r()*.6});return a;})();
 const WISPS=(()=>{const r=rng(7),a=[];for(let i=0;i<7;i++)a.push({y:120+r()*150,rx:90+r()*160,ry:4+r()*8,sp:40+r()*70,ph:r()*1600});return a;})();
+// the cloud tearing past high over the roof, lit from below by the city (since V82: the sky over the roof was empty)
+// (one sprite each, the warm underside in it: six of them over the whole sky cost about as much as the wisps below them)
+const RACK=(()=>{const r=rng(29),a=[];for(let i=0;i<6;i++)a.push({y:-140+r()*230,rx:90+r()*120,ry:7+r()*10,sp:70+r()*90,ph:r()*1900,a:.45+r()*.25});return a;})();
+const cloudLit=()=>sprite('cloudL',128,64,(g,w,h)=>{g.save();g.scale(1,h/w);g.fillStyle=rad(g,w/2,w/2,0,w/2,[[0,rgba('#24263a',.9)],[.6,rgba('#24263a',.42)],[1,rgba('#24263a',0)]]);g.fillRect(0,0,w,w);
+  g.fillStyle=rad(g,w/2,w*.7,0,w*.46,[[0,rgba('#a8583c',.75)],[.5,rgba('#7a3e34',.32)],[1,rgba('#7a3e34',0)]]);g.fillRect(0,0,w,w);g.restore();});
 const GRIT=(()=>{const r=rng(9),a=[];for(let i=0;i<40;i++)a.push({d:-20+r()*230,sp:180+r()*260,ph:r()*1200,hop:1+r()*4});return a;})();
 // the drain as the roof shows it, from the hero's (0 until the round, then up to 1 over 1.6 s, sk_story.js): d; the four rings'
 // (g: the crown's first, the edge's last, each over a little over half of it); and the crown's flare with the shot (f: up at once,
@@ -281,6 +286,8 @@ function live(){const t=S.t,Dr=drain();ctx.save();
       ctx.save();ctx.transform(1,0,PSX,-PSY,0,GB);ctx.fill(GILT.pl[g]);ctx.restore();}
     ctx.globalCompositeOperation='lighter';ctx.globalAlpha=Dr.g[0];ctx.strokeStyle=rgba(C.cyan,.32+.5*Dr.f);ctx.lineWidth=.8+.8*Dr.f;ctx.stroke(GILT.cy);
     ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;}
+  // the rack of cloud high up, going by fast, its underside warm with the city's light
+  {const cl=cloudLit();for(const w of RACK){const x=((w.ph+t*w.sp)%2100)-400;ctx.globalAlpha=w.a;ctx.drawImage(cl,x-w.rx,w.y-w.ry*4,w.rx*2,w.ry*8);}ctx.globalAlpha=1;}
   // cloud tearing past at the height of the roof
   const cs=cloudSpr();for(const w of WISPS){const x=((w.ph+t*w.sp)%1700)-300;ctx.globalAlpha=.4;ctx.drawImage(cs,x-w.rx,w.y-w.ry*4,w.rx*2,w.ry*8);}
   ctx.globalCompositeOperation='lighter';
