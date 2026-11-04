@@ -42,14 +42,14 @@ function pool(){let s=SPR.get('dark');if(s)return s;s=mk(64,32);const g=s.getCon
 // ---------- each ground ----------
 // wet: how much a floor gives back (a wet street, polished marble, waxed boards); blur: soft, the street's; rip: ripples; the air
 const SC={
-  street:{wet:.5,blur:1,rip:1,rain:1,mist:'#7d6c8e',tint:'#ffc27a'},
-  roadblock:{wet:.45,blur:1,rip:1,rain:1,mist:'#7c88a4',tint:'#dfe9ff'},
-  chase:{wet:.2,blur:1,rip:1,tint:'#ffc27a'},
-  dining:{wet:.1,motes:'#ffdcaa',tint:'#ffcf8a'},kitchen:{wet:.07,motes:'#ffe6c4',steam:1,tint:'#ffd29a'},
-  lobby:{wet:.2,motes:'#ffe8bc',tint:'#ffe0a8'},office:{wet:.08,motes:'#ffdcaa',tint:'#ffd090'},
-  field:{flies:1,mist:'#8a98bc',tint:'#a9c2ff'},hill:{flies:1,mist:'#8a98bc',tint:'#a9c2ff'},crops:{flies:1,tint:'#a9c2ff'},outskirts:{motes:'#ffd8a0',tint:'#ffb070'},
-  ledge:{flies:1,embers:1,tint:'#ffb070'},wall:{embers:1,tint:'#ff9e58'},
-  roof:{wet:.12,blur:1,tint:'#a9c2ff'},station:{wet:.08,motes:'#ffdcaa',tint:'#ffd08a'},tunnel:{motes:'#cbb99a'},fall:{}};
+  street:{wet:.5,blur:1,rip:1,rain:1,mist:'#7d6c8e'},
+  roadblock:{wet:.45,blur:1,rip:1,rain:1,mist:'#7c88a4'},
+  chase:{wet:.2,blur:1,rip:1},
+  dining:{wet:.1,motes:'#ffdcaa'},kitchen:{wet:.07,motes:'#ffe6c4',steam:1},
+  lobby:{wet:.2,motes:'#ffe8bc'},office:{wet:.08,motes:'#ffdcaa'},
+  field:{flies:1,mist:'#8a98bc'},hill:{flies:1,mist:'#8a98bc'},crops:{flies:1},outskirts:{motes:'#ffd8a0'},
+  ledge:{flies:1,embers:1},wall:{embers:1},
+  roof:{wet:.12,blur:1},station:{wet:.08,motes:'#ffdcaa'},tunnel:{motes:'#cbb99a'},fall:{}};
 // the moon where a ground has one and no lamps (the outskirts' low sun the same): its light comes from the sky behind, so the shadows
 // fall toward us
 const MOON={field:{x:262,y:86},hill:{x:880,y:62},crops:{x:132,y:70},roof:{x:118,y:62},outskirts:{x:170,y:304}};
@@ -137,6 +137,8 @@ function hitNow(f){let h=HP.get(f);const now=performance.now();
   if(!h){h={hp:f.hp,t0:-9,r0:-1e9};HP.set(f,h);}
   if(f.hp<h.hp-2){h.t0=S.t;h.r0=now;}h.hp=f.hp;
   const u=Math.max((S.t-h.t0)/.13,(now-h.r0)/250);return u>=0&&u<1?1-u:0;}
+// a man drawn about his middle from the way he faced: in a spin, or turning round (drawTurned, sk_ui.js: his turn not yet done)
+function mirrored(f){if(f.spin)return true;const T=f._turn;if(!T)return false;return T.fa!==f.facing||!!T.snap||Math.abs(T.ang-(f.facing>0?0:Math.PI))>1e-3;}
 // the draw list's own order for the fighters, far to near
 function fightersFarToNear(){const ex=S.game.ex,key=f=>f.dep-(ex&&ex.A===f?.05:0)+(f.dead?.03:0);
   ORDER.length=0;for(const f of S.F)if(!f.gone)ORDER.push(f);ORDER.sort((a,b)=>key(b)-key(a));return ORDER;}
@@ -146,14 +148,16 @@ function prepass(){
   const W0=cv.width,H0=cv.height,s=V.s;
   for(const f of fightersFarToNear()){
     if(f.hidden||!f.p)continue;
-    const J=f.p,dx=f.dep*PSX,dy=-f.dep*PSY,cxm=(J[PEL].x+J[CHE].x)/2;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
-    for(const q of J){if(!q)continue;const a=q.x,b=2*cxm-q.x;if(a<x0)x0=a;if(a>x1)x1=a;if(b<x0)x0=b;if(b>x1)x1=b;if(q.y<y0)y0=q.y;if(q.y>y1)y1=q.y;}
-    if(f.scarf)for(const q of f.scarf){if(q.x<x0)x0=q.x;if(q.x>x1)x1=q.x;if(q.y<y0)y0=q.y;if(q.y>y1)y1=q.y;}
+    // (his box: his joints, his scarf and a beast's tail; a man turning round or spinning is drawn about his middle from the way he
+    // faced, so then his joints' mirror too)
+    const J=f.p,dx=f.dep*PSX,dy=-f.dep*PSY,cxm=(J[PEL].x+J[CHE].x)/2,mir=mirrored(f);let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+    for(const q of J){if(!q)continue;const a=q.x;if(a<x0)x0=a;if(a>x1)x1=a;if(mir){const b=2*cxm-q.x;if(b<x0)x0=b;if(b>x1)x1=b;}if(q.y<y0)y0=q.y;if(q.y>y1)y1=q.y;}
+    for(const Q of [f.scarf,f.tail&&f.tail.q])if(Q)for(const q of Q){if(q.x<x0)x0=q.x;if(q.x>x1)x1=q.x;if(q.y<y0)y0=q.y;if(q.y>y1)y1=q.y;}
     if(!Number.isFinite(x0+x1+y0+y1))continue;
-    // (how far a figure's drawing reaches past its joints, measured over long fights on every ground: 48 to the sides, 44 up, 26 down;
-    // a beast's tail and a spin's sweep further)
-    let M=FK.M||(f.beast?140:58),MB=FK.M||(f.beast?80:36);if(f.spin){const sw=(f.arm||45)+((f.wp&&f.wp.len)||40);M+=sw;MB+=sw*.5;}
-    const X0=Math.floor((x0-M+dx-V.L+V.ox)*s),Y0=Math.floor((y0-M+dy-V.T+V.oy)*s),X1=Math.ceil((x1+M+dx-V.L+V.ox)*s),Y1=Math.ceil((y1+MB+dy-V.T+V.oy)*s);
+    // (how far a figure's drawing reaches past that box, measured over long fights on every ground (V79): a man 63 to the sides,
+    // 41 up and 20 down, spinning too; a beast 37, 33 and 24; a little room past each)
+    const M=FK.M||(f.beast?44:70),MU=FK.M||(f.beast?38:48),MB=FK.M||(f.beast?28:28);
+    const X0=Math.floor((x0-M+dx-V.L+V.ox)*s),Y0=Math.floor((y0-MU+dy-V.T+V.oy)*s),X1=Math.ceil((x1+M+dx-V.L+V.ox)*s),Y1=Math.ceil((y1+MB+dy-V.T+V.oy)*s);
     const bx=Math.max(0,X0),by=Math.max(0,Y0),w=Math.min(W0,X1)-bx,h=Math.min(H0,Y1)-by;
     if(w<2||h<2||w*h>W0*H0)continue;
     const P0=slot(f.idx,w,h),g=P0.g;
@@ -169,18 +173,27 @@ function prepass(){
     const R={f,cv:P0.cv,g,x:bx,y:by,w,h,tr,J:[x0+dx,y0+dy,x1+dx,y1+dy],jb:{x:jx0,y:jy0,w:Math.max(1,jx1-jx0),h:Math.max(1,jy1-jy0)}};REC.set(f,R);
     if(!SKIP.lit)lightSprite(R);}
 }
-// the light on him: the lights of the moment in their colours, the lamp that lights him most, white when struck
+// the light on him: the lights of the moment in their colours, white when struck. (The place's own light, its key, is in his drawing
+// since V78: his rim, his lit planes and his folds take its colour, sk_figui.js; the faint wash of each ground's tint on the side
+// toward its lamp that was laid over his sprite here went in V79, a pass over every man's sprite every frame for what the rim now
+// does)
+// Where two or more fall on him they are drawn in turn into a map of his sprite at a quarter of its size (the glows are soft) and
+// the map laid over him once: the same sum as laying each over him in turn, for one pass over a crowd's sprites instead of several.
+const LM={cv:null,g:null};
 function lightSprite(R){
-  const f=R.f,g=R.g,cx=prjX(f.p[CHE].x,f.dep),cy=prjY(f.p[CHE].y,f.dep),hit=hitNow(f);let any=hit>0;
-  const near=[];for(const l of LIT){const d=Math.hypot(l.sx-cx,l.sy-cy),reach=l.r+70;if(d<reach)near.push([l,d,reach]);}
-  if(!near.length&&!any&&!CFG.tint)return;
-  g.save();g.setTransform(V.s,0,0,V.s,(-V.L+V.ox)*V.s-R.x,(-V.T+V.oy)*V.s-R.y);g.globalCompositeOperation='source-atop';
-  // the lamp that lights him most (the moon from the sky), a little of its colour on the side toward it
-  if(CFG.tint&&grounded(f)){const sh=shadowFor(f);if(MOONNOW){g.globalAlpha=.06;const rr=260;const mx=cx+(MOONNOW.x>cx?160:-160);g.drawImage(glow(CFG.tint),mx-rr,cy-200-rr,rr*2,rr*2);}
-    else if(sh.length&&sh[0].L){const L=sh[0].L,lx=prjX(L.x,L.d),ly=prjY(L.y,L.d),rr=Math.max(120,Math.hypot(lx-cx,ly-cy)*1.05);g.globalAlpha=clamp(.08*sh[0].a/.5,0,.08);g.drawImage(glow(CFG.tint),lx-rr,ly-rr,rr*2,rr*2);}}
-  for(const [l,d,reach] of near){const a=Math.min(.5,l.k*.45*(1-d/reach));if(a<.02)continue;const rr=Math.max(46,l.r*.85);g.globalAlpha=a;g.drawImage(glow(l.col),l.sx-rr,l.sy-rr,rr*2,rr*2);}
-  if(hit>0){g.setTransform(1,0,0,1,0,0);g.globalAlpha=.42*hit*hit;g.fillStyle='#fff6e8';g.fillRect(0,0,R.w,R.h);}
-  g.restore();}
+  const f=R.f,g=R.g,cx=prjX(f.p[CHE].x,f.dep),cy=prjY(f.p[CHE].y,f.dep),hit=hitNow(f);
+  const near=[];for(const l of LIT){const d=Math.hypot(l.sx-cx,l.sy-cy),reach=l.r+70,a=Math.min(.5,l.k*.45*(1-d/reach));if(d<reach&&a>=.02)near.push([l,a]);}
+  const n=near.length+(hit>0?1:0);if(!n)return;
+  const one=(c,k)=>{for(const [l,a] of near){const rr=Math.max(46,l.r*.85);c.globalAlpha=a;c.drawImage(glow(l.col),l.sx-rr,l.sy-rr,rr*2,rr*2);}
+    if(hit>0){c.setTransform(1,0,0,1,0,0);c.globalAlpha=.42*hit*hit;c.fillStyle='#fff6e8';c.fillRect(0,0,Math.ceil(R.w/k),Math.ceil(R.h/k));}};
+  if(n===1){g.save();g.setTransform(V.s,0,0,V.s,(-V.L+V.ox)*V.s-R.x,(-V.T+V.oy)*V.s-R.y);g.globalCompositeOperation='source-atop';one(g,1);g.restore();return;}
+  const k=4,w=Math.ceil(R.w/k),h=Math.ceil(R.h/k);if(!LM.cv){LM.cv=mk(w,h);LM.g=LM.cv.getContext('2d');}
+  if(LM.cv.width<w||LM.cv.height<h){LM.cv.width=Math.max(w,LM.cv.width);LM.cv.height=Math.max(h,LM.cv.height);LM.g=LM.cv.getContext('2d');}
+  const m=LM.g;m.setTransform(1,0,0,1,0,0);m.globalCompositeOperation='source-over';m.globalAlpha=1;m.clearRect(0,0,w+1,h+1);
+  m.setTransform(V.s/k,0,0,V.s/k,((-V.L+V.ox)*V.s-R.x)/k,((-V.T+V.oy)*V.s-R.y)/k);one(m,k);
+  // (laid on without smoothing: soft as the glows are, a quarter's step does not show on him, and smoothing it up costs a CPU canvas
+  // twice as much over a big man's sprite)
+  g.save();g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='source-atop';g.globalAlpha=1;g.imageSmoothingEnabled=false;g.drawImage(LM.cv,0,0,w,h,0,0,w*k,h*k);g.restore();}
 // set him down where he stands (with the weapon's trail first, as the draw list always had it)
 function put(f){const R=REC.get(f);if(!R)return false;
   if(R.tr){ctx.save();ctx.translate(f.dep*PSX,-f.dep*PSY);drawTrail(S.trails[f.idx]);if(f.offTrail)drawTrail(f.offTrail);ctx.restore();}
@@ -202,7 +215,8 @@ function reflections(){
     ctx.save();ctx.setTransform(1,0,0,-1,0,2*Gd);
     // hung from his feet a band at a time, each fainter, each shifted a little on the street's water
     for(let i=0;i<N;i++){const a0=span*i/N,a1=span*(i+1)/N;let sy=Gd-a1-R.y,sh=a1-a0;if(sy+sh<=0)continue;if(sy<0){sh+=sy;sy=0;}if(sh<=.5)continue;
-      const al=wet*Math.pow(1-(i+.5)/N,1.4);if(al<.01)continue;
+      // (a band fainter than .03 is left out: on a waxed floor the last of them hardly shows, and each is a pass over his width)
+      const al=wet*Math.pow(1-(i+.5)/N,1.4);if(al<.03)continue;
       const rip=CFG.rip?Math.sin(t*2.4+i*1.9+R.x*.017)*(.4+i*.55)*V.s*.45:0;
       ctx.globalAlpha=al;ctx.drawImage(src,0,sy/q,R.w/q,sh/q,R.x+rip,R.y+sy,R.w,sh);}
     ctx.restore();}
@@ -221,10 +235,12 @@ function silhouette(R,Gd){
   g.globalCompositeOperation='source-in';const gl=Math.max(1,(Gd-J.y)/k),gr=g.createLinearGradient(0,0,0,gl);
   gr.addColorStop(0,'rgba(5,3,10,.32)');gr.addColorStop(1,'rgba(5,3,10,1)');g.fillStyle=gr;g.fillRect(0,0,w,h);
   g.globalCompositeOperation='source-over';return{w,h};}
+// (in a crowd, more than four men standing, each throws the one shadow of the lamp that lights him most: V79's cheaper crowds)
 function castShadows(){
+  let n=0;for(const f of ORDER)if(REC.get(f)&&grounded(f))n++;const two=n<=4;
   for(const f of ORDER){const R=REC.get(f);if(!R||!grounded(f))continue;const L=shadowFor(f);if(!L.length)continue;
     const Gd=groundY(f),Fx=dX(prjX((f.p[FTF].x+f.p[FTB].x)/2,f.dep)),B=silhouette(R,Gd);ctx.save();
-    for(let i=0;i<L.length;i++){const l=L[i];if(l.a<(i?.1:.02))continue;ctx.setTransform(l.ax,l.ay,-l.vx,-l.vy,Fx*(1-l.ax)+l.vx*Gd,Gd*(1+l.vy)-l.ay*Fx);ctx.globalAlpha=Math.min(1,l.a);
+    for(let i=0;i<(two?L.length:1);i++){const l=L[i];if(l.a<(i?.1:.02))continue;ctx.setTransform(l.ax,l.ay,-l.vx,-l.vy,Fx*(1-l.ax)+l.vx*Gd,Gd*(1+l.vy)-l.ay*Fx);ctx.globalAlpha=Math.min(1,l.a);
       ctx.drawImage(SB.cv,0,0,B.w,B.h,R.jb.x,R.jb.y,R.jb.w,R.jb.h);}
     ctx.restore();}
 }
@@ -373,11 +389,19 @@ function fx(){
   return true;}
 
 // ---------- over the whole picture ----------
-function grade(){
-  const w=cv.width,h=cv.height;ctx.save();ctx.setTransform(1,0,0,1,0,0);
+// (where the place's finish blooms, at Full, the moment's big glows (front) and a crit's flash go into its light, an eighth of the
+// frame's size, instead of each over the whole frame: the same soft light for a fraction of the cost, V79; glows() hands them over)
+const takes=()=>full()&&typeof sceneFinishTakes==='function'&&sceneFinishTakes();
+function critGlow(){if(!CRIT)return null;const u=(S.t-CRIT.t0)/.32;if(u>=1){CRIT=null;return null;}if(u<0)return null;
+  return{x:dX(CRIT.x),y:dY(CRIT.y),R:Math.hypot(cv.width,cv.height)*.55,col:CRIT.col,a:.2*(1-u)*(1-u)};}
+function grade(){if(takes()){critGlow();return;}
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);
   // a crit: the whole frame catches its light for an instant
-  if(CRIT){const u=(S.t-CRIT.t0)/.32;if(u>=0&&u<1){const x=dX(CRIT.x),y=dY(CRIT.y),R=Math.hypot(w,h)*.55;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.2*(1-u)*(1-u);ctx.drawImage(glow(CRIT.col),x-R,y-R,R*2,R*2);}else if(u>=1)CRIT=null;}
+  const G=critGlow();if(G){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=G.a;ctx.drawImage(glow(G.col),G.x-G.R,G.y-G.R,G.R*2,G.R*2);}
   ctx.restore();}
+// the soft glows of the moment, in canvas pixels, for the finish to lay into its light
+function glows(){const out=[];if(!on())return out;for(const l of LIT){if(l.k<=.6)continue;const R=l.r*1.25*V.s;out.push({x:dX(l.sx),y:dY(l.sy),R,col:l.col,a:Math.min(.16,.09*l.k),img:glow(l.col)});}
+  const G=critGlow();if(G){G.img=glow(G.col);out.push(G);}return out;}
 
 // ---------- the frame ----------
 // called by render once the floor is down: the lights, the fighters' sprites, their reflections, the light on the floor, the air behind
@@ -389,7 +413,7 @@ function frame(s,L,T,ox,oy){
   if(!SKIP.floor)floorLight();if(!SKIP.air)airBack();}
 function shadows(){contactShadows();if(full()&&!SKIP.cast)castShadows();}
 function front(){if(!on())return;if(!SKIP.air)airFront();
-  let any=false;for(const l of LIT)if(l.k>.6){any=true;break;}if(!any)return;
+  let any=false;for(const l of LIT)if(l.k>.6){any=true;break;}if(!any||takes())return;
   ctx.save();ctx.globalCompositeOperation='lighter';
   for(const l of LIT){if(l.k<=.6)continue;const R=l.r*1.25;ctx.globalAlpha=Math.min(.16,.09*l.k);ctx.drawImage(glow(l.col),l.sx-R,l.sy-R,R*2,R*2);}
   ctx.restore();}
@@ -418,7 +442,7 @@ V11UI.init.push(()=>{try{
     const b=document.createElement('button');b.type='button';b.dataset.fx=k;b.textContent=l;b.title=tip;b.addEventListener('click',()=>set(k,true));seg.appendChild(b);}
   sync();}catch(e){}});
 V11UI.init.push(()=>sync());
-return{on,full,frame,shadows,front,grade,fx,put,done,set,lights:XL,get q(){return Q.q;},get auto(){return Q.auto;},get user(){return Q.user;},
+return{on,full,frame,shadows,front,grade,glows,fx,put,done,set,lights:XL,get q(){return Q.q;},get auto(){return Q.auto;},get user(){return Q.user;},
   // (for the checks: the sprite a fighter was drawn into this frame, and where it sits on the canvas; and how much of the moment's
   // impact is on him, 0 to 1: struck white, or an impact's flash where he is)
   sprite:f=>REC.get(f)||null,

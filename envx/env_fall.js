@@ -1195,57 +1195,16 @@ function fore(c){flare(dreamK());bokeh(S.t,Math.abs(S.scrollYV||0),dreamK(),pitO
 function light(f){const D=dreamK(),x=lerp(1040,SUN.x+60,D),y=lerp(420,SUN.y-60,D);return{light:{x:x-f.dep*PSX,y:y+f.dep*PSY},col:D>.5?'#ffd890':'#c8d4ff'};}
 const LAYOUT={corner:CORNER,floor:FH,yRef:YREF,hMark:HMARK,horizon:HOR};
 // ---------- the picture as a camera takes it ----------
-// Once the world is drawn (before his thoughts and the bars, sk_storyui.js), over the whole fall: the light blooms (the frame shrunk to
-// an eighth, its bright parts drawn out by multiplying it by itself) and runs out sideways from every bright point in the long streaks
-// a cinema lens makes (cold at night, warm in the dream), the two laid over the frame at once; the edges of the picture darken (cold
-// at night, a burnt brown in the dream, deepest in the Pit); and a fine grain moves over it. Full effects: all of it. Lite: the dark
-// at the edges. Off: none. Phones first: the frame is gone over whole only twice (the light, the grain), the dark only along the
-// edges, and nothing in a blend that costs more than laying one picture over another. It only draws: the game never reads what it
-// keeps.
-const PFX={B:null,S:null,C:null,pat:null,last:{bloom:0,vig:0,n:0}};
-function pfxCv(c,w,h){c=c||document.createElement('canvas');if(c.width!==w||c.height!==h){c.width=w;c.height=h;}return c;}
-// the grain, a tile drawn once: specks a little lighter or a little darker than what is under them, laid plainly over it
-function grainPat(){if(PFX.pat)return PFX.pat;const c=pfxCv(null,128,128),g=c.getContext('2d'),im=g.createImageData(128,128),r=rng(907);
-  for(let i=0;i<128*128;i++){const v=(r()+r()+r()-1.5)/1.5,lv=v>0?255:0;im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=lv;im.data[i*4+3]=Math.round(Math.min(1,Math.abs(v)*1.4)*255);}
-  g.putImageData(im,0,0);PFX.pat=cv.getContext('2d').createPattern(c,'repeat');return PFX.pat;}
-// how far the story's bars are in (sk_storyui.js draws them after this, a tenth of the height each at full)
-function bars(){return typeof ST_LB==='number'?clamp(ST_LB,0,1):0;}
-// the dark falling in from the edges, in three bands inside the bars (not along the top, where the moon and the sun are; the corners
-// where two bands cross the darkest)
-function vignette(W2,H2,D,pit){const bar=Math.floor(H2*.105*bars()),y0=bar,ih=H2-2*bar;if(ih<8)return;
-  const col=pit?'#020308':mix('#02040b','#1c1006',D),a=pit?.62:lerp(.5,.3,D),vw=W2*.16,vh=ih*.16;PFX.last.vig=a;
-  const band=(x0,y0g,x1,y1g)=>{const g=ctx.createLinearGradient(x0,y0g,x1,y1g);g.addColorStop(0,rgba(col,a));g.addColorStop(.4,rgba(col,a*.38));g.addColorStop(1,rgba(col,0));return g;};
-  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
-  ctx.fillStyle=band(0,0,vw,0);ctx.fillRect(0,y0,vw,ih);ctx.fillStyle=band(W2,0,W2-vw,0);ctx.fillRect(W2-vw,y0,vw,ih);
-  ctx.fillStyle=band(0,y0+ih,0,y0+ih-vh);ctx.fillRect(0,y0+ih-vh,W2,vh);}
+// Once the world is drawn (before his thoughts and the bars), the shared finish (EnvLook.finish, env_look.js) at the
+// fall's own strengths, the set pieces': the light blooming strongest in the night (.6), less in the dream that is all light, and he
+// stays dark against it (.34), a burst of it as he wakes; the streaks cold at night and warm in the dream; the edges darkening cold
+// at night, a burnt brown in the dream, deepest in the Pit.
+const PFX={last:{bloom:0,vig:0,n:0}};
 function post(){if(typeof cv==='undefined'||!cv.width)return;const q=typeof FXL!=='undefined'?FXL.q:'full';if(q==='off')return;
-  const W2=cv.width,H2=cv.height,P=S.pit,D=dreamK(),woke=P&&P.woke!=null?S.t-P.woke:9,pit=P&&P.on&&P.base!=null&&fy(P.base)<H?1:0;
-  ctx.save();ctx.setTransform(1,0,0,1,0,0);PFX.last.n++;
-  if(q==='full'){
-    // the light alone: the frame an eighth the size, multiplied by itself twice
-    const bw=Math.max(24,Math.round(W2/8)),bh=Math.max(24,Math.round(H2/8)),B=PFX.B=pfxCv(PFX.B,bw,bh),g=B.getContext('2d');
-    g.globalCompositeOperation='copy';g.globalAlpha=1;g.imageSmoothingEnabled=true;g.drawImage(cv,0,0,bw,bh);
-    g.globalCompositeOperation='multiply';g.drawImage(B,0,0);g.drawImage(B,0,0);
-    // the streaks: that light smeared out sideways, and coloured
-    const SS=PFX.S=pfxCv(PFX.S,bw,bh),h2=SS.getContext('2d');h2.globalCompositeOperation='copy';h2.globalAlpha=1;h2.drawImage(B,0,0);h2.globalCompositeOperation='lighter';
-    for(const [f,a] of [[.012,.55],[.028,.36],[.055,.22],[.1,.12],[.17,.06]])for(const sg of [-1,1]){h2.globalAlpha=a;h2.drawImage(B,sg*f*bw,0);}
-    h2.globalCompositeOperation='multiply';h2.globalAlpha=1;h2.fillStyle=D>.3?'#ffcf96':pit?'#8aa6d8':'#7fb0ff';h2.fillRect(0,0,bw,bh);
-    // (less of it as the picture grows bright: the dream is all light, and he stays dark against it; a burst of it as he wakes)
-    const kb=(pit?.48:lerp(.6,.34,D))*(woke<.35?1+2*(1-woke/.35):1),ks=kb*(.75-.3*D);PFX.last.bloom=kb;
-    // the two in one small picture, laid over the frame once
-    const Cc=PFX.C=pfxCv(PFX.C,bw,bh),h3=Cc.getContext('2d');h3.globalCompositeOperation='copy';h3.globalAlpha=clamp(ks,0,1);h3.drawImage(SS,0,0);
-    h3.globalCompositeOperation='lighter';h3.globalAlpha=clamp(kb,0,1);h3.drawImage(B,0,0);
-    // (the dark at the edges first, so that a lamp or the sun in a corner keeps its glow; only between the bars: what they cover is
-    // not drawn)
-    vignette(W2,H2,D,pit);
-    const y0=Math.floor(H2*.105*bars()),sh=bh*y0/H2;
-    ctx.imageSmoothingEnabled=true;ctx.globalCompositeOperation='screen';ctx.globalAlpha=1;ctx.drawImage(Cc,0,sh,bw,bh-2*sh,0,y0,W2,H2-2*y0);}
-  else vignette(W2,H2,D,pit);
-  // the grain, moving (still where motion is reduced), a pixel of the canvas (not on a phone's small screen, where it would not show
-  // and the frame cannot spare it)
-  if(q==='full'&&cssW>=640){const pt=grainPat(),f=(S._rf||0),ox=reduceMotion?0:(f*53)%128,oy=reduceMotion?0:(f*97)%128,y0=Math.floor(H2*.105*bars());
-    ctx.globalCompositeOperation='source-over';ctx.globalAlpha=.05;ctx.fillStyle=pt;ctx.translate(-ox,-oy);ctx.fillRect(ox,y0+oy,W2,H2-2*y0);}
-  ctx.restore();}
+  const P=S.pit,D=dreamK(),woke=P&&P.woke!=null?S.t-P.woke:9,pit=P&&P.on&&P.base!=null&&fy(P.base)<H?1:0;
+  const kb=(pit?.48:lerp(.6,.34,D))*(woke<.35?1+2*(1-woke/.35):1),edges=pit?.62:lerp(.5,.3,D);
+  PFX.last.n++;PFX.last.vig=edges;if(q==='full')PFX.last.bloom=kb;
+  E.finish({glow:kb,streak:kb*(.75-.3*D),streakCol:D>.3?'#ffcf96':pit?'#8aa6d8':'#7fb0ff',edges,edgeCol:pit?'#020308':mix('#02040b','#1c1006',D)});}
 // (away from the fall its pieces are let go: the junk's tiles and the desert's view)
 function free(){jkFree();if(DES.cv){DES.cv.width=DES.cv.height=0;DES.cv=null;}}
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the night's light on the face round him as he

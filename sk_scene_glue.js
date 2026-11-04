@@ -19,7 +19,7 @@ function sceneLayer(k){const need=sceneScale(),lh=sceneLayerH(),v=EnvLook.S[k].k
     const cn=document.createElement('canvas');cn.width=Math.ceil(RC.w*need);cn.height=Math.ceil(lh*need);
     const c=cn.getContext('2d'),t0=performance.now();c.setTransform(need,0,0,need,-RC.x0*need,-RC.y0*need);EnvLook.S[k].paint(c);if(SCENE_NIGHT[k])sceneNightLift(c,cn);
     if(!EnvLook.S[k].setLive){const G=setOf(k);if(G)setDraw(c,G,RC.x0,RC.w);}
-    const B=sceneBandOf(cn,lh);L=SCENE_LY={k,v,cv:cn,sc:need,lh,ms:performance.now()-t0,foot:B.foot,top:B.top,bot:B.bot,gnd:sceneGrid(cn,lh)};SCENE_WARM.planned[k]=true;}
+    const B=sceneBandOf(cn,lh);L=SCENE_LY={k,v,cv:cn,sc:need,lh,ms:performance.now()-t0,foot:B.foot,top:B.top,bot:B.bot,gnd:sceneGrid(cn,lh),row:sceneTopOf(cn)};SCENE_WARM.planned[k]=true;}
   return L;}
 // How far a layer is painted (world y), read off a small copy of it: its foot, the lowest row painted across most of the floor's
 // width, where the black under the place starts (render(), sk_ui.js); and the part of it that is not flat black by the audit's test
@@ -50,7 +50,7 @@ function sceneNightLift(c,cn){try{const s=cn.width/RC.w,d=c.getImageData(0,0,cn.
 // below(c, x0, x1, y0, y1), its floor run on under the layer's foot into the dark (else the page's dark, render() in sk_ui.js).
 function sceneDraw(k,T){const L=sceneLayer(k),X=EnvLook.S[k];
   if(T-40<RC.y0){if(X.upTile)sceneUp(L,T-40,X.upTile);
-    else{ctx.drawImage(L.cv,0,0,L.cv.width,2,RC.x0,T-40,RC.w,RC.y0-(T-40)+.5);if(SCENE_NIGHT[k])sceneStars(T-40,RC.y0+2);}}
+    else{sceneTopFill(L,T-40);if(SCENE_NIGHT[k])sceneStars(T-40,RC.y0+2);}}
   ctx.drawImage(L.cv,RC.x0,RC.y0,RC.w,L.lh);
   if(X.below){const B=T+cv.height*cam.viewW/Math.max(1,cv.width)+40;if(B>L.foot)X.below(ctx,RC.x0,RC.x0+RC.w,L.foot-1,B);}}
 function sceneUp(L,T,h){const sh=Math.max(1,Math.round(h*L.sc)),top=RC.y0-h*6;
@@ -59,12 +59,26 @@ function sceneUp(L,T,h){const sh=Math.max(1,Math.round(h*L.sc)),top=RC.y0-h*6;
   ctx.fillRect(RC.x0,Math.max(T,top),RC.w,RC.y0-Math.max(T,top));if(T<top){ctx.fillStyle='rgba(3,3,6,.35)';ctx.fillRect(RC.x0,T,RC.w,top-T);}}
 const SCENE_NIGHT={street:1,field:1,hill:1,ledge:1,wall:1,crops:1,roadblock:1,chase:1,roof:1};
 // a field of faint stars, made once (300 by 200 units, on its own dice), laid as a repeat between y0 and y1
+// (each star a speck drawn where the view needs it, the specks of a colour and a brightness filled at once: a pattern scaled to the
+// world costs a CPU canvas several milliseconds over a phone's sky, V79)
 let SCENE_STARS=null;
-function sceneStars(y0,y1){if(!SCENE_STARS){const s=2,cn=document.createElement('canvas');cn.width=300*s;cn.height=200*s;const c=cn.getContext('2d'),r=mulberry32(4401);
-    for(let i=0;i<70;i++){const x=r()*300,y=r()*200,a=.18+r()*.45,z=r()<.85?1:1.7;c.fillStyle=`rgba(${r()<.7?'232,226,214':'200,212,255'},${a.toFixed(2)})`;c.fillRect(x*s,y*s,z*s,z*s);}
-    SCENE_STARS={cv:cn,c:null,p:null};}
-  const Z=SCENE_STARS;if(Z.c!==ctx){Z.c=ctx;Z.p=ctx.createPattern(Z.cv,'repeat');if(Z.p&&Z.p.setTransform)Z.p.setTransform(new DOMMatrix().scale(.5));}
-  if(!Z.p)return;ctx.fillStyle=Z.p;ctx.fillRect(RC.x0,y0,RC.w,y1-y0);}
+function sceneStars(y0,y1){if(!SCENE_STARS){const r=mulberry32(4401),st=[];
+    for(let i=0;i<70;i++){const x=r()*300,y=r()*200,a=.18+r()*.45,z=r()<.85?1:1.7,w=r()<.7?0:1;st.push({x,y,z,b:Math.min(3,Math.floor((a-.18)/.45*4)),w});}
+    SCENE_STARS=st;}
+  const vx0=Math.max(RC.x0,cam.x-cam.viewW/2-4),vx1=Math.min(RC.x0+RC.w,cam.x+cam.viewW/2+4),P=[[],[]].map(()=>[0,1,2,3].map(()=>new Path2D()));
+  for(let ty=Math.floor(y0/200)*200;ty<y1;ty+=200)for(let tx=Math.floor(vx0/300)*300;tx<vx1;tx+=300)for(const q of SCENE_STARS){const x=tx+q.x,y=ty+q.y;
+    if(x<vx0||x>vx1||y<y0||y>y1)continue;P[q.w][q.b].rect(x,y,q.z,q.z);}
+  for(let w=0;w<2;w++)for(let b=0;b<4;b++){ctx.fillStyle=`rgba(${w?'200,212,255':'232,226,214'},${(.18+(b+.5)*.1125).toFixed(3)})`;ctx.fill(P[w][b]);}}
+// the layer's top row run on up over the view above it, as a fill of that row's colours (read once as the layer is painted: one
+// colour where the row is even, else a gradient across it) rather than its two rows stretched up over the whole of it
+function sceneTopFill(L,T){const R=L.row;if(!R){ctx.drawImage(L.cv,0,0,L.cv.width,2,RC.x0,T,RC.w,RC.y0-T+.5);return;}
+  if(!R.fill||R.c!==ctx){R.c=ctx;if(R.even)R.fill=R.col;else{const g=ctx.createLinearGradient(RC.x0,0,RC.x0+RC.w,0);R.stops.forEach((c,i)=>g.addColorStop(i/(R.stops.length-1),c));R.fill=g;}}
+  ctx.fillStyle=R.fill;ctx.fillRect(RC.x0,T,RC.w,RC.y0-T+.5);}
+function sceneTopOf(cn){try{const n=32,c=document.createElement('canvas');c.width=n;c.height=1;const g=c.getContext('2d');g.drawImage(cn,0,0,cn.width,Math.max(1,Math.round(cn.width/RC.w*2)),0,0,n,1);
+    const d=g.getImageData(0,0,n,1).data,hx=i=>'#'+[d[i],d[i+1],d[i+2]].map(v=>v.toString(16).padStart(2,'0')).join('');let lo=[255,255,255],hi=[0,0,0],sum=[0,0,0];
+    for(let i=0;i<n;i++)for(let q=0;q<3;q++){const v=d[i*4+q];lo[q]=Math.min(lo[q],v);hi[q]=Math.max(hi[q],v);sum[q]+=v;}
+    const even=hi.every((v,q)=>v-lo[q]<=5),stops=[];for(let i=0;i<n;i+=2)stops.push(hx(i*4));stops.push(hx((n-1)*4));
+    return{even,col:'#'+sum.map(v=>Math.round(v/n).toString(16).padStart(2,'0')).join(''),stops};}catch(e){return null;}}
 // ---------- the light on the fight (the style guide's rule 8) ----------
 // The ground behind the fight band never measures under .2 and aims for .28, and it gets there by light: each place lays its key
 // light over the floor the fight stands on and the wall behind it (EnvLook.S[k].set, an object, or a function of the moment where it
@@ -105,7 +119,8 @@ function setDraw(c,G,L,VW){const S2=setSprites(G),X=setX(G),Y=setY(G),w=X[1]-X[0
       const s0=(l-x0)/w*SET_W,s1=(r-x0)/w*SET_W;c.drawImage(spr,s0,0,Math.max(.5,s1-s0),SET_H,l,Y[0],r-l,Y[3]-Y[0]);}}
   c.restore();}
 // Laid into the place's layer once, as it is painted (sceneLayer): a still place pays nothing a frame for it. A place whose ground is
-// drawn as it moves (setLive: the tunnel's walls, the chase's street, the face of the tower in the fall) has it laid over each frame.
+// drawn as it moves (setLive: the chase's street, the face of the tower in the fall) has it laid over each frame; the tunnel lays it
+// into each made picture that goes by (lit, env_tunnel.js: its band runs the same all along the line).
 function sceneSet(k,L,VW){const X=EnvLook.S[k];if(!X||!X.setLive)return;const G=setOf(k);if(G)setDraw(ctx,G,L,VW);}
 // The ground behind a figure, as light as it is drawn (for his rim, sk_figui.js): the layer read once when it is painted (its light
 // laid in), on a grid of 10 units; a place whose ground the layer does not hold (it scrolls, or it is drawn as it moves) says how
@@ -127,6 +142,24 @@ function sceneGround(f){const k=envKey(),X=k&&EnvLook.S[k];if(!X||!f||!f.p||!f.p
   let s=0,n=0;for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const q=(j*M.w+i)*3;s+=setLum(G,gs,kc,M.x0+i*M.d+5-ox,M.y0+j*M.d+5,M.v[q],M.v[q+1],M.v[q+2]);n++;}return n?s/n:null;}
 // his rim on a dark ground: stronger the darker it is under .2, at most 1.8 times at .1 and under
 function sceneRimK(f){const g=sceneGround(f);return g==null?1:1+.8*clamp((.2-g)/.1,0,1);}
+// ---------- the finish (the style guide's rule 6) ----------
+// Every place's picture gets the shared finish (EnvLook.finish, env_look.js: the light blooming, the edges darkening, the grain on a
+// big screen) at its world's strengths: glow .3 and edges .5 for the rooms and the city (and the country round it), glow .2 and
+// edges .62 for the underground and the Pit, a set piece's own with its streaks (the road at sundown; the fall gives its own each
+// frame, its post()). A place can give its own (finish: an object, or a function of the moment). The page's own vignette over the
+// stage (sk_css_light.css) is for a picture with no finish: the old drawing.
+const SCENE_FINISH={city:{glow:.3,edges:.5,edgeCol:'#04030a'},rooms:{glow:.3,edges:.5,edgeCol:'#06030a'},under:{glow:.2,edges:.62,edgeCol:'#020308'},
+  pit:{glow:.2,edges:.62,edgeCol:'#080604'},set:{glow:.42,streak:.24,streakCol:'#ffcf96',edges:.42,edgeCol:'#120804'}};
+const SCENE_WORLD={street:'city',chase:'city',roadblock:'city',roof:'city',field:'city',crops:'city',hill:'city',ledge:'city',wall:'city',
+  dining:'rooms',kitchen:'rooms',lobby:'rooms',office:'rooms',station:'under',tunnel:'under',
+  sumproof:'pit',sumpkitchen:'pit',backroom:'pit',yard:'pit',stairs:'pit',shelf:'pit',outskirts:'set'};
+let SCENE_FIN=null;
+// (does this frame's finish bloom? then the light module hands it the moment's big glows instead of drawing them over the frame)
+function sceneFinishTakes(){const k=envKey(),X=k&&EnvLook.S[k];if(!X)return false;if(X.post)return true;const o=X.finish?(typeof X.finish==='function'?X.finish():X.finish):SCENE_FINISH[SCENE_WORLD[k]];return!!(o&&o.glow>0);}
+function sceneFinish(){const k=envKey(),X=k&&EnvLook.S[k],o=!X?null:X.post?'post':X.finish?(typeof X.finish==='function'?X.finish():X.finish):SCENE_FINISH[SCENE_WORLD[k]];
+  // (the page's vignette off where the canvas darkens its own edges)
+  const on=!!o&&typeof FXL!=='undefined'&&FXL.on();if(on!==SCENE_FIN){SCENE_FIN=on;const wr=typeof document!=='undefined'&&document.getElementById('wrap');if(wr&&wr.setAttribute)wr.setAttribute('data-fin',on?'1':'0');}
+  if(!o)return;if(o==='post')X.post();else EnvLook.finish(o);}
 // a piece of the layer drawn elsewhere (source and destination in world units): how the hidden lift's wall section, the lobby lift's
 // leaves and the kitchen's back door move while looking exactly as the layer paints them
 function sceneBlit(c,sx,sy,sw,sh,dx,dy,dw,dh){const L=SCENE_LY;if(!L||!L.cv.width)return false;const s=L.sc;

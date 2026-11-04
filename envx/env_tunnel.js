@@ -22,6 +22,14 @@ const bucket=k=>clamp(Math.round(k*20)/20,1,2.5);   // made at the screen's own 
 function mk(w,h,sc){const cv=document.createElement('canvas');cv.width=Math.ceil(w*sc);cv.height=Math.ceil(h*sc);return cv;}
 function patAt(c,cv,x,y,u){const p=c.createPattern(cv,'repeat');if(p.setTransform)p.setTransform(new DOMMatrix().translate(x,y).scale(u));return p;}
 function floorT(c,h){c.transform(1,0,PSX,-PSY,0,GB+(h||0));}
+// the light on the fight (SET, below) laid into a made picture that stands in its band, as a still place has it laid into its layer
+// (setDraw, sk_scene_glue.js; the deck gets it in the layer): it runs the same all along the line, so it goes by with the wall, its
+// passages, the old station and the far rail (since V79; before, it was laid over each frame, 8 to 11 ms on a phone). keep: the
+// picture has clear parts, kept clear
+function lit(cv,c,x0,x1,keep){if(typeof setDraw!=='function')return;let k=null;
+  if(keep){k=document.createElement('canvas');k.width=cv.width;k.height=cv.height;k.getContext('2d').drawImage(cv,0,0);}
+  setDraw(c,SET,x0,x1-x0);
+  if(k){c.save();c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='destination-in';c.globalAlpha=1;c.drawImage(k,0,0);c.restore();}}
 // a made picture smeared along the line, as the eye sees it at speed: copies laid a little further along each time, averaged
 function smear(src,B,wrap){const cv=document.createElement('canvas');cv.width=src.width;cv.height=src.height;const c=cv.getContext('2d'),n=9,w=src.width;
   for(let i=0;i<n;i++){const o=Math.round(-B/2+B*i/(n-1));c.globalAlpha=1/(i+1);c.drawImage(src,o,0);if(wrap){c.drawImage(src,o-w,0);c.drawImage(src,o+w,0);}}
@@ -89,6 +97,7 @@ function wallTile(k){const sc=bucket(k);if(WT&&WT.sc===sc)return WT;
     c.strokeStyle='#0a0a0d';c.lineWidth=2.2;c.beginPath();c.moveTo(x-14,y-24);c.quadraticCurveTo(x-14,y-13,x,y-13);c.lineTo(x,y-9);c.stroke();
     c.fillStyle=C.goldD;c.fillRect(x-5,y-10,10,2.2);c.fillRect(x-4,y+9,8,2);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=.7;c.beginPath();for(const kx of [-4.5,-1.5,1.5,4.5]){c.moveTo(x+kx,y-8);c.lineTo(x+kx*.8,y+9);}c.stroke();
     c.fillStyle='#14262a';c.beginPath();c.moveTo(x,y-6);c.lineTo(x+3.4,y);c.lineTo(x,y+6);c.lineTo(x-3.4,y);c.closePath();c.fill();}
+  lit(cv,c,0,PER);
   WT={sc,cv,blur:smear(cv,22*sc,true),y0,h};return WT;}
 // the vault over the wall: the rings going on over toward us, leaning as they come, the brick between them in its soot; made once a
 // scale at half the wall's (it is dim, and smeared at speed). live() lays it on up over the wall as far as the view goes (an upright
@@ -116,6 +125,7 @@ function railTile(k){const sc=bucket(k);if(RT&&RT.sc===sc)return RT;
   c.strokeStyle=rgba(C.gold,.5);c.lineWidth=.7;c.beginPath();c.moveTo(L.x,L.y-23.2);c.lineTo(R.x,R.y-23.2);c.stroke();
   {const p=q(LANTERN.x,GB,LANTERN.d);c.strokeStyle='#14141a';c.lineWidth=1.2;c.beginPath();c.moveTo(p.x,p.y-22);c.lineTo(p.x+4,p.y-31);c.stroke();
     c.fillStyle='#16120c';c.fillRect(p.x+1,p.y-41,8,10);c.fillStyle=C.goldD;c.fillRect(p.x,p.y-42,10,2);c.fillRect(p.x+2,p.y-31,6,1.4);c.fillStyle=rgba('#ffe7b0',.9);c.fillRect(p.x+3,p.y-39,4,6);}
+  lit(cv,c,x0,x1,true);
   RT={sc,cv,x0,y0,w:x1-x0,h:y1-y0};return RT;}
 
 // ---------- the old station at Lamplight Street, made once a scale, and its smear ----------
@@ -188,6 +198,7 @@ function stnSprite(k){const sc=bucket(k);if(ST&&ST.sc===sc)return ST;
     c.strokeStyle=rgba('#ffcf86',.18);c.lineWidth=1;c.beginPath();c.moveTo(P[3].x+.5,P[3].y);c.lineTo(P[0].x+.5,P[0].y);c.stroke();}
   // the warm air of the place
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,fy(160),0,yO+40,[[0,rgba('#ffcf86',0)],[.6,rgba('#ffcf86',.035)],[1,rgba('#ffcf86',0)]]);c.fillRect(oL,fy(160),oR-oL,yO+40-fy(160));c.restore();
+  lit(cv,c,x0,x1,true);
   ST={sc,cv,blur:smear(cv,22*sc,false),x0,y0,w:x1-x0,h:y1-y0};return ST;}
 
 // a side passage's mouth: a dark arch in the wall ringed in blue brick, its bore going back, a light far down it (made once a scale,
@@ -202,6 +213,7 @@ function passSprite(k){const sc=bucket(k);if(PS&&PS.sc===sc)return PS;
   glow(c,cx+12,wb-62,26,'#ffb866',.32);c.fillStyle=rgba('#ffcf86',.55);c.fillRect(cx+9,wb-66,6,2);
   c.strokeStyle=rgba('#8a94b0',.18);c.lineWidth=.8;c.beginPath();c.arc(cx,cy,R+5.5,Math.PI,0);c.stroke();
   c.fillStyle=rgba('#000000',.5);c.fillRect(cx-R-6,wb-3,2*R+12,4);
+  lit(cv,c,0,w,true);
   PS={sc,cv,blur:smear(cv,22*sc,false),y0,w,h:y1-y0};return PS;}
 // the engine's breath, a long band of it streaming back under the vault (made once)
 let SMK=null;
@@ -244,7 +256,8 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
       for(;x<vx1;x+=PER){if(blurA<1)ctx.drawImage(V.cv,x,y,PER+.6,V.h+.6);if(blurA>0){ctx.globalAlpha=blurA;ctx.drawImage(V.blur,x,y,PER+.6,V.h+.6);ctx.globalAlpha=1;}}
       if(j){ctx.fillStyle=rgba('#020203',Math.min(.4,.1*j));ctx.fillRect(vx0,y,vx1-vx0,V.h+.6);}}}
   // the strip of track bed at the wall's foot beyond the car, streaming by
-  ctx.fillStyle='#040404';ctx.fillRect(vx0,wb-1,vx1-vx0,df-wb+1);
+  // (in the light on the fight: the near black it was, as that light leaves it)
+  ctx.fillStyle='#131c1a';ctx.fillRect(vx0,wb-1,vx1-vx0,df-wb+1);
   {const r=rng(3),span=1500;for(let i=0;i<30;i++){const x=-300+frac(r()-s0/span)*span,L=4+r()*10+v*.03;ctx.fillStyle=rgba('#4a4238',.18+.2*r());ctx.fillRect(x,wb+1+r()*(df-wb-2),L,.8);}}
   // side passages: a dark arched mouth, a light far down it, eyes in some
   {const i0=Math.floor((s0+vx0-ox-112-900)/PASS),i1=Math.floor((s0+vx1-ox-900)/PASS)+1,P=passSprite(k);
@@ -311,8 +324,9 @@ function light(f){const x=f.p[PEL].x,s0=S.scroll||0,sh=yS(),s=stnAt(x+s0,60);
   const i=Math.round((x+s0-LAMP/2)/LAMP),lx=lampAt(i)-s0;
   if(lampOn(i)&&Math.abs(lx-x)<170)return{light:{x:lx+WD*PSX-f.dep*PSX,y:sh+28+f.dep*PSY},col:'#a6f2e8'};
   const p=q(LANTERN.x+5,GB-36,LANTERN.d);return{light:{x:p.x-f.dep*PSX,y:p.y+f.dep*PSY},col:'#ffc070'};}
-// the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the passing lamps' cyan on the flatcar and the tunnel's walls round the fight
-const SET={col:'#bcf5ee',soft:1,gain:1.3,air:.04,y:[GB-360,GB-280,GB-60,GB+20]};
-E.S.tunnel={set:SET,setLive:true,ground:.26,paint,live,light,warm,LAYOUT:{DN,DF,WD,BED,SPR,SILL,deckY:GB,railTop:GB-24,railDep:LANTERN.d,lantern:LANTERN,STN,STN_AT,STN_L}};
+// the light on the fight (the style guide's rule 8, sk_scene_glue.js): the passing lamps' cyan on the flatcar and the tunnel's walls
+// round the fight, laid into the layer (the deck) and into the made pictures that go by (lit, above)
+const SET={col:'#bcf5ee',soft:1,gain:1.3,air:.04,y:[GB-360,GB-280,GB-60,GB+20],x:[-400,2400]};
+E.S.tunnel={set:SET,ground:.26,paint,live,light,warm,LAYOUT:{DN,DF,WD,BED,SPR,SILL,deckY:GB,railTop:GB-24,railDep:LANTERN.d,lantern:LANTERN,STN,STN_AT,STN_L}};
 })();
 // ===== ENV TUNNEL END =====

@@ -358,7 +358,8 @@ towers' red lights, traffic along the avenues and a plane (`nightLive`). Near th
 The Pit: the far side's haze (cold by the rim, the fires' smoke warm by the floor: `farAir`) and its windows' glow are painted into its
 pieces (farTile), and over them live the pools of the lamps and braziers, the signs' glow, mist in bands at three depths and, at full
 effects, two shafts of the moon with dust in them (`pitAir`); the near walls darken back toward the rock and catch the moon on their
-edge (nearTile). Over the finished frame (`post`, run by sk_storyui.js before the thoughts and the bars): the light blooms and runs
+edge (nearTile). Over the finished frame (`post`, before the thoughts and the bars; since V79 the shared finish, `EnvLook.finish`,
+at the fall's strengths: the pitfalls below): the light blooms and runs
 out in a lens's streaks (one small picture, the frame an eighth the size multiplied by itself, laid over the frame once with screen),
 the edges darken in three bands (not along the top, where the moon and the sun are; first, so that a light in a corner keeps its
 glow), and a pixel's grain moves over it on a wide screen. Full effects: all of it; Lite: the dark at the edges; Off: none. Phones
@@ -650,7 +651,8 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   what is next to it (`hero.read`, with the marks on the fight hidden and only what of him shows; `hero.Lb` the ground round him;
   the style guide's rule 8, below), and what it costs to draw; a quarter-size picture of the canvas and the frame round him at full
   size. It ends with the frames that break rule 8. The fast-forward to each moment is not drawn, then two seconds are; the fall is
-  drawn all the way. About a quarter of an hour for all 65 frames at 412x714.
+  drawn all the way. About a quarter of an hour for all 65 frames at 412x714. Each frame's cost is the median of 6 draws (COSTN=<n>
+  for more: single draws here wander by several milliseconds; compare two builds with them timed by turns, below).
 - `node uiwork/look/push.js <stage|lab_arena> <outprefix> [w h] [reduce]`: the push-in as a player meets it (since V74): the fight
   run to his turn, a move picked, the action played on in real time with his opening cards answered; shots of his turn, the action
   with no card up and his card up, with the camera's numbers, the layer's foot, scale and paint time, and `empty` below the top bar.
@@ -677,7 +679,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below). Cheaper crowds (C1 on) are next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below). The fight's words (W1 on) are next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -729,12 +731,12 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V79 ..." (V78 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V80 ..." (V79 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V78: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V79: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -794,14 +796,47 @@ was checked, and anything that did not work, plainly.
   black left black), soft (soft-light: the darks lifted most, the lights least), air (screen: the darks a touch), y: [y0, y1, y2, y3]
   (nothing at y0, full from y1 to y2, nothing at y3), base and pools ([x, half width, 0..1]: the yard's door and window at night)}.
   It is laid into the layer once as it is painted (`setDraw`): soft-light over the band costs a CPU canvas about 8 ms a frame, so
-  only `setLive` places (the tunnel's walls, the chase's street, the face in the fall) draw it each frame, at 5 to 10 ms there. The
+  only `setLive` places (the chase's street, the face in the fall) draw it each frame, at 5 to 10 ms there; the tunnel's (since
+  V79) is laid into each made picture that goes by in its band, the wall, its passages, the old station and the far rail, as it is
+  made (`lit` in env_tunnel.js), and into the layer for the deck: the band runs the same all along the line. The
   flatcar's deck is a lit grey plate and the station's bores carry the far lamp's light in their air, the two dark grounds the light
   cannot lift. The audit reads his outline on the frame drawn again without the footing rings, their words, the head bars and the
   labels, once more without him and once without anyone (their shadows kept), so only what of him shows counts (`shown`) and only
   where it is against the ground (`alone`: Tamm holding him up is left out); an outline mostly hidden (under 24 points of it), or
   one with a blow's flash on him (`FXL.struck` over .25: struck white, an impact where he is) is not judged, and the run ends with
-  `rule 8 fails`. Each shot writes `<id>_<moment>_hero.png`, the frame round him as he was measured; INJ=<file.js> runs a
+  `rule 8 fails`. The finish's grain (on a wide screen) is held still while he is measured, or the frames drawn again would differ
+  by it everywhere; and every pixel is read (since V79: a sample of one in four moved with where his sprite's box starts, and two
+  builds whose boxes differed by a pixel read up to a tenth apart on the same picture; the counts are kept in its quarters). Each
+  shot writes `<id>_<moment>_hero.png`, the frame round him as he was measured; INJ=<file.js> runs a
   script in the page once it loads, to try a change before making it.
+- The finish and the cheaper crowds (since V79, the style guide's rule 6). `EnvLook.finish(o)` (env_look.js) takes the frame as a
+  camera takes it; `sceneFinish` (sk_scene_glue.js) runs it from drawFx (sk_ui.js) once the world and its sparks are down, before
+  the fight's words, the head bars, the labels, the guides, the badges and the story's words and bars. o is {glow, streak,
+  streakCol, edges, edgeCol}: a place's own `finish` (an object, or a function of the moment), else its world's (`SCENE_WORLD`,
+  `SCENE_FINISH`: the city, the country round it and the rooms glow .3 with edges .5, the underground and the Pit .2 and .62, the
+  road at sundown a set piece's .42 with warm streaks); the fall gives its own each frame from its `post()` (.6 at night to .34 in
+  the dream, .48 in the Pit, a burst as he wakes; edges .5 to .3, .62 in the Pit). At Full the light is the frame at an eighth of
+  its size multiplied by itself twice, with the moment's big glows and a crit's flash laid into it there (`FXL.glows()`; FXL then
+  draws neither over the whole frame), brought up smoothly to half the size and laid over the frame doubled without smoothing; the
+  edges are three bands painted once at half the size for each strength, colour and place of the bars, laid on without smoothing;
+  the grain only on screens 640 points and up. Lite: the edges. Off: none. Where it draws, the wrap carries `data-fin="1"` and the
+  page's own vignette (sk_css_light.css) stands down. Timed by turns with it and without on a phone here: 4 to 6.5 ms at Full (the
+  fall 5.7, where its own pass was 6.7), under 1 at Lite. `EnvLook.finishLast` counts the passes and keeps the last strengths; the
+  look suite checks the street and the yard at each setting.
+  The crowds cost less by drawing less, not less of the look. Each figure's sprite box (`prepass`, sk_lightui.js) is its joints,
+  scarf and tail with margins measured over long fights (a man 70 to the sides, 48 up and 28 down; a beast 44, 38 and 28), mirrored
+  about his middle only while he turns round or spins (`mirrored`); before, every box was mirrored, a beast's reached 140 past its
+  joints and a spin added its sweep. The wash of each ground's tint over every sprite went (the V78 rim carries the key); two or
+  more lights on a man are drawn into a map a quarter of his sprite's size and laid over him once, without smoothing (the glows are
+  soft); in a crowd (more than four men
+  standing) each casts only the shadow of the lamp that lights him most; reflection bands fainter than .03 are left out; a goblin
+  or the lizard keeps the game's own detail up to 3.4 pixels a unit (`LOD` in beasts.js, 1.9 before: the push-in's 2.3 drew them at
+  a close view's cost); over a layer's top the sky is a fill of the top row's colours (`sceneTopFill`), and the night's stars are
+  specks drawn only where the view needs them, not a pattern scaled over the sky; the tunnel's light on the fight goes into its
+  made pictures (above). Against V78, timed by turns at 412x714 with the finish in every place now: the deep station's fight 54
+  to 39 ms, the kitchen's 43 to 36, the dining room's 45 to 37, the lab's street 41 to 31, the checkpoint's 33 to 28, the train's
+  33 to 25; the fall's two dearest frames 41 to 38 and 40 to 35 (its finish is cheaper too). The deep station is the one place
+  near the fall's cost (39 against 38 by turns): its lizard alone draws in 5 to 6 ms.
 - Time a painter on a phone's screen by drawing the same moment over and over with a part left out by turns (as the V72 dream was
   timed): one run against another on this machine differs by 2 ms or more.
 - What a pass over the whole frame costs is its pixels times its blend, and in a CPU canvas it is dear: on a phone's 1.2 million

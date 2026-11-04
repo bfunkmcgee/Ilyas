@@ -58,8 +58,10 @@ const ev=(p,f,a)=>p.evaluate(f,a);
 {const p=await open();
   const r=await ev(p,()=>{pose('street',360,90,470,90);let n=0;const _k=KaelLook.draw;KaelLook.draw=function(c,F,o){n++;return _k.call(this,c,F,o);};step(20);KaelLook.draw=_k;
     const K=S.F[0],R=FXL.sprite(K),V=FXL.sprite(S.F[1]);
-    // the frame with only the sprites (no light on them, no shadows cast, no reflections, no air) against the frame without the effects
-    Object.assign(FXL.skip,{lit:true,refl:true,cast:true,floor:true,air:true,fx:true});render();const box=[R.x,R.y,R.w,Math.round(R.h*.62)],A=px(...box);
+    // the frame with only the sprites (no light on them, no shadows cast, no reflections, no air, and none of the finish over the
+    // frame: the camera's pass, since V79 in every place) against the frame without the effects
+    Object.assign(FXL.skip,{lit:true,refl:true,cast:true,floor:true,air:true,fx:true});const fin=window.sceneFinish;window.sceneFinish=()=>{};
+    try{render();}finally{window.sceneFinish=fin;}const box=[R.x,R.y,R.w,Math.round(R.h*.62)],A=px(...box);
     FXL.set('off');render();const B=px(...box);FXL.set('full');for(const k in FXL.skip)FXL.skip[k]=false;
     let big=0,sum=0;for(let i=0;i<A.length;i+=4){const d=Math.max(Math.abs(A[i]-B[i]),Math.abs(A[i+1]-B[i+1]),Math.abs(A[i+2]-B[i+2]));sum+=d;if(d>24)big++;}
     return{calls:n,sprite:!!R&&!!V,box,mean:+(sum/(A.length/4)).toFixed(3),bigShare:+(big/(A.length/4)).toFixed(4)};});

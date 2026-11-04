@@ -181,6 +181,68 @@ function fallOff(c,x0,x1,y0,stops,col){const g=c.createLinearGradient(0,y0,0,FOO
 function fallKeep(c,x0,x1,y0,stops,col,k){const yk=G0()+20;let v=stops[stops.length-1][1];
   for(let i=0;i<stops.length;i++){const [ya,a]=stops[i];if(ya>=yk){const [yp,ap]=i?stops[i-1]:[ya,a];v=ya>yp?ap+(a-ap)*(yk-yp)/(ya-yp):a;break;}}
   const kk=k==null?.08:k;fallOff(c,x0,x1,y0,stops.filter(s=>s[0]<yk).concat([[yk,v],[G0()+110,v+kk*.4],[FOOT,v+kk]]),col);}
-return{TAU,lerp,clamp,ss,rng,C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,softCone,softSpill,softSpr,haze,vine,scroll,gilt,windowPane,bricks,setts,flags,wetStreak,stars,moon,cloudBank,skyline,hallTower,NEAR,FOOT,fallOff,fallKeep,S:{}};
+// ---------- the finish (the style guide's rule 6) ----------
+// The picture as a camera takes it, in every place from this one pass (since V79; before, the fall's alone), once the world and its
+// sparks are drawn and before the fight's words, the head bars and the labels (drawFx, sk_ui.js), the badges, the story's words and
+// its bars: the light blooms (the frame shrunk to an eighth, its bright parts drawn
+// out by multiplying it by itself), and in a set piece runs out sideways from every bright point in the long streaks a cinema lens
+// makes; the edges of the picture darken (along both sides and the foot, not the top, where the moon and the sun are; the corners
+// where two bands cross the darkest), between the story's bars; and on a screen 640 points and up a fine grain moves over it (still
+// where motion is reduced). Full effects: all of it. Lite: the edges. Off: none. The frame is gone over whole only twice (the light,
+// the grain), the dark only along the edges, and nothing in a blend that costs more than laying one picture over another. It only
+// draws: the game never reads what it keeps.
+// o: {glow (the bloom's strength), streak (the streaks', 0 for none), streakCol, edges (the dark's strength at the edge), edgeCol}
+const FN={B:null,S:null,C:null,M:null,E:null,pat:null,last:{bloom:0,vig:0,n:0}};
+function fnCv(c,w,h){c=c||document.createElement('canvas');if(c.width!==w||c.height!==h){c.width=w;c.height=h;}return c;}
+// the grain, a tile drawn once: specks a little lighter or a little darker than what is under them, laid plainly over it
+function grainPat(x){if(FN.pat&&FN.pat.x===x)return FN.pat.p;const c=fnCv(null,128,128),g=c.getContext('2d'),im=g.createImageData(128,128),r=rng(907);
+  for(let i=0;i<128*128;i++){const v=(r()+r()+r()-1.5)/1.5,lv=v>0?255:0;im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=lv;im.data[i*4+3]=Math.round(Math.min(1,Math.abs(v)*1.4)*255);}
+  g.putImageData(im,0,0);FN.pat={x,p:x.createPattern(c,'repeat')};return FN.pat.p;}
+// how far the story's bars are in (sk_storyui.js draws them after this, a tenth of the height each at full)
+function fnBars(){return typeof ST_LB==='number'?clamp(ST_LB,0,1):0;}
+// (the bands drawn once at half the size for each strength, colour and place of the bars, and laid on a band at a time without
+// smoothing: soft as they are, the halving does not show, and a gradient filled at full size costs a CPU canvas three times as much)
+function fnEdges(x,W2,H2,a,col){const bar=Math.floor(H2*.105*fnBars()),y0=bar,ih=H2-2*bar;if(ih<8||!(a>0))return;FN.last.vig=a;
+  const w=Math.ceil(W2/2),h=Math.ceil(H2/2),y0h=Math.floor(y0/2),ihh=Math.max(1,h-2*y0h),vw=Math.ceil(w*.16),vh=Math.ceil(ihh*.16),key=w+'|'+h+'|'+y0h+'|'+a.toFixed(3)+'|'+col;
+  let E=FN.E;if(!E||E.key!==key){const c=fnCv(E&&E.cv,w,h),g=c.getContext('2d');g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='source-over';g.clearRect(0,0,w,h);
+    const band=(x0,y0g,x1,y1g)=>{const gr=g.createLinearGradient(x0,y0g,x1,y1g);gr.addColorStop(0,rgba(col,a));gr.addColorStop(.4,rgba(col,a*.38));gr.addColorStop(1,rgba(col,0));return gr;};
+    g.fillStyle=band(0,0,vw,0);g.fillRect(0,y0h,vw,ihh);g.fillStyle=band(w,0,w-vw,0);g.fillRect(w-vw,y0h,vw,ihh);
+    g.fillStyle=band(0,y0h+ihh,0,y0h+ihh-vh);g.fillRect(0,y0h+ihh-vh,w,vh);E=FN.E={key,cv:c};}
+  x.globalCompositeOperation='source-over';x.globalAlpha=1;const sm=x.imageSmoothingEnabled;x.imageSmoothingEnabled=false;
+  x.drawImage(E.cv,0,y0h,vw,ihh,0,y0h*2,vw*2,ihh*2);x.drawImage(E.cv,w-vw,y0h,vw,ihh,(w-vw)*2,y0h*2,vw*2,ihh*2);
+  if(w>2*vw)x.drawImage(E.cv,vw,y0h+ihh-vh,w-2*vw,vh,vw*2,(y0h+ihh-vh)*2,(w-2*vw)*2,vh*2);x.imageSmoothingEnabled=sm;}
+function finish(o){const x=typeof ctx!=='undefined'?ctx:null,cv0=x&&x.canvas;if(!cv0||!cv0.width||!o)return;const q=typeof FXL!=='undefined'?FXL.q:'full';if(q==='off')return;
+  const W2=cv0.width,H2=cv0.height,edgeCol=o.edgeCol||'#04030a';x.save();x.setTransform(1,0,0,1,0,0);FN.last.n++;
+  if(q==='full'&&o.glow>0){
+    // the light alone: the frame an eighth the size, multiplied by itself twice
+    const bw=Math.max(24,Math.round(W2/8)),bh=Math.max(24,Math.round(H2/8)),B=FN.B=fnCv(FN.B,bw,bh),g=B.getContext('2d');
+    g.globalCompositeOperation='copy';g.globalAlpha=1;g.imageSmoothingEnabled=true;g.drawImage(cv0,0,0,bw,bh);
+    g.globalCompositeOperation='multiply';g.drawImage(B,0,0);g.drawImage(B,0,0);
+    const Cc=FN.C=fnCv(FN.C,bw,bh),h3=Cc.getContext('2d');h3.globalCompositeOperation='copy';
+    if(o.streak>0){
+      // the streaks: that light smeared out sideways, and coloured
+      const SS=FN.S=fnCv(FN.S,bw,bh),h2=SS.getContext('2d');h2.globalCompositeOperation='copy';h2.globalAlpha=1;h2.drawImage(B,0,0);h2.globalCompositeOperation='lighter';
+      for(const [f,a] of [[.012,.55],[.028,.36],[.055,.22],[.1,.12],[.17,.06]])for(const sg of [-1,1]){h2.globalAlpha=a;h2.drawImage(B,sg*f*bw,0);}
+      h2.globalCompositeOperation='multiply';h2.globalAlpha=1;h2.fillStyle=o.streakCol||'#7fb0ff';h2.fillRect(0,0,bw,bh);
+      h3.globalAlpha=clamp(o.streak,0,1);h3.drawImage(SS,0,0);h3.globalCompositeOperation='lighter';}
+    h3.globalAlpha=clamp(o.glow,0,1);h3.drawImage(B,0,0);FN.last.bloom=o.glow;
+    // the moment's big glows and a crit's flash, soft, in the light at its size (FXL.glows: they are not drawn over the frame then)
+    if(typeof FXL!=='undefined'&&FXL.glows){const G=FXL.glows();if(G.length){h3.globalCompositeOperation='lighter';const k=bw/W2;for(const q of G){h3.globalAlpha=clamp(q.a,0,1);h3.drawImage(q.img,(q.x-q.R)*k,(q.y-q.R)*k,q.R*2*k,q.R*2*k);}}}
+    // (the dark at the edges first, so that a lamp or the sun in a corner keeps its glow; only between the bars: what they cover is
+    // not drawn)
+    fnEdges(x,W2,H2,o.edges,edgeCol);
+    // (the light brought up to half the size smoothly, then laid over the frame at twice that without smoothing: soft as it is,
+    // nothing of the last doubling shows, and an eighth's picture smoothed up over a whole frame costs a CPU canvas half as much again)
+    const y0=Math.floor(H2*.105*fnBars()),mw=Math.ceil(W2/2),mh=Math.ceil(H2/2),Mc=FN.M=fnCv(FN.M,mw,mh),mg=Mc.getContext('2d');
+    mg.globalCompositeOperation='copy';mg.globalAlpha=1;mg.imageSmoothingEnabled=true;mg.drawImage(Cc,0,0,bw,bh,0,0,mw,mh);
+    const sm=x.imageSmoothingEnabled;x.imageSmoothingEnabled=false;x.globalCompositeOperation='screen';x.globalAlpha=1;
+    const y0h=Math.floor(y0/2);x.drawImage(Mc,0,y0h,mw,mh-2*y0h,0,y0h*2,mw*2,(mh-2*y0h)*2);x.imageSmoothingEnabled=sm;}
+  else fnEdges(x,W2,H2,o.edges,edgeCol);
+  // the grain, moving (still where motion is reduced), a pixel of the canvas (not on a phone's small screen, where it would not show
+  // and the frame cannot spare it)
+  if(q==='full'&&typeof cssW==='number'&&cssW>=640){const pt=grainPat(x),f=(typeof S!=='undefined'&&S._rf)||0,rm=typeof reduceMotion!=='undefined'&&reduceMotion,ox=rm?0:(f*53)%128,oy=rm?0:(f*97)%128,y0=Math.floor(H2*.105*fnBars());
+    x.globalCompositeOperation='source-over';x.globalAlpha=.05;x.fillStyle=pt;x.translate(-ox,-oy);x.fillRect(ox,y0+oy,W2,H2-2*y0);}
+  x.restore();}
+return{TAU,lerp,clamp,ss,rng,C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,softCone,softSpill,softSpr,haze,vine,scroll,gilt,windowPane,bricks,setts,flags,wetStreak,stars,moon,cloudBank,skyline,hallTower,NEAR,FOOT,fallOff,fallKeep,finish,finishLast:FN.last,S:{}};
 })();
 // ===== ENV LOOK END =====

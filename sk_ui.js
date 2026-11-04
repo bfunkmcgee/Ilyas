@@ -429,6 +429,11 @@ function drawFx(){
     ctx.beginPath();ctx.arc(q.x,q.y,e.r*(.25+eOut(u)),0,TAU);ctx.stroke();
     if(u<.35){ctx.globalAlpha=(1-u/.35)*.7;ctx.fillStyle=e.color;circ(q,e.r*.45*(1-u));}}
   ctx.globalAlpha=1;}
+  // the picture as a camera takes it (the shared finish, sceneFinish in sk_scene_glue.js: the light blooming, the edges darkening),
+  // once the world and its sparks are down and before the fight's words, the head bars, the labels, the guides and the badges go
+  // over it (since V79; the fall's alone before, after all of them); a fault in it costs the player only that pass, and the checks
+  // hear of it
+  if(typeof sceneFinish==='function')try{sceneFinish();}catch(e){if(typeof window!=='undefined'&&window.SK_TEST)throw e;}
   ctx.textAlign='center';ctx.lineJoin='round';
   placePopups();
   for(const p of S.popups){const a=p.age,rise=-28*eOut(a/.55)-a*6,sc=1+.55*(1-eOut(a/.16));

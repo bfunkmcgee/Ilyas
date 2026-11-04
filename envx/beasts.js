@@ -1069,8 +1069,9 @@ function lizardHeadRound(c,F,sp,o,env,h,thw,fa,hy,s){
 // F: a fighter whose F.beast is 'goblin' or 'lizard'. o: {light or dir, now, opening, lookBack, drawOther (the weapon), afterFarArm,
 // afterTorso}, as the game passes them to the cast painter. The detail is chosen by the scale the canvas draws at (the vertical
 // one, so the game's spin, an x-scale, does not change it): below LOD[0] the plain figure, below LOD[1] the game's own detail (the
-// play view on a phone or an ordinary screen), above it all of it (a sharp screen, a close view)
-const LOD=[.9,1.9];
+// play view on a phone or an ordinary screen), above it all of it (a sharp screen, a close view). (LOD[1] was 1.9 until V79: an
+// upright phone's pushed-in view, since V74 about 2.3 a unit, drew a goblin or the lizard at a close view's cost in every frame)
+const LOD=[.9,3.4];
 function envFor(c,F,o,sp,ctr){const tr=c.getTransform?c.getTransform():null,k=tr&&tr.d!=null?Math.hypot(tr.c,tr.d)||1:2;
   const Ld=o.dir?nrm(o.dir):o.light?nrm(sub(o.light,ctr)):nrm(V(.5,-1));
   const sz=size(F);

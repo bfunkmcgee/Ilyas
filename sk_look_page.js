@@ -286,6 +286,17 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   const fxFall=await ev(()=>{storyGo('fall');S.storyAuto=true;S.auto=true;step(2);const F=EnvLook.S.fall,q0=FXL.q,o={};
     for(const q of ['off','lite','full']){FXL.set(q);const n0=F.pfx.n,d0=F.span.n;step(64);o[q]=F.pfx.n-n0;o[q+'Drawn']=F.span.n-d0;}FXL.set(q0);storyQuit();return o;});
   expect('the effects setting: the fall\'s camera pass draws at Full and at Lite, and not at all at Off',fxFall.off===0&&fxFall.offDrawn>0&&fxFall.lite===fxFall.liteDrawn&&fxFall.full===fxFall.fullDrawn&&fxFall.full>0,JSON.stringify(fxFall));
+  // the shared finish (the style guide's rule 6, since V79): every frame a place draws blooms and darkens at its edges at its world's
+  // strengths (the city's .3 and .5, the Pit's .2 and .62) at Full, darkens its edges alone at Lite and draws none of it at Off; the
+  // page's own vignette over the stage stands down where the canvas darkens its own edges
+  const fin=await ev(()=>{const L=EnvLook.finishLast,q0=FXL.q,out={},wr=document.getElementById('wrap');
+    const run=()=>{const o={scene:envKey()};for(const q of ['off','lite','full']){FXL.set(q);L.bloom=0;L.vig=0;const n0=L.n,f0=CALLS.frames;drawAll(()=>step(8));
+      o[q]={n:L.n-n0,frames:CALLS.frames-f0,bloom:+L.bloom.toFixed(2),vig:+L.vig.toFixed(2),fin:wr.getAttribute('data-fin')};}return o;};
+    fight({arena:'street',n:1,auto:true});out.street=run();
+    storyGo('yard1');S.storyAuto=true;S.auto=true;step(30);out.yard=run();storyQuit();FXL.set(q0);return out;});
+  expect('the shared finish: every frame a place draws blooms and darkens at the edges at its world\'s strengths at Full, darkens the edges alone at Lite and draws none of it at Off; the page\'s vignette stands down where it draws',
+    [['street',.3,.5],['yard',.2,.62]].every(([k,g,e])=>{const o=fin[k];return o.scene===k&&o.full.frames>0&&o.full.n===o.full.frames&&o.full.bloom===g&&o.full.vig===e&&o.full.fin==='1'&&
+      o.lite.n===o.lite.frames&&o.lite.bloom===0&&o.lite.vig===e&&o.lite.fin==='1'&&o.off.n===0&&o.off.frames>0&&o.off.fin==='0';}),JSON.stringify(fin));
   // the prologue opens at sundown: Begin plays it first (it is not a chapter of its own), him on his bike on the road above the farms,
   // upright in the saddle; his three lines in order; the sand blowing past the bike only while he talks about the wire (drawn then, and
   // never otherwise); the sun going down; then he rides off the right edge of the picture and the field begins with him on foot

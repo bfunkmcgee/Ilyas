@@ -3,7 +3,8 @@
 // its light varies, how saturated, how much of it is near black or near white, how far Ilyas stands out from what is right round
 // him, and what the frame costs to draw (the headless canvas draws without a graphics chip: a worst case).
 // usage: node uiwork/look/audit.js <outdir> [w h dpr] [id,id,...]   (PAGE=uiwork/qa_test.html for a copy: build.py --qa; INJ=<file.js>
-// runs that script in the page once it has loaded, to try a change before it is made in the sources)
+// runs that script in the page once it has loaded, to try a change before it is made in the sources; COSTN=<n> times each frame n
+// times instead of 6, the median kept: single draws here wander by several milliseconds)
 // Writes <outdir>/<id>_<moment>.jpg (the page), <id>_<moment>_canvas.png (the game's picture between the bars, a quarter size) and
 // <id>_<moment>_hero.png (the frame round Ilyas at full size, as he is measured: without the rings and head bars), and
 // <outdir>/audit.json. A moment is seconds from the stage's start ('t8') or from its fight's
@@ -57,6 +58,9 @@ function frameStats(){const W2=cv.width,H2=cv.height,lb=typeof ST_LB==='number'?
 function heroStats(){const K=typeof hero==='function'?hero():null;if(!K||typeof FXL==='undefined'||!FXL.sprite)return null;
   const MARKS=['drawFooting','drawFootLabels','drawHeadBars','drawLabels'],keep=MARKS.map(k=>window[k]);
   window.drawFooting=()=>null;window.drawFootLabels=()=>{};window.drawHeadBars=()=>{};window.drawLabels=()=>{};let M=null;
+  // (the finish's grain moves each frame on a wide screen: held still while he is measured, or the frames drawn again differ by it
+  // everywhere and it reads as him)
+  const fin=EnvLook.finish,rf=S._rf||0;EnvLook.finish=function(o){const r=S._rf;S._rf=rf;try{return fin.call(this,o);}finally{S._rf=r;}};
   try{window.R0();const R=FXL.sprite(K);if(R&&R.cv){
       const pad=Math.round(14*cv.width/Math.max(1,cssW)),x0=Math.max(0,R.x-pad),y0=Math.max(0,R.y-pad),x1=Math.min(cv.width,R.x+R.w+pad),y1=Math.min(cv.height,R.y+R.h+pad);
       if(x1-x0>=4&&y1-y0>=4){M={R:{x:R.x,y:R.y,w:R.w,h:R.h},st:FXL.struck?FXL.struck(K):0,pad,x0,y0,x1,y1,S:R.cv.getContext('2d').getImageData(0,0,R.w,R.h).data,A:ctx.getImageData(x0,y0,x1-x0,y1-y0).data};
@@ -66,23 +70,25 @@ function heroStats(){const K=typeof hero==='function'?hero():null;if(!K||typeof 
         const put=FXL.put,frame=skip=>{FXL.put=function(f){return skip(f)?true:put.apply(this,arguments);};
           try{window.R0();}finally{FXL.put=put;}return ctx.getImageData(x0,y0,x1-x0,y1-y0).data;};
         M.B=frame(f=>f===K);M.C=frame(()=>true);}}}
-  finally{MARKS.forEach((k,i)=>{window[k]=keep[i];});}
+  finally{MARKS.forEach((k,i)=>{window[k]=keep[i];});EnvLook.finish=fin;}
   try{const h=M?heroRead(M):null;if(h)h.crop=M.crop;return h;}finally{window.R0();}}
 function heroRead(M){const {R,pad,x0,y0,x1,y1,S:S2,A:F,B,C:Cf}=M,W2=x1-x0,a=(x,y)=>{const sx=x-R.x,sy=y-R.y;return sx<0||sy<0||sx>=R.w||sy>=R.h?0:S2[(sy*R.w+sx)*4+3];};
   const df=(P,Q,i)=>Math.abs(P[i]-Q[i])+Math.abs(P[i+1]-Q[i+1])+Math.abs(P[i+2]-Q[i+2])>9,lum=i=>(.2126*F[i]+.7152*F[i+1]+.0722*F[i+2])/255,seen=i=>df(F,B,i),other=i=>df(B,Cf,i);let nh=0,Lh=0,nb=0,Lb=0,nv=0;
-  for(let y=y0;y<y1;y+=2)for(let x=x0;x<x1;x+=2){const A=a(x,y),i=((y-y0)*W2+(x-x0))*4;if(A>200){if(!seen(i))continue;nh++;Lh+=lum(i);}
+  // (every pixel: a sample of one in four moves with where his sprite's box starts, and two builds whose boxes differ by a pixel read
+  // up to a tenth apart on the same picture; the counts are kept in quarters, the old sample's units)
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const A=a(x,y),i=((y-y0)*W2+(x-x0))*4;if(A>200){if(!seen(i))continue;nh++;Lh+=lum(i);}
     else if(A<4){let near=false;for(const [dx,dy] of [[pad,0],[-pad,0],[0,pad],[0,-pad],[pad*.7|0,pad*.7|0],[-(pad*.7|0),pad*.7|0],[pad*.7|0,-(pad*.7|0)],[-(pad*.7|0),-(pad*.7|0)]])if(a(x+dx,y+dy)>200){near=true;break;}
       if(near){nb++;Lb+=lum(i);}}}
-  if(nh<20||nb<20)return null;Lh/=nh;Lb/=nb;
+  if(nh<80||nb<80)return null;Lh/=nh;Lb/=nb;
   // his outline: where solid meets clear within a few pixels and he shows there, the light just inside against just outside (a rim
   // or a lit ground both count); 'read' is the share of the outline with a step of at least .08
   const e=Math.max(2,Math.round(2*cv.width/Math.max(1,cssW)));let ne=0,se=0,ok=0,hid=0,fig=0;
-  for(let y=y0+e;y<y1-e;y+=2)for(let x=x0+e;x<x1-e;x+=2){if(a(x,y)<=200)continue;for(const [dx,dy] of [[e,0],[-e,0],[0,e],[0,-e]]){if(a(x+dx,y+dy)>=4||a(x+2*dx,y+2*dy)>=4)continue;
+  for(let y=y0+e;y<y1-e;y++)for(let x=x0+e;x<x1-e;x++){if(a(x,y)<=200)continue;for(const [dx,dy] of [[e,0],[-e,0],[0,e],[0,-e]]){if(a(x+dx,y+dy)>=4||a(x+2*dx,y+2*dy)>=4)continue;
       const i=((y-y0)*W2+(x-x0))*4;if(!seen(i)){hid++;break;}const j=((y+2*dy-y0)*W2+(x+2*dx-x0))*4;if(other(j)){fig++;break;}const d=Math.abs(lum(i)-lum(j));ne++;se+=d;if(d>=.08)ok++;break;}}
   // (the drawing guide's rule 8: a frame fails when under two thirds of his outline reads, or when the ground round him is under .2;
   // an outline mostly hidden is not judged, nor one in the flash of a blow landing on him or by him: struck)
-  const rd=ne>=24?ok/ne:null,hit=M.st>.25;
-  return{Lh:+Lh.toFixed(3),Lb:+Lb.toFixed(3),ratio:+((Math.max(Lh,Lb)+.05)/(Math.min(Lh,Lb)+.05)).toFixed(2),edge:ne?+(se/ne).toFixed(3):null,read:rd!=null?+rd.toFixed(2):null,px:nh,
+  const rd=ne>=96?ok/ne:null,hit=M.st>.25;
+  return{Lh:+Lh.toFixed(3),Lb:+Lb.toFixed(3),ratio:+((Math.max(Lh,Lb)+.05)/(Math.min(Lh,Lb)+.05)).toFixed(2),edge:ne?+(se/ne).toFixed(3):null,read:rd!=null?+rd.toFixed(2):null,px:Math.round(nh/4),
     shown:ne+hid+fig?+((ne+fig)/(ne+hid+fig)).toFixed(2):null,alone:ne+fig?+(ne/(ne+fig)).toFixed(2):null,struck:+M.st.toFixed(2),box:[R.x,R.y,R.w,R.h],fails:[...(rd!=null&&rd<2/3&&!hit?['outline']:[]),...(Lb<.2?['ground']:[])]};}
 (async()=>{const b=await chromium.launch({executablePath:process.env.SK_CHROMIUM||(fs.existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined)}),res=[];
   for(const sh of SHOTS){if(ONLY&&!ONLY.includes(sh.id))continue;
@@ -94,8 +100,9 @@ function heroRead(M){const {R,pad,x0,y0,x1,y1,S:S2,A:F,B,C:Cf}=M,W2=x1-x0,a=(x,y
       window.R0=window.render;window.drawing=on=>{window.render=on?window.R0:()=>{};};
       window.small=()=>{const lb=typeof ST_LB==='number'?ST_LB:0,y0=Math.floor(cv.height*.105*lb),h=cv.height-2*y0,c=document.createElement('canvas');c.width=Math.round(cv.width/4);c.height=Math.round(h/4);
         c.getContext('2d').drawImage(cv,0,y0,cv.width,h,0,0,c.width,c.height);return c.toDataURL('image/png');};
-      window.cost=()=>{const T=[];for(let i=0;i<6;i++){ctx.getImageData(0,0,1,1);const s0=performance.now();window.R0();ctx.getImageData(0,0,1,1);T.push(performance.now()-s0);}T.sort((x,y)=>x-y);return+((T[2]+T[3])/2).toFixed(1);};},
+      window.cost=()=>{const n=window.__costN,T=[];for(let i=0;i<n;i++){ctx.getImageData(0,0,1,1);const s0=performance.now();window.R0();ctx.getImageData(0,0,1,1);T.push(performance.now()-s0);}T.sort((x,y)=>x-y);return+((T[(n-1)>>1]+T[n>>1])/2).toFixed(1);};},
       [frameStats.toString(),heroStats.toString(),heroRead.toString()]);
+    await p.evaluate(n=>{window.__costN=n;},Math.max(2,+(process.env.COSTN||6)));
     if(sh.lab){const r=await p.evaluate(g=>{S.arenaKey=g;S.backroom=false;S.deep=false;S.introOn=false;S.cfg.n=2;S.cfg.crew=false;S.cfg.ally.on=true;S.auto=true;S.allyAuto=true;S.F=[];rosterBuild();restart();
         drawing(false);let n=0,t0=null;while(n<9000){step(1);n++;if(S.game.phase==='exchange'&&S.game.ex){if(t0==null)t0=S.t;if(S.t>t0+2)break;}}drawing(true);step(120);
         return{scene:envKey(),stats:frameStats(),hero:heroStats(),ms:cost(),fx:FXL.q,canvas:small()};},sh.lab);
