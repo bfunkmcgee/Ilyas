@@ -57,11 +57,11 @@ function stela(c,sx,sy,o){const h=o.h,w=o.w,tilt=o.tilt||0,r=rng(o.seed),dark=o.
   // the face toward the moon lit along its edge, the other side in shadow
   c.save();c.clip(p);c.fillStyle=lin(c,-w/2,0,w/2,0,[[0,rgba('#000000',.35)],[.6,rgba('#000000',0)],[1,rgba('#c8d4ff',.16)]]);c.fillRect(-w/2,-h,w,h+2);
   // the carving: a sunk panel, the vine climbing it, gold still in the cuts
-  if(!o.plain){c.strokeStyle=rgba('#000000',.45);c.lineWidth=.6;c.strokeRect(-w/2+1.6,-h*.72,w-3.2,h*.62);vine(c,[{x:0,y:-h*.14},{x:0,y:-h*.68}],{w:.45,amp:1,wave:7,leaf:1.3,every:2,seed:o.seed,col:rgba(C.gold,.6),shadow:false});}
-  c.restore();c.strokeStyle=rgba('#c8d4ff',.25);c.lineWidth=.6;c.beginPath();c.moveTo(w/2-.3,1);c.lineTo(w/2-.3,-h*.78);c.stroke();
+  if(!o.plain){c.strokeStyle=rgba('#000000',.45);c.lineWidth=1.51;c.strokeRect(-w/2+1.6,-h*.72,w-3.2,h*.62);vine(c,[{x:0,y:-h*.14},{x:0,y:-h*.68}],{w:.45,amp:1,wave:7,leaf:1.3,every:2,seed:o.seed,col:rgba(C.gold,.6),shadow:false});}
+  c.restore();c.strokeStyle=rgba('#c8d4ff',.25);c.lineWidth=1.01;c.beginPath();c.moveTo(w/2-.3,1);c.lineTo(w/2-.3,-h*.78);c.stroke();
   c.restore();
   // its foot in the grass
-  c.strokeStyle='#0a100c';c.lineWidth=.7;c.beginPath();for(let i=0;i<9;i++){const gx=sx+(r()-.5)*(w+6),gh=2+r()*3;c.moveTo(gx,sy+1);c.lineTo(gx+(r()-.5)*1.5,sy+1-gh);}c.stroke();}
+  c.strokeStyle='#0a100c';c.lineWidth=1.48;c.beginPath();for(let i=0;i<9;i++){const gx=sx+(r()-.5)*(w+6),gh=2+r()*3;c.moveTo(gx,sy+1);c.lineTo(gx+(r()-.5)*1.5,sy+1-gh);}c.stroke();}
 // a little lamp of elven light on a grave: a stone housing, the cold flame inside
 function graveLamp(c,sx,sy){c.fillStyle='#2a2a2c';c.fillRect(sx-3,sy-5,6,5);c.fillStyle='#1c1c20';c.beginPath();c.moveTo(sx-3.6,sy-11);c.lineTo(sx,sy-14);c.lineTo(sx+3.6,sy-11);c.closePath();c.fill();
   c.fillStyle=rgba(C.cyanL,.95);c.fillRect(sx-1.4,sy-10.6,2.8,5);glow(c,sx,sy-8,26,C.cyan,.45);glow(c,sx,sy-8,7,C.cyanL,.7);
@@ -74,7 +74,7 @@ function tombHouse(c,x,base){const w=46,h=34,rh=26,r=rng(5),T=stoneTex(44);
   c.strokeStyle=rgba('#000000',.35);c.lineWidth=.45;c.beginPath();for(let y=b-h+5;y<b;y+=5){c.moveTo(x-w/2,y);c.lineTo(x+w/2,y);}c.stroke();
   // the roof, steep, slabs of stone, a finial
   c.fillStyle='#16161c';c.beginPath();c.moveTo(x-w/2-4,b-h);c.lineTo(x,b-h-rh);c.lineTo(x+w/2+4,b-h);c.closePath();c.fill();
-  c.strokeStyle=rgba('#c8d4ff',.3);c.lineWidth=.7;c.beginPath();c.moveTo(x,b-h-rh);c.lineTo(x+w/2+4,b-h);c.stroke();
+  c.strokeStyle=rgba('#c8d4ff',.3);c.lineWidth=.99;c.beginPath();c.moveTo(x,b-h-rh);c.lineTo(x+w/2+4,b-h);c.stroke();
   c.fillStyle=C.gold;c.beginPath();c.moveTo(x-1.4,b-h-rh);c.lineTo(x,b-h-rh-8);c.lineTo(x+1.4,b-h-rh);c.fill();
   // the door: a pointed arch, dark, the gold vine round it
   const dw=14,dh=24,dx=x-dw/2,dy=b;c.fillStyle='#040406';c.beginPath();c.moveTo(dx,dy);c.lineTo(dx,dy-dh*.62);c.quadraticCurveTo(dx,dy-dh*.92,x,dy-dh);c.quadraticCurveTo(dx+dw,dy-dh*.92,dx+dw,dy-dh*.62);c.lineTo(dx+dw,dy);c.closePath();c.fill();
@@ -101,15 +101,15 @@ function paint(c){
   const hill=new Path2D();hill.moveTo(X0,crestY(X0));for(let x=X0;x<=X1;x+=8)hill.lineTo(x,crestY(x)-Math.sin(x*.06)*1.2-(x>300?Math.sin(x*.021)*3:0));hill.lineTo(X1,520);hill.lineTo(X0,520);hill.closePath();
   c.fillStyle=lin(c,0,120,0,300,[[0,'#0c120e'],[1,'#121a14']]);c.fill(hill);
   c.save();c.clip(hill);c.globalCompositeOperation='lighter';c.fillStyle=rad(c,MOON.x-60,MOON.y+120,10,420,[[0,rgba('#8ea0c8',.12)],[1,rgba('#8ea0c8',0)]]);c.fillRect(200,0,X1,400);c.restore();
-  c.strokeStyle=rgba('#c8d4ff',.2);c.lineWidth=.7;c.stroke(hill);
+  c.strokeStyle=rgba('#c8d4ff',.2);c.lineWidth=.99;c.stroke(hill);
   // cypresses on the crest and down its shoulder, a few in front of the city
   const cyp=[[548,84,15],[596,126,19],[636,104,16],[676,70,13],[936,136,21],[978,110,17],[1030,150,22],[1084,118,18],[1126,96,15],[132,64,12],[-60,74,14]];
   for(const [x,h,w] of cyp.slice(0,4))cypress(c,x,crestY(x)+6,h,w,x*3+1);
   // the tomb-house on the crest, an iron railing along the graves with gold finials
   const TH=tombHouse(c,800,crestY(800)+10);
   for(const [x,h,w] of cyp.slice(4))cypress(c,x,crestY(x)+6,h,w,x*3+1);
-  {const y0=sx=>crestY(sx)+22;c.strokeStyle='#08090c';c.lineWidth=.8;c.beginPath();for(let x=440;x<=760;x+=4){c.moveTo(x,y0(x));c.lineTo(x,y0(x)-11);}c.stroke();
-    c.lineWidth=1;c.beginPath();for(const k of [0,9]){for(let x=440;x<=760;x+=6){const y=y0(x)-k;x===440?c.moveTo(x,y):c.lineTo(x,y);}}c.stroke();
+  {const y0=sx=>crestY(sx)+22;c.strokeStyle='#08090c';c.lineWidth=1.51;c.beginPath();for(let x=440;x<=760;x+=4){c.moveTo(x,y0(x));c.lineTo(x,y0(x)-11);}c.stroke();
+    c.lineWidth=1.5;c.beginPath();for(const k of [0,9]){for(let x=440;x<=760;x+=6){const y=y0(x)-k;x===440?c.moveTo(x,y):c.lineTo(x,y);}}c.stroke();
     c.fillStyle=rgba(C.gold,.75);for(let x=440;x<=760;x+=12){const y=y0(x)-11;c.beginPath();c.moveTo(x-1,y);c.lineTo(x,y-2.6);c.lineTo(x+1,y);c.fill();}}
   // old stones up on the hill behind the railing, small with distance
   for(let i=0;i<26;i++){const x=470+r()*640,y=crestY(x)+14+r()*36;if(Math.abs(x-800)<38&&y<crestY(800)+12)continue;stela(c,x,y,{h:7+r()*7,w:2.6+r()*2,tilt:(r()-.5)*.25,seed:900+i,plain:true,dark:.6});}
@@ -122,7 +122,7 @@ function paint(c){
     for(const d of [d0,d1]){for(let x=X0;x<X1;x+=9+rr()*4){c.fillStyle=rgba('#4e4a44',.8);c.fillRect(x,d-1,7+rr()*2,2);c.fillStyle=rgba('#c8d4ff',.08);c.fillRect(x,d+.6,7,.5);}}}
   // flat ledger stones sunk in the turf at the back, mossed at the edges
   for(let i=0;i<9;i++){const x=-40+i*118+rng(i)()*40,d=196+rng(i+9)()*50,w=22,l=12;c.fillStyle=patAt(c,stoneTex(50+i),x,d,.22);c.fillRect(x,d,w,l);c.fillStyle=rgba('#05060c',.5);c.fillRect(x,d,w,l);
-    c.strokeStyle=rgba('#0e140e',.8);c.lineWidth=1;c.strokeRect(x,d,w,l);}
+    c.strokeStyle=rgba('#0e140e',.8);c.lineWidth=1.78;c.strokeRect(x,d,w,l);}
   c.restore();
   // the night over the slope: darker toward us, the moon's light lying across the upper ground
   E.fallKeep(c,X0,X1+120,150,[[200,.28],[200+(GB+60-200)*.5,.5],[GB+60,.64]],'#03050a',.04);
@@ -134,7 +134,7 @@ function paint(c){
       const q=gp(x,d),far=clamp(d/FAR,0,1),n=4+Math.floor(r2()*7),hh=(1.3+r2()*2.3)*(d>80&&d<110?.5:1)*(d<-18?2:1)*(d>180?1.4:1);
       for(let k=0;k<n;k++){const a=(k/(n-1)-.5)*1.3+(r2()-.5)*.35,h=hh*(.6+.55*r2()),bx=q.x+(r2()-.5)*2.6,ex=bx+Math.sin(a)*h*.9,ey=q.y-Math.cos(a)*h,v=r2();
         let ci=v<.3?1:v<.66?2:v<.88?3:v<.97?4:5;if(k===0&&r2()<.45)ci=0;if(ci>=4&&far<.35&&r2()<.55)ci=3;paths[ci].moveTo(bx,q.y);paths[ci].lineTo(ex,ey);}}
-    c.lineCap='round';cols.forEach((col,i)=>{c.strokeStyle=rgba(col,i>=5?.5:.92);c.lineWidth=i>=4?.42:.55;c.stroke(paths[i]);});
+    c.lineCap='round';cols.forEach((col,i)=>{c.strokeStyle=rgba(col,i>=5?.5:.92);c.lineWidth=i>=4?1.12:1.47;c.stroke(paths[i]);});
     for(let i=0;i<260;i++){const x=X0+r2()*(X1-X0),d=40+Math.pow(r2(),.6)*(FAR-42);if(d>84&&d<108)continue;const q=gp(x,d);c.fillStyle=rgba(r2()<.8?'#dfe2ea':'#e8dca0',.18+.24*r2());c.fillRect(q.x,q.y-1.4-r2()*1.4,.85,.85);}}
   // ---- the old stones along the far side of the slope: slim stelae, some leaning, one broken; lamps of elven light on three
   const STONES=[[-90,236,30,9],[-30,262,26,8],[40,218,34,10],[118,250,24,8],[176,226,38,11],[262,244,28,9],[330,212,32,10],[402,258,22,8],[468,230,36,10],[548,248,26,9],[612,214,30,9],[690,236,34,10],[770,256,24,8],[842,222,32,10],[918,246,28,9],[990,228,30,9]];
@@ -147,7 +147,7 @@ function paint(c){
   c.save();c.globalAlpha=.1;for(let i=0;i<10;i++){const x=X0+r()*(X1-X0),y=crestY(x)+20+r()*50;c.fillStyle=rad(c,x,y,0,90,[[0,'#9aa8c8'],[1,rgba('#9aa8c8',0)]]);c.save();c.translate(x,y);c.scale(1,.18);c.beginPath();c.arc(0,0,90,0,TAU);c.fill();c.restore();}c.restore();
   // ---- the corners nearest us: long grass and dock leaves, dark, a few blades catching the moon
   {const rc=rng(77),G2=gp;c.lineCap='round';for(const [cx0,cx1] of [[-120,110],[760,1060]])for(let i=0;i<150;i++){const x=cx0+rc()*(cx1-cx0),edge=Math.min(1,Math.min(Math.abs(x-cx0),Math.abs(cx1-x))/60),d=-34+rc()*24,q=G2(x,d),h=(9+rc()*16)*(.45+.55*edge),lean=(rc()-.5)*7;
-      c.strokeStyle=rc()<.8?'#05080a':'#0b120d';c.lineWidth=.8+rc()*.7;c.beginPath();c.moveTo(q.x,q.y);c.quadraticCurveTo(q.x+lean*.3,q.y-h*.6,q.x+lean,q.y-h);c.stroke();
+      c.strokeStyle=rc()<.8?'#05080a':'#0b120d';c.lineWidth=1.07+rc()*.93;c.beginPath();c.moveTo(q.x,q.y);c.quadraticCurveTo(q.x+lean*.3,q.y-h*.6,q.x+lean,q.y-h);c.stroke();
       if(rc()<.25){c.strokeStyle=rgba('#c8d4ff',.18);c.lineWidth=.35;c.beginPath();c.moveTo(q.x+lean*.6,q.y-h*.75);c.lineTo(q.x+lean,q.y-h);c.stroke();}
       if(rc()<.05){c.fillStyle='#070b08';c.save();c.translate(q.x,q.y-2);c.rotate((rc()-.5)*1.4);c.beginPath();c.ellipse(0,-6,2.6,7,0,0,TAU);c.fill();c.strokeStyle=rgba('#c8d4ff',.12);c.lineWidth=.4;c.beginPath();c.moveTo(0,0);c.lineTo(0,-12);c.stroke();c.restore();}}}
   // the dark toward us

@@ -19,18 +19,18 @@ const fx=x=>x+DW*PSX,fy=h=>GB-DW*PSY-h;
 const TORCH=[{d:150,h:150},{d:232,h:150}],BRAZ=[{x:334,h:30},{x:426,h:30}],GATE={x:380,w:56,h:96,tw:46,th:178};
 const torchAt=T=>pp(wallX()-3,GB-T.h,T.d),brazAt=B=>pp(B.x,GB-B.h,DW-16);
 // ---------- small things ----------
-function weeds(c,x,y,n,h,seed){const r=rng(seed);c.save();c.lineCap='round';for(let i=0;i<n;i++){const bx=x+(r()-.5)*n*1.6,bh=h*(.5+r()*.6),lean=(r()-.5)*bh*.6;c.strokeStyle=mix('#141c10','#2c3a1c',r());c.lineWidth=.6+r()*.5;
+function weeds(c,x,y,n,h,seed){const r=rng(seed);c.save();c.lineCap='round';for(let i=0;i<n;i++){const bx=x+(r()-.5)*n*1.6,bh=h*(.5+r()*.6),lean=(r()-.5)*bh*.6;c.strokeStyle=mix('#141c10','#2c3a1c',r());c.lineWidth=.95+r()*.8;
   c.beginPath();c.moveTo(bx,y);c.quadraticCurveTo(bx+lean*.3,y-bh*.6,bx+lean,y-bh);c.stroke();}c.restore();}
 // ivy: leaves on hanging stems, dark, the moon on their upper edges; drawn in screen space from a list of (x, y, length) stems
 function ivy(c,stems,seed,o){o=o||{};const r=rng(seed);c.save();c.lineCap='round';
   for(const [x,y,len,sway] of stems){const pts=[];let px=x,py=y;for(let k=0;k<len;k+=3){px+=(r()-.5)*1.6+(sway||0)*.2;py+=3;pts.push([px,py]);}
-    c.strokeStyle='#0c1208';c.lineWidth=.6;c.beginPath();pts.forEach(([a,b],i)=>i?c.lineTo(a,b):c.moveTo(a,b));c.stroke();
+    c.strokeStyle='#0c1208';c.lineWidth=1.51;c.beginPath();pts.forEach(([a,b],i)=>i?c.lineTo(a,b):c.moveTo(a,b));c.stroke();
     for(const [a,b] of pts){for(let j=0;j<2;j++){const lx=a+(r()-.5)*5,ly=b+(r()-.5)*3,s=1.4+r()*1.4,ang=r()*TAU;c.save();c.translate(lx,ly);c.rotate(ang);
       c.fillStyle=mix('#0a1408','#1c2e14',r());c.beginPath();c.moveTo(0,-s);c.quadraticCurveTo(s,-s*.6,s*.9,0);c.quadraticCurveTo(s*.4,s*.9,0,s*.6);c.quadraticCurveTo(-s*.4,s*.9,-s*.9,0);c.quadraticCurveTo(-s,-s*.6,0,-s);c.fill();
       if(r()<.45){c.fillStyle=rgba(o.lit||'#9ab0d8',.22);c.beginPath();c.moveTo(-s*.6,-s*.5);c.quadraticCurveTo(0,-s*1.05,s*.6,-s*.5);c.lineTo(0,-s*.6);c.fill();}c.restore();}}}
   c.restore();}
 function brazier(c,q){c.fillStyle=rgba('#000000',.5);c.beginPath();c.ellipse(q.x+1,q.y+30,12,2.6,0,0,TAU);c.fill();
-  c.strokeStyle='#0a090c';c.lineWidth=1.5;c.lineCap='round';c.beginPath();for(const dx of [-8,0,8]){c.moveTo(q.x+dx,q.y+30);c.lineTo(q.x+dx*.35,q.y+8);}c.stroke();
+  c.strokeStyle='#0a090c';c.lineWidth=1.59;c.lineCap='round';c.beginPath();for(const dx of [-8,0,8]){c.moveTo(q.x+dx,q.y+30);c.lineTo(q.x+dx*.35,q.y+8);}c.stroke();
   c.fillStyle=lin(c,q.x-10,0,q.x+10,0,[[0,'#0a090c'],[.6,'#1c1a20'],[1,'#08070a']]);c.beginPath();c.moveTo(q.x-10,q.y+4);c.quadraticCurveTo(q.x,q.y+14,q.x+10,q.y+4);c.closePath();c.fill();
   c.fillStyle=rgba(C.rim,.5);c.fillRect(q.x-10,q.y+3.6,20,.8);c.fillStyle='#ff8a3c';c.beginPath();c.ellipse(q.x,q.y+4,8.6,1.6,0,0,TAU);c.fill();c.fillStyle='#ffd27a';c.beginPath();c.ellipse(q.x,q.y+4,5,.9,0,0,TAU);c.fill();}
 function cypress(c,x,base,h,w,seed){const r=rng(seed);c.save();c.fillStyle='#070a08';c.beginPath();c.moveTo(x,base-h);
@@ -66,10 +66,10 @@ function gatehouse(c){const G=GATE,A=TB().ashlar(15,{bh:11,bl:26}),stone=TX().gr
     c.beginPath();c.moveTo(x0-9,fy(G.h+18));c.lineTo(x1+9,fy(G.h+18));c.lineTo(x1+9,base);c.lineTo(x1,base);c.lineTo(x1,yA);c.arc(cx,yA,R0,0,Math.PI,true);c.lineTo(x0,base);c.lineTo(x0-9,base);c.closePath();
     c.fillStyle=patAt(c,A,x0,base,.25);c.fill();c.fillStyle=rgba('#0a0c18',.72);c.fill();
     c.beginPath();c.arc(cx,yA,R1,Math.PI,0);c.arc(cx,yA,R0,0,Math.PI,true);c.closePath();c.fillStyle=patAt(c,stone,0,0,.25);c.fill();c.fillStyle=rgba('#0a0c18',.5);c.fill();
-    c.strokeStyle=rgba('#000000',.55);c.lineWidth=.5;c.beginPath();for(let k=1;k<11;k++){const a=Math.PI+k*Math.PI/11;c.moveTo(cx+Math.cos(a)*R0,yA+Math.sin(a)*R0);c.lineTo(cx+Math.cos(a)*R1,yA+Math.sin(a)*R1);}c.stroke();
+    c.strokeStyle=rgba('#000000',.55);c.lineWidth=1.5;c.beginPath();for(let k=1;k<11;k++){const a=Math.PI+k*Math.PI/11;c.moveTo(cx+Math.cos(a)*R0,yA+Math.sin(a)*R0);c.lineTo(cx+Math.cos(a)*R1,yA+Math.sin(a)*R1);}c.stroke();
     const vp=[];for(let k=0;k<=18;k++){const a=Math.PI+k*Math.PI/18;vp.push({x:cx+Math.cos(a)*(R0+4.5),y:yA+Math.sin(a)*(R0+4.5)});}vine(c,vp,{w:.5,amp:.8,wave:7,leaf:1.4,every:2,seed:12,col:rgba(C.gold,.9)});
     c.beginPath();c.moveTo(cx-4,yA-R1-1);c.lineTo(cx+4,yA-R1-1);c.lineTo(cx+3,yA-R0+1);c.lineTo(cx-3,yA-R0+1);c.closePath();c.fillStyle=patAt(c,stone,0,0,.25);c.fill();c.fillStyle=rgba('#0a0c18',.4);c.fill();
-    c.strokeStyle=rgba(C.gold,.9);c.lineWidth=.7;c.beginPath();c.arc(cx,yA-R0-4.5,2,.4,TAU-.4);c.stroke();
+    c.strokeStyle=rgba(C.gold,.9);c.lineWidth=.99;c.beginPath();c.arc(cx,yA-R0-4.5,2,.4,TAU-.4);c.stroke();
     // the frieze over the gate, the vine running the width of it
     const fyy=fy(G.h+12);c.fillStyle=patAt(c,stone,0,0,.25);c.fillRect(x0-9,fyy,G.w+18,6);c.fillStyle=rgba('#08090f',.5);c.fillRect(x0-9,fyy,G.w+18,6);c.fillStyle=rgba('#c8d4ff',.2);c.fillRect(x0-9,fyy,G.w+18,.7);
     vine(c,[{x:x0-7,y:fyy+3},{x:x1+7,y:fyy+3}],{w:.55,amp:1.1,wave:10,leaf:1.6,every:2,seed:14,col:rgba(C.gold,.9),curl:.3});
@@ -235,7 +235,7 @@ function paint(c){const X0=-160,X1=W+240,T0=-110,r=rng(3),wx=wallX(),base=fy(0),
     c.beginPath();c.moveTo(b0.x,b0.y);c.lineTo(b0.x,b0.y-62);c.lineTo((b0.x+b1.x)/2-4,b0.y-96);c.lineTo((b0.x+b1.x)/2+6,b0.y-88);c.lineTo(b1.x-8,b0.y-70);c.lineTo(b1.x,b0.y-52);c.lineTo(b1.x,b1.y);c.closePath();
     c.fillStyle=patAt(c,A,b0.x,b0.y,.25);c.fill();c.fillStyle=lin(c,b0.x,0,b1.x,0,[[0,rgba('#0a0c18',.62)],[1,rgba('#06060c',.8)]]);c.fill();
     const wxm=(b0.x+b1.x)/2;c.fillStyle='#060509';c.beginPath();c.moveTo(wxm-8,b0.y-20);c.lineTo(wxm-8,b0.y-52);c.arc(wxm,b0.y-52,8,Math.PI,0);c.lineTo(wxm+8,b0.y-20);c.closePath();c.fill();
-    c.strokeStyle=rgba(C.gold,.55);c.lineWidth=.6;c.beginPath();c.arc(wxm,b0.y-52,10,Math.PI,0);c.stroke();
+    c.strokeStyle=rgba(C.gold,.55);c.lineWidth=1.01;c.beginPath();c.arc(wxm,b0.y-52,10,Math.PI,0);c.stroke();
     ivy(c,[[b1.x-10,b0.y-68,40,0],[b1.x-4,b0.y-56,30,0]],51);
     cypress(c,fx(30),fy(0)+8,78,9,1);cypress(c,fx(48),fy(0)+8,58,7,2);cypress(c,fx(628),fy(0)+8,84,10,3);cypress(c,fx(702),fy(0)+8,64,8,4);
     for(const B of BRAZ)brazier(c,brazAt(B));}

@@ -85,7 +85,7 @@ function nearTower(c){const {x,base,top,w}=TOWER,h=base-top,r=rng(71);c.save();
     for(let k2=-3;k2<=3;k2++){const bx=x+k2*cw*.15,bh=34-Math.abs(k2)*7;c.fillStyle=lin(c,0,cy-bh,0,cy,[[0,C.goldL],[1,C.goldD]]);c.beginPath();c.moveTo(bx-cw*.05,cy);c.lineTo(bx,cy-bh);c.lineTo(bx+cw*.05,cy);c.closePath();c.fill();}
     glow(c,x,cy-13,w*1.2,C.cyan,.48,.5);glow(c,x,cy-13,w*.36,C.cyanL,.7);
     c.strokeStyle=rgba(C.cyan,.95);c.lineWidth=2.2;c.beginPath();c.ellipse(x,cy-13,cw*.46,cw*.1,0,0,TAU);c.stroke();
-    c.strokeStyle=rgba(C.cyanL,.7);c.lineWidth=.8;c.beginPath();c.ellipse(x,cy-13,cw*.46,cw*.1,0,Math.PI*.1,Math.PI*.9);c.stroke();
+    c.strokeStyle=rgba(C.cyanL,.7);c.lineWidth=.99;c.beginPath();c.ellipse(x,cy-13,cw*.46,cw*.1,0,Math.PI*.1,Math.PI*.9);c.stroke();
     for(const sd of [-1,1]){const hx=x+sd*cw*.47;c.fillStyle='#0b0c12';c.beginPath();c.moveTo(hx-5,cy);c.lineTo(hx-4,cy-8);c.lineTo(hx+4,cy-8);c.lineTo(hx+5,cy);c.closePath();c.fill();
       c.fillStyle=rgba('#f4f8ff',.95);c.beginPath();c.ellipse(hx,cy-8,3.4,1.2,0,0,TAU);c.fill();glow(c,hx,cy-8,10,'#e6f0ff',.6);}}
   c.restore();}
@@ -125,7 +125,7 @@ function shutter(c,x0,x1,gTop,base,name,r){const w=x1-x0,sy=gTop+12,up=r()<.35?4
   c.fillStyle=rgba('#000000',.45);for(let y=sy+2;y<sb-1;y+=2.4)c.fillRect(x0+3,y,w-6,.7);c.fillStyle=rgba('#a8b4cc',.08);for(let y=sy+1.2;y<sb-1;y+=2.4)c.fillRect(x0+3,y,w-6,.5);
   c.fillStyle='#0a0a0e';c.fillRect(x0+3,sb-2.6,w-6,2.6);c.fillStyle=rgba('#c8d2e8',.25);c.fillRect((x0+x1)/2-1.5,sb-2.4,3,1.6);
   if(up){c.fillStyle=lin(c,0,sb,0,base,[[0,'#ffd9a0'],[1,'#b8783a']]);c.fillRect(x0+3,sb,w-6,up);glow(c,(x0+x1)/2,base,w*.7,'#ffb866',.25,.25);}
-  if(r()<.5){c.save();c.globalAlpha=.35;c.strokeStyle=r()<.5?'#8a2a3a':'#2a6a6a';c.lineWidth=1.3;c.lineCap='round';const tx=x0+6+r()*(w-30),ty=sy+8+r()*10;c.beginPath();
+  if(r()<.5){c.save();c.globalAlpha=.35;c.strokeStyle=r()<.5?'#8a2a3a':'#2a6a6a';c.lineWidth=1.46;c.lineCap='round';const tx=x0+6+r()*(w-30),ty=sy+8+r()*10;c.beginPath();
     for(let k=0;k<6;k++)c.lineTo(tx+k*4+r()*2,ty+(k%2?-5:3)+r()*2);c.stroke();c.restore();}
   c.fillStyle='#0d0c12';c.fillRect(x0,gTop,3,base-gTop);c.fillRect(x1-3,gTop,3,base-gTop);}
 // ---------- the street furniture ----------
@@ -136,7 +136,7 @@ function pole(c,px,withLamp){const d=204,b=pp(px,g0(),d),top=pp(px,g0()-214,d),a
   c.fillStyle='#0a0a0e';c.fillRect(b.x-3.4,b.y-14,6.8,14);c.fillStyle=rgba(C.gold,.35);c.fillRect(b.x-3.4,b.y-14,6.8,.8);
   // the bracket arm out over the road, its tie rod, the insulators
   const t2=pp(px,g0()-202,d);c.strokeStyle='#06060a';c.lineWidth=1.8;c.beginPath();c.moveTo(t2.x,t2.y);c.lineTo(arm.x,arm.y);c.stroke();
-  c.lineWidth=.7;c.beginPath();c.moveTo(top.x,top.y);c.lineTo(arm.x,arm.y-.5);c.stroke();
+  c.lineWidth=1.48;c.beginPath();c.moveTo(top.x,top.y);c.lineTo(arm.x,arm.y-.5);c.stroke();
   c.fillStyle='#1a1a22';c.fillRect(arm.x-1.4,arm.y,2.8,3);
   if(withLamp){const L=lampHead({x:px,d});c.fillStyle='#0a0a0e';c.beginPath();c.moveTo(L.x-7,L.y-1.4);c.quadraticCurveTo(L.x,L.y-5,L.x+8,L.y-1);c.lineTo(L.x+6,L.y+1.6);c.lineTo(L.x-6,L.y+1.6);c.closePath();c.fill();
     c.fillStyle=lin(c,0,L.y+.6,0,L.y+3,[[0,'#fff2c8'],[1,'#ffb050']]);c.fillRect(L.x-5,L.y+.8,10,2);}}
@@ -144,11 +144,11 @@ function pole(c,px,withLamp){const d=204,b=pp(px,g0(),d),top=pp(px,g0()-214,d),a
 function lightTower(c){const d=MAST.d,base=g0(),q=x=>pp(x,base,d),b0=q(MAST.x-26),b1=q(MAST.x+30);
   c.fillStyle='#0b0b10';c.fillRect(b0.x,b0.y-18,b1.x-b0.x,14);c.fillStyle=rgba('#ffcf86',.25);c.fillRect(b0.x,b0.y-18,b1.x-b0.x,.8);
   c.fillStyle='#050508';for(const xx of [b0.x+8,b1.x-8]){c.beginPath();c.arc(xx,b0.y-4,4.2,0,TAU);c.fill();}
-  c.fillStyle=rgba('#d8a64e',.6);c.fillRect(b0.x+4,b0.y-14,8,3);c.fillStyle=rgba('#c8d2e8',.3);c.font='700 4px Arial';c.fillText('POLICE',b0.x+16,b0.y-10);
+  c.fillStyle=rgba('#d8a64e',.6);c.fillRect(b0.x+4,b0.y-14,8,3);c.fillStyle=rgba('#c8d2e8',.3);c.font='700 4px "Alegreya SC", Georgia, serif';c.fillText('POLICE',b0.x+16,b0.y-10);
   const m0=q(MAST.x),m1=pp(MAST.x,base-MAST.h+6,d);c.strokeStyle='#08080c';c.lineWidth=3;c.beginPath();c.moveTo(m0.x,m0.y-18);c.lineTo(m1.x,m1.y);c.stroke();
-  c.strokeStyle=rgba('#cfe0ff',.2);c.lineWidth=.7;c.beginPath();c.moveTo(m0.x+1.3,m0.y-18);c.lineTo(m1.x+1.3,m1.y);c.stroke();
+  c.strokeStyle=rgba('#cfe0ff',.2);c.lineWidth=.99;c.beginPath();c.moveTo(m0.x+1.3,m0.y-18);c.lineTo(m1.x+1.3,m1.y);c.stroke();
   // the outriggers and the cable
-  c.strokeStyle='#06060a';c.lineWidth=1.2;c.beginPath();c.moveTo(b0.x+4,b0.y-6);c.lineTo(b0.x-12,b0.y+1);c.moveTo(b1.x-4,b1.y-6);c.lineTo(b1.x+12,b1.y+1);c.stroke();
+  c.strokeStyle='#06060a';c.lineWidth=1.51;c.beginPath();c.moveTo(b0.x+4,b0.y-6);c.lineTo(b0.x-12,b0.y+1);c.moveTo(b1.x-4,b1.y-6);c.lineTo(b1.x+12,b1.y+1);c.stroke();
   // the lamp bank: four heads on a cross bar, their faces turned to the left and down the avenue, burning white
   const L=mastLamp();c.fillStyle='#08080c';c.fillRect(L.x-18,L.y-1,36,3);
   for(const [dx,dy] of [[-13,-6],[-4,-6],[5,-6],[14,-6]]){const hx=L.x+dx,hy=L.y+dy;c.fillStyle='#0c0c12';c.beginPath();c.moveTo(hx-4,hy-4);c.lineTo(hx+3,hy-5);c.lineTo(hx+4,hy+4);c.lineTo(hx-4,hy+4);c.closePath();c.fill();
@@ -158,12 +158,12 @@ function tripod(c){const d=TRI.d,b=gq(TRI.x,d),hd=gq(TRI.x,d);hd.y-=TRI.h;
   c.strokeStyle='#07070b';c.lineWidth=1.6;c.lineCap='round';c.beginPath();for(const [dx,dd] of [[-16,6],[14,8],[2,-10]]){const f=gq(TRI.x+dx,d+dd);c.moveTo(hd.x,hd.y+16);c.lineTo(f.x,f.y);}c.stroke();
   c.lineWidth=2.4;c.beginPath();c.moveTo(hd.x,hd.y+18);c.lineTo(hd.x,hd.y+4);c.stroke();
   // the lamp head: a deep box with its yoke, the face turned down the road, burning white behind its grille
-  c.strokeStyle='#08080c';c.lineWidth=1.4;c.beginPath();c.moveTo(hd.x-3,hd.y+10);c.lineTo(hd.x-9,hd.y);c.moveTo(hd.x+3,hd.y+10);c.lineTo(hd.x+9,hd.y);c.stroke();
+  c.strokeStyle='#08080c';c.lineWidth=1.48;c.beginPath();c.moveTo(hd.x-3,hd.y+10);c.lineTo(hd.x-9,hd.y);c.moveTo(hd.x+3,hd.y+10);c.lineTo(hd.x+9,hd.y);c.stroke();
   c.fillStyle='#0b0b11';c.beginPath();c.moveTo(hd.x-12,hd.y-9);c.lineTo(hd.x+9,hd.y-11);c.lineTo(hd.x+11,hd.y+7);c.lineTo(hd.x-12,hd.y+8);c.closePath();c.fill();
   c.fillStyle=rgba('#cfe0ff',.3);c.fillRect(hd.x-11,hd.y-9.6,19,.8);
   c.fillStyle=lin(c,hd.x-14,0,hd.x-9,0,[[0,'#ffffff'],[1,'#c4d8ff']]);c.fillRect(hd.x-14,hd.y-8,3.4,15);
-  c.strokeStyle=rgba('#0b0b11',.6);c.lineWidth=.5;c.beginPath();for(let k=0;k<4;k++){c.moveTo(hd.x-14,hd.y-6+k*4);c.lineTo(hd.x-10.6,hd.y-6+k*4);}c.stroke();
-  c.strokeStyle='#050508';c.lineWidth=.7;c.beginPath();c.moveTo(hd.x+2,hd.y+5);c.quadraticCurveTo(hd.x+16,b.y-6,hd.x+30,b.y+2);c.stroke();}
+  c.strokeStyle=rgba('#0b0b11',.6);c.lineWidth=1.5;c.beginPath();for(let k=0;k<4;k++){c.moveTo(hd.x-14,hd.y-6+k*4);c.lineTo(hd.x-10.6,hd.y-6+k*4);}c.stroke();
+  c.strokeStyle='#050508';c.lineWidth=1.48;c.beginPath();c.moveTo(hd.x+2,hd.y+5);c.quadraticCurveTo(hd.x+16,b.y-6,hd.x+30,b.y+2);c.stroke();}
 // a police sawhorse: two splayed legs each end, a board striped white and police blue, POLICE LINE on it, a flasher on top
 function sawhorse(c,s,o){const d=s.d,h=s.h||38,L=s.w/2,q=(x,y)=>pp(x,GB-y,d),near=d<0;
   c.strokeStyle='#08080c';c.lineWidth=near?2.4:1.6;c.lineCap='round';c.beginPath();
@@ -172,7 +172,7 @@ function sawhorse(c,s,o){const d=s.d,h=s.h||38,L=s.w/2,q=(x,y)=>pp(x,GB-y,d),nea
   c.fillStyle='#e8ecf2';c.fillRect(b0.x,b0.y-bh,b1.x-b0.x,bh);c.fillStyle='#1b2a4e';for(let x=b0.x-bh;x<b1.x+bh;x+=bh*1.4){c.beginPath();c.moveTo(x,b0.y);c.lineTo(x+bh*.7,b0.y);c.lineTo(x+bh*1.4,b0.y-bh);c.lineTo(x+bh*.7,b0.y-bh);c.closePath();c.fill();}
   c.fillStyle=rgba('#000000',.32);c.fillRect(b0.x,b0.y-bh,b1.x-b0.x,bh);c.restore();
   // the lettering band under the stripes
-  const lb=q(s.x-L,h-9);c.fillStyle='#0d1424';c.fillRect(lb.x,lb.y-5,b1.x-b0.x,5);c.save();c.font=`700 ${near?4.6:3.6}px Arial`;c.textAlign='center';c.fillStyle=rgba('#e8ecf2',.75);c.fillText('POLICE LINE   DO NOT CROSS',(b0.x+b1.x)/2,lb.y-1.2);c.restore();
+  const lb=q(s.x-L,h-9);c.fillStyle='#0d1424';c.fillRect(lb.x,lb.y-5,b1.x-b0.x,5);c.save();c.font=`700 ${near?4.6:3.6}px "Alegreya SC", Georgia, serif`;c.textAlign='center';c.fillStyle=rgba('#e8ecf2',.75);c.fillText('POLICE LINE   DO NOT CROSS',(b0.x+b1.x)/2,lb.y-1.2);c.restore();
   c.fillStyle=rgba('#cfe0ff',.35);c.fillRect(b0.x,b0.y-bh,b1.x-b0.x,.6);
   // the flasher's housing: the lamp itself burns in live()
   const fq=q(s.x+L*.55,h);c.fillStyle='#0a0a0e';c.fillRect(fq.x-2.6,fq.y-bh-4.4,5.2,4.4);c.fillStyle=rgba(s.col==='b'?'#4a7cff':'#ffb030',.55);c.fillRect(fq.x-2,fq.y-bh-3.8,4,3.2);}
@@ -185,7 +185,7 @@ function cone(c,k){const q=gq(k.x,k.d),h=k.d<0?24:18,w=h*.42;c.fillStyle='#0a0a0
 function msgBoard(c){const d=BOARD.d,q=(x,y)=>pp(x,GB-y,d),b=q(BOARD.x,0),p0=q(BOARD.x-30,112),p1=q(BOARD.x+30,78);
   c.strokeStyle='#07070b';c.lineWidth=2.4;c.beginPath();c.moveTo(b.x,b.y-14);c.lineTo(b.x,p1.y);c.stroke();
   c.fillStyle='#0a0a0e';c.fillRect(b.x-24,b.y-16,48,10);c.fillStyle='#050508';for(const xx of [b.x-14,b.x+14]){c.beginPath();c.arc(xx,b.y-5,4.6,0,TAU);c.fill();}
-  c.fillStyle='#050507';c.fillRect(p0.x,p0.y,p1.x-p0.x,p1.y-p0.y);c.strokeStyle='#1a1a22';c.lineWidth=1.4;c.strokeRect(p0.x,p0.y,p1.x-p0.x,p1.y-p0.y);
+  c.fillStyle='#050507';c.fillRect(p0.x,p0.y,p1.x-p0.x,p1.y-p0.y);c.strokeStyle='#1a1a22';c.lineWidth=1.48;c.strokeRect(p0.x,p0.y,p1.x-p0.x,p1.y-p0.y);
   c.fillStyle=rgba('#ffb030',.14);for(let y=p0.y+3;y<p1.y-2;y+=2.2)for(let x=p0.x+3;x<p1.x-2;x+=2.2)c.fillRect(x,y,1,1);}
 // the cruiser at the back: long and low, dark blue with white doors, a gold badge on the door, the lightbar on its roof
 function cruiser(c){const d=CRUISER.d,L=CRUISER.len,x0=CRUISER.x-L/2,q=(x,y)=>pp(x0+x,GB-y,d);
@@ -195,12 +195,12 @@ function cruiser(c){const d=CRUISER.d,L=CRUISER.len,x0=CRUISER.x-L/2,q=(x,y)=>pp
   c.fillStyle=lin(c,0,q(0,76).y,0,q(0,14).y,[[0,'#1d2436'],[.45,'#121726'],[1,'#07080d']]);c.fill();
   // the white doors, the windows dark with the street's light in them
   {const d0=q(108,22),d1=q(200,58);c.fillStyle=lin(c,0,d1.y,0,d0.y,[[0,'#c8ccd6'],[1,'#7a808e']]);c.fillRect(d0.x,d1.y,d1.x-d0.x,d0.y-d1.y);
-    c.strokeStyle='#05060a';c.lineWidth=.8;c.beginPath();const mid=q(154,22),mt=q(154,58);c.moveTo(mid.x,mid.y);c.lineTo(mt.x,mt.y);c.stroke();
+    c.strokeStyle='#05060a';c.lineWidth=1.51;c.beginPath();const mid=q(154,22),mt=q(154,58);c.moveTo(mid.x,mid.y);c.lineTo(mt.x,mt.y);c.stroke();
     c.save();c.translate((d0.x+mid.x)/2,(d0.y+d1.y)/2+2);c.fillStyle=rad(c,0,0,0,7,[[0,C.goldL],[.6,C.gold],[1,C.goldD]]);c.beginPath();c.moveTo(0,-7);c.lineTo(5.6,-4);c.lineTo(4.4,4);c.lineTo(0,7.4);c.lineTo(-4.4,4);c.lineTo(-5.6,-4);c.closePath();c.fill();
       c.fillStyle='#3a2a10';c.fillRect(-2.4,-3.6,1,7);c.fillRect(1.4,-3.6,1,7);c.fillRect(-2.4,-.4,4.8,.9);c.restore();
-    c.save();c.font='700 5px Arial';c.textAlign='center';c.fillStyle='#0b1022';c.fillText('POLICE',(mid.x+d1.x)/2,(d0.y+d1.y)/2+2);c.restore();}
+    c.save();c.font='700 5px "Alegreya SC", Georgia, serif';c.textAlign='center';c.fillStyle='#0b1022';c.fillText('POLICE',(mid.x+d1.x)/2,(d0.y+d1.y)/2+2);c.restore();}
   {const w0=q(108,60),w1=q(192,73),wb=q(196,60);c.fillStyle=lin(c,0,w1.y,0,w0.y,[[0,'#2a3448'],[1,'#080a12']]);c.beginPath();c.moveTo(w0.x,w0.y);c.lineTo(q(110,72).x,w1.y);c.lineTo(w1.x,w1.y);c.lineTo(wb.x+8,wb.y);c.closePath();c.fill();
-    c.strokeStyle='#05060a';c.lineWidth=1.4;const pm=q(156,60),pt=q(156,73);c.beginPath();c.moveTo(pm.x,pm.y);c.lineTo(pt.x,pt.y);c.stroke();
+    c.strokeStyle='#05060a';c.lineWidth=1.48;const pm=q(156,60),pt=q(156,73);c.beginPath();c.moveTo(pm.x,pm.y);c.lineTo(pt.x,pt.y);c.stroke();
     c.save();c.globalCompositeOperation='lighter';c.fillStyle=rgba('#cfe0ff',.12);c.beginPath();c.moveTo(pt.x-20,pt.y);c.lineTo(pt.x-12,pt.y);c.lineTo(pm.x-22,pm.y);c.lineTo(pm.x-30,pm.y);c.closePath();c.fill();c.restore();}
   // wheels under the arches, the chrome bumper, the lamps
   for(const wx of [52,238]){const w=q(wx,14);c.fillStyle='#030305';c.beginPath();c.arc(w.x,w.y,15,0,TAU);c.fill();c.fillStyle=lin(c,w.x-8,w.y-8,w.x+8,w.y+8,[[0,'#3a3e48'],[.5,'#9aa2b2'],[1,'#2a2e36']]);c.beginPath();c.arc(w.x,w.y,7,0,TAU);c.fill();
@@ -211,14 +211,14 @@ function cruiser(c){const d=CRUISER.d,L=CRUISER.len,x0=CRUISER.x-L/2,q=(x,y)=>pp
   // the lightbar's housing; its lamps turn in live()
   {const l0=q(130,76),l1=q(170,82);c.fillStyle='#0c0d12';c.fillRect(l0.x,l1.y,l1.x-l0.x,l0.y-l1.y);}
   // the floods catch its roof and its back
-  c.strokeStyle=rgba('#cfe0ff',.35);c.lineWidth=.8;c.beginPath();[[104,74],[192,76],[222,52],[284,46],[298,36]].forEach((p,i)=>{const s=q(p[0],p[1]);i?c.lineTo(s.x,s.y):c.moveTo(s.x,s.y);});c.stroke();}
+  c.strokeStyle=rgba('#cfe0ff',.35);c.lineWidth=.99;c.beginPath();[[104,74],[192,76],[222,52],[284,46],[298,36]].forEach((p,i)=>{const s=q(p[0],p[1]);i?c.lineTo(s.x,s.y):c.moveTo(s.x,s.y);});c.stroke();}
 // ---------- the floor ----------
 function road(c,X0,X1){
   const rv=[gq(X0,196),gq(X1,196),gq(X1+110,E.NEAR),gq(X0,E.NEAR)];
   c.save();poly(c,rv);c.clip();c.save();c.transform(1,0,PSX,-PSY,0,GB);
   c.fillStyle=patAt(c,asphalt(31,{U:64,sc:4}),0,0,1/4);c.fillRect(X0-60,E.NEAR-10,X1-X0+280,210-E.NEAR);
   // patched strips where the road has been dug and filled, darker
-  {const r=rng(14);for(let i=0;i<5;i++){const x=X0+r()*(X1-X0),d=-60+r()*230,w=40+r()*120,h=10+r()*26;c.fillStyle=rgba('#07080b',.28);c.fillRect(x,d,w,h);c.strokeStyle=rgba('#000000',.25);c.lineWidth=.8;c.strokeRect(x,d,w,h);}}
+  {const r=rng(14);for(let i=0;i<5;i++){const x=X0+r()*(X1-X0),d=-60+r()*230,w=40+r()*120,h=10+r()*26;c.fillStyle=rgba('#07080b',.28);c.fillRect(x,d,w,h);c.strokeStyle=rgba('#000000',.25);c.lineWidth=1.7;c.strokeRect(x,d,w,h);}}
   // the lane paint, worn: a broken line down the middle, solid edge lines, the stop line before the checkpoint
   {const paint=(x0,x1,d,wd,col,dash)=>{c.fillStyle=col;if(!dash){c.fillRect(x0,d-wd/2,x1-x0,wd);return;}for(let x=x0;x<x1;x+=dash[0]+dash[1])c.fillRect(x,d-wd/2,dash[0],wd);};
     paint(X0,X1,92,3.2,rgba('#e8e4d8',.34),[38,30]);paint(X0,X1,186,2.6,rgba('#d8b040',.3));paint(X0,X1,2,2.6,rgba('#e8e4d8',.22));
@@ -237,7 +237,7 @@ function road(c,X0,X1){
     c.fillStyle=rgba('#000000',.5);for(let d=-110;d<196;d+=22)c.fillRect(SPIKE.x-5.4,d,10.8,.8);for(let d=-132;d>E.NEAR;d-=22)c.fillRect(SPIKE.x-5.4,d,10.8,.8);}
   // the manhole: a cast iron lid in its frame, its pattern, the wet ring round it
   {const h=HOLE;c.fillStyle='#08080a';c.beginPath();c.ellipse(h.x,h.d,15,11,0,0,TAU);c.fill();c.fillStyle=lin(c,h.x-12,h.d-12,h.x+12,h.d+12,[[0,'#2a2c32'],[.5,'#3a3c44'],[1,'#1c1d22']]);c.beginPath();c.ellipse(h.x,h.d,12.4,9.2,0,0,TAU);c.fill();
-    c.strokeStyle=rgba('#000000',.6);c.lineWidth=.7;c.beginPath();for(let k=-3;k<=3;k++){c.moveTo(h.x+k*3.2,h.d-8.6+Math.abs(k)*.4);c.lineTo(h.x+k*3.2,h.d+8.6-Math.abs(k)*.4);}c.stroke();
+    c.strokeStyle=rgba('#000000',.6);c.lineWidth=1.76;c.beginPath();for(let k=-3;k<=3;k++){c.moveTo(h.x+k*3.2,h.d-8.6+Math.abs(k)*.4);c.lineTo(h.x+k*3.2,h.d+8.6-Math.abs(k)*.4);}c.stroke();
     c.strokeStyle=rgba('#b8c4dc',.16);c.beginPath();c.ellipse(h.x,h.d,12.4,9.2,0,Math.PI*.9,Math.PI*1.7);c.stroke();}
   c.restore();
   // the wet: everything lit is mirrored in the road, the floods longest, and the puddles hold the colours
@@ -265,7 +265,7 @@ function pavement(c,X0,X1){const g=g0(),pv=[pp(X0,g,DF),pp(X1,g,DF),pp(X1,g,200)
   // concrete slabs, wet: the asphalt's grain lightened, the joints between the slabs, a few cracked
   c.save();poly(c,pv);c.clip();c.transform(1,0,PSX,-PSY,0,g);c.fillStyle=patAt(c,asphalt(31,{U:64,sc:4}),0,0,1/4);c.fillRect(X0,200,X1-X0,DF-200);
   c.fillStyle=rgba('#6a6870',.22);c.fillRect(X0,200,X1-X0,DF-200);
-  const r=rng(12);c.strokeStyle=rgba('#000000',.5);c.lineWidth=.7;c.beginPath();for(let x=X0;x<X1;x+=28+r()*4){c.moveTo(x,200);c.lineTo(x,DF);}c.moveTo(X0,220);c.lineTo(X1,220);c.stroke();
+  const r=rng(12);c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.76;c.beginPath();for(let x=X0;x<X1;x+=28+r()*4){c.moveTo(x,200);c.lineTo(x,DF);}c.moveTo(X0,220);c.lineTo(X1,220);c.stroke();
   c.strokeStyle=rgba('#cfe0ff',.06);c.beginPath();for(let x=X0+1;x<X1;x+=30){c.moveTo(x,200);c.lineTo(x,DF);}c.stroke();c.restore();
   c.fillStyle=rgba('#05050a',.5);poly(c,pv);c.fill();
   // the kerb's face, granite, the floods along its edge
@@ -292,7 +292,7 @@ function paint(c){
   // the tower's foot between the blocks: a plaza behind a gilt fence, its doors lit
   {const x0=564,x1=736,gTop=base-46;c.fillStyle='#0b0b11';c.fillRect(x0,gTop-30,x1-x0,base-gTop+30);
     for(let k=0;k<6;k++){const dx=x0+16+k*25;windowPane(c,dx,gTop-14,13,base-gTop+12,.72,{mull:1,fw:.8,spill:false});}
-    glow(c,(x0+x1)/2,base-10,90,'#ffcf86',.25,.35);c.strokeStyle='#07070b';c.lineWidth=1;c.beginPath();for(let x=x0;x<=x1;x+=4){c.moveTo(x,base);c.lineTo(x,base-14);}c.moveTo(x0,base-12);c.lineTo(x1,base-12);c.stroke();
+    glow(c,(x0+x1)/2,base-10,90,'#ffcf86',.25,.35);c.strokeStyle='#07070b';c.lineWidth=1.5;c.beginPath();for(let x=x0;x<=x1;x+=4){c.moveTo(x,base);c.lineTo(x,base-14);}c.moveTo(x0,base-12);c.lineTo(x1,base-12);c.stroke();
     c.fillStyle=C.gold;for(let x=x0;x<=x1;x+=8){c.beginPath();c.moveTo(x-1,base-14);c.lineTo(x,base-17);c.lineTo(x+1,base-14);c.fill();}}
   for(const b of B)block(c,b,base);
   // the haze in the street's far end, cold where the floods reach it
@@ -307,7 +307,7 @@ function paint(c){
   sawhorse(c,{...BARR[1],col:'b'});tripod(c);sawhorse(c,{...BARR[0],col:'a'});
   // the trolley wires over the road, sagging between the arms, the floods catching them
   {const wy=d=>g0()-196-d*PSY;for(const [d,a] of [[82,.85],[96,.6]]){const pts=POLES.map(px=>pp(px+44,g0()-196,204-122+(d-82)));
-      c.strokeStyle=rgba('#040406',a);c.lineWidth=.8;c.beginPath();c.moveTo(X0,pts[0].y+6);for(let i=0;i<pts.length;i++){const p=pts[i];if(i)c.quadraticCurveTo((pts[i-1].x+p.x)/2,(pts[i-1].y+p.y)/2+6,p.x,p.y);else c.lineTo(p.x,p.y);}c.lineTo(X1,pts[pts.length-1].y+6);c.stroke();
+      c.strokeStyle=rgba('#040406',a);c.lineWidth=1.51;c.beginPath();c.moveTo(X0,pts[0].y+6);for(let i=0;i<pts.length;i++){const p=pts[i];if(i)c.quadraticCurveTo((pts[i-1].x+p.x)/2,(pts[i-1].y+p.y)/2+6,p.x,p.y);else c.lineTo(p.x,p.y);}c.lineTo(X1,pts[pts.length-1].y+6);c.stroke();
       c.strokeStyle=rgba('#cfe0ff',.14*a);c.lineWidth=.4;c.stroke();void wy;}}
   // the floods' light: soft cones down the avenue from the mast and from the tripod (the shared piece: a cone from the lamp to the
   // stretch of road it lands on, as wide there as that stretch is across it), dimmer in the air than the pools they leave on the
@@ -329,6 +329,20 @@ function paint(c){
 // ---------- what moves: the searchlights, the flashers and the lightbar, the board, the steam, the drizzle ----------
 const STEAM=(()=>{const r=rng(5),a=[];for(let i=0;i<14;i++)a.push({ph:r(),dx:(r()-.5)*8,sp:.18+r()*.14,w:5+r()*6});return a;})();
 const RAIN=(()=>{const r=rng(8),a=[];for(let i=0;i<70;i++)a.push({x:r()*1100-100,y:r()*560-40,sp:280+r()*160,l:5+r()*5,a:.06+r()*.1});return a;})();
+// the message board's two faces: a grid of lamps 1.75 units apart, the message's lamps lit (five by seven to a letter, a column
+// between letters), the rest dark; painted once each at four pixels a unit and stamped
+const DOTS={C:['.###.','#...#','#....','#....','#....','#...#','.###.'],H:['#...#','#...#','#...#','#####','#...#','#...#','#...#'],E:['#####','#....','#....','####.','#....','#....','#####'],
+  K:['#...#','#..#.','#.#..','##...','#.#..','#..#.','#...#'],P:['####.','#...#','#...#','####.','#....','#....','#....'],O:['.###.','#...#','#...#','#...#','#...#','#...#','.###.'],
+  I:['.###.','..#..','..#..','..#..','..#..','..#..','.###.'],N:['#...#','##..#','#.#.#','#..##','#...#','#...#','#...#'],T:['#####','..#..','..#..','..#..','..#..','..#..','..#..'],
+  S:['.####','#....','#....','.###.','....#','....#','####.'],'<':['....#','...##','..###','.####','..###','...##','....#'],' ':['.....','.....','.....','.....','.....','.....','.....']};
+const BOARD_MSG=[['CHECK','POINT'],['STOP','< < <']],BOARD_FACE=[];
+function boardFace(ph,w,h){const F=BOARD_FACE[ph];if(F&&F.w===w&&F.h===h)return F.cv;const k=4,cv=document.createElement('canvas');cv.width=Math.ceil(w*k);cv.height=Math.ceil(h*k);
+  const g=cv.getContext('2d'),pt=1.75,cols=Math.floor((w-4)/pt),rows=Math.floor((h-4)/pt),ox=(w-cols*pt)/2+pt/2,oy=(h-rows*pt)/2+pt/2,lit=new Set();g.scale(k,k);
+  BOARD_MSG[ph].forEach((ln,li)=>{const c0=Math.floor((cols-(ln.length*6-1))/2),r0=li?rows-8:1;
+    for(let i=0;i<ln.length;i++){const G=DOTS[ln[i]]||DOTS[' '];for(let r=0;r<7;r++)for(let q=0;q<5;q++)if(G[r][q]==='#')lit.add((r0+r)*cols+c0+i*6+q);}});
+  for(let r=0;r<rows;r++)for(let q=0;q<cols;q++){const on=lit.has(r*cols+q);g.fillStyle=on?rgba('#ffb030',.9):rgba('#2a1c0c',.5);g.beginPath();g.arc(ox+q*pt,oy+r*pt,.75,0,TAU);g.fill();
+    if(on){g.fillStyle=rgba('#fff0c0',.55);g.beginPath();g.arc(ox+q*pt-.2,oy+r*pt-.2,.35,0,TAU);g.fill();}}
+  BOARD_FACE[ph]={cv,w,h};return cv;}
 function live(){const t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';
   // the searchlights out of the crown, two pale arms sweeping the cloud
   // (the shared soft piece, as the fall's searchlights: a bell across, fading out into the cloud)
@@ -342,13 +356,10 @@ function live(){const t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';
     const on1=Math.max(0,Math.sin(ph)),on2=Math.max(0,Math.sin(ph+Math.PI));glow(ctx,a.x,a.y,26,'#ffb030',.8*on1);glow(ctx,b.x,b.y,26,'#5a8cff',.9*on2);
     ctx.fillStyle=rgba('#fff2d0',on1);ctx.fillRect(a.x-4,a.y-1.6,8,2.6);ctx.fillStyle=rgba('#dfe8ff',on2);ctx.fillRect(b.x-4,b.y-1.6,8,2.6);
     glow(ctx,(a.x+b.x)/2,a.y-10,180,on1>on2?'#ffb030':'#5a8cff',.05*Math.max(on1,on2),.6);}
-  // the message board: CHECKPOINT AHEAD in amber dots, then STOP and arrows, by turns
-  {const d=BOARD.d,p0=pp(BOARD.x-30,GB-112,d),p1=pp(BOARD.x+30,GB-78,d),ph=Math.floor(t/1.6)%2,w=p1.x-p0.x,h=p1.y-p0.y;ctx.save();ctx.beginPath();ctx.rect(p0.x+2,p0.y+2,w-4,h-4);ctx.clip();
-    ctx.fillStyle=rgba('#ffb030',.78);ctx.textAlign='center';const fit=(txt,y,sz)=>{ctx.font=`700 ${sz}px Arial`;const k=Math.min(1,(w-8)/ctx.measureText(txt).width);ctx.save();ctx.translate(p0.x+w/2,y);ctx.scale(k,1);ctx.fillText(txt,0,0);ctx.restore();};
-    if(ph===0){fit('CHECKPOINT',p0.y+h*.44,h*.3);fit('AHEAD',p0.y+h*.84,h*.3);}else{fit('STOP',p0.y+h*.44,h*.32);fit('◀ ◀ ◀',p0.y+h*.86,h*.28);}
-    // the dots: a dark grid laid over the letters
-    ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba(5,5,7,.55)';for(let x=p0.x;x<p1.x;x+=1.6)ctx.fillRect(x,p0.y,.55,h);for(let y=p0.y;y<p1.y;y+=1.6)ctx.fillRect(p0.x,y,w,.55);
-    ctx.restore();glow(ctx,p0.x+w/2,p0.y+h/2,w*.7,'#ffb030',.07);}
+  // the message board: CHECK POINT in its amber lamps, then STOP and arrows, by turns (boardFace: the letters hand-drawn on the
+  // board's own grid of lamps, five by seven each and twelve units tall, the drawing guide's least for a sign meant to be read)
+  {const d=BOARD.d,p0=pp(BOARD.x-30,GB-112,d),p1=pp(BOARD.x+30,GB-78,d),ph=Math.floor(t/1.6)%2,w=p1.x-p0.x,h=p1.y-p0.y;
+    ctx.drawImage(boardFace(ph,w,h),p0.x,p0.y,w,h);glow(ctx,p0.x+w/2,p0.y+h/2,w*.7,'#ffb030',.07);}
   ctx.globalCompositeOperation='source-over';
   // steam out of the manhole, rising and leaning with the air
   {const q=gq(HOLE.x,HOLE.d);for(const s of STEAM){const u=(t*s.sp+s.ph)%1,y=q.y-u*90,x=q.x+s.dx+Math.sin(t*.9+s.ph*6)*6*u+u*18,r=s.w*(1+u*2.4),a=.11*(1-u)*Math.min(1,u*6);

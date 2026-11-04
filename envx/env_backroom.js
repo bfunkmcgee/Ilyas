@@ -52,11 +52,11 @@ function windowView(c,G){const w=G.win,W=w.x1-w.x0,Hh=w.y1-w.y0,r=rng(61);
   {let x=w.x0-6;const tops=[];while(x<w.x1+6){const sw=18+r()*26,sh=Hh*(.22+r()*.16),rt=(r()-.5)*4;c.fillStyle=pick(r,['#2e2620','#33281f','#2a2422','#3a2c22']);c.fillRect(x,lane-sh,sw,sh);
       c.fillStyle=pick(r,['#4a3a30','#5a4434','#46403a','#5a3a28']);c.beginPath();c.moveTo(x-2,lane-sh-rt-1);c.lineTo(x+sw+2,lane-sh+rt-1);c.lineTo(x+sw+2,lane-sh+rt+2);c.lineTo(x-2,lane-sh-rt+2);c.closePath();c.fill();
       c.fillStyle=rgba('#c8b8a0',.12);c.fillRect(x-2,lane-sh-rt-1,sw+4,.7);
-      if(r()<.6){c.strokeStyle='#151214';c.lineWidth=1.2;c.beginPath();c.ellipse(x+sw*(.3+r()*.4),lane-sh-2.4,2.6,1.2,0,0,TAU);c.stroke();}
+      if(r()<.6){c.strokeStyle='#151214';c.lineWidth=1.51;c.beginPath();c.ellipse(x+sw*(.3+r()*.4),lane-sh-2.4,2.6,1.2,0,0,TAU);c.stroke();}
       if(r()<.5){c.fillStyle='#120e0c';c.fillRect(x+sw*.6,lane-sh*.62,5,sh*.62);}
       if(r()<.4){c.fillStyle=rgba('#1a1614',.8);c.fillRect(x+3,lane-sh*.7,4,3);}
       tops.push([x+sw,lane-sh]);x+=sw+1+r()*3;}
-    if(tops.length>2){const [ax,ay]=tops[0],[bx,by]=tops[2];c.strokeStyle=rgba('#2a2420',.7);c.lineWidth=.4;c.beginPath();c.moveTo(ax,ay+2);c.quadraticCurveTo((ax+bx)/2,Math.max(ay,by)+8,bx,by+2);c.stroke();
+    if(tops.length>2){const [ax,ay]=tops[0],[bx,by]=tops[2];c.strokeStyle=rgba('#2a2420',.7);c.lineWidth=.8;c.beginPath();c.moveTo(ax,ay+2);c.quadraticCurveTo((ax+bx)/2,Math.max(ay,by)+8,bx,by+2);c.stroke();
       for(let i=1;i<5;i++){const u=i/5,x=lerp(ax,bx,u),y=lerp(ay+2,by+2,u)+8*4*u*(1-u)*.5;c.fillStyle=pick(r,['#6a5a4a','#4a5a6a','#7a6a5a','#5a4a4a']);c.fillRect(x-1.6,y,3.2,4+r()*2);}}}
   // the lane: mud, a puddle with the sky in it
   c.fillStyle='#2a221c';c.fillRect(w.x0,lane,W,w.y1-lane);c.fillStyle=rgba('#9a9282',.2);c.beginPath();c.ellipse(w.x0+W*.66,lane+Hh*.05,W*.12,1.4,0,0,TAU);c.fill();
@@ -69,14 +69,14 @@ function windowFrame(c,G){const w=G.win,W=w.x1-w.x0,Hh=w.y1-w.y0;
   // dirty glass: grime gathered in the corners and along the bottom, a crack across the upper left pane
   c.fillStyle=rad(c,w.x0+W/2,w.y0+Hh*.45,Math.min(W,Hh)*.25,Math.max(W,Hh)*.7,[[0,rgba('#3a3228',0)],[1,rgba('#3a3228',.55)]]);c.fillRect(w.x0,w.y0,W,Hh);
   c.fillStyle=lin(c,0,w.y1-10,0,w.y1,[[0,rgba('#2a2018',0)],[1,rgba('#2a2018',.5)]]);c.fillRect(w.x0,w.y1-10,W,10);
-  c.strokeStyle=rgba('#e8e8e0',.35);c.lineWidth=.5;c.beginPath();c.moveTo(w.x0+4,w.y0+8);c.lineTo(w.x0+W*.2,w.y0+Hh*.22);c.lineTo(w.x0+W*.3,w.y0+Hh*.18);c.lineTo(w.x0+W*.48,w.y0+Hh*.3);c.moveTo(w.x0+W*.2,w.y0+Hh*.22);c.lineTo(w.x0+W*.24,w.y0+Hh*.4);c.stroke();
+  c.strokeStyle=rgba('#e8e8e0',.35);c.lineWidth=1;c.beginPath();c.moveTo(w.x0+4,w.y0+8);c.lineTo(w.x0+W*.2,w.y0+Hh*.22);c.lineTo(w.x0+W*.3,w.y0+Hh*.18);c.lineTo(w.x0+W*.48,w.y0+Hh*.3);c.moveTo(w.x0+W*.2,w.y0+Hh*.22);c.lineTo(w.x0+W*.24,w.y0+Hh*.4);c.stroke();
   c.restore();
   c.strokeStyle='#1a120c';c.lineWidth=5;c.strokeRect(w.x0-2.5,w.y0-2.5,W+5,Hh+5);c.lineWidth=2.2;c.beginPath();c.moveTo(w.x0+W/2,w.y0);c.lineTo(w.x0+W/2,w.y1);c.moveTo(w.x0,w.y0+Hh*.5);c.lineTo(w.x1,w.y0+Hh*.5);c.stroke();
   c.strokeStyle=rgba('#e8dcc0',.14);c.lineWidth=.7;c.strokeRect(w.x0-5,w.y0-5,W+10,Hh+10);
   // the sill, and a sacking curtain hooked back to one side
   c.fillStyle='#2e2016';c.fillRect(w.x0-10,w.y1+2,W+20,5);c.fillStyle=rgba('#e8dcc0',.2);c.fillRect(w.x0-10,w.y1+2,W+20,1);
   c.fillStyle='#5a4a34';c.beginPath();c.moveTo(w.x0-12,w.y0-8);c.lineTo(w.x0+10,w.y0-8);c.quadraticCurveTo(w.x0+4,w.y0+Hh*.4,w.x0+12,w.y0+Hh*.62);c.quadraticCurveTo(w.x0-2,w.y0+Hh*.7,w.x0-4,w.y1+2);c.lineTo(w.x0-12,w.y1+2);c.closePath();c.fill();
-  c.fillStyle=rgba('#000000',.3);c.fillRect(w.x0-6,w.y0-8,2,Hh+10);c.strokeStyle='#2a1c10';c.lineWidth=1.2;c.beginPath();c.moveTo(w.x0-14,w.y0-9);c.lineTo(w.x1+12,w.y0-9);c.stroke();}
+  c.fillStyle=rgba('#000000',.3);c.fillRect(w.x0-6,w.y0-8,2,Hh+10);c.strokeStyle='#2a1c10';c.lineWidth=1.51;c.beginPath();c.moveTo(w.x0-14,w.y0-9);c.lineTo(w.x1+12,w.y0-9);c.stroke();}
 
 // ---------- the daylight falling through the window ----------
 function shaft(c,G){const w=G.win,a=q(G.L.window.x0-30,0,G.far-70),b=q(G.L.window.x1-30,0,G.far-70),e=q(G.L.window.x1-60,0,G.far-140),f=q(G.L.window.x0-60,0,G.far-140);
@@ -95,14 +95,14 @@ function barrels(c,G){const r=rng(31),d=G.far-22;
   for(const [x,h,y] of [[-48,46,14],[12,46,14],[-18,42,52]]){const p=q(x,y,d),R=h/2;
     c.fillStyle='#3a2414';c.beginPath();c.ellipse(p.x,p.y-R,R*.92,R,0,0,TAU);c.fill();
     c.fillStyle='#4e3018';c.beginPath();c.ellipse(p.x,p.y-R,R*.78,R*.86,0,0,TAU);c.fill();
-    c.strokeStyle=rgba('#000000',.35);c.lineWidth=.7;c.beginPath();for(let i=-3;i<=3;i++){c.moveTo(p.x+i*R*.22,p.y-R-R*.8*Math.sqrt(1-(i*.22/.78)**2));c.lineTo(p.x+i*R*.22,p.y-R+R*.8*Math.sqrt(1-(i*.22/.78)**2));}c.stroke();
+    c.strokeStyle=rgba('#000000',.35);c.lineWidth=1.48;c.beginPath();for(let i=-3;i<=3;i++){c.moveTo(p.x+i*R*.22,p.y-R-R*.8*Math.sqrt(1-(i*.22/.78)**2));c.lineTo(p.x+i*R*.22,p.y-R+R*.8*Math.sqrt(1-(i*.22/.78)**2));}c.stroke();
     c.strokeStyle='#16130f';c.lineWidth=2.4;c.beginPath();c.ellipse(p.x,p.y-R,R*.92,R,0,0,TAU);c.stroke();c.strokeStyle=rgba('#e8d0a8',.16);c.lineWidth=.7;c.beginPath();c.ellipse(p.x,p.y-R,R*.9,R*.98,0,-2.4,-.6);c.stroke();
     c.fillStyle='#120c08';c.beginPath();c.arc(p.x,p.y-R*1.05,2.2,0,TAU);c.fill();c.fillStyle='#8a6a32';c.fillRect(p.x-1.2,p.y-R*.55,2.4,6);
     c.fillStyle=rgba('#1a0e06',.35);c.beginPath();c.ellipse(p.x,p.y-R*.3,R*.5,R*.18,0,0,TAU);c.fill();}
   {const p=q(66,0,d-6);K.barrel(c,p.x,p.y,38,56,{hi:1,col:'#40281a',bung:1});}
   // a beer stain on the boards under the taps, a cup on the floor
   c.save();floorT(c);c.fillStyle=rgba('#0a0604',.4);c.beginPath();c.ellipse(-60,d-26,40,12,0,0,TAU);c.fill();c.restore();
-  {const p=q(-30,0,d-34);c.fillStyle='#5a5a5e';c.fillRect(p.x-3,p.y-6,6,6);c.strokeStyle='#5a5a5e';c.lineWidth=1;c.beginPath();c.arc(p.x+3.4,p.y-3,2,-1.2,1.2);c.stroke();}
+  {const p=q(-30,0,d-34);c.fillStyle='#5a5a5e';c.fillRect(p.x-3,p.y-6,6,6);c.strokeStyle='#5a5a5e';c.lineWidth=1.5;c.beginPath();c.arc(p.x+3.4,p.y-3,2,-1.2,1.2);c.stroke();}
   // sacks of onions slumped in front of them, onions out of the open one
   for(const [x,dd,w,h,mesh] of [[34,164,26,24,1],[70,174,22,26,1],[8,180,24,22,0]]){const p=q(x,0,dd);K.sack(c,p.x,p.y,w,h,{col:mesh?'#7a6a4a':'#6a5a3e',mesh:!!mesh,seed:x*7});}
   for(let i=0;i<7;i++){const p=q(46+r()*40,0,146+r()*18);c.fillStyle=pick(r,['#8a5a26','#9a6a2e','#7a4a20']);c.beginPath();c.ellipse(p.x,p.y-3,3.4,3,0,0,TAU);c.fill();c.fillStyle=rgba('#ffd9a0',.2);c.beginPath();c.ellipse(p.x+1,p.y-4,1.4,1.2,0,0,TAU);c.fill();}
@@ -122,11 +122,11 @@ function cot(c,G){const C=G.L.cot,{x0,x1,d0,d1,top}=C,r=rng(41),leg=top-10;
   // the mattress: ticking, lumpy with straw, a split with the straw coming out
   const mt=top+1,M0=q(x0+2,leg+5,d0+1),M1=q(x1-2,leg+5,d0+1),M2=q(x1-2,mt,d1-1),M3=q(x0+2,mt,d1-1),T0=q(x0+2,mt,d0+1),T1=q(x1-2,mt,d0+1);
   c.fillStyle='#7a7266';c.beginPath();c.moveTo(M0.x,M0.y);c.lineTo(M1.x,M1.y);c.quadraticCurveTo(M1.x+3,(M1.y+T1.y)/2,T1.x,T1.y);c.lineTo(M2.x,M2.y);c.lineTo(M3.x,M3.y);c.lineTo(T0.x,T0.y);c.quadraticCurveTo(M0.x-3,(M0.y+T0.y)/2,M0.x,M0.y);c.closePath();c.fill();
-  c.save();c.clip();c.strokeStyle=rgba('#3a4a5a',.35);c.lineWidth=1.2;for(let d=d0+4;d<d1;d+=5){const p0=q(x0,mt,d),p1=q(x1,mt,d);c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.stroke();}
+  c.save();c.clip();c.strokeStyle=rgba('#3a4a5a',.35);c.lineWidth=1.51;for(let d=d0+4;d<d1;d+=5){const p0=q(x0,mt,d),p1=q(x1,mt,d);c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.stroke();}
   for(let x=x0+6;x<x1;x+=5){const p0=q(x,leg+5,d0+1),p1=q(x,mt,d0+1);c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.stroke();}
   for(let i=0;i<10;i++){const p=q(lerp(x0+10,x1-10,r()),mt,lerp(d0+6,d1-6,r()));c.fillStyle=rgba(r()<.5?'#000000':'#e8e0d0',.08);c.beginPath();c.ellipse(p.x,p.y,8+r()*10,2+r()*2,0,0,TAU);c.fill();}
   c.fillStyle=lin(c,0,T0.y,0,M0.y,[[0,rgba('#000000',0)],[1,rgba('#000000',.35)]]);c.fillRect(M0.x-4,T0.y,M1.x-M0.x+8,M0.y-T0.y+2);c.restore();
-  {const p=q(x0+40,leg+8,d0+1);c.fillStyle='#2a2418';c.beginPath();c.ellipse(p.x,p.y,10,2.2,0,0,TAU);c.fill();c.strokeStyle='#d8b860';c.lineWidth=.6;c.beginPath();for(let i=0;i<12;i++){c.moveTo(p.x-8+r()*16,p.y);c.lineTo(p.x-8+r()*16+(r()-.5)*6,p.y+(r()-.3)*5);}c.stroke();}
+  {const p=q(x0+40,leg+8,d0+1);c.fillStyle='#2a2418';c.beginPath();c.ellipse(p.x,p.y,10,2.2,0,0,TAU);c.fill();c.strokeStyle='#d8b860';c.lineWidth=1.01;c.beginPath();for(let i=0;i<12;i++){c.moveTo(p.x-8+r()*16,p.y);c.lineTo(p.x-8+r()*16+(r()-.5)*6,p.y+(r()-.3)*5);}c.stroke();}
   // the pillow: a sack stuffed with straw at the head (the left end), the blanket rumpled toward the foot and half off the front
   {const p=q(x0+48,mt,lerp(d0,d1,.5));c.fillStyle='#8a7a5a';c.beginPath();c.ellipse(p.x,p.y-3,14,5.4,-.08,0,TAU);c.fill();c.fillStyle=rgba('#000000',.2);c.beginPath();c.ellipse(p.x+2,p.y-1,11,3,-.08,0,TAU);c.fill();}
   {const pts=[],N=10,bx0=x0+112,bx1=x1-4;
@@ -138,7 +138,7 @@ function cot(c,G){const C=G.L.cot,{x0,x1,d0,d1,top}=C,r=rng(41),leg=top-10;
     c.fillStyle='#34312f';c.beginPath();c.moveTo(fr[fr.length-1].x,fr[fr.length-1].y);for(let i=fr.length-1;i>=0;i--)c.lineTo(fr[i].x,fr[i].y);for(let i=hang.length-1;i>=0;i--)c.lineTo(hang[i].x,hang[i].y);c.closePath();c.fill();
     // its stripe near the end, the folds of it, the light along the rucks
     {const a=q(bx1-24,mt+3,d1-3),b=q(bx1-18,mt+3,d1-3),e=q(bx1-16,leg-8,d0-2),f=q(bx1-22,leg-8,d0-2);c.fillStyle=rgba('#5a2420',.7);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(e.x,e.y);c.lineTo(f.x,f.y);c.closePath();c.fill();}
-    c.strokeStyle=rgba('#1a1816',.55);c.lineWidth=1.4;c.beginPath();for(let i=1;i<N;i+=2){const t=pts[i],h=hang[i];c.moveTo(t.x+2,t.y+3);c.quadraticCurveTo((t.x+h.x)/2+5,(t.y+h.y)/2,h.x+1,h.y-2);}c.stroke();
+    c.strokeStyle=rgba('#1a1816',.55);c.lineWidth=1.48;c.beginPath();for(let i=1;i<N;i+=2){const t=pts[i],h=hang[i];c.moveTo(t.x+2,t.y+3);c.quadraticCurveTo((t.x+h.x)/2+5,(t.y+h.y)/2,h.x+1,h.y-2);}c.stroke();
     c.strokeStyle=rgba('#d8d4cc',.12);c.lineWidth=.9;c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y+.5):c.moveTo(p.x,p.y+.5));c.stroke();
     c.strokeStyle=rgba('#d8d4cc',.08);c.beginPath();fr.forEach((p,i)=>i?c.lineTo(p.x,p.y+.5):c.moveTo(p.x,p.y+.5));c.stroke();}
   // under it in the dark: a chamber pot, his boots gone
@@ -164,17 +164,17 @@ function chair(c,G){const Ch=G.L.chair,x=Ch.x,d=Ch.d,sh=30,bk=78,w=30,dd=24,r=rn
   {const s0=at(x+w/2,sh+2,d),s1=at(x+w/2+4,6,d-6);c.strokeStyle='#121118';c.lineWidth=6;c.beginPath();c.moveTo(s0.x,s0.y);c.quadraticCurveTo(s0.x+8,(s0.y+s1.y)/2,s1.x,s1.y);c.stroke();}
   for(let i=0;i<8;i++){const p=at(lerp(x-w/2+2,x+w/2-2,i/7),sh+1,d-dd/2+1),L=12+r()*16;c.strokeStyle=i%3?'#0e0d12':'#16151c';c.lineWidth=2+r()*1.5;c.beginPath();c.moveTo(p.x,p.y);c.quadraticCurveTo(p.x+(r()-.5)*4,p.y+L*.5,p.x+(r()-.5)*7,p.y+L);c.stroke();}
   // the gold of its trim, here and there along a cut edge and the cuff
-  c.strokeStyle='#c8a050';c.lineWidth=.8;c.beginPath();c.moveTo(j0.x+4,j0.y+4);c.quadraticCurveTo(tb.x,tb.y-2,j1.x-6,j1.y+3);c.stroke();
-  c.strokeStyle='#e2b65a';c.lineWidth=.7;c.beginPath();for(let i=0;i<4;i++){const p=at(lerp(x-w/2,x+w/2,.15+i*.24),sh-8-r()*16,d+dd/2);c.moveTo(p.x,p.y);c.lineTo(p.x+(r()-.5)*2,p.y+5+r()*6);}c.stroke();
+  c.strokeStyle='#c8a050';c.lineWidth=.99;c.beginPath();c.moveTo(j0.x+4,j0.y+4);c.quadraticCurveTo(tb.x,tb.y-2,j1.x-6,j1.y+3);c.stroke();
+  c.strokeStyle='#e2b65a';c.lineWidth=.99;c.beginPath();for(let i=0;i<4;i++){const p=at(lerp(x-w/2,x+w/2,.15+i*.24),sh-8-r()*16,d+dd/2);c.moveTo(p.x,p.y);c.lineTo(p.x+(r()-.5)*2,p.y+5+r()*6);}c.stroke();
   glowAt(c,j0.x+12,j0.y+4,10,'#ffe2a3',.3);
   // a shred on the floor under it
-  {const p=at(x+w/2+10,0,d-16);c.fillStyle='#0e0d12';c.beginPath();c.moveTo(p.x-8,p.y);c.quadraticCurveTo(p.x,p.y-3,p.x+10,p.y+1);c.lineTo(p.x+8,p.y+2);c.quadraticCurveTo(p.x,p.y-1,p.x-7,p.y+2);c.closePath();c.fill();c.strokeStyle='#c8a050';c.lineWidth=.5;c.beginPath();c.moveTo(p.x-6,p.y+.6);c.lineTo(p.x+6,p.y);c.stroke();}}
+  {const p=at(x+w/2+10,0,d-16);c.fillStyle='#0e0d12';c.beginPath();c.moveTo(p.x-8,p.y);c.quadraticCurveTo(p.x,p.y-3,p.x+10,p.y+1);c.lineTo(p.x+8,p.y+2);c.quadraticCurveTo(p.x,p.y-1,p.x-7,p.y+2);c.closePath();c.fill();c.strokeStyle='#c8a050';c.lineWidth=1;c.beginPath();c.moveTo(p.x-6,p.y+.6);c.lineTo(p.x+6,p.y);c.stroke();}}
 
 // ---------- the stool ----------
 function stool(c,G){const St=G.L.stool,x=St.x,d=St.d,h=28,R=11;
   for(const [a,dd] of [[-.9,1],[.9,1],[0,-1]]){const t=q(x+a*R*.7,h-2,d+dd*R*.4),b=q(x+a*R*1.05,0,d+dd*R*.7);c.strokeStyle=dd>0?'#24180e':'#3a2616';c.lineWidth=3;c.beginPath();c.moveTo(t.x,t.y);c.lineTo(b.x,b.y);c.stroke();}
   const p=q(x,h,d);c.fillStyle='#3a2616';c.beginPath();c.ellipse(p.x,p.y+1.6,R,R*.42,0,0,TAU);c.fill();c.fillStyle='#5a3e26';c.beginPath();c.ellipse(p.x,p.y,R,R*.42,0,0,TAU);c.fill();
-  c.strokeStyle=rgba('#2a1a0c',.5);c.lineWidth=.5;c.beginPath();c.ellipse(p.x,p.y,R*.6,R*.24,0,0,TAU);c.stroke();c.fillStyle=rgba('#e8dcc0',.12);c.beginPath();c.ellipse(p.x+3,p.y-1,R*.5,R*.12,0,Math.PI,TAU);c.fill();}
+  c.strokeStyle=rgba('#2a1a0c',.5);c.lineWidth=1.5;c.beginPath();c.ellipse(p.x,p.y,R*.6,R*.24,0,0,TAU);c.stroke();c.fillStyle=rgba('#e8dcc0',.12);c.beginPath();c.ellipse(p.x+3,p.y-1,R*.5,R*.12,0,Math.PI,TAU);c.fill();}
 
 // ---------- the shelf, the washstand, the mirror ----------
 function shelf(c,G){const Sh=G.L.shelf,{x0,x1,d,y}=Sh,mid=(x0+x1)/2,r=rng(71),gap=[mid-10,mid+26];
@@ -191,7 +191,7 @@ function shelf(c,G){const Sh=G.L.shelf,{x0,x1,d,y}=Sh,mid=(x0+x1)/2,r=rng(71),ga
 function washstand(c,G){const Bs=G.L.basin,x=Bs.x,d=Bs.d,w=40,dd=18,h=50,r=rng(81);
   const B=box(c,x-w/2,x+w/2,d-dd/2,d+dd/2,h,'#3a2616','#24180e','#4a3220');
   // a cupboard door, a rail with a towel on its end; the enamel basin, a jug in it, soap
-  c.strokeStyle=rgba('#000000',.4);c.lineWidth=1;c.strokeRect(B.A.x+4,B.At.y+8,B.B.x-B.A.x-8,B.A.y-B.At.y-12);c.fillStyle='#1a120a';c.fillRect(B.B.x-9,(B.At.y+B.A.y)/2,2,4);
+  c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.5;c.strokeRect(B.A.x+4,B.At.y+8,B.B.x-B.A.x-8,B.A.y-B.At.y-12);c.fillStyle='#1a120a';c.fillRect(B.B.x-9,(B.At.y+B.A.y)/2,2,4);
   {const a=q(x+w/2+2,h-6,d-dd/2),b=q(x+w/2+2,h-6,d+dd/2);c.strokeStyle='#2a1c10';c.lineWidth=1.6;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();
     c.fillStyle='#b8b0a0';c.beginPath();c.moveTo(a.x-1,a.y);c.lineTo(a.x+4,a.y-1);c.lineTo(a.x+5,a.y+20);c.lineTo(a.x,a.y+18);c.closePath();c.fill();c.fillStyle=rgba('#5a6a8a',.5);c.fillRect(a.x,a.y+12,5,1.6);}
   const p=q(x,h,d);c.fillStyle='#d8d4c8';c.beginPath();c.ellipse(p.x,p.y-1,15,4.4,0,0,TAU);c.fill();c.fillStyle='#a8a498';c.beginPath();c.moveTo(p.x-15,p.y-1);c.quadraticCurveTo(p.x,p.y+9,p.x+15,p.y-1);c.closePath();c.fill();
@@ -200,19 +200,19 @@ function washstand(c,G){const Bs=G.L.basin,x=Bs.x,d=Bs.d,w=40,dd=18,h=50,r=rng(8
     c.strokeStyle='#e0dcd0';c.lineWidth=1.4;c.beginPath();c.arc(j.x-6,j.y-9,3.4,1.6,4.6);c.stroke();c.fillStyle=rgba('#4a5a7a',.5);c.fillRect(j.x-5,j.y-7,9,1.2);}
   {const s=q(x-12,h,d-4);c.fillStyle='#c8b888';c.fillRect(s.x-3,s.y-2.6,6,2.6);}}
 function mirror(c,G){const M=G.L.mirror,x=G.wx(M.x),y=G.wy(M.y),w=26,h=32,r=rng(91);
-  c.strokeStyle='#2a2420';c.lineWidth=.6;c.beginPath();c.moveTo(x-w/2+2,y-h/2);c.lineTo(x,y-h/2-10);c.lineTo(x+w/2-2,y-h/2);c.stroke();c.fillStyle='#1a1410';c.fillRect(x-1,y-h/2-11,2,2);
+  c.strokeStyle='#2a2420';c.lineWidth=1.51;c.beginPath();c.moveTo(x-w/2+2,y-h/2);c.lineTo(x,y-h/2-10);c.lineTo(x+w/2-2,y-h/2);c.stroke();c.fillStyle='#1a1410';c.fillRect(x-1,y-h/2-11,2,2);
   c.fillStyle='#4a4440';c.fillRect(x-w/2-2,y-h/2-2,w+4,h+4);
   // the glass: the room's dim light in it, the window's pale streak, the crack and its star
   c.fillStyle=lin(c,0,y-h/2,0,y+h/2,[[0,'#6a6660'],[.5,'#4a4640'],[1,'#3a3430']]);c.fillRect(x-w/2,y-h/2,w,h);
   c.fillStyle=rgba('#d8d4c8',.2);c.beginPath();c.moveTo(x+w*.1,y-h/2);c.lineTo(x+w*.3,y-h/2);c.lineTo(x-w*.1,y+h/2);c.lineTo(x-w*.3,y+h/2);c.closePath();c.fill();
-  const cx=x+w*.18,cy=y-h*.12;c.strokeStyle=rgba('#f0f0e8',.55);c.lineWidth=.45;c.beginPath();c.moveTo(x-w/2,y+h*.32);c.lineTo(cx,cy);c.lineTo(x+w/2,y-h*.38);
+  const cx=x+w*.18,cy=y-h*.12;c.strokeStyle=rgba('#f0f0e8',.55);c.lineWidth=.98;c.beginPath();c.moveTo(x-w/2,y+h*.32);c.lineTo(cx,cy);c.lineTo(x+w/2,y-h*.38);
   for(let i=0;i<6;i++){const a=r()*TAU,L=3+r()*7;c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a)*L,cy+Math.sin(a)*L);}c.stroke();
   c.fillStyle=rgba('#000000',.25);c.fillRect(x-w/2,y+h/2-6,w,6);}
 
 // ---------- crates on the right, the side wall and the kitchen door ----------
 function crates(c,G){const r=rng(17);
   for(const [x,d,w,dd,h,z] of [[784,196,40,26,30,0],[790,198,34,22,26,30],[742,206,30,18,22,0]]){const B=box(c,x,x+w,d,d+dd,h,'#3a2a1a','#24180e','#4a3622',z);
-    c.strokeStyle=rgba('#000000',.4);c.lineWidth=.8;for(const k of [.33,.66]){c.beginPath();c.moveTo(B.A.x+.5,lerp(B.A.y,B.At.y,k));c.lineTo(B.B.x-.5,lerp(B.B.y,B.Bt.y,k));c.stroke();}
+    c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.51;for(const k of [.33,.66]){c.beginPath();c.moveTo(B.A.x+.5,lerp(B.A.y,B.At.y,k));c.lineTo(B.B.x-.5,lerp(B.B.y,B.Bt.y,k));c.stroke();}
     c.strokeStyle=rgba('#e8d8b8',.12);c.beginPath();c.moveTo(B.At.x,B.At.y);c.lineTo(B.Bt.x,B.Bt.y);c.stroke();
     if(r()<.7){const m=q(x+w/2,z+h/2,d);c.fillStyle=rgba('#1a1008',.5);c.font='700 5px "Alegreya SC",Georgia,serif';c.textAlign='center';c.fillText(pick(r,['ALE','SALT','LAMP OIL']),m.x,m.y+2);}}}
 function sideWall(c,G){const D=G.L.door,xw=D.x,far=G.far,d0=D.d-DOOR.w/2,d1=D.d+DOOR.w/2,top=CEIL;
@@ -221,13 +221,13 @@ function sideWall(c,G){const D=G.L.door,xw=D.x,far=G.far,d0=D.d-DOOR.w/2,d1=D.d+
   // the wall itself, seen nearly edge on: boards, and the doorway in it
   const face=(da,db,h0,h1,col)=>poly(c,[q(xw,h0,da),q(xw,h0,db),q(xw,h1,db),q(xw,h1,da)],col);
   face(-60,d0,0,top,'#1e1610');face(d1,far,0,top,'#1e1610');face(d0,d1,DOOR.h,top,'#1e1610');
-  c.strokeStyle=rgba('#000000',.4);c.lineWidth=.8;for(let h=10;h<top;h+=12){if(h<DOOR.h)continue;const a=q(xw,h,d0),b=q(xw,h,d1);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}
+  c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.51;for(let h=10;h<top;h+=12){if(h<DOOR.h)continue;const a=q(xw,h,d0),b=q(xw,h,d1);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}
   for(const [da,db] of [[-60,d0],[d1,far]])for(let h=8;h<top;h+=14){const a=q(xw,h,da),b=q(xw,h,db);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}
   // the kitchen through the doorway: its warm light
   {const a=q(xw,0,d0),b=q(xw,0,d1),e=q(xw,DOOR.h,d1),f=q(xw,DOOR.h,d0);c.fillStyle=lin(c,0,f.y,0,a.y,[[0,'#6a3a18'],[.6,'#b0682a'],[1,'#d89048']]);poly(c,[a,b,e,f]);c.fill();}
   // the plank door standing ajar into the room on its far hinge, the light round its edge
   {const op=.55,fx=xw-DOOR.w*Math.sin(op),fd=d1-DOOR.w*Math.cos(op),h0=q(xw,0,d1),h1=q(xw,DOOR.h,d1),f0=q(fx,0,fd),f1=q(fx,DOOR.h,fd);poly(c,[h0,f0,f1,h1],'#2e2014');
-    c.strokeStyle=rgba('#000000',.45);c.lineWidth=.8;c.beginPath();for(let u=.2;u<1;u+=.2){c.moveTo(lerp(h0.x,f0.x,u),lerp(h0.y,f0.y,u));c.lineTo(lerp(h1.x,f1.x,u),lerp(h1.y,f1.y,u));}c.stroke();
+    c.strokeStyle=rgba('#000000',.45);c.lineWidth=1.51;c.beginPath();for(let u=.2;u<1;u+=.2){c.moveTo(lerp(h0.x,f0.x,u),lerp(h0.y,f0.y,u));c.lineTo(lerp(h1.x,f1.x,u),lerp(h1.y,f1.y,u));}c.stroke();
     c.strokeStyle='#1a120a';c.lineWidth=2.2;c.beginPath();for(const u of [.15,.85]){c.moveTo(lerp(h0.x,h1.x,u),lerp(h0.y,h1.y,u));c.lineTo(lerp(f0.x,f1.x,u),lerp(f0.y,f1.y,u));}c.stroke();
     c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba('#ffc070',.55);c.lineWidth=1.4;c.beginPath();c.moveTo(f0.x,f0.y);c.lineTo(f1.x,f1.y);c.stroke();c.restore();}
   // the frame's edge toward us, and its light lying in over the boards
@@ -243,16 +243,16 @@ function floor(c,G){const far=G.far,X0=-300,X1=1300,D0=-340,r=rng(29);
       c.fillStyle=rgba('#000000',.12);c.fillRect(x,d+3+r()*8,L,.5);c.fillStyle=rgba('#e8d8b8',.035);c.fillRect(x,d+12.4,L,.8);c.fillStyle=rgba('#000000',.55);c.fillRect(x+L-1,d,1.2,13.2);x+=L;}
     c.fillStyle=rgba('#000000',.55);c.fillRect(X0,d+13.2,X1-X0,.9);}
   // straw from the mattress, onion skins, dust in the corners; a rag rug by the cot
-  c.lineWidth=.6;c.strokeStyle=rgba('#c8a050',.55);c.beginPath();for(let i=0;i<70;i++){const x=lerp(90,320,r()),d=lerp(120,168,r()),a=r()*TAU;c.moveTo(x,d);c.lineTo(x+Math.cos(a)*4,d+Math.sin(a)*4);}c.stroke();
+  c.lineWidth=1.2;c.strokeStyle=rgba('#c8a050',.55);c.beginPath();for(let i=0;i<70;i++){const x=lerp(90,320,r()),d=lerp(120,168,r()),a=r()*TAU;c.moveTo(x,d);c.lineTo(x+Math.cos(a)*4,d+Math.sin(a)*4);}c.stroke();
   for(let i=0;i<30;i++){c.fillStyle=rgba('#c89a5a',.25+.25*r());c.beginPath();c.ellipse(lerp(-60,140,r()),lerp(100,200,r()),1.6+r()*2,1+r(),r()*3,0,TAU);c.fill();}
-  {const rx=200,rd=140;c.fillStyle='#3a2a2a';c.beginPath();c.ellipse(rx,rd,64,18,0,0,TAU);c.fill();c.strokeStyle=rgba('#6a4a3a',.6);c.lineWidth=2.4;for(const k of [.8,.6,.4]){c.beginPath();c.ellipse(rx,rd,64*k,18*k,0,0,TAU);c.stroke();}c.strokeStyle=rgba('#2a3a4a',.5);c.lineWidth=1.6;c.beginPath();c.ellipse(rx,rd,64*.7,18*.7,0,0,TAU);c.stroke();}
+  {const rx=200,rd=140;c.fillStyle='#3a2a2a';c.beginPath();c.ellipse(rx,rd,64,18,0,0,TAU);c.fill();c.strokeStyle=rgba('#6a4a3a',.6);c.lineWidth=2.4;for(const k of [.8,.6,.4]){c.beginPath();c.ellipse(rx,rd,64*k,18*k,0,0,TAU);c.stroke();}c.strokeStyle=rgba('#2a3a4a',.5);c.lineWidth=1.7;c.beginPath();c.ellipse(rx,rd,64*.7,18*.7,0,0,TAU);c.stroke();}
   // a trapdoor to the cellar under the barrels' end, its ring
-  {const x0=-150,x1=-90,d0=120,d1=150;c.fillStyle='#1a1009';c.fillRect(x0,d0,x1-x0,d1-d0);c.strokeStyle='#0a0604';c.lineWidth=1.4;c.strokeRect(x0,d0,x1-x0,d1-d0);c.strokeStyle='#4a4440';c.lineWidth=1.2;c.beginPath();c.ellipse(x1-10,(d0+d1)/2,4,4,0,0,TAU);c.stroke();}
+  {const x0=-150,x1=-90,d0=120,d1=150;c.fillStyle='#1a1009';c.fillRect(x0,d0,x1-x0,d1-d0);c.strokeStyle='#0a0604';c.lineWidth=1.76;c.strokeRect(x0,d0,x1-x0,d1-d0);c.strokeStyle='#4a4440';c.lineWidth=1.8;c.beginPath();c.ellipse(x1-10,(d0+d1)/2,4,4,0,0,TAU);c.stroke();}
   c.restore();}
 
 // ---------- the lamp ----------
 function lamp(c,G){const Lm=G.lamp,p=q(Lm.x,Lm.h,Lm.d),top=q(Lm.x,Lm.h+220,Lm.d);
-  c.strokeStyle='#0c0a08';c.lineWidth=1;c.beginPath();c.moveTo(p.x,p.y-14);c.lineTo(top.x,top.y);c.stroke();
+  c.strokeStyle='#0c0a08';c.lineWidth=1.5;c.beginPath();c.moveTo(p.x,p.y-14);c.lineTo(top.x,top.y);c.stroke();
   c.fillStyle='#2a2420';c.beginPath();c.moveTo(p.x-6,p.y-14);c.lineTo(p.x+6,p.y-14);c.lineTo(p.x+5,p.y-11);c.lineTo(p.x-5,p.y-11);c.closePath();c.fill();
   c.fillStyle=rgba('#f0e6d0',.45);c.beginPath();c.moveTo(p.x-3,p.y-11);c.quadraticCurveTo(p.x-5,p.y-4,p.x-3.4,p.y+2);c.lineTo(p.x+3.4,p.y+2);c.quadraticCurveTo(p.x+5,p.y-4,p.x+3,p.y-11);c.closePath();c.fill();
   c.fillStyle='#8a6a32';c.beginPath();c.ellipse(p.x,p.y+5,7,3.6,0,0,TAU);c.fill();c.fillStyle='#5a4420';c.fillRect(p.x-6,p.y+5,12,3);

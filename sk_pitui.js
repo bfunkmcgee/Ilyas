@@ -27,7 +27,7 @@ const ACT1_DRAW={
   skillet(){const A=S.act1,Sk=A.skillet,K=skilletAt(Sk),q=P(K.hx,K.hy,K.d),c=P(K.x,K.y,K.d),h=clamp(Sk.heat||0,0,1),t=S.t;
     ctx.save();ctx.translate(q.x,q.y);ctx.rotate(K.ang);
     ctx.fillStyle='#16110f';ctx.fillRect(-1,-1.6,16,3.2);
-    ctx.translate(26,0);ctx.fillStyle='#120e0d';ctx.beginPath();ctx.ellipse(0,0,12,4.4,0,0,TAU);ctx.fill();ctx.strokeStyle='#3a2e28';ctx.lineWidth=.9;ctx.stroke();
+    ctx.translate(26,0);ctx.fillStyle='#120e0d';ctx.beginPath();ctx.ellipse(0,0,12,4.4,0,0,TAU);ctx.fill();ctx.strokeStyle='#3a2e28';ctx.lineWidth=1.6;ctx.stroke();
     if(h>.05){const k=h*skilletFlicker(t);ctx.globalCompositeOperation='lighter';
       // the iron red through: a wide dull red, a hotter orange-red at the heart
       ctx.save();ctx.scale(1,4.4/12);const g=ctx.createRadialGradient(0,0,0,0,0,12);
@@ -86,7 +86,7 @@ const ACT1_DRAW={
       ctx.strokeStyle=`rgba(230,224,212,${(.16*(1-fl)).toFixed(3)})`;ctx.lineWidth=1.2;ctx.lineJoin='round';ctx.beginPath();T.slice(0,-1).forEach((q,i)=>i?ctx.lineTo(q.x,q.y+.4):ctx.moveTo(q.x,q.y+.4));ctx.stroke();}
     // its stripe near the end (where the room's blanket has its own), the folds down its front, the light along the top of it
     {const a=P(C.x1-28,MT-4,dR),b=P(C.x1-22,MT-4,dR),e=P(C.x1-20,GB-lg+8,C.d0-2),f=P(C.x1-26,GB-lg+8,C.d0-2);if(TT[TT.length-1].x>a.x){ctx.fillStyle='rgba(90,36,32,.7)';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(e.x,e.y);ctx.lineTo(f.x,f.y);ctx.closePath();ctx.fill();}}
-    ctx.strokeStyle='rgba(26,24,22,.55)';ctx.lineWidth=1.3;ctx.beginPath();for(let i=1;i<TT.length-1;i+=2){const t=ed[i],h=hang[i];ctx.moveTo(t.x+1,t.y+1);ctx.quadraticCurveTo(t.x+4,(t.y+h.y)/2,h.x+1,h.y-2);}ctx.stroke();
+    ctx.strokeStyle='rgba(26,24,22,.55)';ctx.lineWidth=1.53;ctx.beginPath();for(let i=1;i<TT.length-1;i+=2){const t=ed[i],h=hang[i];ctx.moveTo(t.x+1,t.y+1);ctx.quadraticCurveTo(t.x+4,(t.y+h.y)/2,h.x+1,h.y-2);}ctx.stroke();
     ctx.strokeStyle='rgba(216,212,204,.14)';ctx.lineWidth=1;ctx.beginPath();TT.forEach((q,i)=>i?ctx.lineTo(q.x,q.y+.6):ctx.moveTo(q.x,q.y+.6));ctx.stroke();
     ctx.globalAlpha=1;},
   // the curtain Tamm draws across the kitchen window

@@ -34,7 +34,7 @@ function farm(c){const x=BYRE.x,b=BYRE.base,dark='#06070c';
   // the barn
   const B=new Path2D();B.moveTo(x-34,b);B.lineTo(x-34,b-24);B.lineTo(x-26,b-38);B.lineTo(x,b-48);B.lineTo(x+26,b-38);B.lineTo(x+34,b-24);B.lineTo(x+34,b);B.closePath();
   c.fillStyle=dark;c.fill(B);
-  c.strokeStyle=rgba('#c8d4ff',.26);c.lineWidth=.7;c.beginPath();c.moveTo(x-34,b-24);c.lineTo(x-26,b-38);c.lineTo(x,b-48);c.stroke();
+  c.strokeStyle=rgba('#c8d4ff',.26);c.lineWidth=.99;c.beginPath();c.moveTo(x-34,b-24);c.lineTo(x-26,b-38);c.lineTo(x,b-48);c.stroke();
   c.strokeStyle=rgba('#ffb070',.12);c.beginPath();c.moveTo(x,b-48);c.lineTo(x+26,b-38);c.lineTo(x+34,b-24);c.stroke();
   c.strokeStyle=rgba('#000000',.6);c.lineWidth=.4;c.beginPath();for(let k=-30;k<=30;k+=4){c.moveTo(x+k,b-24-Math.max(0,12-Math.abs(k)*.4));c.lineTo(x+k,b);}c.stroke();
   // the hayloft door and the one window that is lit, high under the roof
@@ -42,7 +42,7 @@ function farm(c){const x=BYRE.x,b=BYRE.base,dark='#06070c';
   c.fillStyle=lin(c,0,b-34,0,b-28,[[0,'#ffe2a6'],[1,'#ff9a50']]);c.fillRect(x+14,b-21,5,6);glow(c,x+16.5,b-18,18,'#ffb866',.5);
   c.fillStyle='#000000';c.fillRect(x+16.2,b-21,.6,6);c.fillRect(x+14,b-18.3,5,.5);
   // the big doors, and a lamp over them throwing its warmth down the boards
-  c.fillStyle='#0a0a10';c.fillRect(x-12,b-18,24,18);c.strokeStyle=rgba('#000000',.7);c.lineWidth=.5;c.beginPath();c.moveTo(x,b-18);c.lineTo(x,b);c.moveTo(x-12,b-18);c.lineTo(x,b);c.moveTo(x+12,b-18);c.lineTo(x,b);c.stroke();
+  c.fillStyle='#0a0a10';c.fillRect(x-12,b-18,24,18);c.strokeStyle=rgba('#000000',.7);c.lineWidth=1.5;c.beginPath();c.moveTo(x,b-18);c.lineTo(x,b);c.moveTo(x-12,b-18);c.lineTo(x,b);c.moveTo(x+12,b-18);c.lineTo(x,b);c.stroke();
   c.fillStyle='#ffe9c0';c.fillRect(x-1,b-22,2,1.6);glow(c,x,b-21,26,'#ffc070',.55);
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,b-21,0,b,[[0,rgba('#ffb866',.2)],[1,rgba('#ffb866',0)]]);c.beginPath();c.moveTo(x-3,b-21);c.lineTo(x+3,b-21);c.lineTo(x+16,b);c.lineTo(x-16,b);c.closePath();c.fill();c.restore();
   // the silo: a tall drum with a domed cap, hoops round it and a ladder up its side
@@ -50,10 +50,10 @@ function farm(c){const x=BYRE.x,b=BYRE.base,dark='#06070c';
     c.beginPath();c.ellipse(sx,top,w/2,w*.42,0,Math.PI,0);c.fill();c.fillStyle=rgba('#c8d4ff',.3);c.beginPath();c.ellipse(sx,top,w/2,w*.42,0,Math.PI,Math.PI*1.45);c.lineTo(sx-w*.1,top);c.fill();
     c.strokeStyle=rgba('#c8d4ff',.14);c.lineWidth=.45;c.beginPath();for(let y=top+6;y<b;y+=7){c.moveTo(sx-w/2,y);c.quadraticCurveTo(sx,y+1.4,sx+w/2,y);}c.stroke();
     c.fillStyle=rgba('#c8d4ff',.22);c.fillRect(sx-w/2,top,.8,b-top);
-    c.strokeStyle='#020204';c.lineWidth=.5;c.beginPath();c.moveTo(sx+w/2-2,top+2);c.lineTo(sx+w/2-2,b);c.moveTo(sx+w/2+1,top+2);c.lineTo(sx+w/2+1,b);for(let y=top+3;y<b;y+=2.4){c.moveTo(sx+w/2-2,y);c.lineTo(sx+w/2+1,y);}c.stroke();}
+    c.strokeStyle='#020204';c.lineWidth=1.5;c.beginPath();c.moveTo(sx+w/2-2,top+2);c.lineTo(sx+w/2-2,b);c.moveTo(sx+w/2+1,top+2);c.lineTo(sx+w/2+1,b);for(let y=top+3;y<b;y+=2.4){c.moveTo(sx+w/2-2,y);c.lineTo(sx+w/2+1,y);}c.stroke();}
   // the windmill: a tapering lattice tower, its tail vane; the wheel turns in live()
-  {const mx=MILL.x,top=MILL.y+4;c.strokeStyle='#05060a';c.lineWidth=1;c.beginPath();c.moveTo(mx-9,b);c.lineTo(mx-1.5,top);c.moveTo(mx+9,b);c.lineTo(mx+1.5,top);c.stroke();
-    c.lineWidth=.45;c.beginPath();for(let k=0;k<6;k++){const t0=k/6,t1=(k+1)/6,ya=lerp(b,top,t0),yb=lerp(b,top,t1),wa=lerp(9,1.5,t0),wb=lerp(9,1.5,t1);c.moveTo(mx-wa,ya);c.lineTo(mx+wb,yb);c.moveTo(mx+wa,ya);c.lineTo(mx-wb,yb);c.moveTo(mx-wb,yb);c.lineTo(mx+wb,yb);}c.stroke();
+  {const mx=MILL.x,top=MILL.y+4;c.strokeStyle='#05060a';c.lineWidth=1.5;c.beginPath();c.moveTo(mx-9,b);c.lineTo(mx-1.5,top);c.moveTo(mx+9,b);c.lineTo(mx+1.5,top);c.stroke();
+    c.lineWidth=.9;c.beginPath();for(let k=0;k<6;k++){const t0=k/6,t1=(k+1)/6,ya=lerp(b,top,t0),yb=lerp(b,top,t1),wa=lerp(9,1.5,t0),wb=lerp(9,1.5,t1);c.moveTo(mx-wa,ya);c.lineTo(mx+wb,yb);c.moveTo(mx+wa,ya);c.lineTo(mx-wb,yb);c.moveTo(mx-wb,yb);c.lineTo(mx+wb,yb);}c.stroke();
     c.fillStyle='#05060a';c.beginPath();c.moveTo(mx,MILL.y-1);c.lineTo(mx+16,MILL.y-4);c.lineTo(mx+18,MILL.y+3);c.lineTo(mx,MILL.y+2);c.closePath();c.fill();
     c.strokeStyle=rgba('#c8d4ff',.16);c.beginPath();c.moveTo(mx-9,b);c.lineTo(mx-1.5,top);c.stroke();}}
 // ---------- the power line: wooden poles with crossarms marching away toward the farm, the wires sagging between them ----------
@@ -62,12 +62,12 @@ function farm(c){const x=BYRE.x,b=BYRE.base,dark='#06070c';
 const POLES=[{x:428,base:300,h:150,s:1},{x:672,base:256,h:69,s:.46},{x:731,base:245,h:50,s:.33},{x:762,base:239,h:39,s:.26},{x:790,base:234,h:30,s:.2},{x:810,base:231,h:23,s:.155}];
 // poles i0..i1 and the wires between them; with toLast the last pole only takes the wires (its body is painted elsewhere, further back)
 function poles(c,i0,i1,toLast){const tops=POLES.slice(i0,i1+1);c.lineCap='round';
-  tops.forEach((P,i)=>{if(toLast&&i===tops.length-1)return;const tx=P.x+P.s*1.5,ty=P.base-P.h;c.strokeStyle='#07070b';c.lineWidth=Math.max(.7,2.2*P.s);c.beginPath();c.moveTo(P.x,P.base);c.lineTo(tx,ty);c.stroke();
-    c.lineWidth=Math.max(.5,1.4*P.s);c.beginPath();c.moveTo(tx-12*P.s,ty+5*P.s);c.lineTo(tx+12*P.s,ty+5*P.s);c.stroke();
+  tops.forEach((P,i)=>{if(toLast&&i===tops.length-1)return;const tx=P.x+P.s*1.5,ty=P.base-P.h;c.strokeStyle='#07070b';c.lineWidth=Math.max(1.48,4.66*P.s);c.beginPath();c.moveTo(P.x,P.base);c.lineTo(tx,ty);c.stroke();
+    c.lineWidth=Math.max(1.5,4.2*P.s);c.beginPath();c.moveTo(tx-12*P.s,ty+5*P.s);c.lineTo(tx+12*P.s,ty+5*P.s);c.stroke();
     c.fillStyle=rgba('#c8d4ff',.4);for(const k of [-9,-3,3,9]){c.fillRect(tx+k*P.s-.5*P.s,ty+3*P.s,1.1*P.s+.3,1.6*P.s+.3);}
     c.strokeStyle=rgba('#c8d4ff',.22*Math.min(1,P.s*1.6));c.lineWidth=Math.max(.35,.6*P.s);c.beginPath();c.moveTo(P.x-1*P.s,P.base);c.lineTo(tx-1*P.s,ty);c.stroke();});
   // the wires: three from each arm, sagging
-  c.strokeStyle=rgba('#05060a',.85);c.lineWidth=.5;
+  c.strokeStyle=rgba('#05060a',.85);c.lineWidth=1.5;
   for(let i=0;i<tops.length-1;i++){const A=tops[i],B=tops[i+1];for(const k of [-9,3,9]){const ax=A.x+A.s*1.5+k*A.s,ay=A.base-A.h+3*A.s,bx=B.x+B.s*1.5+k*B.s,by=B.base-B.h+3*B.s,sag=4*A.s+2;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo((ax+bx)/2,(ay+by)/2+sag,bx,by);c.stroke();}}
   // and off the near pole to the left, out of the picture, down to the farm road
   if(i0===0)for(const k of [-9,3,9]){const A=tops[0],ax=A.x+A.s*1.5+k*A.s,ay=A.base-A.h+3*A.s;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo(ax-120,ay+20,ax-260,ay+6);c.stroke();}}
@@ -109,7 +109,7 @@ function paint(c){
   glow(c,760,HOR+4,330,'#ff9a5a',.13,.3);
   // ---- the land before the city: dark fields in long bands, hedges, a farm road with a light or two on it
   c.fillStyle=lin(c,0,HOR+4,0,cb,[[0,'#0d0f18'],[1,'#0b0c10']]);c.fillRect(X0,HOR+5,X1-X0,cb-HOR);
-  {const rh=rng(8);c.strokeStyle=rgba('#05060a',.9);c.lineWidth=1.2;for(let k=0;k<7;k++){const y=HOR+8+k*k*1.6;c.beginPath();c.moveTo(X0,y);for(let x=X0;x<=X1;x+=12)c.lineTo(x,y+Math.sin(x*.02+k)*1.2+rh()*.6);c.stroke();}
+  {const rh=rng(8);c.strokeStyle=rgba('#05060a',.9);c.lineWidth=1.51;for(let k=0;k<7;k++){const y=HOR+8+k*k*1.6;c.beginPath();c.moveTo(X0,y);for(let x=X0;x<=X1;x+=12)c.lineTo(x,y+Math.sin(x*.02+k)*1.2+rh()*.6);c.stroke();}
     for(let i=0;i<14;i++){const x=300+rh()*800,y=HOR+8+rh()*30;c.fillStyle=rgba('#ffcf86',.5);c.fillRect(x,y,.9,.9);glow(c,x,y,6,'#ffb866',.2);}}
   poles(c,1,POLES.length-1);farm(c);
   // the track beyond the gate, running away over the fields toward the city
@@ -128,7 +128,7 @@ function paint(c){
   {const tr=rng(5),W2=38,pts=trackPts,N=pts.length,nrm=i=>{const a=pts[Math.max(0,i-1)],b=pts[Math.min(N-1,i+1)],dx=b[0]-a[0],dd=b[1]-a[1],L=Math.hypot(dx,dd)||1;return[-dd/L,dx/L];};
     c.beginPath();for(let i=0;i<N;i++){const [nx,nd]=nrm(i),w=W2*(.92+.16*tr());c.lineTo(pts[i][0]+nx*w/2,pts[i][1]+nd*w/2);}for(let i=N-1;i>=0;i--){const [nx,nd]=nrm(i),w=W2*(.92+.16*tr());c.lineTo(pts[i][0]-nx*w/2,pts[i][1]-nd*w/2);}c.closePath();
     c.fillStyle=patAt(c,OutTex.pathEarth(9,{U:64,sc:4,e0:'#2a2118',e1:'#3e3226',stone:'#5e5644'}),0,0,1/4);c.fill();
-    c.strokeStyle=rgba('#000000',.25);c.lineWidth=1;c.stroke();
+    c.strokeStyle=rgba('#000000',.25);c.lineWidth=1.78;c.stroke();
     // the ruts of a farm truck, holding a little of the sky, and a crown of weeds between them
     c.lineCap='round';for(const off of [-11,11]){const ln=k=>{c.beginPath();for(let i=0;i<N;i++){const [nx,nd]=nrm(i);i?c.lineTo(pts[i][0]+nx*k,pts[i][1]+nd*k):c.moveTo(pts[i][0]+nx*k,pts[i][1]+nd*k);}c.stroke();};
       c.strokeStyle=rgba('#000000',.16);c.lineWidth=7;ln(off);c.strokeStyle=rgba('#000000',.2);c.lineWidth=3;ln(off);c.strokeStyle=rgba('#9aa8c8',.07);c.lineWidth=.7;ln(off+(off<0?-1.8:1.8));}
@@ -156,7 +156,7 @@ function paint(c){
     // (the rows run on toward us in front of the fight, the stalks a little taller for being near; their own dice)
     {const rn=rng(8);for(let rx=X0+6;rx<X1+110;rx+=13)for(let d=-64;d>E.NEAR;d-=3.4+rn()*3.2){const x=rx+3.4+(d+60)/(CROP_D+70)*2.2+(rn()-.5)*1.6;if(rn()<.16)continue;
       const q=g2(x,d),h=(2.6+rn()*3.8)*1.6,v=rn(),ci=v<.25?1:v<.6?2:v<.88?3:4,lx=q.x+(rn()-.5)*1.8;P[ci].moveTo(q.x,q.y);P[ci].lineTo(lx,q.y-h);if(rn()<.35){P[0].moveTo(q.x+.6,q.y+.4);P[0].lineTo(q.x+3,q.y+.3);}}}
-    c.lineCap='round';cols.forEach((col,i)=>{c.strokeStyle=rgba(col,i>=5?.5:.92);c.lineWidth=i>=4?.55:.75;c.stroke(P[i]);});
+    c.lineCap='round';cols.forEach((col,i)=>{c.strokeStyle=rgba(col,i>=5?.5:.92);c.lineWidth=i>=4?1.17:1.59;c.stroke(P[i]);});
     c.strokeStyle=rgba('#c8d4ff',.16);c.lineWidth=.45;c.stroke(tips);
     // straw and husk lying about, pale where the moon finds it
     const sp1=new Path2D(),sp2=new Path2D();for(let i=0;i<1100;i++){const x=X0+rs()*(X1-X0),d=-40+rs()*(CROP_D+30);if(onTrack(x,d)&&rs()<.75)continue;if(Math.hypot(x-150,(d-150)*1.4)<60&&rs()<.6)continue;
@@ -172,15 +172,15 @@ function paint(c){
         maize(M,rm,q.x,q.y,h,s,lean);if(front)tops.push({x:q.x+lean*h*.14,y:q.y-h});}}
     c.fillStyle='#0c0f17';c.fill(Mb.dark);c.lineCap='round';c.strokeStyle=rgba('#c8d4ff',.12);c.lineWidth=.5;c.stroke(Mb.rim);c.strokeStyle=rgba('#d8cca0',.18);c.lineWidth=.5;c.stroke(Mb.tas);
     c.fillStyle=lin(c,0,cb-120,0,cb,[[0,rgba('#141826',.35)],[1,rgba('#05060a',.5)]]);c.fillRect(X0,cb-120,WHEAT_X+80-X0,124);
-    c.fillStyle='#050608';c.fill(Mf.dark);c.strokeStyle=rgba('#c8d4ff',.34);c.lineWidth=.6;c.stroke(Mf.rim);c.strokeStyle=rgba('#ffb070',.13);c.lineWidth=.5;c.stroke(Mf.warm);
-    c.strokeStyle=rgba('#e0d2a2',.4);c.lineWidth=.6;c.stroke(Mf.tas);
+    c.fillStyle='#050608';c.fill(Mf.dark);c.strokeStyle=rgba('#c8d4ff',.34);c.lineWidth=1.01;c.stroke(Mf.rim);c.strokeStyle=rgba('#ffb070',.13);c.lineWidth=.5;c.stroke(Mf.warm);
+    c.strokeStyle=rgba('#e0d2a2',.4);c.lineWidth=1.01;c.stroke(Mf.tas);
     // the wheat: thousands of stalks, the ears bowed, the moon on some and the city warming the rest
     const mkW=()=>({stalk:new Path2D(),ear:new Path2D(),awn:new Path2D()}),Wb=mkW(),Wf=mkW();
     for(const [d0,hh,front] of [[CROP_D+34,.95,0],[CROP_D+18,.98,0],[CROP_D+3,1,1]])for(let x=WHEAT_X-6;x<X1+30;x+=1.1+rm()*1.4){const d=d0+rm()*12,q=g2(x,d),swell=.86+.14*Math.sin(x*.035)+.06*Math.sin(x*.11),h=(42+rm()*16)*hh*swell;
       wheat(front?Wf:Wb,rm,q.x,q.y,h);if(front&&rm()<.12)tops.push({x:q.x,y:q.y-h});}
-    c.strokeStyle='#0a0907';c.lineWidth=.55;c.stroke(Wb.stalk);c.fillStyle='#3a3122';c.fill(Wb.ear);
+    c.strokeStyle='#0a0907';c.lineWidth=1.47;c.stroke(Wb.stalk);c.fillStyle='#3a3122';c.fill(Wb.ear);
     c.fillStyle=lin(c,0,cb-70,0,cb,[[0,rgba('#141826',.25)],[1,rgba('#05060a',.45)]]);c.fillRect(WHEAT_X,cb-70,X1-WHEAT_X+40,74);
-    c.strokeStyle='#080705';c.lineWidth=.6;c.stroke(Wf.stalk);c.fillStyle='#4e422c';c.fill(Wf.ear);
+    c.strokeStyle='#080705';c.lineWidth=1.51;c.stroke(Wf.stalk);c.fillStyle='#4e422c';c.fill(Wf.ear);
     c.save();c.globalCompositeOperation='lighter';c.fillStyle=rgba('#ff9a50',.07);c.fill(Wf.ear);c.restore();
     c.strokeStyle=rgba('#d8c89a',.22);c.lineWidth=.35;c.stroke(Wf.awn);
     // the bases of it all lost in the dark of the field
@@ -192,9 +192,9 @@ function paint(c){
     // the side toward us is the end of the roll: a disc, its straw spiralling in; the barrel goes back and to the right
     c.fillStyle='#0d0b08';c.beginPath();c.moveTo(cx,cy-rr);c.lineTo(cx+len*.2*PSX/PSX*.5,cy-rr-len*.0);c.arc(cx+len*.5,cy,rr,-Math.PI/2,Math.PI/2);c.lineTo(cx,cy+rr);c.closePath();c.fill();
     c.fillStyle=lin(c,cx-rr,0,cx+rr,0,[[0,'#2a2216'],[.5,'#1c160f'],[1,'#120e0a']]);c.beginPath();c.arc(cx,cy,rr,0,TAU);c.fill();
-    c.strokeStyle=rgba('#000000',.4);c.lineWidth=.6;c.beginPath();for(let a=0;a<TAU*5;a+=.2){const r2=rr*(1-a/(TAU*5.4));c.lineTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2);}c.stroke();
+    c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.51;c.beginPath();for(let a=0;a<TAU*5;a+=.2){const r2=rr*(1-a/(TAU*5.4));c.lineTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2);}c.stroke();
     c.strokeStyle=rgba('#a8946a',.14);c.lineWidth=.5;c.beginPath();for(let k=0;k<60;k++){const a=rb()*TAU,r1=rb()*rr*.9,l=3+rb()*6;c.moveTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);c.lineTo(cx+Math.cos(a+.25)*Math.min(rr,r1+l),cy+Math.sin(a+.25)*Math.min(rr,r1+l));}c.stroke();
-    c.strokeStyle=rgba('#c8d4ff',.32);c.lineWidth=.8;c.beginPath();c.arc(cx,cy,rr-.5,Math.PI*1.08,Math.PI*1.62);c.stroke();
+    c.strokeStyle=rgba('#c8d4ff',.32);c.lineWidth=.99;c.beginPath();c.arc(cx,cy,rr-.5,Math.PI*1.08,Math.PI*1.62);c.stroke();
     c.strokeStyle=rgba('#c8d4ff',.18);c.beginPath();c.moveTo(cx,cy-rr+.4);c.lineTo(cx+len*.5,cy-rr+.4);c.stroke();}}
   // the near pole stands in front of the crop by the gate, its wires going over the tops to the next
   poles(c,0,1,true);
@@ -204,19 +204,19 @@ function paint(c){
     const wires=(h,col,w)=>{c.strokeStyle=col;c.lineWidth=w;c.beginPath();let prev=null;for(const x of posts){const q=top(x);if(prev!=null&&!(inGap(prev)&&inGap(x))&&!(prev<GATE.x0&&x>GATE.x1)){const pq=top(prev);c.moveTo(pq.x,pq.y-h);c.quadraticCurveTo((pq.x+q.x)/2,(pq.y+q.y)/2-h+2.6,q.x,q.y-h);}prev=x;}c.stroke();};
     wires(12,rgba('#05060a',.9),.6);wires(24,rgba('#05060a',.9),.6);wires(12.6,rgba('#c8d4ff',.12),.35);wires(24.6,rgba('#c8d4ff',.12),.35);
     for(const x of posts){const q=top(x),h=30+rf()*6,lean=(rf()-.5)*3,w=3.4+rf()*1.2;c.fillStyle='#0a0806';c.beginPath();c.moveTo(q.x-w/2,q.y+1);c.lineTo(q.x-w/2+lean,q.y-h);c.lineTo(q.x+w/2+lean,q.y-h+1.2);c.lineTo(q.x+w/2,q.y+1);c.closePath();c.fill();
-      c.strokeStyle=rgba('#c8d4ff',.3);c.lineWidth=.6;c.beginPath();c.moveTo(q.x-w/2+.3,q.y);c.lineTo(q.x-w/2+lean+.3,q.y-h);c.stroke();
+      c.strokeStyle=rgba('#c8d4ff',.3);c.lineWidth=1.01;c.beginPath();c.moveTo(q.x-w/2+.3,q.y);c.lineTo(q.x-w/2+lean+.3,q.y-h);c.stroke();
       c.fillStyle=rgba('#c8d4ff',.2);c.fillRect(q.x-w/2+lean,q.y-h-.4,w,.8);}
     // the gate: five galvanised bars and a brace, rusted, swung back on its hinges into the crop
     {const h0=top(GATE.x0-12),gw=38,gh=24,ang=-.55,ux=Math.cos(ang),uy=Math.sin(ang)*.5;c.lineCap='round';
       const at=(u,v)=>({x:h0.x+3+ux*gw*u,y:h0.y-3-gh*v+uy*gw*u}),bars=()=>{c.beginPath();for(let k=0;k<5;k++){const v=k/4,a=at(0,v),b=at(1,v);c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);}
         const a=at(0,0),b=at(0,1),e=at(1,0),f=at(1,1);c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.moveTo(e.x,e.y);c.lineTo(f.x,f.y);c.moveTo(a.x,a.y);c.lineTo(f.x,f.y);c.stroke();};
-      c.strokeStyle='#0e0a08';c.lineWidth=1.6;bars();c.strokeStyle=rgba('#c89060',.2);c.lineWidth=.5;c.save();c.translate(-.3,-.6);bars();c.restore();}}
+      c.strokeStyle='#0e0a08';c.lineWidth=1.6;bars();c.strokeStyle=rgba('#c89060',.2);c.lineWidth=1;c.save();c.translate(-.3,-.6);bars();c.restore();}}
   // mist lying low over the crop's foot and the clearing's far edge
   haze(c,X0,X1,cb-34,cb+4,'#8a98bc',.1);haze(c,X0,X1,cb+2,cb+44,'#8a98bc',.07,true);
   // ---- the near edge, toward us: weeds and a few broken maize stalks in the corners, dark, catching a little moon
   {const rc=rng(77);c.lineCap='round';
     for(const [cx0,cx1,dens] of [[-150,120,1],[770,1080,1],[120,770,.12]])for(let i=0;i<Math.round(170*dens);i++){const x=cx0+rc()*(cx1-cx0),edge=dens<1?.3:Math.min(1,Math.min(Math.abs(x-cx0),Math.abs(cx1-x))/70),d=-36+rc()*22,q=g2(x,d),h=(10+rc()*26)*(.35+.65*edge)*(dens<1?.5:1),lean=(rc()-.5)*8;
-      c.strokeStyle=rc()<.8?'#040406':'#0b0c08';c.lineWidth=.8+rc()*.8;c.beginPath();c.moveTo(q.x,q.y);c.quadraticCurveTo(q.x+lean*.3,q.y-h*.6,q.x+lean,q.y-h);c.stroke();
+      c.strokeStyle=rc()<.8?'#040406':'#0b0c08';c.lineWidth=1.01+rc()*1.01;c.beginPath();c.moveTo(q.x,q.y);c.quadraticCurveTo(q.x+lean*.3,q.y-h*.6,q.x+lean,q.y-h);c.stroke();
       if(rc()<.22){c.strokeStyle=rgba('#c8d4ff',.15);c.lineWidth=.35;c.beginPath();c.moveTo(q.x+lean*.6,q.y-h*.75);c.lineTo(q.x+lean,q.y-h);c.stroke();}
       if(dens>=1&&rc()<.12){c.fillStyle='#050506';c.save();c.translate(q.x+lean*.5,q.y-h*.5);c.rotate((rc()-.5)*1.8);c.beginPath();c.moveTo(0,0);c.quadraticCurveTo(9,-4,18+rc()*8,4);c.quadraticCurveTo(9,1,0,2);c.closePath();c.fill();c.restore();}}
     // two maize stalks standing in the left corner, close to us, their leaves hanging
@@ -229,7 +229,7 @@ const CHAFF=(()=>{const r=rng(66),a=[];for(let i=0;i<40;i++)a.push({x:-60+r()*10
 const FLIES=(()=>{const r=rng(91),a=[];for(let i=0;i<14;i++)a.push({x:-40+r()*980,d:CROP_D-14-r()*30,h:6+r()*26,ph:r()*TAU,sp:.6+r()*1.2,dr:6+r()*12,bl:2+r()*3});return a;})();
 function live(){const t=S.t;ctx.save();
   // the windmill's wheel turning slowly in the night wind
-  {const a=t*.9,cx=MILL.x,cy=MILL.y;ctx.strokeStyle='#05060a';ctx.lineWidth=.6;ctx.beginPath();for(let k=0;k<12;k++){const b=a+k*TAU/12;ctx.moveTo(cx+Math.cos(b)*2,cy+Math.sin(b)*2);ctx.lineTo(cx+Math.cos(b)*MILL.r,cy+Math.sin(b)*MILL.r);}ctx.stroke();
+  {const a=t*.9,cx=MILL.x,cy=MILL.y;ctx.strokeStyle='#05060a';ctx.lineWidth=1.51;ctx.beginPath();for(let k=0;k<12;k++){const b=a+k*TAU/12;ctx.moveTo(cx+Math.cos(b)*2,cy+Math.sin(b)*2);ctx.lineTo(cx+Math.cos(b)*MILL.r,cy+Math.sin(b)*MILL.r);}ctx.stroke();
     ctx.beginPath();ctx.arc(cx,cy,MILL.r,0,TAU);ctx.stroke();ctx.fillStyle='#05060a';ctx.beginPath();ctx.arc(cx,cy,1.6,0,TAU);ctx.fill();
     ctx.strokeStyle=rgba('#c8d4ff',.16);ctx.lineWidth=.4;ctx.beginPath();ctx.arc(cx,cy,MILL.r,Math.PI*1.05,Math.PI*1.6);ctx.stroke();}
   ctx.globalCompositeOperation='lighter';

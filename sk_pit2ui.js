@@ -103,7 +103,7 @@ function a1Bucket(){const A=S.act1,B=A.bucket,E=S.ex,K=hero(),Y=ACT1_PLACES.yard
 // on the canvas
 function a1CrateArt(c,x,y){const x0=x-22,x1=x+22,y1=y-30;
   c.fillStyle='#3a2c20';c.fillRect(x0,y1,x1-x0,y-y1);c.fillStyle='#4a3828';c.beginPath();c.moveTo(x0,y1);c.lineTo(x0+8,y1-6);c.lineTo(x1+8,y1-6);c.lineTo(x1,y1);c.closePath();c.fill();
-  c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=1;for(let i=1;i<3;i++){const yy=y1+(y-y1)*i/3;c.beginPath();c.moveTo(x0,yy);c.lineTo(x1,yy);c.stroke();}
+  c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=1.5;for(let i=1;i<3;i++){const yy=y1+(y-y1)*i/3;c.beginPath();c.moveTo(x0,yy);c.lineTo(x1,yy);c.stroke();}
   c.strokeRect(x0,y1,x1-x0,y-y1);
   // cloth hanging over the front edge
   for(const [dx,w,hh,col] of [[-14,9,12,'#4a463d'],[-3,8,8,'#1c1d24'],[6,10,14,'#7c3b1f'],[14,6,7,'#2f2a1f']]){c.fillStyle=col;c.beginPath();
@@ -119,11 +119,11 @@ const A1_DRAW={
     // (in the hand it hangs from the bail under the fist)
     if(b.hand)y+=14;
     const w=9,h=11;ctx.fillStyle='#3d2e22';ctx.beginPath();ctx.moveTo(x-w,y-h);ctx.lineTo(x+w,y-h);ctx.lineTo(x+w*.8,y);ctx.lineTo(x-w*.8,y);ctx.closePath();ctx.fill();
-    ctx.strokeStyle='#5c5650';ctx.lineWidth=1.2;for(const t of [.25,.75]){const yy=y-h*(1-t),ww=w*(1-.2*t);ctx.beginPath();ctx.moveTo(x-ww,yy);ctx.lineTo(x+ww,yy);ctx.stroke();}
+    ctx.strokeStyle='#5c5650';ctx.lineWidth=1.51;for(const t of [.25,.75]){const yy=y-h*(1-t),ww=w*(1-.2*t);ctx.beginPath();ctx.moveTo(x-ww,yy);ctx.lineTo(x+ww,yy);ctx.stroke();}
     ctx.fillStyle='#2a2018';ctx.beginPath();ctx.ellipse(x,y-h,w,2.4,0,0,Math.PI*2);ctx.fill();
     if(b.fill>0){ctx.fillStyle='rgba(120,150,160,.85)';const yy=y-h+1+(1-b.fill)*6,sl=b.hand?Math.sin(S.t*7)*.8:0;ctx.beginPath();ctx.ellipse(x,yy+sl,w*.86,1.9,0,0,Math.PI*2);ctx.fill();
       ctx.fillStyle='rgba(230,240,245,.35)';ctx.beginPath();ctx.ellipse(x-2,yy-.4+sl,w*.4,.7,0,0,Math.PI*2);ctx.fill();}
-    ctx.strokeStyle='#6a645c';ctx.lineWidth=1;ctx.beginPath();if(b.hand){ctx.moveTo(x-w,y-h);ctx.quadraticCurveTo(x,y-h-12,x+w,y-h);}else{ctx.moveTo(x-w,y-h);ctx.quadraticCurveTo(x-w-3,y-h-8,x-w+2,y-h-9);}ctx.stroke();
+    ctx.strokeStyle='#6a645c';ctx.lineWidth=1.5;ctx.beginPath();if(b.hand){ctx.moveTo(x-w,y-h);ctx.quadraticCurveTo(x,y-h-12,x+w,y-h);}else{ctx.moveTo(x-w,y-h);ctx.quadraticCurveTo(x-w-3,y-h-8,x-w+2,y-h-9);}ctx.stroke();
     if(b.spout&&A.pumping){const Y=ACT1_PLACES.yard,s0=P(Y.pump.x+12,GB-36,Y.pump.d-8),k=.6+.4*Math.abs(Math.sin((S.t-A.pumping.t0)*4.5));
       ctx.strokeStyle=`rgba(170,195,205,${(.7*k).toFixed(2)})`;ctx.lineWidth=2.2*k;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(s0.x,s0.y);ctx.lineTo(x,y-h);ctx.stroke();}}};
 // ===== ACT I, SCENES 3 AND 4 UI END =====

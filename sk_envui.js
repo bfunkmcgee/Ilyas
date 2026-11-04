@@ -245,7 +245,7 @@ function drawProp(Pp){
   else if(Pp.type==='easel'){segP(p[0],p[2],d+4,2.4,'#1a0c14');
     const a=p[0],b=p[1],ux=(b.x-a.x),uy=(b.y-a.y),L=Math.hypot(ux,uy)||1,nx=-uy/L,ny=ux/L,s=Pp.s;
     const q=(u,v)=>at({x:a.x+ux*u+nx*v*s,y:a.y+uy*u+ny*v*s},d);ctx.fillStyle='#5a3a28';poly([q(.06,-2),q(.7,-2),q(.7,24),q(.06,24)]);ctx.fillStyle='#20222a';poly([q(.09,1),q(.67,1),q(.67,21),q(.09,21)]);
-    ctx.strokeStyle='rgba(240,240,230,.6)';ctx.lineWidth=.9;ctx.beginPath();for(const u of [.18,.3,.42,.54]){const e=q(u,5),f=q(u+.04,17);ctx.moveTo(e.x,e.y);ctx.lineTo(f.x,f.y);}ctx.stroke();
+    ctx.strokeStyle='rgba(240,240,230,.6)';ctx.lineWidth=1.07;ctx.beginPath();for(const u of [.18,.3,.42,.54]){const e=q(u,5),f=q(u+.04,17);ctx.moveTo(e.x,e.y);ctx.lineTo(f.x,f.y);}ctx.stroke();
     segP(p[0],p[1],d-4,2.6,'#5a3a28');}
   else if(PROP_DRAW[Pp.type])PROP_DRAW[Pp.type](Pp);
 }
@@ -267,7 +267,7 @@ function drawWare(it){
     if(it.lit){ctx.globalCompositeOperation='lighter';const g=ctx.createRadialGradient(0,-10,0,0,-10,12);g.addColorStop(0,'rgba(255,214,140,.7)');g.addColorStop(1,'rgba(255,170,90,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,-10,12,0,TAU);ctx.fill();
       ctx.fillStyle='#fff3cf';ctx.beginPath();ctx.ellipse(0,-10+Math.sin(S.t*13+it.x)*.4,1.3,2.6,0,0,TAU);ctx.fill();}}
   else if(it.kind==='vase'){ctx.fillStyle='#3a5a8a';ctx.beginPath();ctx.moveTo(-3,5);ctx.quadraticCurveTo(-7,0,-2,-5);ctx.lineTo(2,-5);ctx.quadraticCurveTo(7,0,3,5);ctx.closePath();ctx.fill();
-    ctx.strokeStyle='#2f5a3a';ctx.lineWidth=1.2;ctx.beginPath();for(const a of [-.5,0,.45]){ctx.moveTo(0,-5);ctx.lineTo(Math.sin(a)*9,-14);}ctx.stroke();
+    ctx.strokeStyle='#2f5a3a';ctx.lineWidth=1.51;ctx.beginPath();for(const a of [-.5,0,.45]){ctx.moveTo(0,-5);ctx.lineTo(Math.sin(a)*9,-14);}ctx.stroke();
     for(const [x,y,c] of [[-4.5,-13,'#ff7eb6'],[0,-15,'#ffd36b'],[4,-13,'#ff6b5b']]){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,2.2,0,TAU);ctx.fill();}}
   else if(it.kind==='pot'){ctx.fillStyle='#8a5530';ctx.fillRect(-6.5,-3,13,8.5);ctx.fillStyle='#c9874a';ctx.fillRect(-6.5,-3,13,2.4);ctx.fillRect(-9.5,-1.5,3,1.6);ctx.fillRect(6.5,-1.5,3,1.6);
     ctx.fillStyle='#3a2414';ctx.fillRect(-5.8,-4.6,11.6,1.8);ctx.fillRect(-1.5,-6.4,3,2);}

@@ -55,7 +55,7 @@ function cabin(c){const {x0,x1,sill,top}=DIM.door;
   c.fillStyle=lgr(c,0,110,0,160,[[0,'#0a1a24'],[1,'#2a6a70']]);c.beginPath();c.ellipse(14,138,16,20,0,0,TAU);c.fill();c.strokeStyle='#7a5a2a';c.lineWidth=2;c.stroke();
   // seat backs in cream leather, piped in gold
   for(const sx of [-26,22]){c.fillStyle=lgr(c,sx,0,sx+30,0,[[0,K.creamD],[.5,K.cream],[1,K.creamD]]);c.beginPath();c.moveTo(sx,sill+6);c.lineTo(sx+2,sill+84);c.quadraticCurveTo(sx+16,sill+96,sx+30,sill+84);c.lineTo(sx+32,sill+6);c.closePath();c.fill();
-    c.strokeStyle=rgba(K.gold,.8);c.lineWidth=.8;c.stroke();c.strokeStyle=rgba('#6a5638',.5);c.lineWidth=.5;c.beginPath();for(let y=sill+20;y<sill+80;y+=12){c.moveTo(sx+4,y);c.lineTo(sx+28,y);}c.stroke();}
+    c.strokeStyle=rgba(K.gold,.8);c.lineWidth=.99;c.stroke();c.strokeStyle=rgba('#6a5638',.5);c.lineWidth=1.5;c.beginPath();for(let y=sill+20;y<sill+80;y+=12){c.moveTo(sx+4,y);c.lineTo(sx+28,y);}c.stroke();}
   c.fillStyle=K.gold;c.fillRect(x0,104,x1-x0,2);
   // its light comes from the lamp in its ceiling: brightest under it, falling off to the corners and down to the floor, so the
   // doorway is a lit room with a direction, not one flat colour
@@ -66,14 +66,14 @@ function lgr(c,x0,y0,x1,y1,st){const g=c.createLinearGradient(x0,y0,x1,y1);for(c
 function rgr(c,x,y,r0,r1,st){const g=c.createRadialGradient(x,y,r0,x,y,r1);for(const [o,col] of st)g.addColorStop(o,col);return g;}
 // the house's crest: a gold H in a ring of laurel, under a small crown
 function crest(c,x,y,s){c.save();c.translate(x,y);c.scale(s,s);c.strokeStyle=K.gold;c.lineWidth=1.6;c.beginPath();c.arc(0,0,13,0,TAU);c.stroke();
-  c.lineWidth=.8;c.strokeStyle=K.goldL;for(let k=0;k<12;k++){const a=Math.PI*.15+k/12*Math.PI*.7;for(const sd of [-1,1]){const ax=Math.cos(a)*16*sd,ay=-Math.sin(a)*16;c.beginPath();c.ellipse(ax,ay,2.6,1.2,a*sd,0,TAU);c.stroke();}}
+  c.lineWidth=1.13;c.strokeStyle=K.goldL;for(let k=0;k<12;k++){const a=Math.PI*.15+k/12*Math.PI*.7;for(const sd of [-1,1]){const ax=Math.cos(a)*16*sd,ay=-Math.sin(a)*16;c.beginPath();c.ellipse(ax,ay,2.6,1.2,a*sd,0,TAU);c.stroke();}}
   c.fillStyle=K.gold;c.fillRect(-7,-8,3.2,16);c.fillRect(3.8,-8,3.2,16);c.fillRect(-7,-1.4,14,2.8);
   c.beginPath();c.moveTo(-6,15);c.lineTo(-4,21);c.lineTo(0,17);c.lineTo(4,21);c.lineTo(6,15);c.closePath();c.fill();c.restore();}
 // the whole still body, in frame units (y up); L is the light's direction in the frame (unit, pointing toward the light)
 function bodyPaint(c,L){const P=paths();
   // the skid and its tubes behind the body
   c.fillStyle='#16161c';c.fill(P.strut1);c.fill(P.strut2);c.fillStyle=lgr(c,0,0,0,6,[[0,'#08080b'],[.5,'#2a2a32'],[1,'#0c0c10']]);c.fill(P.skid);
-  c.strokeStyle=rgba(K.steelL,.35);c.lineWidth=.6;c.beginPath();c.moveTo(-130,4.4);c.lineTo(148,4.4);c.stroke();
+  c.strokeStyle=rgba(K.steelL,.35);c.lineWidth=1.01;c.beginPath();c.moveTo(-130,4.4);c.lineTo(148,4.4);c.stroke();
   // the fin and the tailplane
   c.fillStyle=lgr(c,-512,0,-424,0,[[0,K.lac],[.6,K.lac1],[1,K.lac]]);c.fill(P.fin);c.fillStyle=K.lac1;c.fill(P.tailplane);c.fillStyle='#08080b';c.fill(P.plate);
   // the body in black lacquer: a long sheen along its flank, darker underneath
@@ -82,11 +82,11 @@ function bodyPaint(c,L){const P=paths();
   c.fillStyle='#050507';c.fill(P.intake);c.fill(P.exhaust);c.fillStyle=rgba('#ff8a3c',.15);c.fill(P.exhaust);
   c.fillStyle='#0d0d12';c.fill(P.mast);
   // panel lines
-  c.strokeStyle=rgba('#000000',.65);c.lineWidth=.8;c.beginPath();
+  c.strokeStyle=rgba('#000000',.65);c.lineWidth=1.51;c.beginPath();
   for(const [a,b] of [[[-150,32],[-150,186]],[[-34,30],[-34,190]],[[96,28],[96,184]],[[-240,114],[-240,162]],[[-330,121],[-330,155]],[[60,193],[60,222]],[[-90,195],[-90,220]]]){c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);}c.stroke();
   // the cabin through the door's opening (the door panel is drawn over it, live)
   c.save();c.clip(P.door);cabin(c);c.restore();
-  c.strokeStyle=K.goldD;c.lineWidth=2.4;c.stroke(P.door);c.strokeStyle=rgba(K.goldL,.5);c.lineWidth=.6;c.stroke(P.door);
+  c.strokeStyle=K.goldD;c.lineWidth=2.4;c.stroke(P.door);c.strokeStyle=rgba(K.goldL,.5);c.lineWidth=1.01;c.stroke(P.door);
   // the windows: the cockpit's glass lit cyan by its instruments, the cabin's warm
   c.fillStyle=lgr(c,94,90,200,170,[[0,'#06181c'],[.45,'#0f3e44'],[1,'#071a1e']]);c.fill(P.screen);c.fill(P.chin);
   c.save();c.clip(P.screen);c.fillStyle=rgba('#000000',.7);c.beginPath();c.ellipse(132,118,10,13,0,0,TAU);c.fill();c.fillRect(124,100,16,22);
@@ -95,15 +95,15 @@ function bodyPaint(c,L){const P=paths();
   for(const w of [P.win,P.winAft]){c.fillStyle=lgr(c,0,114,0,160,[[0,'#f0c080'],[1,'#8a5a28']]);c.fill(w);c.strokeStyle=K.goldD;c.lineWidth=1.6;c.stroke(w);}
   // the gold pinstripes from nose to tail, and the crest on the fin
   c.lineCap='round';c.strokeStyle=K.gold;c.lineWidth=1.3;c.beginPath();c.moveTo(206,84);c.bezierCurveTo(150,64,40,58,-150,60);c.bezierCurveTo(-240,62,-340,128,-440,136);c.stroke();
-  c.strokeStyle=rgba(K.goldL,.55);c.lineWidth=.5;c.beginPath();c.moveTo(204,90);c.bezierCurveTo(150,70,40,64,-150,66);c.bezierCurveTo(-240,68,-340,133,-438,141);c.stroke();
-  c.strokeStyle=rgba(K.gold,.6);c.lineWidth=.8;c.beginPath();c.moveTo(118,182);c.bezierCurveTo(60,194,-80,196,-140,188);c.stroke();
+  c.strokeStyle=rgba(K.goldL,.55);c.lineWidth=1;c.beginPath();c.moveTo(204,90);c.bezierCurveTo(150,70,40,64,-150,66);c.bezierCurveTo(-240,68,-340,133,-438,141);c.stroke();
+  c.strokeStyle=rgba(K.gold,.6);c.lineWidth=.99;c.beginPath();c.moveTo(118,182);c.bezierCurveTo(60,194,-80,196,-140,188);c.stroke();
   crest(c,-490,232,.95);
   // the skid's step under the door
   c.fillStyle=K.gold;c.fill(P.step);c.fillStyle='#16161c';c.fill(P.stepBar);
   // the light along the top: the rim of lacquer toward the light, and a soft sheen down the flank
   const lx=L.x,ly=L.y;c.save();c.clip(P.body);c.globalCompositeOperation='lighter';
   c.strokeStyle=rgba('#c8d4ff',.18+.18*clamp(ly,0,1));c.lineWidth=3;c.stroke(P.body);c.restore();
-  c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba('#c8d4ff',.22);c.lineWidth=.8;c.beginPath();c.moveTo(118,183);c.bezierCurveTo(60,195,-80,197,-140,189);c.lineTo(-185,177);c.lineTo(-320,156);c.lineTo(-430,151);c.stroke();
+  c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba('#c8d4ff',.22);c.lineWidth=.99;c.beginPath();c.moveTo(118,183);c.bezierCurveTo(60,195,-80,197,-140,189);c.lineTo(-185,177);c.lineTo(-320,156);c.lineTo(-430,151);c.stroke();
   c.strokeStyle=rgba('#c8d4ff',.2);c.beginPath();c.moveTo(-118,211);c.bezierCurveTo(-80,223,0,227,52,223);c.stroke();
   if(lx<0){c.strokeStyle=rgba('#c8d4ff',.25);c.lineWidth=1;c.beginPath();c.moveTo(-476,250);c.lineTo(-452,190);c.lineTo(-424,151);c.stroke();}
   c.restore();}
@@ -144,7 +144,7 @@ function rotor(c,H,o){const now=o.now??0,a=H.rotor||0,R=DIM.rotorR,[hx,hy]=DIM.h
 // the sliding door: shut over the opening, open slid back along the flank
 function door(c,H){const P=paths(),u=clamp(H.door??0,0,1),{x0,x1,sill,top}=DIM.door,dx=-u*(x1-x0+6),wx=(x0+x1)/2+dx;
   const D=rr(x0+dx,sill,x1+dx,top,10);c.fillStyle=lgr(c,0,sill,0,top,[[0,'#050508'],[.4,K.lac],[.66,K.lac2],[.75,'#2e2c3a'],[1,K.lac]]);c.fill(D);
-  c.strokeStyle='#020203';c.lineWidth=1.2;c.stroke(D);
+  c.strokeStyle='#020203';c.lineWidth=1.51;c.stroke(D);
   c.fillStyle=lgr(c,0,116,0,160,[[0,'#f0c080'],[1,'#8a5a28']]);c.beginPath();c.ellipse(wx,136,16,21,0,0,TAU);c.fill();c.strokeStyle=K.goldD;c.lineWidth=1.6;c.stroke();
   c.strokeStyle=K.gold;c.lineWidth=1.3;c.beginPath();c.moveTo(x0+dx,61);c.lineTo(x1+dx,60);c.stroke();
   c.fillStyle=K.goldL;c.fillRect(x1+dx-12,98,7,2.4);}

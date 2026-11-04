@@ -64,7 +64,7 @@ function slab(c,x,g,d,w,l,ang,tilt,seed){const r=rng(seed),pv=TB().paving(21,{L:
   for(const [u,v] of [[-w/2,-l/2],[w/2,-l/2],[w/2,l/2],[-w/2,l/2]]){const jx=(r()-.5)*2,jd=(r()-.5)*2,X=x+u*cs-v*sn+jx,D=d+u*sn+v*cs+jd,lift=tilt*(u/w);pts.push(pp(X,g-Math.max(0,lift),D));}
   const th=2+r()*2;c.beginPath();c.moveTo(pts[0].x,pts[0].y+th);c.lineTo(pts[1].x,pts[1].y+th);c.lineTo(pts[2].x,pts[2].y+th);c.lineTo(pts[3].x,pts[3].y+th);c.closePath();c.fillStyle='#0b0a0c';c.fill();
   c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(const q of pts.slice(1))c.lineTo(q.x,q.y);c.closePath();c.fillStyle=patAt(c,pv,pts[0].x,pts[0].y,.2,ang*57);c.fill();c.fillStyle=rgba('#06050a',.5+r()*.15);c.fill();
-  c.strokeStyle=rgba(C.rim,.22);c.lineWidth=.5;c.beginPath();c.moveTo(pts[3].x,pts[3].y);c.lineTo(pts[2].x,pts[2].y);c.stroke();}
+  c.strokeStyle=rgba(C.rim,.22);c.lineWidth=1;c.beginPath();c.moveTo(pts[3].x,pts[3].y);c.lineTo(pts[2].x,pts[2].y);c.stroke();}
 // a column drum of the old town, fluted, a band of the vine round its neck: standing and broken off, or fallen on its side
 function columnStump(c,x,g,d,h,seed){const q=pp(x,g,d),r=rng(seed),stone=TX().granite(62,96,96,{base:'#827a6e'}),rr=9;
   c.fillStyle=rgba('#000000',.45);c.beginPath();c.ellipse(q.x+2,q.y,rr+5,3,0,0,TAU);c.fill();
@@ -72,17 +72,17 @@ function columnStump(c,x,g,d,h,seed){const q=pp(x,g,d),r=rng(seed),stone=TX().gr
   // the shaft, broken in a jagged line at the top
   const top=q.y-6-h;c.beginPath();c.moveTo(q.x-rr,q.y-6);let px=q.x-rr;c.lineTo(px,top+r()*6);for(let k=1;k<=6;k++){px=q.x-rr+k*2*rr/6;c.lineTo(px,top+r()*9-(k===3?4:0));}c.lineTo(q.x+rr,q.y-6);c.closePath();
   c.fillStyle=patAt(c,stone,0,0,.25);c.fill();c.fillStyle=lin(c,q.x-rr,0,q.x+rr,0,[[0,rgba('#07060c',.4)],[.35,rgba('#07060c',.52)],[1,rgba('#07060c',.82)]]);c.fill();
-  c.save();c.clip();c.strokeStyle=rgba('#000000',.4);c.lineWidth=.6;c.beginPath();for(let k=-3;k<=3;k++){const fx=q.x+k*rr/3.6;c.moveTo(fx,top);c.lineTo(fx,q.y-6);}c.stroke();
+  c.save();c.clip();c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.51;c.beginPath();for(let k=-3;k<=3;k++){const fx=q.x+k*rr/3.6;c.moveTo(fx,top);c.lineTo(fx,q.y-6);}c.stroke();
   c.fillStyle=rgba(C.gold,.55);c.fillRect(q.x-rr,q.y-14,2*rr,.8);c.restore();c.fillStyle=rgba('#c8d4ff',.2);c.fillRect(q.x-rr,top+6,.7,h-6);}
 function fallenDrum(c,x,g,d,seed){const q=pp(x,g,d),stone=TX().granite(62,96,96,{base:'#827a6e'}),L=30,R=8.5;
   c.fillStyle=rgba('#000000',.45);c.beginPath();c.ellipse(q.x+L/2,q.y+1,L/2+8,3,0,0,TAU);c.fill();
   c.beginPath();c.moveTo(q.x,q.y-2*R);c.lineTo(q.x+L,q.y-2*R);c.lineTo(q.x+L,q.y);c.lineTo(q.x,q.y);c.closePath();c.fillStyle=patAt(c,stone,0,0,.25);c.fill();
   c.fillStyle=lin(c,0,q.y-2*R,0,q.y,[[0,rgba('#07060c',.4)],[.4,rgba('#07060c',.55)],[1,rgba('#07060c',.85)]]);c.fill();
-  c.strokeStyle=rgba('#000000',.35);c.lineWidth=.5;c.beginPath();for(let k=1;k<6;k++){const y=q.y-2*R+k*2*R/6;c.moveTo(q.x,y);c.lineTo(q.x+L,y);}c.stroke();
+  c.strokeStyle=rgba('#000000',.35);c.lineWidth=1.5;c.beginPath();for(let k=1;k<6;k++){const y=q.y-2*R+k*2*R/6;c.moveTo(q.x,y);c.lineTo(q.x+L,y);}c.stroke();
   c.beginPath();c.ellipse(q.x+L,q.y-R,3.4,R,0,0,TAU);c.fillStyle=patAt(c,stone,0,0,.25);c.fill();c.fillStyle=rgba('#07060c',.45);c.fill();
   c.fillStyle=rgba(C.gold,.5);c.fillRect(q.x+L-6,q.y-2*R,.8,2*R);}
 // weeds: thin dark blades with a pale tip where the light finds them
-function weeds(c,x,y,n,h,seed){const r=rng(seed);c.save();c.lineCap='round';for(let i=0;i<n;i++){const bx=x+(r()-.5)*n*1.6,bh=h*(.5+r()*.6),lean=(r()-.5)*bh*.6;c.strokeStyle=mix('#141c10','#2c3a1c',r());c.lineWidth=.6+r()*.5;
+function weeds(c,x,y,n,h,seed){const r=rng(seed);c.save();c.lineCap='round';for(let i=0;i<n;i++){const bx=x+(r()-.5)*n*1.6,bh=h*(.5+r()*.6),lean=(r()-.5)*bh*.6;c.strokeStyle=mix('#141c10','#2c3a1c',r());c.lineWidth=1.07+r()*.89;
   c.beginPath();c.moveTo(bx,y);c.quadraticCurveTo(bx+lean*.3,y-bh*.6,bx+lean,y-bh);c.stroke();}c.restore();}
 // the remains of an arched gateway on the terrace: two slender columns, the arch broken off halfway, the vine inlaid along its face
 function brokenArch(c,xa,xb,g,d,h){const stone=TX().granite(62,96,96,{base:'#827a6e'}),A=pp(xa,g,d),B=pp(xb,g,d),cx=(A.x+B.x)/2,R=(B.x-A.x)/2,spring=A.y-h;
@@ -96,8 +96,8 @@ function brokenArch(c,xa,xb,g,d,h){const stone=TX().granite(62,96,96,{base:'#827
   // the arch: voussoirs from the left column's capital, the ring broken off a little past the crown
   const a0=Math.PI,a1=Math.PI*1.56,ri=R-4,ro=R+7;c.beginPath();c.arc(cx,spring-4,ro,a0,a1);{const e=a1,m=(ri+ro)/2;c.lineTo(cx+Math.cos(e+.05)*m,spring-4+Math.sin(e+.05)*m+2);c.lineTo(cx+Math.cos(e-.02)*(m-2),spring-4+Math.sin(e-.02)*(m-2)-1);c.lineTo(cx+Math.cos(e+.03)*ri,spring-4+Math.sin(e+.03)*ri+1.5);}c.arc(cx,spring-4,ri,a1,a0,true);c.closePath();
   c.fillStyle=patAt(c,stone,0,0,.25);c.fill();c.fillStyle=rgba('#07060c',.6);c.fill();
-  c.strokeStyle=rgba('#000000',.5);c.lineWidth=.5;c.beginPath();for(let k=1;k<8;k++){const t=a0+(a1-a0)*k/8;c.moveTo(cx+Math.cos(t)*ri,spring-4+Math.sin(t)*ri);c.lineTo(cx+Math.cos(t)*ro,spring-4+Math.sin(t)*ro);}c.stroke();
-  c.strokeStyle=rgba(C.rim,.3);c.lineWidth=.6;c.beginPath();c.arc(cx,spring-4,ro,a0,a1);c.stroke();
+  c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.5;c.beginPath();for(let k=1;k<8;k++){const t=a0+(a1-a0)*k/8;c.moveTo(cx+Math.cos(t)*ri,spring-4+Math.sin(t)*ri);c.lineTo(cx+Math.cos(t)*ro,spring-4+Math.sin(t)*ro);}c.stroke();
+  c.strokeStyle=rgba(C.rim,.3);c.lineWidth=1.01;c.beginPath();c.arc(cx,spring-4,ro,a0,a1);c.stroke();
   const vp=[];for(let k=0;k<=12;k++){const t=a0+(a1-a0-.08)*k/12;vp.push({x:cx+Math.cos(t)*(R+1),y:spring-4+Math.sin(t)*(R+1)});}vine(c,vp,{w:.45,amp:.8,wave:8,leaf:1.3,every:2,seed:7,col:rgba(C.gold,.8)});}
 // low courses of a fallen house's foundations on the lower ground
 function foundation(c,x0,x1,g,d,h,seed){const q0=pp(x0,g,d),q1=pp(x1,g,d),r=rng(seed);c.beginPath();c.moveTo(q0.x,q0.y);let x=q0.x;c.lineTo(x,q0.y-h*(.6+r()*.4));while(x<q1.x){x=Math.min(q1.x,x+4+r()*8);c.lineTo(x,q0.y-h*(.3+r()*.7));}c.lineTo(q1.x,q1.y);c.closePath();
@@ -110,15 +110,15 @@ function elvenLamp(c,L){const g=gr(L.x),b=pp(L.x,g,L.d),top=b.y-L.h-8,stone=TX()
   c.fillStyle='#0a090d';c.fillRect(b.x-4,top+12,8,3);scroll(c,b.x-3,top+16,2.4,-1,C.gold,.5,1.2);scroll(c,b.x+3,top+16,2.4,1,C.gold,.5,1.2);
   c.fillStyle='#0a090d';c.beginPath();c.moveTo(b.x-5,top+2);c.lineTo(b.x,top-4);c.lineTo(b.x+5,top+2);c.closePath();c.fill();c.fillStyle=C.gold;c.fillRect(b.x-.5,top-7,1,3);
   c.fillStyle=lin(c,0,top+2,0,top+12,[[0,'#fff6dc'],[1,'#ffc272']]);c.beginPath();c.moveTo(b.x-4.4,top+2);c.lineTo(b.x+4.4,top+2);c.lineTo(b.x+3.4,top+12);c.lineTo(b.x-3.4,top+12);c.closePath();c.fill();
-  c.strokeStyle='#0a090d';c.lineWidth=.6;c.beginPath();c.moveTo(b.x,top+2);c.lineTo(b.x,top+12);c.stroke();}
+  c.strokeStyle='#0a090d';c.lineWidth=1.51;c.beginPath();c.moveTo(b.x,top+2);c.lineTo(b.x,top+12);c.stroke();}
 function brazier(c,L){const g=gr(L.x),b=pp(L.x,g,L.d),top=b.y-L.h+4;
   c.fillStyle=rgba('#000000',.5);c.beginPath();c.ellipse(b.x+1,b.y,12,2.6,0,0,TAU);c.fill();
-  c.strokeStyle='#0a090c';c.lineWidth=1.5;c.lineCap='round';c.beginPath();for(const dx of [-8,0,8]){c.moveTo(b.x+dx,b.y);c.lineTo(b.x+dx*.35,top+4);}c.stroke();
+  c.strokeStyle='#0a090c';c.lineWidth=1.59;c.lineCap='round';c.beginPath();for(const dx of [-8,0,8]){c.moveTo(b.x+dx,b.y);c.lineTo(b.x+dx*.35,top+4);}c.stroke();
   c.fillStyle=lin(c,b.x-10,0,b.x+10,0,[[0,'#0a090c'],[.6,'#1c1a20'],[1,'#08070a']]);c.beginPath();c.moveTo(b.x-10,top);c.quadraticCurveTo(b.x,top+10,b.x+10,top);c.closePath();c.fill();
   c.fillStyle=rgba(C.rim,.5);c.fillRect(b.x-10,top-.4,20,.8);c.fillStyle='#ff8a3c';c.beginPath();c.ellipse(b.x,top,8.6,1.6,0,0,TAU);c.fill();c.fillStyle='#ffd27a';c.beginPath();c.ellipse(b.x,top,5,.9,0,0,TAU);c.fill();}
 function staffLantern(c,L){const g=gr(L.x),b=pp(L.x,g,L.d),top=b.y-L.h-12;
-  c.strokeStyle='#0a090c';c.lineWidth=1.6;c.beginPath();c.moveTo(b.x,b.y);c.lineTo(b.x,top);c.lineTo(b.x+7,top);c.stroke();c.lineWidth=.6;c.beginPath();c.moveTo(b.x+7,top);c.lineTo(b.x+7,top+4);c.stroke();
-  c.strokeStyle=rgba(C.rim,.4);c.lineWidth=.5;c.beginPath();c.moveTo(b.x+.8,b.y-2);c.lineTo(b.x+.8,top+2);c.stroke();
+  c.strokeStyle='#0a090c';c.lineWidth=1.6;c.beginPath();c.moveTo(b.x,b.y);c.lineTo(b.x,top);c.lineTo(b.x+7,top);c.stroke();c.lineWidth=1.51;c.beginPath();c.moveTo(b.x+7,top);c.lineTo(b.x+7,top+4);c.stroke();
+  c.strokeStyle=rgba(C.rim,.4);c.lineWidth=1;c.beginPath();c.moveTo(b.x+.8,b.y-2);c.lineTo(b.x+.8,top+2);c.stroke();
   c.fillStyle='#0a090c';c.beginPath();c.moveTo(b.x+3.5,top+5);c.lineTo(b.x+7,top+3);c.lineTo(b.x+10.5,top+5);c.fill();
   c.fillStyle=lin(c,0,top+5,0,top+13,[[0,'#fff3d2'],[1,'#ffb259']]);c.fillRect(b.x+4,top+5,6,8);c.fillStyle='#0a090c';c.fillRect(b.x+3.5,top+13,7,1.4);c.fillRect(b.x+6.6,top+5,.8,8);
   c.fillStyle=rgba('#000000',.4);c.beginPath();c.ellipse(b.x+1,b.y,5,1.2,0,0,TAU);c.fill();}
@@ -167,7 +167,7 @@ function paint(c){
     E.fallKeep(c,X0,X0+700,yT-10,[[yT,.66],[gT+90,.66]],'#05060c',.04);c.restore();
     // the slabs' broken edge: their thickness showing along the break
     c.fillStyle='#0e0c10';c.beginPath();for(let d=N;d<=FAR;d+=9){const q=pp(edge(d),g,d);d===N?c.moveTo(q.x,q.y):c.lineTo(q.x,q.y);}for(let d=FAR;d>=N;d-=9){const q=pp(edge(d)+1.5,g+5,d);c.lineTo(q.x,q.y);}c.closePath();c.fill();
-    c.strokeStyle=rgba(C.rim,.28);c.lineWidth=.6;c.beginPath();for(let d=N;d<=FAR;d+=9){const q=pp(edge(d),g,d);d===N?c.moveTo(q.x,q.y):c.lineTo(q.x,q.y);}c.stroke();
+    c.strokeStyle=rgba(C.rim,.28);c.lineWidth=1.01;c.beginPath();for(let d=N;d<=FAR;d+=9){const q=pp(edge(d),g,d);d===N?c.moveTo(q.x,q.y):c.lineTo(q.x,q.y);}c.stroke();
     // the terrace's far edge: a coping stone, then the drop
     const stone=TX().granite(61,96,96,{base:'#7a7468'}),a=pp(X0,g,FAR),b=pp(edge(FAR),g,FAR);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(b.x,b.y+4);c.lineTo(a.x,a.y+4);c.closePath();c.fillStyle=patAt(c,stone,0,0,.25);c.fill();c.fillStyle=rgba('#07060c',.55);c.fill();
     c.fillStyle=rgba(C.rim,.35);c.fillRect(a.x,a.y,b.x-a.x,.7);
@@ -182,7 +182,7 @@ function paint(c){
       c.save();c.clip();const q=pp(x,g,d);c.fillStyle=lin(c,0,q.y-w*.5,0,q.y+w*.5,[[0,'#262a38'],[1,'#13151e']]);c.fillRect(q.x-w*1.6,q.y-w,w*3.2,w*2);
       c.globalCompositeOperation='lighter';for(const L of LIGHTS){const lq=lightAt(L);if(Math.abs(lq.x-q.x)<w*1.4){c.fillStyle=lin(c,0,q.y-w*.4,0,q.y+w*.4,[[0,rgba('#ffb866',.05)],[.5,rgba('#ffb866',.4)],[1,rgba('#ffb866',.05)]]);c.fillRect(lq.x-2,q.y-w*.4,4,w*.8);}}
       if(Math.abs(q.x-150)<w*1.4){c.fillStyle=rgba('#fff4e0',.3);c.beginPath();c.ellipse(150,q.y,3,1.4,0,0,TAU);c.fill();}c.restore();
-      c.save();plane(c,g);c.beginPath();pts.forEach(([px,pd],k)=>k?c.lineTo(px,pd):c.moveTo(px,pd));c.closePath();c.restore();c.strokeStyle=rgba('#05060a',.5);c.lineWidth=1.2;c.stroke();};
+      c.save();plane(c,g);c.beginPath();pts.forEach(([px,pd],k)=>k?c.lineTo(px,pd):c.moveTo(px,pd));c.closePath();c.restore();c.strokeStyle=rgba('#05060a',.5);c.lineWidth=1.51;c.stroke();};
     for(const [x,d,w,sd] of [[96,214,22,1],[262,176,16,2],[150,98,26,3],[338,36,18,4]])puddle(x,d,w,sd);
     c.save();plane(c,g);for(let i=0;i<26;i++){const x=-140+rr()*560,d=150+rr()*124,rx=4+rr()*14,rd=3+rr()*7;c.fillStyle=rgba(rr()<.5?'#1c2a16':'#243318',.18+rr()*.18);c.beginPath();c.ellipse(x,d,rx,rd,0,0,TAU);c.fill();}c.restore();}
   {const g=GB;c.save();plane(c,g);const path=[[478,E.NEAR],[500,-320],[520,-100],[540,0],[560,60],[600,120],[660,170],[720,214],[790,236]];c.lineCap='round';c.lineJoin='round';

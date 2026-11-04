@@ -131,7 +131,7 @@ const A1G_DRAW={
     // the strap from the shoulder down across him, the bag at his hip behind
     ctx.strokeStyle='#4a3b28';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(sh.x,sh.y);ctx.lineTo(q.x+fa*3,q.y-6);ctx.stroke();
     ctx.fillStyle='#5a4a32';ctx.beginPath();ctx.moveTo(q.x-fa*10,q.y-8);ctx.lineTo(q.x+fa*4,q.y-8);ctx.lineTo(q.x+fa*5,q.y+8);ctx.quadraticCurveTo(q.x-fa*3,q.y+11,q.x-fa*11,q.y+7);ctx.closePath();ctx.fill();
-    ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=.8;ctx.stroke();ctx.fillStyle='#4a3b28';ctx.fillRect(Math.min(q.x-fa*10,q.x+fa*4),q.y-8,14,4);},
+    ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1.51;ctx.stroke();ctx.fillStyle='#4a3b28';ctx.fillRect(Math.min(q.x-fa*10,q.x+fa*4),q.y-8,14,4);},
   held(it){const K=hero(),h=K.p[HAF],q=P(h.x,h.y,K.dep),id=it.id;
     if(id==='rice'){ctx.fillStyle='#b8a47a';ctx.beginPath();ctx.moveTo(q.x-6,q.y+1);ctx.quadraticCurveTo(q.x-9,q.y+14,q.x-5,q.y+22);ctx.lineTo(q.x+6,q.y+22);ctx.quadraticCurveTo(q.x+10,q.y+12,q.x+5,q.y+1);ctx.closePath();ctx.fill();
       ctx.strokeStyle='rgba(60,45,25,.8)';ctx.lineWidth=.8;ctx.stroke();ctx.fillStyle='#8a7550';ctx.fillRect(q.x-3,q.y-1,6,3);return;}

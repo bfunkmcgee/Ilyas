@@ -279,7 +279,7 @@ function drawBoom(b){if(typeof FxLook!=='undefined'&&FxLook.boom&&!S.classicLook
 // bits of a machine thrown by a blast
 {const dd=drawDebrisPiece;drawDebrisPiece=function(sg,d,col){if(!sg.scrap)return dd(sg,d,col);const a=P(sg.a.x,sg.a.y,d),b=P(sg.b.x,sg.b.y,d);
   ctx.save();ctx.lineCap='round';ctx.strokeStyle=col||'#16141a';ctx.lineWidth=sg.w||4;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
-  ctx.strokeStyle='rgba(226,182,90,.5)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(a.x,a.y-1);ctx.lineTo(b.x,b.y-1);ctx.stroke();ctx.restore();};}
+  ctx.strokeStyle='rgba(226,182,90,.5)';ctx.lineWidth=.99;ctx.beginPath();ctx.moveTo(a.x,a.y-1);ctx.lineTo(b.x,b.y-1);ctx.stroke();ctx.restore();};}
 // ---------- the police barriers ----------
 // A concrete barrier across the road, seen from the kerb: its end toward us in the safety-shape profile, its long flank lit cold by
 // the floodlight on the right, the top worn pale, a band of reflective tape, grime where it meets the wet road, and the chips the
@@ -292,7 +292,7 @@ function drawConcreteSlice(it){const w=it.dv,A=it.a,B=it.b,g=S.arena.ground(w.x,
   quad(JERSEY[7],JERSEY[6],'#4d525b');quad(JERSEY[6],JERSEY[5],'#646a74');quad(JERSEY[5],JERSEY[4],'#7a808a');quad(JERSEY[4],JERSEY[3],'#9aa0a8');
   // the wet foot of it, darker, and a sheen along the top edge
   ctx.fillStyle='rgba(6,6,10,.4)';poly([P(X(JERSEY[7]),g,A),P(X(JERSEY[6]),Y(JERSEY[6]),A),P(X(JERSEY[6]),Y(JERSEY[6]),B),P(X(JERSEY[7]),g,B)]);
-  ctx.strokeStyle='rgba(220,232,255,.35)';ctx.lineWidth=.8;ctx.beginPath();{const a=P(X(JERSEY[4]),Y(JERSEY[4]),A),b=P(X(JERSEY[4]),Y(JERSEY[4]),B);ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);}ctx.stroke();
+  ctx.strokeStyle='rgba(220,232,255,.35)';ctx.lineWidth=.99;ctx.beginPath();{const a=P(X(JERSEY[4]),Y(JERSEY[4]),A),b=P(X(JERSEY[4]),Y(JERSEY[4]),B);ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);}ctx.stroke();
   // the tape along the flank, amber and white in turns
   const t0=.62,t1=.7,ty=u=>{const a=JERSEY[4],b=JERSEY[5];return[lerp(b[0],a[0],u),lerp(b[1],a[1],u)];};
   for(let d=Math.ceil(A/9)*9;d<B;d+=9){const e=Math.min(B,d+9),col=(Math.floor(d/9)%2)?'rgba(226,182,90,.8)':'rgba(236,236,228,.75)',p0=ty((t0*84-24)/60),p1=ty((t1*84-24)/60);
@@ -307,7 +307,7 @@ function drawConcreteSlice(it){const w=it.dv,A=it.a,B=it.b,g=S.arena.ground(w.x,
     const ta=P(X([-10,60]),Y([-10,60]),A),tb=P(X([10,60]),Y([10,60]),A),tc=P(X([9,68]),Y([9,68]),A),td=P(X([-9,68]),Y([-9,68]),A);
     ctx.fillStyle='rgba(226,182,90,.85)';poly([ta,tb,tc,td]);ctx.fillStyle='rgba(236,236,228,.8)';
     for(let i=0;i<3;i++){const u0=i/3+.06,u1=u0+.14,L=(u,top)=>{const a=top?td:ta,b=top?tc:tb;return{x:lerp(a.x,b.x,u),y:lerp(a.y,b.y,u)};};poly([L(u0,0),L(u1,0),L(u1+.08,1),L(u0+.08,1)]);}
-    ctx.strokeStyle='rgba(226,182,90,.45)';ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();}
+    ctx.strokeStyle='rgba(226,182,90,.45)';ctx.lineWidth=1.07;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();}
   ctx.restore();}
 {const dd=drawDivSlice;drawDivSlice=function(it){if(it.dv&&it.dv.mat==='concrete'&&!S.classicLook){drawConcreteSlice(it);return;}dd(it);};}
 // the words for cover: a gunman down behind a barrier is in cover, and the panels say what it is worth
@@ -344,8 +344,8 @@ function beastArm(k){return typeof BeastLook!=='undefined'&&BeastLook.weapon&&Be
   if(f.beast&&typeof BeastLook!=='undefined'&&BeastLook.draw&&!S.classicLook){drawBeast(f);return;}
   // (in a hand: f.nadeUp lifts it off the palm and f.nadeAng turns it, tossed up and caught; f.nadePin: the pin is out)
   df(f);if(f.grenade==='belt'||f.grenade==='hand'){const hand=f.grenade==='hand',q=hand?{x:f.p[HAF].x,y:f.p[HAF].y-(f.nadeUp||0)}:grenadeAt(f);
-  ctx.save();ctx.translate(q.x,q.y);if(hand&&f.nadeAng)ctx.rotate(f.nadeAng);ctx.fillStyle='#2b3324';ctx.strokeStyle='#0a0c08';ctx.lineWidth=.8;ctx.beginPath();ctx.ellipse(0,0,3.1,3.9,0,0,TAU);ctx.fill();ctx.stroke();
-  ctx.fillStyle='#8e95a3';ctx.fillRect(-1.3,-5.6,2.6,2);if(!(hand&&f.nadePin)){ctx.strokeStyle='#c8ccd4';ctx.lineWidth=.6;ctx.beginPath();ctx.arc(2.2,-5,1.4,0,TAU);ctx.stroke();}ctx.restore();}};}
+  ctx.save();ctx.translate(q.x,q.y);if(hand&&f.nadeAng)ctx.rotate(f.nadeAng);ctx.fillStyle='#2b3324';ctx.strokeStyle='#0a0c08';ctx.lineWidth=2.4;ctx.beginPath();ctx.ellipse(0,0,3.1,3.9,0,0,TAU);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#8e95a3';ctx.fillRect(-1.3,-5.6,2.6,2);if(!(hand&&f.nadePin)){ctx.strokeStyle='#c8ccd4';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(2.2,-5,1.4,0,TAU);ctx.stroke();}ctx.restore();}};}
 // a plain bike for when the painter is not there: wheels, frame, tank and seat in silhouette
 function drawBikeStub(B){const pt=(x,y)=>{const q=bikeAt(B,x,y);return P(q.x,q.y,B.dep);},R=BIKE.R;
   ctx.save();ctx.lineCap='round';ctx.lineJoin='round';

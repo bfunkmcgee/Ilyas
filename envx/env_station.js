@@ -83,7 +83,7 @@ function portal(c,P,i){c.save();faceT(c,WALL);const x0=P.x-P.w/2,x1=P.x+P.w/2,ba
   const arch=(k,e)=>{c.beginPath();c.moveTo(x0-k,base);c.lineTo(x0-k,spr);c.arc(P.x,spr,rad0+k,Math.PI,0);c.lineTo(x1+k,base);if(e)c.closePath();};
   // the surround: two rings of brick voussoirs
   arch(13,true);c.fillStyle=patAt(c,EnvTex.brick(5,{base:'#3a2018',alt:'#26140e',hot:'#4a2a1c',mortar:'#120c0a'}),0,0,1/6);c.fill();c.fillStyle=rgba('#000000',.45);c.fill();
-  c.strokeStyle='#0a0606';c.lineWidth=.8;for(let k=0;k<=18;k++){const a=Math.PI+k*Math.PI/18;c.beginPath();c.moveTo(P.x+Math.cos(a)*rad0,spr+Math.sin(a)*rad0);c.lineTo(P.x+Math.cos(a)*(rad0+13),spr+Math.sin(a)*(rad0+13));c.stroke();}
+  c.strokeStyle='#0a0606';c.lineWidth=1.51;for(let k=0;k<=18;k++){const a=Math.PI+k*Math.PI/18;c.beginPath();c.moveTo(P.x+Math.cos(a)*rad0,spr+Math.sin(a)*rad0);c.lineTo(P.x+Math.cos(a)*(rad0+13),spr+Math.sin(a)*(rad0+13));c.stroke();}
   // the bore: rings of its lining going away, smaller and darker, to a lamp's glow far down the line
   arch(0,true);c.save();c.clip();c.fillStyle='#030304';c.fillRect(x0,crown,x1-x0,base-crown);
   const vx=P.x+(i?-10:10),vy=yW(40);
@@ -99,11 +99,11 @@ function portal(c,P,i){c.save();faceT(c,WALL);const x0=P.x-P.w/2,x1=P.x+P.w/2,ba
   // the keystone, gilt, with the house's H; a sign over the arch saying where the line goes
   c.fillStyle='#0c0a08';c.beginPath();c.moveTo(P.x-8,crown-14);c.lineTo(P.x+8,crown-14);c.lineTo(P.x+6,crown+2);c.lineTo(P.x-6,crown+2);c.closePath();c.fill();
   c.strokeStyle=C.gold;c.lineWidth=1;c.stroke();c.fillStyle=C.goldL;c.fillRect(P.x-3.6,crown-10,1.4,9);c.fillRect(P.x+2.2,crown-10,1.4,9);c.fillRect(P.x-3.6,crown-6.2,7.2,1.3);
-  {const sw=104,sy=crown-40,sx=P.x-sw/2;c.fillStyle='#0a1210';c.fillRect(sx,sy,sw,16);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=1;c.strokeRect(sx+1.5,sy+1.5,sw-3,13);
+  {const sw=124,sy=crown-43,sx=P.x-sw/2;c.fillStyle='#0a1210';c.fillRect(sx,sy,sw,19);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=1;c.strokeRect(sx+1.5,sy+1.5,sw-3,16);
     // rust coming through the enamel at the corners and round the bolts
-    const r=rng(9+i);for(let k=0;k<7;k++){c.fillStyle=rgba('#5a2a14',.5+.3*r());c.beginPath();c.ellipse(sx+(r()<.5?3+r()*10:sw-3-r()*10),sy+(r()<.5?3:13),2+r()*4,1.4+r()*2,0,0,TAU);c.fill();}
-    c.fillStyle=C.goldD;for(const bx of [sx+4,sx+sw-4])c.beginPath(),c.arc(bx,sy+8,1.2,0,TAU),c.fill();
-    gilt(c,SIGNS[END()][i],P.x,sy+12,9,{style:'700',track:1.4});}
+    const r=rng(9+i);for(let k=0;k<7;k++){c.fillStyle=rgba('#5a2a14',.5+.3*r());c.beginPath();c.ellipse(sx+(r()<.5?3+r()*10:sw-3-r()*10),sy+(r()<.5?3.5:15.5),2+r()*4,1.4+r()*2,0,0,TAU);c.fill();}
+    c.fillStyle=C.goldD;for(const bx of [sx+4,sx+sw-4])c.beginPath(),c.arc(bx,sy+9.5,1.2,0,TAU),c.fill();
+    gilt(c,SIGNS[END()][i],P.x,sy+14.6,12,{style:'700',track:1});}
   c.restore();}
 // the kitchen lift's bottom landing (the lantern's end): the same steel frame and black glass doors as above, a call button, a little
 // brass plaque
@@ -113,28 +113,29 @@ function kitLanding(c){c.save();faceT(c,WALL);const cx=KL.x,yB=GB;
   if(typeof liftFrame==='function'){liftFrame(c,cx,yB,KL.w,KL.h,KL.fr,KL.hd);liftDoors(c,cx,yB,KL.w,KL.h,0);}
   else{c.fillStyle='#8d99a3';c.fillRect(cx-KL.w/2-KL.fr,yB-KL.h-KL.hd,KL.w+2*KL.fr,KL.h+KL.hd);c.fillStyle='#070b11';c.fillRect(cx-KL.w/2,yB-KL.h,KL.w,KL.h);}
   // the call button in a steel plate, and the plaque under it
-  {const bx=cx+KL.w/2+16,by=yW(70);c.fillStyle=lin(c,bx-5,0,bx+5,0,[[0,'#6b7681'],[.5,'#aeb9c2'],[1,'#6b7681']]);c.fillRect(bx-5,by-12,10,24);c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=.6;c.strokeRect(bx-5,by-12,10,24);
+  {const bx=cx+KL.w/2+16,by=yW(70);c.fillStyle=lin(c,bx-5,0,bx+5,0,[[0,'#6b7681'],[.5,'#aeb9c2'],[1,'#6b7681']]);c.fillRect(bx-5,by-12,10,24);c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=1.51;c.strokeRect(bx-5,by-12,10,24);
     c.fillStyle='#0a0e12';c.beginPath();c.arc(bx,by,3,0,TAU);c.fill();c.fillStyle='rgba(150,216,255,.6)';c.beginPath();c.arc(bx,by,1.8,0,TAU);c.fill();
-    c.fillStyle=lin(c,0,by+18,0,by+30,[[0,C.goldL],[.5,C.gold],[1,C.goldD]]);c.fillRect(bx-9,by+18,18,11);c.strokeStyle=C.goldDD;c.lineWidth=.5;c.strokeRect(bx-9,by+18,18,11);
-    c.fillStyle='#2a1c08';c.font='700 3.2px Georgia, serif';c.textAlign='center';c.fillText('PRIVATE',bx,by+23.2);c.fillText('H · KITCHEN',bx,by+27.4);}
+    c.fillStyle=lin(c,0,by+18,0,by+30,[[0,C.goldL],[.5,C.gold],[1,C.goldD]]);c.fillRect(bx-9,by+18,18,11);c.strokeStyle=C.goldDD;c.lineWidth=1.5;c.strokeRect(bx-9,by+18,18,11);
+    c.fillStyle='#2a1c08';c.font='700 3.2px "Alegreya SC", Georgia, serif';c.textAlign='center';c.fillText('PRIVATE',bx,by+23.2);c.fillText('H · KITCHEN',bx,by+27.4);}
   c.restore();}
 // at the tower's end the lift's place is a service door: iron, sealed with a bar, a chain and a padlock, the goblins' claws on it
 function sealedDoor(c){c.save();faceT(c,WALL);const cx=KL.x,w=KL.w+8,h=KL.h-6,x0=cx-w/2,yB=GB,yT=yB-h,r=rng(19);
-  c.fillStyle='#14110e';c.fillRect(x0-7,yT-9,w+14,h+9);c.strokeStyle=rgba(C.goldD,.4);c.lineWidth=.8;c.strokeRect(x0-6.5,yT-8.5,w+13,h+8.5);
+  c.fillStyle='#14110e';c.fillRect(x0-7,yT-9,w+14,h+9);c.strokeStyle=rgba(C.goldD,.4);c.lineWidth=1.51;c.strokeRect(x0-6.5,yT-8.5,w+13,h+8.5);
   c.fillStyle=lin(c,x0,0,x0+w,0,[[0,'#1a1816'],[.5,'#23201c'],[1,'#171513']]);c.fillRect(x0,yT,w,h);
-  c.strokeStyle='#080706';c.lineWidth=1.2;c.beginPath();c.moveTo(cx,yT);c.lineTo(cx,yB);c.stroke();
+  c.strokeStyle='#080706';c.lineWidth=1.51;c.beginPath();c.moveTo(cx,yT);c.lineTo(cx,yB);c.stroke();
   // its panels and rivets, rust bleeding down it
-  for(const [a,b] of [[yT+8,yT+h*.44],[yT+h*.56,yB-8]])for(const xx of [x0+5,cx+4]){c.strokeStyle=rgba('#000000',.55);c.lineWidth=1;c.strokeRect(xx,a,w/2-9,b-a);c.strokeStyle=rgba('#c8b896',.07);c.strokeRect(xx+1,a+1,w/2-9,b-a);}
+  for(const [a,b] of [[yT+8,yT+h*.44],[yT+h*.56,yB-8]])for(const xx of [x0+5,cx+4]){c.strokeStyle=rgba('#000000',.55);c.lineWidth=1.5;c.strokeRect(xx,a,w/2-9,b-a);c.strokeStyle=rgba('#c8b896',.07);c.strokeRect(xx+1,a+1,w/2-9,b-a);}
   c.fillStyle=rgba('#8a7a60',.35);for(let y=yT+4;y<yB-2;y+=7){c.fillRect(x0+2,y,1.1,1.1);c.fillRect(x0+w-3.1,y,1.1,1.1);c.fillRect(cx-2.8,y,1,1);c.fillRect(cx+1.8,y,1,1);}
   for(let i=0;i<10;i++){const x=x0+r()*w,y=yT+r()*h*.7,L=10+r()*44;c.fillStyle=lin(c,0,y,0,y+L,[[0,rgba('#6a3416',.42)],[1,rgba('#6a3416',0)]]);c.fillRect(x,y,1.4+r()*3,L);}
-  // NO ENTRY stencilled, half gone; claws through the paint low down where they reach
-  c.fillStyle=rgba('#d8cfb8',.26);c.font='700 6.4px Georgia, serif';c.textAlign='center';c.fillText('NO  ENTRY',cx,yT+h*.26);
-  c.strokeStyle=rgba('#d8c8a8',.3);c.lineWidth=.6;c.beginPath();for(const [sx,sy] of [[x0+8,yB-40],[cx+6,yB-30],[x0+14,yB-62]])for(let k=0;k<4;k++){c.moveTo(sx+k*2.2,sy);c.lineTo(sx+k*2.2+7,sy+12);}c.stroke();
+  // NO ENTRY stencilled, half gone, in letters to be read (12 units: the drawing guide's least); claws through the paint low down
+  // where they reach
+  c.fillStyle=rgba('#d8cfb8',.26);c.font='700 12px "Alegreya SC", Georgia, serif';c.textAlign='center';c.fillText('NO',cx,yT+h*.2);c.fillText('ENTRY',cx,yT+h*.2+13);
+  c.strokeStyle=rgba('#d8c8a8',.3);c.lineWidth=1.01;c.beginPath();for(const [sx,sy] of [[x0+8,yB-40],[cx+6,yB-30],[x0+14,yB-62]])for(let k=0;k<4;k++){c.moveTo(sx+k*2.2,sy);c.lineTo(sx+k*2.2+7,sy+12);}c.stroke();
   // the bar across it in its brackets, a chain and a padlock
   const by=yT+h*.5;c.fillStyle='#0d0c0b';c.fillRect(x0-12,by-3.5,w+24,7);c.fillStyle=rgba(C.rim,.16);c.fillRect(x0-12,by-3.5,w+24,.9);
   for(const bx of [x0-9,x0+w+3]){c.fillStyle='#1c1915';c.fillRect(bx,by-7,6,14);c.fillStyle=rgba('#8a7a60',.4);c.fillRect(bx+2.4,by-5,1.2,1.2);c.fillRect(bx+2.4,by+4,1.2,1.2);}
-  c.strokeStyle='#3a342a';c.lineWidth=1.1;for(let k=0;k<9;k++){const u=k/8;c.beginPath();c.ellipse(lerp(x0+4,x0+w-4,u),by+6+Math.sin(u*Math.PI)*10,2.2,1.4,k%2?0:1.2,0,TAU);c.stroke();}
-  {const px=cx+2,py=by+16;c.strokeStyle=C.goldD;c.lineWidth=1.4;c.beginPath();c.arc(px,py-4,3,Math.PI,0);c.stroke();c.fillStyle=lin(c,px-4,0,px+4,0,[[0,C.goldD],[.5,C.gold],[1,C.goldD]]);c.fillRect(px-4,py-4,8,8);c.fillStyle='#1a1208';c.fillRect(px-.6,py-1,1.2,3);}
+  c.strokeStyle='#3a342a';c.lineWidth=1.47;for(let k=0;k<9;k++){const u=k/8;c.beginPath();c.ellipse(lerp(x0+4,x0+w-4,u),by+6+Math.sin(u*Math.PI)*10,2.2,1.4,k%2?0:1.2,0,TAU);c.stroke();}
+  {const px=cx+2,py=by+16;c.strokeStyle=C.goldD;c.lineWidth=1.48;c.beginPath();c.arc(px,py-4,3,Math.PI,0);c.stroke();c.fillStyle=lin(c,px-4,0,px+4,0,[[0,C.goldD],[.5,C.gold],[1,C.goldD]]);c.fillRect(px-4,py-4,8,8);c.fillStyle='#1a1208';c.fillRect(px-.6,py-1,1.2,3);}
   c.restore();}
 // at the lantern's end the right end is only wall: a barred service gate in it, padlocked, a passage going off behind it
 function serviceGate(c){c.save();faceT(c,WALL);const cx=774,w=66,h=118,x0=cx-w/2,yB=GB,spr=yB-h+w/2,top=x=>spr-Math.sqrt(Math.max(0,(w/2)**2-(x-cx)**2));
@@ -142,15 +143,15 @@ function serviceGate(c){c.save();faceT(c,WALL);const cx=774,w=66,h=118,x0=cx-w/2
   arch(9);c.fillStyle=patAt(c,EnvTex.brick(5,{base:'#3a2018',alt:'#26140e',hot:'#4a2a1c',mortar:'#120c0a'}),0,0,1/6);c.fill();c.fillStyle=rgba('#000000',.5);c.fill();
   arch(0);c.fillStyle='#030304';c.fill();c.save();c.clip();glow(c,cx+8,yB-50,30,'#e8c88a',.18);c.fillStyle=rgba('#e8c88a',.4);c.fillRect(cx+6,yB-54,4,1.6);c.restore();
   c.strokeStyle='#15151a';c.lineWidth=2.2;c.beginPath();for(let x=x0+5;x<x0+w;x+=7.5){c.moveTo(x,yB);c.lineTo(x,top(x)+1);}c.stroke();
-  c.strokeStyle=rgba(C.rim,.2);c.lineWidth=.6;c.beginPath();for(let x=x0+5;x<x0+w;x+=7.5){c.moveTo(x+.9,yB);c.lineTo(x+.9,top(x)+2);}c.stroke();
+  c.strokeStyle=rgba(C.rim,.2);c.lineWidth=1.01;c.beginPath();for(let x=x0+5;x<x0+w;x+=7.5){c.moveTo(x+.9,yB);c.lineTo(x+.9,top(x)+2);}c.stroke();
   for(const y of [yB-30,yB-78]){c.fillStyle='#121216';c.fillRect(x0,y-2.5,w,5);c.fillStyle=rgba(C.goldD,.55);c.fillRect(x0,y-2.5,w,.8);}
-  {const px=cx+18,py=yB-58;c.strokeStyle=C.goldD;c.lineWidth=1.3;c.beginPath();c.arc(px,py-4,2.6,Math.PI,0);c.stroke();c.fillStyle=lin(c,px-3.5,0,px+3.5,0,[[0,C.goldD],[.5,C.gold],[1,C.goldD]]);c.fillRect(px-3.5,py-4,7,7);}
-  {const sx=cx-20,sy=yW(h+24);c.fillStyle='#0a1210';c.fillRect(sx,sy,40,13);c.strokeStyle=rgba(C.gold,.75);c.lineWidth=.8;c.strokeRect(sx+1.2,sy+1.2,37.6,10.6);gilt(c,'SERVICE',sx+20,sy+9.6,6.4,{style:'700',track:.8});}
+  {const px=cx+18,py=yB-58;c.strokeStyle=C.goldD;c.lineWidth=1.46;c.beginPath();c.arc(px,py-4,2.6,Math.PI,0);c.stroke();c.fillStyle=lin(c,px-3.5,0,px+3.5,0,[[0,C.goldD],[.5,C.gold],[1,C.goldD]]);c.fillRect(px-3.5,py-4,7,7);}
+  {const sx=cx-20,sy=yW(h+24);c.fillStyle='#0a1210';c.fillRect(sx,sy,40,13);c.strokeStyle=rgba(C.gold,.75);c.lineWidth=.99;c.strokeRect(sx+1.2,sy+1.2,37.6,10.6);gilt(c,'SERVICE',sx+20,sy+9.6,6.4,{style:'700',track:.8});}
   c.restore();}
 // the house's crates stacked against the wall beside the gate, stencilled with the H
 function crates(c){const box=(x,d,w,dd,h,z)=>{const y0=GB-z,y1=y0-h,A=q(x,y0,d),B=q(x+w,y0,d),Bt=q(x+w,y1,d),At=q(x,y1,d),Ct=q(x+w,y1,d+dd),Dt=q(x,y1,d+dd),Cb=q(x+w,y0,d+dd);
-    poly(c,[B,Cb,Ct,Bt]);c.fillStyle='#1a1109';c.fill();poly(c,[At,Bt,Ct,Dt]);c.fillStyle='#3a2816';c.fill();poly(c,[A,B,Bt,At]);c.fillStyle='#2a1c10';c.fill();c.strokeStyle=rgba(C.goldD,.5);c.lineWidth=.8;c.stroke();
-    c.strokeStyle='#120a05';c.lineWidth=.8;for(const k of [.33,.66]){c.beginPath();c.moveTo(A.x+.5,lerp(A.y,At.y,k));c.lineTo(B.x-.5,lerp(B.y,Bt.y,k));c.stroke();}
+    poly(c,[B,Cb,Ct,Bt]);c.fillStyle='#1a1109';c.fill();poly(c,[At,Bt,Ct,Dt]);c.fillStyle='#3a2816';c.fill();poly(c,[A,B,Bt,At]);c.fillStyle='#2a1c10';c.fill();c.strokeStyle=rgba(C.goldD,.5);c.lineWidth=1.51;c.stroke();
+    c.strokeStyle='#120a05';c.lineWidth=1.51;for(const k of [.33,.66]){c.beginPath();c.moveTo(A.x+.5,lerp(A.y,At.y,k));c.lineTo(B.x-.5,lerp(B.y,Bt.y,k));c.stroke();}
     const m=q(x+w/2,y0-h/2,d);c.fillStyle=rgba(C.gold,.45);c.fillRect(m.x-4,m.y-5,1.6,10);c.fillRect(m.x+2.4,m.y-5,1.6,10);c.fillRect(m.x-4,m.y-.8,8,1.6);};
   box(852,254,30,26,22,0);box(812,250,36,28,26,0);box(816,252,32,26,20,26);}
 // the house's H in mosaic on the wall above the line: black tesserae, the H and its ring in gold, cyan between, some fallen out
@@ -162,13 +163,13 @@ function roundel(c){c.save();faceT(c,WALL);const cx=452,cy=yW(178),R=30,r=rng(3)
   glow(c,cx,cy,R*2.4,C.amber,.08);c.restore();}
 // a crystal lamp on a bracket on the wall (its light breathes in live())
 function sconce(c,S0){c.save();faceT(c,WALL);const x=S0.x,y=yW(S0.h);
-  c.strokeStyle='#0a0a0d';c.lineWidth=2.2;c.beginPath();c.moveTo(x-10,y+16);c.quadraticCurveTo(x-10,y+2,x,y+2);c.stroke();c.strokeStyle=rgba(C.gold,.5);c.lineWidth=.7;c.stroke();
+  c.strokeStyle='#0a0a0d';c.lineWidth=2.2;c.beginPath();c.moveTo(x-10,y+16);c.quadraticCurveTo(x-10,y+2,x,y+2);c.stroke();c.strokeStyle=rgba(C.gold,.5);c.lineWidth=.99;c.stroke();
   lampCage(c,x,y+8,1);c.restore();}
 // a brass cage round a crystal: dead when dead, the crystal lit in live()
 function lampCage(c,x,y,s,dead){c.fillStyle=C.goldD;c.fillRect(x-4*s,y-11*s,8*s,2*s);c.fillRect(x-3*s,y+5*s,6*s,2*s);
   c.fillStyle=dead?'#0c1214':rgba('#9ae8f0',.25);c.beginPath();c.moveTo(x,y-9*s);c.lineTo(x+4*s,y-2*s);c.lineTo(x,y+5*s);c.lineTo(x-4*s,y-2*s);c.closePath();c.fill();
   c.strokeStyle=C.gold;c.lineWidth=.7*s;c.beginPath();for(const k of [-4,0,4]){c.moveTo(x+k*s,y-9*s);c.lineTo(x+k*.8*s,y+5*s);}c.stroke();
-  if(dead){c.strokeStyle=rgba('#d9fffa',.2);c.lineWidth=.4*s;c.beginPath();c.moveTo(x-1.5*s,y-6*s);c.lineTo(x+1*s,y-1*s);c.lineTo(x-.5*s,y+2*s);c.stroke();}}
+  if(dead){c.strokeStyle=rgba('#d9fffa',.2);c.lineWidth=.67*s;c.beginPath();c.moveTo(x-1.5*s,y-6*s);c.lineTo(x+1*s,y-1*s);c.lineTo(x-.5*s,y+2*s);c.stroke();}}
 
 // ---------- the floors ----------
 // the main line's pit: ballast, sleepers, rails; its left end's stone face toward us
@@ -183,10 +184,10 @@ function mainPit(c){
   // the rails stand up off the sleepers, so they are drawn on the screen with their height
   for(let k=0;k<2;k++){const pts=[];for(let x=MAIN.x0;x<=MAIN.x1;x+=6){const d=(()=>{let dd=RAILS[k];for(const P of PORT){const u=clamp(1-Math.abs(x-P.x)/(P.w*.9),0,1);dd=lerp(dd,WALL+6+(k?16:0)-16,u*u*(3-2*u)*(k?.4:.8));}return dd;})();pts.push(q(x,GB+PIT-3,d));}
     c.strokeStyle='#0a0a0c';c.lineWidth=2.4;c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();
-    c.strokeStyle=rgba('#c8d4e8',.38);c.lineWidth=.6;c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y-1):c.moveTo(p.x,p.y-1));c.stroke();}
+    c.strokeStyle=rgba('#c8d4e8',.38);c.lineWidth=1.01;c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y-1):c.moveTo(p.x,p.y-1));c.stroke();}
   // the pit's left end: the platform's stone side, toward us
   {const a=q(MAIN.x0,GB,EDGE),b=q(MAIN.x0,GB,WALL),e=q(MAIN.x0,GB+PIT,WALL),f=q(MAIN.x0,GB+PIT,EDGE);c.fillStyle=patAt(c,EnvTex.brick(7,{base:'#2a1c16',alt:'#1c120e',hot:'#36221a',mortar:'#0c0807'}),0,0,1/6);poly(c,[a,b,e,f]);c.fill();
-    c.fillStyle=rgba('#000000',.5);c.fill();c.strokeStyle=rgba(C.goldD,.5);c.lineWidth=1;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}}
+    c.fillStyle=rgba('#000000',.5);c.fill();c.strokeStyle=rgba(C.goldD,.5);c.lineWidth=1.5;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}}
 // the platform: the mosaic, worn and filthy, gilt safety lines at both edges, the lamps' light lying on it in pools
 function platform(c){const X0=-220,X1=1160;
   const outline=[[X0,NEAR],[X1,NEAR],[X1,WALL],[MAIN.x1,WALL],[MAIN.x1,EDGE],[MAIN.x0,EDGE],[MAIN.x0,WALL],[X0,WALL]];
@@ -208,7 +209,7 @@ function platform(c){const X0=-220,X1=1160;
     c.fillStyle=rgba('#9ad8d0',.07);c.beginPath();c.ellipse(x+w*.15,d+w*.1,w*.5,w*.12,0,0,TAU);c.fill();}}
   c.restore();
   // the far edge's coping over the main line: dressed stone, its lip catching the lamps
-  {const a=q(MAIN.x0,GB,EDGE),b=q(MAIN.x1,GB,EDGE);c.strokeStyle='#14110e';c.lineWidth=2;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();c.strokeStyle=rgba(C.rim,.25);c.lineWidth=.8;c.beginPath();c.moveTo(a.x,a.y-.8);c.lineTo(b.x,b.y-.8);c.stroke();}}
+  {const a=q(MAIN.x0,GB,EDGE),b=q(MAIN.x1,GB,EDGE);c.strokeStyle='#14110e';c.lineWidth=2;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();c.strokeStyle=rgba(C.rim,.25);c.lineWidth=.99;c.beginPath();c.moveTo(a.x,a.y-.8);c.lineTo(b.x,b.y-.8);c.stroke();}}
 // the near edge: the coping, the platform's face dropping to the siding, the ballast and the near rail glinting
 function nearEdge(c){const X0=-220,X1=1160,a=q(X0,GB,NEAR),b=q(X1,GB,NEAR),e=q(X1,GB+SID,NEAR),f=q(X0,GB+SID,NEAR);
   c.fillStyle=patAt(c,EnvTex.brick(11,{base:'#241a14',alt:'#18100c',hot:'#2e2018',mortar:'#0a0706',rows:6}),0,0,1/6);poly(c,[a,b,e,f]);c.fill();c.fillStyle=rgba('#000000',.55);c.fill();
@@ -223,14 +224,14 @@ function nearEdge(c){const X0=-220,X1=1160,a=q(X0,GB,NEAR),b=q(X1,GB,NEAR),e=q(X
     for(const [d0,d1,o] of [[-156,-96,11],[-252,-192,0]])for(let x=X0+o;x<X1;x+=22){c.fillStyle=r()<.12?'#3a2a1c':'#2c2016';c.fillRect(x+(r()-.5)*1.6,d0,7,d1-d0);c.fillStyle=rgba(C.rim,.06);c.fillRect(x,d1-1.2,7,1.2);}}
   c.restore();
   for(const d of [-4,-56,-102,-150,-198,-246]){const r0=q(X0,GB+SID-3,d),r1=q(X1,GB+SID-3,d);c.strokeStyle='#08080a';c.lineWidth=3;c.beginPath();c.moveTo(r0.x,r0.y);c.lineTo(r1.x,r1.y);c.stroke();
-    c.strokeStyle=rgba('#c8d4e8',d===-4?.45:.3);c.lineWidth=.7;c.beginPath();c.moveTo(r0.x,r0.y-1.2);c.lineTo(r1.x,r1.y-1.2);c.stroke();}
+    c.strokeStyle=rgba('#c8d4e8',d===-4?.45:.3);c.lineWidth=.99;c.beginPath();c.moveTo(r0.x,r0.y-1.2);c.lineTo(r1.x,r1.y-1.2);c.stroke();}
   E.fallKeep(c,X0-60,X1+60,a.y+2,[[a.y,.2],[a.y+40,.5]],null,.06);}
 
 // ---------- the goblins' corner ----------
 // rags and straw heaped against the wall by the kitchen lift, a lean-to of planks, stolen things in it; their tallies in the tiles
 function nest(c){const r=rng(83);
   // the tallies, scratched through the glaze in groups of five, the newest the palest
-  c.save();faceT(c,WALL);for(let g=0;g<9;g++){const x0=NEST.x0+4+(g%5)*14,y0=yW(60)-Math.floor(g/5)*16;c.strokeStyle=rgba('#c8c0a8',.25+.35*(g/9));c.lineWidth=.7;c.beginPath();
+  c.save();faceT(c,WALL);for(let g=0;g<9;g++){const x0=NEST.x0+4+(g%5)*14,y0=yW(60)-Math.floor(g/5)*16;c.strokeStyle=rgba('#c8c0a8',.25+.35*(g/9));c.lineWidth=.99;c.beginPath();
     for(let k=0;k<4;k++){c.moveTo(x0+k*2.4,y0);c.lineTo(x0+k*2.4+.6,y0+10);}c.moveTo(x0-1,y0+8);c.lineTo(x0+9,y0+1.5);c.stroke();}
   // a crude claw-drawn H crossed out
   c.strokeStyle=rgba('#d8c8a8',.35);c.lineWidth=1;c.beginPath();c.moveTo(NEST.x1-8,yW(96));c.lineTo(NEST.x1-7,yW(78));c.moveTo(NEST.x1+2,yW(97));c.lineTo(NEST.x1+3,yW(79));c.moveTo(NEST.x1-7.6,yW(87));c.lineTo(NEST.x1+2.6,yW(88));c.moveTo(NEST.x1-12,yW(99));c.lineTo(NEST.x1+8,yW(76));c.stroke();
@@ -241,12 +242,12 @@ function nest(c){const r=rng(83);
   // the heap: rags, straw, a burst mattress, and what they have carried down here
   const heap=[];for(let i=0;i<40;i++){const x=lerp(NEST.x0,NEST.x1,r()),d=lerp(NEST.d0,NEST.d1,r()),p=q(x,GB,d);heap.push({p,w:6+r()*12,h:3+r()*6,col:['#3a2a1c','#2a2420','#4a1c18','#22201c','#5a4a30','#1c2420'][Math.floor(r()*6)],a:r()*3});}
   heap.sort((a,b)=>a.p.y-b.p.y);for(const h of heap){c.fillStyle=h.col;c.beginPath();c.ellipse(h.p.x,h.p.y-h.h*.5,h.w,h.h,h.a*.2,0,TAU);c.fill();c.fillStyle=rgba('#000000',.25);c.beginPath();c.ellipse(h.p.x+1,h.p.y-h.h*.3,h.w*.8,h.h*.6,0,0,TAU);c.fill();}
-  {const p=q(lerp(NEST.x0,NEST.x1,.5),GB,lerp(NEST.d0,NEST.d1,.3));c.strokeStyle=rgba('#c8b080',.35);c.lineWidth=.5;c.beginPath();for(let i=0;i<50;i++){const a=r()*TAU,L=3+r()*7;c.moveTo(p.x+(r()-.5)*40,p.y-r()*8);c.lineTo(p.x+(r()-.5)*40+Math.cos(a)*L,p.y-r()*8+Math.sin(a)*L*.3);}c.stroke();}
+  {const p=q(lerp(NEST.x0,NEST.x1,.5),GB,lerp(NEST.d0,NEST.d1,.3));c.strokeStyle=rgba('#c8b080',.35);c.lineWidth=1;c.beginPath();for(let i=0;i<50;i++){const a=r()*TAU,L=3+r()*7;c.moveTo(p.x+(r()-.5)*40,p.y-r()*8);c.lineTo(p.x+(r()-.5)*40+Math.cos(a)*L,p.y-r()*8+Math.sin(a)*L*.3);}c.stroke();}
   // stolen things: a bistro chair's bentwood back, a brass lamp, bottles, a gilt picture frame, a skull on a stick
   {const p=q(NEST.x0+12,GB,NEST.d0+40);c.strokeStyle='#2a1a10';c.lineWidth=1.8;c.beginPath();c.arc(p.x,p.y-14,7,Math.PI*.9,Math.PI*2.1);c.moveTo(p.x-6,p.y-12);c.lineTo(p.x-7,p.y);c.moveTo(p.x+6,p.y-12);c.lineTo(p.x+7,p.y);c.stroke();}
   {const p=q(NEST.x0+38,GB,NEST.d0+22);c.fillStyle=C.goldD;c.fillRect(p.x-2,p.y-12,4,10);c.beginPath();c.moveTo(p.x-6,p.y-12);c.lineTo(p.x+6,p.y-12);c.lineTo(p.x+3,p.y-18);c.lineTo(p.x-3,p.y-18);c.closePath();c.fill();c.fillStyle=rgba(C.goldL,.5);c.fillRect(p.x-1.6,p.y-12,1,10);}
   for(let i=0;i<4;i++){const p=q(NEST.x0+46+i*6,GB,NEST.d0+14+i*3);c.fillStyle=i%2?'#1c3a20':'#3a2a12';c.fillRect(p.x-1.6,p.y-8,3.2,8);c.fillRect(p.x-.7,p.y-11,1.4,3);c.fillStyle=rgba('#ffffff',.2);c.fillRect(p.x-1,p.y-7,.7,5);}
-  {const p=q(NEST.x1-6,GB,NEST.d0+30);c.strokeStyle=C.goldD;c.lineWidth=2;c.strokeRect(p.x-9,p.y-22,14,18);c.strokeStyle=rgba(C.gold,.6);c.lineWidth=.6;c.strokeRect(p.x-8,p.y-21,12,16);c.fillStyle='#120e0c';c.fillRect(p.x-7,p.y-20,10,14);}
+  {const p=q(NEST.x1-6,GB,NEST.d0+30);c.strokeStyle=C.goldD;c.lineWidth=2;c.strokeRect(p.x-9,p.y-22,14,18);c.strokeStyle=rgba(C.gold,.6);c.lineWidth=1.01;c.strokeRect(p.x-8,p.y-21,12,16);c.fillStyle='#120e0c';c.fillRect(p.x-7,p.y-20,10,14);}
   {const p=q(NEST.x1+4,GB,NEST.d0+6);c.strokeStyle='#2a1c10';c.lineWidth=1.6;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+1,p.y-34);c.stroke();c.fillStyle='#b8ac90';c.beginPath();c.ellipse(p.x+1,p.y-38,4.6,5.2,0,0,TAU);c.fill();
     c.fillStyle='#14100c';c.beginPath();c.arc(p.x-.6,p.y-39,1.2,0,TAU);c.arc(p.x+2.8,p.y-39,1.2,0,TAU);c.fill();c.fillRect(p.x-1,p.y-35,4,1.4);}}
 // bones and scraps on the platform, gnawed and thrown down, kept to the edges of the floor
@@ -259,7 +260,7 @@ function litter(c){const r=rng(97),spots=[[60,24],[118,160],[300,170],[560,22],[
 // ---------- the freight lift's shaft at the tower's end (the cage, its gate and the counterweight move, so they are drawn in live()) ----------
 function shaft(c){const {x0,x1,d0,d1,h}=CAGE;
   // the shaft's floor: a steel plate at the platform's height, a dark gap round it
-  {const pts=[q(x0,GB,d0),q(x1,GB,d0),q(x1,GB,d1),q(x0,GB,d1)];poly(c,pts);c.fillStyle='#0a0a0d';c.fill();c.strokeStyle=rgba(C.goldD,.6);c.lineWidth=1;c.stroke();}
+  {const pts=[q(x0,GB,d0),q(x1,GB,d0),q(x1,GB,d1),q(x0,GB,d1)];poly(c,pts);c.fillStyle='#0a0a0d';c.fill();c.strokeStyle=rgba(C.goldD,.6);c.lineWidth=1.5;c.stroke();}
   // the back uprights and the far side's lattice, the near uprights, all running up into the vault
   const post=(x,d,w)=>{const a=q(x,GB,d),b=q(x,-300,d);c.fillStyle='#0b0b0e';c.fillRect(a.x-w/2,b.y,w,a.y-b.y);c.fillStyle=rgba(C.rim,.18);c.fillRect(a.x+w/2-1,b.y,1,a.y-b.y);};
   post(x0,d1,5);post(x1,d1,5);
@@ -270,14 +271,14 @@ function shaft(c){const {x0,x1,d0,d1,h}=CAGE;
 // the near uprights go in front of the cage (and of Kael in it), so live() draws them after it, with the sign across the top of the
 // shaft that says where it goes (the car passes behind it on its way up)
 function shaftFront(c){const {x0,x1,d0,h}=CAGE;
-  {const p=q((x0+x1)/2,yW(h+26),d0);c.fillStyle='#0a1210';c.fillRect(p.x-34,p.y-8,68,15);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=.9;c.strokeRect(p.x-32.5,p.y-6.5,65,12);gilt(c,'TO THE TOWER',p.x,p.y+3.2,7.6,{style:'700',track:1.2});}
+  {const p=q((x0+x1)/2,yW(h+26),d0);c.fillStyle='#0a1210';c.fillRect(p.x-34,p.y-8,68,15);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=1.07;c.strokeRect(p.x-32.5,p.y-6.5,65,12);gilt(c,'TO THE TOWER',p.x,p.y+3.2,7.6,{style:'700',track:1.2});}
   for(const x of [x0,x1]){const a=q(x,GB,d0),b=q(x,-300,d0);c.fillStyle='#0d0d11';c.fillRect(a.x-3.4,b.y,6.8,a.y-b.y);c.fillStyle=rgba(C.gold,.35);c.fillRect(a.x+2.4,b.y,.9,a.y-b.y);
   c.fillStyle='#16161b';for(let y=GB-20;y>-300;y-=40){const p=q(x,y,d0);c.fillRect(p.x-4.4,p.y-2,8.8,4);}}
   // the call panel on the left post: brass, two buttons, a dial with its needle on the floor the cage is at
   const p=q(x0,yW(66),d0),lit=(S.lift>.02||S.liftY>.5),bl=.5+.5*Math.sin(S.t*6);
-  c.fillStyle=lin(c,p.x-7,0,p.x+7,0,[[0,C.goldD],[.5,C.goldL],[1,C.goldD]]);c.fillRect(p.x-7,p.y-16,14,30);c.strokeStyle=C.goldDD;c.lineWidth=.6;c.strokeRect(p.x-7,p.y-16,14,30);
-  c.fillStyle='#0c0a08';c.beginPath();c.arc(p.x,p.y-8,4.6,Math.PI,0);c.fill();c.strokeStyle=C.goldL;c.lineWidth=.5;c.stroke();
-  const ang=Math.PI+clamp(S.liftY/400,0,1)*Math.PI;c.strokeStyle='#ff6a4a';c.lineWidth=.7;c.beginPath();c.moveTo(p.x,p.y-8);c.lineTo(p.x+Math.cos(ang)*4,p.y-8+Math.sin(ang)*4);c.stroke();
+  c.fillStyle=lin(c,p.x-7,0,p.x+7,0,[[0,C.goldD],[.5,C.goldL],[1,C.goldD]]);c.fillRect(p.x-7,p.y-16,14,30);c.strokeStyle=C.goldDD;c.lineWidth=1.51;c.strokeRect(p.x-7,p.y-16,14,30);
+  c.fillStyle='#0c0a08';c.beginPath();c.arc(p.x,p.y-8,4.6,Math.PI,0);c.fill();c.strokeStyle=C.goldL;c.lineWidth=1;c.stroke();
+  const ang=Math.PI+clamp(S.liftY/400,0,1)*Math.PI;c.strokeStyle='#ff6a4a';c.lineWidth=.99;c.beginPath();c.moveTo(p.x,p.y-8);c.lineTo(p.x+Math.cos(ang)*4,p.y-8+Math.sin(ang)*4);c.stroke();
   for(const [dy,on] of [[2,lit&&S.liftY<1],[8,lit]]){c.fillStyle='#120e08';c.beginPath();c.arc(p.x,p.y+dy,2.2,0,TAU);c.fill();if(on){c.fillStyle=rgba('#ffb85a',.7+.3*bl);c.beginPath();c.arc(p.x,p.y+dy,1.5,0,TAU);c.fill();glow(c,p.x,p.y+dy,7,'#ffb85a',.5*bl);}}}
 
 // ---------- the scene ----------
@@ -292,8 +293,8 @@ function paint(c){const X0=-160,X1=W+240,T0=-130;
   for(const S0 of SCONCE){const p=q(S0.x,yW(S0.h)+8,WALL);glow(c,p.x,p.y+30,120,C.cyan,.08,1.4);glow(c,p.x,p.y+16,60,C.gold,.05,1.2);}
   mainPit(c);platform(c);if(!lan)shaft(c);nest(c);litter(c);if(lan)crates(c);nearEdge(c);
   // the hanging lamps: chains up out of the picture, the brass cages (lit in live())
-  for(const L of PEND){const p=q(L.x,yW(L.h),L.d),top=q(L.x,yW(L.h+260),L.d);c.strokeStyle='#08080a';c.lineWidth=1.4;c.beginPath();c.moveTo(p.x,p.y-14);c.lineTo(top.x,top.y);c.stroke();
-    c.strokeStyle=rgba(C.gold,.3);c.lineWidth=.5;c.beginPath();for(let y=p.y-14;y>top.y;y-=4){c.moveTo(p.x-1,y);c.lineTo(p.x+1,y-2);}c.stroke();lampCage(c,p.x,p.y,1.5,L.dead);}
+  for(const L of PEND){const p=q(L.x,yW(L.h),L.d),top=q(L.x,yW(L.h+260),L.d);c.strokeStyle='#08080a';c.lineWidth=1.48;c.beginPath();c.moveTo(p.x,p.y-14);c.lineTo(top.x,top.y);c.stroke();
+    c.strokeStyle=rgba(C.gold,.3);c.lineWidth=1;c.beginPath();for(let y=p.y-14;y>top.y;y-=4){c.moveTo(p.x-1,y);c.lineTo(p.x+1,y-2);}c.stroke();lampCage(c,p.x,p.y,1.5,L.dead);}
   // the dark gathering in the vault and at the ends, a haze in the lamps' light
   haze(c,X0,X1,q(0,yW(HS),WALL).y-20,q(0,GB,WALL).y,'#1a1614',.25,true);
   c.fillStyle=lin(c,X0,0,X1,0,[[0,rgba('#000000',.55)],[.16,rgba('#000000',0)],[.84,rgba('#000000',0)],[1,rgba('#000000',.5)]]);c.fillRect(X0,T0,X1-X0,GB+200-T0);}
@@ -319,7 +320,7 @@ function live(){const t=S.t;ctx.save();
   // drips: a drop falls, a ring spreads on the puddle
   for(const [x,d,per] of DRIPS){const u=((t+x*.013)%per)/per,fall=u*per;const top=q(x,yW(300),d),pt=q(x,GB,d);
     if(fall<.5){const y=lerp(top.y,pt.y,Math.pow(fall/.5,2));if(y>-20){ctx.fillStyle=rgba('#cfe8f0',.5);ctx.fillRect(pt.x-.4,y,.8,2.4);}}
-    else if(fall<1.4){const k=(fall-.5)/.9;ctx.strokeStyle=rgba('#cfe8f0',.35*(1-k));ctx.lineWidth=.6;ctx.beginPath();ctx.ellipse(pt.x,pt.y,2+k*12,(2+k*12)*.38,0,0,TAU);ctx.stroke();}}
+    else if(fall<1.4){const k=(fall-.5)/.9;ctx.strokeStyle=rgba('#cfe8f0',.35*(1-k));ctx.lineWidth=1.01;ctx.beginPath();ctx.ellipse(pt.x,pt.y,2+k*12,(2+k*12)*.38,0,0,TAU);ctx.stroke();}}
   // the kitchen lift: its doors part and the steel car's light comes out across the floor
   const lan=END()==='lantern';
   if(lan&&S.kitLift>0&&typeof liftFrame==='function'){const o=clamp(S.kitLift,0,1);ctx.save();faceT(ctx,WALL);liftFrame(ctx,KL.x,GB,KL.w,KL.h,KL.fr,KL.hd);liftCabin(ctx,KL.x,GB,KL.w,KL.h);liftDoors(ctx,KL.x,GB,KL.w,KL.h,o);liftLine(ctx,KL.x,GB,KL.w,KL.h,1-o*.4);ctx.restore();
@@ -330,18 +331,18 @@ function live(){const t=S.t;ctx.save();
 function cage(c){const {x0,x1,d0,d1,h}=CAGE,up=S.liftY||0,g=clamp(S.lift||0,0,1),cx0=x0+6,cx1=x1-6,cd0=d0+4,cd1=d1-4,yb=GB-up,yt=yb-h+10;
   // the counterweight goes down as the car goes up
   {const cw=yW(100)+up,a=q(x1+6,cw,d0+20),b=q(x1+6,cw,d0+44);c.fillStyle='#16161b';c.beginPath();c.moveTo(a.x,a.y-30);c.lineTo(b.x,b.y-30);c.lineTo(b.x,b.y+14);c.lineTo(a.x,a.y+14);c.closePath();c.fill();
-    c.strokeStyle=rgba(C.goldD,.7);c.lineWidth=.7;for(let k=0;k<5;k++){c.beginPath();c.moveTo(a.x,a.y-30+k*9);c.lineTo(b.x,b.y-30+k*9);c.stroke();}
-    const top=q(x1+6,-300,d0+32),m=q(x1+6,cw-30,d0+32);c.strokeStyle='#1a1a20';c.lineWidth=1;c.beginPath();c.moveTo(m.x,m.y);c.lineTo(top.x,top.y);c.stroke();}
+    c.strokeStyle=rgba(C.goldD,.7);c.lineWidth=1.48;for(let k=0;k<5;k++){c.beginPath();c.moveTo(a.x,a.y-30+k*9);c.lineTo(b.x,b.y-30+k*9);c.stroke();}
+    const top=q(x1+6,-300,d0+32),m=q(x1+6,cw-30,d0+32);c.strokeStyle='#1a1a20';c.lineWidth=1.5;c.beginPath();c.moveTo(m.x,m.y);c.lineTo(top.x,top.y);c.stroke();}
   // the car's inside: the back and the left wall seen through the bars, a lamp in its roof
   const B=(x,y,d)=>q(x,y,d);
   {const a=B(cx0,yb,cd1),b=B(cx1,yb,cd1),e=B(cx1,yt,cd1),f=B(cx0,yt,cd1);poly(c,[a,b,e,f]);c.fillStyle='#0c0d10';c.fill();
-    c.strokeStyle='#1c1c22';c.lineWidth=1.2;c.beginPath();for(let x=cx0+8;x<cx1;x+=10){const p0=B(x,yb,cd1),p1=B(x,yt,cd1);c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);}c.stroke();
+    c.strokeStyle='#1c1c22';c.lineWidth=1.51;c.beginPath();for(let x=cx0+8;x<cx1;x+=10){const p0=B(x,yb,cd1),p1=B(x,yt,cd1);c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);}c.stroke();
     const l=B((cx0+cx1)/2,yt+6,(cd0+cd1)/2);c.save();c.globalCompositeOperation='lighter';glow(c,l.x,l.y,60,'#ffd9a0',.25);c.restore();c.fillStyle='#ffe9c0';c.fillRect(l.x-3,l.y-1,6,2);}
   // the floor plate
-  {const pts=[B(cx0,yb,cd0),B(cx1,yb,cd0),B(cx1,yb,cd1),B(cx0,yb,cd1)];poly(c,pts);c.fillStyle='#17171c';c.fill();c.strokeStyle=rgba(C.goldD,.7);c.lineWidth=.8;c.stroke();
-    c.strokeStyle=rgba('#000000',.4);c.lineWidth=.5;c.beginPath();for(let x=cx0+6;x<cx1;x+=6){const p0=B(x,yb,cd0),p1=B(x,yb,cd1);c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);}c.stroke();}
+  {const pts=[B(cx0,yb,cd0),B(cx1,yb,cd0),B(cx1,yb,cd1),B(cx0,yb,cd1)];poly(c,pts);c.fillStyle='#17171c';c.fill();c.strokeStyle=rgba(C.goldD,.7);c.lineWidth=1.51;c.stroke();
+    c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.5;c.beginPath();for(let x=cx0+6;x<cx1;x+=6){const p0=B(x,yb,cd0),p1=B(x,yb,cd1);c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);}c.stroke();}
   // the roof, the hoist's sheave and its cable up into the dark
-  {const pts=[B(cx0,yt,cd0),B(cx1,yt,cd0),B(cx1,yt,cd1),B(cx0,yt,cd1)];poly(c,pts);c.fillStyle='#101014';c.fill();c.strokeStyle=rgba(C.gold,.5);c.lineWidth=.8;c.stroke();
+  {const pts=[B(cx0,yt,cd0),B(cx1,yt,cd0),B(cx1,yt,cd1),B(cx0,yt,cd1)];poly(c,pts);c.fillStyle='#101014';c.fill();c.strokeStyle=rgba(C.gold,.5);c.lineWidth=.99;c.stroke();
     const m=B((cx0+cx1)/2,yt,(cd0+cd1)/2),top=B((cx0+cx1)/2,-400,(cd0+cd1)/2);c.strokeStyle='#202026';c.lineWidth=1.6;c.beginPath();c.moveTo(m.x,m.y);c.lineTo(top.x,top.y);c.stroke();
     c.fillStyle=C.goldD;c.beginPath();c.arc(m.x,m.y-3,4,0,TAU);c.fill();}
   // the right side of the car: bars, toward us
@@ -355,9 +356,9 @@ let LIFT_FRONT_LATER=false,FRONT_BY_DEPTH=typeof envItems==='function';
 function frontItem(){FRONT_BY_DEPTH=true;return{d:CAGE.d0+4,draw:c=>cageFront(c||ctx)};}
 function cageFront(c){const {x0,x1,d0,h}=CAGE,up=S.liftY||0,g=clamp(S.lift||0,0,1),cx0=x0+6,cx1=x1-6,cd0=d0+4,yb=GB-up,yt=yb-h+10,B=(x,y)=>q(x,y,cd0);
   c.strokeStyle='#121217';c.lineWidth=3;const f0=B(cx0,yb),f1=B(cx1,yb),f2=B(cx1,yt),f3=B(cx0,yt);c.beginPath();c.moveTo(f0.x,f0.y);c.lineTo(f3.x,f3.y);c.lineTo(f2.x,f2.y);c.lineTo(f1.x,f1.y);c.stroke();
-  c.strokeStyle=rgba(C.gold,.6);c.lineWidth=.8;c.beginPath();c.moveTo(f3.x,f3.y+1.5);c.lineTo(f2.x,f2.y+1.5);c.stroke();
+  c.strokeStyle=rgba(C.gold,.6);c.lineWidth=.99;c.beginPath();c.moveTo(f3.x,f3.y+1.5);c.lineTo(f2.x,f2.y+1.5);c.stroke();
   // the scissor gate: n diamonds across whatever width is left closed
-  const open=lerp(cx1-cx0,12,g),n=10,wcell=open/n;c.strokeStyle='#1c1c22';c.lineWidth=1.3;c.beginPath();
+  const open=lerp(cx1-cx0,12,g),n=10,wcell=open/n;c.strokeStyle='#1c1c22';c.lineWidth=1.53;c.beginPath();
   for(let i=0;i<n;i++){const xa=cx0+i*wcell,xb=xa+wcell;for(let k=0;k<4;k++){const ya=yb-6-k*(h-24)/4,yb2=ya-(h-24)/4,a=B(xa,ya),b=B(xb,yb2),e=B(xb,ya),f=B(xa,yb2);c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.moveTo(e.x,e.y);c.lineTo(f.x,f.y);}}
   c.stroke();c.strokeStyle=rgba(C.goldD,.85);c.lineWidth=1.6;for(let i=0;i<=n;i++){const a=B(cx0+i*wcell,yb-4),b=B(cx0+i*wcell,yt+8);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}
   // its handle
@@ -366,7 +367,7 @@ function cageFront(c){const {x0,x1,d0,h}=CAGE,up=S.liftY||0,g=clamp(S.lift||0,0,
 // the hanging lamps again, over everything (the train standing under them, a fighter's leap): fore() for the scene's user to call
 // after the fighters are drawn, with the cage's front when liftFrontLater(true) is set
 function fore(c){c=c||ctx;const t=S.t;c.save();
-  for(const L of PEND){const p=q(L.x,yW(L.h),L.d),top=q(L.x,yW(L.h+260),L.d);c.strokeStyle='#08080a';c.lineWidth=1.4;c.beginPath();c.moveTo(p.x,p.y-14);c.lineTo(top.x,top.y);c.stroke();lampCage(c,p.x,p.y,1.5,L.dead);
+  for(const L of PEND){const p=q(L.x,yW(L.h),L.d),top=q(L.x,yW(L.h+260),L.d);c.strokeStyle='#08080a';c.lineWidth=1.48;c.beginPath();c.moveTo(p.x,p.y-14);c.lineTo(top.x,top.y);c.stroke();lampCage(c,p.x,p.y,1.5,L.dead);
     const k=lampLight(L,t);if(k<.02)continue;c.globalCompositeOperation='lighter';glow(c,p.x,p.y,26,'#e8c88a',.3*k);c.fillStyle=rgba(C.cyanL,.95*k);c.beginPath();c.moveTo(p.x,p.y-13);c.lineTo(p.x+6,p.y-3);c.lineTo(p.x,p.y+7);c.lineTo(p.x-6,p.y-3);c.closePath();c.fill();c.globalCompositeOperation='source-over';}
   if(LIFT_FRONT_LATER&&!FRONT_BY_DEPTH&&END()==='tower')cageFront(c);c.restore();}
 // a body standing in the main line's pit (the train) shows only above the platform's far edge and between the pit's ends: clip for it

@@ -77,21 +77,21 @@ function crown(c){const b=g2(CROWN.x,CROWN.d),cx=b.x,base=b.y,top=-150,dw=104,dh
   // the lantern: a drum of dark glass in gold mullions, the cyan light deep inside it
   c.fillStyle=lin(c,cx-dw,0,cx+dw,0,[[0,'#030a0c'],[.3,'#072226'],[.5,'#0e4448'],[.7,'#072226'],[1,'#02080a']]);c.fillRect(cx-dw,dt,dw*2,dh);
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=rad(c,cx,dt+dh*.45,4,dw*.9,[[0,rgba(C.cyanL,.4)],[.3,rgba(C.cyan,.18)],[1,rgba(C.cyan,0)]]);c.fillRect(cx-dw,dt,dw*2,dh);c.restore();
-  {const mu=new Path2D();for(let k=-7;k<=7;k++){const x=cx+Math.sin(k/7*1.35)/Math.sin(1.35)*dw;mu.moveTo(x,dt);mu.lineTo(x,base);}c.strokeStyle='#7a5c26';c.lineWidth=1.2;c.stroke(mu);gLine(0,2.2,mu);}
-  c.strokeStyle=rgba(C.goldL,.35);c.lineWidth=.5;c.beginPath();for(let k=-7;k<=-1;k++){const x=cx+Math.sin(k/7*1.35)/Math.sin(1.35)*dw;c.moveTo(x-.7,dt);c.lineTo(x-.7,base);}c.stroke();
-  {const tr=new Path2D();for(let y=dt+dh/4;y<base-1;y+=dh/4){tr.moveTo(cx-dw,y);tr.lineTo(cx+dw,y);}c.strokeStyle='#4a3818';c.lineWidth=.7;c.stroke(tr);gLine(0,1,tr);}
+  {const mu=new Path2D();for(let k=-7;k<=7;k++){const x=cx+Math.sin(k/7*1.35)/Math.sin(1.35)*dw;mu.moveTo(x,dt);mu.lineTo(x,base);}c.strokeStyle='#7a5c26';c.lineWidth=1.51;c.stroke(mu);gLine(0,2.2,mu);}
+  c.strokeStyle=rgba(C.goldL,.35);c.lineWidth=1;c.beginPath();for(let k=-7;k<=-1;k++){const x=cx+Math.sin(k/7*1.35)/Math.sin(1.35)*dw;c.moveTo(x-.7,dt);c.lineTo(x-.7,base);}c.stroke();
+  {const tr=new Path2D();for(let y=dt+dh/4;y<base-1;y+=dh/4){tr.moveTo(cx-dw,y);tr.lineTo(cx+dw,y);}c.strokeStyle='#4a3818';c.lineWidth=1.48;c.stroke(tr);gLine(0,1,tr);}
   c.fillStyle=lin(c,0,dt-6,0,dt+2,[[0,C.goldL],[.6,C.gold],[1,C.goldD]]);c.fillRect(cx-dw-8,dt-5,dw*2+16,6);gRect(0,cx-dw-8,dt-5,dw*2+16,6);c.fillStyle='#050608';c.fillRect(cx-dw-8,dt+1,dw*2+16,1.4);
   // the blades: tall gold fins standing round the lantern's rim and sweeping in to meet the needle high above
   const nx=cx,ny=top+10,ring=dt-150;
   for(const [k,w] of [[-4,8],[-3,9],[-2,10],[-1,11],[1,11],[2,10],[3,9],[4,8],[0,13]]){const x0=cx+k*dw*.25,sd=Math.sign(k)||0,mx=lerp(x0,nx,.35)+sd*26,my=lerp(dt,ny,.5);
     const P=new Path2D();P.moveTo(x0-w/2,dt+2);P.quadraticCurveTo(mx-w*.4,my,nx-1.2,ny);P.lineTo(nx+1.2,ny);P.quadraticCurveTo(mx+w*.4,my,x0+w/2,dt+2);P.closePath();
-    c.fillStyle=lin(c,x0-w,0,x0+w,0,[[0,'#2a2010'],[.35,'#9a7630'],[.5,'#f2d080'],[.65,'#9a7630'],[1,'#20180a']]);c.fill(P);gPath(0,P);c.strokeStyle=rgba('#000000',.5);c.lineWidth=.6;c.stroke(P);
+    c.fillStyle=lin(c,x0-w,0,x0+w,0,[[0,'#2a2010'],[.35,'#9a7630'],[.5,'#f2d080'],[.65,'#9a7630'],[1,'#20180a']]);c.fill(P);gPath(0,P);c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.51;c.stroke(P);
     const ac=new Path2D();ac.moveTo(x0-sd*w*.5,dt);ac.quadraticCurveTo(mx-sd*w*.3,my,nx,ny+8);if(GILT)GILT.cy.addPath(ac);
-    c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba(C.cyan,.35);c.lineWidth=.7;c.stroke(ac);c.restore();
+    c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba(C.cyan,.35);c.lineWidth=.99;c.stroke(ac);c.restore();
     }
   // the ring of light held inside the blades
   c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba(C.cyan,.85);c.lineWidth=2.2;c.beginPath();c.ellipse(cx,ring,dw*.62,10,0,0,TAU);c.stroke();
-  c.strokeStyle=rgba(C.cyanL,.6);c.lineWidth=.8;c.beginPath();c.ellipse(cx,ring,dw*.62,10,0,Math.PI,TAU);c.stroke();c.restore();
+  c.strokeStyle=rgba(C.cyanL,.6);c.lineWidth=.99;c.beginPath();c.ellipse(cx,ring,dw*.62,10,0,Math.PI,TAU);c.stroke();c.restore();
   glow(c,cx,ring,110,C.cyan,.3,.35);
   // the needle at the very top, with its own small light
   c.fillStyle='#0b0b10';c.fillRect(nx-2,ny-60,4,64);c.fillStyle=C.goldL;c.fillRect(nx-.8,ny-110,1.6,60);gRect(0,nx-.8,ny-110,1.6,60);
@@ -99,12 +99,12 @@ function crown(c){const b=g2(CROWN.x,CROWN.d),cx=b.x,base=b.y,top=-150,dw=104,dh
 // ---------- the antenna mast: a tapering lattice of steel, guyed, red lights up it ----------
 function mast(c){const b=g2(MAST.x,MAST.d),x=b.x,base=b.y,top=-120,col='#06070b';c.lineCap='round';
   const w=y=>lerp(14,2.2,clamp((base-y)/(base-top),0,1));
-  c.strokeStyle=col;c.lineWidth=1.4;c.beginPath();c.moveTo(x-w(base),base);c.lineTo(x-w(top),top);c.moveTo(x+w(base),base);c.lineTo(x+w(top),top);c.stroke();
-  c.lineWidth=.6;c.beginPath();for(let y=base;y>top;y-=16){const y2=y-16;c.moveTo(x-w(y),y);c.lineTo(x+w(y2),y2);c.moveTo(x+w(y),y);c.lineTo(x-w(y2),y2);c.moveTo(x-w(y2),y2);c.lineTo(x+w(y2),y2);}c.stroke();
+  c.strokeStyle=col;c.lineWidth=1.48;c.beginPath();c.moveTo(x-w(base),base);c.lineTo(x-w(top),top);c.moveTo(x+w(base),base);c.lineTo(x+w(top),top);c.stroke();
+  c.lineWidth=1.51;c.beginPath();for(let y=base;y>top;y-=16){const y2=y-16;c.moveTo(x-w(y),y);c.lineTo(x+w(y2),y2);c.moveTo(x+w(y),y);c.lineTo(x-w(y2),y2);c.moveTo(x-w(y2),y2);c.lineTo(x+w(y2),y2);}c.stroke();
   c.strokeStyle=rgba('#c8d4ff',.18);c.lineWidth=.5;c.beginPath();c.moveTo(x-w(base)+.6,base);c.lineTo(x-w(top)+.4,top);c.stroke();
   // dishes and a whip antenna part way up
   c.fillStyle=col;c.beginPath();c.ellipse(x-14,base-150,7,10,-.3,0,TAU);c.fill();c.beginPath();c.ellipse(x+12,base-230,5,8,.3,0,TAU);c.fill();
-  c.strokeStyle=rgba('#c8d4ff',.2);c.lineWidth=.5;c.beginPath();c.ellipse(x-14,base-150,7,10,-.3,Math.PI*.6,Math.PI*1.4);c.stroke();
+  c.strokeStyle=rgba('#c8d4ff',.2);c.lineWidth=1;c.beginPath();c.ellipse(x-14,base-150,7,10,-.3,Math.PI*.6,Math.PI*1.4);c.stroke();
   // guy wires to the parapet's top
   c.strokeStyle=rgba('#05060a',.8);c.lineWidth=.45;c.beginPath();for(const [gx,gy] of [[x-160,base-6],[x+120,base-6]]){c.moveTo(x,base-250);c.lineTo(gx,gy);}c.stroke();
   // the lamp housings (the lights are live)
@@ -115,8 +115,8 @@ function parapet(c,X0){const d=PAR_D,a=g2(X0,d),b=g2(EDGE,d),h=PAR_H;
   c.fillStyle=patAt(c,blackStone(),0,0,1);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(b.x,b.y-h);c.lineTo(a.x,a.y-h);c.closePath();c.fill();
   c.fillStyle=lin(c,0,a.y-h,0,a.y,[[0,rgba('#000000',.1)],[1,rgba('#000000',.55)]]);c.fill();
   // panels in the stone, each with a little gold
-  c.strokeStyle=rgba('#000000',.5);c.lineWidth=.8;c.beginPath();for(let x=X0+40;x<EDGE;x+=64){const q=g2(x,d);c.moveTo(q.x,q.y-2);c.lineTo(q.x,q.y-h+5);}c.stroke();
-  c.strokeStyle=rgba(C.gold,.22);c.lineWidth=.5;c.beginPath();for(let x=X0+40;x<EDGE;x+=64){const q=g2(x,d);c.moveTo(q.x+1,q.y-4);c.lineTo(q.x+1,q.y-h+7);}c.stroke();
+  c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.51;c.beginPath();for(let x=X0+40;x<EDGE;x+=64){const q=g2(x,d);c.moveTo(q.x,q.y-2);c.lineTo(q.x,q.y-h+5);}c.stroke();
+  c.strokeStyle=rgba(C.gold,.22);c.lineWidth=1;c.beginPath();for(let x=X0+40;x<EDGE;x+=64){const q=g2(x,d);c.moveTo(q.x+1,q.y-4);c.lineTo(q.x+1,q.y-h+7);}c.stroke();
   // the coping: a gold rail along the top, its top edge catching the moon and the crown
   c.fillStyle=lin(c,0,a.y-h-4,0,a.y-h+2,[[0,C.goldL],[.5,C.gold],[1,C.goldDD]]);c.fillRect(a.x,a.y-h-3,b.x-a.x,4.5);gRect(1,a.x,a.y-h-3,b.x-a.x,4.5);
   c.fillStyle=rgba('#000000',.6);c.fillRect(a.x,a.y-h+1.5,b.x-a.x,1.4);
@@ -143,7 +143,7 @@ function kiosk(c){const K=KIOSK,h=K.h,fl=g2(K.x0,K.d0),fr=g2(K.x1,K.d0),br=g2(K.
   c.fillStyle=rgba('#2a1406',.7);c.fillRect(d0.x+dw*.82,d0.y-dh,dw*.18,dh);
   // the door leaf swung in, and the brass frame
   c.fillStyle='#0c0b0e';c.beginPath();c.moveTo(d0.x,d0.y-dh);c.lineTo(d0.x+dw*.22,d0.y-dh+6);c.lineTo(d0.x+dw*.22,d0.y-4);c.lineTo(d0.x,d0.y);c.closePath();c.fill();
-  c.strokeStyle=C.gold;c.lineWidth=1.6;c.strokeRect(d0.x-1,d0.y-dh-1,dw+2,dh+1);c.strokeStyle=rgba(C.goldL,.6);c.lineWidth=.5;c.strokeRect(d0.x-2.4,d0.y-dh-2.4,dw+4.8,dh+2.4);
+  c.strokeStyle=C.gold;c.lineWidth=1.6;c.strokeRect(d0.x-1,d0.y-dh-1,dw+2,dh+1);c.strokeStyle=rgba(C.goldL,.6);c.lineWidth=1;c.strokeRect(d0.x-2.4,d0.y-dh-2.4,dw+4.8,dh+2.4);
   {const q=new Path2D();q.rect(d0.x-1,d0.y-dh-1,dw+2,dh+1);gLine(1,2,q);const q2=new Path2D();q2.rect(d0.x-2.4,d0.y-dh-2.4,dw+4.8,dh+2.4);gLine(1,1,q2);}
   // the light spilling out across the deck
   c.save();c.globalCompositeOperation='lighter';const sp=g2((K.door[0]+K.door[1])/2,K.d0-40);
@@ -166,14 +166,14 @@ function pad(c){const {x,d,r}=PAD;
   // the gold ring
   const ro=r*.7,ri=r*.6;c.fillStyle=lin(c,x-ro,d-ro,x+ro,d+ro,[[0,C.goldD],[.35,C.gold],[.5,C.goldL],[.65,C.gold],[1,C.goldD]]);
   c.beginPath();c.arc(x,d,ro,0,TAU);c.arc(x,d,ri,0,TAU,true);c.fill();gPlane(2,q=>{q.moveTo(x+ro+.6,d);q.arc(x,d,ro+.6,0,TAU);q.moveTo(x+ri-.6,d);q.arc(x,d,ri-.6,0,TAU,true);});
-  c.strokeStyle=rgba('#000000',.5);c.lineWidth=.8;c.beginPath();c.arc(x,d,ro,0,TAU);c.stroke();c.beginPath();c.arc(x,d,ri,0,TAU);c.stroke();
+  c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.7;c.beginPath();c.arc(x,d,ro,0,TAU);c.stroke();c.beginPath();c.arc(x,d,ri,0,TAU);c.stroke();
   // a vine running round inside the ring
   {const pts=[];for(let a=0;a<=TAU+.01;a+=TAU/80)pts.push({x:x+Math.cos(a)*(ri+ro)/2,y:d+Math.sin(a)*(ri+ro)/2});E.vine(c,pts,{w:.7,amp:1.2,leaf:2,col:'#3a2a0e',seed:5,shadow:false,every:3});}
   // the H, its bars along the depth so it reads from the approach
   const hw=46,hh=64,bw=13;c.fillStyle=lin(c,x-hw/2,d,x+hw/2,d,[[0,C.goldD],[.4,C.gold],[.55,C.goldL],[1,C.goldD]]);
   c.fillRect(x-hw/2,d-hh/2,bw,hh);c.fillRect(x+hw/2-bw,d-hh/2,bw,hh);c.fillRect(x-hw/2,d-bw/2,hw,bw);
   gPlane(2,q=>{q.rect(x-hw/2-.5,d-hh/2-.5,bw+1,hh+1);q.rect(x+hw/2-bw-.5,d-hh/2-.5,bw+1,hh+1);q.rect(x-hw/2,d-bw/2,hw,bw);});
-  c.strokeStyle=rgba('#000000',.45);c.lineWidth=.7;c.strokeRect(x-hw/2,d-hh/2,bw,hh);c.strokeRect(x+hw/2-bw,d-hh/2,bw,hh);
+  c.strokeStyle=rgba('#000000',.45);c.lineWidth=1.76;c.strokeRect(x-hw/2,d-hh/2,bw,hh);c.strokeRect(x+hw/2-bw,d-hh/2,bw,hh);
   // the edge lights' housings round the rim
   for(let k=0;k<PAD_N;k++){const a=k/PAD_N*TAU;c.fillStyle='#050508';c.beginPath();c.arc(x+Math.cos(a)*(r+5),d+Math.sin(a)*(r+5),2.8,0,TAU);c.fill();}}
 const PAD_N=20;
@@ -186,7 +186,7 @@ function edge(c){
     const r=rng(61);
     // the avenues fan out from the vanishing point; the cross streets crowd together toward the horizon
     for(let k=-16;k<=16;k++){const ang=Math.PI/2+k*.075,len=900,ex=VP.x+Math.cos(ang)*len,ey=VP.y+Math.sin(ang)*len,main=k%4===0;
-      c.strokeStyle=rgba(main?'#ffb866':'#e8a860',main?.4:.15);c.lineWidth=main?1.5:.6;c.beginPath();c.moveTo(VP.x,VP.y);c.lineTo(ex,ey);c.stroke();
+      c.strokeStyle=rgba(main?'#ffb866':'#e8a860',main?.4:.15);c.lineWidth=main?2.52:1.01;c.beginPath();c.moveTo(VP.x,VP.y);c.lineTo(ex,ey);c.stroke();
       // the lamps along it
       for(let i=0;i<44;i++){const u=Math.pow(r(),.7),x=lerp(VP.x,ex,u),y=lerp(VP.y,ey,u);if(r()<.3)continue;c.fillStyle=rgba(r()<.85?'#ffd59a':'#dff4ff',.45+.5*u);c.fillRect(x,y,.6+u*1.4,.6+u*1.4);}}
     for(let j=1;j<44;j++){const y=VP.y+Math.pow(j/44,2.1)*400;c.strokeStyle=rgba('#e8a860',.12+.14*(j/44));c.lineWidth=.4+j/40;c.beginPath();c.moveTo(b.x-60,y);c.lineTo(W+400,y);c.stroke();}
@@ -209,7 +209,7 @@ function edge(c){
     c.fillStyle='#0b0b10';c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(b.x,b.y-h);c.lineTo(a.x,a.y-h);c.closePath();c.fill();
     c.fillStyle='#16161c';c.beginPath();c.moveTo(a.x,a.y-h);c.lineTo(b.x,b.y-h);c.lineTo(b2.x,b2.y-h);c.lineTo(a2.x,a2.y-h);c.closePath();c.fill();
     c.strokeStyle=C.gold;c.lineWidth=1.3;c.beginPath();c.moveTo(a2.x,a2.y-h);c.lineTo(b2.x,b2.y-h);c.stroke();
-    c.strokeStyle=rgba(C.goldL,.55);c.lineWidth=.5;c.beginPath();c.moveTo(a.x,a.y-h);c.lineTo(b.x,b.y-h);c.stroke();
+    c.strokeStyle=rgba(C.goldL,.55);c.lineWidth=1;c.beginPath();c.moveTo(a.x,a.y-h);c.lineTo(b.x,b.y-h);c.stroke();
     {const q=new Path2D();q.moveTo(a2.x,a2.y-h);q.lineTo(b2.x,b2.y-h);gLine(3,1.9,q);const q2=new Path2D();q2.moveTo(a.x,a.y-h);q2.lineTo(b.x,b.y-h);gLine(3,1,q2);}
     for(const d of EDGE_LIGHTS){const q=g2(EDGE-3.5,d);c.fillStyle='#04050a';c.fillRect(q.x-2,q.y-h-2.2,4,2.4);}}}
 const EDGE_LIGHTS=[-120,-80,-40,0,40,80,120,160,200];
@@ -239,11 +239,11 @@ function plant(c){for(const [x0,x1,d0,d1,h] of [[118,196,196,228,44],[214,250,20
     c.fillStyle='#09090d';c.beginPath();c.moveTo(fr.x,fr.y);c.lineTo(br.x,br.y);c.lineTo(br.x,br.y-h);c.lineTo(fr.x,fr.y-h);c.closePath();c.fill();
     c.fillStyle='#15151b';c.beginPath();c.moveTo(fl.x,fl.y-h);c.lineTo(fr.x,fr.y-h);c.lineTo(br.x,br.y-h);c.lineTo(bl.x,bl.y-h);c.closePath();c.fill();
     c.fillStyle='#0f0f14';c.fillRect(fl.x,fl.y-h,fr.x-fl.x,h);
-    c.strokeStyle=rgba('#000000',.7);c.lineWidth=.8;c.beginPath();for(let y=fl.y-h+5;y<fl.y-3;y+=4){c.moveTo(fl.x+3,y);c.lineTo(fr.x-3,y);}c.stroke();
+    c.strokeStyle=rgba('#000000',.7);c.lineWidth=1.51;c.beginPath();for(let y=fl.y-h+5;y<fl.y-3;y+=4){c.moveTo(fl.x+3,y);c.lineTo(fr.x-3,y);}c.stroke();
     c.strokeStyle=rgba('#c8d4ff',.14);c.lineWidth=.5;c.beginPath();c.moveTo(fl.x,fl.y-h);c.lineTo(fr.x,fr.y-h);c.stroke();
     c.strokeStyle=rgba(C.cyan,.16);c.beginPath();c.moveTo(fl.x,fl.y-h+.5);c.lineTo(bl.x,bl.y-h+.5);c.stroke();}
   // a fan's round housing on the big box
-  const f=g2(157,212);c.fillStyle='#050508';c.beginPath();c.ellipse(f.x,f.y-44,16,6,0,0,TAU);c.fill();c.strokeStyle=rgba('#c8d4ff',.2);c.lineWidth=.6;c.beginPath();c.ellipse(f.x,f.y-44,16,6,0,Math.PI,TAU);c.stroke();}
+  const f=g2(157,212);c.fillStyle='#050508';c.beginPath();c.ellipse(f.x,f.y-44,16,6,0,0,TAU);c.fill();c.strokeStyle=rgba('#c8d4ff',.2);c.lineWidth=1.01;c.beginPath();c.ellipse(f.x,f.y-44,16,6,0,Math.PI,TAU);c.stroke();}
 // ---------- the scene ----------
 function paint(c){
   const X0=-160,X1=W+240,T0=-110;giltNew();

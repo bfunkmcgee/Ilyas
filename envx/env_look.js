@@ -64,15 +64,15 @@ function vine(c,pts,o){o=o||{};const col=o.col||C.gold,w=o.w||1,amp=o.amp==null?
     const j=Math.min(P2.length-1,i+1),k=Math.max(0,i-1),tx=P2[j].x-P2[k].x,ty=P2[j].y-P2[k].y,tl=Math.hypot(tx,ty)||1,nx=-ty/tl,ny=tx/tl,wv=Math.sin(s/(o.wave||18)*TAU)*amp;
     S.push({x:P2[i].x+nx*wv,y:P2[i].y+ny*wv,tx:tx/tl,ty:ty/tl,nx,ny,s});}
   c.save();c.lineCap='round';c.lineJoin='round';if(o.shadow!==false){c.strokeStyle=rgba('#000000',.55);c.lineWidth=w+1;c.beginPath();S.forEach((q,i)=>i?c.lineTo(q.x+.4,q.y+.6):c.moveTo(q.x+.4,q.y+.6));c.stroke();}
-  c.strokeStyle=col;c.lineWidth=w;c.beginPath();S.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));c.stroke();
+  c.strokeStyle=col;c.lineWidth=Math.max(1,w);c.beginPath();S.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));c.stroke();
   const step=(o.wave||18)/2;let next=step*(.5+r()*.5),side=1;c.fillStyle=col;
   for(const q of S){if(q.s<next)continue;next=q.s+step*(every/2)*(.7+r()*.6);side=-side;const ang=Math.atan2(q.ty,q.tx)+side*.75,L=leaf*(.8+r()*.4);
     c.save();c.translate(q.x+q.nx*side*w*.6,q.y+q.ny*side*w*.6);c.rotate(ang);c.beginPath();c.moveTo(0,0);c.quadraticCurveTo(L*.5,-L*.42,L,0);c.quadraticCurveTo(L*.5,L*.42,0,0);c.fill();c.restore();
-    if(o.curl&&r()<o.curl){const cr=leaf*.8;c.beginPath();for(let a=0;a<=TAU*1.1;a+=.3){const rr=cr*(1-a/(TAU*1.25));c.lineTo(q.x+q.nx*-side*(cr+rr*Math.cos(a)),q.y+q.ny*-side*(cr+rr*Math.cos(a))+rr*Math.sin(a));}c.lineWidth=w*.8;c.strokeStyle=col;c.stroke();}}
-  if(o.hi){c.globalAlpha=.6;c.strokeStyle=o.hi;c.lineWidth=w*.4;c.beginPath();S.forEach((q,i)=>i?c.lineTo(q.x-.3,q.y-.4):c.moveTo(q.x-.3,q.y-.4));c.stroke();}
+    if(o.curl&&r()<o.curl){const cr=leaf*.8;c.beginPath();for(let a=0;a<=TAU*1.1;a+=.3){const rr=cr*(1-a/(TAU*1.25));c.lineTo(q.x+q.nx*-side*(cr+rr*Math.cos(a)),q.y+q.ny*-side*(cr+rr*Math.cos(a))+rr*Math.sin(a));}c.lineWidth=Math.max(1,w*.8);c.strokeStyle=col;c.stroke();}}
+  if(o.hi&&w>=1.6){c.globalAlpha=.6;c.strokeStyle=o.hi;c.lineWidth=Math.max(1,w*.4);c.beginPath();S.forEach((q,i)=>i?c.lineTo(q.x-.3,q.y-.4):c.moveTo(q.x-.3,q.y-.4));c.stroke();}
   c.restore();}
 // a wrought scroll: a spiral of iron or gold that ends in a leaf
-function scroll(c,x,y,r,dir,col,w,turns){c.save();c.strokeStyle=col;c.lineWidth=w;c.lineCap='round';c.beginPath();const T=turns||1.6;
+function scroll(c,x,y,r,dir,col,w,turns){c.save();c.strokeStyle=col;c.lineWidth=Math.max(1,w);c.lineCap='round';c.beginPath();const T=turns||1.6;
   for(let a=0;a<=TAU*T;a+=.12){const rr=r*(1-a/(TAU*T+.6)),q={x:x+dir*Math.cos(a)*rr,y:y-Math.sin(a)*rr};a?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y);}c.stroke();c.restore();}
 // lettering in gold leaf: a dark bed, the gilt, a bright edge on top
 function gilt(c,text,x,y,size,o){o=o||{};c.save();c.font=(o.style||'italic 700')+' '+size+'px '+(o.font||'"Alegreya SC", Georgia, serif');c.textAlign=o.align||'center';c.textBaseline='alphabetic';

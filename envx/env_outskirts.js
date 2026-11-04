@@ -58,7 +58,7 @@ function tower(c){const {x,base,top,w}=TOWER,h=base-top,s=w/40;c.save();
   for(let k2=-2;k2<=2;k2++){const bx=x+k2*cw*.22,bh=h*.07*(1-Math.abs(k2)*.25);c.beginPath();c.moveTo(bx-cw*.06,cy);c.lineTo(bx,cy-bh);c.lineTo(bx+cw*.06,cy);c.closePath();c.fill();}
   c.fillStyle='#120d16';c.fillRect(x-.8*s,top-h*.16,1.6*s,h*.16);c.fillStyle='#ffe2a3';c.fillRect(x-.4*s,top-h*.2,.8*s,h*.1);
   glow(c,x,cy-h*.03,w*.9,'#7ff3e3',.3,.5);
-  c.strokeStyle=rgba('#7ff3e3',.6);c.lineWidth=1.2*s;c.beginPath();c.ellipse(x,cy-h*.025,cw*.42,cw*.1,0,0,TAU);c.stroke();
+  c.strokeStyle=rgba('#7ff3e3',.6);c.lineWidth=2.02*s;c.beginPath();c.ellipse(x,cy-h*.025,cw*.42,cw*.1,0,0,TAU);c.stroke();
   // the house's H, high on the shaft
   const hy=base-h*.62,hs=w*.34;c.fillStyle=rgba('#ffe2a3',.9);c.fillRect(x-hs/2,hy-hs*.6,hs*.2,hs*1.2);c.fillRect(x+hs/2-hs*.2,hy-hs*.6,hs*.2,hs*1.2);c.fillRect(x-hs/2,hy-hs*.08,hs,hs*.16);
   glow(c,x,hy,hs*2,'#ffb25e',.25);
@@ -73,7 +73,7 @@ function tuft(P,R,x,d,h,n){const q=g2(x,d);
   // the shadow: long, thin, toward us and away from the sun's side
   const sx=(x-SUN.x)*.035,len=h*2.1;P.shadow.moveTo(q.x-1.5,q.y+.3);P.shadow.lineTo(q.x+sx*len*.2+.6,q.y+len*.42);P.shadow.lineTo(q.x+sx*len*.2+2.2,q.y+len*.42);P.shadow.lineTo(q.x+1.5,q.y+.3);P.shadow.closePath();}
 function strokeTufts(c,P,w){c.lineCap='round';c.fillStyle=rgba('#0a0604',.34);c.fill(P.shadow);c.strokeStyle='#120c08';c.lineWidth=w;c.stroke(P.dark);
-  c.strokeStyle=rgba('#ffb45e',.55);c.lineWidth=w*.7;c.stroke(P.tip);c.strokeStyle=rgba('#ffe0a0',.6);c.lineWidth=w*.6;c.stroke(P.seed);}
+  c.strokeStyle=rgba('#ffb45e',.55);c.lineWidth=w*1.4;c.stroke(P.tip);c.strokeStyle=rgba('#ffe0a0',.6);c.lineWidth=w*1.43;c.stroke(P.seed);}
 const newTufts=()=>({dark:new Path2D(),tip:new Path2D(),seed:new Path2D(),shadow:new Path2D()});
 // a windbreak on the brow on the left, the farms' kind: three tall poplars, narrow as flames, black against the sky and lit along the
 // side toward the sun, the light coming through the leaves at their edges
@@ -85,14 +85,14 @@ function poplars(c){const R=rng(81),dark='#110a09';
       Rt.push([bx+wid*(.82+R()*.3)+Math.sin(t*9)*.8,yy]);L.push([bx-wid*(.82+R()*.3)+Math.sin(t*7+1)*.8,yy]);}
     const P=new Path2D();P.moveTo(bx,by-12);for(const [x2,y2] of Rt)P.lineTo(x2,y2);for(let i=L.length-1;i>=0;i--)P.lineTo(L[i][0],L[i][1]);P.closePath();c.fillStyle=dark;c.fill(P);
     // the sun's side: a warm edge, and specks where the leaves let it through
-    c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba('#ff9a48',.42);c.lineWidth=.9;c.lineJoin='round';c.beginPath();Rt.forEach(([x2,y2],i)=>i?c.lineTo(x2,y2):c.moveTo(x2,y2));c.stroke();
+    c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba('#ff9a48',.42);c.lineWidth=1.07;c.lineJoin='round';c.beginPath();Rt.forEach(([x2,y2],i)=>i?c.lineTo(x2,y2):c.moveTo(x2,y2));c.stroke();
     for(let i=0;i<26;i++){const k=Math.floor(R()*Rt.length),[x2,y2]=Rt[k];c.fillStyle=rgba('#ffb060',.18+.22*R());c.fillRect(x2-1-R()*3,y2+(R()-.5)*3,1.1,1.1);}c.restore();
     // its long shadow down the rise toward us
     c.fillStyle=rgba('#0a0604',.2);c.beginPath();c.moveTo(bx-3,by+1);c.lineTo(bx-14,by+h*.42);c.lineTo(bx+6,by+h*.44);c.lineTo(bx+3,by+1);c.closePath();c.fill();}}
 // a fence post at (x, d): split, leaning, its top and its sun side lit
 const POSTS=[];   // where the fence's posts stand on the screen (the far light goes behind them)
 function post(c,x,d,h,lean,R){const q=g2(x,d),w=3+R()*1.2;POSTS.push({x0:Math.min(q.x,q.x+lean)-w/2-.4,x1:Math.max(q.x,q.x+lean)+w/2+.4,y0:q.y-h-.5,y1:q.y+1});c.fillStyle='#120b08';c.beginPath();c.moveTo(q.x-w/2,q.y+1);c.lineTo(q.x-w/2+lean,q.y-h);c.lineTo(q.x+w/2+lean,q.y-h+1);c.lineTo(q.x+w/2,q.y+1);c.closePath();c.fill();
-  c.strokeStyle=rgba('#ffa858',.5);c.lineWidth=.6;c.beginPath();c.moveTo(q.x-w/2+.3,q.y);c.lineTo(q.x-w/2+lean+.3,q.y-h);c.stroke();
+  c.strokeStyle=rgba('#ffa858',.5);c.lineWidth=1.01;c.beginPath();c.moveTo(q.x-w/2+.3,q.y);c.lineTo(q.x-w/2+lean+.3,q.y-h);c.stroke();
   c.fillStyle=rgba('#ffc27a',.45);c.fillRect(q.x-w/2+lean,q.y-h-.4,w,.8);
   c.fillStyle=rgba('#0a0604',.25);c.beginPath();c.moveTo(q.x-w/2,q.y+1);c.lineTo(q.x+(x-SUN.x)*.02-w/2,q.y+h*.55);c.lineTo(q.x+(x-SUN.x)*.02+w/2,q.y+h*.55);c.lineTo(q.x+w/2,q.y+1);c.closePath();c.fill();
   return{x:q.x+lean,y:q.y-h};}
@@ -153,9 +153,9 @@ function paint(c){
       c.fillStyle=rgba('#ffb060',.4);c.fillRect(fx-9,fb-6,.6,6);}
     // the power line going away to the city: poles shrinking toward the horizon, the wires sagging between them
     {const P=[];for(let i=0;i<7;i++){const t=i/6,e=Math.pow(t,.7);P.push({x:lerp(440,980,e),b:lerp(ey+5,HOR+4,e),h:lerp(46,8,e),s:lerp(1,.18,e)});}
-      c.lineCap='round';for(const p of P){c.strokeStyle='#160e0b';c.lineWidth=Math.max(.5,1.6*p.s);c.beginPath();c.moveTo(p.x,p.b);c.lineTo(p.x,p.b-p.h);c.stroke();
-        c.lineWidth=Math.max(.4,1.1*p.s);c.beginPath();c.moveTo(p.x-7*p.s,p.b-p.h+3*p.s);c.lineTo(p.x+7*p.s,p.b-p.h+3*p.s);c.stroke();
-        c.strokeStyle=rgba('#ffa858',.4);c.lineWidth=Math.max(.3,.5*p.s);c.beginPath();c.moveTo(p.x-.6*p.s,p.b);c.lineTo(p.x-.6*p.s,p.b-p.h);c.stroke();}
+      c.lineCap='round';for(const p of P){c.strokeStyle='#160e0b';c.lineWidth=Math.max(.94,3.02*p.s);c.beginPath();c.moveTo(p.x,p.b);c.lineTo(p.x,p.b-p.h);c.stroke();
+        c.lineWidth=Math.max(1.07,2.94*p.s);c.beginPath();c.moveTo(p.x-7*p.s,p.b-p.h+3*p.s);c.lineTo(p.x+7*p.s,p.b-p.h+3*p.s);c.stroke();
+        c.strokeStyle=rgba('#ffa858',.4);c.lineWidth=Math.max(.6,1*p.s);c.beginPath();c.moveTo(p.x-.6*p.s,p.b);c.lineTo(p.x-.6*p.s,p.b-p.h);c.stroke();}
       c.strokeStyle=rgba('#1a100c',.7);c.lineWidth=.45;for(let i=0;i<P.length-1;i++){const A=P[i],B=P[i+1];for(const k of [-6,0,6]){const ax=A.x+k*A.s,ay=A.b-A.h+3*A.s,bx=B.x+k*B.s,by=B.b-B.h+3*B.s;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo((ax+bx)/2,(ay+by)/2+2.6*A.s+.6,bx,by);c.stroke();}}
       // and back off the near pole, to the left out over the rise
       for(const k of [-6,0,6]){const A=P[0],ax=A.x+k*A.s,ay=A.b-A.h+3*A.s;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo(ax-90,ay+8,ax-200,ay-4);c.stroke();}}}
@@ -167,7 +167,7 @@ function paint(c){
   {const pts=[];for(let x=X0-40;x<=X1+40;x+=10)pts.push([x,roadD(x)]);const N=pts.length,tr=rng(5);
     c.beginPath();for(let i=0;i<N;i++)c.lineTo(pts[i][0],pts[i][1]-ROAD_W/2*(.94+.12*tr()));for(let i=N-1;i>=0;i--)c.lineTo(pts[i][0],pts[i][1]+ROAD_W/2*(.94+.12*tr()));c.closePath();
     c.fillStyle=patAt(c,OutTex.pathEarth(9,{U:64,sc:4,e0:'#4a3824',e1:'#6a5236',stone:'#8e7c60'}),1/4);c.fill();
-    c.strokeStyle=rgba('#140c06',.3);c.lineWidth=1.2;c.stroke();
+    c.strokeStyle=rgba('#140c06',.3);c.lineWidth=1.8;c.stroke();
     c.lineCap='round';for(const off of [-9,9]){const ln=(k,col,w)=>{c.strokeStyle=col;c.lineWidth=w;c.beginPath();for(let i=0;i<N;i++){const p=pts[i];i?c.lineTo(p[0],p[1]+k):c.moveTo(p[0],p[1]+k);}c.stroke();};
       ln(off,rgba('#1a0f06',.28),6);ln(off,rgba('#1a0f06',.32),2.6);ln(off-1.6,rgba('#ffb060',.14),.8);}
     const rc=rng(15);for(let i=0;i<N-1;i++)for(let k=0;k<4;k++){const u=rc(),x=lerp(pts[i][0],pts[i+1][0],u),d=lerp(pts[i][1],pts[i+1][1],u)+(rc()-.5)*30;
@@ -183,10 +183,10 @@ function paint(c){
     for(let i=0;i<1900;i++){const x=X0+R()*(X1-X0),d=-176+R()*(FAR+168),rd=Math.abs(d-roadD(x));if(rd<ROAD_W/2+2){if(R()<.92)continue;}
       const near=1+clamp((80-d)/250,0,1)*1.4;if(R()<.85){tuft(P,R,x,d,(4+R()*7)*near*(rd<ROAD_W/2+6?.6:1),3+Math.floor(R()*4));}
       else{const q=g2(x,d),rr=1+R()*2.2;S2.moveTo(q.x+rr,q.y);S2.ellipse(q.x,q.y,rr,rr*.6,0,0,TAU);S2t.moveTo(q.x-rr,q.y-rr*.3);S2t.lineTo(q.x+rr*.5,q.y-rr*.55);}}
-    strokeTufts(c,P,.7);c.fillStyle='#1a120c';c.fill(S2);c.strokeStyle=rgba('#ffb060',.4);c.lineWidth=.5;c.stroke(S2t);}
+    strokeTufts(c,P,.7);c.fillStyle='#1a120c';c.fill(S2);c.strokeStyle=rgba('#ffb060',.4);c.lineWidth=1;c.stroke(S2t);}
   // ---- the far verge at the brow: an old fence, broken where he has stopped, with two slack wires; weeds against the valley's haze
   {const R=rng(13),tops=[];POSTS.length=0;for(let x=X0;x<X1+30;x+=44+R()*10){if(x>204&&x<400)continue;const t=post(c,x,142,22+R()*7,(R()-.5)*3.4,R);tops.push([x,t]);}
-    c.strokeStyle=rgba('#140c08',.85);c.lineWidth=.55;for(const h of [7,15]){c.beginPath();let prev=null;for(const [x,t] of tops){const q=g2(x,142);if(prev&&x-prev[0]<70){const pq=g2(prev[0],142);c.moveTo(pq.x,pq.y-h);c.quadraticCurveTo((pq.x+q.x)/2,(pq.y+q.y)/2-h+3,q.x,q.y-h);}prev=[x,t];}c.stroke();}
+    c.strokeStyle=rgba('#140c08',.85);c.lineWidth=1.47;for(const h of [7,15]){c.beginPath();let prev=null;for(const [x,t] of tops){const q=g2(x,142);if(prev&&x-prev[0]<70){const pq=g2(prev[0],142);c.moveTo(pq.x,pq.y-h);c.quadraticCurveTo((pq.x+q.x)/2,(pq.y+q.y)/2-h+3,q.x,q.y-h);}prev=[x,t];}c.stroke();}
     // a strand of the wire hanging loose at each side of the break
     {const a=g2(204-20,142),b=g2(400+18,142);c.beginPath();c.moveTo(a.x,a.y-15);c.quadraticCurveTo(a.x+16,a.y-4,a.x+22,a.y+2);c.moveTo(b.x,b.y-15);c.quadraticCurveTo(b.x-14,b.y-6,b.x-22,b.y+1);c.stroke();}
     const P=newTufts();for(let i=0;i<240;i++){const x=X0+R()*(X1-X0),d=FAR-6+R()*6;tuft(P,R,x,d,4+R()*9,3+Math.floor(R()*3));}strokeTufts(c,P,.7);}
@@ -219,7 +219,7 @@ function live(){const t=S.t,sn=sunNow();ctx.save();
       x=((x0+t*sp)%780+780)%780-60,y=y0+Math.sin(t*.4+ph)*3,near=clamp(1-Math.hypot(x-sn.x,(y-sn.y)*1.3)/330,0,1);if(near<=.02)continue;
     ctx.globalAlpha=near*(.25+.35*R())*(1-.5*sn.u);ctx.fillStyle='#ffdcaa';const z=.7+R()*.9;ctx.fillRect(x,y,z,z);}ctx.restore();}
   // birds going home across the sky, slow
-  ctx.strokeStyle='#1a1018';ctx.lineWidth=.8;ctx.lineCap='round';
+  ctx.strokeStyle='#1a1018';ctx.lineWidth=1.51;ctx.lineCap='round';
   for(const b of BIRDS){const x=b.x-t*b.sp,y=b.y+Math.sin(t*.5+b.ph)*2,f=Math.sin(t*7+b.ph)*1.6*b.s,w=3.2*b.s;if(x<-200)continue;ctx.beginPath();ctx.moveTo(x-w,y-f);ctx.quadraticCurveTo(x-w*.4,y-1.2,x,y);ctx.quadraticCurveTo(x+w*.4,y-1.2,x+w,y-f);ctx.stroke();}
   // at the end, far off, his tail light crossing the valley toward the city (S.story.far, the scene's), his lamp's glow on the road ahead
   {const F0=S.story&&S.story.far,D=typeof SUNDOWN!=='undefined'?SUNDOWN.far.dur:3.4;if(F0){const u=clamp((t-F0.t0)/D,0,1),e=1-Math.pow(1-u,1.6),x=lerp(935,772,e),y=lerp(357.5,336.5,e),

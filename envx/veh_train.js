@@ -54,7 +54,7 @@ function loco(c,ox,oy,L,fa){const X0=-DIM.loco,X1=0,cab0=X0+2,cab1=X0+82,h0=cab1
   const top=(x0,x1,y,dx,dy,col)=>quad(x0,y,x1,y,dx,dy,col);
   // ---- the tops, back to front: the running board, the hood's top with the dome and the stack on it, the cab's roof
   top(X0-4,X1-2,46,ox,oy,lg(c,0,46,0,46+oy,[[0,'#2a2a34'],[1,'#17171e']]));
-  for(let k=1;k<6;k++){const u=k/6;c.strokeStyle=rgba('#000000',.35);c.lineWidth=.6;c.beginPath();c.moveTo(X0-4+ox*u,46+oy*u);c.lineTo(X1-2+ox*u,46+oy*u);c.stroke();}
+  for(let k=1;k<6;k++){const u=k/6;c.strokeStyle=rgba('#000000',.35);c.lineWidth=1.51;c.beginPath();c.moveTo(X0-4+ox*u,46+oy*u);c.lineTo(X1-2+ox*u,46+oy*u);c.stroke();}
   c.save();c.translate(ix,iy);
   top(h0,h1,hy,hox,hoy,lg(c,0,hy,0,hy+hoy,[[0,'#3a3a48'],[.5,'#2a2a36'],[1,'#1c1c25']]));
   // the hood's rounded crown: a highlight down its middle, rivet seams across
@@ -66,13 +66,13 @@ function loco(c,ox,oy,L,fa){const X0=-DIM.loco,X1=0,cab0=X0+2,cab1=X0+82,h0=cab1
   {const x=h0+48+hox*.5,y=hy+hoy*.5;c.fillStyle=lg(c,x-16,0,x+16,0,[[0,K.goldDD],[.5,K.gold],[1,K.goldD]]);c.beginPath();c.ellipse(x,y,18,7,0,0,TAU);c.fill();
     c.fillStyle=K.goldDD;c.fillRect(x-17,y-2,34,4);
     c.fillStyle=rgba('#9ae8f0',.18);c.beginPath();c.moveTo(x-13,y+2);c.bezierCurveTo(x-13,y+28,x+13,y+28,x+13,y+2);c.closePath();c.fill();
-    c.strokeStyle=rgba('#d9fffa',.55);c.lineWidth=.8;c.stroke();c.fillStyle=K.gold;c.beginPath();c.arc(x,y+28,2.6,0,TAU);c.fill();}
+    c.strokeStyle=rgba('#d9fffa',.55);c.lineWidth=.99;c.stroke();c.fillStyle=K.gold;c.beginPath();c.arc(x,y+28,2.6,0,TAU);c.fill();}
   {const x=h1-26+hox*.5,y=hy+hoy*.5;c.fillStyle=lg(c,x-6,0,x+6,0,[[0,K.goldDD],[.45,K.goldL],[1,K.goldD]]);c.fillRect(x-5,y-2,10,20);c.fillRect(x-7,y+16,14,4);c.fillStyle=K.ink;c.beginPath();c.ellipse(x,y+20,6,2,0,0,TAU);c.fill();}
   c.restore();
   // the cab's roof: arched, its top going back, a gilt edge at the eaves and a vent on top
   top(cab0-6,cab1+6,DIM.roof,ox,oy,lg(c,0,DIM.roof,0,DIM.roof+oy,[[0,'#3c3c4a'],[.45,'#2e2e3a'],[1,'#1a1a22']]));
   c.strokeStyle=rgba(K.warm,.14+.14*Math.max(0,L.y));c.lineWidth=2.4;c.beginPath();c.moveTo(cab0-6+ox*.4,DIM.roof+oy*.4);c.lineTo(cab1+6+ox*.4,DIM.roof+oy*.4);c.stroke();
-  for(let k=1;k<4;k++){const x=cab0-6+k*(cab1-cab0+12)/4;c.strokeStyle=rgba('#000000',.4);c.lineWidth=.8;c.beginPath();c.moveTo(x,DIM.roof);c.lineTo(x+ox,DIM.roof+oy);c.stroke();}
+  for(let k=1;k<4;k++){const x=cab0-6+k*(cab1-cab0+12)/4;c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.51;c.beginPath();c.moveTo(x,DIM.roof);c.lineTo(x+ox,DIM.roof+oy);c.stroke();}
   quad(cab0+28,DIM.roof+oy*.35,cab0+52,DIM.roof+oy*.35,ox*.3,oy*.3,'#14141b');
   c.strokeStyle=rgba(K.gold,.5);c.lineWidth=1;c.beginPath();c.moveTo(cab0-6+ox,DIM.roof+oy);c.lineTo(cab1+6+ox,DIM.roof+oy);c.stroke();
   // ---- the end of the engine that shows, going back to the far side: the nose when she faces right, the cab's back when she faces left
@@ -99,23 +99,23 @@ function loco(c,ox,oy,L,fa){const X0=-DIM.loco,X1=0,cab0=X0+2,cab1=X0+82,h0=cab1
   c.fillStyle=rgba(K.warm,.12+.12*Math.max(0,L.x));c.fillRect(h1-1.4,50,1.2,hy-62);
   c.restore();
   // a hand rail along the walkway beside the hood
-  c.strokeStyle=K.goldD;c.lineWidth=1.4;c.beginPath();c.moveTo(h0+4,96);c.lineTo(h1-6,96);c.stroke();for(let x=h0+16;x<h1-8;x+=34){c.beginPath();c.moveTo(x,46);c.lineTo(x,96);c.stroke();}
+  c.strokeStyle=K.goldD;c.lineWidth=1.48;c.beginPath();c.moveTo(h0+4,96);c.lineTo(h1-6,96);c.stroke();for(let x=h0+16;x<h1-8;x+=34){c.beginPath();c.moveTo(x,46);c.lineTo(x,96);c.stroke();}
   // ---- the cab's near face: the panelled wall, the warm windows with the driver at the near one, the grab rail and steps
   c.fillStyle=lg(c,0,46,0,DIM.roof,[[0,'#0e0e14'],[.6,'#17171f'],[1,'#22222c']]);c.fillRect(cab0,46,cab1-cab0,DIM.roof-50);
   c.fillStyle=K.ink;c.fillRect(cab0-7,DIM.roof-6,cab1-cab0+14,8);c.fillStyle=lg(c,0,DIM.roof-6,0,DIM.roof+2,[[0,K.goldD],[.5,K.gold],[1,K.goldL]]);c.fillRect(cab0-7,DIM.roof-1.4,cab1-cab0+14,1.6);
   for(const [wx0,wx1] of [[cab0+10,cab0+36],[cab0+46,cab1-10]]){c.fillStyle=lg(c,0,120,0,180,[[0,'#ffcf86'],[.6,'#d88a40'],[1,'#7a3a1c']]);c.fillRect(wx0,124,wx1-wx0,56);
     c.fillStyle=rgba('#ffe9c0',.25);c.fillRect(wx0,170,wx1-wx0,10);
-    c.strokeStyle=K.goldD;c.lineWidth=2.2;c.strokeRect(wx0,124,wx1-wx0,56);c.strokeStyle=rgba(K.goldL,.5);c.lineWidth=.7;c.beginPath();c.moveTo(wx0,180);c.lineTo(wx1,180);c.stroke();}
+    c.strokeStyle=K.goldD;c.lineWidth=2.2;c.strokeRect(wx0,124,wx1-wx0,56);c.strokeStyle=rgba(K.goldL,.5);c.lineWidth=.99;c.beginPath();c.moveTo(wx0,180);c.lineTo(wx1,180);c.stroke();}
   c.fillStyle=rgba('#120a06',.92);c.beginPath();c.arc(cab0+56,150,9,0,TAU);c.fill();c.fillRect(cab0+47,124,18,22);
   c.strokeStyle=K.goldD;c.lineWidth=1.8;c.beginPath();c.moveTo(cab1-4,60);c.lineTo(cab1-4,112);c.stroke();
   c.fillStyle=K.iron2;c.fillRect(cab1-14,24,16,4);c.fillRect(cab1-12,34,12,3);
-  c.strokeStyle=rgba(K.gold,.55);c.lineWidth=.9;c.strokeRect(cab0+6,56,cab1-cab0-12,54);c.strokeRect(cab0+6,188,cab1-cab0-12,14);
+  c.strokeStyle=rgba(K.gold,.55);c.lineWidth=1.07;c.strokeRect(cab0+6,56,cab1-cab0-12,54);c.strokeRect(cab0+6,188,cab1-cab0-12,14);
   // ---- the nose: the buffer beam, the buffers, the leaf-shaped pilot swept back from the rail
   c.fillStyle='#0b0b10';c.fillRect(X1-14,36,14,44);
   c.fillStyle=lg(c,0,30,0,46,[[0,'#3a1414'],[1,'#5a1a1a']]);c.fillRect(X1-6,28,8,18);c.fillStyle=K.gold;c.fillRect(X1-6,44.6,8,1.2);
   c.fillStyle=K.iron2;c.fillRect(X1+2,34,5,7);c.fillStyle=K.goldD;c.fillRect(X1+6,32,2.4,11);
   c.fillStyle=lg(c,X1-30,0,X1+6,0,[[0,K.goldDD],[.6,K.gold],[1,K.goldL]]);c.beginPath();c.moveTo(X1+4,4);c.quadraticCurveTo(X1-4,12,X1-28,28);c.lineTo(X1-8,28);c.quadraticCurveTo(X1,14,X1+6,6);c.closePath();c.fill();
-  c.strokeStyle=K.ink;c.lineWidth=.8;c.beginPath();for(let k=1;k<4;k++){const u=k/4;c.moveTo(lerp(X1+4,X1-28,u),lerp(4,28,u));c.lineTo(lerp(X1+6,X1-8,u),lerp(6,28,u));}c.stroke();
+  c.strokeStyle=K.ink;c.lineWidth=1.51;c.beginPath();for(let k=1;k<4;k++){const u=k/4;c.moveTo(lerp(X1+4,X1-28,u),lerp(4,28,u));c.lineTo(lerp(X1+6,X1-8,u),lerp(6,28,u));}c.stroke();
   // ---- the frame under the board: plates with lightening holes, a brass line
   c.fillStyle='#0a0a0f';c.fillRect(X0-2,22,X1-X0-4,24);
   c.fillStyle='#050508';for(let x=X0+18;x<X1-24;x+=26){c.beginPath();c.ellipse(x,32,7,5,0,0,TAU);c.fill();}
@@ -135,7 +135,7 @@ function flatcar(c,ox,oy,L,i,fa){const X0=-DIM.car,X1=0,D=DIM.deck,r=rnd(17+i*31
   c.fillStyle=lg(c,0,D,0,D+oy,[[0,rgba('#030305',.26)],[.4,rgba('#030305',.06)],[.6,rgba('#030305',.06)],[1,rgba('#030305',.32)]]);c.beginPath();c.moveTo(X0,D);c.lineTo(X1,D);c.lineTo(X1+ox,D+oy);c.lineTo(X0+ox,D+oy);c.closePath();c.fill();
   c.fillStyle=rgba('#9aa4c0',.12);c.beginPath();c.moveTo(X0+ox*.36,D+oy*.36);c.lineTo(X1+ox*.36,D+oy*.36);c.lineTo(X1+ox*.62,D+oy*.62);c.lineTo(X0+ox*.62,D+oy*.62);c.closePath();c.fill();
   // the seams: across the car every 60, and one down its length; rivets along them
-  c.strokeStyle='#07070a';c.lineWidth=.9;c.beginPath();for(let x=X0+60;x<X1;x+=60){c.moveTo(x,D);c.lineTo(x+ox,D+oy);}c.moveTo(X0+ox*.5,D+oy*.5);c.lineTo(X1+ox*.5,D+oy*.5);c.stroke();
+  c.strokeStyle='#07070a';c.lineWidth=1.6;c.beginPath();for(let x=X0+60;x<X1;x+=60){c.moveTo(x,D);c.lineTo(x+ox,D+oy);}c.moveTo(X0+ox*.5,D+oy*.5);c.lineTo(X1+ox*.5,D+oy*.5);c.stroke();
   c.fillStyle=rgba('#6a6a7a',.45);for(let x=X0+60;x<X1;x+=60)for(let u=.08;u<1;u+=.14)c.fillRect(x+ox*u+1.2,D+oy*u,.9,.9);for(let x=X0+4;x<X1;x+=7)c.fillRect(x+ox*.5,D+oy*.5+1.1,.9,.9);
   for(let k=0;k<7;k++){const x=X0+20+r()*(X1-X0-40),u=.15+r()*.7;c.fillStyle=rgba(r()<.6?'#050406':'#2a1408',.3);c.beginPath();c.ellipse(x+ox*u,D+oy*u,8+r()*16,2+r()*3,0,0,TAU);c.fill();}
   c.restore();
@@ -145,15 +145,15 @@ function flatcar(c,ox,oy,L,i,fa){const X0=-DIM.car,X1=0,D=DIM.deck,r=rnd(17+i*31
   // the far rail: stanchions in their pockets, a top rail, a chain slung between the end posts
   const post=(x,far)=>{const bx=x+(far?ox:0),by=D+(far?oy:0);c.fillStyle=far?'#101016':'#0a0a0e';c.fillRect(bx-1.8,by,3.6,22);c.fillStyle=far?rgba(K.goldD,.7):K.goldD;c.fillRect(bx-2.4,by+20,4.8,2.6);};
   for(let x=X0+14;x<=X1-14;x+=(X1-X0-28)/6)post(x,1);
-  c.strokeStyle='#14141a';c.lineWidth=2;c.beginPath();c.moveTo(X0+14+ox,D+oy+21);c.lineTo(X1-14+ox,D+oy+21);c.stroke();c.strokeStyle=rgba(K.gold,.4);c.lineWidth=.6;c.stroke();
+  c.strokeStyle='#14141a';c.lineWidth=2;c.beginPath();c.moveTo(X0+14+ox,D+oy+21);c.lineTo(X1-14+ox,D+oy+21);c.stroke();c.strokeStyle=rgba(K.gold,.4);c.lineWidth=1.01;c.stroke();
   // the end rails, going back across the car at each end
-  for(const ex of [X0+4,X1-4]){c.strokeStyle='#121218';c.lineWidth=1.8;c.beginPath();c.moveTo(ex,D+21);c.lineTo(ex+ox,D+oy+21);c.stroke();c.strokeStyle=rgba(K.gold,.3);c.lineWidth=.5;c.stroke();}
+  for(const ex of [X0+4,X1-4]){c.strokeStyle='#121218';c.lineWidth=1.8;c.beginPath();c.moveTo(ex,D+21);c.lineTo(ex+ox,D+oy+21);c.stroke();c.strokeStyle=rgba(K.gold,.3);c.lineWidth=1;c.stroke();}
   // the near side: the sole bar, riveted, with the stake pockets
   c.fillStyle=lg(c,0,22,0,D,[[0,'#08080c'],[.7,'#15151c'],[1,'#20202a']]);c.fillRect(X0,22,X1-X0,D-24);
   c.fillStyle=rgba(K.ironHi,.55);for(let x=X0+6;x<X1;x+=10){c.fillRect(x,D-6,1.2,1.2);c.fillRect(x,25,1.2,1.2);}
   for(let x=X0+14;x<=X1-14;x+=(X1-X0-28)/6){c.fillStyle='#050508';c.fillRect(x-3,D-12,6,10);c.fillStyle=rgba(K.gold,.3);c.fillRect(x-3,D-2.4,6,.8);}
   for(let x=X0+14;x<=X1-14;x+=(X1-X0-28)/3)post(x,0);
-  c.strokeStyle='#0c0c11';c.lineWidth=2;c.beginPath();c.moveTo(X0+14,D+21);c.lineTo(X1-14,D+21);c.stroke();c.strokeStyle=rgba(K.gold,.5);c.lineWidth=.6;c.stroke();
+  c.strokeStyle='#0c0c11';c.lineWidth=2;c.beginPath();c.moveTo(X0+14,D+21);c.lineTo(X1-14,D+21);c.stroke();c.strokeStyle=rgba(K.gold,.5);c.lineWidth=1.01;c.stroke();
   // a number and the house's mark stencilled on the sole bar
   c.fillStyle=rgba(K.gold,.55);{const x=X0+40;c.fillRect(x,28,1.4,8);c.fillRect(x+5,28,1.4,8);c.fillRect(x,31.3,6.4,1.4);}
   // the couplings at each end, and the bogie frames
@@ -170,7 +170,7 @@ function wheel(c,x,R,a,big,blur){c.save();c.translate(x,R);
   c.fillStyle='#07070b';c.beginPath();c.arc(0,0,R,0,TAU);c.fill();
   c.strokeStyle=big?K.gold:K.goldD;c.lineWidth=big?2.2:1.6;c.beginPath();c.arc(0,0,R-1.6,0,TAU);c.stroke();
   c.fillStyle='#14141a';c.beginPath();c.arc(0,0,R-3.6,0,TAU);c.fill();
-  if(blur<.8){c.globalAlpha=1-blur;c.strokeStyle=big?K.goldD:'#2a2a34';c.lineWidth=big?1.8:1.4;c.beginPath();const n=big?10:6;for(let k=0;k<n;k++){const b=-a+k*TAU/n;c.moveTo(Math.cos(b)*3,Math.sin(b)*3);c.lineTo(Math.cos(b)*(R-3.6),Math.sin(b)*(R-3.6));}c.stroke();c.globalAlpha=1;}
+  if(blur<.8){c.globalAlpha=1-blur;c.strokeStyle=big?K.goldD:'#2a2a34';c.lineWidth=big?1.91:1.48;c.beginPath();const n=big?10:6;for(let k=0;k<n;k++){const b=-a+k*TAU/n;c.moveTo(Math.cos(b)*3,Math.sin(b)*3);c.lineTo(Math.cos(b)*(R-3.6),Math.sin(b)*(R-3.6));}c.stroke();c.globalAlpha=1;}
   if(blur>0){c.fillStyle=rgba(big?K.goldD:'#2a2a34',.35*blur);c.beginPath();c.arc(0,0,R-3.6,0,TAU);c.fill();}
   c.fillStyle=big?K.goldL:K.goldD;c.beginPath();c.arc(0,0,big?4:2.6,0,TAU);c.fill();c.restore();}
 function running(c,T,ox,oy,n,wa,blur){

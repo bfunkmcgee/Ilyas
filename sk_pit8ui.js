@@ -30,7 +30,7 @@ const A8_DRAW={
     if(F&&u<1){x=lerp(F.x,p.x,u);d=lerp(F.d,p.z,u);y=lerp(F.y,GB-1,u*u)-Math.sin(u*Math.PI)*12;a=p.a+(1-u)*7;}
     else{const h=clamp((S.t-p.t0-.4)/.22,0,1);x=p.x;d=p.z;y=GB-1-(h<1?Math.sin(h*Math.PI)*3:0);a=p.a;}
     const q=P(x,y,d);ctx.translate(q.x,q.y);ctx.rotate(a);ctx.scale(1.45,1.45);ctx.fillStyle='#1c2230';ctx.beginPath();ctx.moveTo(-4.4,-1.3);ctx.lineTo(4.2,-1.7);ctx.lineTo(4.6,1.2);ctx.lineTo(-4.4,1.5);ctx.closePath();ctx.fill();
-    ctx.strokeStyle='rgba(150,170,210,.5)';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(-4.4,-1.3);ctx.lineTo(4.2,-1.7);ctx.stroke();
+    ctx.strokeStyle='rgba(150,170,210,.5)';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(-4.4,-1.3);ctx.lineTo(4.2,-1.7);ctx.stroke();
     ctx.fillStyle='#6a5228';ctx.fillRect(-4.2,-.2,8.6,.45);
     // a glint off its edge as the lantern catches it
     const gl=.35+.3*Math.max(0,Math.sin(S.t*1.7+p.a*5));ctx.fillStyle=`rgba(226,214,180,${gl.toFixed(3)})`;ctx.fillRect(1.6,-1.75,1.6,.6);},

@@ -149,6 +149,9 @@ function vehStep(){
       else B.vx-=Math.sign(rel)*Math.min(Math.abs(rel),180*DT);
       if(B.x<-360){S.veh.splice(i,1);continue;}}
     B.x+=B.vx*DT;B.wheel+=(B.vx+gv)*B.fa*DT/BIKE.R*(1-B.lie*.7);B.gy=S.arena.ground(B.x,B.dep);
+    // a bike the scene drives can carry its rider along with it (B.carry: the share of its speed), so a fast ride keeps him in the
+    // saddle instead of trailing his seat (his springs follow only what is left over)
+    if(B.carry&&B.rider&&B.ctl==='script'){const dx=B.vx*DT*B.carry,f=B.rider;for(const q of f.p){q.x+=dx;q.px+=dx;}if(f.scarf)for(const q of f.scarf){q.x+=dx;q.px+=dx;}}
     // the front comes up and down on a damped spring toward its target
     B.pv+=(60*(B.pitchT-B.pitch)-9*B.pv)*DT;B.pitch=Math.max(-.02,B.pitch+B.pv*DT);
     if(B.pitch<=-.02&&B.pv<0)B.pv=0;
@@ -355,7 +358,8 @@ function storyFight(list){for(const f of S.F){standEasy(f,false);if(f.stow)stowB
     // on a bike he fights from the saddle: from here the bike goes where he means to be
     if(f.mount&&!f.dead){const B=f.mount;B.ctl='rider';f.rideFight=true;f.station=B.x+B.fa*SEAT_DX;f.lane=clamp(B.dep,DEP_MIN,DEP_MAX);B.tx=B.x;B.tz=B.dep;}}
   if(S.F.some(f=>f.mount))resolveStations();letter(0);camFree();
-  S.story.step='fight';const I=prepIntro((list||S.F).filter(f=>!f.dead),S.t+.05);S.game.phase='intro';S.hooks.intro('start');S.hooks.story('fight');void I;}
+  // (when the fight began and, below, when it ended: the places' painters read them, as the bistro's diners do)
+  S.story.step='fight';S.story.fightT0=S.t;const I=prepIntro((list||S.F).filter(f=>!f.dead),S.t+.05);S.game.phase='intro';S.hooks.intro('start');S.hooks.story('fight');void I;}
 
 // ---------- the stages ----------
 // A stage: its ground, its enemies and where everyone stands (spawn[0] Kael, then each enemy [x, depth, side]); intro and outro
@@ -376,7 +380,7 @@ function storyStage(key){const st=STAGES[stageIx(key)];if(!stageReady(st)){story
   storyDuel(st);S.card=st.cardDur===0?null:{num:st.num,title:st.title,sub:st.sub,t0:S.t,dur:st.cardDur??2.6};S.hooks.story('stage',st);
   cutStart(st.key+':intro',(function*(){if(S.card){yield* wait(S.card.dur-.6);S.card.out=S.t;}yield* st.intro(st);})(),{skip:st.introSkip?()=>{S.card=null;st.introSkip(st);}:null,then:()=>{if(S.story&&S.story.step!=='fight')storyFight();}});}
 // every enemy down: the stage's closing scene, then the next stage
-function storyCleared(){const SV=S.story,st=STAGES[SV.i];SV.step='outro';SV.hp=hero().hp;
+function storyCleared(){const SV=S.story,st=STAGES[SV.i];SV.step='outro';SV.outroT0=S.t;SV.hp=hero().hp;
   const g=S.game;g.phase='cut';g.ex=null;g.aiAt=null;for(const f of S.F)f.intent=null;S.hooks.status();
   if(!st.outro){storyStage(st.next);return;}
   cutStart(st.key+':outro',(function*(){yield* wait(.9);yield* st.outro(st);})(),{skip:st.outroSkip?()=>st.outroSkip(st):null,then:()=>{if(S.story)storyStage(st.next);}});}
@@ -509,10 +513,15 @@ STAGES.push({key:'field',num:'I',title:'The Field',sub:'The Sprawl’s farm edge
     // on: the far leg over the seat, hips down, hands to the bars
     mount(K,B,.7);B.light=.25;yield* wait(.75);
     B.run=1;B.light=1;S.hooks.sound('engine',1);yield* wait(.5);
-    // the back wheel spins in the dirt, the front comes up, and he is gone toward the city
+    // the back wheel spins in the dirt, the front comes up, and he is gone toward the city: flat out (1300 units a second, the
+    // avenue's pace and more) in under a second, the front down again once he is past the shift, and off the edge of the picture.
+    // The bike carries three quarters of its speed straight into him (B.carry), so the saddle keeps him at that pace.
     B.dust=1;S.hooks.sound('rev',1);B.vx=60;yield* wait(.25);
-    B.pitchT=.34;B.vx=320;K.offstage=true;camTo(820,900,1.2);
-    yield* until(()=>B.x>1050,4);B.pitchT=0;
+    B.pitchT=.34;B.rev=1;B.carry=.75;K.offstage=true;camTo(820,900,1.6);if(!S.warming)S.camKick={x:-2.5,y:1.5,t:0};
+    {const t0=S.t;let shift=false;
+      yield* until(()=>{const u=S.t-t0;B.vx=Math.min(1300,60+600*u+1400*u*u);B.pitchT=u<.5?.34:.08;B.dust=Math.max(B.dust,.85);
+        if(!shift&&u>.5){shift=true;S.hooks.sound('rev',.8);}return B.x>1330;},3);}
+    B.pitchT=0;B.rev=0;
     yield* wait(.3);},
   outroSkip(st){}});
 // rolling the arc-blade back up after a fight: the blade comes up before him and its segments fold back into the hilt (f.arcRev:

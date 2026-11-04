@@ -79,7 +79,7 @@ function wallTile(k){const sc=bucket(k);if(WT&&WT.sc===sc)return WT;
   // the rings
   for(let x=40;x<PER;x+=140){c.fillStyle='#0f1218';c.beginPath();c.moveTo(x,y1);c.lineTo(x,sh);c.quadraticCurveTo(x,sh-70,x-26,y0);c.lineTo(x-14,y0);c.quadraticCurveTo(x+12,sh-70,x+12,sh);c.lineTo(x+12,y1);c.closePath();c.fill();
     c.fillStyle=rgba('#7a8aa8',.15);c.fillRect(x+11,sh,1.2,y1-sh);c.fillStyle=rgba('#000000',.55);c.fillRect(x-4,sh,4,y1-sh);
-    c.strokeStyle=rgba('#000000',.5);c.lineWidth=.6;c.beginPath();for(let y=y1;y>sh;y-=5.2){c.moveTo(x,y);c.lineTo(x+12,y);}c.stroke();}
+    c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.51;c.beginPath();for(let y=y1;y>sh;y-=5.2){c.moveTo(x,y);c.lineTo(x+12,y);}c.stroke();}
   c.fillStyle=lin(c,0,y0,0,sh,[[0,rgba('#010102',.1)],[.6,rgba('#010102',.06)],[1,rgba('#010102',0)]]);c.fillRect(0,y0,PER,sh-y0);
   // the string course at the spring of the vault
   c.fillStyle='#0d1016';c.fillRect(0,sh-3,PER,6);c.fillStyle=rgba('#8a94b0',.16);c.fillRect(0,sh-3,PER,.8);c.fillStyle=rgba('#000000',.5);c.fillRect(0,sh+3,PER,2);
@@ -91,11 +91,11 @@ function wallTile(k){const sc=bucket(k);if(WT&&WT.sc===sc)return WT;
   for(let x=40;x<PER;x+=140){c.fillStyle='#16161a';c.fillRect(x+2,sh+48,8,26);c.fillStyle=rgba(C.goldD,.5);c.fillRect(x+2,sh+48,8,.8);}
   c.lineWidth=1.8;for(const [o,col] of [[56,'#07070a'],[62,'#0a0a0d'],[69,'#08080b']]){c.strokeStyle=col;c.beginPath();for(let x=46-140;x<PER+140;x+=140){c.moveTo(x,sh+o);c.quadraticCurveTo(x+70,sh+o+12,x+140,sh+o);}c.stroke();}
   c.strokeStyle=rgba('#8a94b0',.13);c.lineWidth=.5;c.beginPath();for(let x=46-140;x<PER+140;x+=140){c.moveTo(x,sh+55);c.quadraticCurveTo(x+70,sh+66,x+140,sh+55);}c.stroke();
-  for(const x of [300,720]){c.fillStyle='#14141a';c.fillRect(x,sh+52,16,22);c.strokeStyle=rgba(C.gold,.4);c.lineWidth=.6;c.strokeRect(x+1,sh+53,14,20);c.fillStyle=rgba('#ffcf86',.5);c.fillRect(x+6,sh+57,4,1.2);}
+  for(const x of [300,720]){c.fillStyle='#14141a';c.fillRect(x,sh+52,16,22);c.strokeStyle=rgba(C.gold,.4);c.lineWidth=1.01;c.strokeRect(x+1,sh+53,14,20);c.fillStyle=rgba('#ffcf86',.5);c.fillRect(x+6,sh+57,4,1.2);}
   // the lamps: soot over each, a bracket, a brass cage with its crystal dark
   for(let x=LAMP/2;x<PER;x+=LAMP){const y=sh+28;c.fillStyle=rad(c,x,y-30,0,40,[[0,rgba('#000000',.5)],[1,rgba('#000000',0)]]);c.fillRect(x-40,y-70,80,80);
     c.strokeStyle='#0a0a0d';c.lineWidth=2.2;c.beginPath();c.moveTo(x-14,y-24);c.quadraticCurveTo(x-14,y-13,x,y-13);c.lineTo(x,y-9);c.stroke();
-    c.fillStyle=C.goldD;c.fillRect(x-5,y-10,10,2.2);c.fillRect(x-4,y+9,8,2);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=.7;c.beginPath();for(const kx of [-4.5,-1.5,1.5,4.5]){c.moveTo(x+kx,y-8);c.lineTo(x+kx*.8,y+9);}c.stroke();
+    c.fillStyle=C.goldD;c.fillRect(x-5,y-10,10,2.2);c.fillRect(x-4,y+9,8,2);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=.99;c.beginPath();for(const kx of [-4.5,-1.5,1.5,4.5]){c.moveTo(x+kx,y-8);c.lineTo(x+kx*.8,y+9);}c.stroke();
     c.fillStyle='#14262a';c.beginPath();c.moveTo(x,y-6);c.lineTo(x+3.4,y);c.lineTo(x,y+6);c.lineTo(x-3.4,y);c.closePath();c.fill();}
   lit(cv,c,0,PER);
   WT={sc,cv,blur:smear(cv,22*sc,true),y0,h};return WT;}
@@ -113,7 +113,7 @@ function vaultTile(k){const sc=bucket(k)*.5;if(VT&&VT.sc===sc)return VT;
   const s=VH*VLEAN;for(let x=40;x<PER+s+40;x+=140){const xa=x-26,xb=x-14;
     c.fillStyle='#0f1218';c.beginPath();c.moveTo(xa,y1);c.lineTo(xb,y1);c.lineTo(xb-s+3,y0);c.lineTo(xa-s-3,y0);c.closePath();c.fill();
     c.strokeStyle=rgba('#7a8aa8',.12);c.lineWidth=1;c.beginPath();c.moveTo(xb,y1);c.lineTo(xb-s+3,y0);c.stroke();
-    c.strokeStyle=rgba('#000000',.5);c.lineWidth=.6;c.beginPath();for(let u=0;u<1;u+=.04){const yy=lerp(y1,y0,u),xx=lerp(xa,xa-s-3,u);c.moveTo(xx,yy);c.lineTo(xx+12+u*6,yy);}c.stroke();}
+    c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.51;c.beginPath();for(let u=0;u<1;u+=.04){const yy=lerp(y1,y0,u),xx=lerp(xa,xa-s-3,u);c.moveTo(xx,yy);c.lineTo(xx+12+u*6,yy);}c.stroke();}
   c.fillStyle=rgba('#010102',.1);c.fillRect(0,y0,PER,VH);
   VT={sc,cv,blur:smear(cv,11*sc,true),y0,h:VH};return VT;}
 // the far rail along the deck's far edge: posts in their pockets and a top rail, the car's lantern on its hook (made once a scale)
@@ -122,8 +122,8 @@ function railTile(k){const sc=bucket(k);if(RT&&RT.sc===sc)return RT;
   const x0=-240,x1=1180,a=q(0,GB,DF),y0=a.y-44,y1=a.y+3,cv=mk(x1-x0,y1-y0,sc),c=cv.getContext('2d');c.scale(sc,sc);c.translate(-x0,-y0);
   for(let x=-220;x<1160;x+=64){const p=q(x,GB,LANTERN.d);c.fillStyle='#0b0b10';c.fillRect(p.x-1.8,p.y-24,3.6,24);c.fillStyle=rgba(C.goldD,.85);c.fillRect(p.x-2.4,p.y-24.5,4.8,2.4);c.fillStyle=rgba('#8a94b0',.16);c.fillRect(p.x+1,p.y-22,.7,20);}
   const L=q(-220,GB,LANTERN.d),R=q(1160,GB,LANTERN.d);c.strokeStyle='#121218';c.lineWidth=2.2;c.beginPath();c.moveTo(L.x,L.y-22);c.lineTo(R.x,R.y-22);c.stroke();
-  c.strokeStyle=rgba(C.gold,.5);c.lineWidth=.7;c.beginPath();c.moveTo(L.x,L.y-23.2);c.lineTo(R.x,R.y-23.2);c.stroke();
-  {const p=q(LANTERN.x,GB,LANTERN.d);c.strokeStyle='#14141a';c.lineWidth=1.2;c.beginPath();c.moveTo(p.x,p.y-22);c.lineTo(p.x+4,p.y-31);c.stroke();
+  c.strokeStyle=rgba(C.gold,.5);c.lineWidth=.99;c.beginPath();c.moveTo(L.x,L.y-23.2);c.lineTo(R.x,R.y-23.2);c.stroke();
+  {const p=q(LANTERN.x,GB,LANTERN.d);c.strokeStyle='#14141a';c.lineWidth=1.51;c.beginPath();c.moveTo(p.x,p.y-22);c.lineTo(p.x+4,p.y-31);c.stroke();
     c.fillStyle='#16120c';c.fillRect(p.x+1,p.y-41,8,10);c.fillStyle=C.goldD;c.fillRect(p.x,p.y-42,10,2);c.fillRect(p.x+2,p.y-31,6,1.4);c.fillStyle=rgba('#ffe7b0',.9);c.fillRect(p.x+3,p.y-39,4,6);}
   lit(cv,c,x0,x1,true);
   RT={sc,cv,x0,y0,w:x1-x0,h:y1-y0};return RT;}
@@ -308,14 +308,14 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
   // under the car's near side: the tops of its wheels turning, sparks off them when it runs hard
   {const yb=q(0,GB,DN).y+SILL,wa=s0/12;ctx.save();ctx.beginPath();ctx.rect(vx0,yb,vx1-vx0,60);ctx.clip();
     for(let x=-188;x<1100;x+=150){for(const dx of [0,46]){const cx=x+dx,cy=yb+13;if(cx<vx0-20||cx>vx1+20)continue;
-      ctx.fillStyle='#09090c';ctx.beginPath();ctx.arc(cx,cy,12,0,TAU);ctx.fill();ctx.strokeStyle=C.goldD;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(cx,cy,10.6,0,TAU);ctx.stroke();
+      ctx.fillStyle='#09090c';ctx.beginPath();ctx.arc(cx,cy,12,0,TAU);ctx.fill();ctx.strokeStyle=C.goldD;ctx.lineWidth=1.48;ctx.beginPath();ctx.arc(cx,cy,10.6,0,TAU);ctx.stroke();
       if(v<260){ctx.strokeStyle='#24242e';ctx.lineWidth=1.2;ctx.beginPath();for(let k2=0;k2<6;k2++){const b=wa+k2*TAU/6;ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(b)*9.5,cy+Math.sin(b)*9.5);}ctx.stroke();}
-      else{ctx.strokeStyle=rgba('#8a94b0',.22);ctx.lineWidth=.8;ctx.beginPath();ctx.arc(cx,cy,6.5,0,TAU);ctx.stroke();}
+      else{ctx.strokeStyle=rgba('#8a94b0',.22);ctx.lineWidth=.99;ctx.beginPath();ctx.arc(cx,cy,6.5,0,TAU);ctx.stroke();}
       ctx.strokeStyle=rgba(C.goldL,.65);ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(cx,cy,10.6,-Math.PI*.64,-Math.PI*.4);ctx.stroke();}
       ctx.fillStyle='#0c0c10';ctx.fillRect(x-6,yb,58,4);}
     if(v>300){const r=rng(Math.floor(t*24)),n=Math.floor(v/220);ctx.globalCompositeOperation='lighter';
       for(let i=0;i<n;i++){if(r()>.4){r();r();continue;}const x=-188+Math.floor(r()*8)*150+(r()<.5?0:46)-6,y=yb+24;if(x<vx0||x>vx1)continue;glow(ctx,x,y,16,'#ffb050',.45);
-        for(let j=0;j<5;j++){const L=6+r()*18,an=Math.PI+.15+r()*.5;ctx.strokeStyle=rgba(r()<.5?'#ffd27a':'#fff3cf',.75);ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(an)*L,y-Math.sin(an)*L*.5-r()*6);ctx.stroke();}}
+        for(let j=0;j<5;j++){const L=6+r()*18,an=Math.PI+.15+r()*.5;ctx.strokeStyle=rgba(r()<.5?'#ffd27a':'#fff3cf',.75);ctx.lineWidth=.99;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(an)*L,y-Math.sin(an)*L*.5-r()*6);ctx.stroke();}}
       ctx.globalCompositeOperation='source-over';}
     ctx.restore();}}
 // the light that rims a fighter: the station's lamps while it goes by, the nearest lamp passing if one is close, else the car's lantern
