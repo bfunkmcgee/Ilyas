@@ -502,7 +502,7 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
   paint(c,[{p:skull,c:V(6,10),r:42}],'skin',he);
   if(HR.shaved&&lod>=1){c.save();c.clip(skull);c.fillStyle=rgba(C.hair,.18);c.fill(P2(smoothD(HP(SLICK.concat([[-30,24],[-14,14],[4,-2],[13,5],[22,-18]])),true,.4)));c.restore();}
   if(HR.cap){fillHair(P2(HR.cap));if(lod>=1&&HR.strands){c.save();c.clip(P2(HR.cap));c.strokeStyle=C.hairHi;c.lineWidth=2;c.globalAlpha=elf?.55:.3;c.stroke(P2(HR.strands));c.restore();}}
-  if(HR.tie){c.strokeStyle=C.accent||C.hairLine;c.lineWidth=3;c.stroke(P2(HR.tie));}
+  if(HR.tie){c.strokeStyle=C.accent||C.hairLine;c.lineWidth=6.26;c.stroke(P2(HR.tie));}
   // the ear over the hair (an elf's points out through it); an ear marked over stands out over a hat too (a goblin's through her
   // headcloth)
   const ear=()=>{paint(c,[{p:P2(EAR.d),c:V(-20,4),r:14}],'skin',he);
@@ -524,12 +524,12 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
   // goggles pushed up on the brow (hd.goggles: true, or {x, y, r}): the strap round the head, the far eyecup behind the near one,
   // each a short drum ending in a brass rim round dark glass
   if(hd.goggles){const G=hd.goggles===true?{}:hd.goggles,gx=G.x??25,gy=G.y??-26,r=G.r??8,an=G.a??-.5,ux=Math.cos(an),uy=Math.sin(an);
-    c.strokeStyle=C.strap||'#17130f';c.lineWidth=4.4;c.beginPath();c.moveTo(gx-2,gy+3);c.quadraticCurveTo(gx-26,gy+1,-38,gy+16);c.stroke();
+    c.strokeStyle=C.strap||'#17130f';c.lineWidth=9.34;c.beginPath();c.moveTo(gx-2,gy+3);c.quadraticCurveTo(gx-26,gy+1,-38,gy+16);c.stroke();
     for(const [ox,oy,far] of [[-4,-3.4,1],[0,0,0]]){const x0=gx+ox,y0=gy+oy,x1=x0+ux*7,y1=y0+uy*7;
       c.fillStyle=far?'#0c0b0a':C.strap||'#17130f';c.beginPath();c.ellipse(x0,y0,r*.42,r,an,0,TAU);c.ellipse(x1,y1,r*.42,r,an,0,TAU);c.fill();
       c.beginPath();c.moveTo(x0-uy*r,y0+ux*r);c.lineTo(x1-uy*r,y1+ux*r);c.lineTo(x1+uy*r,y1-ux*r);c.lineTo(x0+uy*r,y0-ux*r);c.closePath();c.fill();
       c.fillStyle=far?mid(C.glass||'#1d2a2c','#000000',.4):C.glass||'#1d2a2c';c.beginPath();c.ellipse(x1,y1,r*.36,r*.84,an,0,TAU);c.fill();
-      c.strokeStyle=far?mid(C.brass||'#b28d3d','#000000',.45):C.brass||'#b28d3d';c.lineWidth=2.6;c.beginPath();c.ellipse(x1,y1,r*.42,r,an,0,TAU);c.stroke();
+      c.strokeStyle=far?mid(C.brass||'#b28d3d','#000000',.45):C.brass||'#b28d3d';c.lineWidth=5.2;c.beginPath();c.ellipse(x1,y1,r*.42,r,an,0,TAU);c.stroke();
       if(lod>=1&&!far){c.strokeStyle=rgba(C.brassHi||'#ffe299',.75);c.lineWidth=1.2;c.beginPath();c.ellipse(x1,y1,r*.42,r,an,-2.2,-.6);c.stroke();
         c.strokeStyle='rgba(220,240,240,.35)';c.lineWidth=1.4;c.beginPath();c.moveTo(x1-uy*r*.4+ux*.6,y1+ux*r*.4+uy*.6);c.lineTo(x1-uy*r*.05+ux*.6,y1+ux*r*.05+uy*.6);c.stroke();}}}
   if(hd.scar&&lod>=1){c.strokeStyle=elf?mid(C.accent,'#ffffff',.2):'#5a4438';c.lineWidth=2.2;c.globalAlpha=.85;c.stroke(P2(hd.scar));c.globalAlpha=1;}
@@ -547,7 +547,7 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
     // a human's eye catches the light and gives none back
     c.fillStyle=open?'#ffc163':rgba(C.eye,lod?.8:.65);c.beginPath();c.ellipse(E.x-1,E.y,lod?3.4:4.2,lod?2.2:3,0,0,TAU);c.fill();}
   // gold-rimmed spectacles (a cast entry's head.glasses)
-  if(hd.glasses&&!F.severed){c.strokeStyle=C.glasses||C.button||'#e2b65a';c.lineWidth=lod>=1?2:2.6;c.beginPath();c.ellipse(E.x-3.4,E.y+.6,8,6.2,0,0,TAU);c.moveTo(E.x-11.4,E.y-.4);c.lineTo(E.x-30,E.y-3.6);c.stroke();
+  if(hd.glasses&&!F.severed){c.strokeStyle=C.glasses||C.button||'#e2b65a';c.lineWidth=lod>=1?4.18:5.43;c.beginPath();c.ellipse(E.x-3.4,E.y+.6,8,6.2,0,0,TAU);c.moveTo(E.x-11.4,E.y-.4);c.lineTo(E.x-30,E.y-3.6);c.stroke();
     if(lod>=1){c.fillStyle='rgba(255,255,255,.07)';c.beginPath();c.ellipse(E.x-3.4,E.y+.6,7.2,5.4,0,0,TAU);c.fill();}}
   c.restore();
 }

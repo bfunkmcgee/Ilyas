@@ -168,7 +168,7 @@ function light(c,ps,env,o){let some=false;for(const q of ps)if(litOK(q,env)){som
 // on the lit side and dark on the other
 function folds(c,tb,env,o){if(!tb.folds||!tb.folds.length)return;const L=env.L,k=env.k||1;if(o.far&&k<2.4)return;
   for(const F of tb.folds){const n=F.bend>1.1&&k>=2.4?3:2,lit=dot(F.m,L)>0,sp=F.r*.5;
-    c.strokeStyle=lit?o.lit:o.dark;c.lineWidth=Math.max(.35,(o.w||.55)*F.r*.18);c.lineCap='round';c.beginPath();
+    c.strokeStyle=lit?o.lit:o.dark;c.lineWidth=Math.max(.52,(o.w||.55)*F.r*.27);c.lineCap='round';c.beginPath();
     for(let i=0;i<n;i++){const s=(i-(n-1)/2)*sp,dd=nrm(add(F.d0,F.d1)),base=add(F.inner,mul(dd,s)),tip=add(base,mul(F.m,-F.r*(.65+.12*i))),mid=add(mix(base,tip,.5),mul(dd,F.r*.18));
       c.moveTo(base.x,base.y);c.quadraticCurveTo(mid.x,mid.y,tip.x,tip.y);}
     c.stroke();void k;}}

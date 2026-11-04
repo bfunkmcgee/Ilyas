@@ -218,7 +218,7 @@ function tracer(c,tr,o){o=o||{};const T=TR[tr.kind]||TR.pistol,dur=tr.dur??T.dur
   c.strokeStyle=rgba(T.core,g);c.lineWidth=2.2*g+.4;c.beginPath();c.moveTo(A.x,A.y);c.lineTo(h.x,h.y);c.stroke();
   for(const [col,ph] of [['#c9a0ff',0],['#ffe2a3',Math.PI]]){c.strokeStyle=rgba(col,.85*g);c.lineWidth=1.1;c.beginPath();
     for(let s=Math.max(0,head-L);s<=head;s+=3){const amp=5*(1-Math.max(0,(head-s)/L)*.6)*g,w=Math.sin(s*.09-(o.now||0)*30+ph)*amp,x=A.x+ux*s+nx*w,y=A.y+uy*s+ny*w;s===Math.max(0,head-L)?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();}
-  c.strokeStyle=rgba('#f6eeff',.9*g);c.lineWidth=.8;for(let s=10,i=0;s<head;s+=16,i++){const x=A.x+ux*s+nx*(i%2?7:-7)*g,y=A.y+uy*s+ny*(i%2?7:-7)*g;c.save();c.translate(x,y);c.rotate((o.now||0)*4+i);glyph(c,i,3);c.restore();}
+  c.strokeStyle=rgba('#f6eeff',.9*g);c.lineWidth=.99;for(let s=10,i=0;s<head;s+=16,i++){const x=A.x+ux*s+nx*(i%2?7:-7)*g,y=A.y+uy*s+ny*(i%2?7:-7)*g;c.save();c.translate(x,y);c.rotate((o.now||0)*4+i);glyph(c,i,3);c.restore();}
   if(t<dur){stamp(c,glowSpr('#b98cff'),h.x,h.y,26,.95);stamp(c,glowSpr('#ffffff'),h.x,h.y,9,1);}
   c.restore();return true;}
 // a hit: on flesh a mist (o.gore its colour, or a cloth puff without it), on metal sparks, on the ground dust and chips, on a wall
@@ -321,16 +321,16 @@ function riflePaths(){if(RP)return RP;const R={};
   R.glint={u0:26,u1:45,v:2.5};
   RP=R;return R;}
 function rifleDraw(c,o){const R=riflePaths(),now=o.now||0,k=o.alpha??1;
-  c.fillStyle=G(c,'rs',c=>lgr(c,0,-7,0,5,[[0,'#060509'],[.7,'#17161c'],[1,'#2a2932']]));c.fill(R.stock,'evenodd');c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=.3;c.stroke(R.stock);
+  c.fillStyle=G(c,'rs',c=>lgr(c,0,-7,0,5,[[0,'#060509'],[.7,'#17161c'],[1,'#2a2932']]));c.fill(R.stock,'evenodd');c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=.6;c.stroke(R.stock);
   c.fillStyle=G(c,'rb',c=>lgr(c,-31,0,-29,0,[[0,K.goldD],[.5,K.goldL],[1,K.goldD]]));c.fill(R.butt);
   vine(c,[[-27,.2],[-18,1.4],[-8,1]],.24,1,rgba(K.gold,.85),2);
   c.fillStyle=G(c,'rg',c=>lgr(c,-6,-11,2,-3,[[0,'#060509'],[1,'#1e1d24']]));c.fill(R.grip);
-  c.strokeStyle='#0d0c10';c.lineWidth=.9;c.lineCap='round';c.lineJoin='round';c.stroke(R.guard);c.lineWidth=.6;c.stroke(R.trig);
+  c.strokeStyle='#0d0c10';c.lineWidth=2.59;c.lineCap='round';c.lineJoin='round';c.stroke(R.guard);c.lineWidth=1.2;c.stroke(R.trig);
   // the cell: cyan crystal in a gold frame, glowing
-  c.fillStyle=G(c,'rc',c=>lgr(c,12,-13,19,-3,[[0,K.cyanD],[.5,K.cyan],[1,K.cyanL]]));c.fill(R.cell);c.strokeStyle=K.gold;c.lineWidth=.45;c.stroke(R.cell);
+  c.fillStyle=G(c,'rc',c=>lgr(c,12,-13,19,-3,[[0,K.cyanD],[.5,K.cyan],[1,K.cyanL]]));c.fill(R.cell);c.strokeStyle=K.gold;c.lineWidth=.9;c.stroke(R.cell);
   c.save();c.globalCompositeOperation='lighter';c.globalAlpha=k*(.35+.15*Math.sin(now*3))/.5;c.fillStyle=G(c,'rcg',c=>{const g=c.createRadialGradient(16,-8,0,16,-8,9);g.addColorStop(0,rgba(K.cyanL,.5));g.addColorStop(1,rgba(K.cyan,0));return g;});
   c.beginPath();c.arc(16,-8,9,0,TAU);c.fill();c.restore();
-  c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=.3;c.beginPath();c.moveTo(13.4,-4.4);c.lineTo(15.2,-11.6);c.stroke();
+  c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=.6;c.beginPath();c.moveTo(13.4,-4.4);c.lineTo(15.2,-11.6);c.stroke();
   // the receiver, engraved, the bolt riding in it; the scope on two gold rings, its cyan lens
   c.fillStyle=G(c,'rr',c=>lgr(c,0,-3.4,0,3.8,[[0,'#060509'],[.6,'#16151b'],[1,'#2a2932']]));c.fill(R.recv);
   vine(c,[[-3.6,.2],[6,.9],[14,.3],[22,.7]],.24,1,rgba(K.gold,.9),5);
@@ -339,7 +339,7 @@ function rifleDraw(c,o){const R=riflePaths(),now=o.now||0,k=o.alpha??1;
   for(const u of [6.2,17.4]){c.fillStyle=G(c,'rring',c=>lgr(c,-1,0,1,0,[[0,K.goldD],[.5,K.goldL],[1,K.goldD]]));c.save();c.translate(u,0);c.fillRect(-1.2,3.6,2.4,2.4);c.restore();}
   c.fillStyle=G(c,'rsc',c=>lgr(c,0,4.4,0,11,[[0,'#060509'],[.6,'#1a1920'],[1,'#3a3944']]));c.fill(R.scope);
   c.fillStyle=G(c,'rln',c=>lgr(c,25.6,4.4,25.6,11,[[0,K.cyanD],[.5,K.cyanL],[1,K.cyan]]));c.beginPath();c.ellipse(25.8,7.7,.8,3.2,0,0,TAU);c.fill();
-  c.strokeStyle=rgba(K.gold,.8);c.lineWidth=.35;c.beginPath();c.moveTo(18,5.6);c.lineTo(18,9.6);c.moveTo(4.6,5.6);c.lineTo(4.6,9.6);c.stroke();
+  c.strokeStyle=rgba(K.gold,.8);c.lineWidth=.7;c.beginPath();c.moveTo(18,5.6);c.lineTo(18,9.6);c.moveTo(4.6,5.6);c.lineTo(4.6,9.6);c.stroke();
   // the handguard with its slots, the gold rail line, the barrel and the ported brake
   c.fillStyle=G(c,'rh',c=>lgr(c,0,-3,0,3,[[0,'#060509'],[.6,'#17161c'],[1,'#2a2932']]));c.fill(R.guardH);
   c.fillStyle='#020203';for(let u=27;u<44;u+=4.4)c.fillRect(u,-1.5,2.6,1.6);
@@ -366,8 +366,8 @@ function pistolPaths(){if(PP)return PP;const R={};
   PP=R;return R;}
 function pistolDraw(c,o){const R=pistolPaths(),rc=clamp(o.recoil||0,0,1);
   c.fillStyle='#141417';c.fill(R.frame);c.fillStyle='#0c0c0e';c.fill(R.rail);c.strokeStyle='#26272d';c.lineWidth=.18;c.beginPath();for(let u=6.6;u<10.2;u+=.7){c.moveTo(u,-2.25);c.lineTo(u,-1.75);}c.stroke();
-  c.fillStyle='#101012';c.fill(R.tg,'evenodd');c.strokeStyle='rgba(74,77,87,.55)';c.lineWidth=.14;c.stroke(R.tg);c.strokeStyle='#2c2d33';c.lineWidth=.35;c.lineCap='round';c.stroke(R.trig);
-  c.fillStyle=G(c,'pg',c=>lgr(c,-4,-8,1,-1,[[0,'#08080a'],[1,'#1d1e22']]));c.fill(R.grip);c.strokeStyle='rgba(74,77,87,.45)';c.lineWidth=.14;c.stroke(R.grip);c.fillStyle='#0a0a0c';c.fill(R.tail);
+  c.fillStyle='#101012';c.fill(R.tg,'evenodd');c.strokeStyle='rgba(74,77,87,.55)';c.lineWidth=.28;c.stroke(R.tg);c.strokeStyle='#2c2d33';c.lineWidth=.7;c.lineCap='round';c.stroke(R.trig);
+  c.fillStyle=G(c,'pg',c=>lgr(c,-4,-8,1,-1,[[0,'#08080a'],[1,'#1d1e22']]));c.fill(R.grip);c.strokeStyle='rgba(74,77,87,.45)';c.lineWidth=.28;c.stroke(R.grip);c.fillStyle='#0a0a0c';c.fill(R.tail);
   // the grip's stipple, and the badge
   c.fillStyle='rgba(255,255,255,.07)';for(let i=0;i<28;i++){const u=-3.2+((i*37)%41)/41*3.6,v=-2.6-((i*53)%47)/47*4.8;c.fillRect(u-(v+2.6)*.08,v,.22,.22);}
   c.fillStyle=G(c,'pmg',c=>lgr(c,0,-8.8,0,-7.9,[[0,'#2a2b31'],[1,'#0a0a0c']]));c.fill(R.mag);
@@ -375,7 +375,7 @@ function pistolDraw(c,o){const R=pistolPaths(),rc=clamp(o.recoil||0,0,1);
   // the slide, back with the shot
   c.save();c.translate(-rc*3.2,0);
   c.fillStyle=G(c,'ps',c=>lgr(c,0,-.9,0,1.9,[[0,'#0c0c0f'],[.55,'#1c1d22'],[1,'#3a3c44']]));c.fill(R.slide);
-  c.strokeStyle='#050506';c.lineWidth=.16;c.beginPath();for(let u=-2.7;u<.2;u+=.45){c.moveTo(u,-.5);c.lineTo(u,1.55);}c.stroke();
+  c.strokeStyle='#050506';c.lineWidth=.32;c.beginPath();for(let u=-2.7;u<.2;u+=.45){c.moveTo(u,-.5);c.lineTo(u,1.55);}c.stroke();
   c.fillStyle='#030304';c.fill(R.port);c.fillStyle='#0b0b0d';c.fill(R.sightF);c.fill(R.sightR);
   c.fillStyle=K.gold;c.fillRect(11.35,2.25,.3,.18);c.fillRect(-2.55,2.32,.22,.16);c.fillRect(-1.9,2.32,.22,.16);
   c.fillStyle='#000';c.fillRect(12.35,-.5,.25,1.4);c.restore();
@@ -397,8 +397,8 @@ function smgPaths(){if(SP)return SP;const R={};
   SP=R;return R;}
 function smgDraw(c,o){const R=smgPaths(),rc=clamp(o.recoil||0,0,1);
   for(const r of R.rods){c.fillStyle='#1b1e24';c.fill(r);}c.fillStyle='#0d0e10';c.fill(R.pad);c.strokeStyle='#26282d';c.lineWidth=.2;c.beginPath();for(let v=-4.2;v<2.4;v+=.8){c.moveTo(-16.4,v);c.lineTo(-14.8,v);}c.stroke();
-  c.fillStyle=G(c,'sm',c=>lgr(c,8,-3,12,-13,[[0,'#262930'],[1,'#121317']]));c.fill(R.mag);c.strokeStyle='rgba(89,96,110,.6)';c.lineWidth=.18;c.stroke(R.mag);
-  c.fillStyle=G(c,'sg',c=>lgr(c,-2,-9,3,-3,[[0,'#101013'],[1,'#24252a']]));c.fill(R.grip);c.strokeStyle='rgba(89,96,110,.5)';c.lineWidth=.16;c.stroke(R.grip);
+  c.fillStyle=G(c,'sm',c=>lgr(c,8,-3,12,-13,[[0,'#262930'],[1,'#121317']]));c.fill(R.mag);c.strokeStyle='rgba(89,96,110,.6)';c.lineWidth=.36;c.stroke(R.mag);
+  c.fillStyle=G(c,'sg',c=>lgr(c,-2,-9,3,-3,[[0,'#101013'],[1,'#24252a']]));c.fill(R.grip);c.strokeStyle='rgba(89,96,110,.5)';c.lineWidth=.32;c.stroke(R.grip);
   c.fillStyle='#0f1013';c.fill(R.tg,'evenodd');
   c.fillStyle=G(c,'sr',c=>lgr(c,0,-2.6,0,2.2,[[0,'#101216'],[.55,'#22262e'],[1,'#3d4350']]));c.fill(R.recv);
   c.fillStyle=G(c,'sh',c=>lgr(c,0,-2.4,0,1.9,[[0,'#0e1014'],[.55,'#1d2128'],[1,'#363b47']]));c.fill(R.hg);
@@ -406,7 +406,7 @@ function smgDraw(c,o){const R=smgPaths(),rc=clamp(o.recoil||0,0,1);
   c.fillStyle='#0b0c0f';c.fill(R.comp);c.fillStyle='#000';c.fillRect(23.2,-.7,.5,1.4);c.fillRect(24.4,-.7,.5,1.4);
   c.fillStyle='#14161a';c.fill(R.rail);c.strokeStyle='#2c3038';c.lineWidth=.16;c.beginPath();for(let u=-1.6;u<17.8;u+=.8){c.moveTo(u,2.25);c.lineTo(u,2.85);}c.stroke();
   c.fillStyle='#111317';c.fill(R.sight);c.fillStyle=G(c,'sl',c=>lgr(c,9,3.2,9,5.6,[[0,'#7a3a12'],[.5,'#ffb347'],[1,'#a8561a']]));c.fillRect(9,3.3,.4,2.2);
-  c.fillStyle='#0e0f12';c.fill(R.hood);c.fillStyle='#22262d';c.fill(R.fore);c.strokeStyle='rgba(89,96,110,.5)';c.lineWidth=.16;c.stroke(R.fore);c.stroke(R.recv);c.stroke(R.hg);c.strokeStyle='#08090b';c.lineWidth=.3;c.beginPath();for(const v of [-4.6,-6.4,-8.2]){c.moveTo(15.7,v);c.lineTo(16.4,v-.4);}c.stroke();
+  c.fillStyle='#0e0f12';c.fill(R.hood);c.fillStyle='#22262d';c.fill(R.fore);c.strokeStyle='rgba(89,96,110,.5)';c.lineWidth=.32;c.stroke(R.fore);c.stroke(R.recv);c.stroke(R.hg);c.strokeStyle='#08090b';c.lineWidth=.3;c.beginPath();for(const v of [-4.6,-6.4,-8.2]){c.moveTo(15.7,v);c.lineTo(16.4,v-.4);}c.stroke();
   c.save();c.translate(-rc*2.4,0);c.fillStyle='#2a2e36';c.fill(R.knob);c.restore();
   // the gold H on the receiver, and a gold line along it
   c.fillStyle=K.gold;c.fillRect(6.6,-1.4,.26,1.6);c.fillRect(7.6,-1.4,.26,1.6);c.fillRect(6.6,-.7,1.26,.24);c.fillStyle=rgba(K.gold,.6);c.fillRect(-3.6,-2.05,19.2,.22);}
@@ -427,14 +427,14 @@ function hexPaths(){if(HP)return HP;const R={};
   HP=R;return R;}
 function hexDraw(c,o){const R=hexPaths(),ch=clamp(o.charge||0,0,1),now=o.now||0,rc=clamp(o.recoil||0,0,1);
   // the grip in ivory with gold filigree, a gold pommel
-  c.fillStyle=G(c,'hg',c=>lgr(c,-8,-10,1,-2,[[0,'#b5a582'],[.45,'#e9dfc6'],[1,'#fff8e6']]));c.fill(R.grip);c.strokeStyle=K.goldD;c.lineWidth=.3;c.stroke(R.grip);
+  c.fillStyle=G(c,'hg',c=>lgr(c,-8,-10,1,-2,[[0,'#b5a582'],[.45,'#e9dfc6'],[1,'#fff8e6']]));c.fill(R.grip);c.strokeStyle=K.goldD;c.lineWidth=.6;c.stroke(R.grip);
   vine(c,[[-1.2,-2.6],[-3,-5.4],[-5.4,-8.2]],.2,.9,rgba(K.gold,.95),1);
   c.fillStyle=G(c,'hp',c=>lgr(c,-9,-11,-6,-8,[[0,K.goldD],[.5,K.goldL],[1,K.goldD]]));c.fill(R.pommel);
-  c.fillStyle=G(c,'ht',c=>lgr(c,0,-5,0,-2,[[0,K.goldD],[1,K.gold]]));c.fill(R.tg,'evenodd');c.strokeStyle='#3a3020';c.lineWidth=.35;c.lineCap='round';c.stroke(R.trig);
+  c.fillStyle=G(c,'ht',c=>lgr(c,0,-5,0,-2,[[0,K.goldD],[1,K.gold]]));c.fill(R.tg,'evenodd');c.strokeStyle='#3a3020';c.lineWidth=.7;c.lineCap='round';c.stroke(R.trig);
   // the lock in ivory under a gold border, scrolled, the gem where a flint pan would be
-  c.fillStyle=G(c,'hl',c=>lgr(c,0,-2,0,2.7,[[0,'#c9bb98'],[.6,'#ece2ca'],[1,'#fffaf0']]));c.fill(R.lock);c.strokeStyle=K.gold;c.lineWidth=.4;c.stroke(R.lock);
+  c.fillStyle=G(c,'hl',c=>lgr(c,0,-2,0,2.7,[[0,'#c9bb98'],[.6,'#ece2ca'],[1,'#fffaf0']]));c.fill(R.lock);c.strokeStyle=K.gold;c.lineWidth=.8;c.stroke(R.lock);
   vine(c,[[-2.6,0],[1,.6],[4.6,-.2]],.18,.8,rgba(K.goldD,.9),3);
-  c.fillStyle=ch>0?'#d9c2ff':'#6a4aa8';c.fill(R.gem);c.strokeStyle=K.gold;c.lineWidth=.25;c.stroke(R.gem);
+  c.fillStyle=ch>0?'#d9c2ff':'#6a4aa8';c.fill(R.gem);c.strokeStyle=K.gold;c.lineWidth=.5;c.stroke(R.gem);
   // the hammer: cocked back, or down on the shot
   c.save();c.translate(-2.4,1.8);c.rotate(rc>0?-.9:0);c.fillStyle=G(c,'hh',c=>lgr(c,-2,0,1,4,[[0,K.goldD],[.5,K.goldL],[1,K.gold]]));c.beginPath();c.moveTo(-.4,0);c.quadraticCurveTo(-1.8,2.2,-1.2,3.6);
   c.quadraticCurveTo(.2,4.4,1.2,3.6);c.quadraticCurveTo(.2,3.4,-.2,2.6);c.quadraticCurveTo(-.2,1.2,.8,0);c.closePath();c.fill();c.restore();
@@ -442,8 +442,8 @@ function hexDraw(c,o){const R=hexPaths(),ch=clamp(o.charge||0,0,1),now=o.now||0,
   c.fillStyle='#2c2e3c';c.fill(R.fTop);c.fillStyle='#1a1b24';c.fill(R.fMid);c.fillStyle='#0e0f15';c.fill(R.fBot);
   c.fillStyle=G(c,'hb',c=>lgr(c,0,-1.8,0,1.8,[[0,K.goldD],[.55,K.goldL],[1,K.goldD]]));for(const b of R.bands)c.fill(b);c.fill(R.crown);c.fillStyle='#000';c.fillRect(24.2,-.55,.2,1.1);
   // the rune channel: cut along the middle face; with a charge in it, it burns violet-white
-  c.strokeStyle='#07070b';c.lineWidth=.42;c.beginPath();c.moveTo(6,0);c.lineTo(22,0);c.stroke();
-  const glow=ch>0;c.lineWidth=.22;c.lineCap='round';
+  c.strokeStyle='#07070b';c.lineWidth=.84;c.beginPath();c.moveTo(6,0);c.lineTo(22,0);c.stroke();
+  const glow=ch>0;c.lineWidth=.44;c.lineCap='round';
   for(let i=0;i<10;i++){const u=6.6+i*1.55;c.strokeStyle=glow?rgba('#f2e6ff',.4+.6*ch*(.6+.4*Math.sin(now*14-i*.9))):rgba(K.gold,.55);c.save();c.translate(u,0);FxLook.glyph(c,i+7,.9);c.restore();}
   if(glow){c.save();c.globalCompositeOperation='lighter';c.globalAlpha=ch;c.strokeStyle=rgba('#b98cff',.32);c.lineWidth=1.3+ch*.5;c.beginPath();c.moveTo(6,0);c.lineTo(22.4,0);c.stroke();
     c.strokeStyle=rgba('#f6eeff',.75);c.lineWidth=.3;c.beginPath();c.moveTo(6,0);c.lineTo(22.4,0);c.stroke();
@@ -468,12 +468,12 @@ function draw(c,key,h,t,fa,o){const d=D[key];if(!d)return false;o=o||{};
   c.transform(k,0,0,-k,-d.H[0]*k,d.H[1]*k);c.lineCap='round';c.lineJoin='round';
   DRAW[key](c,o);
   // the light's edge along whichever side faces it, faint on the other; a glint that slides along the top as the gun turns
-  c.globalCompositeOperation='lighter';c.lineWidth=.42/k;
+  c.globalCompositeOperation='lighter';c.lineWidth=.84/k;
   const at=clamp(.12+lv*.62,.05,key==='hexpistol'?.5:.75),ab=clamp(.1-lv*.55,.04,.6);
   c.strokeStyle=rgba(K.rim,at*(o.alpha??1));if(R.slideRim&&rc){c.save();c.translate(-rc*3.2,0);for(const p of R.top)c.stroke(p);c.restore();}else for(const p of R.top)c.stroke(p);
   c.strokeStyle=rgba(K.rim,ab*(o.alpha??1));for(const p of R.bot)c.stroke(p);
   const ang=Math.atan2(uy,ux)*s,fl=Math.pow(Math.max(0,Math.sin(ang*3.1+1.3)),3);
-  if(fl>.05&&R.glint){const g=.5+.5*Math.sin(ang*2.3+(o.now||0)*.35),x=lerp(R.glint.u0,R.glint.u1,g);c.globalAlpha=fl*.75*(o.alpha??1);c.strokeStyle='#ffffff';c.lineWidth=.55;
+  if(fl>.05&&R.glint){const g=.5+.5*Math.sin(ang*2.3+(o.now||0)*.35),x=lerp(R.glint.u0,R.glint.u1,g);c.globalAlpha=fl*.75*(o.alpha??1);c.strokeStyle='#ffffff';c.lineWidth=1.1;
     c.beginPath();c.moveTo(x-2,R.glint.v);c.lineTo(x+2,R.glint.v);c.stroke();}
   c.restore();return true;}
 // the muzzle of a gun drawn between h and t: where the shot comes out and which way (ux, uy along the bore)

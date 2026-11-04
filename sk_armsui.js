@@ -73,7 +73,7 @@ function sideLine(G,side,t0,t1,p){const A=side>0?G.E:G.Sp,pts=[];for(let i=at(G,
 function waveLine(G,f0,amp,waves,ph,t0,t1,p){const pts=[];for(let i=at(G,t0);i<=at(G,t1);i++){const t=i/G.n,f=clamp(f0+amp*Math.sin(t*waves*TAU+ph),.06,.94);
   pts.push([lerp(G.E[i][0],G.Sp[i][0],f),lerp(G.E[i][1],G.Sp[i][1],f)]);}return pLine(pts,p);}
 // ---------- the parts list ----------
-function Build(id){this.ops=[];this.rimE=null;this.rimS=null;this.rimW=.55;this.glint=null;this.ribbons=[];this.id=id;this.R=rng(hash(id));}
+function Build(id){this.ops=[];this.rimE=null;this.rimS=null;this.rimW=.83;this.glint=null;this.ribbons=[];this.id=id;this.R=rng(hash(id));}
 Build.prototype={
   // a part with its ink line and its body colour
   part(p,m,o){o=o||{};if(o.ink!==false)this.ops.push({p,stroke:m.o,lw:o.lw||.9});this.ops.push({p,fill:o.fill||m.b,rule:o.rule});return this;},
@@ -82,7 +82,7 @@ Build.prototype={
   // a glowing inlay: a wide faint stroke and a bright thin one, added to the light
   glow(p,col,lw,a){this.ops.push({p,stroke:col,lw:lw*3.2,a:(a||1)*.22,comp:'lighter'});this.ops.push({p,stroke:col,lw,a:a||1,comp:'lighter'});return this;},
   // a metal tube (a knuckle bow, a hook, a wire): ink, body, a thin light down its middle
-  tube(p,m,w){this.ops.push({p,stroke:m.o,lw:w+.9});this.ops.push({p,stroke:m.b,lw:w});this.ops.push({p,stroke:m.l,lw:Math.max(.3,w*.32),a:.85});return this;},
+  tube(p,m,w){this.ops.push({p,stroke:m.o,lw:w+.9});this.ops.push({p,stroke:m.b,lw:w});this.ops.push({p,stroke:m.l,lw:Math.max(.6,w*.32),a:.85});return this;},
   // rivets and studs: a dot of metal with a spark of light
   dots(list,r,m){const p=new Path2D(),q=new Path2D();for(const [x,y] of list){pCirc(x,y,r+.35,p);}this.ops.push({p,fill:m.o});
     const b=new Path2D();for(const [x,y] of list)pCirc(x,y,r,b);this.ops.push({p:b,fill:m.b});for(const [x,y] of list)pCirc(x-r*.3,y-r*.3,r*.42,q);this.ops.push({p:q,fill:m.l,a:.9});return this;},
@@ -611,16 +611,16 @@ function arcLayers(PL,lod,run){const Y={body:new Path2D(),shade:new Path2D(),she
         i?Y.vine.lineTo(c[0],y):Y.vine.moveTo(c[0],y);if(i%4===2){up++;pEll(c[0]+.5,y+(up%2?-.42:.42),.62,.24,up%2?-.5:.5,Y.leaf);}}}}
   return Y;}
 function arcPaint(c,Y,P,o,thread){const k=o.alpha==null?1:o.alpha,b=P.blade;
-  c.globalAlpha=k;c.strokeStyle=o.line||'#04060a';c.lineWidth=o.line?o.lw*2:Y.vine?.42:.7;c.stroke(Y.body);
+  c.globalAlpha=k;c.strokeStyle=o.line||'#04060a';c.lineWidth=o.line?o.lw*2:Y.vine?.84:1.4;c.stroke(Y.body);
   c.fillStyle=b;c.fill(Y.body);
   const T=arcTones(P);c.globalAlpha=k*.85;c.fillStyle=T.shade;c.fill(Y.shade);
   c.globalAlpha=k*.6;c.fillStyle=T.sheen;c.fill(Y.sheen);
   c.globalAlpha=k*.92;c.fillStyle=T.bevel;c.fill(Y.bevel);if(Y.bevel2){c.globalAlpha=k*.8;c.fillStyle=T.bevel2;c.fill(Y.bevel2);}
-  c.globalAlpha=k;c.strokeStyle=P.bladeEdge;c.lineWidth=.38;c.stroke(Y.edge);
+  c.globalAlpha=k;c.strokeStyle=P.bladeEdge;c.lineWidth=.76;c.stroke(Y.edge);
   if(Y.vine){c.globalAlpha=k*.9;c.strokeStyle=P.gold;c.lineWidth=.22;c.stroke(Y.vine);c.fillStyle=P.gold;c.fill(Y.leaf);}
   // the fuller and the thread's light in it
-  c.globalAlpha=k;c.strokeStyle='#010304';c.lineWidth=.95;c.stroke(Y.ful);
-  c.globalCompositeOperation='lighter';c.strokeStyle=P.glow;c.globalAlpha=k*thread*.28;c.lineWidth=1.8;c.stroke(Y.ful);c.globalAlpha=k*thread;c.lineWidth=.42;c.stroke(Y.ful);
+  c.globalAlpha=k;c.strokeStyle='#010304';c.lineWidth=2.11;c.stroke(Y.ful);
+  c.globalCompositeOperation='lighter';c.strokeStyle=P.glow;c.globalAlpha=k*thread*.28;c.lineWidth=1.8;c.stroke(Y.ful);c.globalAlpha=k*thread;c.lineWidth=.84;c.stroke(Y.ful);
   c.globalCompositeOperation='source-over';c.globalAlpha=k;}
 // the hilt, built once for each set of colours and level of detail
 const ARC_HILT={};
@@ -669,10 +669,10 @@ function arcCoil(c,x,y,r,P,now,k){c.globalAlpha=k;c.fillStyle='#04060a';c.fill(p
 const ARC_RIGID={};let ARC_JOINTS=null;
 // the rim on the side that faces the light, and a glint sliding along the gilded edge as the blade turns (cut 0: no glint)
 function arcLight(c,Y,P,o,k,uy,ux,s,nx,ny,cut,wob,now){const Ld=o.L||{x:.45,y:-.89},d=nx*Ld.x+ny*Ld.y;
-  c.globalCompositeOperation='lighter';c.strokeStyle='#fff3da';c.lineWidth=.5;c.globalAlpha=k*clamp(.12+Math.abs(d)*.7,0,.85);c.stroke(d>0?Y.edge:Y.spine);
+  c.globalCompositeOperation='lighter';c.strokeStyle='#fff3da';c.lineWidth=.75;c.globalAlpha=k*clamp(.12+Math.abs(d)*.7,0,.85);c.stroke(d>0?Y.edge:Y.spine);
   if(cut>.5&&o.glint!==false){const ang=Math.atan2(uy,ux)*s,g=.5+.5*Math.sin(ang*2.3+now*.35),fl=Math.pow(Math.max(0,Math.sin(ang*3.1+1.3)),3);
-    if(fl>.05){const sg=clamp(g,.08,.92)*Math.min(1,cut),q=arcAt(sg,0,wob,now),w=arcHalf(sg);c.globalAlpha=k*fl*.8;c.strokeStyle='#ffffff';c.lineWidth=.55;
-      c.beginPath();c.moveTo(q[0]-2.2,q[1]+w*.8);c.lineTo(q[0]+2.2,q[1]+w*.8);c.stroke();c.lineWidth=.28;c.beginPath();c.moveTo(q[0],q[1]+w*.8-1);c.lineTo(q[0],q[1]+w*.8+1);c.stroke();}}
+    if(fl>.05){const sg=clamp(g,.08,.92)*Math.min(1,cut),q=arcAt(sg,0,wob,now),w=arcHalf(sg);c.globalAlpha=k*fl*.8;c.strokeStyle='#ffffff';c.lineWidth=1.1;
+      c.beginPath();c.moveTo(q[0]-2.2,q[1]+w*.8);c.lineTo(q[0]+2.2,q[1]+w*.8);c.stroke();c.lineWidth=.56;c.beginPath();c.moveTo(q[0],q[1]+w*.8-1);c.lineTo(q[0],q[1]+w*.8+1);c.stroke();}}
   c.globalCompositeOperation='source-over';}
 // the locked blade painted once into a small canvas at about the pixels per unit it is shown at, at that level of detail
 const ARC_SPRITE={},ARC_SPRITE_MAX=6;let ARC_SPRITES=0;
@@ -681,10 +681,10 @@ function arcSprite(P,o,lod){const q=Math.max(1,Math.round(o.k*4)/4),key=P.blade+
   const x0=-13.4,x1=59.4,y0=-8.6,y1=9.8,cv=document.createElement('canvas');cv.width=Math.ceil((x1-x0)*q);cv.height=Math.ceil((y1-y0)*q);
   const c=cv.getContext('2d');c.setTransform(q,0,0,q,-x0*q,-y0*q);c.lineCap='round';c.lineJoin='round';
   paint(c,arcHilt(P,lod),1);arcStone(c,P,1,0);const Y=ARC_RIGID[lod]||(ARC_RIGID[lod]=arcLayers(arcPlates(1,0,0),lod,{cut:1,wob:0,now:0}));arcPaint(c,Y,P,o,.55);
-  const J=ARC_JOINTS||(ARC_JOINTS=arcJoints(1,0,0,1.01));c.globalCompositeOperation='lighter';c.strokeStyle=P.glow;c.globalAlpha=.42;c.lineWidth=.5;c.stroke(J.lit);c.globalCompositeOperation='source-over';
+  const J=ARC_JOINTS||(ARC_JOINTS=arcJoints(1,0,0,1.01));c.globalCompositeOperation='lighter';c.strokeStyle=P.glow;c.globalAlpha=.42;c.lineWidth=1;c.stroke(J.lit);c.globalCompositeOperation='source-over';
   return(ARC_SPRITE[key]={cv,x0,y0,w:x1-x0,h:y1-y0});}
 // the hinge barrels and their pins, drawn over the light on the spine as they are on the moving blade
-function arcKnuckles(c,J,P,k){c.globalAlpha=k;c.strokeStyle='#04060a';c.lineWidth=.5;c.stroke(J.kn);c.fillStyle=arcTones(P).knuckle;c.fill(J.kn);c.fillStyle=P.gold;c.fill(J.pn);}
+function arcKnuckles(c,J,P,k){c.globalAlpha=k;c.strokeStyle='#04060a';c.lineWidth=.75;c.stroke(J.kn);c.fillStyle=arcTones(P).knuckle;c.fill(J.kn);c.fillStyle=P.gold;c.fill(J.pn);}
 function arc(c,h,t,sd,st,P,o){o=o||{};P=P||ARC_NOIR;const mode=st?st.mode:'rigid',k=o.alpha==null?1:o.alpha,now=o.now||0,lod=o.k==null?1:o.k<2.4?0:1;
   const dx=t.x-h.x,dy=t.y-h.y,Lr=Math.hypot(dx,dy)||1,ux=dx/Lr,uy=dy/Lr,s=sd<0?-1:1,nx=-uy*s,ny=ux*s;
   c.save();c.transform(ux,uy,nx,ny,h.x,h.y);c.lineCap='round';c.lineJoin='round';
@@ -755,8 +755,8 @@ function draw(c,id,h,t,sd,o){const W=get(id);if(!W)return false;o=o||{};
   if(W.rimE&&W.rimS){c.globalCompositeOperation='lighter';c.strokeStyle=W.rimCol;c.lineWidth=W.rimW;c.globalAlpha=k*clamp(.15+Math.abs(d)*.75,0,.9);c.stroke(d>0?W.rimE:W.rimS);
     c.globalAlpha=k*.12;c.stroke(d>0?W.rimS:W.rimE);c.globalCompositeOperation='source-over';}
   if(W.glint&&o.glint!==false){const ang=Math.atan2(uy,ux)*s,g=.5+.5*Math.sin(ang*2.3+(o.now||0)*.35),fl=Math.pow(Math.max(0,Math.sin(ang*3.1+1.3)),3);
-    if(fl>.05){const x=lerp(W.glint.x0,W.glint.x1,g),y=W.glint.y;c.globalCompositeOperation='lighter';c.globalAlpha=k*fl*.7;c.strokeStyle='#ffffff';c.lineWidth=.6;
-      c.beginPath();c.moveTo(x-2.4,y);c.lineTo(x+2.4,y);c.stroke();c.lineWidth=.3;c.beginPath();c.moveTo(x,y-1);c.lineTo(x,y+1);c.stroke();c.globalCompositeOperation='source-over';}}
+    if(fl>.05){const x=lerp(W.glint.x0,W.glint.x1,g),y=W.glint.y;c.globalCompositeOperation='lighter';c.globalAlpha=k*fl*.7;c.strokeStyle='#ffffff';c.lineWidth=1.37;
+      c.beginPath();c.moveTo(x-2.4,y);c.lineTo(x+2.4,y);c.stroke();c.lineWidth=.6;c.beginPath();c.moveTo(x,y-1);c.lineTo(x,y+1);c.stroke();c.globalCompositeOperation='source-over';}}
   c.restore();
   if(W.ribbons.length&&(o.cut==null||o.cut>60))ribbons(c,W,h,ux,uy,nx,ny,o,k);
   return true;}
@@ -779,11 +779,11 @@ function scabbard(c,id,m,s,len,sd,o){const W=get(id);if(!W||!W.scab)return false
   c.save();c.transform(s.x,s.y,nx,ny,m.x,m.y);c.lineCap='round';c.lineJoin='round';
   const N=12,top=[],bot=[];for(let i=0;i<=N;i++){const u=i/N,x=u*len,y=-cv*u*u,w=lerp(w0,w1,Math.pow(u,1.2));top.push([x,y-w*.8]);bot.push([x,y+w]);}
   const body=pPoly([...top,[len+2.6,-cv+.4],...bot.reverse()]),mat=M[S0.metal]||M.brass,bc=S0.body;
-  c.globalAlpha=k;c.strokeStyle=mix(bc,'#000000',.8);c.lineWidth=.9;c.stroke(body);c.fillStyle=S0.kind==='canvas'?bc:bc;c.fill(body);
+  c.globalAlpha=k;c.strokeStyle=mix(bc,'#000000',.8);c.lineWidth=2.48;c.stroke(body);c.fillStyle=S0.kind==='canvas'?bc:bc;c.fill(body);
   c.globalAlpha=k*.5;c.fillStyle=mix(bc,'#ffffff',.25);c.beginPath();for(let i=0;i<=N;i++){const [x,y]=top[i];i?c.lineTo(x,y+.5):c.moveTo(x,y+.5);}for(let i=N;i>=0;i--){const [x,y]=top[i];c.lineTo(x,y+1.3);}c.closePath();c.fill();
   if(S0.kind==='canvas'){c.globalAlpha=k*.6;c.strokeStyle=mix(bc,'#000000',.5);c.lineWidth=.3;c.setLineDash([.8,.8]);c.beginPath();for(let i=0;i<=N;i++){const [x,y]=bot[N-i];i?c.lineTo(x,y-.6):c.moveTo(x,y-.6);}c.stroke();c.setLineDash([]);}
   // the throat and the chape in metal, and the accent line down it
-  if(S0.kind!=='canvas'){c.globalAlpha=k;const th=pRound(-.6,-w0*.9,3.4,w0*1.05,.6);c.strokeStyle=mat.o;c.lineWidth=.8;c.stroke(th);c.fillStyle=mat.b;c.fill(th);c.fillStyle=mat.l;c.globalAlpha=k*.7;c.fillRect(0,-w0*.75,3,.5);
+  if(S0.kind!=='canvas'){c.globalAlpha=k;const th=pRound(-.6,-w0*.9,3.4,w0*1.05,.6);c.strokeStyle=mat.o;c.lineWidth=1.2;c.stroke(th);c.fillStyle=mat.b;c.fill(th);c.fillStyle=mat.l;c.globalAlpha=k*.7;c.fillRect(0,-w0*.75,3,.5);
     c.globalAlpha=k;const cy=-cv,ch=pCmd([['M',len-6.5,cy-w1*.85],['L',len+2.6,cy+.2],['L',len-6.5,cy+w1*1.05],['Z']]);c.strokeStyle=mat.o;c.stroke(ch);c.fillStyle=mat.b;c.fill(ch);
     if(!dg){const bd=pRound(len*.45-1,-cv*.2-w0*.82,len*.45+1,-cv*.2+w0*.95,.4);c.strokeStyle=mat.o;c.stroke(bd);c.fillStyle=mat.b;c.fill(bd);}}
   else{c.globalAlpha=k;c.fillStyle=M.iron.b;c.beginPath();c.arc(1.6,-w0*.9,.9,0,TAU);c.fill();}

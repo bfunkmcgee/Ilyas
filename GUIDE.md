@@ -694,7 +694,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below); V82 (Nov 4) drew the places' faults (D1 to D25: the sundown's cirrus and dust, the avenue's speed, the checkpoint's firelight, a blow's flash, the station's crystals, clean trails, the roof's cloud, the hay's straw, the back room's lamp, the Pit's wall, floors and skies, `pitKit.mottle`, below); V83 (Nov 4) set the fine marks (T1 to T6: the places' thin lines brought to the drawing guide's widths from where they land, `uiwork/look/lines.js`; the world's signs in Alegreya SC, 12 units where they are read, the checkpoint's message board in hand-drawn lamps, below) and, asked for, brought the bistro's dining room to life behind its windows in the Qadir fight and made the ride out of the field fast. The remediation list is done; phase 4 (a reviewer, checks and a lookbook) is next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below); V82 (Nov 4) drew the places' faults (D1 to D25: the sundown's cirrus and dust, the avenue's speed, the checkpoint's firelight, a blow's flash, the station's crystals, clean trails, the roof's cloud, the hay's straw, the back room's lamp, the Pit's wall, floors and skies, `pitKit.mottle`, below); V83 (Nov 4) set the fine marks (T1 to T6: the places' thin lines brought to the drawing guide's widths from where they land, `uiwork/look/lines.js`; the world's signs in Alegreya SC, 12 units where they are read, the checkpoint's message board in hand-drawn lamps, below) and, asked for, brought the bistro's dining room to life behind its windows in the Qadir fight and made the ride out of the field fast. The remediation list is done; V84 (Nov 4, asked for) gave the fighters the same line pass (Ilyas, the weapons, the guns, the beasts and the figure kit's folds, below); phase 4 (a reviewer, checks and a lookbook) is next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -746,12 +746,12 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 ## Publishing
 Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V84 ..." (V83 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V85 ..." (V84 was the last published; count on from it). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V83: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V84: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -919,7 +919,7 @@ was checked, and anything that did not work, plainly.
   left a little under; single hairlines under half a unit were doubled. At V83 922 of the places' 1146 assignments meet it (76 more
   are faint, 76 are hairlines, 72 texture or a caller's width; the figure tier's 201 aside). Kept as they are: faint lines (alpha under .2, tone rather
   than marks), runs of fine texture drawn in a loop (spokes, grilles, grain, mortar, stitching), widths that come in as a variable
-  from the caller, and the figure tier (the beasts, the guns, the spells, Kael and the weapons: the figure kit's own). The kit's gilt
+  from the caller, and the figure tier (its own pass in V84, below). The kit's gilt
   vine and wrought scroll never go under 1. No frame's light moved more than .006 for it. World text is Alegreya SC: the checkpoint's
   POLICE markings and its tape; its message board's letters are drawn lamp by lamp on the board's own grid, five by seven and 12
   units tall (`boardFace`: CHECK POINT, then STOP and arrows); the platform's plaque; NO ENTRY on the sealed door at 12, the station's
@@ -928,6 +928,18 @@ was checked, and anything that did not work, plainly.
   the WATER TOLL board and its price (the board lighter and its paint darker, to be read), the avenue's shop names (their fascias
   16 tall), the hotel's canopy, the square's name plate (flying left of its post) and the theatre's bill (THE GILDED HOUR). Bills,
   posters, chalked numbers and window lettering stay small, as texture.
+  V84 (asked for) gave the fighters the same pass, held to their drawing budgets (the timing checks: him under 1.5 ms a frame and
+  his suit cut to ribbons under .8 ms more, each crew member under 1.2, each weapon under .3), timed by turns against V83's build:
+  the beasts and the guns by the same rules; Ilyas's head (the hair's light, the ear, the brow, the mouth), hands, boots and belt
+  charge brought to the width or doubled, his trim and the lines of his jacket, sleeves and cuffs a quarter wider and the dagger's
+  ink half again (the full width put him over budget); the tears' rims, the scar's tissue, the coat's ribbons' seams, the vine where
+  the band crosses it and the sleeve's torn edge keep theirs (a torn piece of cloth is drawn in an offscreen layer with round joins,
+  where a wider line costs most). The weapons (sk_armsui.js): a part's ink line keeps its .9 (doubled it cost .15 ms a weapon), the
+  rim .83 (.55), a tube's light line .6 at the least, the others widened, the busiest half again. The figure kit's folds (sk_figui.js:
+  every other fighter's creases) are half again as wide. A width given in pixels (`.9/k`, one pixel close up) keeps that form, both
+  its numbers scaled. 74 of the fighters' 177 assignments meet the rule (19 before; Ilyas 11 of 42); the rest are wider but under
+  it, hairlines doubled (the guns' engraving, the weapons' fine edges, the beasts' glints) and fine texture. The spells (fx_elven.js)
+  are light, not marks, and stay.
 - Time a painter on a phone's screen by drawing the same moment over and over with a part left out by turns (as the V72 dream was
   timed): one run against another on this machine differs by 2 ms or more.
 - What a pass over the whole frame costs is its pixels times its blend, and in a CPU canvas it is dear: on a phone's 1.2 million

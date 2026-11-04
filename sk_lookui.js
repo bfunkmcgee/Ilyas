@@ -464,7 +464,7 @@ function muscleLines(c,tb,rimCol,L,lod,k,far){
   const P=new Path2D();for(const [a,m,b] of lines){const cp=sub(mul(m,2),mix(a,b,.5));P.moveTo(a.x,a.y);P.quadraticCurveTo(cp.x,cp.y,b.x,b.y);}
   const al=far?.5:1,w=Math.max(.35,.55/k);
   c.save();c.clip(tb.p);c.lineCap='round';
-  c.strokeStyle='#000000';c.globalAlpha=al*(lod?.6:.5);c.lineWidth=w*1.7;c.stroke(P);
+  c.strokeStyle='#000000';c.globalAlpha=al*(lod?.6:.5);c.lineWidth=w*2.12;c.stroke(P);
   c.translate(L.x*w*1.2,L.y*w*1.2);c.strokeStyle=rimCol;c.globalAlpha=al*(lod?.48:.34);c.lineWidth=w*1.1;c.stroke(P);c.translate(-L.x*w*1.2,-L.y*w*1.2);
   // (the bellies: [the segment, from, to, which side])
   const nfU=mul(perp(nrm(sub(E,S0))),fs),nfF=mul(perp(nrm(sub(W,E))),fs);
@@ -477,7 +477,7 @@ function vestOutline(at,T){return[[T+3.4,-3.6],[T*.97,-6.4],[T*.80,-8.3],[T*.55,
   [-T*.02,7.3],[T*.18,7.1],[T*.33,6.9],[T*.48,7.7],[T*.64,8.9],[T*.80,8.8],[T*.92,7.0],[T+.9,4.8],[T+3.6,3.7],[T+4.0,0]].map(([a,s])=>at(a,s));}
 // the dagger in its sheath at the small of his back (where the game reaches for it: sheathPts), or the sheath alone once it is out
 // (pt(a, b): a point a up his back from the hips and b out from it; on a turned torso a point out of sight is flagged h)
-function sheathedDagger(c,pt,look,lod,k,full){const ink=Math.max(.35,.7/k);
+function sheathedDagger(c,pt,look,lod,k,full){const ink=Math.max(.53,1.05/k);
   const g=pt(2,-6.5),t=pt(-15,-20);if(g.h||t.h)return;const d=nrm(sub(t,g)),q=perp(d),sh=[add(g,mul(q,2.1)),add(t,mul(q,.6)),add(t,mul(d,1.4)),sub(t,mul(q,.6)),sub(g,mul(q,2.1))];
   c.fillStyle=vcol(look,'band',false);c.beginPath();c.moveTo(sh[0].x,sh[0].y);for(const z of sh.slice(1))c.lineTo(z.x,z.y);c.closePath();c.fill();
   c.strokeStyle=tone(look,'gold',false,lod?1:0);c.lineWidth=ink;c.stroke();
@@ -491,14 +491,14 @@ function sheathedDagger(c,pt,look,lod,k,full){const ink=Math.max(.35,.7/k);
 // the breaching charge on his belt: a compact black and brass case with a cyan core behind a grille, a pull ring at its top
 function beltCharge(c,pt,sz,look,lod,k,now){const box=[pt(3.4,-3.6),pt(3.4,3.8),pt(-3.6,3.8),pt(-3.6,-3.6)];if(box.some(q=>q.h))return;
   c.fillStyle=vcol(look,'charge',false);c.beginPath();c.moveTo(box[0].x,box[0].y);for(const z of box.slice(1))c.lineTo(z.x,z.y);c.closePath();c.fill();
-  c.strokeStyle=vcol(look,'brass',false);c.lineWidth=Math.max(.45,.9/k);c.stroke();
+  c.strokeStyle=vcol(look,'brass',false);c.lineWidth=Math.max(.9,1.8/k);c.stroke();
   // the core
   const cc=pt(-.2,.2),pulse=.65+.35*Math.sin(now*4.2);c.save();c.globalCompositeOperation='lighter';
   if(lod){const g=c.createRadialGradient(cc.x,cc.y,0,cc.x,cc.y,3.6*sz);g.addColorStop(0,`rgba(217,255,250,${(.9*pulse).toFixed(3)})`);g.addColorStop(.45,`rgba(127,243,227,${(.55*pulse).toFixed(3)})`);g.addColorStop(1,'rgba(127,243,227,0)');c.fillStyle=g;c.beginPath();c.arc(cc.x,cc.y,3.6*sz,0,TAU);c.fill();}
   else{c.fillStyle=`rgba(127,243,227,${(.5*pulse).toFixed(3)})`;c.beginPath();c.arc(cc.x,cc.y,2.6*sz,0,TAU);c.fill();c.fillStyle=`rgba(217,255,250,${(.8*pulse).toFixed(3)})`;c.beginPath();c.arc(cc.x,cc.y,1.2*sz,0,TAU);c.fill();}c.restore();
   if(lod){c.strokeStyle='rgba(10,9,14,.85)';c.lineWidth=.45;for(let i=-1;i<=1;i++){const a=pt(-1.8,i*1.2),b=pt(1.8,i*1.2);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}}
   // the pull ring and its wire
-  const r0=pt(3.4,2.4),ring=pt(5.6,3.4);c.strokeStyle=tone(look,'gold',false,0);c.lineWidth=Math.max(.45,.8/k);c.beginPath();c.moveTo(r0.x,r0.y);c.lineTo(ring.x,ring.y);c.stroke();
+  const r0=pt(3.4,2.4),ring=pt(5.6,3.4);c.strokeStyle=tone(look,'gold',false,0);c.lineWidth=Math.max(.9,1.6/k);c.beginPath();c.moveTo(r0.x,r0.y);c.lineTo(ring.x,ring.y);c.stroke();
   c.beginPath();c.arc(ring.x,ring.y,1.5*sz,0,TAU);c.stroke();}
 
 
@@ -542,15 +542,15 @@ function pinnedSleeve(c,look,env,Sh,u,n,sz,lod,k,mat,C,ua,pinned=true,fa=25*sz,l
   look.paint(c,[sl],mat,env);
   // over the shoulder: the sleeve's head round the top of it
   const cap=capsule(add(Sh,mul(u,1.4*sz)),pt(.1,0),9.6*sz*s,8.8*sz*s);look.paint(c,[cap],mat,env);
-  c.save();c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=Math.max(.5,.85/k);c.stroke(sl.p);
+  c.save();c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=Math.max(.62,1.06/k);c.stroke(sl.p);
   c.clip(sl.p);
   // the cuff folded up over its foot: the top edge of the doubled cloth (dark under a lit edge), and the creases of the empty cloth
   {const f0=pt(.58,3.4),f1=pt(.6,-3.3),m=pt(.66,0);c.beginPath();c.moveTo(f0.x,f0.y);c.quadraticCurveTo(m.x,m.y,f1.x,f1.y);c.stroke();
-    c.strokeStyle=rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.3);c.lineWidth=Math.max(.4,.6/k);c.beginPath();c.moveTo(f0.x-hd.x*.9*sz,f0.y-hd.y*.9*sz);c.quadraticCurveTo(m.x-hd.x*.9*sz,m.y-hd.y*.9*sz,f1.x-hd.x*.9*sz,f1.y-hd.y*.9*sz);c.stroke();}
-  c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=Math.max(.4,.6/k);for(const [a0,b0,a1,b1] of [[.14,1.8,.5,.6],[.2,-1.6,.48,-.4],[.7,1.6,.94,.4]]){const A=pt(a0,b0),Z=pt(a1,b1);c.beginPath();c.moveTo(A.x,A.y);c.lineTo(Z.x,Z.y);c.stroke();}
+    c.strokeStyle=rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.3);c.lineWidth=Math.max(.5,.75/k);c.beginPath();c.moveTo(f0.x-hd.x*.9*sz,f0.y-hd.y*.9*sz);c.quadraticCurveTo(m.x-hd.x*.9*sz,m.y-hd.y*.9*sz,f1.x-hd.x*.9*sz,f1.y-hd.y*.9*sz);c.stroke();}
+  c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=Math.max(.5,.75/k);for(const [a0,b0,a1,b1] of [[.14,1.8,.5,.6],[.2,-1.6,.48,-.4],[.7,1.6,.94,.4]]){const A=pt(a0,b0),Z=pt(a1,b1);c.beginPath();c.moveTo(A.x,A.y);c.lineTo(Z.x,Z.y);c.stroke();}
   c.restore();
   // Tamm's pin, through the fold
-  const p0=pt(.5,1.4),p1=pt(.66,.9),pc=tone(look,'pin');c.strokeStyle=pc;c.lineWidth=Math.max(.55,.65*sz);c.lineCap='round';c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.stroke();
+  const p0=pt(.5,1.4),p1=pt(.66,.9),pc=tone(look,'pin');c.strokeStyle=pc;c.lineWidth=Math.max(.69,.81*sz);c.lineCap='round';c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.stroke();
   c.fillStyle=pc;c.beginPath();c.arc(p0.x,p0.y,.9*sz,0,TAU);c.fill();
   if(lod>=1){c.fillStyle='rgba(255,250,235,.85)';c.beginPath();c.arc(p0.x-.25*sz,p0.y-.25*sz,.34*sz,0,TAU);c.fill();}}
 
@@ -770,7 +770,7 @@ function draw(c,F,o={}){
     const A=pitArm(p[ELF],p[HAF],SH[1],far),op=!!F.openHand&&!(armed&&o.drawOther);
     paint([op?openHand(p[HAF],A.fd,sz):fist(p[HAF],armed?tipDir:A.fd,sz)],WEAR&&WEAR.hands==='glove'?'glove':'skin',far);
     // (the open hand's fingers, close up)
-    if(op&&(lod>=1||k>1.6)){const g=A.fd,q=perp(g),H=p[HAF],pt=(a,bb)=>add(H,add(mul(g,a*sz*1.12),mul(q,bb*sz*1.12)));c.save();c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.3,.45/k);c.lineCap='round';c.beginPath();
+    if(op&&(lod>=1||k>1.6)){const g=A.fd,q=perp(g),H=p[HAF],pt=(a,bb)=>add(H,add(mul(g,a*sz*1.12),mul(q,bb*sz*1.12)));c.save();c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.6,.9/k);c.lineCap='round';c.beginPath();
       for(const bb of [-1.2,.1,1.3]){const a0=pt(4.6,bb),a1=pt(8.6,bb*.75);c.moveTo(a0.x,a0.y);c.lineTo(a1.x,a1.y);}c.stroke();c.restore();}};
   // the near shoulder: the dressed stump (three weeks on), or the empty sleeve pinned up
   const lostArm=()=>{const W0=WEAR||{};env.far=false;
@@ -841,10 +841,10 @@ function draw(c,F,o={}){
 FigKit.folds(c,L.tb,env,far?foldFar:foldCol);tear(side>0?'legN':'legF',L.tb.p,far?colOf('underFar','#2a141b'):colOf('under','#3b1a22'));
     // (the Pit's boots: the trousers tucked into them, the shaft up the shin)
     if(WEAR&&WEAR.feet==='boots'){const A=p[ft],sd=nrm(sub(p[kn],A)),b0=add(A,mul(sd,(S.front?2.2:-.4)*sz)),b1=add(A,mul(sd,7.4*sz));paint([capsule(b0,b1,7.4*sz,7.8*sz)],'shoe',far);
-      if(lod>=1||k>1.6){const q=perp(sd);c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=Math.max(.4,.6/k);c.beginPath();c.moveTo(b1.x+q.x*3.9*sz,b1.y+q.y*3.9*sz);c.lineTo(b1.x-q.x*3.9*sz,b1.y-q.y*3.9*sz);c.stroke();}}
+      if(lod>=1||k>1.6){const q=perp(sd);c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=Math.max(.8,1.2/k);c.beginPath();c.moveTo(b1.x+q.x*3.9*sz,b1.y+q.y*3.9*sz);c.lineTo(b1.x-q.x*3.9*sz,b1.y-q.y*3.9*sz);c.stroke();}}
     if(S.front)paint([S.pc],footMat,far);
     if(WEAR&&S.pt&&(lod>=1||k>1.6))footDetail(S,bare?'bare':sand?'sandals':'boots',far,p[kn],p[ft]);
-    if(!far&&S.sole&&!bare&&!sand){if(lod>=1){c.strokeStyle=isCel(look)?look.line:'rgba(255,230,190,.3)';c.lineWidth=.55;c.beginPath();c.moveTo(S.sole[0].x,S.sole[0].y);c.lineTo(S.sole[1].x,S.sole[1].y);c.stroke();}
+    if(!far&&S.sole&&!bare&&!sand){if(lod>=1){c.strokeStyle=isCel(look)?look.line:'rgba(255,230,190,.3)';c.lineWidth=1.01;c.beginPath();c.moveTo(S.sole[0].x,S.sole[0].y);c.lineTo(S.sole[1].x,S.sole[1].y);c.stroke();}
       {c.save();c.globalAlpha*=isCel(look)?.7:.85;c.fillStyle=isCel(look)?'#8d93ad':'#ffe2ad';c.beginPath();c.ellipse(S.toe.x,S.toe.y,1.6*sz,.55*sz,Math.atan2(S.d.y,S.d.x),0,TAU);c.fill();c.restore();}}};
   // the seat of the trousers: the weight of the hips, both thighs going into it (turned: round the hips as they are seen, down to the
   // crotch and the tops of the thighs)
@@ -988,7 +988,7 @@ FigKit.folds(c,L.tb,env,far?foldFar:foldCol);tear(side>0?'legN':'legF',L.tb.p,fa
     for(const a0 of [T*.9,T*.74]){const q=AT(a0,6.9);if(q.h)continue;c.fillStyle=tone(look,'horn');c.beginPath();c.arc(q.x,q.y,.75*sz,0,TAU);c.fill();}
     if(side>=0)tear('torso',sp.p,colOf('lining','#1d625c'),c,side?AT:null);};
   // the drawstring of the linen trousers Tamm found him (when nothing is over it)
-  const drawstring=AT=>{const a=AT(T*.07,5.2),b=AT(T*.0,6.4);if(!a.h&&!b.h){c.strokeStyle=tone(look,'linen');c.lineWidth=Math.max(.4,.5*sz);c.beginPath();c.moveTo(a.x,a.y);c.quadraticCurveTo((a.x+b.x)/2+1,(a.y+b.y)/2+2,b.x,b.y+1.5*sz);c.stroke();}};
+  const drawstring=AT=>{const a=AT(T*.07,5.2),b=AT(T*.0,6.4);if(!a.h&&!b.h){c.strokeStyle=tone(look,'linen');c.lineWidth=Math.max(.5,.63*sz);c.beginPath();c.moveTo(a.x,a.y);c.quadraticCurveTo((a.x+b.x)/2+1,(a.y+b.y)/2+2,b.x,b.y+1.5*sz);c.stroke();}};
   const bareDetails=(AT,side,sp)=>{
     if(!WEAR.bandage)return;
     // the dressings: round his chest under the arms, and from the stump forward and back across him (in profile)
@@ -1005,7 +1005,7 @@ FigKit.folds(c,L.tb,env,far?foldFar:foldCol);tear(side>0?'legN':'legF',L.tb.p,fa
     paint([piece([AT(T-1.8,-4.6),AT(T+4.4,-4.4),AT(T+5.2,-1.0),AT(T+3.6,3.2),AT(T-.6,3.0)],.5)],'coat');
     paint([piece([AT(T+1.4,2.4),AT(T+2.4,4.4),AT(T*.9,6.8*D),AT(T*.84,4.6)],.4)],'shirt');
     // the front edge where it laps over, and the patch pocket at the hip
-    c.save();c.clip(jk.p);c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.45,.8/k);line([AT(T*.9,7.4*D),AT(T*.6,8.6*D),AT(T*.3,7.0*D),AT(-T*.1,5.4)]);
+    c.save();c.clip(jk.p);c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.57,1/k);line([AT(T*.9,7.4*D),AT(T*.6,8.6*D),AT(T*.3,7.0*D),AT(-T*.1,5.4)]);
     if(lod>=1||k>1.6)line([AT(T*.24,1.8),AT(T*.24,6.6*D),AT(-T*.04,6.2*D),AT(-T*.04,1.6),AT(T*.24,1.8)]);c.restore();
     // three horn toggles down the front
     for(const a0 of [T*.72,T*.52,T*.32]){const q=AT(a0,6.6*D),q2=AT(a0,8.0*D);if(q.h||q2.h)continue;c.strokeStyle=tone(look,'horn');c.lineWidth=Math.max(.8,1.5*sz);c.lineCap='round';c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q2.x,q2.y);c.stroke();}
@@ -1050,14 +1050,14 @@ FigKit.folds(c,L.tb,env,far?foldFar:foldCol);tear(side>0?'legN':'legF',L.tb.p,fa
     if(TN&&VW.s<-.35){for(const [AT,side] of copies){
         if(side>0){const tail=[AT(T+1.4,3.6),AT(T*.93,6.2),AT(T*.8,7.2),AT(T*.7,7.5)];if(!tail.some(q=>q.h))paint([piece(stripPts(tail,3.4*sz),.35,k>=2.4)],'scarf');}
         const R=[AT(T+5.4,-.6),AT(T+4.6,4.0),AT(T+1.6,4.8),AT(T+.2,.2)],wp=piece(R,.5,k>=2.4);paint([wp],'scarf');
-        c.save();c.clip(wp.p);c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.4,.6/k);line([AT(T+3.4,-.2),AT(T+3.0,4.4)]);c.restore();}
+        c.save();c.clip(wp.p);c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.5,.75/k);line([AT(T+3.4,-.2),AT(T+3.0,4.4)]);c.restore();}
       return;}
     for(const [AT,side] of copies){if(side<0)continue;
     const R=[AT(T+1.2,-4.8),AT(T+4.4,-4.4),AT(T+5.4,-.6),AT(T+4.6,4.0),AT(T+1.6,4.8),AT(T+.2,.2)];if(R.some(q=>q.h))continue;
     const tail=[AT(T+1.4,3.6),AT(T*.93,6.2),AT(T*.8,7.2),AT(T*.7,7.5)];
     if(!tail.some(q=>q.h))paint([piece(stripPts(tail,3.4*sz),.35,k>=2.4)],'scarf');
     const wp=piece(R,.5,k>=2.4);paint([wp],'scarf');
-    c.save();c.clip(wp.p);c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.4,.6/k);line([AT(T+.9,-2.2),AT(T+3.4,-1.6),AT(T+4.6,1.6)]);line([AT(T+.8,1.6),AT(T+2.6,2.6),AT(T+3.6,4.2)]);c.restore();}};
+    c.save();c.clip(wp.p);c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.5,.75/k);line([AT(T+.9,-2.2),AT(T+3.4,-1.6),AT(T+4.6,1.6)]);line([AT(T+.8,1.6),AT(T+2.6,2.6),AT(T+3.6,4.2)]);c.restore();}};
   const torso=()=>{
     if(WEAR){pitTorso();return;}
     if(coatOff){
@@ -1192,7 +1192,7 @@ function goldLine(c,look,env,Q,lod,w=1,plain=false){
   if(look.noGold)return;
   if(Q.some(q=>q.h)){for(const R of FigKit.seen(Q))goldLine(c,look,env,R,lod,w,plain);return;}
   const pts=resample(Q,4),gc=tone(look,'gold',false,0),gs=tone(look,'gold',false,1)||gc;
-  c.strokeStyle=lod?gs:gc;c.lineWidth=Math.max(.45,(lod?.45:.75)*w);c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(const q of pts.slice(1))c.lineTo(q.x,q.y);c.stroke();
+  c.strokeStyle=lod?gs:gc;c.lineWidth=Math.max(.56,(lod?.56:.94)*w);c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(const q of pts.slice(1))c.lineTo(q.x,q.y);c.stroke();
   if(!lod||plain)return;
   const P=new Path2D();
   along(pts,lod>=2?1.7:2.2,.6).forEach((q,i)=>{const s=i%2?1:-1;leafPath(P,q.p,rot(q.u,s*.85),lod>=2?.62*w:.55*w);});
@@ -1222,9 +1222,9 @@ function drawHead(c,F,look,hair,env,lod,o,sz,hj){
   if(noir){// pale, with the underside a step darker away from the light
     c.fillStyle=look.col.hairShade;c.fill(hair.p);c.save();c.clip(hair.p);c.translate(Lh.x*9,Lh.y*9);c.fillStyle=look.col.hair;c.fill(hair.p);c.restore();}
   else look.paint(c,[{p:hair.p,c:V(-24,-34),r:40}],'hair',he);
-  if(lod>=1){c.save();c.clip(hair.p);c.strokeStyle=look.col.hairHi;c.lineWidth=2.2;c.globalAlpha=noir?.8:.55;c.stroke(hair.ph);c.restore();}
+  if(lod>=1){c.save();c.clip(hair.p);c.strokeStyle=look.col.hairHi;c.lineWidth=4.8;c.globalAlpha=noir?.8:.55;c.stroke(hair.ph);c.restore();}
   look.paint(c,[{p:H.ear,c:V(-26,-2),r:16}],'skin',he);
-  if(lod>=1){c.strokeStyle=noir?'#2b2128':cel?'#b8978a':'rgba(120,90,100,.7)';c.lineWidth=noir?5:4.4;c.stroke(new Path2D(HD.earIn));}
+  if(lod>=1){c.strokeStyle=noir?'#2b2128':cel?'#b8978a':'rgba(120,90,100,.7)';c.lineWidth=noir?7.19:6.32;c.stroke(new Path2D(HD.earIn));}
   // the face
   // (drained, F.drain, his eye is a dull grey, unlit; F.eyeLit gives it back a little light of its own)
   const dr=eyeDr(F),open=!!o.opening||!!F.opening,eyeC=mid(open?look.col.open:noir?look.col.eye:look.col.iris,EYE_DULL,dr);
@@ -1232,7 +1232,7 @@ function drawHead(c,F,look,hair,env,lod,o,sz,hj){
     for(const k of ['nostril','mouth','chinLine'])c.stroke(H[k]);c.globalAlpha=.55;c.stroke(H.jawLine);c.globalAlpha=1;
     c.fillStyle=look.col.eye;c.fill(H.eye);c.save();c.clip(H.eye);c.fillStyle=eyeC;c.beginPath();c.arc(IRIS.x,IRIS.y,3.6,0,TAU);c.fill();c.fillStyle='#0b0b10';c.beginPath();c.arc(IRIS.x+.6,IRIS.y,1.7,0,TAU);c.fill();c.restore();
     c.strokeStyle='#1b1418';c.lineWidth=3.2;c.stroke(H.lid);c.stroke(H.lash);}
-  if(noir&&lod>=1){c.strokeStyle='#22202a';c.lineWidth=6;c.stroke(H.brow);}
+  if(noir&&lod>=1){c.strokeStyle='#22202a';c.lineWidth=7.25;c.stroke(H.brow);}
   // the eye glows: always in the noir look, and at game size in every look, where it does the work the old eye dot did
   // (F.drain 0..1: the magic gone out of him, and the light of his eyes with it)
   if((noir||lod===0||open)&&!F.dead&&dr<.98){c.save();c.globalCompositeOperation='lighter';c.globalAlpha=1-dr;const r=open?13:9,g=c.createRadialGradient(IRIS.x-2,IRIS.y,0,IRIS.x-2,IRIS.y,r*1.8);
@@ -1319,7 +1319,7 @@ function scarfRibbon(c,F,look,env,now,sz){
   const quad=i=>{const P=new Path2D();P.moveTo(A[i].x,A[i].y);P.lineTo(A[i+1].x,A[i+1].y);P.lineTo(B[i+1].x,B[i+1].y);P.lineTo(B[i].x,B[i].y);P.closePath();return P;};
   if(cel){c.strokeStyle=look.line;c.lineWidth=env.ow*2;c.lineJoin='round';for(let i=0;i<N-1;i++)c.stroke(quad(i));}
   for(let i=0;i<N-1;i++){const front=(side[i]+side[i+1])>=0;c.fillStyle=tone(look,front?'scarf':look.col.scarfBack?'scarfBack':'lining',false,front&&(side[i]<.35)?1:0);c.fill(quad(i));}
-  const e=pts[N-1],d=nrm(sub(pts[N-1],pts[N-3])),q=perp(d);c.strokeStyle=tone(look,'gold',false,0);c.lineWidth=.45;c.beginPath();
+  const e=pts[N-1],d=nrm(sub(pts[N-1],pts[N-3])),q=perp(d);c.strokeStyle=tone(look,'gold',false,0);c.lineWidth=.68;c.beginPath();
   for(let j=-2;j<=2;j++){const a=add(e,mul(q,j*.6*sz)),b=add(a,mul(d,2.4*sz));c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);}c.stroke();
 }
 
