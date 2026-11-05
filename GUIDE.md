@@ -24,7 +24,8 @@ https://github.com/bfunkmcgee/Ilyas (since V63): work in a clone of it.
 | `python3 test.py full` | every suite two at a time, then the timing checks alone. Run before every publish | 13 min (was 36) |
 | `python3 test.py NAME ...` | named suites (`--list` shows them and what each covers) | |
 | `python3 test.py perf` | the timing checks alone; nothing else may load the machine | 50 s |
-| `python3 test.py --status` | whether the sources are the ones the last full run passed with | instant |
+| `python3 test.py look` | the look review alone (uiwork/look/review.py, since V88): every place the game draws, on a phone and a wide screen, against the style and drawing guides' measured rules; a frame that breaks one fails. Run before every publish, after the full run, with nothing beside it | 20 min |
+| `python3 test.py --status` | whether the sources are the ones the last full run and the last look review passed with | instant |
 
 Each suite's output is in test_out/NAME.txt. uiwork/qa_build.py calls `build.py --qa`. Always run long things under `timeout`. The
 machine has two cores and about 7 GB. GitHub runs `python3 build.py` and the quick tier on every push to main
@@ -713,6 +714,28 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   units where it lands on the screen (through the still layer, sprites and offscreen bitmaps), put down to the lineWidth assignment
   that set it (file, line and column): its median, least and most, colour and alpha, and whether it meets the drawing guide's rule 2
   (1.5 units; 1 for a highlight). `LWF=<file>` ({"line:col": k} for the page the run uses) previews a change to those assignments.
+- `python3 uiwork/look/review.py [out] [--judge] [--no-desk] [--keep-lines "why"]`: the look review (since V88; `python3 test.py
+  look` runs it alone into test_out/look and records its pass in test_out/look_pass.json, which `--status` checks). It runs the
+  audit at 412x714 alone, then the audit at 1280x800 beside the line widths, the colours and the picture faults, and times again
+  by turns against the fall (`costs.js`) the phone's frames that cost 85% of the fall's dearest frame or more. Then it fails a frame
+  for each rule it breaks, on a line starting FAIL: black (the style guide's rule 1: 5% at most, in the action and the scenes),
+  outline and ground (rule 8, as the audit judges them), cost (rule 6: no more than the fall's dearest frame timed by turns, 5%
+  over being the timing's own wander), gold (rule 3: under 1% in each frame of Act I lit 2% or more), rooms (rule 3: across the
+  lobby's frames and across the office's, gold at least matches sodium), words (rule 7: two), flat and repeat (the drawing guide's
+  rules 5 and 6, from faults.py), thin (rule 2, faint lines aside) and errors (a page error, a moment never reached). It writes
+  review.json: every frame's numbers, pictures and verdicts (the lookbook's source). What has been judged and kept is in
+  uiwork/look/kept.json (by rule, then a frame, a frame at one size such as `night_t15@1280x800`, or a place, each with its
+  reason; a flat patch up to a share of the picture and above a row) and kept_lines.json (each thin line kept, by its file and the
+  source round its lineWidth, with its reason); a kept entry nothing needs any more is named, so the lists stay true. `--judge`
+  judges a folder again without running anything (after a change to the lists); `--keep-lines "why"` adds the thin lines a run
+  found to kept_lines.json with that reason, once they have been judged; `--no-desk` is a partial review, never a pass.
+- `node uiwork/look/costs.js <out.json> <frame,...> [w h dpr]`: frames held where the audit shoots them, each in a page of its own,
+  timed by turns against the fall as it plays drawn all the way (`ROUNDS`, default 3, of `COSTN` draws): the cost the review
+  judges. A single run of the audit wanders by a quarter; by turns, by about 5%.
+- uiwork/look/places.js: the places and moments the audit, the line widths and the costs visit, Act I and the family's rooms, and
+  the page's fake clock, dice and moments. In these tools the page's own clock (`performance.now`) follows the fake one (since
+  V88), so what the drawing times by it (a struck man's flash, a layer painted again once the zoom holds still, the shake) comes
+  out the same however fast the machine runs; the cost alone is timed by the real clock.
 
 **The visual director (since Nov 2).** The look kept consistent by design rather than by memory, in four phases: (1) the audit,
 done: the Noir Gilt Audit (https://claude.ai/artifact/AmXd4JN8ZqZQ4SbNq6Ae9a) has every place's frames with a verdict (9 hold, 12
@@ -729,7 +752,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below); V82 (Nov 4) drew the places' faults (D1 to D25: the sundown's cirrus and dust, the avenue's speed, the checkpoint's firelight, a blow's flash, the station's crystals, clean trails, the roof's cloud, the hay's straw, the back room's lamp, the Pit's wall, floors and skies, `pitKit.mottle`, below); V83 (Nov 4) set the fine marks (T1 to T6: the places' thin lines brought to the drawing guide's widths from where they land, `uiwork/look/lines.js`; the world's signs in Alegreya SC, 12 units where they are read, the checkpoint's message board in hand-drawn lamps, below) and, asked for, brought the bistro's dining room to life behind its windows in the Qadir fight and made the ride out of the field fast. The remediation list is done; V84 (Nov 4, asked for) gave the fighters the same line pass (Ilyas, the weapons, the guns, the beasts and the figure kit's folds, below); V85 (Nov 4, asked for) drew the bistro's diners as the game's people, made the avenue three blocks in a seeded order, dashed him to the bike and to the grenade, walled the checkpoint's carrier and shouldered his rifle (above); V86 (Nov 4, asked for) nested the rifle's butt into the pocket of his shoulder and V87 (asked for) lifted his head back up behind the sight (above); phase 4 (a reviewer, checks and a lookbook) is next.
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below); V82 (Nov 4) drew the places' faults (D1 to D25: the sundown's cirrus and dust, the avenue's speed, the checkpoint's firelight, a blow's flash, the station's crystals, clean trails, the roof's cloud, the hay's straw, the back room's lamp, the Pit's wall, floors and skies, `pitKit.mottle`, below); V83 (Nov 4) set the fine marks (T1 to T6: the places' thin lines brought to the drawing guide's widths from where they land, `uiwork/look/lines.js`; the world's signs in Alegreya SC, 12 units where they are read, the checkpoint's message board in hand-drawn lamps, below) and, asked for, brought the bistro's dining room to life behind its windows in the Qadir fight and made the ride out of the field fast. The remediation list is done; V84 (Nov 4, asked for) gave the fighters the same line pass (Ilyas, the weapons, the guns, the beasts and the figure kit's folds, below); V85 (Nov 4, asked for) drew the bistro's diners as the game's people, made the avenue three blocks in a seeded order, dashed him to the bike and to the grenade, walled the checkpoint's carrier and shouldered his rifle (above); V86 (Nov 4, asked for) nested the rifle's butt into the pocket of his shoulder and V87 (asked for) lifted his head back up behind the sight (above); V88 (Nov 4, asked for) began phase 4 with the reviewer (`python3 test.py look`, below) and put right what its first run failed; the lookbook is next.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -778,15 +801,35 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 7. People who are not fighting are drawn with the figure kit's planes and rim, busy and in overlapping groups; world text is
    Alegreya SC or hand-drawn, never the HUD's Barlow; props tell the place's story or serve the fight.
 
+**The look review (since V88, phase 4).** `python3 test.py look` holds every place to the two guides' measured rules, frame by
+frame, on an upright phone and a wide screen (uiwork/look/review.py, under Screenshots), and a frame that breaks one fails. A fail
+is put right, or judged and kept with its reason: a frame or a place in uiwork/look/kept.json, a thin line in kept_lines.json.
+Its first run failed the station's and the tunnel's flat black (6 to 8% where the finish's dark foot met their darkest ground),
+a flat patch under the stairs' ledge and Ilyas's outline in the yard at night on a wide screen (.64), all put right in V88: the
+platform's face and the siding's bed lighter and the near bed's fall-off eased (1 to 2% now), the tunnel's vault less sooted and
+the bed under the car drawn in its shadow (4%), ledgers across the timbers under the stairs' ledge, and his scarf given edges, the
+side toward the key light caught in it and the other in its own shade (.70; the yard's night light lifts the ground off its pools a
+little more too, `base` .36). It failed the deep station's cost as well, read then against the fall's middle frame; the cost is read
+against the fall's dearest frame, as the audit of Nov 2 and V79 read it, and by turns the deep station's fight runs 94 to 104% of
+that, its lizard alone about 9 ms of the frame (his sprite is a third of the screen). The new lines since V84 were brought to the
+drawing guide's width (the avenue's new fronts, the diners' glasses), and the bistro's diners are drawn at the cast kit's least
+detail (`o.lod`: their sprite shows at under a pixel a unit of the figure, so a face's fine lines landed under half a unit of the
+world). Kept: the three title cards' black, the dream's open sky and the sundown's late one, the repeats of the gilt, the
+underground, the dining room's ceiling beams, the tower's windows and Lamplight Street's arches and lamps, and the 251 thin lines
+judged in V83 and V84.
+
 ## Publishing
-Run `python3 test.py full` first, and `python3 test.py --status` just before publishing (it names any file changed since).
+Run `python3 test.py full` first, then `python3 test.py look` (alone, about 20 minutes: it times the drawing), and `python3 test.py
+--status` just before publishing (it names any file changed since either passed).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V88 ..." (V87 was the last published; count on from it). The song and the recorded sounds are published beside the page
+short label "V89 ..." (V88 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
+whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V87: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V89: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 

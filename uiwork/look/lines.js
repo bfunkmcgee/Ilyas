@@ -7,18 +7,8 @@
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const OUT=process.argv[2],VW=+(process.argv[3]||412),VH=+(process.argv[4]||714),DPR=+(process.argv[5]||2),ONLY=process.argv[6]?process.argv[6].split(','):null;
 const PAGE=process.env.PAGE||'test_page.html',NF=+(process.env.NF||24);fs.mkdirSync(OUT,{recursive:true});
-const SHOTS=[
-  {id:'sundown',stage:'sundown',at:['t6','t16']},{id:'field',stage:'field',at:['t2','f4']},{id:'chase',stage:'chase',at:['f3','f8']},
-  {id:'roadblock',stage:'roadblock',at:['t2','f4']},{id:'vargo',stage:'vargo',at:['t3','f4']},{id:'dining',stage:'dining',at:['f2','f5']},
-  {id:'kitchen',stage:'kitchen',at:['f2','f5']},{id:'platform',stage:'platform',at:['t3','t8']},{id:'line',stage:'line',at:['f2','f5']},
-  {id:'deep',stage:'deep',at:['t3','f4']},{id:'lobby',stage:'lobby',at:['t3','f4']},{id:'office',stage:'office',at:['t3','f4']},
-  {id:'roof',stage:'roof',at:['t4','t10','t16','t22','t32.9','t33.9']},{id:'fall',stage:'fall',at:['t4','t24','t37','t46.5'],draw:'all'},
-  {id:'roof1',stage:'roof1',at:['t3','t9']},{id:'kitchen1',stage:'kitchen1',at:['t3','t8']},{id:'backroom',stage:'backroom',at:['t4','t12']},
-  {id:'lostprop',stage:'lostprop',at:['t4','t12']},{id:'yard1',stage:'yard1',at:['t5','t15']},{id:'list',stage:'list',at:['t5','t15']},
-  {id:'stairsup',stage:'stairsup',at:['t5','t15']},{id:'shelfstair',stage:'shelfstair',at:['t5','t12']},{id:'shelf',stage:'shelf',at:['t5','t15']},
-  {id:'stairsdown',stage:'stairsdown',at:['t5','t12']},{id:'toll',stage:'toll',at:['t3','f4']},{id:'tamm',stage:'tamm',at:['t3','f4']},
-  {id:'night',stage:'night',at:['t5','t15']},{id:'sh1',stage:'sh1',at:['t3','f4']},
-  {id:'lab_street',lab:'street'},{id:'lab_field',lab:'field'},{id:'lab_hill',lab:'hill'},{id:'lab_ledge',lab:'ledge'},{id:'lab_wall',lab:'wall'}];
+// the places and moments: uiwork/look/places.js (the look audit's)
+const {SHOTS,chromiumPath}=require('./places.js');
 // (in the page) the instrument: window.__LW gathers what it sees; window.__LWF {'line:col': k}, set before it, multiplies what those
 // assignments set (a preview of a change before it is made in the sources)
 function instrument(){if(window.__LW)return;const R=window.__LW={sites:{},edges:{},roots:{}};let nid=1;const ids=new WeakMap();const F=window.__LWF||null;
@@ -51,7 +41,7 @@ function instrument(){if(window.__LW)return;const R=window.__LW={sites:{},edges:
     OffscreenCanvas.prototype.transferToImageBitmap=function(){const b=tb.apply(this,arguments);ids.set(b,idOf(this));ids.set(this,nid++);return b;};}
   // the scene's still layer: its pixels a unit are known
   if(typeof sceneLayer==='function'){const SL=sceneLayer;sceneLayer=function(){const L=SL.apply(this,arguments);if(L&&L.cv)R.roots[idOf(L.cv)]=L.sc;return L;};}}
-(async()=>{const b=await chromium.launch({executablePath:process.env.SK_CHROMIUM||(fs.existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined)});
+(async()=>{const b=await chromium.launch({executablePath:chromiumPath()});
   const F=process.env.LWF?JSON.parse(fs.readFileSync(process.env.LWF,'utf8')):null;
   for(const sh of SHOTS){if(ONLY&&!ONLY.includes(sh.id))continue;const t0=Date.now();
     const p=await (await b.newContext({viewport:{width:VW,height:VH},deviceScaleFactor:DPR,isMobile:VW<700,hasTouch:VW<700})).newPage(),errs=[];
@@ -67,7 +57,7 @@ function instrument(){if(window.__LW)return;const R=window.__LW={sites:{},edges:
           const inFight=()=>S.story&&S.story.step==='fight'&&(S.game.phase==='input'||S.game.phase==='exchange');let n=0;
           const due=()=>{if(fight){if(window.__tf==null){if(inFight())window.__tf=S.t;else return false;}return S.t>=window.__tf+T-(all?0:.5);}return S.t>=window.__t0+T-(all?0:.5);};
           while(still()&&!due()&&n<12000){step(1);n++;}if(!still())return;if(!all){drawing(true);step(nf);drawing(false);}},[m,sh.draw==='all',NF]);}}
-    const R=await p.evaluate(()=>window.__LW);fs.writeFileSync(path.join(OUT,sh.id+'.json'),JSON.stringify(R));
+    const R=await p.evaluate(()=>window.__LW);R.errs=errs.slice(0,3);fs.writeFileSync(path.join(OUT,sh.id+'.json'),JSON.stringify(R));
     console.log(sh.id,Object.keys(R.sites).length,'sites',((Date.now()-t0)/1000).toFixed(0)+'s',errs.slice(0,2).join(' | '));
     await p.context().close();}
   await b.close();})();

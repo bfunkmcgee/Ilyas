@@ -1,0 +1,20 @@
+{
+"_": "What the look review lets stand, judged: by rule, then by name (a frame, id_moment, a lab ground by its id; a frame at one size, name@412x714; or a place, its id), each with its reason. A flat patch is kept up to its max share of the picture, and only above the row given (0 the top, 1 the foot). An entry no frame needs any more is named by the review.",
+"black": {
+  "field_t2": "the field's title card: it opens on black by design (V76)",
+  "roadblock_t2": "the checkpoint's title card, on black by design (V76)",
+  "roof1_t3": "Act I's title card, on black by design (V76)"
+},
+"flat": {
+  "fall": {"max": 11, "above": 0.5, "why": "the dream's open sky stays clean, the one clean sky in the game (judged in V82)"},
+  "sundown": {"max": 6, "above": 0.5, "why": "the sky as the light goes: the cirrus thins toward dusk (V82: gone early on, 5% late)"}
+},
+"repeat": {
+  "lobby": "the gilt's coffers and bays: the gilt is upright, exact and mirrored (drawing rule 3)",
+  "platform": "the underground's ribs and the track's sleepers, in a steady beat (drawing rule 3)",
+  "line": "the tunnel's ribs and the track's sleepers, in a steady beat (drawing rule 3)",
+  "dining": "the dining room's ceiling beams: built, so they may repeat exactly (drawing rule 6)",
+  "fall": "the tower's face: its windows are one set painted once, machine-made (drawing rule 6)",
+  "lab_street": "Lamplight Street's arches and the beat of its gas lamps, machine-made (judged in V82)"
+}
+}

@@ -373,7 +373,11 @@ function drop(c,P,T){const sh=(col,k)=>K.shade(P,col,k),lane=flight()==='lane',r
   // the timbers under the ledge: posts going down, braces across
   for(let x=-140;x<1150;x+=62+r()*16){const h=sy(x)-FACE,p=Q(x,h,EDGE+2),b=Q(x+18,h-150,EDGE+30);c.strokeStyle=sh('#241a12',1.3);c.lineWidth=5;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(b.x,b.y);c.stroke();
     c.strokeStyle=rgba(P.light,.04+.15*P.lightA);c.lineWidth=1;c.beginPath();c.moveTo(p.x-2,p.y);c.lineTo(b.x-2,b.y);c.stroke();
-    const p2=Q(x+46,h,EDGE+2),m=Q(x+9,h-75,EDGE+16);c.strokeStyle=sh('#20160f',1.3);c.lineWidth=3;c.beginPath();c.moveTo(p2.x,p2.y);c.lineTo(m.x,m.y);c.stroke();}
+    const p2=Q(x+46,h,EDGE+2),m=Q(x+9,h-75,EDGE+16);c.strokeStyle=sh('#20160f',1.3);c.lineWidth=3;c.beginPath();c.moveTo(p2.x,p2.y);c.lineTo(m.x,m.y);c.stroke();
+    // (the ledgers across between the posts at two heights, their tops catching what light gets under the ledge: the timbers' own
+    // grain over the shadow, which was one flat dark there, since V88)
+    for(const [dh,dd] of [[42,8],[104,20]]){const a=Q(x-4,h-dh,EDGE+dd),b=Q(x+66,h-dh-r()*6,EDGE+dd);c.strokeStyle=sh('#2a1e14',1.3);c.lineWidth=3.4;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();
+      c.strokeStyle=rgba(P.light,.05+.14*P.lightA);c.lineWidth=1;c.beginPath();c.moveTo(a.x,a.y-1.6);c.lineTo(b.x,b.y-1.6);c.stroke();}}
   c.restore();}
 // ---------- the street itself ----------
 // the treads, low to high (each covers the riser of the one before, which faces away from the eye); flagstones on the bottom landing,

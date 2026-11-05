@@ -1319,6 +1319,14 @@ function scarfRibbon(c,F,look,env,now,sz){
   const quad=i=>{const P=new Path2D();P.moveTo(A[i].x,A[i].y);P.lineTo(A[i+1].x,A[i+1].y);P.lineTo(B[i+1].x,B[i+1].y);P.lineTo(B[i].x,B[i].y);P.closePath();return P;};
   if(cel){c.strokeStyle=look.line;c.lineWidth=env.ow*2;c.lineJoin='round';for(let i=0;i<N-1;i++)c.stroke(quad(i));}
   for(let i=0;i<N-1;i++){const front=(side[i]+side[i+1])>=0;c.fillStyle=tone(look,front?'scarf':look.col.scarfBack?'scarfBack':'lining',false,front&&(side[i]<.35)?1:0);c.fill(quad(i));}
+  // (its edges, but in the cel look's ink: the side toward the key light caught in it, the other in the ribbon's own shade, so the
+  // ribbon reads against what is behind it as the rest of him does, the style guide's rule 8; without them its rust was lost on the
+  // yard's warm ground at night, since V88)
+  if(!cel){const L=env.L,a0=c.globalAlpha,lit=new Path2D(),dark=new Path2D();
+    for(let i=0;i<N-1;i++){const n=nrm(sub(A[i],B[i])),f=n.x*L.x+n.y*L.y,[p1,p2,q1,q2]=f>=0?[A[i],A[i+1],B[i],B[i+1]]:[B[i],B[i+1],A[i],A[i+1]];
+      if(Math.abs(f)>.2){lit.moveTo(p1.x,p1.y);lit.lineTo(p2.x,p2.y);}dark.moveTo(q1.x,q1.y);dark.lineTo(q2.x,q2.y);}
+    c.lineCap='round';c.lineJoin='round';c.strokeStyle=tone(look,look.col.scarfBack?'scarfBack':'scarf',false,1)||'#2a1208';c.globalAlpha=a0*.7;c.lineWidth=1.5;c.stroke(dark);
+    c.strokeStyle=FigKit.rimCol(look.col.rim||'#ffcf86');c.globalAlpha=a0*Math.min(1,.7*FigKit.rimK());c.lineWidth=1;c.stroke(lit);c.globalAlpha=a0;}
   const e=pts[N-1],d=nrm(sub(pts[N-1],pts[N-3])),q=perp(d);c.strokeStyle=tone(look,'gold',false,0);c.lineWidth=.68;c.beginPath();
   for(let j=-2;j<=2;j++){const a=add(e,mul(q,j*.6*sz)),b=add(a,mul(d,2.4*sz));c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);}c.stroke();
 }

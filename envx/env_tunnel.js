@@ -107,7 +107,7 @@ let VT=null;
 function vaultTile(k){const sc=bucket(k)*.5;if(VT&&VT.sc===sc)return VT;
   const bt=EnvTex.brick(13,{base:'#2e1a14',alt:'#1e100c',hot:'#3a2018',mortar:'#0a0706'});if(!bt||bt.width<16)return null;
   const y1=-12,y0=y1-VH,cv=mk(PER,VH,sc),c=cv.getContext('2d'),r=rng(17);c.scale(sc,sc);c.translate(0,-y0);
-  c.fillStyle=patAt(c,bt,0,0,1/6);c.fillRect(0,y0,PER,VH);c.fillStyle=rgba('#020203',.44);c.fillRect(0,y0,PER,VH);
+  c.fillStyle=patAt(c,bt,0,0,1/6);c.fillRect(0,y0,PER,VH);c.fillStyle=rgba('#020203',.3);c.fillRect(0,y0,PER,VH);
   // soot in long stains along the line, where the engines' breath has gone over it for a century
   for(let i=0;i<10;i++){const y=lerp(y0,y1,r()),L=120+r()*360,x=r()*PER;c.fillStyle=rgba('#000000',.18+.18*r());c.fillRect(x,y,L,2+r()*5);c.fillRect(x-PER,y,L,2+r()*5);}
   const s=VH*VLEAN;for(let x=40;x<PER+s+40;x+=140){const xa=x-26,xb=x-14;
@@ -254,7 +254,7 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
   // the vault over it, on up as far as the view goes
   {const V=vaultTile(k),vy0=Math.max(-400,-Tr.f/Tr.d-20);if(V)for(let j=0,yb=V.y0+V.h;yb>vy0&&j<6;j++,yb-=V.h){const y=yb-V.h,sx=j*V.h*VLEAN;let x=ox-sx-frac(s0/PER)*PER;while(x>vx0)x-=PER;
       for(;x<vx1;x+=PER){if(blurA<1)ctx.drawImage(V.cv,x,y,PER+.6,V.h+.6);if(blurA>0){ctx.globalAlpha=blurA;ctx.drawImage(V.blur,x,y,PER+.6,V.h+.6);ctx.globalAlpha=1;}}
-      if(j){ctx.fillStyle=rgba('#020203',Math.min(.4,.1*j));ctx.fillRect(vx0,y,vx1-vx0,V.h+.6);}}}
+      if(j){ctx.fillStyle=rgba('#020203',Math.min(.3,.075*j));ctx.fillRect(vx0,y,vx1-vx0,V.h+.6);}}}
   // the strip of track bed at the wall's foot beyond the car, streaming by
   // (in the light on the fight: the near black it was, as that light leaves it)
   ctx.fillStyle='#131c1a';ctx.fillRect(vx0,wb-1,vx1-vx0,df-wb+1);
@@ -297,16 +297,19 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
   // the line in front of the car, streaming by into the dark toward us: the near road's ballast, its sleepers in their beat, its two
   // rails glinting; smeared as the speed comes up (an upright phone's push-in shows it under the fight)
   {const gy=GB+43,Y0=gy+4,Y1=E.FOOT,ph=frac(s0/28)*28,sa=1-blurA*.75;
-    ctx.fillStyle=lin(ctx,0,Y0,0,Y1,[[0,'#1a1714'],[.4,'#15130f'],[1,'#0e0d0b']]);ctx.fillRect(vx0,Y0,vx1-vx0,Y1-Y0);
+    ctx.fillStyle=lin(ctx,0,Y0,0,Y1,[[0,'#1e1b17'],[.4,'#1a1713'],[1,'#14120f']]);ctx.fillRect(vx0,Y0,vx1-vx0,Y1-Y0);
     ctx.save();ctx.transform(1,0,PSX,-PSY,0,gy);
     {const r=rng(17),span=1400;for(let i=0;i<90;i++){const x=-300+frac(r()-s0/span)*span,d=-8-r()*(-8-E.NEAR),L=2+r()*5+v*.05;ctx.fillStyle=rgba(r()<.5?'#5a5044':'#3a342e',.3+.35*r());ctx.fillRect(x,d,L,1+r()*1.4);}}
     ctx.fillStyle=rgba('#33261a',.9*sa);for(let x=vx0-200-ph;x<vx1+120;x+=28)ctx.fillRect(x,-168,7.5,122);
     if(blurA>0){ctx.fillStyle=rgba('#33261a',.4*blurA);ctx.fillRect(vx0-200,-168,vx1-vx0+320,122);}
     for(const d of [-62,-152]){ctx.fillStyle='#0a0a0d';ctx.fillRect(vx0-200,d-1.6,vx1-vx0+320,3.2);ctx.fillStyle=rgba('#b8c4dc',.32);ctx.fillRect(vx0-200,d+1,vx1-vx0+320,.7);}
     ctx.restore();
-    ctx.fillStyle=lin(ctx,0,Y0,0,Y1,[[0,rgba('#000000',.1)],[.3,rgba('#000000',.28)],[1,rgba('#000000',.46)]]);ctx.fillRect(vx0,Y0,vx1-vx0,Y1-Y0);}
+    ctx.fillStyle=lin(ctx,0,Y0,0,Y1,[[0,rgba('#000000',.08)],[.3,rgba('#000000',.22)],[1,rgba('#000000',.36)]]);ctx.fillRect(vx0,Y0,vx1-vx0,Y1-Y0);}
   // under the car's near side: the tops of its wheels turning, sparks off them when it runs hard
   {const yb=q(0,GB,DN).y+SILL,wa=s0/12;ctx.save();ctx.beginPath();ctx.rect(vx0,yb,vx1-vx0,60);ctx.clip();
+    // (behind them the bed under the car, in its shadow: the near road's ballast going by, darker up under the sill)
+    {const yt=GB+47;ctx.fillStyle=lin(ctx,0,yb,0,yt,[[0,'#08080a'],[1,'#17140f']]);ctx.fillRect(vx0,yb,vx1-vx0,yt-yb);
+      const r=rng(23),span=1400;for(let i=0;i<70;i++){const x=-300+frac(r()-s0/span)*span,y=lerp(yb+4,yt,Math.sqrt(r())),L=2+r()*4+v*.04;ctx.fillStyle=rgba(r()<.5?'#4a4238':'#2e2a25',.25+.3*r());ctx.fillRect(x,y,L,.9+r()*.9);}}
     for(let x=-188;x<1100;x+=150){for(const dx of [0,46]){const cx=x+dx,cy=yb+13;if(cx<vx0-20||cx>vx1+20)continue;
       ctx.fillStyle='#09090c';ctx.beginPath();ctx.arc(cx,cy,12,0,TAU);ctx.fill();ctx.strokeStyle=C.goldD;ctx.lineWidth=1.48;ctx.beginPath();ctx.arc(cx,cy,10.6,0,TAU);ctx.stroke();
       if(v<260){ctx.strokeStyle='#24242e';ctx.lineWidth=1.2;ctx.beginPath();for(let k2=0;k2<6;k2++){const b=wa+k2*TAU/6;ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(b)*9.5,cy+Math.sin(b)*9.5);}ctx.stroke();}

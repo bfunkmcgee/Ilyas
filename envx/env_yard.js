@@ -816,7 +816,7 @@ const LAYOUT={sump:SUMP,shed:SHED,fence:FENCE,lantern:LANT};
 // toward the pump, enough that a man in the yard stands out against it
 const SETS={day:{col:'#ffe2bc',soft:1,y:[GB-360,GB-280,GB-60,GB+20]},morning:{col:'#dce6f4',soft:1,y:[GB-360,GB-280,GB-60,GB+20]},
   dusk:{col:'#ffc49b',soft:1,gain:1.3,air:.04,y:[GB-360,GB-280,GB-60,GB+20]},
-  night:{col:'#ffca94',soft:1,gain:1.8,air:.08,y:[GB-360,GB-280,GB-60,GB+20],base:.3,pools:[[L0.door.x+L0.far*PSX,420,1],[(L0.window.x0+L0.window.x1)/2+L0.far*PSX,220,.8]]}};
+  night:{col:'#ffca94',soft:1,gain:1.8,air:.08,y:[GB-360,GB-280,GB-60,GB+20],base:.36,pools:[[L0.door.x+L0.far*PSX,420,1],[(L0.window.x0+L0.window.x1)/2+L0.far*PSX,220,.8]]}};
 E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT};
 })();
 // ===== ENV YARD END =====

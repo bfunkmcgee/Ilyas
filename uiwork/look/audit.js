@@ -14,19 +14,8 @@
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const OUT=process.argv[2]||'uiwork/look/out',VW=+(process.argv[3]||412),VH=+(process.argv[4]||714),DPR=+(process.argv[5]||2),ONLY=process.argv[6]?process.argv[6].split(','):null;
 const PAGE=process.env.PAGE||'test_page.html';fs.mkdirSync(OUT,{recursive:true});
-// every story stage in order, then the lab's own grounds (the four the story does not use, and the street it does, fought free)
-const SHOTS=[
-  {id:'sundown',stage:'sundown',at:['t6','t16']},{id:'field',stage:'field',at:['t2','f4']},{id:'chase',stage:'chase',at:['f3','f8']},
-  {id:'roadblock',stage:'roadblock',at:['t2','f4']},{id:'vargo',stage:'vargo',at:['t3','f4']},{id:'dining',stage:'dining',at:['f2','f5']},
-  {id:'kitchen',stage:'kitchen',at:['f2','f5']},{id:'platform',stage:'platform',at:['t3','t8']},{id:'line',stage:'line',at:['f2','f5']},
-  {id:'deep',stage:'deep',at:['t3','f4']},{id:'lobby',stage:'lobby',at:['t3','f4']},{id:'office',stage:'office',at:['t3','f4']},
-  {id:'roof',stage:'roof',at:['t4','t10','t16','t22','t32.9','t33.9']},{id:'fall',stage:'fall',at:['t4','t24','t37','t46.5'],draw:'all'},
-  {id:'roof1',stage:'roof1',at:['t3','t9']},{id:'kitchen1',stage:'kitchen1',at:['t3','t8']},{id:'backroom',stage:'backroom',at:['t4','t12']},
-  {id:'lostprop',stage:'lostprop',at:['t4','t12']},{id:'yard1',stage:'yard1',at:['t5','t15']},{id:'list',stage:'list',at:['t5','t15']},
-  {id:'stairsup',stage:'stairsup',at:['t5','t15']},{id:'shelfstair',stage:'shelfstair',at:['t5','t12']},{id:'shelf',stage:'shelf',at:['t5','t15']},
-  {id:'stairsdown',stage:'stairsdown',at:['t5','t12']},{id:'toll',stage:'toll',at:['t3','f4']},{id:'tamm',stage:'tamm',at:['t3','f4']},
-  {id:'night',stage:'night',at:['t5','t15']},{id:'sh1',stage:'sh1',at:['t3','f4']},
-  {id:'lab_street',lab:'street'},{id:'lab_field',lab:'field'},{id:'lab_hill',lab:'hill'},{id:'lab_ledge',lab:'ledge'},{id:'lab_wall',lab:'wall'}];
+// the places and moments (uiwork/look/places.js, which lines.js and costs.js share), and the page's clock, dice and moments
+const {SHOTS,frameName,chromiumPath,pageSetup,labShot,stageStart,toMoment}=require('./places.js');
 // (in the page) the frame's numbers
 function frameStats(){const W2=cv.width,H2=cv.height,lb=typeof ST_LB==='number'?ST_LB:0,y0=Math.floor(H2*.105*lb)+2,y1=H2-y0,d=ctx.getImageData(0,y0,W2,y1-y0).data;
   const lum=(r,g,b)=>.2126*r+.7152*g+.0722*b;let n=0,sr=0,sg=0,sb=0,sL=0,sL2=0,sS=0,dk=0,br=0;const hue=new Array(12).fill(0),lit=[];
@@ -90,35 +79,28 @@ function heroRead(M){const {R,pad,x0,y0,x1,y1,S:S2,A:F,B,C:Cf}=M,W2=x1-x0,a=(x,y
   const rd=ne>=96?ok/ne:null,hit=M.st>.25;
   return{Lh:+Lh.toFixed(3),Lb:+Lb.toFixed(3),ratio:+((Math.max(Lh,Lb)+.05)/(Math.min(Lh,Lb)+.05)).toFixed(2),edge:ne?+(se/ne).toFixed(3):null,read:rd!=null?+rd.toFixed(2):null,px:Math.round(nh/4),
     shown:ne+hid+fig?+((ne+fig)/(ne+hid+fig)).toFixed(2):null,alone:ne+fig?+(ne/(ne+fig)).toFixed(2):null,struck:+M.st.toFixed(2),box:[R.x,R.y,R.w,R.h],fails:[...(rd!=null&&rd<2/3&&!hit?['outline']:[]),...(Lb<.2?['ground']:[])]};}
-(async()=>{const b=await chromium.launch({executablePath:process.env.SK_CHROMIUM||(fs.existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined)}),res=[];
+(async()=>{const b=await chromium.launch({executablePath:chromiumPath()}),res=[];
   for(const sh of SHOTS){if(ONLY&&!ONLY.includes(sh.id))continue;
     const p=await (await b.newContext({viewport:{width:VW,height:VH},deviceScaleFactor:DPR,isMobile:VW<700,hasTouch:VW<700})).newPage(),errs=[];
     p.on('pageerror',e=>errs.push(e.message));await p.addInitScript(()=>{window.requestAnimationFrame=cb=>{window.__raf=cb;return 1;};});
     await p.goto('file://'+path.resolve(PAGE));await p.waitForTimeout(300);if(process.env.INJ)await p.evaluate(fs.readFileSync(process.env.INJ,'utf8'));
-    await p.evaluate(([fs1,fs2,fs3])=>{window.frameStats=eval('('+fs1+')');window.heroStats=eval('('+fs2+')');window.heroRead=eval('('+fs3+')');S.soundOn=false;let a=5;Math.random=()=>{a=(a*1103515245+12345)&0x7fffffff;return a/0x7fffffff;};S.rng=Math.random;
-      window.__now=performance.now()+1000;window.step=k=>{for(let i=0;i<k;i++){window.__now+=16.7;const f=window.__raf;window.__raf=null;if(f)f(window.__now);}};
-      window.R0=window.render;window.drawing=on=>{window.render=on?window.R0:()=>{};};
+    await p.evaluate(pageSetup);
+    await p.evaluate(([fs1,fs2,fs3])=>{window.frameStats=eval('('+fs1+')');window.heroStats=eval('('+fs2+')');window.heroRead=eval('('+fs3+')');
       window.small=()=>{const lb=typeof ST_LB==='number'?ST_LB:0,y0=Math.floor(cv.height*.105*lb),h=cv.height-2*y0,c=document.createElement('canvas');c.width=Math.round(cv.width/4);c.height=Math.round(h/4);
         c.getContext('2d').drawImage(cv,0,y0,cv.width,h,0,0,c.width,c.height);return c.toDataURL('image/png');};
       // the fight's words over the fighters (the style guide's rule 7): how many are drawn, and how many the game has said and keeps
-      window.words=()=>typeof fightWords==='function'?{n:fightWords().n,said:S.popups.length+S.callouts.length}:null;
-      window.cost=()=>{const n=window.__costN,T=[];for(let i=0;i<n;i++){ctx.getImageData(0,0,1,1);const s0=performance.now();window.R0();ctx.getImageData(0,0,1,1);T.push(performance.now()-s0);}T.sort((x,y)=>x-y);return+((T[(n-1)>>1]+T[n>>1])/2).toFixed(1);};},
+      window.words=()=>typeof fightWords==='function'?{n:fightWords().n,said:S.popups.length+S.callouts.length}:null;},
       [frameStats.toString(),heroStats.toString(),heroRead.toString()]);
     await p.evaluate(n=>{window.__costN=n;},Math.max(2,+(process.env.COSTN||6)));
-    if(sh.lab){const r=await p.evaluate(g=>{S.arenaKey=g;S.backroom=false;S.deep=false;S.introOn=false;S.cfg.n=2;S.cfg.crew=false;S.cfg.ally.on=true;S.auto=true;S.allyAuto=true;S.F=[];rosterBuild();restart();
-        drawing(false);let n=0,t0=null;while(n<9000){step(1);n++;if(S.game.phase==='exchange'&&S.game.ex){if(t0==null)t0=S.t;if(S.t>t0+2)break;}}drawing(true);step(120);
-        return{scene:envKey(),stats:frameStats(),hero:heroStats(),ms:cost(),fx:FXL.q,words:words(),canvas:small()};},sh.lab);
+    if(sh.lab){await p.evaluate(labShot,sh.lab);
+      const r=await p.evaluate(()=>({scene:envKey(),stats:frameStats(),hero:heroStats(),ms:cost(),fx:FXL.q,words:words(),canvas:small()}));
       const file=sh.id+'.jpg';await p.screenshot({path:path.join(OUT,file),type:'jpeg',quality:82});
       fs.writeFileSync(path.join(OUT,sh.id+'_canvas.png'),Buffer.from(r.canvas.split(',')[1],'base64'));delete r.canvas;
       if(r.hero&&r.hero.crop){fs.writeFileSync(path.join(OUT,sh.id+'_hero.png'),Buffer.from(r.hero.crop.split(',')[1],'base64'));delete r.hero.crop;}res.push({id:sh.id,moment:'fight',file,...r,errs:errs.slice(0,3)});console.log(sh.id,r.scene,JSON.stringify(r.stats.L),r.ms);}
-    else{await p.evaluate(([k,all])=>{storyGo(k);S.storyAuto=true;S.auto=true;step(2);window.__t0=S.t;window.__tf=null;window.__key=k;drawing(!!all);},[sh.stage,sh.draw==='all']);
-      for(const m of sh.at){const r=await p.evaluate(([m,all])=>{const fight=m[0]==='f',T=+m.slice(1),key=window.__key,still=()=>S.story&&S.story.key===key&&!S.story.ended;
-          const inFight=()=>S.story&&S.story.step==='fight'&&(S.game.phase==='input'||S.game.phase==='exchange');let n=0;
-          const due=()=>{if(fight){if(window.__tf==null){if(inFight())window.__tf=S.t;else return false;}return S.t>=window.__tf+T-(all?0:2);}return S.t>=window.__t0+T-(all?0:2);};
-          while(still()&&!due()&&n<12000){step(1);n++;}if(!still())return{gone:true};
-          if(!all){drawing(true);step(120);drawing(false);}
-          return{scene:envKey(),t:+(S.t-window.__t0).toFixed(1),step:S.story.step,phase:S.game.phase,stats:frameStats(),hero:heroStats(),ms:cost(),fx:FXL.q,words:words(),canvas:small()};},[m,sh.draw==='all']);
-        if(r.gone){res.push({id:sh.id,moment:m,gone:true});console.log(sh.id,m,'gone');continue;}
+    else{await p.evaluate(stageStart,[sh.stage,sh.draw==='all']);
+      for(const m of sh.at){const g=await p.evaluate(toMoment,[m,sh.draw==='all']);
+        if(g&&g.gone){res.push({id:sh.id,moment:m,gone:true});console.log(sh.id,m,'gone');continue;}
+        const r=await p.evaluate(()=>({scene:envKey(),t:+(S.t-window.__t0).toFixed(1),step:S.story.step,phase:S.game.phase,stats:frameStats(),hero:heroStats(),ms:cost(),fx:FXL.q,words:words(),canvas:small()}));
         // (the shot is of the frame just drawn; the cost's six draws are of the same moment)
         const file=sh.id+'_'+m+'.jpg';await p.screenshot({path:path.join(OUT,file),type:'jpeg',quality:82});
         fs.writeFileSync(path.join(OUT,sh.id+'_'+m+'_canvas.png'),Buffer.from(r.canvas.split(',')[1],'base64'));delete r.canvas;
@@ -126,6 +108,6 @@ function heroRead(M){const {R,pad,x0,y0,x1,y1,S:S2,A:F,B,C:Cf}=M,W2=x1-x0,a=(x,y
         res.push({id:sh.id,stage:sh.stage,moment:m,file,...r,errs:errs.slice(0,3)});console.log(sh.id,m,r.scene,r.t,r.stats.L,r.hero&&r.hero.ratio,r.ms);}}
     await p.context().close();}
   fs.writeFileSync(path.join(OUT,'audit.json'),JSON.stringify({w:VW,h:VH,dpr:DPR,when:new Date().toISOString(),shots:res},null,0));
-  const bad=res.filter(r=>r.hero&&r.hero.fails&&r.hero.fails.length).map(r=>r.id+(r.moment&&r.moment!=='fight'?'_'+r.moment:'')+' '+r.hero.fails.join('+')+' (read '+r.hero.read+', ground '+r.hero.Lb+')');
+  const bad=res.filter(r=>r.hero&&r.hero.fails&&r.hero.fails.length).map(r=>frameName(r.id,r.moment)+' '+r.hero.fails.join('+')+' (read '+r.hero.read+', ground '+r.hero.Lb+')');
   {const W=res.map(r=>r.words).filter(Boolean);if(W.length)console.log('words over the fighters: at most',Math.max(...W.map(w=>w.n)),'of',Math.max(...W.map(w=>w.said)),'said');}
   console.log('shots',res.length,'errors',JSON.stringify(res.flatMap(r=>r.errs||[]).slice(0,5)));console.log('rule 8 fails',bad.length+(bad.length?':\n  '+bad.join('\n  '):''));await b.close();})();

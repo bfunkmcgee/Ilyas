@@ -273,7 +273,7 @@ const DPOSE=(()=>{const V=(x,y)=>({x,y}),legs=[V(34,-2),V(36,34),V(32,0),V(30,35
     tray:[V(0,-16),V(3,-60),V(5,-75),V(14,-52),V(26,-66),V(4,-38),V(14,-26),...up,V(26,-74)]};})();
 // a glass of red in the hand, upright; the waiter's tray on his palm with a bottle and two glasses
 function dGlass(c){return F=>{const h=F.p[4],t=F.p[11];c.save();c.translate(h.x,h.y);c.rotate(Math.atan2(t.y-h.y,t.x-h.x)+Math.PI/2);
-  c.strokeStyle=rgba('#e8dcce',.55);c.lineWidth=1;c.beginPath();c.moveTo(0,2);c.lineTo(0,-5);c.stroke();
+  c.strokeStyle=rgba('#e8dcce',.55);c.lineWidth=1.65;c.beginPath();c.moveTo(0,2);c.lineTo(0,-5);c.stroke();
   c.fillStyle=rgba('#e8d8c8',.35);c.beginPath();c.moveTo(-3,-12);c.lineTo(3,-12);c.quadraticCurveTo(3.2,-6,0,-5);c.quadraticCurveTo(-3.2,-6,-3,-12);c.fill();
   c.fillStyle=rgba('#7a0c14',.92);c.beginPath();c.moveTo(-2.6,-9.5);c.lineTo(2.6,-9.5);c.quadraticCurveTo(2.6,-6.2,0,-5.6);c.quadraticCurveTo(-2.6,-6.2,-2.6,-9.5);c.fill();
   c.fillStyle=rgba('#fff0d8',.8);c.fillRect(-2,-11.5,.8,3);c.restore();};}
@@ -284,7 +284,9 @@ function dTray(c){return F=>{const h=F.p[4];c.save();c.translate(h.x,h.y-2);c.fi
 function dSprite(spec,pose,o){const B=DS_BOX,cn=document.createElement('canvas');cn.width=Math.ceil(B.w*DS_R);cn.height=Math.ceil(B.h*DS_R);const c=cn.getContext('2d');
   c.setTransform(DS_R,0,0,DS_R,-B.x0*DS_R,-B.y0*DS_R);
   const F={p:DPOSE[pose].map(q=>({x:q.x,y:q.y})),facing:1,body:{h:1,bulk:o.bulk||1,headR:10.5},scarf:[],ground:60,t:0,weaponKey:o.other?'glass':'unarmed',wp:{unarmed:!o.other},dead:false};
-  CastLook.draw(c,F,spec,{dir:{x:.5,y:.85},key:'#ffb070',rimK:1.3,now:0,yaw:o.yaw||0,drawOther:o.other?o.other(c):null});
+  // (at the kit's least detail: the sprite is drawn at 2.5 pixels a unit of the figure but shows at under one, so a face's fine
+  // lines would land under a unit of the world, the drawing guide's rule 2, and read as nothing; since V88)
+  CastLook.draw(c,F,spec,{dir:{x:.5,y:.85},key:'#ffb070',rimK:1.3,now:0,yaw:o.yaw||0,lod:0,drawOther:o.other?o.other(c):null});
   const H=DPOSE[pose][2];return{cn,hx:(H.x-B.x0)*DS_R,hy:(H.y-B.y0)*DS_R};}
 // the room's people as sprites, made the first time they are wanted (null: the old silhouettes)
 let DSPR;

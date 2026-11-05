@@ -211,7 +211,8 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   const at=(a,s)=>add(add(P0,mul(u0,a)),mul(n0,s*sz*wf));
   const Ld=o.dir?nrm(o.dir):o.light?nrm(sub(o.light,mix(P0,C0,.5))):nrm(V(.5,-1));
   const env={k,fa,L:Ld,far:false,col:C,rw:Math.max(.9,1.25/k)*1.05,ow:Math.max(.55,1.05/k),planeMax:5.4*sz,litMin:3.1*sz};
-  const lod=k<2.4?0:k<5?1:2;
+  // (the detail by the scale drawn at, or o.lod: a figure drawn into a picture that is set down smaller says how small it shows)
+  const lod=o.lod??(k<2.4?0:k<5?1:2);
   const gy=typeof F.gr==='function'?(x=>F.gr(x)):(x=>F.ground??(Math.max(p0[FTF].y,p0[FTB].y)+3));
   const pt=(ps,mat,far=false)=>{env.far=far;paint(c,ps,mat,env);env.far=false;};
   const lw=(.6+.4*b.bulk)*(elf?.96:1.04),W=w=>w*sz*lw;

@@ -6,13 +6,17 @@
                                (a change to the game's rules runs everything; a change to the drawing, the page suites it touches)
   python3 test.py full         every suite (two at a time: the machine has two cores), then the timing checks alone
   python3 test.py perf         the timing checks alone (sk_perf_page.js): nothing else may load the machine while they run
+  python3 test.py look         the look review alone (uiwork/look/review.py, about 20 minutes): every place against the style and
+                               drawing guides' measured rules; it times the drawing, so nothing else may run beside it
   python3 test.py NAME ...     the named suites (see SUITES), after the static check
   python3 test.py --list       the suites and what each covers
-  python3 test.py --status     whether the sources are the ones the last full run passed with (check before publishing)
+  python3 test.py --status     whether the sources are the ones the last full run and the last look review passed with (check
+                               before publishing)
 
 Each suite's output goes to test_out/NAME.txt; the summary gives each one's time and verdict. A suite fails on a nonzero exit, a
 line starting "FAIL", or a closing "errors N" / "problems [...]" that is not empty. A full run that passes records the sources it
-passed with (test_out/last_pass.json): "affected" runs the suites that cover the files changed since.
+passed with (test_out/last_pass.json): "affected" runs the suites that cover the files changed since. A look review that passes
+records its sources too (test_out/look_pass.json: the game's and the review's own files).
 """
 import os, sys, re, json, time, hashlib, subprocess, threading
 
@@ -22,7 +26,7 @@ def path(*p): return os.path.join(HERE, *p)
 
 # ---------- the suites ----------
 # name: (command, kind, what it covers). kind: logic (node, no page), page (the real page in Chromium), live (the published page),
-# perf (timing: run alone)
+# perf (timing: run alone), look (the look review: timing and pictures, run alone)
 SUITES = {
     'v12':        (['node', 'sk_v12test.js'], 'logic', 'the restaurant run on to the lobby and the office'),
     'team':       (['node', 'sk_teamtest.js'], 'logic', 'the ally and the off-hand dagger'),
@@ -49,6 +53,7 @@ SUITES = {
     'stnmotion':  (['node', 'sk_stnmotion_page.js'], 'page', 'the stances\' motion: the whip\'s and Close\'s variants and combos, the leads on the parry, each answer acted out, no game dice'),
     'live':       (['node', 'figwork/livecheck.js'], 'live', 'the published page runs its own loop without errors'),
     'perf':       (['node', 'sk_perf_page.js'], 'perf', 'what drawing costs a frame (timing: run alone)'),
+    'look':       (['python3', 'uiwork/look/review.py', 'test_out/look'], 'look', 'the look review: every place the game draws against the guides\' measured rules (alone, about 20 minutes)'),
 }
 LOGIC = [n for n, s in SUITES.items() if s[1] == 'logic']
 PAGES = [n for n, s in SUITES.items() if s[1] == 'page']
@@ -91,11 +96,18 @@ def tracked():
     src = open(path('build.py')).read()
     scenes = re.search(r"SCENES = \[(.*?)\]", src, re.S)
     if scenes: fs += ['envx/%s.js' % s for s in re.findall(r"'(\w+)'", scenes.group(1))]
-    fs += [s[0][1] for s in SUITES.values()]
+    fs += [s[0][1] for s in SUITES.values() if s[1] != 'look']   # (the look review's files are its own record's: look_tracked)
     # (the song and the recorded sounds are published beside the page: the page suites play them)
     for d in ('music', 'sfx'):
         if os.path.isdir(path(d)): fs += ['%s/%s' % (d, f) for f in os.listdir(path(d)) if f.endswith('.mp3')]
     return sorted(set(f for f in fs if os.path.exists(path(f))))
+
+# the look review's own files: a change to them wants the review run again
+LOOK_FILES = ['uiwork/look/%s' % f for f in ('places.js', 'audit.js', 'lines.js', 'costs.js', 'review.py', 'hues.py', 'faults.py', 'lines.py',
+                                             'kept.json', 'kept_lines.json')]
+
+def look_tracked():
+    return sorted(set(tracked() + [f for f in LOOK_FILES if os.path.exists(path(f))]))
 
 def digest(fs):
     out = {}
@@ -118,7 +130,7 @@ def covered(changed):
         if f in ui: want.add('drawfree')   # any drawing code could reach into the game
         if not hit and f.endswith(('.js', '.css', '.html')):
             want |= set(PAGES)   # a file the map does not know: every page suite, to be safe
-    want.discard('perf'); want.discard('live')
+    want.discard('perf'); want.discard('live'); want.discard('look')
     return [n for n in ORDER if n in want]
 
 # ---------- running ----------
@@ -195,21 +207,24 @@ def main():
     flags = [a for a in sys.argv[1:] if a.startswith('--')]
     os.makedirs(OUT, exist_ok=True)
     if '--status' in flags:
-        try: last = json.load(open(os.path.join(OUT, 'last_pass.json')))
-        except Exception: print('no full run has passed yet'); return 1
-        now = digest(tracked()); changed = [f for f in now if last.get(f) != now[f]]
-        when = time.strftime('%b %d %H:%M', time.localtime(last.get('_when', 0)))
-        if changed: print('changed since the full run that passed (%s): %s' % (when, ', '.join(changed))); return 1
-        print('the sources are the ones the full run of %s passed with' % when); return 0
+        bad = 0
+        for rec, what, fs in (('last_pass.json', 'full run', tracked()), ('look_pass.json', 'look review', look_tracked())):
+            try: last = json.load(open(os.path.join(OUT, rec)))
+            except Exception: print('no %s has passed yet' % what); bad = 1; continue
+            now = digest(fs); changed = [f for f in now if last.get(f) != now[f]]
+            when = time.strftime('%b %d %H:%M', time.localtime(last.get('_when', 0)))
+            if changed: print('changed since the %s that passed (%s): %s' % (what, when, ', '.join(changed))); bad = 1
+            else: print('the sources are the ones the %s of %s passed with' % (what, when))
+        return bad
     if '--list' in flags:
-        for n in ORDER + ['perf']:
+        for n in ORDER + ['perf', 'look']:
             c, k, what = SUITES[n]; print('  %-11s %-6s %s' % (n, k, what))
         return 0
-    mode = args[0] if args and args[0] in ('quick', 'affected', 'full', 'perf') else ('named' if args else 'quick')
+    mode = args[0] if args and args[0] in ('quick', 'affected', 'full', 'perf', 'look') else ('named' if args else 'quick')
     t0 = time.time()
     if not static(): print('stopped: the static check found problems'); return 1
-    if mode == 'perf':
-        names = ['perf']
+    if mode in ('perf', 'look'):
+        names = [mode]
     elif mode == 'named':
         bad = [a for a in args if a not in SUITES]
         if bad: print('no such suite:', ', '.join(bad), '(python3 test.py --list)'); return 1
@@ -236,6 +251,8 @@ def main():
     ok = all(r['ok'] for r in res)
     if ok and mode == 'full':
         json.dump(dict(digest(tracked()), _when=time.time()), open(os.path.join(OUT, 'last_pass.json'), 'w'), indent=0)
+    if ok and mode == 'look':
+        json.dump(dict(digest(look_tracked()), _when=time.time()), open(os.path.join(OUT, 'look_pass.json'), 'w'), indent=0)
     print('%s: %s in %.1f min (%d suites)' % (mode, 'PASS' if ok else 'FAIL: ' + ', '.join(r['name'] for r in res if not r['ok']), (time.time() - t0) / 60, len(res)))
     return 0 if ok else 1
 

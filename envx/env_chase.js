@@ -441,7 +441,7 @@ const ROW=[
 Object.assign(GOODS,{
   florist:(c,x,y,w,h)=>{const r=rng(31),cols=['#c8283c','#f0c040','#e8e0f0','#d85a8a','#f08a3a','#9a4ad0'];
     for(let k=0;k<6;k++){const bx=x+4+k*(w-8)/5,by=y+h*.9;
-      for(let s=0;s<6;s++){const fx=bx+(r()-.5)*6,fy=by-7-r()*h*.38;c.strokeStyle=rgba('#1c3a1e',.92);c.lineWidth=1.5;c.beginPath();c.moveTo(bx,by-5);c.quadraticCurveTo((bx+fx)/2+(r()-.5)*2,(by+fy)/2,fx,fy);c.stroke();
+      for(let s=0;s<6;s++){const fx=bx+(r()-.5)*6,fy=by-7-r()*h*.38;c.strokeStyle=rgba('#1c3a1e',.92);c.lineWidth=1.7;c.beginPath();c.moveTo(bx,by-5);c.quadraticCurveTo((bx+fx)/2+(r()-.5)*2,(by+fy)/2,fx,fy);c.stroke();
         c.fillStyle=rgba(cols[(r()*cols.length)|0],.92);c.beginPath();c.arc(fx,fy,1.5+r()*.9,0,TAU);c.fill();}
       c.fillStyle=rgba(C.ink,.92);c.beginPath();c.moveTo(bx-3,by-6);c.lineTo(bx+3,by-6);c.lineTo(bx+2.4,by);c.lineTo(bx-2.4,by);c.closePath();c.fill();c.fillStyle=rgba(C.rim,.22);c.fillRect(bx-3,by-6,6,.6);}},
   chemist:(c,x,y,w,h)=>{const r=rng(37);
@@ -460,9 +460,9 @@ Object.assign(GOODS,{
       for(let j=0;j<5;j++){c.fillStyle=rgba(r()<.6?C.goldL:'#e8eef8',.85);c.fillRect(tx+1+j*((w-8)/4-3)/5,ty-1.8,1,1);}}
     // a bust in the middle wearing the window's best necklace
     const bx=x+w*.5,by=y+h*.6;c.fillStyle=rgba(C.ink,.92);c.beginPath();c.arc(bx,by-15,3,0,TAU);c.fill();c.beginPath();c.moveTo(bx-7,by);c.quadraticCurveTo(bx-6,by-10,bx-1.4,by-11.4);c.lineTo(bx+1.4,by-11.4);c.quadraticCurveTo(bx+6,by-10,bx+7,by);c.fill();
-    c.strokeStyle=rgba(C.goldL,.9);c.lineWidth=1;c.beginPath();c.arc(bx,by-11,3.4,.3,Math.PI-.3);c.stroke();c.fillStyle=rgba('#7ff3e3',.95);c.beginPath();c.arc(bx,by-7.4,1,0,TAU);c.fill();glow(c,bx,by-7.4,6,'#7ff3e3',.4);},
+    c.strokeStyle=rgba(C.goldL,.9);c.lineWidth=1.1;c.beginPath();c.arc(bx,by-11,3.4,.3,Math.PI-.3);c.stroke();c.fillStyle=rgba('#7ff3e3',.95);c.beginPath();c.arc(bx,by-7.4,1,0,TAU);c.fill();glow(c,bx,by-7.4,6,'#7ff3e3',.4);},
   clocks:(c,x,y,w,h)=>{const r=rng(47);for(let k=0;k<7;k++){const cx=x+5+r()*(w-10),cy=y+4+r()*(h*.6),R=2.4+r()*3;c.fillStyle=rgba(C.ink,.92);c.beginPath();c.arc(cx,cy,R+1,0,TAU);c.fill();
-      c.fillStyle=rgba('#e8dcc0',.88);c.beginPath();c.arc(cx,cy,R,0,TAU);c.fill();const a1=r()*TAU,a2=r()*TAU;c.strokeStyle=rgba('#120c08',.95);c.lineWidth=1.5;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a1)*R*.55,cy+Math.sin(a1)*R*.55);c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a2)*R*.85,cy+Math.sin(a2)*R*.85);c.stroke();}
+      c.fillStyle=rgba('#e8dcc0',.88);c.beginPath();c.arc(cx,cy,R,0,TAU);c.fill();const a1=r()*TAU,a2=r()*TAU;c.strokeStyle=rgba('#120c08',.95);c.lineWidth=1.7;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a1)*R*.55,cy+Math.sin(a1)*R*.55);c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a2)*R*.85,cy+Math.sin(a2)*R*.85);c.stroke();}
     const gx=x+w*.8,gy=y+h;c.fillStyle=rgba('#140c08',.95);c.fillRect(gx-4,gy-h*.8,8,h*.8);c.fillStyle=rgba('#e8dcc0',.85);c.beginPath();c.arc(gx,gy-h*.68,2.6,0,TAU);c.fill();c.fillStyle=rgba(C.gold,.7);c.fillRect(gx-.4,gy-h*.5,.8,h*.3);},
   noodle:(c,x,y,w,h)=>{const r=rng(53);
     for(const f of [.2,.45,.7]){const lx=x+w*f,ly=y+h*.12;c.fillStyle=rgba('#ff9a30',.9);c.beginPath();c.ellipse(lx,ly+2,2.6,3.2,0,0,TAU);c.fill();glow(c,lx,ly+2,10,'#ffb040',.45);c.fillStyle=rgba(C.ink,.9);c.fillRect(lx-.4,y,.8,ly-y);}
@@ -491,7 +491,7 @@ Object.assign(SHOP,{
     // a gilt clock hung out over the pavement on a scrolled bracket
     const cx=b.x0+22,cy=gTop-16;c.strokeStyle=C.gold;c.lineWidth=1.6;c.beginPath();c.moveTo(b.x0+8,gTop-4);c.lineTo(b.x0+8,cy);c.lineTo(cx-5,cy);c.stroke();scroll(c,b.x0+11,gTop-8,2.4,1,C.gold,.5,1.2);
     c.fillStyle=lin(c,cx-6,0,cx+6,0,[[0,C.goldD],[.5,C.goldL],[1,C.goldD]]);c.beginPath();c.arc(cx,cy,6,0,TAU);c.fill();c.fillStyle='#f0e6cc';c.beginPath();c.arc(cx,cy,4.6,0,TAU);c.fill();
-    c.strokeStyle='#120c08';c.lineWidth=1.5;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx,cy-3.4);c.moveTo(cx,cy);c.lineTo(cx+2.4,cy+.8);c.stroke();glow(c,cx,cy,14,'#ffe0a0',.2);
+    c.strokeStyle='#120c08';c.lineWidth=1.7;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx,cy-3.4);c.moveTo(cx,cy);c.lineTo(cx+2.4,cy+.8);c.stroke();glow(c,cx,cy,14,'#ffe0a0',.2);
     REFL.push({x:(f.win0+f.win1)/2,w:20,y:f.wy+10,col:'#fff0c8',a:.14});},
   teahouse(c,b,gTop,base){const x0=b.x0+5,x1=b.x1-5,w=x1-x0,o={paint:'#0a1618'},fh=13,P=6,cx=(x0+x1)/2;timber(c,o,x0,gTop,w,base-gTop);
     fascia(c,x0+P,gTop,w-2*P,fh,{});elvenName(c,'Ithrel',cx,gTop+fh*.82,12);
@@ -628,7 +628,7 @@ const ROW_C=[
   {x0:1400,x1:1560,top:134,roof:'gable',rh:36,floors:2,seed:75,bs:9,brick:true,litP:.25,shop:'tobacco'}];
 // a florist's zinc bucket of cut flowers out on the flags
 function flowerBucket(c,x,y){const r=rng((x*13)|0),cols=['#c8283c','#f0c040','#e8e0f0','#d85a8a','#f08a3a'];c.fillStyle=rgba('#000000',.45);c.beginPath();c.ellipse(x+1,y,5,1.2,0,0,TAU);c.fill();
-  for(let k=0;k<9;k++){const fx=x+(r()-.5)*9,fy=y-9-r()*9;c.strokeStyle=rgba('#1c3a1e',.95);c.lineWidth=1.5;c.beginPath();c.moveTo(x,y-6);c.lineTo(fx,fy);c.stroke();c.fillStyle=cols[(r()*cols.length)|0];c.beginPath();c.arc(fx,fy,1.6+r()*.8,0,TAU);c.fill();}
+  for(let k=0;k<9;k++){const fx=x+(r()-.5)*9,fy=y-9-r()*9;c.strokeStyle=rgba('#1c3a1e',.95);c.lineWidth=1.7;c.beginPath();c.moveTo(x,y-6);c.lineTo(fx,fy);c.stroke();c.fillStyle=cols[(r()*cols.length)|0];c.beginPath();c.arc(fx,fy,1.6+r()*.8,0,TAU);c.fill();}
   c.fillStyle=lin(c,x-4,0,x+4,0,[[0,'#3a3c44'],[.5,'#6a6e78'],[1,'#2a2c32']]);c.beginPath();c.moveTo(x-4,y-7);c.lineTo(x+4,y-7);c.lineTo(x+3.2,y);c.lineTo(x-3.2,y);c.closePath();c.fill();c.fillStyle=rgba(C.rim,.4);c.fillRect(x-4,y-7,8,.6);}
 // the blocks: each one's row, its lamps (none by a gap where the moon has the light), where its sky shows the city behind (sq),
 // the marquee whose light rims a rider and whose bulbs chase (marq, cine), and what stands out on its flags
