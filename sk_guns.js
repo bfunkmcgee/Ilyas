@@ -44,12 +44,10 @@ function shotCount(A,kind){return kind==='double'?(A.wp.gun.burst||2):1;}
   if(A&&!A.dead&&!A.downed&&!A.clinch&&isGun(A)){const m={slash:'shoot',overhead:'aimed',thrust:'double',sweep:null,feint:null};if(slot in m)return m[slot];}
   return sa(A,D,slot);};}
 // the rules: a gun fires at anyone standing in the open or in cover, never from the ground or a hold; a gun is not a blade
-{const cv=cmdValid;cmdValid=function(A,D,cmd){
-  // the one guard left in the game: cover, for a man with a gun or a man in the open against one
-  if(cmd==='guard'&&A&&!A.dead&&gunFight(A))return!A.downed&&!A.clinch&&!A.mount;
-  if(GUN_KINDS.includes(cmd))return!!(A&&!A.dead&&!A.downed&&!A.clinch&&isGun(A)&&D&&!D.dead&&!D.walkIn&&(cmd!=='double'||A.foot>=1));
-  if(isGun(A)&&(ATTACKS.includes(cmd)||cmd==='feint'||cmd==='bind'||cmd==='grab'))return false;
-  return cv(A,D,cmd);};}
+// the one guard left in the game: cover, for a man with a gun or a man in the open against one
+cmdDef('Gun','guard',(A,D)=>A&&!A.dead&&gunFight(A)?!A.downed&&!A.clinch&&!A.mount:undefined);
+cmdDef('Gun',GUN_KINDS,(A,D,cmd)=>!!(A&&!A.dead&&!A.downed&&!A.clinch&&isGun(A)&&D&&!D.dead&&!D.walkIn&&(cmd!=='double'||A.foot>=1)));
+RULES.add({id:'gun.noblade',src:'Gun',on:'cmd',label:'a gun is not a blade',when:x=>isGun(x.A)&&(ATTACKS.includes(x.cmd)||x.cmd==='feint'||x.cmd==='bind'||x.cmd==='grab'),why:'a gun is not a blade'});
 // a gun never answers a man closing on it with a stop-thrust, and a man with a gun has no blade to riposte or flow with
 {const sh=stopHitFor;stopHitFor=function(A,D,...r){return isGun(D)||isGun(A)?false:sh(A,D,...r);};}
 {const co=considerOpening;considerOpening=function(ex,f,...r){if(isGun(f))return;return co(ex,f,...r);};}
@@ -63,7 +61,7 @@ function shotMods(A,D,kind,i){const g=A.wp.gun,K=SHOT[kind],dist=Math.hypot(D.st
   const mods=[['skill',A.skill],[A.wp.short.toLowerCase(),g.acc],[lowFirst(shotName(A,kind)),K.acc-(kind==='double'&&i?1:0)],['range',-Math.floor(far/(g.range*.25))],
     [footLabel(A),post(A).atk],['dazed',A.daze?-2:0],['outclassed',outclassMod(A,D)],['arm wound',-Math.min(2,A.wounds.arm||0)]];
   const defMods=[['skill',Math.round(D.skill*.6)],['cover',D.guarding&&!D.downed?4:0],[footLabel(D),post(D).def],['down',D.downed?-3:0],['dazed',D.daze?-2:0]];
-  return{mods,defMods,bonus:sumMods(mods),def:10+sumMods(defMods)};}
+  return ruleRoll('shot',{mods,defMods,bonus:sumMods(mods),def:10+sumMods(defMods)},{A,D,kind,i});}
 function shotChance(A,D,kind){const c=shotMods(A,D,kind,0);let n=0;for(let r=2;r<=20;r++)if(r===20||r+c.bonus>=c.def)n++;return n/20;}
 // where a round goes in: the head on a crit's good luck, else the body, an arm or a leg
 const SHOT_ZONES=[['body',6],['arm',2],['leg',2],['head',1]];
@@ -77,7 +75,7 @@ function resolveShot(A,D,kind,i){const c=shotMods(A,D,kind,i),r=S.rng,roll=1+Mat
     // a round floors a man already off balance, and anyone it hits hard enough; the outclassed only on a crit
     kd=!D.downed&&(D.posture==='off'||out==='crit'&&dmg>=24||zone==='leg'&&dmg>=18)&&D.hp-dmg>0;
     if(kd&&kdBlocked(A,D,out==='crit'))kd=false;}
-  return{roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,def,out,dmg,dice,zone,knock,kd,kind,mult:K.mult,i,seed:(r()*1e9)|0};}
+  return{roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,def,out,dmg,dice,zone,knock,kd,kind,mult:K.mult,i,seed:(r()*1e9)|0,rules:c.rules};}
 
 // ---------- the shooting ----------
 {const cm=command;command=function(i,cmd,opts){if(!GUN_KINDS.includes(cmd))return cm(i,cmd,opts);

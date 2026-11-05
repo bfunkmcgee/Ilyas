@@ -247,12 +247,12 @@ function grabInfo(A,D){
 }
 function sumMods(m){return m.reduce((s,x)=>s+x[1],0);}
 function chanceOf(c){let n=0;for(let r=2;r<=20;r++)if(r===20||r+c.bonus>=c.dc)n++;return n/20;}
-function rollVs(c,extra){const roll=1+Math.floor(S.rng()*20),total=roll+c.bonus,ok=roll!==1&&(roll===20||total>=c.dc);return{roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,dc:c.dc,ok,crush:ok&&(roll===20||total>=c.dc+10),seed:(S.rng()*1e9)|0,...(extra||{})};}
+function rollVs(c,extra){const roll=1+Math.floor(S.rng()*20),total=roll+c.bonus,ok=roll!==1&&(roll===20||total>=c.dc);return{roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,dc:c.dc,ok,crush:ok&&(roll===20||total>=c.dc+10),seed:(S.rng()*1e9)|0,rules:c.rules,...(extra||{})};}
 function grabMods(A,D,opening){
   const behind=facingAway(D,A);
   const mods=[['skill',A.skill],['build',Math.round((A.body.bulk-D.body.bulk)*4)],['opening',opening?3:0],[footLabel(A),post(A).atk],['from behind',behind?3:0],['dazed',A.daze?-2:0],['outclassed',outclassMod(A,D)]];
   const defMods=[['guard',D.guarding?2:0],[post(D).name.toLowerCase(),post(D).resist],['dazed',D.daze?-2:0],['limp',-D.wounds.leg]];
-  return{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods,behind};
+  return ruleRoll('grab',{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods,behind},{A,D,opening});
 }
 function resolveGrab(A,D,opening){const c=grabMods(A,D,opening);return rollVs(c,{kind:'grab',behind:c.behind});}
 function planGrab(A,D,gr){
@@ -362,7 +362,7 @@ function throwMods(A,D,opening){
   const c=A.clinch,holder=!!c&&c.a===A;
   const mods=[['skill',A.skill],['build',Math.round((A.body.bulk-D.body.bulk)*4)],['opening',opening?3:0],[footLabel(A),post(A).atk],['grip',holder?(c.behind?2:0):(c&&c.behind?-1:-3)],['dazed',A.daze?-2:0],['outclassed',outclassMod(A,D)]];
   const defMods=[[post(D).name.toLowerCase(),post(D).resist],['limp',-D.wounds.leg],['dazed',D.daze?-2:0]];
-  return{mods,bonus:sumMods(mods),dc:10+D.skill+sumMods(defMods),defMods};
+  return ruleRoll('throw',{mods,bonus:sumMods(mods),dc:10+D.skill+sumMods(defMods),defMods},{A,D,opening});
 }
 function resolveThrow(A,D,opening){const c=throwMods(A,D,opening),r=rollVs(c,{kind:'throw'});r.dmg=r.ok?Math.max(1,Math.round((3+1+Math.floor(S.rng()*6)+(r.crush?3:0))*(A.hench?CREW.dmg:1))):0;return r;}
 function planThrow(A,D,tr,info){
@@ -435,7 +435,7 @@ function breakMods(A,D,opening){
   const c=A.clinch;
   const mods=[['skill',A.skill],['build',Math.round((A.body.bulk-D.body.bulk)*4)],['opening',opening?3:0],[footLabel(A),post(A).atk],['pinned',c&&c.behind?-2:0],['dazed',A.daze?-2:0],['outclassed',outclassMod(A,D)]];
   const defMods=[[post(D).name.toLowerCase(),post(D).resist],['dazed',D.daze?-2:0],['arm wound',-armPen(D)]];
-  return{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods};
+  return ruleRoll('break',{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods},{A,D,opening});
 }
 function resolveBreak(A,D,opening){return rollVs(breakMods(A,D,opening),{kind:'breakfree'});}
 function planBreak(A,D,br){
@@ -503,7 +503,7 @@ function dropWeapon(D,dir,force){
 function disarmMods(A,D,src){
   const mods=[['skill',A.skill],[src==='break'?'weight':'leverage',src==='break'?Math.round(A.wp.mass):2]];
   const defMods=[['skill',D.skill],['two hands',D.wp.off?3:0],[post(D).name.toLowerCase(),D.posture==='set'?2:D.posture==='off'?-2:0],['arm wound',-2*armPen(D)],['broken',D.broken?-10:0]];
-  return{mods,bonus:sumMods(mods),dc:12+sumMods(defMods),defMods};
+  return ruleRoll('disarm',{mods,bonus:sumMods(mods),dc:12+sumMods(defMods),defMods},{A,D,src});
 }
 function tryDisarm(A,D,src,fa){
   if(D.dead||D.wp.unarmed)return null;const r=rollVs(disarmMods(A,D,src),{kind:'disarm',src});

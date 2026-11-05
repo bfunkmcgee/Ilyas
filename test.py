@@ -38,6 +38,7 @@ SUITES = {
     'room':       (['node', 'sk_room_test.js'], 'logic', 'the room: bodies, panes, lamps and the table, and the room moves'),
     'short':      (['node', 'sk_short_test.js'], 'logic', 'Short Hand: the stance, the Hinge, the Wrist toll, the Short ladder, the check and the hook'),
     'anim':       (['node', 'sk_anim_test.js'], 'logic', 'the motion: rank, every variant of every blow, combos, the answers acted out, blows taken'),
+    'rules':      (['node', 'sk_rules_test.js'], 'logic', 'the rules list: every entry, its order, each reader, and each system against the game without it'),
     'dom':        (['node', 'sk_dom.js'], 'page', 'the whole UI on a stub page: scripted play in every arena'),
     'lookpage':   (['node', 'sk_look_page.js'], 'page', "Kael's look: coat, tears, every arena and state"),
     'castpage':   (['node', 'sk_cast_page.js'], 'page', 'the cast and the crews drawn'),
@@ -61,10 +62,10 @@ PAGES = [n for n, s in SUITES.items() if s[1] == 'page']
 # (seconds each in a full run, the other lane busy: drawfree 205, arms 195, look 185, cast 185, dom 180, light 150, finale 130,
 # sktest 50, hud 35, v12 30, v12finale 20, brawl 10, team 10, arc 10, live 5, env 5)
 ORDER = ['drawfree', 'stnmotion', 'armspage', 'lookpage', 'castpage', 'dom', 'stances', 'lightpage', 'finalepage', 'sktest', 'act1page', 'hudpage', 'v12',
-         'v12finale', 'anim', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'arcpage', 'live', 'env']
+         'v12finale', 'anim', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'arcpage', 'live', 'env', 'rules']
 
 # ---------- what covers what ----------
-GAME = r'^sk_(core|anim|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|rise|stances|spells|stnmotion|explore|pit|pit2|pit5|short|pit6|pit7|pit8|pit9|pitmenu)\.js$'
+GAME = r'^sk_(core|rules|anim|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|rise|stances|spells|stnmotion|explore|pit|pit2|pit5|short|pit6|pit7|pit8|pit9|pitmenu)\.js$'
 COVERS = [
     (GAME, 'ALL'),                                                     # the rules: everything
     (r'^build\.py$|^sk_src\.js$', 'ALL'),

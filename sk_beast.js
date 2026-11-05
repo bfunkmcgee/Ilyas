@@ -250,7 +250,7 @@ function tossInfo(A,D){
     if(!best||o.score>best.score)best=o;}
   return best;}
 function tossMods(A,D){const mods=[['skill',A.skill],['build',Math.round((A.body.bulk-D.body.bulk)*4)],['opening',3],[footLabel(A),post(A).atk],['dazed',A.daze?-2:0]];
-  const defMods=[[post(D).name.toLowerCase(),post(D).resist],['dazed',D.daze?-2:0]];return{mods,bonus:sumMods(mods),dc:10+D.skill+sumMods(defMods),defMods};}
+  const defMods=[[post(D).name.toLowerCase(),post(D).resist],['dazed',D.daze?-2:0]];return ruleRoll('toss',{mods,bonus:sumMods(mods),dc:10+D.skill+sumMods(defMods),defMods},{A,D});}
 function launchToss(A,D,ex){
   const info=tossInfo(A,D),tr=rollVs(tossMods(A,D),{kind:'throw'});tr.dmg=tr.ok?6+Math.floor(S.rng()*6)+(tr.crush?3:0):0;
   if(!info){tr.ok=false;tr.dmg=0;}
@@ -292,7 +292,7 @@ function startToss(A,D,info,air){if(D.dead||D.downed)return;startCarry(A,D,info,
 // goblin up and throws it
 ACTIONS.toss={name:'Toss',cost:80};FOOT_COST.toss=2;
 {const sa=slotAction;slotAction=function(A,D,slot){const a=sa(A,D,slot);if(slot==='advance'&&D&&D.beast==='goblin'&&!A.clinch&&!A.downed&&tossInfo(A,D))return'toss';return a;};}
-{const cv=cmdValid;cmdValid=function(A,D,cmd){if(cmd==='toss')return!!A&&!A.dead&&A.foot>=1&&!!tossInfo(A,D);return cv(A,D,cmd);};}
+cmdDef('Beast','toss',(A,D)=>!!A&&!A.dead&&A.foot>=1&&!!tossInfo(A,D));
 {const cm=command;command=function(i,cmd,opts){if(cmd!=='toss')return cm(i,cmd,opts);
   opts=opts||{};const g=S.game;if(g.phase!=='input'||g.active!==i||S.opening)return false;
   const A=S.F[i],D=targetOf(A);if(!cmdValid(A,D,cmd))return false;

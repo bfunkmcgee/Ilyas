@@ -177,9 +177,9 @@ function roomMods(A,D,cmd){
   const heave=cmd==='hurl'||cmd==='pane';
   const mods=[['skill',A.skill],heave||cmd==='flip'?['build',Math.round((A.body.bulk-D.body.bulk)*4)]:['weapon',A.wp.acc||0],[footLabel(A),post(A).atk],['dazed',A.daze?-2:0],['outclassed',outclassMod(A,D)]];
   const defMods=[[post(D).name.toLowerCase(),heave?post(D).resist:post(D).def],['limp',-D.wounds.leg],['dazed',D.daze?-2:0]];
-  return{mods,bonus:sumMods(mods),dc:(cmd==='flip'?9:10)+D.skill+sumMods(defMods),defMods};}
+  return ruleRoll('room',{mods,bonus:sumMods(mods),dc:(cmd==='flip'?9:10)+D.skill+sumMods(defMods),defMods},{A,D,cmd});}
 function roomChance(A,m){return chanceOf(roomMods(A,m.D,m.cmd));}
-{const cv=cmdValid;cmdValid=function(A,D,cmd){if(cmd==='room1'||cmd==='room2')return!!A&&!A.dead&&!A.downed&&!A.clinch&&A.foot>=1&&!!roomPick(A,cmd);return cv(A,D,cmd);};}
+cmdDef('Room',['room1','room2'],(A,D,cmd)=>!!A&&!A.dead&&!A.downed&&!A.clinch&&A.foot>=1&&!!roomPick(A,cmd));
 {const sa=slotAction;slotAction=function(A,D,slot){if(slot==='room1'||slot==='room2')return A&&!A.dead&&roomPick(A,slot)?slot:null;return sa(A,D,slot);};}
 {const mc=moveCost;moveCost=function(A,D,cmd,op){if(cmd==='room1'||cmd==='room2'){const m=roomPick(A,cmd);return m?ROOM_COST[m.cmd]-ACTIONS[cmd].cost:0;}return mc.apply(this,arguments);};}
 {const fd=footDelta;footDelta=function(A,cmd,T){if(cmd==='room1'||cmd==='room2'){const m=roomPick(A,cmd);return m?-ROOM_FOOT[m.cmd]:0;}return fd.apply(this,arguments);};}

@@ -24,7 +24,7 @@ function act1Stage(){return act1On()?STAGES[S.story.i]:null;}
   const K0=storyKael();K0.skill=ACT1_K.skill;
   try{sd(st);}finally{STORY_KAEL.weapon=w;STORY_KAEL.skill=sk;STORY_KAEL.hp=hp;}};}
 // four pips of balance, a crew man's
-{const fm=footMaxOf;footMaxOf=function(f){if(f&&f===S.F[0]&&act1On())return ACT1_K.foot;return fm(f);};}
+RULES.add({id:'act1.foot',src:'Act I',on:'footmax',label:'four pips, a crew man\u2019s',when:x=>x.f&&x.f===S.F[0]&&act1On(),set:ACT1_K.foot});
 // every Act I stage: drained, the hip dagger in his hand and no other (st.weapon: 'fists' where he has none), one arm (the stage says
 // which), and what he wears in the Pit (st.wear, drawn by the look: nothing of the Noir Gilt suit is left on him after scene 1). The
 // tears the prologue put in his clothes went with the clothes.

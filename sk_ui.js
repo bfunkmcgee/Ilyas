@@ -898,7 +898,7 @@ function updateOrder(){
   let tt=null;
   if(info){tt=turnsText(enemyTurnsBefore(ord,info.pv.i,!info.pv.now));
     $('tempoLine').textContent=`If ${info.A.name} picks ${info.label}: ${info.pv.cost} tempo${info.pv.delay?`, ${info.D.name} +${info.pv.delay}`:''}. Before any dice effects.`;}
-  else $('tempoLine').textContent=`Tempo per slash: ${S.F.filter(f=>!f.dead).map(f=>`${f.name} ${actionCost(f,'slash')}`).join(' · ')} (lower acts sooner)`;
+  else $('tempoLine').textContent=`Tempo per slash: ${S.F.filter(f=>!f.dead).map(f=>`${f.name} ${actionCost(f,'slash')}${tempoRules(f)}`).join(' · ')} (lower acts sooner)`;
   const line=info?`<b>${info.label}</b> · ${roleText(info.A,info.D,info.act||previewCmd)} ${o?'':reachText(info.A,info.D,info.act||previewCmd)}${footText(info.A,info.ft)} <i>${cap(tt)}.</i>`:null;
   if(o)$('opHint').innerHTML=line||(isAI(o.f.idx)?'':'Follow-ups cost half tempo. Hover a choice to see how it moves the turn order.');
   $('cmdPreview').innerHTML=line||footingLine();
@@ -1025,6 +1025,24 @@ S.hooks.note=(f,text,sub)=>{const ex=S.game&&S.game.ex,li=ex&&ex.li&&ex.li.isCon
   d.innerHTML=`${who(f)}<span>: ${text}${sub?', '+sub:''}</span>`;
   if(li)li.insertBefore(d,li.querySelector('.lg-perf'));else{const e=newEntry(false);e.appendChild(d);pushEntry(e);}};
 function modsText(mods){return mods.filter(m=>m[0]==='skill'||m[1]!==0).map(m=>`${signed(m[1])} ${m[0]}`).join(' ');}
+// What the rules did in an exchange (sk_rules.js), as a line under its roll: each system, then what its entries changed (the roll's
+// modifiers, the blow's damage, the balance the move cost, what closing in cost). The tempo line names the ones on a man's tempo.
+function ruleItem(r){const v=r.v,dmg=r.on==='dmg',side=r.to==='def'?' DEF':'';
+  if(v==null||v===0)return r.label;return dmg?`${r.label} ${signed(v)} damage`:`${r.label} ${signed(v)}${side}`;}
+function ruleLine(recs){const by=new Map();
+  for(const r of recs){if(!by.has(r.src))by.set(r.src,[]);const t=ruleItem(r),L=by.get(r.src);if(!L.includes(t))L.push(t);}
+  return[...by].map(([src,L])=>`<b>${src}</b>: ${L.join(', ')}`).join(' · ');}
+function ruleRecs(e){const ex=e.ex,r=e.res,out=[];if(!r)return out;
+  for(const x of [r,ex&&ex.res2])if(x&&x.rules)out.push(...x.rules);
+  const cmd=r.kind||(ex&&ex.cmd),T=r.tech;
+  if(e.A&&cmd&&ACTIONS[cmd])for(const q of ruleChanged('foot',{A:e.A,cmd,T},()=>footBase(e.A,cmd,T)))out.push({src:q.src,on:'foot',label:q.label,v:null});
+  if(ex&&ex.costRules)for(const q of ex.costRules)out.push({src:q.src,on:'approach',label:q.label,v:null});
+  return out;}
+function ruleLog(e){const ex=e&&e.ex,li=ex&&ex.li;if(!li||!e.res||li!==logEl.firstElementChild||li.querySelector('.lg-rules'))return;
+  const recs=ruleRecs(e);if(!recs.length)return;const d=document.createElement('div');d.className='lg-rules';d.innerHTML=ruleLine(recs);
+  const p=li.querySelector('.lg-perf');if(p&&p.parentNode===li)li.insertBefore(d,p);else li.appendChild(d);}
+function tempoRules(f){const x={f,cmd:'slash',extra:0},L=ruleWhich('tempo',x);if(!L.length)return'';
+  return` (${L.map(e=>e.set!==undefined?`${e.label} = ${ruleVal(e.set,x)}`:e.mul!==undefined?`${e.label} \u00d7${+(+ruleVal(e.mul,x)).toFixed(2)}`:`${e.label} ${signed(ruleVal(e.add,x))}`).join(', ')})`;}
 S.hooks.log=e=>{
   const chain=e.ex&&e.ex.chain;const li=newEntry(chain&&e.type!=='hold');
   const tag=chain?`<span class="lg-tag">${chain==='gang'&&e.A&&e.A.team===0?'Tandem':CHAIN_TXT[chain]}</span>`:'';
@@ -1340,6 +1358,8 @@ function frame(now){
 // What the page does each frame whether or not the frame is drawn: the HUD's state, the panels, the sounds that follow the scene, a
 // scene's textures made ahead (V11UI.tick). The drawing (render) changes nothing the game or the page reads, so the checks can skip it.
 function uiTick(){for(const fn of V11UI.tick)fn();}
+// the rules' line under each exchange's roll (ruleLog): put on last, so it is under every entry the parts above write
+V11UI.init.push(()=>{const lg=S.hooks.log;S.hooks.log=function(e){lg.apply(this,arguments);ruleLog(e);};});
 for(const fn of V11UI.init)fn();
 restart();
 {let lo=1e9,hi=-1e9;for(const f of S.F){const x=prjX(f.p[PEL].x,f.dep);lo=Math.min(lo,x);hi=Math.max(hi,x);}

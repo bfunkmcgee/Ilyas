@@ -14,11 +14,12 @@ V11.duelStart.push(()=>{for(const f of S.F)f.noRise=false;S._riseCont=null;S._ri
 
 // ---------- struck on the floor ----------
 // a crew man does not get up from it: the blow is made a killing one before the motion is planned, so the finisher plays
-{const ra=resolveAttack;resolveAttack=function(A,D,kind,opening,T){const r=ra.apply(this,arguments);
-  if(DOWNF.on&&A&&D&&D.downed&&!D.dead&&D.hench&&A.team!==D.team&&(r.out==='hit'||r.out==='crit')&&!r.weaponHit&&r.dmg<D.hp&&
-    !(typeof act1Spare==='function'&&act1Spare(D))){r.dmg=D.hp;
-    if(r.tech&&!r.tech.fin){const F=pickFinisher(A,D,kind,r.tech);if(F)r.tech={...r.tech,fin:F,anchor:F.anchor||r.tech.anchor,ang:F.ang||r.tech.ang,knock:(r.tech.knock||1)*F.knock};}}
-  return r;};}
+RULES.add({id:'rise.finish',src:'Free rise',on:'dmg',
+  when:x=>{const A=x.A,D=x.D,r=x.r;return DOWNF.on&&A&&D&&D.downed&&!D.dead&&D.hench&&A.team!==D.team&&(r.out==='hit'||r.out==='crit')&&!r.weaponHit&&r.dmg<D.hp&&
+    !(typeof act1Spare==='function'&&act1Spare(D));},
+  edit:x=>{const r=x.r,d0=r.dmg;r.dmg=x.D.hp;
+    if(r.tech&&!r.tech.fin){const F=pickFinisher(x.A,x.D,x.kind,r.tech);if(F)r.tech={...r.tech,fin:F,anchor:F.anchor||r.tech.anchor,ang:F.ang||r.tech.ang,knock:(r.tech.knock||1)*F.knock};}
+    return['finished on the floor',r.dmg-d0];}});
 // anyone else takes the blow and loses the free rise
 {const ai=applyImpact;applyImpact=function(ex,A,D,res){const was=!!(D&&D.downed&&!D.dead);const r=ai.apply(this,arguments);
   if(DOWNF.on&&was&&!D.dead&&D.downed&&res&&(res.out==='hit'||res.out==='crit')&&!res.weaponHit&&!D.noRise){D.noRise=true;

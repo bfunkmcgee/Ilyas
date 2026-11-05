@@ -122,20 +122,19 @@ function canToll(A,D){return!!(A&&D&&shortKnows(D,'toll')&&A.team!==D.team&&!D.d
     if((k===0?(kx-ox):(ox-kx))*fa>0){const g=leg*K.gap;if(k===0&&(x-ox)*fa<g)x=ox+fa*g;if(k===1&&(ox-x)*fa<g)x=ox-fa*g;}
     s.to={x:footClamp(f,x)};}};}
 // shoves and sweeps at him are at -2
-{const sm=shoveMods;shoveMods=function(A,D,opening){const c=sm(A,D,opening);
-  if(D&&shortOn(D)){c.mods.push(['low stance',-SHORT_HAND.lowStance]);c.bonus-=SHORT_HAND.lowStance;}return c;};}
+RULES.add({id:'short.low.shove',src:'Short Hand',on:'shove',to:'hit',label:'low stance',v:-SHORT_HAND.lowStance,when:x=>x.D&&shortOn(x.D)});
 // (and one pip less to a shove, below in knockBalance)
 
 // ---------- the dice ----------
-{const cm=computeMods;computeMods=function(A,D,kind,opening,T){const c=cm(A,D,kind,opening,T);if(!A||!D)return c;
-  const down=!!D.downed&&!D.dead;
-  if(kind==='sweep'&&!down&&shortOn(D)){c.mods.push(['low stance',-SHORT_HAND.lowStance]);c.bonus-=SHORT_HAND.lowStance;}
-  // inside his reach: the dagger's +2 (the one it already has inside a longer weapon's reach does not come twice)
-  if(!down&&ATTACKS.includes(kind)&&shortOn(A)&&shortInsideFlag(A,D,true)){const ir=c.mods.find(m=>m[0]==='inside the reach'),add=SHORT_HAND.inside.bonus-Math.max(0,ir?ir[1]:0);
-    if(add>0){c.mods.push(['Inside his reach',add]);c.bonus+=add;}}
-  // the ankle hook: a raised guard is guarding high
-  if(T&&T.key==='anklehook'&&!down){const g=c.defMods.find(m=>m[0]==='parry');if(g&&g[1]>0){c.def-=g[1];g[1]=0;}}
-  return c;};}
+// (a man down and not dead is on the floor: none of these)
+function shortUp(f){return!(f.downed&&!f.dead);}
+RULES.add({id:'short.low.sweep',src:'Short Hand',on:'attack',to:'hit',label:'low stance',v:-SHORT_HAND.lowStance,when:x=>x.A&&x.D&&x.kind==='sweep'&&shortUp(x.D)&&shortOn(x.D)});
+// inside his reach: the dagger's +2 (the one it already has inside a longer weapon's reach does not come twice)
+RULES.add({id:'short.inside',src:'Short Hand',on:'attack',to:'hit',when:x=>x.A&&x.D&&shortUp(x.D)&&ATTACKS.includes(x.kind)&&shortOn(x.A)&&shortInsideFlag(x.A,x.D,true),
+  mod:x=>{const ir=x.c.mods.find(m=>m[0]==='inside the reach'),add=SHORT_HAND.inside.bonus-Math.max(0,ir?ir[1]:0);return add>0?['Inside his reach',add]:null;}});
+// the ankle hook: a raised guard is guarding high
+RULES.add({id:'short.hook.parry',src:'Short Hand',on:'attack',to:'def',when:x=>x.A&&x.D&&x.T&&x.T.key==='anklehook'&&shortUp(x.D),
+  edit:x=>{const g=x.c.defMods.find(m=>m[0]==='parry');if(!g||!(g[1]>0))return null;const d=-g[1];x.c.def-=g[1];g[1]=0;return['a guard held high',d];}});
 
 // ---------- the Short ladder and the Ankle hook ----------
 // The Thrust becomes the Short ladder (not the back thrust, a pin to the wall or a haft cut, which are the moment's own); the dagger's
@@ -202,18 +201,16 @@ function shortBlindDrive(A,D,sr){
 
 // ---------- the blow ----------
 // what a blow at a Short Hand fighter, or from one, comes to: the Hinge's glancing blow, the threat, and the hook's barrel
-{const ra=resolveAttack;resolveAttack=function(A,D,kind,opening,T){
-  const hinge=!!(D&&D.react==='hinge'&&shortOn(D));
-  if(!hinge&&!shortOn(A))return ra.apply(this,arguments);
-  T=T||pickTechnique(A,D,kind);const r=ra.call(this,A,D,kind,opening,T);
+function shortHinge(D){return!!(D&&D.react==='hinge'&&shortOn(D));}
+RULES.add({id:'short.blow',src:'Short Hand',on:'dmg',when:x=>shortHinge(x.D)||shortOn(x.A),edit:x=>{const {A,D,kind,T}=x,r=x.r,hinge=shortHinge(D);
   // inside his reach: spent on this attack
   if(A.inside&&D&&A.inside.on===D.idx&&ATTACKS.includes(kind))A.inside=null;
-  if(!r||r.out==='wall'||r.weaponHit)return r;
-  if(T.threat)return shortThreatRes(D,r,T);
-  const land=r.out==='hit'||r.out==='crit';
-  if(hinge&&land)shortGlance(A,D,r,T);
-  if(T.key==='anklehook'&&land&&!D.downed){const P=shortHookProp(A,D);if(P&&!kdBlocked(A,D,r.out==='crit')){r.hookProp=P;r.kd=D.hp-r.dmg<=0;}}
-  return r;};}
+  if(!r||r.out==='wall'||r.weaponHit)return null;
+  if(T.threat){const d0=r.dmg;shortThreatRes(D,r,T);return['the threat',r.dmg-d0];}
+  const land=r.out==='hit'||r.out==='crit';let note=null;
+  if(hinge&&land){const d0=r.dmg;shortGlance(A,D,r,T);note=['a glancing blow (the Hinge)',r.dmg-d0];}
+  if(T.key==='anklehook'&&land&&!D.downed){const P=shortHookProp(A,D);if(P&&!kdBlocked(A,D,r.out==='crit')){r.hookProp=P;r.kd=D.hp-r.dmg<=0;note=note||'the hook, over the '+P.type;}}
+  return note;}});
 // on the shoulder: under half the damage, never a crit's double, no finisher, no knockdown, nothing driven into the furniture
 function shortGlance(A,D,r,T){
   const dc=T.dice||A.wp.dice,base=dc[2],sum=(r.dice||[]).reduce((s,d)=>s+d,0),pre=(sum+base)*(r.mult||1)+(r.hgDmg||0),crit=r.out==='crit';

@@ -51,20 +51,20 @@ function agileOn(f){if(elfRate(f)<=1||f.cutWalk||f.mount)return false;if(f.scene
 // his feet keep up with him
 {const us=updateSteps;updateSteps=function(f,pelTX,bp){us(f,pelTX,bp);const ag=f.agile||1;if(ag>1&&agileOn(f))for(const s of f.steps)if(s.active&&s.t0===S.t&&!s._ag&&!s.walk){s._ag=1;s.dur/=ag;}};}
 // what an elf spends to act, and how far a step takes him
-{const ac=actionCost;actionCost=function(f,cmd,extra){const c=ac(f,cmd,extra);return elfRate(f)>1?Math.round(c*ELVEN.tempo):c;};}
+RULES.add({id:'elf.pace',src:'Elven',on:'tempo',label:'elven pace',when:x=>elfRate(x.f)>1,mul:ELVEN.tempo});
 {const ai=advanceInfo;advanceInfo=function(A,D){const r=ai(A,D);if(!r||!D||elfRate(A)<=1||r.vault||r.around)return r;
   const fa=Math.sign(D.station-A.station)||A.facing,lim=D.station-fa*95;let x=A.station+(r.x-A.station)*ELVEN.move;if((x-lim)*fa>0)x=lim;x=clampSt(A,x,r.z);
   if((x-A.station)*fa>(r.x-A.station)*fa&&!divOnSeg(A.station,A.lane,x,r.z))r.x=x;return r;};}
 {const wi=withdrawInfo;withdrawInfo=function(A,D){const r=wi(A,D);if(!r||elfRate(A)<=1)return r;
   const x=clampSt(A,A.station+(r.x-A.station)*ELVEN.move);if(Math.abs(x-A.station)>Math.abs(r.x-A.station)&&!divOnSeg(A.station,A.lane,x,A.lane))r.x=x;return r;};}
 // harder to hit: an elf sees a man's blow coming (not another elf's), and the man holding a gun
-{const cm=computeMods;computeMods=function(A,D,kind,opening,T){const c=cm(A,D,kind,opening,T);
-  if(D&&elfRate(D)>1&&!D.downed&&A&&!elven(A)){c.def+=1;c.defMods.push(['elven reflexes',1]);}
-  if(A&&A.blinkBonus){c.mods.push(['out of nowhere',A.blinkBonus]);c.bonus+=A.blinkBonus;}
-  // a bolt of light thrown from across the room: his line and the reach of his weapon have nothing to do with it
-  if(T&&T.magic)for(const m of c.mods)if(m[0]==='off line'||m[0]==='angle'||m[0]==='jammed'||m[0]==='inside the reach'){c.bonus-=m[1];m[1]=0;}
-  return c;};}
-{const sm=shotMods;shotMods=function(A,D,kind,i){const c=sm(A,D,kind,i);if(D&&elfRate(D)>1&&!D.downed){c.def+=2;c.defMods.push(['elven reflexes',2]);}return c;};}
+RULES.add({id:'elf.reflexes',src:'Elven',on:'attack',to:'def',label:'elven reflexes',v:1,when:x=>x.D&&elfRate(x.D)>1&&!x.D.downed&&x.A&&!elven(x.A)});
+RULES.add({id:'elf.blink',src:'Elven',on:'attack',to:'hit',label:'out of nowhere',v:x=>x.A.blinkBonus,when:x=>x.A&&x.A.blinkBonus});
+// a bolt of light thrown from across the room: his line and the reach of his weapon have nothing to do with it
+RULES.add({id:'elf.magic',src:'Elven',on:'attack',to:'hit',when:x=>x.T&&x.T.magic,edit:x=>{let d=0,n=0;
+  for(const m of x.c.mods)if(m[0]==='off line'||m[0]==='angle'||m[0]==='jammed'||m[0]==='inside the reach'){if(m[1])n++;x.c.bonus-=m[1];d-=m[1];m[1]=0;}
+  return n?['a bolt, no line or reach',d]:null;}});
+RULES.add({id:'elf.reflexes.shot',src:'Elven',on:'shot',to:'def',label:'elven reflexes',v:2,when:x=>x.D&&elfRate(x.D)>1&&!x.D.downed});
 // the elf's run: low, the blade trailing, gone almost before the eye has him
 function elfDash(A,x0,z0,ex){if(elfRate(A)<=1||A.downed||A.clinch||A.mount)return;const x1=A.station,z1=A.lane,dist=Math.hypot(x1-x0,(z1-z0)*.8);if(dist<30)return;
   const fwd=(x1-x0)*A.facing>0,T=clamp(dist/ELVEN.dash,.16,.42),Tm=T*.5;
@@ -190,7 +190,7 @@ function spellOK(A,D,k){const s=SPELLS[k];if(!s||!mage(A)||A.dead||A.downed||A.c
   if(!D||D.dead||D.team===A.team||D.walkIn||D.offstage||notHereYet(D)||D.carry)return false;
   if(k==='blink')return!!blinkInfo(A,D);
   return true;}
-{const cv=cmdValid;cmdValid=function(A,D,cmd){if(SPELLS[cmd])return spellOK(A,D,cmd);return cv(A,D,cmd);};}
+cmdDef('Elven',c=>!!SPELLS[c],(A,D,c)=>spellOK(A,D,c));
 // a spell is a command of its own
 {const cm=command;command=function(i,cmd,opts){if(!SPELLS[cmd])return cm(i,cmd,opts);
   opts=opts||{};const g=S.game;if(g.phase!=='input'||g.active!==i||S.opening)return false;
@@ -294,7 +294,7 @@ function galeTargets(A,D){const fa=galeDir(A,D),ax=(A.p[PEL].x+A.p[CHE].x)/2,out
   return out.sort((a,b)=>Math.abs(a.station-ax)-Math.abs(b.station-ax));}
 function galeMods(A,D){const mods=[['skill',A.skill],['the wind',4],[footLabel(A),post(A).atk]];
   const defMods=[[post(D).name.toLowerCase(),post(D).resist],['guard',D.guarding?2:0],['weight',Math.round((D.body.bulk-1)*4)],['dazed',D.daze?-2:0],['on the ground',D.downed?-4:0]];
-  return{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods};}
+  return ruleRoll('gale',{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods},{A,D});}
 function galeRoll(A,D){return rollVs(galeMods(A,D),{kind:'gale'});}
 // when the front of the wave (the painter's: range × eOut(u)) reaches d
 function galeHitTime(d){return(1-Math.cbrt(Math.max(0,1-clamp(d/GALE.range,0,.999))))*GALE.life;}

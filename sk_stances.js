@@ -103,7 +103,7 @@ const STN_WHY={
 {const st=stopTech;stopTech=function(T,D,s){const R=st.apply(this,arguments);if(!T||!T.whip||T.stance!=='unbound')return R;
   const tipT=WHIP.thrust.tip;return{...R,key:'stoplash',name:'Stop-lash',dmg:tipT[2],tip:true,why:`${D.name} runs onto the tip of the chain as he closes.`,stanceWhy:STN_WHY.stop};};}
 // the chain is Unbound's own way to fight, not a trick: its lash spends no extra pip of balance (a heavy blow still spends its own)
-{const fd=footDelta;footDelta=function(A,cmd,T){if(T&&T.lash&&T.stance==='unbound'&&A===hero())return-(FOOT_COST[cmd]||0);return fd.apply(this,arguments);};}
+RULES.add({id:'stance.lash.foot',src:'Stance',on:'foot',label:'the lash spends no extra pip',when:x=>x.T&&x.T.lash&&x.T.stance==='unbound'&&x.A===hero(),set:x=>-(FOOT_COST[x.cmd]||0)});
 // ---------- how the whip moves ----------
 // The chain is already loose, so nothing unlocks at the start of a blow and nothing locks at its end: the hand throws, the chain
 // rolls out after it, the tip runs out fastest at the very end (eIn instead of eOut) and cracks at the impact, flash and sound, at
@@ -172,7 +172,7 @@ function cameInside(A,D){const c=A._came;return c&&c.turn===S.game.turnNo&&c.D==
 {const cm=command;command=function(i,cmd,opts){const A=S.F[i],D=A?targetOf(A):null;
   if(A&&D&&!(opts&&opts.prepaid)&&ATTACKS.includes(cmd))A._came={turn:S.game.turnNo,D,far:comesFar(A,D),inside:comesInside(A,D)};return cm.apply(this,arguments);};}
 // Unbound strikes from where he stands: nothing to close, no stop-hit on the way in
-{const ac=approachCost;approachCost=function(A,D,cmd){if(stanceOf(A)==='unbound'&&ATTACKS.includes(cmd)&&D&&!D.downed&&lashReady(A,D))return 0;return ac.apply(this,arguments);};}
+RULES.add({id:'stance.unbound.approach',src:'Stance',on:'approach',label:'Unbound strikes from where he stands',when:x=>stanceOf(x.A)==='unbound'&&ATTACKS.includes(x.cmd)&&x.D&&!x.D.downed&&lashReady(x.A,x.D),set:0});
 {const sh=stopHitFor;stopHitFor=function(A,D,cmd,dest){
   if(A&&stanceOf(A)==='unbound'&&ATTACKS.includes(cmd)&&lashReady(A,D))return false;
   // Unbound: a man closing on him through the chain's reach runs onto it (the line it holds is just outside his striking distance)
@@ -208,23 +208,24 @@ function cameInside(A,D){const c=A._came;return c&&c.turn===S.game.turnNo&&c.D==
   return best;};}
 
 // ---------- what each stance does to the dice ----------
-{const cm=computeMods;computeMods=function(A,D,kind,opening,T){const c=cm.apply(this,arguments);const s=stanceOf(D);
-  if(s==='unbound'&&!D.downed){const pen=(D.guarding?STN.parry:0)+(D.counter?STN.counter:0);if(pen){c.def+=pen;c.defMods.push(['unbound blade',pen]);}}
-  if(s==='close'&&!D.downed&&A&&A.team!==D.team){const t=S.F[getTgt(D)];if(t&&t!==A&&!t.dead){c.def+=STN.tied;c.defMods.push(['tied up inside',STN.tied]);}}
-  // Bound keeps a short blade at the point: instead of the +2 a shorter weapon has inside a long one's reach, he has to get past it
-  if(s==='bound'&&!D.downed&&A&&A.team!==D.team&&!cameInside(A,D)){const m=c.mods.find(x=>x[0]==='inside the reach'&&x[1]>0);if(m){c.bonus-=m[1]-STN.point;m[1]=0;c.mods.push(['kept at the point',STN.point]);}}
-  // the stance against the blow he throws, and the range of Ilyas's own blows
-  if(s&&!D.downed&&A&&A.team!==D.team&&ATTACKS.includes(kind)){const a=stnAnswer(s,kind,T,A,cameFar(A,D));if(a){c.def+=a[1];c.defMods.push([a[0],a[1]]);}}
-  if(A&&stanceOf(A)&&D&&!D.downed&&A.team!==D.team&&ATTACKS.includes(kind)){const r=stnRange(A,D);if(r){c.bonus+=r[1];c.mods.push(r);}}
-  // a spear's shaft cannot turn a chain: against Unbound's lash his Parry and his Counter hold nothing
-  if(A&&stanceOf(A)==='unbound'&&T&&T.lash&&T.stance==='unbound'&&D&&D.weaponKey==='spear'&&!D.downed){
-    const pm=c.defMods.find(x=>x[0]==='parry'&&x[1]>0),cm2=c.defMods.find(x=>x[0]==='counter'&&x[1]>0);
-    for(const m of [pm,cm2])if(m){c.def-=m[1];m[1]=0;}if(pm||cm2)c.defMods.push(['a shaft cannot turn a chain',0]);}
-  return c;};}
-{const gm=grabMods;grabMods=function(A,D,opening){const c=gm.apply(this,arguments);
-  if(stanceOf(A)==='close'){c.mods.push(['close stance',STN.grab]);c.bonus+=STN.grab;}
-  if(stanceOf(D)==='bound'){c.defMods.push(['the blade keeps him off',STN.grabDef]);c.dc+=STN.grabDef;}
-  return c;};}
+RULES.add({id:'stance.unbound.blade',src:'Stance',on:'attack',to:'def',label:'unbound blade',when:x=>stanceOf(x.D)==='unbound'&&!x.D.downed,
+  v:x=>(x.D.guarding?STN.parry:0)+(x.D.counter?STN.counter:0)||null});
+RULES.add({id:'stance.close.tied',src:'Stance',on:'attack',to:'def',label:'tied up inside',v:STN.tied,when:x=>{const D=x.D;if(stanceOf(D)!=='close'||D.downed||!x.A||x.A.team===D.team)return false;
+  const t=S.F[getTgt(D)];return!!t&&t!==x.A&&!t.dead;}});
+// Bound keeps a short blade at the point: instead of the +2 a shorter weapon has inside a long one's reach, he has to get past it
+RULES.add({id:'stance.bound.point',src:'Stance',on:'attack',to:'hit',when:x=>stanceOf(x.D)==='bound'&&!x.D.downed&&x.A&&x.A.team!==x.D.team&&!cameInside(x.A,x.D),
+  edit:x=>{const c=x.c,m=c.mods.find(y=>y[0]==='inside the reach'&&y[1]>0);if(!m)return null;c.bonus-=m[1]-STN.point;m[1]=0;c.mods.push(['kept at the point',STN.point,'Stance']);
+    return['kept at the point',STN.point];}});
+// the stance against the blow he throws, and the range of Ilyas's own blows
+RULES.add({id:'stance.answer',src:'Stance',on:'attack',to:'def',when:x=>stanceOf(x.D)&&!x.D.downed&&x.A&&x.A.team!==x.D.team&&ATTACKS.includes(x.kind),
+  mod:x=>{const a=stnAnswer(stanceOf(x.D),x.kind,x.T,x.A,cameFar(x.A,x.D));return a?[a[0],a[1]]:null;}});
+RULES.add({id:'stance.range',src:'Stance',on:'attack',to:'hit',when:x=>x.A&&stanceOf(x.A)&&x.D&&!x.D.downed&&x.A.team!==x.D.team&&ATTACKS.includes(x.kind),mod:x=>stnRange(x.A,x.D)});
+// a spear's shaft cannot turn a chain: against Unbound's lash his Parry and his Counter hold nothing
+RULES.add({id:'stance.chain.spear',src:'Stance',on:'attack',to:'def',when:x=>x.A&&stanceOf(x.A)==='unbound'&&x.T&&x.T.lash&&x.T.stance==='unbound'&&x.D&&x.D.weaponKey==='spear'&&!x.D.downed,
+  edit:x=>{const c=x.c,pm=c.defMods.find(y=>y[0]==='parry'&&y[1]>0),cm2=c.defMods.find(y=>y[0]==='counter'&&y[1]>0);let d=0;
+    for(const m of [pm,cm2])if(m){c.def-=m[1];d-=m[1];m[1]=0;}if(!pm&&!cm2)return null;c.defMods.push(['a shaft cannot turn a chain',0,'Stance']);return['a shaft cannot turn a chain',d];}});
+RULES.add({id:'stance.close.grab',src:'Stance',on:'grab',to:'hit',label:'close stance',v:STN.grab,when:x=>stanceOf(x.A)==='close'});
+RULES.add({id:'stance.bound.grab',src:'Stance',on:'grab',to:'def',label:'the blade keeps him off',v:STN.grabDef,when:x=>stanceOf(x.D)==='bound'});
 
 // ---------- the guard shows it ----------
 const STANCE_GUARD={unbound:{hx:.6,hy:.52,w:.62,gw:0,off:[.14,.5],crouch:.9,lean:.02,sf:.25,sb:-.33},

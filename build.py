@@ -15,7 +15,7 @@ import os, sys, json
 
 # ---------- the modules ----------
 # the rules, the physics and the systems of the game (no DOM: the node checks load these through sk_src.js)
-CORE = ['core', 'anim', 'brawl', 'fin', 'team', 'env', 'phase', 'arc']
+CORE = ['core', 'rules', 'anim', 'brawl', 'fin', 'team', 'env', 'phase', 'arc']
 # the features, each with a game part (sk_<f>.js) and a UI part (sk_<f>ui.js) where it has one
 FEAT = ['crew', 'chain', 'insure', 'style', 'secret', 'lobby', 'breach', 'office', 'finale', 'ctxmoves', 'fig', 'look', 'cast',
         'scene', 'arms', 'guns', 'story', 'beast', 'elf', 'hud', 'light', 'react', 'room', 'rise', 'stances', 'spells', 'stnmotion', 'explore', 'pit',

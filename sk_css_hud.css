@@ -423,6 +423,8 @@ body{margin:0}
 .wrap.hud .lg-why{color:var(--gl-dim)}
 .wrap.hud .lg-roll,.wrap.hud .lg-perf,.wrap.hud .lg-read{color:var(--gl-dim)}
 .wrap.hud .lg-roll b,.wrap.hud .lg-read b{color:var(--gl-cream)}
+.wrap.hud .lg-rules{color:var(--gl-dim);opacity:.8}
+.wrap.hud .lg-rules b{color:var(--gl-dim)}
 .wrap.hud .lg-perf{color:#857c6a}
 .wrap.hud .lg-read{color:var(--gl-gold2)}
 .wrap.hud .out{background:rgba(243,234,214,.06);border-radius:1px}

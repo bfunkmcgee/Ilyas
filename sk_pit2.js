@@ -32,9 +32,8 @@ function kitWear(k,o={}){const b=kitItem('body',k.body),c=kitItem('coat',k.coat)
 function kitSleeve(w){return!!w&&(!!w.coat||w.top==='shirt'||w.top==='jersey');}
 // the coat turns a knife a little: a blade's blow takes that much less off him
 const KIT_CUT={oilcloth:1};
-{const ra=resolveAttack;resolveAttack=function(A,D,kind,op,T){const r=ra(A,D,kind,op,T);
-  if(r&&r.dmg>0&&D&&D===S.F[0]&&act1On()&&D.wear&&KIT_CUT[D.wear.coat]&&A&&A.wp&&!A.wp.unarmed&&A.weaponKey!=='club'){r.dmg=Math.max(1,r.dmg-KIT_CUT[D.wear.coat]);r.cutBy=D.wear.coat;}
-  return r;};}
+RULES.add({id:'gear.oilcloth',src:'Gear',on:'dmg',label:'the oilcloth coat',add:x=>-KIT_CUT[x.D.wear.coat],min:1,
+  when:x=>{const A=x.A,D=x.D,r=x.r;return r&&r.dmg>0&&D&&D===S.F[0]&&act1On()&&D.wear&&KIT_CUT[D.wear.coat]&&A&&A.wp&&!A.wp.unarmed&&A.weaponKey!=='club';}});
 // an Act I stage that says wear:'kit' dresses him from the crate's choice
 {const sd=storyDuel;storyDuel=function(st){sd(st);if(st&&st.act&&st.wear==='kit'){const K=hero();if(K)K.wear=kitWear(kitOf());}};}
 V11.duelStart.push(()=>{const st=act1Stage();if(st&&st.wear==='kit'){const K=S.F[0];if(K)K.wear=kitWear(kitOf());}});

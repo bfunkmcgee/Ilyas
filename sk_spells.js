@@ -55,7 +55,7 @@ function overdriveBurn(A,n){const hp=n*OVERDRIVE.hp;A.hp=Math.max(1,A.hp-hp);A.f
   else cs.apply(this,arguments);
   if(short>0)overdriveBurn(A,short);};}
 // Gilt edge is lit, never a command: his turn goes on
-{const cv=cmdValid;cmdValid=function(A,D,cmd){if(cmd==='edge')return false;return cv.apply(this,arguments);};}
+RULES.add({id:'spell.edge.cmd',src:'Spell',on:'cmd',label:'Gilt edge',when:x=>x.cmd==='edge',why:'lit, never a command'});
 // a spell turn's log entry for the new spells (the page writes it)
 function spell2Log(A,D,ex,spell,extra){S.hooks.log({type:'spell2',spell,A,D,ex,...(extra||{})});}
 
@@ -86,7 +86,7 @@ function lineOK(A,D){if(!D||D.downed||D.dead||D.clinch||D.mount||A.mount)return 
   return g>=LINE.min&&d<=LINE.max&&Math.abs(D.lane-A.lane)<=LINE.dz&&!tableBetween(A,D)&&!(S.divs.length&&divBetween(A,D));}
 function lineMods(A,D){const mods=[['skill',A.skill],['the line',LINE.pull],[footLabel(A),post(A).atk]];
   const defMods=[[post(D).name.toLowerCase(),post(D).resist],['guard',D.guarding?2:0],['weight',Math.round((D.body.bulk-1)*4)],['dazed',D.daze?-2:0]];
-  return{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods};}
+  return ruleRoll('line',{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods},{A,D});}
 // where he lands: where Ilyas's stance strikes best (at blade's length, in his chest, out on the tip)
 function lineTo(A,D){const s=stanceOf(A)||'bound',fa=Math.sign(D.station-A.station)||A.facing;return A.station+fa*(engageGap(A,D)+LINE.to[s]);}
 function launchLine(A,D,ex){const fa=Math.sign(D.station-A.station)||A.facing,arm=A.arm,Tc=.2,Ty=Tc+.24,Tend=Ty+.42;A.facing=fa;
@@ -123,17 +123,14 @@ V11.turnStart.push(i=>{const f=S.F[i];if(f&&f===S.F[0]&&f.edge)f.edge=null;});
 V11.duelStart.push(()=>{for(const f of S.F){f.edge=null;f.glare=null;f.wardT=null;f.wardHitT=null;}S.lines=[];S.glares=[];});
 // Unbound: the burning tip reaches nearer in
 {const wt=whipTip;whipTip=function(A,D){if(A&&A.edge&&A===hero()&&edgeStance(A)==='unbound'&&D)return lashGap(A,D)>=STN.tip-EDGE.near;return wt.apply(this,arguments);};}
-{const ra=resolveAttack;resolveAttack=function(A,D,kind,opening,T){const r=ra.apply(this,arguments);
-  if(A&&A.edge&&A===hero()&&r&&(r.out==='hit'||r.out==='crit')&&r.tech&&r.tech.whip&&r.tech.tip&&edgeStance(A)==='unbound'){r.dmg+=EDGE.tipDmg;r.edgeBurn=EDGE.tipDmg;}
-  return r;};}
+RULES.add({id:'spell.edge.tip',src:'Spell',on:'dmg',label:'the tip burns',add:EDGE.tipDmg,
+  when:x=>{const A=x.A,r=x.r;return A&&A.edge&&A===hero()&&r&&(r.out==='hit'||r.out==='crit')&&r.tech&&r.tech.whip&&r.tech.tip&&edgeStance(A)==='unbound';}});
 
 // ---------- the dice: Glare, the ward an axe cracks, Bound's edge ----------
-{const cm=computeMods;computeMods=function(A,D,kind,opening,T){const c=cm.apply(this,arguments);
-  if(A&&A.glare&&ATTACKS.includes(kind)&&D===A.glare.by){const v=glareMod(kind);c.bonus+=v;c.mods.push(['dazzled',v]);}
-  if(D&&D.glare&&A&&A===D.glare.by&&!D.downed&&ATTACKS.includes(kind)){c.def+=GLARE.def;c.defMods.push(['dazzled',GLARE.def]);}
-  if(D&&D.react==='ward'&&A&&!D.downed&&stanceHeavy(A)&&ATTACKS.includes(kind)){c.def+=WARD.heavy;c.defMods.push(['the ward cracks',WARD.heavy]);}
-  if(A&&A.edge&&A===hero()&&ATTACKS.includes(kind)&&edgeStance(A)==='bound'){c.bonus+=EDGE.hit;c.mods.push(['gilt edge',EDGE.hit]);}
-  return c;};}
+RULES.add({id:'spell.glare.hit',src:'Spell',on:'attack',to:'hit',label:'dazzled',v:x=>glareMod(x.kind),when:x=>x.A&&x.A.glare&&ATTACKS.includes(x.kind)&&x.D===x.A.glare.by});
+RULES.add({id:'spell.glare.def',src:'Spell',on:'attack',to:'def',label:'dazzled',v:GLARE.def,when:x=>x.D&&x.D.glare&&x.A&&x.A===x.D.glare.by&&!x.D.downed&&ATTACKS.includes(x.kind)});
+RULES.add({id:'spell.ward.heavy',src:'Spell',on:'attack',to:'def',label:'the ward cracks',v:WARD.heavy,when:x=>x.D&&x.D.react==='ward'&&x.A&&!x.D.downed&&stanceHeavy(x.A)&&ATTACKS.includes(x.kind)});
+RULES.add({id:'spell.edge.hit',src:'Spell',on:'attack',to:'hit',label:'gilt edge',v:EDGE.hit,when:x=>x.A&&x.A.edge&&x.A===hero()&&ATTACKS.includes(x.kind)&&edgeStance(x.A)==='bound'});
 // what lands: Bound's edge cuts through a guard, Close's hilt sears, the ward flares
 {const ai=applyImpact;applyImpact=function(ex,A,D,res,Cfn,cv,slip,fa,primary){const warded=D&&D.react==='ward',r=ai.apply(this,arguments);
   if(warded&&D&&res){D.wardHitT=S.t;if(!S.warming){const h=D.p[HAB];sparks({x:h.x,y:h.y},10,'#ffe299',D.dep);}}

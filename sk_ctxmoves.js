@@ -40,7 +40,7 @@ function planBackThrust(A,D,res,T){
 function kickMods(A,D,P){
   const mods=[['skill',A.skill],['kicked '+PROP[P.type].name,1],[footLabel(A),post(A).atk],['dazed',A.daze?-2:0],['outclassed',outclassMod(A,D)]];
   const defMods=[[post(D).name.toLowerCase(),post(D).resist],['limp',-D.wounds.leg],['dazed',D.daze?-2:0]];
-  return{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods};}
+  return ruleRoll('kick',{mods,bonus:sumMods(mods),dc:9+D.skill+sumMods(defMods),defMods},{A,D,P});}
 function launchKick(A,D,ex,sv){
   const r=rollVs(kickMods(A,D,sv.P),{kind:'kick',prop:sv.P.type});
   A.guarding=false;A.circleGuard=false;engage(A,D);beginAction(A,'shove',null,{foot:MOVES.kickFoot});
@@ -87,7 +87,7 @@ function kickHit(A,D,P,fa,r){
 function bottleMods(A,D){const g=Math.abs(D.station-A.station);
   const mods=[['skill',A.skill],[footLabel(A),post(A).atk],['long throw',g>MOVES.bottleLong?-1:0],['dazed',A.daze?-2:0],['outclassed',outclassMod(A,D)]];
   const defMods=[['guard',D.guarding?2:0],[post(D).name.toLowerCase(),post(D).def],['dazed',D.daze?-2:0]];
-  return{mods,bonus:sumMods(mods),dc:10+D.skill+sumMods(defMods),defMods};}
+  return ruleRoll('bottle',{mods,bonus:sumMods(mods),dc:10+D.skill+sumMods(defMods),defMods},{A,D});}
 // a tankard or bottle from the table becomes a loose thing he can carry and throw
 function takeBottle(sv){
   if(sv.src==='prop'){const T=S.table,q=sv.ref;T.props=T.props.filter(x=>x!==q);

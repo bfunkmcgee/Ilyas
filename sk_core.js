@@ -111,7 +111,7 @@ function footLabel(f){return f.posture==='off'?'off balance':f.posture==='commit
 function spendFoot(f,n){if(n>0)f.foot=Math.max(0,f.foot-n);}
 function gainFoot(f,n){if(n>0)f.foot=Math.min(footMaxOf(f),f.foot+n);}
 // how many pips a fighter has: a crew man four, a boss eight, everyone else six
-function footMaxOf(f){return f&&f.hench?4:f&&f.boss?8:FOOT_MAX;}
+function footMaxOf(f){return ruleNum('footmax',{f},()=>f&&f.hench?4:f&&f.boss?8:FOOT_MAX);}
 // what wears balance down, in pips
 const BAL={recover:2,hit:2,parried:2,countered:2,blocked:1,dodged:1,dodgedOver:2,stepBack:1};
 // balance knocked out by the other side (by): at nothing a standing fighter is Broken
@@ -166,7 +166,9 @@ function stepUp(f){gainFoot(f,1);}
 // what your own moves spend, in pips: the heavy ones only (a flourish or a crowd cut one more); nothing buys pips back
 const FOOT_COST={overhead:1,shove:1,throw:1};
 const FOOT_GAIN={};
-function footDelta(A,cmd,T){
+// (the rules can change it: 'foot', sk_rules.js)
+function footDelta(A,cmd,T){return ruleNum('foot',{A,cmd,T},()=>footBase(A,cmd,T));}
+function footBase(A,cmd,T){
   if(T&&T.recov)return 1;
   if(T&&T.foot!=null)return -T.foot;
   if(cmd==='withdraw'&&!A.downed&&breakoutInfo(A))return -1;
@@ -871,7 +873,9 @@ function jammedTech(A,T){return A.wp.len>=60&&!!T&&['butt','haft','choked'].incl
 // how far out D's point meets someone coming in
 function stopRange(D,A){return 30+(A.body.bulk+D.body.bulk)*9+estReach(D,'thrust')*.95;}
 // closing a long distance in the same command costs tempo
-function approachCost(A,D,cmd){if(!D||D.dead||D.downed||A.clinch||!(ATTACKS.includes(cmd)||cmd==='shove'))return 0;if((cmd==='slash'||cmd==='sweep')&&lashReady(A,D))return 0;
+// (the rules can change it: 'approach', sk_rules.js)
+function approachCost(A,D,cmd){return ruleNum('approach',{A,D,cmd},()=>approachBase(A,D,cmd));}
+function approachBase(A,D,cmd){if(!D||D.dead||D.downed||A.clinch||!(ATTACKS.includes(cmd)||cmd==='shove'))return 0;if((cmd==='slash'||cmd==='sweep')&&lashReady(A,D))return 0;
   if(cmd==='shove'){const sv=shoveVariant(A,D);if(sv&&sv.kind!=='shoulder')return 0;}
   const ex=Math.abs(A.station-D.station)-engageGap(A,D);return ex>APPROACH_FREE?Math.min(30,Math.round((ex-APPROACH_FREE)/5)):0;}
 // does closing in on D, to dest (or to A's own striking distance), run onto D's longer weapon?
@@ -1060,8 +1064,9 @@ function pickTechnique(A,D,kind){
 // the bigger side acts a little slower, for each fighter more than the ones they face
 function crowdFactor(f){const a=f.team===1?foes().length:heroes().length,b=f.team===1?heroes().length:foes().length;return 1+.22*Math.max(0,a-Math.max(1,b));}
 // extra: a change to the base cost from the contextual move the command becomes (moveCost)
-function actionCost(f,cmd,extra){const atk=ATTACKS.includes(cmd)||cmd==='shove';
-  return Math.round((ACTIONS[cmd].cost+(extra||0)+(cmd==='stab'&&f.sidearm==='sheathed'?12:0))*(atk?f.wp.tempo:1)*lerp(1.25,.8,f.sk)*crowdFactor(f));}
+// (the rules can change it: 'tempo', sk_rules.js)
+function actionCost(f,cmd,extra){return ruleNum('tempo',{f,cmd,extra},()=>{const atk=ATTACKS.includes(cmd)||cmd==='shove';
+  return Math.round((ACTIONS[cmd].cost+(extra||0)+(cmd==='stab'&&f.sidearm==='sheathed'?12:0))*(atk?f.wp.tempo:1)*lerp(1.25,.8,f.sk)*crowdFactor(f));});}
 function actorAt(r){let best=-1;for(const f of S.F){if(f.dead||f.npc)continue;const i=f.idx;
   if(best<0||r[i]<r[best]||(r[i]===r[best]&&(f.skill>S.F[best].skill||(f.skill===S.F[best].skill&&i<best))))best=i;}return best;}
 function nextActor(){return actorAt(S.F.map(f=>f.ready));}
@@ -1088,7 +1093,8 @@ function computeMods(A,D,kind,opening,T){
   const rx=down||dirty?0:reactDef(D,kind);
   const defMods=[['parry',gb],[down?'on the ground':post(D).name.toLowerCase(),pd],['dazed',dz],['counter',ctr],['stepped back',hop],
     [D.react?REACT_NAME[D.react].toLowerCase():'reaction',rx],['read',rb],['saw the feint',fr]];
-  return{mods,bonus:mods.reduce((s,m)=>s+m[1],0),def:10+D.skill+gb+pd+dz+ctr+hop+rx+rb+fr,defMods,hgt};
+  // (and what the features add to it: the rules, sk_rules.js)
+  return ruleRoll('attack',{mods,bonus:mods.reduce((s,m)=>s+m[1],0),def:10+D.skill+gb+pd+dz+ctr+hop+rx+rb+fr,defMods,hgt},{A,D,kind,opening,T});
 }
 // a crit needs a natural 17 or better and a total 12 over DEF; a natural 20 always crits
 const CRIT_ROLL=17,CRIT_OVER=12,OVER_FLOOR=6;
@@ -1099,16 +1105,18 @@ function hitChanceT(A,D,kind,opening,T){const c=computeMods(A,D,kind,opening,T);
 function hitChance(A,D,kind,opening){return hitChanceT(A,D,kind,opening,pickTechnique(A,D,kind));}
 function resolveAttack(A,D,kind,opening,T){
   T=T||pickTechnique(A,D,kind);
-  if(T.into){const c=computeMods(A,D,kind,opening,T);return{roll:0,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total:0,def:c.def,out:'wall',dmg:0,dice:[],wall:0,wallRes:null,wallStruct:0,knock:0,kd:false,hgDmg:0,
-    table:null,tableDmg:0,mult:1,seed:(S.rng()*1e9)|0,kind,tech:T,guarded:false,guardBreak:false,back:false,shatter:false,div:T.into,divStruct:T.struct||1,divBreak:!!T.breaks,divRes:null,divDmg:0};}
+  // (what the features do to the result, each path: the rules' 'dmg', sk_rules.js; T0 is the technique as it was asked for)
+  const T0=T;
+  if(T.into){const c=computeMods(A,D,kind,opening,T);return ruleDmg({roll:0,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total:0,def:c.def,out:'wall',dmg:0,dice:[],wall:0,wallRes:null,wallStruct:0,knock:0,kd:false,hgDmg:0,
+    table:null,tableDmg:0,mult:1,seed:(S.rng()*1e9)|0,kind,tech:T,guarded:false,guardBreak:false,back:false,shatter:false,div:T.into,divStruct:T.struct||1,divBreak:!!T.breaks,divRes:null,divDmg:0},{A,D,kind,opening,T:T0,c});}
   const act=ACTIONS[kind],wp=A.wp,r=S.rng,c=computeMods(A,D,kind,opening,T),fa=Math.sign(D.station-A.station)||A.facing;
   const roll=1+Math.floor(r()*20),total=roll+c.bonus,def=c.def;
   const out=outcomeOf(roll,total,def);
   noteRead(A,D,kind);A.feint=null;A.feintRead=null;
   // a blow at the weapon itself: a hit on the haft takes the spearhead off; a lash that meets the weapon, hit or block, wraps it
   if((T.haftCut&&(out==='hit'||out==='crit'))||(T.lashDisarm&&(out==='hit'||out==='crit'||out==='block')))
-    return{roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,def,out,dmg:0,dice:[],wall:0,wallRes:null,wallStruct:0,knock:0,kd:false,hgDmg:0,table:null,tableDmg:0,mult:0,seed:(r()*1e9)|0,kind,tech:T,
-      guarded:false,guardBreak:false,flat:false,drive:null,propDmg:0,back:false,shatter:false,div:null,divRes:null,divDmg:0,divStruct:0,kdSaved:false,weaponHit:T.haftCut?'haft':'wrap',crit:out==='crit'};
+    return ruleDmg({roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,def,out,dmg:0,dice:[],wall:0,wallRes:null,wallStruct:0,knock:0,kd:false,hgDmg:0,table:null,tableDmg:0,mult:0,seed:(r()*1e9)|0,kind,tech:T,
+      guarded:false,guardBreak:false,flat:false,drive:null,propDmg:0,back:false,shatter:false,div:null,divRes:null,divDmg:0,divStruct:0,kdSaved:false,weaponHit:T.haftCut?'haft':'wrap',crit:out==='crit'},{A,D,kind,opening,T:T0,c});
   // a fighter waiting in a counter stance takes the full weight of a blow that does land
   const flat=!!D.counter&&!D.downed&&ATTACKS.includes(kind);
   const mult=act.mult*T.dmg*(A.posture==='off'&&!T.recov?.75:1)*(flat?1.25:1)*(A.hench?CREW.dmg:1);
@@ -1153,16 +1161,16 @@ function resolveAttack(A,D,kind,opening,T){
     // an outclassed attacker floors the better fighter only with a crit
     if(kd&&D.hp-dmg>0&&kdBlocked(A,D,out==='crit')){kd=false;kdSaved=true;}
   }
-  return{roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,def,out,dmg,dice,wall,wallRes,wallStruct,knock,kd,hgDmg,table,tableDmg,mult,seed:(r()*1e9)|0,kind,tech:T,guarded:D.guarding&&!T.beat&&!T.beard,guardBreak:kind==='overhead'&&D.guarding&&!D.downed&&(out==='block'||out==='hit'||out==='crit'),flat,drive,propDmg,back:!D.downed&&backExposed(D,A),shatter,div:divW,divRes,divDmg,divStruct:divSt,kdSaved};
+  return ruleDmg({roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,def,out,dmg,dice,wall,wallRes,wallStruct,knock,kd,hgDmg,table,tableDmg,mult,seed:(r()*1e9)|0,kind,tech:T,guarded:D.guarding&&!T.beat&&!T.beard,guardBreak:kind==='overhead'&&D.guarding&&!D.downed&&(out==='block'||out==='hit'||out==='crit'),flat,drive,propDmg,back:!D.downed&&backExposed(D,A),shatter,div:divW,divRes,divDmg,divStruct:divSt,kdSaved},{A,D,kind,opening,T:T0,c});
 }
 function shoveMods(A,D,opening){const build=Math.round((A.body.bulk-D.body.bulk)*4),ang=angleMod(A,D,'shove');
   const mods=[['skill',A.skill],['build',build],['opening',opening?3:0],[footLabel(A),post(A).atk],[ang>0?'angle':'off line',ang],['from behind',backExposed(D,A)?2:0],['dazed',A.daze?-2:0],['outclassed',outclassMod(A,D)]];
   const defMods=[['guard',D.guarding?2:0],[post(D).name.toLowerCase(),post(D).resist],['limp',-D.wounds.leg],['dazed',D.daze?-2:0]];
-  return{mods,bonus:mods.reduce((s,m)=>s+m[1],0),dc:9+D.skill+defMods.reduce((s,m)=>s+m[1],0),defMods};}
+  return ruleRoll('shove',{mods,bonus:mods.reduce((s,m)=>s+m[1],0),dc:9+D.skill+defMods.reduce((s,m)=>s+m[1],0),defMods},{A,D,opening});}
 function shoveChance(A,D,opening){const c=shoveMods(A,D,opening);let n=0;for(let r=2;r<=20;r++)if(r===20||r+c.bonus>=c.dc)n++;return n/20;}
 function resolveShove(A,D,opening){const c=shoveMods(A,D,opening),roll=1+Math.floor(S.rng()*20),total=roll+c.bonus;
   const ok=roll!==1&&(roll===20||total>=c.dc),crush=ok&&(roll===20||total>=c.dc+10);
-  return{kind:'shove',roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,dc:c.dc,ok,crush,seed:(S.rng()*1e9)|0};}
+  return{kind:'shove',roll,mods:c.mods,defMods:c.defMods,bonus:c.bonus,total,dc:c.dc,ok,crush,seed:(S.rng()*1e9)|0,rules:c.rules};}
 const READ_MOD={dodge:2,dodgeOver:3,block:0,hit:-3,break:1,brace:1,flow:-2,gang:-2};
 function readRoll(f,opp,src,depth){
   const roll=1+Math.floor(S.rng()*20),mod=READ_MOD[src]??0,bonus=f.skill*2+mod+(f.posture==='off'?-2:0),dc=12+opp.skill+depth*3;
@@ -2055,6 +2063,9 @@ function planFlank(A,D,info){
   return{att:{t0:S.t,end:Tend,body,arm},Tend:Tend+.05,events,dash:Math.round(L1+L2+L3),strikeX:info.x,Cfn:()=>({x:info.x,y:S.arena.ground(info.x,info.z)-80})};
 }
 function cmdValid(A,D,cmd){
+  // what the rules bar (whatever the command), then the commands the features bring (sk_rules.js), then the game's own
+  if(ruleBar(A,D,cmd))return false;
+  const def=cmdDefOK(A,D,cmd);if(def!==undefined)return def;
   if(!A||A.dead)return false;
   // (there is no guard to take in a melee: every blow is answered as it comes, sk_react.js; in a gunfight it is cover, sk_guns.js)
   if(cmd==='guard')return false;
@@ -2189,7 +2200,7 @@ function feintOK(A,D){if(!A||!D||A.downed||A.clinch||D.dead||D.downed||D.clinch|
   return Math.abs(D.station-A.station)<=engageGap(A,D)+APPROACH_FREE+FEINT.reach;}
 // your d20 plus skill against 10 plus his: footing, a daze and being outclassed count, as on every other roll
 function feintMods(A,D){const mods=[['skill',A.skill],[footLabel(A),post(A).atk],['dazed',A.daze?-2:0],['outclassed',outclassMod(A,D)]],defMods=[['dazed',D.daze?-2:0]];
-  return{mods,bonus:mods.reduce((s,m)=>s+m[1],0),dc:10+D.skill+defMods.reduce((s,m)=>s+m[1],0),defMods};}
+  return ruleRoll('feint',{mods,bonus:mods.reduce((s,m)=>s+m[1],0),dc:10+D.skill+defMods.reduce((s,m)=>s+m[1],0),defMods},{A,D});}
 function resolveFeint(A,D){return rollVs(feintMods(A,D),{kind:'feint',stance:D.guarding?'guard':D.counter?'counter':null});}
 // the fake: a half-step in with the point coming forward, then straight back to guard; he bites or he doesn't at the commit
 function planFeint(A,D,res){
@@ -2213,6 +2224,8 @@ function command(i,cmd,opts){
   g.phase='exchange';g.aiAt=null;if(!opts.prepaid)A.ready+=actionCost(A,cmd,moveCost(A,D,cmd))+approachCost(A,D,cmd);
   if(A.team===1)A.intent=null;
   const ex={A,D,t0:S.t,cmd,perf:{},depth:0,dazedAtStart:A.daze>0};g.ex=ex;if(cmd!=='cover')A.covering=null;A.counter=false;A.lastAct=cmd;
+  // (what the rules did to what closing in cost, for the log: sk_rules.js; nothing reads it but the log)
+  if(!opts.prepaid)ex.costRules=ruleChanged('approach',{A,D,cmd},()=>approachBase(A,D,cmd));
   // a set spear, a pin to the wall and a held facing all last until this fighter's next command
   A.setSpear=false;A.wallPin=false;A.holdFace=null;
   if(cmd!=='feint'&&!ATTACKS.includes(cmd)&&!DIRTY.includes(cmd)&&cmd!=='stab'){A.feint=null;A.feintRead=null;}

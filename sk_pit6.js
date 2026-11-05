@@ -13,12 +13,13 @@ const TOLL={pace:1,gangHits:2,heldTurns:2,breaks:2,hpEnd:1/3};
 // a story foe with `cast` is that figure of the cast (its body from ACT1_CAST, its look from CastLook.CAST): set before the body is made
 {const sr=storyRoster;storyRoster=function(st){sr(st);if(!st.act)return;st.foes.forEach((e,i)=>{const f=S.F[i+1];if(f&&e.cast)f.pitCast=e.cast;});};}
 // a fighter's own pace (f.tempoK): every cost he pays is scaled by it, so the turn order, the plans shown and the dock all agree
-{const ac=actionCost;actionCost=function(f,c,x){const v=ac(f,c,x);return f&&f.tempoK?Math.round(v*f.tempoK):v;};}
+RULES.add({id:'act1.pace',src:'Act I',on:'tempo',label:'his own pace',when:x=>x.f&&x.f.tempoK,mul:x=>x.f.tempoK});
 // nobody dies in a stage that spares them (st.spare): the blow that would have killed puts him down with a breath left, no finisher
 function act1Spare(f){const st=act1Stage();return!!st&&!!st.spare&&!!f&&!f.npc&&(f===S.F[0]||f.team===1||!!f.pitCast);}
+// the whetstone's edge: his blade cuts two deeper for one fight
+RULES.add({id:'gear.whet',src:'Gear',on:'dmg',label:'whetted edge',add:x=>ACT1_GOODS.whet,
+  when:x=>{const A=x.A,r=x.r;return r&&A&&A===S.F[0]&&A.whet&&(r.out==='hit'||r.out==='crit')&&A.wp&&A.wp.edge&&r.dmg>0;}});
 {const ra=resolveAttack;resolveAttack=function(A,D,kind,op,T){const r=ra.apply(this,arguments);
-  // the whetstone's edge: his blade cuts two deeper for one fight
-  if(r&&A&&A===S.F[0]&&A.whet&&(r.out==='hit'||r.out==='crit')&&A.wp&&A.wp.edge&&r.dmg>0)r.dmg+=ACT1_GOODS.whet;
   if(r&&act1Spare(D)&&(r.out==='hit'||r.out==='crit')){if(r.dmg>=D.hp){r.dmg=Math.max(0,D.hp-1);r.kd=true;}if(r.tech&&r.tech.fin)r.tech={...r.tech,fin:null};}
   return r;};}
 // what scene 5's shop sells does what it says: the whetstone's edge (two more on each cut of his) lasts the next fight he fights; a
@@ -55,7 +56,7 @@ function oneArmLock(A,cmd){if(!A||!A.oneArm)return null;const c=A.clinch;
   if(held&&c.behind&&cmd==='breakfree')return'Needs two hands';
   if(held&&c.behind&&(cmd==='elbow'||cmd==='shield'||cmd==='stab'))return'Arm pinned';
   return null;}
-{const cv=cmdValid;cmdValid=function(A,D,cmd){if(oneArmLock(A,cmd))return false;return cv.apply(this,arguments);};}
+RULES.add({id:'act1.onearm',src:'Act I',on:'cmd',label:'one arm',when:x=>!!oneArmLock(x.A,x.cmd),why:x=>oneArmLock(x.A,x.cmd)});
 // (on auto he answers a pin with what he has: the back of his head, a heel)
 {const acl=aiClinch;aiClinch=function(A,D){const c=acl(A,D);if(!oneArmLock(A,c))return c;
   const ks=['headbutt','knee'].filter(k=>cmdValid(A,D,k));return ks.length?ks[Math.floor(S.rng()*ks.length)]:'wait';};}

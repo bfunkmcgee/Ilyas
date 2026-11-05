@@ -60,7 +60,8 @@ Built files, test output and screenshots are ignored (.gitignore): the tools und
 **One script, one scope.** The build joins every file into one classic `<script>`: load order is definition order, and any file can
 reassign a function another defined. Features hook in by wrapping: `const _f=fn;fn=function(...a){...;return _f(...a);};`. The last
 wrapper in load order runs first. To see a function's chain: `grep -n "^function NAME\|[^.a-zA-Z_]NAME=" $(python3 -c "import json;m=json.load(open('build_modules.json'));print(' '.join(m['core']+m['ui']))")`.
-Most-wrapped game functions: cmdValid, command, aiChoice, slotAction (guns, story, beast, elf, room), the opening functions (beast, elf),
+A change to the rules is not a wrapper (since V91): it is an entry in the rules list (sk_rules.js, "The rules" below).
+Most-wrapped game functions: command, aiChoice, slotAction (guns, story, beast, elf, room), the opening functions (beast, elf),
 controlAndForces, updateSteps, and the room's contacts (onDivHit, lampHit, onTableContact). UI: updateOrder, roleText, updateCommands, updateTags, drawFx, envItems/drawEnvItem, updateCamera,
 drawFighter, drawWeapon/drawItem.
 
@@ -68,6 +69,31 @@ drawFighter, drawWeapon/drawItem.
 (every new fight: reset feature state here)`. UI: `V11UI.init` (once, after sk_ui.js defined everything: wrap UI functions here),
 `V11UI.tick` (every frame, drawn or not: HUD state, panels, scene sounds, timers that the page reads), `V11UI.world` (in render, in
 world coordinates, after effects and labels), `V11UI.screen` (end of render, device pixels).
+
+**The rules (since V91).** Every change a feature makes to the rules is an entry in one list, `RULES` (sk_rules.js, loaded straight
+after sk_core.js), and the one function that works a number out reads it: a roll's modifiers (`ruleRoll` at the end of computeMods,
+shotMods, grabMods, shoveMods, throwMods, breakMods, disarmMods, feintMods, tossMods, bottleMods, kickMods, galeMods, roomMods and
+lineMods), the tempo of a move (actionCost), what closing in costs (approachCost), the balance a move costs (footDelta), the most
+balance a man has (footMaxOf), a blow's damage (`ruleDmg` on each of resolveAttack's results) and whether a command is his (cmdValid:
+`ruleBar`). `RULES.add({id, src, on, when, ...})`: id `'<module>.<name>'`; src the system as the log names it (Elven, Stance, Spell,
+Short Hand, Gear, Act I, Cover, Riding, Gun, Lesson, Free rise); on what it changes (a roll by its name, 'tempo', 'approach', 'foot',
+'footmax', 'dmg', 'cmd'); when(x) whether it applies (x: the function's arguments by name, and c, the roll so far, or r, the result;
+it throws no dice and changes nothing: the planners and the log ask it too). A roll's entry gives to:'hit' or 'def' with label and v
+(or mod(x) giving [label, v]; null leaves it out), and goes in among the modifiers as [label, v, src]; edit(x) is for the rest (putting
+a modifier to nothing, putting one in another's place), giving the words and what it changed. A number's entry gives set (the last
+added that applies takes the place of the game's own), mul (rounded) or add; a damage entry add (with min, the least it leaves) or
+edit; a bar its why. An entry is checked as it is added (a malformed one throws at load). The entries apply in the order they were
+added, which is load order: the order the wrappers they replaced ran in, innermost first, so moving them changed no fight (the motion
+traces, the suites' and the page's, came out identical). What applied is recorded (`c.rules`, then the result's `rules`), and the log
+writes it under the roll (`ruleLog`, sk_ui.js: each system, then what its entries did there, with the balance and approach entries
+that changed the number); the tempo line names the ones on a man's tempo. A command a feature brings is defined with
+`cmdDef(src, match, ok)` (the guns' shots and cover, the toss, the spells, the room's two moves): cmdValid asks the bars first, then
+these, then its own rules, so a bar holds whatever brought the command. `RULES.off(id)` takes one out of play for a check. The rules
+suite (sk_rules_test.js) holds the list (every entry, its order, a malformed one refused), each reader, and each system against the
+game without it. What stays a wrapper: what a scene does to a fight (a stage that spares everyone, the toll, a forced outcome, a
+lesson's blows), what needs an exchange's state in hand (the Short Hand's cap on the balance a glancing blow takes, the pip a missed
+answer costs), how a command is carried out (command, beginAction, slotAction), the room's own costs for its two moves, and what the
+AI picks.
 
 **The frame** (sk_ui.js `frame`): sim steps at DT=1/120 (simStep), the opening timer, shake/punch/camKick decay, updateTags every
 .25 s, updateCamera, camVert, `uiTick()` (V11UI.tick), then `render()`.
@@ -296,7 +322,7 @@ the toll) still wrap them.
   not npc, not struck on the floor, not held or carried). `startTurn` is wrapped to play a Get up that costs nothing as an exchange
   of its own (`ex.rise`; the log's 'getup' entry with `free`; `S.hooks.freeRise`), and when it ends the same turn goes on
   (`riseContinue`, `S._riseCont`), Off balance (`DOWNF.rise` 'off'; 'committed' gives three pips). A blow that lands on a man on the
-  floor kills a crew man (`hench`) with his weapon's finisher (the resolveAttack wrapper; not in a stage that spares everyone,
+  floor kills a crew man (`hench`) with his weapon's finisher (the rules' 'rise.finish'; not in a stage that spares everyone,
   `act1Spare`), and anyone else loses the free rise (`f.noRise`, 'No free rise' in the log, `S.hooks.downStruck`) and gets up as
   before. The page labels a man on the floor (`intentLabel`: Rises free, Must get up) and the tip line says what it means.
 - The stances (sk_stances.js, sk_stancesui.js, sk_css_stances.css): while Ilyas fights with the arc-blade and is not drained
@@ -470,7 +496,7 @@ scripted fight), scene 8, `night` (sk_pit8.js: the yard at night) and scene 9 (s
 Hand lessons and bouts), the last of which sets `S.story.ended='act1'`: the end card says the rest of Act I is being built. All
 nine scenes of beats 1 and 2 are in the game. Stages carry `act:1`; the act's first shows its card first (`st.actCard`, `S.card.pre`) and each
 scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups them under the act.
-- Who he is (sk_pit.js): ACT1_K (the hip dagger, skill 4, 150 health, four pips: footMaxOf), drained, `st.weapon` ('fists' where he
+- Who he is (sk_pit.js): ACT1_K (the hip dagger, skill 4, 150 health, four pips: footMaxOf, the rules' 'act1.foot'), drained, `st.weapon` ('fists' where he
   holds nothing), `st.wear` (what he wears, below; 'kit' means the crate's choice), and one arm. `f.oneArm` turns off the BACK arm's
   sticks and keeps its points at the chest; the rig's front arm (every weapon system's) is his left. Scene 1 keeps the fall's own
   wound instead (`st.wound`: `armOff`, the front arm gone), and the skillet sets `K.seared`. `S.act1` is the Pit's record of what each
@@ -481,7 +507,7 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   its hand (`weaponArm`, `pitArm` per sleeve), and the near shoulder carries what is left (`lostArm`: `bandStump`, dressed or not, or
   `pinnedSleeve`, hanging its full length until Tamm pins it). `F.phantom` (0..1, set by an action that has `phantom`) is the reach of
   the arm that is not there: the empty side comes up. In the Pit the hip dagger is 'crew:kaeldull' (sk_armsui.js: the gilt gone).
-  The crate's slots are KIT in sk_pit2.js (`kitWear`, `KIT_CUT`: the oilcloth coat takes 1 off a blade's blow). The crate's preview
+  The crate's slots are KIT in sk_pit2.js (`kitWear`, `KIT_CUT`: the oilcloth coat takes 1 off a blade's blow, the rules' 'gear.oilcloth'). The crate's preview
   draws him three times (sk_pit2ui.js `A1G_VIEWS`, since V60): in profile, at yaw 3π/2 (turned to face the viewer:
   `KaelLook.draw(c,F,{yaw,headYaw})`) and at yaw π (the profile from his other side, the arm he has toward the viewer), one pose
   (`a1StandFront`) seen three ways, his scarf's end hanging still. `a1FigDraw(canvas, wear)` draws them for any canvas (the menu's
@@ -578,10 +604,10 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   is the player's (`pmFree`). Outside Act I the drawer is the lab's and the prologue's as before. `node uiwork/act1/pmshot.js <outdir>
   <stage> <secs|test> [sizes] [tabs]` shoots a stage, then the menu and each tab.
 - Fights of the Pit (sk_pit6.js, for every Act I stage): Kael's flow (sk_chain.js) starts no run while he is drained; a story foe with `cast` gets that cast figure's body and look
-  (`storyRoster`); `f.tempoK` scales every cost a fighter pays (`actionCost`), so the turn order, the plans shown and the dock agree;
+  (`storyRoster`); `f.tempoK` scales every cost a fighter pays (`actionCost`, the rules' 'act1.pace'), so the turn order, the plans shown and the dock agree;
   a stage with `spare:true` lets nobody die (the killing blow puts him down with 1 left, no finisher; `kill` does the same);
   `oneArmLock(A,cmd)`: with `f.oneArm` the throw and, held from behind, Twist free need two hands and the elbow, shield and stab are
-  "Arm pinned" (`cmdValid` refuses them; the dock says why, sk_pit6ui.js); his shove is the "Shoulder shove" on the dock and in a
+  "Arm pinned" (`cmdValid` refuses them: the rules' bar 'act1.onearm'; the dock says why, sk_pit6ui.js); his shove is the "Shoulder shove" on the dock and in a
   window (since V61). The dock also lists the arc-blade's techniques, dark, in a group and tab of their own while he fights in the
   Pit. Drained (`act1Drained(f)`, since V61), his Flow is a fighter's of his rank: `flowTarget` finds a man within 60 (past the gap)
   and 56 deep, and `considerFlow` rolls the read; the free read and the long reach were the light's. `riseUp(fs, t)` (sk_pit.js) is
@@ -674,6 +700,9 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
 4. Phones first: paint still things once; no per-frame gradients in loops, no shadowBlur, no big particle counts. sk_perf_page.js
    holds the costs (Kael under 1.5 ms, each cast figure under 1.2, each weapon under .3, the arc-blade's limits).
 5. Player-facing text: declarative, matter-of-fact, short, no em dashes. Names come from the Veil synopsis (see "Names"), and are fictional.
+6. **A change to the rules is an entry in the rules list.** A feature that changes a roll, a cost, the balance a move takes, the most
+   balance a man has, a blow's damage or whether a command is allowed adds an entry to `RULES` (sk_rules.js, "The rules"); it does not
+   wrap computeMods, the other rolls' modifiers, actionCost, approachCost, footDelta, footMaxOf, resolveAttack's damage or cmdValid.
 
 ## Writing checks
 - Page suites step the real page with a fake clock: `window.step(k)` runs k frames and draws **one in eight** by default
@@ -863,14 +892,14 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V91 ..." (V90 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V92 ..." (V91 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
-so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side.) Never delete the duplicate artifact
+so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V91: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V92: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 

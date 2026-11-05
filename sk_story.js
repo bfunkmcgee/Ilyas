@@ -302,7 +302,7 @@ function mountControl(f){
 // ---------- fighting from the saddle ----------
 // What a man can't do on a bike: grab, throw, go round, pick things up, draw a second blade, help a partner up.
 const RIDE_NO=['grab','throw','flank','pincer','bind','pickup','draw','helpup','cover','push','breakfree','shield','stab','getup','roll'];
-{const cv=cmdValid;cmdValid=function(A,D,cmd){if(A&&A.mount&&RIDE_NO.includes(cmd))return false;return cv(A,D,cmd);};}
+RULES.add({id:'ride.no',src:'Riding',on:'cmd',label:'on the bike',when:x=>x.A&&x.A.mount&&RIDE_NO.includes(x.cmd),why:'not from the saddle'});
 {const sa=slotAction;slotAction=function(A,D,slot){const s=sa(A,D,slot);if(!A||!A.mount||A.dead||!s||!RIDE_NO.includes(s))return s;return['advance','wait','guard'].includes(slot)?slot:null;};}
 // a rider put down is off his bike, and the number over him says so
 {const pu=popup;popup=function(f,text,color,sub,...r){if(f&&f.mount&&f.downed&&(sub==='Knocked down'||sub==='Swept'))sub='Off the bike';return pu(f,text,color,sub,...r);};}
@@ -685,9 +685,8 @@ function coverFrom(D,A){if(!D||!A||!S.divs||!S.divs.length)return null;const dir
   for(const w of S.divs){if(w.mat!=='concrete'||!divSolid(w)||!divBand(w,D.lane,4))continue;
     const gap=dir>0?divL(w)-D.station:D.station-divR(w);if(gap>=0&&gap<=DIV_M+64&&(A.station-w.x)*dir>0)return w;}
   return null;}
-{const sm=shotMods;shotMods=function(A,D,kind,i){const c=sm(A,D,kind,i),w=coverFrom(D,A);if(!w)return c;
-  const down=D.guarding&&!D.downed,defMods=c.defMods.map(m=>m[0]==='cover'?['behind the barrier',down?6:2]:m);
-  return{...c,defMods,def:10+sumMods(defMods)};};}
+RULES.add({id:'cover.barrier',src:'Cover',on:'shot',to:'def',when:x=>!!coverFrom(x.D,x.A),edit:x=>{const c=x.c,down=x.D.guarding&&!x.D.downed,v=down?6:2,d0=c.def;
+  c.defMods=c.defMods.map(m=>m[0]==='cover'?['behind the barrier',v,'Cover']:m);c.def=10+sumMods(c.defMods);return['behind the barrier',c.def-d0];}});
 // what shows over the concrete is what gets hit: an arm, now and then the head
 {const rs=resolveShot;resolveShot=function(A,D,kind,i){const r=rs(A,D,kind,i);
   if((r.out==='hit'||r.out==='crit')&&D.guarding&&!D.downed&&coverFrom(D,A)&&r.zone!=='head'){if(r.zone==='leg')r.kd=false;r.zone=r.seed%5<3?'arm':'head';}return r;};}

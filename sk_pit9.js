@@ -112,8 +112,7 @@ function shCount(what){const L=shLesson(),R=shRec();if(!L||!R||R.phase!=='drill'
   if(ev==='ladder'&&L.drill==='ladder'&&d.A===K&&d.res&&(d.res.out==='hit'||d.res.out==='crit'))shCount('ladder');
   if((ev==='check'||ev==='hook')&&L.drill==='checkhook'&&d.A===K)shCount(ev);};}
 // (in the stance drill she pushes to teach, not to floor him: her shoves are at -5)
-{const sm=shoveMods;shoveMods=function(A,D){const c=sm.apply(this,arguments),L=shLesson(),R=shRec();
-  if(L&&R&&R.phase==='drill'&&L.drill==='shove'&&A===shTamm()){c.mods=c.mods.concat([['a lesson',-5]]);c.bonus-=5;}return c;};}
+RULES.add({id:'lesson.shove',src:'Lesson',on:'shove',to:'hit',label:'a lesson',v:-5,when:x=>{const L=shLesson(),R=shRec();return L&&R&&R.phase==='drill'&&L.drill==='shove'&&x.A===shTamm();}});
 // the stance drill: each shove of hers that leaves him on his feet and not Broken
 V11.exchangeEnd.push(last=>{const L=shLesson(),R=shRec(),K=S.F[0];if(!L||!R||R.phase!=='drill'||L.drill!=='shove'||!last)return;
   if(last.A===shTamm()&&last.cmd==='shove'&&!last._stance){if(!K.downed&&!K.broken)shCount('stance');else R.flash={t0:S.t,what:'again'};}});
