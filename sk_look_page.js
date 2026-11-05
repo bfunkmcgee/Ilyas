@@ -318,22 +318,39 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   // the colour script (the style guide's rules 3 and 4, since V81): on the roof the gold goes out with the null round (the hero's
   // drain), the crown's cyan on the people as it flares; the Pit by day under a low warm sun from the left, by morning a cooler one
   // from the right, none at dusk or at night; the yard by day near .3 in saturation, its morning cooler and greyer but not grey (the
-  // heli's trim stays: the family's money; read here in this one frame, the audit's frames give .32 by day and .15 to .18 by morning)
-  const cs=await ev(()=>{const out={};const read=()=>{const d=ctx.getImageData(0,0,cv.width,cv.height).data;let g=0,n=0,sat=0,m=0;
-      for(let i=0;i<d.length;i+=16){const r=d[i],gg=d[i+1],b=d[i+2],mx=Math.max(r,gg,b),mn=Math.min(r,gg,b);m++;sat+=mx?(mx-mn)/mx:0;if((.2126*r+.7152*gg+.0722*b)/255<.12)continue;n++;
+  // heli's trim stays: the family's money; read here in this one frame, the audit's frames give .32 by day and .18 to .19 by morning),
+  // and by morning the sun's side of the yard warm and the side away in the shade's blue (since V90: it was all cold; wr and wl, the
+  // red over the blue in the right and the left thirds, were -.06 and -.06 here, now about .01 and -.08)
+  const cs=await ev(()=>{const out={};const read=()=>{const d=ctx.getImageData(0,0,cv.width,cv.height).data,W=cv.width,H=cv.height;let g=0,n=0,sat=0,m=0,wl=0,nl=0,wr=0,nr=0;
+      for(let i=0;i<d.length;i+=16){const r=d[i],gg=d[i+1],b=d[i+2],mx=Math.max(r,gg,b),mn=Math.min(r,gg,b),px=(i>>2)%W,py=(i>>2)/W|0;m++;sat+=mx?(mx-mn)/mx:0;
+        if(py>=H*.1&&py<H*.8){if(px<W/3){wl+=(r-b)/255;nl++;}else if(px>=W*2/3){wr+=(r-b)/255;nr++;}}
+        if((.2126*r+.7152*gg+.0722*b)/255<.12)continue;n++;
         if(mx-mn<.45*mx)continue;let h=mx===r?(gg-b)/(mx-mn):mx===gg?2+(b-r)/(mx-mn):4+(r-gg)/(mx-mn);h=(h*60+360)%360;if(h>=38&&h<54)g++;}
-      return{gold:n?+(g/n).toFixed(4):0,sat:+(sat/m).toFixed(3)};};
+      return{gold:n?+(g/n).toFixed(4):0,sat:+(sat/m).toFixed(3),wl:nl?+(wl/nl).toFixed(3):0,wr:nr?+(wr/nr).toFixed(3):0};};
     try{storyGo('roof');S.storyAuto=true;S.auto=true;step(2);const K=hero();step(1200);drawAll(()=>step(2));out.before=read().gold;out.rim=EnvLook.S.roof.light(K).col;
       K.drain=.004;drawAll(()=>step(1));out.flare=EnvLook.S.roof.light(K).col;K.drain=1;drawAll(()=>step(2));out.after=read().gold;out.rimAfter=EnvLook.S.roof.light(K).col;K.drain=0;}
     finally{storyQuit();}
     const kit=EnvLook.pitKit,A0=S.act1,sun=a=>{S.act1=a;const q=kit.sun();return q?{col:q.col,ang:q.ang}:null;};
     try{out.sun={day:sun({}),morning:sun({morning:true}),dusk:sun({dusk:true}),night:sun({night:true})};}finally{S.act1=A0;}
-    for(const [k,st,n] of [['day','yard1',300],['morning','sh1',180]]){try{storyGo(st);S.storyAuto=true;S.auto=true;step(n);drawAll(()=>step(2));out[k]={key:kit.pal().key,sat:read().sat};}finally{storyQuit();}}
+    for(const [k,st,n] of [['day','yard1',300],['morning','sh1',180]]){try{storyGo(st);S.storyAuto=true;S.auto=true;step(n);drawAll(()=>step(2));const R=read();out[k]={key:kit.pal().key,sat:R.sat,wl:R.wl,wr:R.wr};}finally{storyQuit();}}
     return out;});
   {const sat=h=>{const n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255,mx=Math.max(r,g,b);return(mx-Math.min(r,g,b))/mx;},Sn=cs.sun||{};
-    expect('the colour script: the roof\'s gold goes out with the round, the crown\'s cyan on the people while it flares; the Pit by day under a low warm sun from the left (near .3 in saturation), by morning a cooler one from the right, none at dusk or at night',
+    expect('the colour script: the roof\'s gold goes out with the round, the crown\'s cyan on the people while it flares; the Pit by day under a low warm sun from the left (near .3 in saturation), by morning a cooler one from the right warming its side of the yard, the side away in the shade\'s blue; none at dusk or at night',
       cs.before>.015&&cs.after<cs.before*.5&&cs.rim==='#c8d6ff'&&cs.flare!==cs.rim&&cs.rimAfter===cs.rim&&Sn.day&&Sn.day.col==='#ffd6a0'&&Sn.day.ang<0&&Sn.morning&&Sn.morning.ang>0&&
-      sat(Sn.morning.col)<sat(Sn.day.col)&&!Sn.dusk&&!Sn.night&&cs.day.key==='day'&&cs.day.sat>=.24&&cs.morning.key==='morning'&&cs.morning.sat>=.115&&cs.morning.sat<cs.day.sat,JSON.stringify(cs));}
+      sat(Sn.morning.col)<sat(Sn.day.col)&&!Sn.dusk&&!Sn.night&&cs.day.key==='day'&&cs.day.sat>=.24&&cs.morning.key==='morning'&&cs.morning.sat>=.115&&cs.morning.sat<cs.day.sat&&
+      cs.morning.wr-cs.morning.wl>.05&&cs.morning.wl<0,JSON.stringify(cs));}
+  // the lamps' light thrown up the tunnel's wall into the vault (since V90: the vault over the fight was one dark smear), made into the
+  // wall's picture at every lamp and taken out again live where a lamp is dead: the wall just over the spring above each lamp, lit
+  // against dead (here about .047 against .022 of white)
+  const up=await ev(()=>{const out={lit:[],dead:[]},lum=(x0,x1,y0,y1)=>{const k=cv.width/cam.viewW,L=cam.x-cam.viewW/2,X0=Math.max(0,Math.round((x0-L)*k)),X1=Math.min(cv.width,Math.round((x1-L)*k)),
+        Y0=Math.max(0,Math.round((y0-cam.T)*k)),Y1=Math.min(cv.height,Math.round((y1-cam.T)*k));if(X1<=X0||Y1<=Y0)return null;const d=ctx.getImageData(X0,Y0,X1-X0,Y1-Y0).data;let s=0,n=0;
+        for(let i=0;i<d.length;i+=4){s+=.2126*d[i]+.7152*d[i+1]+.0722*d[i+2];n++;}return +(s/n/255).toFixed(4);};
+    try{storyGo('line');S.storyAuto=true;S.auto=true;step(120);const T=EnvLook.S.tunnel.LAYOUT,ox=T.WD*PSX,sh=GB-T.SPR-T.WD*PSY;
+      for(let i=20;i<80;i++){if(T.stnAt(T.lampAt(i),300)!=null)continue;S.scroll=T.lampAt(i)+ox-cam.x;render();(T.lampOn(i)?out.lit:out.dead).push(lum(cam.x-40,cam.x+40,sh-70,sh-12));}}
+    finally{storyQuit();}return out;});
+  {const lo=Math.min(...up.lit),hi=Math.max(...up.dead);
+    expect('the tunnel\'s lamps throw their light up the wall into the vault, and a dead lamp none: over every lit lamp the wall at the spring is half again as bright as over any dead one',
+      up.lit.length>20&&up.dead.length>2&&up.lit.every(v=>v!=null)&&up.dead.every(v=>v!=null)&&lo>hi*1.5,JSON.stringify({lit:up.lit.length,dead:up.dead.length,litMin:lo,deadMax:hi}));}
   // the prologue opens at sundown: Begin plays it first (it is not a chapter of its own), him on his bike on the road above the farms,
   // upright in the saddle; his three lines in order; the sand blowing past the bike only while he talks about the wire (drawn then, and
   // never otherwise); the sun going down; then he rides off the right edge of the picture and the field begins with him on foot

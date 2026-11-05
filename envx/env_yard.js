@@ -13,21 +13,22 @@ function tod(){const A=typeof S!=='undefined'&&S?S.act1:null;return!A?'day':A.ni
 // junk), win (the share of windows lit) and winA (how bright), lamp and fire (how much the lamps and fires burn), dirt, mist, smoke.
 // By day a pale warm sun (the style guide's rule 4: about #ffd6a0, never gilt) on the tops of things and the high haze, the shadows
 // and the low air cool slate; by morning a cooler sun from the other side through blue haze and mist (since V81: the day was a flat
-// grey-brown, the morning a flat grey)
+// grey-brown, the morning a flat grey), its warmth up the wall where it reaches and the cold kept low in the shade (since V90: the
+// morning's whole wall was cold blue-grey, saturation .15 to .18)
 const PAL={
   day:{key:'day',sky:['#f7e6c6','#e8cc9c'],air:['#b49070','#685646','#2a2e38'],light:'#ffd6a0',lightA:.38,amb:'#18202c',ambK:.32,wall:'#2e2620',
     win:.14,winA:.5,lamp:.5,fire:.4,dirt:['#4a3c2e','#2c2622'],mist:0,smoke:'#8e8679'},
   night:{key:'night',sky:['#05060e','#141626'],air:['#1a1824','#121019','#0c0b0f'],light:'#7a84b4',lightA:.07,amb:'#05050a',ambK:.66,wall:'#0f0d11',
     win:.5,winA:.92,lamp:1,fire:1,dirt:['#1c1816','#141110'],mist:0,smoke:'#2e2a2c'},
-  morning:{key:'morning',sky:['#f6dcc6','#bccad8'],air:['#9caabc','#566a86','#24324c'],light:'#ffe2bf',lightA:.38,amb:'#0a1838',ambK:.42,wall:'#24272c',
-    win:.1,winA:.6,lamp:.4,fire:.35,dirt:['#3a3836','#282726'],mist:1,smoke:'#a8aeb4'},
+  morning:{key:'morning',sky:['#f6dcc6','#bccad8'],air:['#d89e74','#44628e','#1e2e50'],light:'#ffe2bf',lightA:.4,amb:'#0e1a3e',ambK:.48,wall:'#2a2826',
+    win:.1,winA:.6,lamp:.4,fire:.35,dirt:['#343a4e','#212534'],mist:1,smoke:'#a8aeb4'},
   dusk:{key:'dusk',sky:['#2e2448','#f0905a'],air:['#a0645a','#523a48','#201820'],light:'#ffb07a',lightA:.26,amb:'#120e18',ambK:.46,wall:'#181216',
     win:.36,winA:.88,lamp:.9,fire:.8,dirt:['#2e2622','#201a18'],mist:0,smoke:'#4a3c40'}};
 function pal(){return PAL[tod()];}
 // the sun: by day low over the quarry's rim at the left, by morning just up over it at the right, cooler; none at dusk or at night.
 // x, y: where it stands over the rim (world units); ang: its shafts' slant from straight down (the shared soft piece's turn); mist:
 // how much more its shafts show (the morning's mist holds them); cool: how much deeper its shadow side goes to slate
-const SUN={day:{x:-420,y:-560,col:'#ffd6a0',ang:-.42},morning:{x:1340,y:-520,col:'#ffe2bf',ang:.4,mist:1.35,cool:1.8}};
+const SUN={day:{x:-420,y:-560,col:'#ffd6a0',ang:-.42},morning:{x:1340,y:-520,col:'#ffe2bf',ang:.4,mist:1.35,cool:1.4,wash:'#ffac6a',washA:.16}};
 function sun(){return SUN[tod()]||null;}
 // a soft mottle for a big surface, made once and laid on with 'overlay': its value wanders a little every few units, so that a wall
 // deep in its haze, a floor under the mist or a sky over the rim is not one flat fill (the drawing guide's flat patches, since V82).
@@ -47,6 +48,10 @@ function sunlight(c,P,x0,x1,y0,y1,o){const S2=sun();if(!S2)return;o=o||{};const 
   for(let i=0;i<n;i++){const u=(i+.5+(r()-.5)*.7)/n,w=50+r()*70,xs=lerp(x0-Math.max(0,dx),x1-Math.min(0,dx),u);
     EnvLook.softCone(c,xs,y0,w*.5,w*2,L,S2.col,(.07+.07*r())*k*(S2.mist||1),S2.ang,1.15);}
   c.restore();
+  // (the morning's low sun washes the wall warm round where it stands, never gilt: a peach under the sodium's hue, fading out before
+  // the yard's floor, which keeps the shade's blue: mixed in one veil over it the two made grey; since V90)
+  if(S2.wash){const R=Math.hypot(x1-x0,y1-y0)*.62;c.save();c.beginPath();c.rect(x0,y0,x1-x0,y1-y0);c.clip();c.translate(S2.x,S2.y);c.scale(1.7,1);
+    c.fillStyle=rad(c,0,0,0,R,[[0,rgba(S2.wash,S2.washA*k)],[.45,rgba(S2.wash,S2.washA*k*.55)],[.82,rgba(S2.wash,0)]]);c.fillRect(-R,-R,R*2,R*2);c.restore();}
   const kc=k*(S2.cool||1);c.fillStyle=lin(c,left?x0:x1,0,left?x1:x0,0,[[0,rgba('#24303e',0)],[1,rgba('#24303e',.14*kc)]]);c.fillRect(x0,y0,x1-x0,y1-y0);
   c.fillStyle=lin(c,0,y0,0,y1,[[0,rgba('#202a36',0)],[.6,rgba('#202a36',.04*kc)],[1,rgba('#202a36',.14*kc)]]);c.fillRect(x0,y0,x1-x0,y1-y0);}
 // colours are mixed a great many times over: the blend is taken to a sixteenth and each mix kept
@@ -133,8 +138,8 @@ const SHACK=['#3a2e28','#33292a','#3e3430','#2c2a2c','#463a2e','#38302a','#2e303
   // mending, the keepsake buyers, the numbers runners, rondel on Restday)
   WORDS=['TEA','SOUP','ROOMS','BATHS','BEER','SCRAP','PAWN','NOODLES','KNIVES','SALT','WATER','RAGS','SKEWERS','BELLBREAD','CHOIR','MENDING','KEEPSAKES','NUMBERS','RONDEL'];
 function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=o.yBot,yt=o.yTop,span=o.span||(yb-yt),winP=P.win*(o.winK??1),out=o.out||{},
-    shrink=o.shrink??.55,sspan=o.sspan||700,seed=o.seed||7,night=P.winA>.6;
-  const lit=[],signs=[],bulbs=[],boardsW=[];out.fires=out.fires||[];out.chims=out.chims||[];
+    shrink=o.shrink??.55,sspan=o.sspan||700,seed=o.seed||7,night=P.winA>.6,sunny=P.key==='day'||P.key==='morning';
+  const lit=[],signs=[],bulbs=[],boardsW=[],ways=[];out.fires=out.fires||[];out.chims=out.chims||[];
   const hzOf=y=>clamp((1-Math.exp(-Math.max(0,yb-y)/span))*.94,0,1),HC=y=>jm(P.air[1],P.air[0],hzOf(y)),col=(base,y,k)=>jm(shade(P,base,k),HC(y),hzOf(y)*.86);
   const ya=o.clip?o.clip[0]:-1e9,yz=o.clip?o.clip[1]:1e9;
   // (each row its own height, a quarter more or less, and its own lean and how close its shacks crowd, since V82: the rows went up
@@ -142,6 +147,8 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
   const rows=[];{const rv=rng(seed*13+5);let ry=yb,j=0;while(ry>yt-rs&&j<140){const s=lerp(1,shrink,clamp((yb-ry)/sspan,0,1));
     rows.push([ry,j,s,{lean:(rv()-.5)*2,ph:rv()*TAU,fq:.004+rv()*.006,gap:.6+rv()*1.1,val:.9+rv()*.32}]);ry-=rs*s*(.76+.48*rv());j++;}}
   for(let i=rows.length-1;i>=0;i--){const [ry,j,s,V]=rows[i],ur=u*s,rr=rs*s,r=rng(seed*7919+j*104729),bh=rr*.2;if(ry-rr*1.25>yz||ry+rr<ya)continue;
+    // (by day each shack's front takes the sun or stands in its neighbour's shade, from dice of its own so the rows keep their shacks)
+    const rl=rng(seed*331+j*977);
     // the rock behind the row, darker or paler row by row
     c.fillStyle=lin(c,0,ry-rr,0,ry,[[0,col(P.wall,ry-rr,V.val)],[1,col(P.wall,ry,V.val*1.06)]]);c.fillRect(x0,ry-rr-.5,x1-x0,rr+1);
     // the walkway in lengths, each a step higher or lower than the last
@@ -156,7 +163,8 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
         else if(k<.62){c.fillStyle=cc;c.fillRect(x,cy-2.2*ur,w*1.6,4.4*ur);c.fillStyle=rgba('#000000',.45);c.fillRect(x+w*.4,cy-1.4*ur,w*.5,1.2*ur);x+=w*1.6;}
         else{c.fillStyle=cc;c.fillRect(x,cy-1.6*ur,w,3.2*ur);x+=w;}
         x+=r()*1.8*ur;}
-      c.fillStyle=col('#3c3128',y);c.fillRect(a,y-1.6*ur,b-a,2.4*ur);c.fillStyle=jm(col('#5a4a3a',y),P.light,P.lightA*.8);c.fillRect(a,y-1.6*ur,b-a,.6*ur);
+      c.fillStyle=col('#3c3128',y);c.fillRect(a,y-1.6*ur,b-a,2.4*ur);c.fillStyle=jm(col('#5a4a3a',y),P.light,P.lightA*(sunny?1.5:.8));c.fillRect(a,y-1.6*ur,b-a,(sunny?1.3:.6)*ur);
+      if(sunny)ways.push([a,b,y+bh+2.6*ur,rr*.62,hzOf(y)]);
       c.fillStyle=rgba('#000000',.35);c.fillRect(a,y+.8*ur,b-a,1.4*ur);
       if(r()<.45){c.strokeStyle=col('#2a221e',y);c.lineWidth=.8*ur;c.beginPath();c.moveTo(a,y-9*ur);c.lineTo(b,y-9*ur);for(let x=a+r()*20;x<b;x+=(24+r()*14)*ur){c.moveTo(x,y-1.6*ur);c.lineTo(x,y-9.5*ur);}c.stroke();}}
     // a few steps where one length meets the next
@@ -182,14 +190,14 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
         const gw=w*.8;c.fillStyle=col('#1a1614',gy-4,1.1);c.beginPath();c.moveTo(x,gy-1.6*ur);c.quadraticCurveTo(x+gw/2,gy-h*.7,x+gw,gy-1.6*ur);c.closePath();c.fill();
         for(let q=0;q<4;q++){c.fillStyle=col(JUNKC[(r()*JUNKC.length)|0],gy-6,1);c.fillRect(x+gw*(.1+.7*r()),gy-1.6*ur-h*(.15+.35*r()),(4+r()*7)*ur,(3+r()*4)*ur);}
         x+=gw;continue;}
-      c.fillStyle=col(base,top+h/2);c.fillRect(x,top,w,h);
+      {const lf=sunny&&rl()<.72?P.lightA*(.5+.55*rl()):0;c.fillStyle=col(lf?jm(base,P.light,lf):base,top+h/2);c.fillRect(x,top,w,h);}
       const tinW=r()<.3,cardoor=r()<.1;
       if(tinW){c.fillStyle=rgba('#000000',.28);for(let q=x+2*ur;q<x+w;q+=3*ur)c.fillRect(q,top+2*ur,.7*ur,h-2*ur);}
       else{c.fillStyle=rgba('#000000',.22);for(let q=x+5*ur;q<x+w;q+=(6+r()*4)*ur)c.fillRect(q,top+2*ur,.6*ur,h-2*ur);}
       if(cardoor){c.fillStyle=col(['#4a2222','#22383a','#4a4436'][(r()*3)|0],top+h*.5);c.fillRect(x+w*.2,top+h*.3,9*ur,h*.5);}
       // the roof: a sheet of tin across it, its edge lit from above
       const tip=(r()-.5)*5*ur,tc=col(TINC[(r()*TINC.length)|0],top);c.fillStyle=tc;c.beginPath();c.moveTo(x-2*ur,top-Math.max(0,tip));c.lineTo(x+w+2*ur,top-Math.max(0,-tip));c.lineTo(x+w+2*ur,top+2.4*ur-Math.max(0,-tip));c.lineTo(x-2*ur,top+2.4*ur-Math.max(0,tip));c.closePath();c.fill();
-      c.fillStyle=jm(tc,P.light,P.lightA*1.6);c.fillRect(x-2*ur,top-Math.max(0,tip)-.2,w+4*ur,.7*ur);
+      c.fillStyle=jm(tc,P.light,P.lightA*(sunny?2.1:1.6));c.fillRect(x-2*ur,top-Math.max(0,tip)-.2,w+4*ur,(sunny?1.5:.7)*ur);
       if(r()<.3){c.strokeStyle=col('#0e0d0f',top,1.2);c.lineWidth=2.76*ur;const tn=1+((r()*3)|0);for(let q=0;q<tn;q++){c.beginPath();c.ellipse(x+w*(.2+.6*(q+.5)/tn),top-1.4*ur,3*ur,1.3*ur,0,0,TAU);c.stroke();}}
       if(r()<.2){c.fillStyle=col(TARPC[(r()*TARPC.length)|0],top);const a0=r()*.5,a1=a0+.3+r()*.25;c.beginPath();c.moveTo(x+w*a0,top-1);c.lineTo(x+w*a1,top-1);c.lineTo(x+w*a1+2*ur,top+h*.35);c.lineTo(x+w*a0-1*ur,top+h*.3);c.closePath();c.fill();}
       // windows, lit or dark; a door to the walkway
@@ -207,6 +215,10 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
       if(r()<.08){const lx=x+w*.5;c.strokeStyle=col('#241c1a',gy+rr*.5);c.lineWidth=2.4*ur;c.beginPath();c.moveTo(lx,gy);c.lineTo(lx,gy+rr-2);c.moveTo(lx+5*ur,gy);c.lineTo(lx+5*ur,gy+rr-2);for(let q=4*ur;q<rr;q+=6*ur){c.moveTo(lx,gy+q);c.lineTo(lx+5*ur,gy+q);}c.stroke();}
       if(r()<.035)out.fires.push({x:x+w+3*ur,y:gy-3*ur,s:ur,hz:hzOf(gy)});
       const gap=r()<.18?(8+r()*30)*ur:(1+r()*3)*ur;x+=w+gap;}}
+  // by day and by morning each walkway throws a cool slate shadow down over the row under it, and its edge and the roofs catch the sun
+  // (the style guide's rule 4): the terraces read through the haze by their light and shade, not as one texture (since V90)
+  if(ways.length){const sl=jm(P.amb,'#3a4c60',.35);for(const [a,b,y,h2,hz] of ways){const sa=.3*(1-hz*.5);if(sa<.02||y>yz||y+h2<ya)continue;
+    c.fillStyle=lin(c,0,y,0,y+h2,[[0,rgba(sl,sa)],[.45,rgba(sl,sa*.45)],[1,rgba(sl,0)]]);c.fillRect(a,y,b-a,h2);}}
   // bands of smoke and haze lying across the wall at their own heights, the higher the thicker (the distance), so that the wall is not
   // one field of shacks at one value (since V82)
   {const rh=rng(seed*97+3),hc=jm(P.air[0],P.smoke,.4);for(let q=0;q<(o.bands??5);q++){const by=lerp(yt+40,yb-60,rh()),bhh=(26+rh()*70)*u,a=(.05+.1*rh())*(.45+hzOf(by));if(by-bhh>yz||by+bhh<ya)continue;
@@ -368,7 +380,7 @@ function backdrop(c,P,X0,X1,T0){
   // the air between the wall and the yard: the haze low over the floor
   c.fillStyle=lin(c,0,140,0,250,[[0,rgba(P.air[1],0)],[1,rgba(P.air[1],.5)]]);c.fillRect(X0,140,X1-X0,110);
   // (the wall not one flat fill deep in its haze: the kit's mottle over it, under what stands in front of it)
-  K.mottle(c,X0,T0,X1,340,P.key==='night'?.2:.28);}
+  K.mottle(c,X0,T0,X1,340,P.key==='night'?.2:P.key==='dusk'?.28:.16);}
 // the shacks of the floor round the yard: their fronts over the yard wall and past the Sump's corner, chimneys, a water tank on legs,
 // a pole carrying wire
 function neighbours(c,P){const sh=(col,k)=>K.shade(P,col,k);
@@ -483,7 +495,7 @@ function ladder(c,P){const Yd=Y(),Ld=Yd.ladder,sh=(col,k)=>K.shade(P,col,k),foot
   {const a=Q(Ld.x+6,4,Yd.far),e=Q(Ld.x+6,ht-6,Yd.far);c.strokeStyle=rgba('#000000',.25);c.lineWidth=14;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(e.x+3,e.y);c.stroke();}
   const [la,lb]=rail(Ld.x-9),[ra,rb]=rail(Ld.x+9);
   c.lineCap='round';c.strokeStyle=sh('#54402c');c.lineWidth=2.6;c.beginPath();for(let hh=10;hh<ht-4;hh+=14){const u=hh/ht,p=Q(Ld.x-9,hh,lerp(foot,top,u)),q=Q(Ld.x+9,hh,lerp(foot,top,u));c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);}c.stroke();
-  c.strokeStyle=rgba(P.light,.06+.35*P.lightA);c.lineWidth=.8;c.beginPath();for(let hh=10;hh<ht-4;hh+=14){const u=hh/ht,p=Q(Ld.x-9,hh,lerp(foot,top,u)),q=Q(Ld.x+9,hh,lerp(foot,top,u));c.moveTo(p.x,p.y-1);c.lineTo(q.x,q.y-1);}c.stroke();
+  c.strokeStyle=rgba(P.light,.06+.35*P.lightA);c.lineWidth=1.01;c.beginPath();for(let hh=10;hh<ht-4;hh+=14){const u=hh/ht,p=Q(Ld.x-9,hh,lerp(foot,top,u)),q=Q(Ld.x+9,hh,lerp(foot,top,u));c.moveTo(p.x,p.y-1);c.lineTo(q.x,q.y-1);}c.stroke();
   for(const [a,e] of [[la,lb],[ra,rb]]){c.strokeStyle=sh('#463222');c.lineWidth=4.2;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(e.x,e.y);c.stroke();
     c.strokeStyle=rgba(P.light,.08+.4*P.lightA);c.lineWidth=1;c.beginPath();c.moveTo(a.x-1.4,a.y);c.lineTo(e.x-1.4,e.y);c.stroke();}
   c.lineCap='butt';}
@@ -690,7 +702,11 @@ function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
   E.fallKeep(c,-200,1240,GB-40,[[GB-40,0],[GB+130,T==='night'?.6:.48]],null,.06);
   if(T==='morning'){// mist lying on the floor of the Pit: over the far shacks' feet, along the yard's walls, low over the yard (blue in
     // the shade, as the sun's shafts cross it warm: since V81, a pale grey that took the colour out of everything)
-    c.fillStyle=lin(c,0,110,0,GB,[[0,rgba('#b4c4dc',0)],[.32,rgba('#b4c4dc',.27)],[.5,rgba('#b4c4dc',.18)],[.75,rgba('#b4c4dc',.09)],[1,rgba('#b4c4dc',.04)]]);c.fillRect(-200,110,1400,GB-110);
+    c.fillStyle=lin(c,0,110,0,GB,[[0,rgba('#9cb8ec',0)],[.32,rgba('#9cb8ec',.27)],[.5,rgba('#9cb8ec',.18)],[.75,rgba('#9cb8ec',.09)],[1,rgba('#9cb8ec',.04)]]);c.fillRect(-200,110,1400,GB-110);
+    // (on the sun's side the low light through the mist turns the yard warm, its own values kept ('color'); the side away keeps the
+    // shade's blue: since V90, a wide screen saw the morning's yard all cold)
+    {const S2=K.sun(),sx=S2&&S2.x>500?1120:-120;c.save();c.globalCompositeOperation='color';c.translate(sx,250);c.scale(1.5,.8);
+      c.fillStyle=rad(c,0,0,0,560,[[0,rgba('#e0a070',.62)],[.4,rgba('#e0a070',.38)],[.75,rgba('#e0a070',.1)],[1,rgba('#e0a070',0)]]);c.fillRect(-560,-560,1120,1120);c.restore();}
     // (lying in wisps, not one even veil: the kit's mottle over it)
     K.mottle(c,-200,110,1240,GB+40,.26,{sc:1.4,sy:.5});}}
 // ---------- the scene ----------
@@ -773,7 +789,7 @@ function live(){const t=S.t,P=K.pal(),T=P.key,Yd=Y();ctx.save();
   K.upper('yard:'+T,-1000,(c,x0,x1,y0,y1)=>{c.fillStyle=P.air[0];c.fillRect(x0,y0,x1-x0,y1-y0);
     K.shackRows(c,Object.assign({pal:P,x0:-170,x1:W+250,yTop:-650,clip:[-650,y1]},ROWS));
     c.fillStyle=lin(c,0,-640,0,-480,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,160);
-    K.skyTop(c,x0,x1,y0,-636,P,{tower:150});K.sunlight(c,P,-200,1240,-640,GB+30,SUNO);K.mottle(c,x0,-636,x1,y1,T==='night'?.2:.32);});
+    K.skyTop(c,x0,x1,y0,-636,P,{tower:150});K.sunlight(c,P,-200,1240,-640,GB+30,SUNO);K.mottle(c,x0,-636,x1,y1,T==='night'?.2:T==='dusk'?.32:.2);});
   K.tram(ctx,t,P,-760);
   // the far wall's chimneys smoking, its fires, a few of its windows going dark a moment (a lamp moved, someone passing): only where
   // the far wall shows

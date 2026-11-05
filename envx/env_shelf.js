@@ -363,7 +363,7 @@ function lightPass(c,P){const pts=floorPts();c.save();K.poly(c,pts);c.clip();c.g
   K.sunlight(c,P,-200,1240,-640,GB+40,SUNO);}
 function paint(c){syncST();const P=K.pal(),X0=-170,X1=W+250,T0=-110;LAMPS=[];SMOKES=[];TOPS=[];
   // (the kit's mottle over the wall and the drop under the ledge, under the market: since V82)
-  backdrop(c,P,X0,X1,T0);front(c,P);K.mottle(c,X0,T0,X1,700,.28);ledge(c,P);between(c,P);stair(c,P);for(const s of stalls())stall(c,P,s);derrick(c,P);lightPass(c,P);
+  backdrop(c,P,X0,X1,T0);front(c,P);K.mottle(c,X0,T0,X1,700,P.key==='dusk'||P.key==='night'?.28:.16);ledge(c,P);between(c,P);stair(c,P);for(const s of stalls())stall(c,P,s);derrick(c,P);lightPass(c,P);
   TOPS.sort((a,b)=>a.x-b.x);}
 // ---------- the rail along the edge, over the people ----------
 // posts and two rails, a sack hung over it to air, a lamp on a post at each end of the market
@@ -385,7 +385,7 @@ function upperPaint(c,P,x0,x1,y0,y1){const X0=-170,X1=W+250;
   farSide(c,P,X0,X1,-650,y1+1,{});
   edgeLines(c,P);
   c.fillStyle=lin(c,0,-640,0,-470,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,170);
-  K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1240,-640,GB+40,SUNO);K.mottle(c,x0,-636,x1,y1,.3);}
+  K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1240,-640,GB+40,SUNO);K.mottle(c,x0,-636,x1,y1,P.key==='dusk'||P.key==='night'?.3:.2);}
 // ---------- what moves ----------
 // smoke from the kettle and up the wall and out of the drop; the fires below and the lamps breathing; the tarps' torn valances and
 // the bunting stirring in the draught that comes up the Pit

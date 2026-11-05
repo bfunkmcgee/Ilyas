@@ -251,6 +251,9 @@ def build(review_dir, out):
     for p in places:
         counts['ok' if p['verdict'] == 'target' else p['verdict']] += 1
     A = book['audit']
+    # (the lookbook's own last judging, when a version judged places again: since V90)
+    B = book.get('before')
+    was = (' At %s (%s): %d hold, %d mixed, %d fall off.' % (esc(B['version']), esc(B['date']), B['ok'], B['mid'], B['bad'])) if B else ''
     H = []
     w = H.append
     w('<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">\n'
@@ -267,8 +270,8 @@ def build(review_dir, out):
     w('<p class="meta">%s &middot; a 412 &times; 714 phone held upright &middot; effects at Full &middot; %s</p>' % (esc(book['version']), esc(book['date'])))
     n_views = len(places)
     w('<div class="counts"><span class="chip ok"><i></i>%d hold</span><span class="chip mid"><i></i>%d mixed</span><span class="chip bad"><i></i>%d fall off</span>'
-      '<span class="was">of %d views, the four frames to match counted as holding. At the audit (%s, %s): %d hold, %d mixed, %d fall off, of %d.</span></div>'
-      % (counts['ok'], counts['mid'], counts['bad'], n_views, esc(A['version']), esc(A['date']), A['ok'], A['mid'], A['bad'], A['views']))
+      '<span class="was">of %d views, the four frames to match counted as holding.%s At the audit (%s, %s): %d hold, %d mixed, %d fall off, of %d.</span></div>'
+      % (counts['ok'], counts['mid'], counts['bad'], n_views, was, esc(A['version']), esc(A['date']), A['ok'], A['mid'], A['bad'], A['views']))
     w('</header></div>')
     w('<nav aria-label="Sections"><div class="in"><a href="#four">The four frames</a>' + ''.join('<a href="#%s">%s</a>' % (k['id'], esc(k['title'])) for k in book['kinds'])
       + '<a href="#script">Colour script</a><a href="#review">The review</a><a href="#how">How it was made</a></div></nav>')

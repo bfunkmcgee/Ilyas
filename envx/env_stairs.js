@@ -439,7 +439,7 @@ function lightPass(c,P){c.save();c.globalCompositeOperation='lighter';
 // ---------- the scene ----------
 function paint(c){const P=K.pal(),X0=-170,X1=W+250,T0=-110,T=treads();
   // (the kit's mottle over the wall and the drop, under the treads: neither is one flat fill deep in its haze, since V82)
-  backdrop(c,P,X0,X1,T0);backWall(c,P);drop(c,P,T);K.mottle(c,X0,T0,X1,GB+320,P.key==='night'?.2:.28);face(c,P,T);street(c,P,T);lightPass(c,P);}
+  backdrop(c,P,X0,X1,T0);backWall(c,P);drop(c,P,T);K.mottle(c,X0,T0,X1,GB+320,P.key==='night'?.2:P.key==='dusk'?.28:.16);face(c,P,T);street(c,P,T);lightPass(c,P);}
 // ---------- the pieces among the people: the row's tin cups ----------
 // a tin cup set on the step before each of the silent row and the old man (the row's places are the game's: beggars x0..x1 by n, the
 // old man at oldman.x); each painted once, set down at its depth in the floor's list
@@ -485,7 +485,7 @@ function live(){const t=S.t,P=K.pal(),T=P.key,fl=flight();ctx.save();
   K.upper('stairs:'+T+':'+fl,-1000,(c,x0,x1,y0,y1)=>{c.fillStyle=P.air[0];c.fillRect(x0,y0,x1-x0,y1-y0);
     K.shackRows(c,Object.assign({pal:P,x0:-170,x1:W+250,yTop:-650,clip:[-650,y1]},rows()));
     c.fillStyle=lin(c,0,-640,0,-470,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,170);
-    K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1400,-640,GB+40,SUNO);K.mottle(c,x0,-636,x1,y1,P.key==='night'?.22:.3);
+    K.skyTop(c,x0,x1,y0,-636,P,{tower:-40});K.sunlight(c,P,-200,1400,-640,GB+40,SUNO);K.mottle(c,x0,-636,x1,y1,P.key==='night'?.22:P.key==='dusk'?.3:.2);
     if(T==='dusk'){c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,-640,0,-200,[[0,rgba('#ff9a5a',.18)],[1,rgba('#ff9a5a',0)]]);c.fillRect(x0,-640,x1-x0,440);c.restore();}});
   K.tram(ctx,t,P,-760);
   // smoke: the skewer grill and the brazier, the tea kettle's steam, the cookshop's chimney, the chimneys up the wall, the drop's fires
@@ -529,7 +529,11 @@ function spikePaint(w,h,P){const cvs=document.createElement('canvas');cvs.width=
   const Qp=[[-40,cyy-44]];for(let x=0;x<=cx;x+=22)Qp.push([x,cyy-24-r()*9+(x/cx)*14]);
   Qp.push([cx+14,cyy-6],[cx+22,cyy+6],[cx+10,cyy+18],[cx-24,cyy+26],[cx-110,cyy+40],[60,cyy+62],[-40,cyy+84]);
   g.fillStyle=lin(g,0,cyy-30,0,cyy+70,[[0,rock],[.35,jm(rock,dark,.5)],[1,dark]]);g.beginPath();Qp.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
-  g.save();g.clip();for(let k=0;k<7;k++){g.fillStyle=k%2?'rgba(0,0,0,.22)':rgba(P.light,.04+.1*P.lightA);g.fillRect(-60,cyy-14+k*11+r()*4,cx+100,3+r()*5);}
+  // (its beds of rock, the top ones catching the sun and the lower going into the underside's shade, a crack or two across them, so
+  // the prow is not one surface: since V90)
+  g.save();g.clip();for(let k=0;k<7;k++){g.fillStyle=k%2?'rgba(0,0,0,.3)':rgba(P.light,(.08+.22*P.lightA)*(1-k/9));g.fillRect(-60,cyy-14+k*11+r()*4,cx+100,3+r()*5);}
+    g.fillStyle=lin(g,0,cyy-30,0,cyy-6,[[0,rgba(P.light,.1+.3*P.lightA)],[1,rgba(P.light,0)]]);g.fillRect(-60,cyy-34,cx+100,30);
+    g.fillStyle='rgba(0,0,0,.35)';for(let k=0;k<4;k++){const x=40+k*(cx-60)/4+r()*30;g.beginPath();g.moveTo(x,cyy-22);g.lineTo(x+4+r()*6,cyy+8+r()*16);g.lineTo(x+1.5,cyy+10);g.closePath();g.fill();}
     for(let k=0;k<6;k++){const jx=20+r()*(cx-60),jy=cyy-10+r()*40;g.fillStyle=jm(K.shade(P,K.JUNKC[(r()*K.JUNKC.length)|0],1.1),P.air[1],.2);if(r()<.4){g.beginPath();g.ellipse(jx,jy,7,3,(r()-.5)*.5,0,TAU);g.fill();}else g.fillRect(jx,jy,10+r()*16,3+r()*4);}g.restore();
   g.strokeStyle=jm(P.light,P.air[0],.45);g.lineWidth=1.31;g.beginPath();for(let i=1;i<Qp.length-6;i++)i===1?g.moveTo(Qp[i][0],Qp[i][1]):g.lineTo(Qp[i][0],Qp[i][1]);g.stroke();
   // roots and an old cable hanging off its underside

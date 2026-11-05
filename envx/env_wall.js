@@ -188,6 +188,8 @@ function paint(c){const X0=-160,X1=W+240,T0=-110,r=rng(3),wx=wallX(),base=fy(0),
   // the night sky, warmer down toward the city beyond the walls
   c.fillStyle=lin(c,0,T0,0,base,[[0,C.night0],[.34,'#080b16'],[.62,'#131527'],[.84,'#2a1e2c'],[1,'#47302c']]);c.fillRect(X0,T0,X1-X0,base-T0+6);
   stars(c,X0,X1,T0,base-60,180,17,.65);
+  // (high over the fight a deck of cloud, the moon's silver on its edges and the city's warmth under it on the right: since V90)
+  E.nightDeck(c,X0,X1,-50,70,{mx:128,my:64,cx:820,seed:43,n:11,s:1.15});
   moon(c,128,64,13,{phase:.35});
   cloudBank(c,X0,X1,88,28,{seed:5,n:15,col:'#161624',under:'#ff9a5a'});
   glow(c,820,base-10,420,'#ff9a5a',.13,.3);
@@ -246,6 +248,8 @@ function paint(c){const X0=-160,X1=W+240,T0=-110,r=rng(3),wx=wallX(),base=fy(0),
   c.save();c.globalCompositeOperation='lighter';for(const B of BRAZ){const q=pp(B.x,GB,DW-34);c.save();c.translate(q.x,q.y);c.scale(1,.4);c.fillStyle=rad(c,0,0,0,110,[[0,rgba('#ffb060',.18)],[1,rgba('#ffb060',0)]]);c.fillRect(-120,-120,240,240);c.restore();}
     for(const T of TORCH){const q=pp(wx-30,GB,T.d);c.save();c.translate(q.x,q.y);c.scale(1,.4);c.fillStyle=rad(c,0,0,0,100,[[0,rgba('#ffb060',.12)],[1,rgba('#ffb060',0)]]);c.fillRect(-110,-110,220,220);c.restore();}
     c.fillStyle=lin(c,0,base,0,GB+40,[[0,rgba('#6a7aa8',.06)],[1,rgba('#6a7aa8',0)]]);c.fillRect(X0,base,X1-X0,GB+40-base);c.restore();
+  // (the gate's fire caught along the wet setts, running down the road toward us: since V90, the ground at the foot was dark)
+  E.softSpill(c,G.x-6,DW-24,24,84,480,'#ffa858',.2,GB,2.66);
   haze(c,X0,X1,base-40,base+10,'#3a2a3a',.14);
   E.fallKeep(c,X0,X1+120,GB-40,[[GB-40,0],[GB+120,.42]],null,.05);}
 // the braziers burn: drawn every frame over the layer

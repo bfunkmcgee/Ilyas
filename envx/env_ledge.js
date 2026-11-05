@@ -128,6 +128,9 @@ function paint(c){
   // the night sky, warmer down toward the city's glow
   c.fillStyle=lin(c,0,T0,0,HZ+24,[[0,C.night0],[.32,'#080b16'],[.6,'#131527'],[.82,'#271c2a'],[1,'#47302c']]);c.fillRect(X0,T0,X1-X0,HZ+24-T0);
   stars(c,X0,X1,T0,HZ-30,180,13,.65);
+  // (high over the fight a deck of cloud, the moon's silver on its edges and the city's glow under it: since V90, the fight played
+  // against a black sky)
+  E.nightDeck(c,X0,X1,-50,74,{mx:150,my:62,cx:690,seed:47,n:11,s:1.15});
   moon(c,150,62,13,{phase:.42});
   cloudBank(c,X0,X1,92,30,{seed:9,n:16,col:'#161624',under:'#ff9a5a'});
   glow(c,690,HZ+10,460,'#ff9a5a',.14,.32);

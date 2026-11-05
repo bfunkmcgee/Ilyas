@@ -335,7 +335,9 @@ function deck(c,G){const L=G.L,far=L.far,r=rng(71),X0=-300,X1=1300,D0=-340;
   // the cold of the sky far up along the back
   c.fillStyle=rgba('#070407',.34);c.fillRect(X0,D0,X1-X0,far-D0+1);
   c.globalCompositeOperation='lighter';
-  for(const [x,d,rx,rd,col,a] of [[260,-20,330,120,'#ffa040',.2],[120,-10,140,70,'#ff5ad8',.07],[G.L.hay.x,G.L.hay.d+20,190,90,'#ffcf86',.07]]){c.save();c.translate(x,d);c.scale(rx/rd,1);
+  // (the sign's amber comes up over the eaves along the whole front and rakes the ribs of the near tin, warmest at the gutter, so the
+  // deck in front is not one dark value in an upright phone's view: since V90)
+  for(const [x,d,rx,rd,col,a] of [[260,-20,330,120,'#ffa040',.2],[420,-30,520,150,'#ff9a3c',.16],[300,-4,620,46,'#ffb25e',.12],[120,-10,140,70,'#ff5ad8',.07],[G.L.hay.x,G.L.hay.d+20,190,90,'#ffcf86',.07]]){c.save();c.translate(x,d);c.scale(rx/rd,1);
     c.fillStyle=rad(c,0,0,0,rd,[[0,rgba(col,a)],[.5,rgba(col,a*.4)],[1,rgba(col,0)]]);c.fillRect(-rd,-rd,rd*2,rd*2);c.restore();}
   c.fillStyle=lin(c,0,far-60,0,far,[[0,rgba('#8a9ac8',0)],[1,rgba('#8a9ac8',.05)]]);c.fillRect(X0,far-60,X1-X0,60);
   c.globalCompositeOperation='source-over';
@@ -343,7 +345,7 @@ function deck(c,G){const L=G.L,far=L.far,r=rng(71),X0=-300,X1=1300,D0=-340;
   // the deck's back edge: the flashing turned up over it
   {const a=q(-300,0,far),b=q(1300,0,far);c.fillStyle='#120e0d';c.fillRect(a.x,a.y-4,b.x-a.x,5);c.fillStyle=rgba('#ffcf86',.14);c.fillRect(a.x,a.y-4,b.x-a.x,.8);}
   // the eaves at the front: a gutter, rusted through, along the edge
-  {const a=q(-300,0,3),b=q(1300,0,3);c.fillStyle='#1a1210';c.fillRect(a.x,a.y-1,b.x-a.x,5);c.fillStyle=rgba('#ffb25e',.25);c.fillRect(a.x,a.y-1,b.x-a.x,.9);
+  {const a=q(-300,0,3),b=q(1300,0,3);c.fillStyle='#1a1210';c.fillRect(a.x,a.y-1,b.x-a.x,5);c.fillStyle=rgba('#ffb25e',.4);c.fillRect(a.x,a.y-1,b.x-a.x,1.6);
     const r2=rng(5);for(let i=0;i<40;i++){c.fillStyle=rgba('#6a3418',.5);c.fillRect(-250+r2()*1500,a.y,3+r2()*8,3);}}}
 
 // ---------- the heap ----------
@@ -525,6 +527,17 @@ function pit(c,G){const L=G.L,yb=q(0,0,L.far).y,X0=-160,X1=1140,T0=-92;
 
 // ---------- the scene ----------
 let LIVE=null;
+// a pool of rain in a dent of the tin at (x, depth d): dark water, the sky's cold sheen along its far side, the Pit's lit windows and the
+// sign's amber in it as short smeared streaks, its wet rim catching the amber
+function pool(c,x,d,rx,rd,seed){const r=rng(seed),P=[];for(let i=0;i<12;i++){const a=i/12*TAU,k=.75+r()*.35;P.push([Math.cos(a)*rx*k,Math.sin(a)*rd*k]);}
+  c.save();deckT(c);c.translate(x,d);c.beginPath();P.forEach(([px,py],i)=>i?c.lineTo(px,py):c.moveTo(px,py));c.closePath();
+  c.fillStyle=rgba('#08080e',.82);c.fill();c.save();c.clip();
+  c.fillStyle=lin(c,0,rd,0,-rd,[[0,rgba('#5a6890',.14)],[.5,rgba('#5a6890',0)]]);c.fillRect(-rx,-rd,rx*2,rd*2);
+  c.globalCompositeOperation='lighter';
+  for(let i=0;i<9;i++){const sx=(r()-.5)*rx*1.6,col=['#ffcf86','#ffb25e','#7ff3e3','#ff6ad0'][r()<.55?0:r()<.5?1:r()<.6?2:3],w=1.6+r()*2.4,a=.25+.35*r();
+    c.fillStyle=lin(c,0,rd,0,-rd,[[0,rgba(col,a)],[.6,rgba(col,a*.4)],[1,rgba(col,0)]]);c.fillRect(sx-w/2,-rd,w,rd*2);}
+  c.fillStyle=rgba('#ffa040',.12);c.fillRect(-rx,-rd,rx*2,rd*2);c.restore();
+  c.strokeStyle=rgba('#ffb25e',.18);c.lineWidth=1.5;c.beginPath();P.forEach(([px,py],i)=>i?c.lineTo(px,py):c.moveTo(px,py));c.closePath();c.stroke();c.restore();}
 function paint(c){const G=geo(),L=G.L;
   const F=pit(c,G);
   deck(c,G);
@@ -534,7 +547,9 @@ function paint(c){const G=geo(),L=G.L;
   // the sign's amber coming up over the eaves at the front, a touch of its pink bird at the left
   c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,GB+30,0,GB-60,[[0,rgba('#ffa040',.1)],[1,rgba('#ffa040',0)]]);c.fillRect(-200,GB-60,1500,110);c.restore();
   // the near edge of the picture: the deck going on toward us into the dark
-  c.fillStyle=lin(c,0,GB-10,0,GB+270,[[0,rgba('#000000',0)],[.45,rgba('#000000',.3)],[1,rgba('#000000',.5)]]);c.fillRect(-200,GB-10,1500,400);
+  c.fillStyle=lin(c,0,GB-10,0,GB+270,[[0,rgba('#000000',0)],[.45,rgba('#000000',.24)],[1,rgba('#000000',.44)]]);c.fillRect(-200,GB-10,1500,400);
+  // the rain lying in the dents of the near tin, the Pit's lights in it (since V90: an upright phone's lower third was one dark value)
+  for(const [x,d,rx,rd,seed] of [[360,-118,96,24,7],[690,-58,54,15,11],[150,-176,62,17,13]])pool(c,x,d,rx,rd,seed);
   LIVE={G,lit:F.lit,signs:F.signs,B:bulbLine(G),yb:q(0,0,L.far).y,yt:-92};
   for(let tone=0;tone<3;tone++)for(const fa of [-1,1]){for(const pk of [0,1])birdSpr(tone,fa,true,pk);for(let ph=0;ph<6;ph++)birdSpr(tone,fa,false,ph);}}
 

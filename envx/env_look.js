@@ -137,6 +137,23 @@ function cloudBank(c,x0,x1,y,h,o){o=o||{};const r=rng(o.seed||21);c.save();
     c.fillStyle=rad(c,cx,cy,0,cw,[[0,rgba(o.col||'#1d1e2e',.85)],[1,rgba(o.col||'#1d1e2e',0)]]);c.save();c.translate(cx,cy);c.scale(1,ch/cw);c.beginPath();c.arc(0,0,cw,0,TAU);c.fill();c.restore();
     if(o.under){c.globalCompositeOperation='lighter';c.fillStyle=rad(c,cx,cy+ch*.6,0,cw*.8,[[0,rgba(o.under,.2)],[1,rgba(o.under,0)]]);c.save();c.translate(cx,cy+ch*.6);c.scale(1,.25);c.beginPath();c.arc(0,0,cw*.8,0,TAU);c.fill();c.restore();c.globalCompositeOperation='source-over';}}
   c.restore();}
+// A deck of night cloud high over a place, painted once into its layer: masses of soft lobes a shade lighter than the dark sky behind
+// (the far tier), each silvered along its side toward the moon and warmed underneath on the side toward the city, the stars showing
+// in the gaps between. o: mx, my (the moon), mr (how far its light reaches), cx (the city's side, x), cr, warm (the city's colour),
+// col (the cloud's), n (masses), s (their size), a (how much they show), seed. (Since V90: the lab's grounds, the field and the ledge
+// had one dark empty sky over the fight in an upright phone's view.)
+function nightDeck(c,x0,x1,y0,y1,o){o=o||{};const r=rng(o.seed||7),n=o.n||9,col=o.col||'#171b2e',mx=o.mx??x0,my=o.my??y0,sil=o.silver||'#c8d4ff',warm=o.warm||'#ff9a5a',k=o.a??1;
+  for(let i=0;i<n;i++){const u=(i+.5+(r()-.5)*.8)/n,X=lerp(x0,x1,u),Y=lerp(y0,y1,r()),w=(100+r()*190)*(o.s||1),h=w*(.15+r()*.13),nl=5+((r()*5)|0);
+    const km=clamp(1-Math.hypot(X-mx,Y-my)/(o.mr||560),0,1),kc=o.cx==null?0:clamp(1-Math.abs(X-o.cx)/(o.cr||440),0,1),ang=Math.atan2(my-Y,mx-X),ox=Math.cos(ang),oy=Math.sin(ang),L=[];
+    // (no lobe reaches up past top, 40 over the deck by default: an upright phone sees past the layer's top, where its top rows are
+    // drawn stretched, so the layer's top must stay the plain sky)
+    const top=o.top??Math.max(y0-40,typeof RC!=='undefined'?RC.y0+14:-1e9);for(let j=0;j<nl;j++){const t=(j+.5)/nl,ly=Y-h*Math.sin(t*Math.PI)*(.3+.5*r()),lr=Math.min(h*(.55+.6*r()),(ly-top)/1.25);if(lr>4)L.push([X+(t-.5)*w*(.9+.2*r()),ly,lr]);}
+    // its light first, each lobe's a little toward the moon, so that the body laid over it leaves a silver edge on that side
+    c.save();c.globalCompositeOperation='lighter';
+    for(const [lx,ly,lr] of L){c.fillStyle=rad(c,lx+ox*lr*.38,ly+oy*lr*.38,0,lr*1.2,[[0,rgba(sil,(.04+.2*km)*k)],[1,rgba(sil,0)]]);c.fillRect(lx-lr*1.7,ly-lr*1.7,lr*3.4,lr*3.4);}
+    c.restore();
+    for(const [lx,ly,lr] of L){c.fillStyle=rad(c,lx-ox*lr*.14,ly-oy*lr*.14,0,lr,[[0,rgba(col,.9*k)],[.68,rgba(col,.62*k)],[1,rgba(col,0)]]);c.fillRect(lx-lr*1.2,ly-lr*1.2,lr*2.4,lr*2.4);}
+    if(kc>0){c.save();c.globalCompositeOperation='lighter';c.translate(X,Y+h*.45);c.scale(1,.3);c.fillStyle=rad(c,0,0,0,w*.62,[[0,rgba(warm,.15*kc*k)],[1,rgba(warm,0)]]);c.fillRect(-w*.62,-w*.62,w*1.24,w*1.24);c.restore();}}}
 // ---------- the city ----------
 // a row of distant towers on a base line, hazed by distance (0 near, 1 far): lit windows as specks
 function skyline(c,x0,x1,base,o){o=o||{};const r=rng(o.seed||31),far=o.far==null?.6:o.far,col=mix(o.col||'#151827',o.hazeCol||'#2a2436',far*.7);let x=x0;
@@ -243,6 +260,6 @@ function finish(o){const x=typeof ctx!=='undefined'?ctx:null,cv0=x&&x.canvas;if(
   if(q==='full'&&typeof cssW==='number'&&cssW>=640){const pt=grainPat(x),f=(typeof S!=='undefined'&&S._rf)||0,rm=typeof reduceMotion!=='undefined'&&reduceMotion,ox=rm?0:(f*53)%128,oy=rm?0:(f*97)%128,y0=Math.floor(H2*.105*fnBars());
     x.globalCompositeOperation='source-over';x.globalAlpha=.05;x.fillStyle=pt;x.translate(-ox,-oy);x.fillRect(ox,y0+oy,W2,H2-2*y0);}
   x.restore();}
-return{TAU,lerp,clamp,ss,rng,C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,softCone,softSpill,softSpr,haze,vine,scroll,gilt,windowPane,bricks,setts,flags,wetStreak,stars,moon,cloudBank,skyline,hallTower,NEAR,FOOT,fallOff,fallKeep,finish,finishLast:FN.last,S:{}};
+return{TAU,lerp,clamp,ss,rng,C,pp,poly,line,rect,lin,rad,rgba,mix,glow,beam,softCone,softSpill,softSpr,haze,vine,scroll,gilt,windowPane,bricks,setts,flags,wetStreak,stars,moon,cloudBank,nightDeck,skyline,hallTower,NEAR,FOOT,fallOff,fallKeep,finish,finishLast:FN.last,S:{}};
 })();
 // ===== ENV LOOK END =====

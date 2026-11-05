@@ -250,6 +250,19 @@ function floor(c,G){const far=G.far,X0=-300,X1=1300,D0=-340,r=rng(29);
   {const x0=-150,x1=-90,d0=120,d1=150;c.fillStyle='#1a1009';c.fillRect(x0,d0,x1-x0,d1-d0);c.strokeStyle='#0a0604';c.lineWidth=1.76;c.strokeRect(x0,d0,x1-x0,d1-d0);c.strokeStyle='#4a4440';c.lineWidth=1.8;c.beginPath();c.ellipse(x1-10,(d0+d1)/2,4,4,0,0,TAU);c.stroke();}
   c.restore();}
 
+// ---------- the day through the boards ----------
+// (since V90, asked for: the back room's plank walls stood at one dim value, the lamp's pool the only light in a phone's view) Three
+// seams in the back wall stand open wider than the rest: the day comes through each as a bright line, the planks either side of it
+// catch a little, a faint sheet of it comes down through the dust toward us, and it lies across the floorboards in a sliver.
+const SEAMS=[[150,.85],[318,.7],[520,1]];
+function seamLight(c,G){const top=G.wy(CEIL),yW=G.yW,col='#e8dcc0';
+  for(const [x0,k] of SEAMS){const x=G.wx(x0),y0=top+24,y1=yW-6;
+    c.save();c.globalCompositeOperation='lighter';
+    c.fillStyle=lin(c,x-16,0,x+16,0,[[0,rgba(col,0)],[.5,rgba(col,.08*k)],[1,rgba(col,0)]]);c.fillRect(x-16,y0,32,y1-y0);
+    c.fillStyle=lin(c,0,y0,0,y1,[[0,rgba(col,0)],[.12,rgba(col,.55*k)],[.88,rgba(col,.42*k)],[1,rgba(col,0)]]);c.fillRect(x-.8,y0,1.6,y1-y0);
+    c.restore();
+    E.softCone(c,x,y0+10,3,22,(y1-y0)*1.15,col,.06*k,.22,1.2);
+    E.softSpill(c,x0,G.far-2,3,12,78,col,.26*k);}}
 // ---------- the lamp ----------
 function lamp(c,G){const Lm=G.lamp,p=q(Lm.x,Lm.h,Lm.d),top=q(Lm.x,Lm.h+220,Lm.d);
   c.strokeStyle='#0c0a08';c.lineWidth=1.5;c.beginPath();c.moveTo(p.x,p.y-14);c.lineTo(top.x,top.y);c.stroke();
@@ -267,7 +280,7 @@ function lamp(c,G){const Lm=G.lamp,p=q(Lm.x,Lm.h,Lm.d),top=q(Lm.x,Lm.h+220,Lm.d)
 let LIVE=null;
 function paint(c){const G=geo();
   walls(c,G);const V=windowView(c,G);windowFrame(c,G);mirror(c,G);
-  floor(c,G);shaft(c,G);
+  floor(c,G);seamLight(c,G);shaft(c,G);
   barrels(c,G);shelf(c,G);washstand(c,G);crates(c,G);cot(c,G);chair(c,G);stool(c,G);sideWall(c,G);lamp(c,G);
   // the day is dim: the room darker away from the window, darkest in the corners; the near edge
   c.fillStyle=lin(c,-200,0,1150,0,[[0,rgba('#040302',.55)],[.22,rgba('#040302',.12)],[.62,rgba('#040302',0)],[.86,rgba('#040302',.05)],[1,rgba('#040302',.4)]]);c.fillRect(-200,-100,1450,1000);

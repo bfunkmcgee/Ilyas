@@ -91,6 +91,8 @@ function paint(c){
   glow(c,MOON.x,MOON.y,320,'#7c8ed0',.1);
   c.save();c.globalCompositeOperation='lighter';c.translate(230,250);c.scale(1,.7);c.fillStyle=rad(c,0,0,10,520,[[0,rgba('#ff9a5a',.22)],[.4,rgba('#ff8a50',.07)],[1,rgba('#ff8a50',0)]]);c.beginPath();c.arc(0,0,520,0,TAU);c.fill();c.restore();
   stars(c,X0,X1,T0,190,230,23,.75);
+  // (high over the fight a deck of cloud, the moon's silver on its edges and the city's warmth under it on the left: since V90)
+  E.nightDeck(c,X0,X1,-50,104,{mx:MOON.x,my:MOON.y,cx:230,seed:37,n:11,s:1.15});
   for(let i=0;i<7;i++){const cx=X0+r()*(X1-X0),cy=40+r()*100,rx=60+r()*150,ry=2+r()*4.5,k=clamp(1-Math.hypot(cx-MOON.x,cy-MOON.y)/280,0,1);
     c.save();c.translate(cx,cy);c.scale(1,ry/rx);c.fillStyle=rad(c,0,-ry*2,0,rx,[[0,rgba('#d8e0ff',.3*k)],[1,rgba('#d8e0ff',0)]]);c.beginPath();c.arc(0,-ry*1.2,rx,0,TAU);c.fill();
     c.fillStyle=rad(c,0,0,0,rx,[[0,rgba('#141828',.85)],[.7,rgba('#141828',.5)],[1,rgba('#141828',0)]]);c.beginPath();c.arc(0,0,rx,0,TAU);c.fill();c.restore();}

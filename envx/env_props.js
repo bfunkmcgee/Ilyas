@@ -23,7 +23,10 @@ function plankFence(it,style){const w=it.dv;if(w.state==='broken')return false;c
     const cap=[P2(pl-1.5,yt-10),P2((pl+pr)/2,yt-15),P2(pr+1.5,yt-10)];ctx.fillStyle=town?'#1a1216':'#2e2622';ctx.beginPath();ctx.moveTo(cap[0].x,cap[0].y);ctx.lineTo(cap[1].x,cap[1].y);ctx.lineTo(cap[2].x,cap[2].y);ctx.fill();
     if(!town&&it.first){const L=P2(pr+2,yt+6);ctx.strokeStyle='#120e0c';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(L.x,L.y-8);ctx.lineTo(L.x+5,L.y-8);ctx.lineTo(L.x+5,L.y-4);ctx.stroke();
       ctx.fillStyle='#120e0c';ctx.fillRect(L.x+2.5,L.y-4,5,1.2);ctx.fillStyle=lin(ctx,0,L.y-3,0,L.y+4,[[0,'#fff3d2'],[1,'#ffb259']]);ctx.fillRect(L.x+3,L.y-3,4,6.5);ctx.fillStyle='#120e0c';ctx.fillRect(L.x+2.5,L.y+3.5,5,1.2);
-      glow(ctx,L.x+5,L.y,34,'#ffc070',.5);}}
+      glow(ctx,L.x+5,L.y,34,'#ffc070',.5);
+      // (its warm pool on the ground under it, by the fight: since V90, the lab's grounds stood in cold light only)
+      const G0=P2(pr+5,g);ctx.save();ctx.globalCompositeOperation='lighter';ctx.translate(G0.x,G0.y);ctx.scale(1,.36);
+      ctx.fillStyle=rad(ctx,0,0,0,96,[[0,rgba('#ffb060',.2)],[.45,rgba('#ffa050',.07)],[1,rgba('#ffa050',0)]]);ctx.fillRect(-96,-96,192,192);ctx.restore();}}
   for(const m of w.marks){if(m.d<A||m.d>=B)continue;drawDivMark(w,m);}
   return true;}
 // the fence's face, whole, in its own plane (ctx here is the face's own canvas)

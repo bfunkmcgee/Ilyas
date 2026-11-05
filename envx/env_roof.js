@@ -44,6 +44,9 @@ function sky(c,X0,X1,T0){
   c.fillStyle=lin(c,0,T0,0,HOR+40,[[0,'#010208'],[.3,'#040611'],[.62,'#0b0f1e'],[.86,'#191a2b'],[1,'#2a2030']]);c.fillRect(X0,T0,X1-X0,HOR+40-T0);
   glow(c,MOON.x,MOON.y,330,'#7c8ed0',.12);
   stars(c,X0,X1,T0,HOR-60,260,73,.8);
+  // (high over the pad a deck of cloud, the moon's silver on its edges and the city's warmth under all of it: from this high the
+  // city is all round; since V90, the sky over the pad was one dark field)
+  E.nightDeck(c,X0,X1,-50,120,{mx:MOON.x,my:MOON.y,cx:560,cr:1400,seed:61,n:12,s:1.2});
   // the city lights the haze from below, all round the horizon
   c.save();c.globalCompositeOperation='lighter';c.translate(560,HOR+10);c.scale(1,.3);
   c.fillStyle=rad(c,0,0,10,900,[[0,rgba('#ff9a5a',.24)],[.35,rgba('#ff8a50',.09)],[1,rgba('#ff8a50',0)]]);c.beginPath();c.arc(0,0,900,0,TAU);c.fill();c.restore();
@@ -59,7 +62,17 @@ function sky(c,X0,X1,T0){
 function farCity(c,X0,X1){const r=rng(9);
   c.fillStyle=lin(c,0,HOR-2,0,HOR+40,[[0,'#1a1622'],[1,'#0c0b12']]);c.fillRect(X0,HOR-1,X1-X0,60);
   for(let i=0;i<900;i++){const x=X0+r()*(X1-X0),u=Math.pow(r(),2.2),y=HOR+u*36,s=.5+u*.9;c.fillStyle=rgba(r()<.86?'#ffcf86':r()<.5?'#dfeeff':'#7ff3e3',(.25+.6*r())*(1-u*.4));c.fillRect(x,y,s,s*.8);}
-  haze(c,X0,X1,HOR-10,HOR+14,'#5a3a40',.35);}
+  haze(c,X0,X1,HOR-10,HOR+14,'#5a3a40',.35);
+  // (the avenues running out to where they meet past the edge, strings of light; the glow of it all rising into the haze: since V90,
+  // nothing beyond the roof gave it the fall's layers)
+  c.save();c.globalCompositeOperation='lighter';
+  // (in the band between the horizon and the parapet's top, all an upright phone sees of it: each avenue a straight line out to the
+  // vanishing point, its lamps closing up and dimming as they go; cross streets crowding toward the horizon)
+  for(let i=0;i<11;i++){const x0=X0+(i+.5)/11*(X1-X0)+(r()-.5)*60,y0=HOR+27;for(let k=0;k<46;k++){const u=1-1/(1+k*.15),x=lerp(x0,VP.x,u),y=lerp(y0,HOR+.5,u);
+      c.fillStyle=rgba(r()<.8?'#ffcf86':'#ffb25e',(.2+.75*(1-u))*(.6+.4*r()));const s2=.45+1.5*(1-u);c.fillRect(x-s2/2,y-s2*.35,s2,s2*.7);}}
+  for(let j=1;j<7;j++){const y=HOR+26/(1+j*.55),sp=3+(y-HOR)*.9;for(let x=X0+r()*sp;x<X1;x+=sp*(.6+.8*r())){if(r()<.25)continue;
+      c.fillStyle=rgba('#ffcf86',(.12+.5*(y-HOR)/26)*(.6+.4*r()));const s2=.4+(y-HOR)*.05;c.fillRect(x,y,s2*1.4,s2*.7);}}
+  c.fillStyle=lin(c,0,HOR-70,0,HOR+6,[[0,rgba('#ff9a5a',0)],[1,rgba('#ff9a5a',.12)]]);c.fillRect(X0,HOR-70,X1-X0,76);c.restore();}
 // ---------- the gilt, kept as shapes as it is painted, for the drain ----------
 // The roof's betrayal drains the gold (the style guide's rule 3): when the null round goes through him (sk_story.js), everything gold
 // painted on the roof goes out with the gilt in him, in four rings out from the crown (0 the crown, 1 the parapet and the stair head,

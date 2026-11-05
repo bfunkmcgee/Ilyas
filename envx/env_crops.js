@@ -96,6 +96,8 @@ function paint(c){
   glow(c,MOON.x,MOON.y,320,'#7c8ed0',.11);
   c.save();c.globalCompositeOperation='lighter';c.translate(700,HOR+6);c.scale(1,.55);c.fillStyle=rad(c,0,0,10,560,[[0,rgba('#ff9a5a',.3)],[.3,rgba('#ff8a50',.12)],[.7,rgba('#ff8a50',.03)],[1,rgba('#ff8a50',0)]]);c.beginPath();c.arc(0,0,560,0,TAU);c.fill();c.restore();
   stars(c,X0,X1,T0,170,240,41,.75);
+  // (high over the fight a deck of cloud, the moon's silver on its edges and the city's warmth under it on the right: since V90)
+  E.nightDeck(c,X0,X1,-50,110,{mx:MOON.x,my:MOON.y,cx:720,seed:53,n:11,s:1.15});
   for(let i=0;i<10;i++){const cx=X0+r()*(X1-X0),cy=48+r()*92,rx=70+r()*190,ry=2.4+r()*5,dm=Math.hypot(cx-MOON.x,cy-MOON.y),k=clamp(1-dm/320,0,1),kc=clamp(1-Math.abs(cx-720)/380,0,1);
     c.save();c.translate(cx,cy);c.scale(1,ry/rx);c.fillStyle=rad(c,0,-ry*2,0,rx,[[0,rgba('#d8e0ff',.3*k)],[1,rgba('#d8e0ff',0)]]);c.beginPath();c.arc(0,-ry*1.2,rx,0,TAU);c.fill();
       c.fillStyle=rad(c,0,0,0,rx,[[0,rgba('#121626',.9)],[.7,rgba('#121626',.55)],[1,rgba('#121626',0)]]);c.beginPath();c.arc(0,0,rx,0,TAU);c.fill();
@@ -211,6 +213,7 @@ function paint(c){
       const at=(u,v)=>({x:h0.x+3+ux*gw*u,y:h0.y-3-gh*v+uy*gw*u}),bars=()=>{c.beginPath();for(let k=0;k<5;k++){const v=k/4,a=at(0,v),b=at(1,v);c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);}
         const a=at(0,0),b=at(0,1),e=at(1,0),f=at(1,1);c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.moveTo(e.x,e.y);c.lineTo(f.x,f.y);c.moveTo(a.x,a.y);c.lineTo(f.x,f.y);c.stroke();};
       c.strokeStyle='#0e0a08';c.lineWidth=1.6;bars();c.strokeStyle=rgba('#c89060',.2);c.lineWidth=1;c.save();c.translate(-.3,-.6);bars();c.restore();}}
+  truck(c);
   // mist lying low over the crop's foot and the clearing's far edge
   haze(c,X0,X1,cb-34,cb+4,'#8a98bc',.1);haze(c,X0,X1,cb+2,cb+44,'#8a98bc',.07,true);
   // ---- the near edge, toward us: weeds and a few broken maize stalks in the corners, dark, catching a little moon
@@ -224,6 +227,31 @@ function paint(c){
     c.fillStyle='#030304';c.fill(M.dark);c.strokeStyle=rgba('#c8d4ff',.14);c.lineWidth=.6;c.stroke(M.rim);c.strokeStyle=rgba('#e4d6a8',.25);c.stroke(M.tas);}
   // the dark toward us
   E.fallKeep(c,X0,X1+120,GB-20,[[GB-20,0],[GB+110,.42]],null,.05);}
+// ---------- the field hands' truck ----------
+// (since V90, asked for: the fight stood in cold moonlight at one dark value with nothing warm near it) The truck they came in,
+// parked on the clearing's far right in front of the bales, nose toward the fight: an old flatbed, dark in the night with the moon
+// along its tops, its two headlamps left burning and laying their warm light across the stubble toward the fight. TRUCK.x is its
+// front bumper, d its depth.
+const TRUCK={x:716,d:186};
+function truck(c){const {x,d}=TRUCK,b=g2(x,d),gy=b.y,K2=1.6,X=u=>b.x+u*K2,Y=h=>gy-h*K2,dark='#07080b',rim=rgba('#c8d4ff',.3);
+  // the beams first, on the ground ahead of it, and their haze in the air
+  E.softSpill(c,x-6,d,14,120,460,'#ffc47a',.4,GB,Math.PI/2);E.softSpill(c,x-6,d,8,52,280,'#ffe2b0',.22,GB,Math.PI/2);
+  E.softCone(c,X(-2),Y(22),8,70,340,'#ffc47a',.07,Math.PI/2,1.3);
+  c.fillStyle=rgba('#000000',.5);c.beginPath();c.ellipse(X(70),gy+1,96*K2,6*K2,0,0,TAU);c.fill();
+  // the wheels, the body: the hood, the cab, the flatbed with a stake rail
+  for(const wx of [18,128]){c.fillStyle=dark;c.beginPath();c.arc(X(wx),Y(12),12*K2,0,TAU);c.fill();c.strokeStyle=rgba('#c8d4ff',.16);c.lineWidth=1.5;c.beginPath();c.arc(X(wx),Y(12),9*K2,Math.PI*1.1,Math.PI*1.65);c.stroke();}
+  c.fillStyle=dark;c.beginPath();c.moveTo(X(0),Y(10));c.lineTo(X(0),Y(30));c.quadraticCurveTo(X(2),Y(36),X(10),Y(37));c.lineTo(X(40),Y(38));c.lineTo(X(46),Y(62));c.quadraticCurveTo(X(48),Y(66),X(54),Y(66));
+  c.lineTo(X(84),Y(66));c.quadraticCurveTo(X(88),Y(65),X(88),Y(60));c.lineTo(X(88),Y(34));c.lineTo(X(158),Y(34));c.lineTo(X(158),Y(10));c.closePath();c.fill();
+  c.fillStyle='#0b0c10';for(let k=0;k<6;k++)c.fillRect(X(92+k*12),Y(52),3*K2,18*K2);c.fillRect(X(90),Y(52),68*K2,3*K2);
+  // the cab's glass, a little of the sky in it; the moon along the tops; rust low on the door
+  c.fillStyle=lin(c,0,Y(62),0,Y(44),[[0,'#141a2a'],[1,'#0a0c14']]);c.beginPath();c.moveTo(X(50),Y(60));c.lineTo(X(82),Y(60));c.lineTo(X(82),Y(44));c.lineTo(X(46),Y(44));c.closePath();c.fill();
+  c.strokeStyle=rim;c.lineWidth=1.5;c.beginPath();c.moveTo(X(1),Y(30));c.quadraticCurveTo(X(2),Y(36),X(10),Y(37));c.lineTo(X(40),Y(38));c.lineTo(X(46),Y(62));c.quadraticCurveTo(X(48),Y(66),X(54),Y(66));c.lineTo(X(84),Y(66));c.stroke();
+  c.strokeStyle=rgba('#c8d4ff',.16);c.beginPath();c.moveTo(X(90),Y(52));c.lineTo(X(158),Y(52));c.stroke();
+  c.fillStyle=rgba('#5a3018',.35);c.fillRect(X(52),Y(22),30*K2,8*K2);
+  // the grille, the bumper, and the lamps burning on the fenders
+  c.fillStyle='#101116';c.fillRect(X(-2),Y(36),6*K2,22*K2);c.fillStyle=rgba('#c8d4ff',.12);for(let k=0;k<4;k++)c.fillRect(X(-1),Y(34-k*5),4*K2,1.5);
+  c.fillStyle='#16171c';c.fillRect(X(-6),Y(16),12*K2,4*K2);
+  for(const [lx,ly,k] of [[4,26,1],[12,25,.7]]){glow(c,X(lx),Y(ly),40*k,'#ffb866',.4*k);glow(c,X(lx),Y(ly),12,'#ffe2b0',.85*k);c.fillStyle='#fff0d0';c.beginPath();c.arc(X(lx),Y(ly),(2.6*k+.6)*K2,0,TAU);c.fill();}}
 // ---------- what moves: chaff in the moonlight, the wind over the crop tops, fireflies at the crop's edge, the windmill, the tower's light ----------
 const CHAFF=(()=>{const r=rng(66),a=[];for(let i=0;i<40;i++)a.push({x:-60+r()*1000,d:10+r()*220,h:8+r()*90,ph:r()*TAU,sp:6+r()*14,bob:2+r()*5,tw:1+r()*3});return a;})();
 const FLIES=(()=>{const r=rng(91),a=[];for(let i=0;i<14;i++)a.push({x:-40+r()*980,d:CROP_D-14-r()*30,h:6+r()*26,ph:r()*TAU,sp:.6+r()*1.2,dr:6+r()*12,bl:2+r()*3});return a;})();

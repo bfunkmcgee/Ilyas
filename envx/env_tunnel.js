@@ -3,7 +3,8 @@
 // deck, riveted iron plate with a tread worked into it, which does not move; everything else goes by. The tunnel's wall rushes past
 // in sooted brick ribbed with rings of blue engineering brick that turn over into the dark of the vault, cables slung along it, caged
 // crystal lamps that flash by and throw their light across the deck as they pass (a few of them dead), arched refuges, the mouths of
-// side passages with eyes in them now and then, a gilt mile plate, and once in a long while the lit platform of Lamplight Street's
+// side passages with eyes in them now and then, a gilt mile plate, red and green signals at the vault's spring, and every nine seconds
+// or so at speed (since V90; it was half as often) the lit platform of Lamplight Street's
 // old station, long shut, going by. At speed the wall smears along the line. The car carries a brass lantern on its far rail; the
 // engine's breath and the tunnel's dust stream back over the deck; under the car's near side its wheels turn and throw sparks.
 // Layout, world units: the deck from depth 0 (its near edge) to 186 (its far edge, with a low rail along it), the track bed 40 below
@@ -12,10 +13,12 @@
 (()=>{const E=EnvLook,{C,pp,lin,rad,rgba,glow,gilt,rng,lerp,clamp,TAU}=E;
 const DN=0,DF=186,WD=250,BED=40,SPR=170,SILL=18;
 const PER=840,LAMP=420,PASS=2310,PLATE=1050;                  // the wall's repeat; how often lamps, side passages and mile plates come
-const STN=12600,STN_AT=5200,STN_L=900,SD=330,PE=196;           // the old station: how often, where the first one is, its length, its back wall and platform edge depths
+const STN=8400,STN_AT=5200,STN_L=900,SD=330,PE=196;            // the old station: how often, where the first one is, its length, its back wall and platform edge depths
+const SIG=LAMP;                                               // a signal on the wall at the vault's spring halfway between each two lamps (since V90)
 const q=(x,y,d)=>pp(x,y,d);
 const yS=()=>GB-SPR-WD*PSY,yWB=()=>GB+BED-WD*PSY,yDF=()=>GB-DF*PSY;   // on the screen: the vault's spring, the wall's foot, the deck's far edge
 const LANTERN={x:806,d:DF-4};                                          // the car's own lantern, on its far rail
+const LANTERNS=[LANTERN,{x:236,d:DF-4}];                              // (and since V90 a second one along it, nearer the car's middle)
 const STN_LAMPS=[{x:180,lit:1},{x:360,lit:0},{x:540,lit:1},{x:720,lit:1}].map(L=>({...L,d:290,h:120}));
 const frac=v=>v-Math.floor(v),hash=i=>frac(Math.abs(Math.sin(i*12.9898+.7)*43758.5453));
 const bucket=k=>clamp(Math.round(k*20)/20,1,2.5);   // made at the screen's own scale, so a smeared picture can be set down unfiltered
@@ -64,6 +67,19 @@ function deck(c){const X0=-220,X1=1160;
     for(const x of [120,560]){const p=q(x,GB+9,DN);c.fillStyle=rgba(C.gold,.5);c.fillRect(p.x,p.y-4,1.4,8);c.fillRect(p.x+5,p.y-4,1.4,8);c.fillRect(p.x,p.y-.7,6.4,1.4);}
     c.fillStyle='#040405';c.fillRect(a.x,a.y+SILL,b.x-a.x,60);}}
 
+// ---------- the lamps' light up the wall ----------
+// Thrown up the wall and over into the vault, leaning over as the vault does (since V90: between the lamps the wall and the vault over
+// the fight were one dark smear): the brick, the rings and the cables at the spring brought up under it (color-dodge, a little toward
+// the crystals' cyan). It is made into the wall's picture at each lamp and into the vault's first course (UP), so it costs nothing a
+// frame (drawn live it was 3 to 8 ms on a phone); a dead lamp's is taken out again live by its inverse, laid on with multiply (upDark)
+const UP={r:215,sy:1.19,cy:-41,col:[104,156,166],tint:C.cyan,st:[[0,.95,.11],[.35,.6,.05],[.72,.18,.014],[1,0,0]]};
+// (its inverse, worked out on the sooted brick's own value: a brighter or darker stone comes back a little off)
+const UPX=(()=>{const B=[.07,.045,.035],T=[1,3,5].map(k=>parseInt(UP.tint.slice(k,k+2),16)/255);
+  return UP.st.map(([t,a,b])=>[t,'rgb('+[0,1,2].map(i=>{const m=1+a*(1/(1-UP.col[i]/255)-1);return Math.round(255*B[i]/(B[i]*m+b*T[i]));}).join(',')+')']);})();
+function upLight(c,x,y,dark){c.save();c.transform(1,0,VLEAN,1,x,y);c.scale(1,UP.sy);const R=UP.r,fill=(op,st)=>{c.globalCompositeOperation=op;c.fillStyle=rad(c,0,UP.cy,0,R,st);c.fillRect(-R,UP.cy-R,R*2,R*2);};
+  if(dark)fill('multiply',UPX);else{fill('color-dodge',UP.st.map(([t,a])=>[t,'rgba('+UP.col+','+a+')']));fill('lighter',UP.st.map(([t,,b])=>[t,rgba(UP.tint,b)]));}
+  c.restore();}
+
 // ---------- the tunnel's wall: one repeat of it, made once a scale, and its smear ----------
 // sooted brick; rings of blue brick every 140 that turn over into the vault; a string course at the spring; arched refuges; cables in
 // their brackets and junction boxes; the lamps' brackets and cages (their crystals are lit live, as they pass)
@@ -83,6 +99,10 @@ function wallTile(k){const sc=bucket(k);if(WT&&WT.sc===sc)return WT;
   c.fillStyle=lin(c,0,y0,0,sh,[[0,rgba('#010102',.1)],[.6,rgba('#010102',.06)],[1,rgba('#010102',0)]]);c.fillRect(0,y0,PER,sh-y0);
   // the string course at the spring of the vault
   c.fillStyle='#0d1016';c.fillRect(0,sh-3,PER,6);c.fillStyle=rgba('#8a94b0',.16);c.fillRect(0,sh-3,PER,.8);c.fillStyle=rgba('#000000',.5);c.fillRect(0,sh+3,PER,2);
+  // two heavy cables slung over the spring on hooks in the rings, their tops catching what light there is (since V90)
+  for(let x=40;x<PER;x+=140){c.fillStyle='#16161c';c.fillRect(x+2,sh-46,8,4);c.fillRect(x+4.6,sh-43,2.6,12);}
+  for(const [o,col,w] of [[-31,'#07070a',3.4],[-23,'#0a0a0d',2.6]]){c.strokeStyle=col;c.lineWidth=w;c.beginPath();for(let x=46-140;x<PER+140;x+=140){c.moveTo(x,sh+o);c.quadraticCurveTo(x+70,sh+o+11,x+140,sh+o);}c.stroke();}
+  c.strokeStyle=rgba('#9aa8c8',.24);c.lineWidth=1.01;c.beginPath();for(const o of [-32.6,-24.2])for(let x=46-140;x<PER+140;x+=140){c.moveTo(x,sh+o);c.quadraticCurveTo(x+70,sh+o+11,x+140,sh+o);}c.stroke();
   // arched refuges low in the wall
   for(const x of [96,516]){c.fillStyle='#030304';c.beginPath();c.moveTo(x,y1);c.lineTo(x,y1-40);c.arc(x+13,y1-40,13,Math.PI,0);c.lineTo(x+26,y1);c.closePath();c.fill();
     c.strokeStyle='#10131a';c.lineWidth=3;c.beginPath();c.moveTo(x-1.5,y1);c.lineTo(x-1.5,y1-40);c.arc(x+13,y1-40,14.5,Math.PI,0);c.lineTo(x+27.5,y1);c.stroke();
@@ -97,6 +117,8 @@ function wallTile(k){const sc=bucket(k);if(WT&&WT.sc===sc)return WT;
     c.strokeStyle='#0a0a0d';c.lineWidth=2.2;c.beginPath();c.moveTo(x-14,y-24);c.quadraticCurveTo(x-14,y-13,x,y-13);c.lineTo(x,y-9);c.stroke();
     c.fillStyle=C.goldD;c.fillRect(x-5,y-10,10,2.2);c.fillRect(x-4,y+9,8,2);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=.99;c.beginPath();for(const kx of [-4.5,-1.5,1.5,4.5]){c.moveTo(x+kx,y-8);c.lineTo(x+kx*.8,y+9);}c.stroke();
     c.fillStyle='#14262a';c.beginPath();c.moveTo(x,y-6);c.lineTo(x+3.4,y);c.lineTo(x,y+6);c.lineTo(x-3.4,y);c.closePath();c.fill();}
+  // their light up the wall (upLight, above; the lamps past the repeat's ends lend theirs over the joins)
+  for(let x=LAMP/2-LAMP;x<PER+LAMP;x+=LAMP)upLight(c,x,sh+28);
   lit(cv,c,0,PER);
   WT={sc,cv,blur:smear(cv,22*sc,true),y0,h};return WT;}
 // the vault over the wall: the rings going on over toward us, leaning as they come, the brick between them in its soot; made once a
@@ -115,7 +137,9 @@ function vaultTile(k){const sc=bucket(k)*.5;if(VT&&VT.sc===sc)return VT;
     c.strokeStyle=rgba('#7a8aa8',.12);c.lineWidth=1;c.beginPath();c.moveTo(xb,y1);c.lineTo(xb-s+3,y0);c.stroke();
     c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.51;c.beginPath();for(let u=0;u<1;u+=.04){const yy=lerp(y1,y0,u),xx=lerp(xa,xa-s-3,u);c.moveTo(xx,yy);c.lineTo(xx+12+u*6,yy);}c.stroke();}
   c.fillStyle=rgba('#010102',.1);c.fillRect(0,y0,PER,VH);
-  VT={sc,cv,blur:smear(cv,11*sc,true),y0,h:VH};return VT;}
+  // the first course over the wall again, with the lamps' light going on up into it (upLight)
+  const cv0=mk(PER,VH,sc),c0=cv0.getContext('2d');c0.drawImage(cv,0,0);c0.scale(sc,sc);c0.translate(0,-y0);for(let x=LAMP/2-LAMP;x<PER+LAMP;x+=LAMP)upLight(c0,x,yS()+28);
+  VT={sc,cv,blur:smear(cv,11*sc,true),l0:{cv:cv0,blur:smear(cv0,11*sc,true)},y0,h:VH};return VT;}
 // the far rail along the deck's far edge: posts in their pockets and a top rail, the car's lantern on its hook (made once a scale)
 let RT=null;
 function railTile(k){const sc=bucket(k);if(RT&&RT.sc===sc)return RT;
@@ -123,7 +147,7 @@ function railTile(k){const sc=bucket(k);if(RT&&RT.sc===sc)return RT;
   for(let x=-220;x<1160;x+=64){const p=q(x,GB,LANTERN.d);c.fillStyle='#0b0b10';c.fillRect(p.x-1.8,p.y-24,3.6,24);c.fillStyle=rgba(C.goldD,.85);c.fillRect(p.x-2.4,p.y-24.5,4.8,2.4);c.fillStyle=rgba('#8a94b0',.16);c.fillRect(p.x+1,p.y-22,.7,20);}
   const L=q(-220,GB,LANTERN.d),R=q(1160,GB,LANTERN.d);c.strokeStyle='#121218';c.lineWidth=2.2;c.beginPath();c.moveTo(L.x,L.y-22);c.lineTo(R.x,R.y-22);c.stroke();
   c.strokeStyle=rgba(C.gold,.5);c.lineWidth=.99;c.beginPath();c.moveTo(L.x,L.y-23.2);c.lineTo(R.x,R.y-23.2);c.stroke();
-  {const p=q(LANTERN.x,GB,LANTERN.d);c.strokeStyle='#14141a';c.lineWidth=1.51;c.beginPath();c.moveTo(p.x,p.y-22);c.lineTo(p.x+4,p.y-31);c.stroke();
+  for(const Ln of LANTERNS){const p=q(Ln.x,GB,Ln.d);c.strokeStyle='#14141a';c.lineWidth=1.51;c.beginPath();c.moveTo(p.x,p.y-22);c.lineTo(p.x+4,p.y-31);c.stroke();
     c.fillStyle='#16120c';c.fillRect(p.x+1,p.y-41,8,10);c.fillStyle=C.goldD;c.fillRect(p.x,p.y-42,10,2);c.fillRect(p.x+2,p.y-31,6,1.4);c.fillStyle=rgba('#ffe7b0',.9);c.fillRect(p.x+3,p.y-39,4,6);}
   lit(cv,c,x0,x1,true);
   RT={sc,cv,x0,y0,w:x1-x0,h:y1-y0};return RT;}
@@ -148,7 +172,7 @@ function stnSprite(k){const sc=bucket(k);if(ST&&ST.sc===sc)return ST;
     for(let i=0;i<22;i++){const x=a+r()*STN_L,L=20+r()*70;c.fillStyle=lin(c,0,fy(150),0,fy(150)+L,[[0,rgba('#1a1208',.5)],[1,rgba('#1a1208',0)]]);c.fillRect(x,fy(150),1.5+r()*4,L);}
     // the blind arches, five bays
     for(let j=0;j<5;j++){const L=a+j*180+14,R=a+j*180+166,yb=fy(40),ys=fy(112);c.beginPath();c.moveTo(L,yb);c.lineTo(L,ys);c.quadraticCurveTo((L+R)/2,ys-34,R,ys);c.lineTo(R,yb);
-      c.fillStyle=rgba('#000000',.16);c.fill();c.strokeStyle=rgba(C.gold,.42);c.lineWidth=.8;c.stroke();}
+      c.fillStyle=rgba('#000000',.16);c.fill();c.strokeStyle=rgba(C.gold,.42);c.lineWidth=1.01;c.stroke();}
     // the station's name, twice, on black enamel
     for(const cx of [270,630]){const x=a+cx,y=fy(98);c.fillStyle='#09090b';c.fillRect(x-76,y,152,21);c.strokeStyle=rgba(C.gold,.85);c.lineWidth=1;c.strokeRect(x-74,y+2,148,17);
       c.fillStyle=rgba('#ffffff',.04);c.fillRect(x-76,y,152,6);gilt(c,'LAMPLIGHT  STREET',x,y+14.6,10.5,{style:'700',track:1});}
@@ -156,7 +180,7 @@ function stnSprite(k){const sc=bucket(k);if(ST&&ST.sc===sc)return ST;
     for(const [cx,col] of [[60,'#4a2a28'],[120,'#2a3040'],[380,'#5a4a2a'],[520,'#3a2230'],[780,'#2a3a30'],[840,'#4a3a26']]){const x=a+cx-17,y=fy(96);
       c.fillStyle=col;c.fillRect(x,y,34,46);c.fillStyle=rgba('#d8cfb0',.12);c.beginPath();c.arc(x+17,y+17,9,0,TAU);c.fill();c.fillRect(x+5,y+31,24,1.6);c.fillRect(x+7,y+35,20,1.2);c.fillRect(x+9,y+39,16,1.2);
       c.fillStyle=rgba('#000000',.3);c.fillRect(x,y,34,46);c.fillStyle='#5e5442';c.beginPath();c.moveTo(x+34,y+46);c.lineTo(x+34,y+30-r()*10);c.lineTo(x+22-r()*8,y+46);c.closePath();c.fill();
-      c.strokeStyle=rgba(C.goldD,.8);c.lineWidth=.8;c.strokeRect(x-1,y-1,36,48);}}
+      c.strokeStyle=rgba(C.goldD,.8);c.lineWidth=1.5;c.strokeRect(x-1,y-1,36,48);}}
   // the platform's far part, behind the wall's line: stone flags, a pool of light under each lamp that still burns
   function flags(d0,d1){c.save();floorT(c,0);c.fillStyle='#2c261e';c.fillRect(0,d0,STN_L,d1-d0);
     const rr=rng(61+d0);for(let x=0;x<STN_L;x+=36)for(let d=PE;d<SD;d+=27){if(d+27<d0||d>d1)continue;c.fillStyle=rgba(rr()<.5?'#000000':'#5a4a36',.08+.12*rr());c.fillRect(x+1,d+1,34,25);}
@@ -177,13 +201,13 @@ function stnSprite(k){const sc=bucket(k);if(ST&&ST.sc===sc)return ST;
   for(const [x,d,hh] of [[24,322,24],[862,318,30]]){const p=q(x,GB-hh,d);c.fillStyle='#d8e04a';c.fillRect(p.x-2.6,p.y,1.6,1.1);c.fillRect(p.x+1,p.y,1.6,1.1);glow(c,p.x,p.y,6,'#d8e04a',.3);}
   // the girders the lamps hang from, the stopped clock, the lamps
   for(const L of STN_LAMPS){const a=q(L.x,GB-178,SD),b=q(L.x,GB-178,WD-6);c.strokeStyle='#0c0c10';c.lineWidth=6;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();
-    c.strokeStyle=rgba(C.gold,.4);c.lineWidth=.7;c.beginPath();c.moveTo(a.x,a.y+3);c.lineTo(b.x,b.y+3);c.stroke();c.fillStyle=rgba(C.gold,.5);for(let u=.1;u<1;u+=.2)c.fillRect(lerp(a.x,b.x,u)-.5,lerp(a.y,b.y,u)-.5,1,1);}
-  {const p=q(450,GB-150,262);c.strokeStyle='#0c0c10';c.lineWidth=1.4;c.beginPath();c.moveTo(p.x,y0);c.lineTo(p.x,p.y-12);c.stroke();
+    c.strokeStyle=rgba(C.gold,.4);c.lineWidth=1.01;c.beginPath();c.moveTo(a.x,a.y+3);c.lineTo(b.x,b.y+3);c.stroke();c.fillStyle=rgba(C.gold,.5);for(let u=.1;u<1;u+=.2)c.fillRect(lerp(a.x,b.x,u)-.5,lerp(a.y,b.y,u)-.5,1,1);}
+  {const p=q(450,GB-150,262);c.strokeStyle='#0c0c10';c.lineWidth=1.51;c.beginPath();c.moveTo(p.x,y0);c.lineTo(p.x,p.y-12);c.stroke();
     c.fillStyle='#0a0a0c';c.beginPath();c.arc(p.x,p.y,12.5,0,TAU);c.fill();c.fillStyle='#b8ae90';c.beginPath();c.arc(p.x,p.y,10.5,0,TAU);c.fill();c.fillStyle=rgba('#000000',.25);c.beginPath();c.arc(p.x+1,p.y+1,10.5,0,TAU);c.fill();
     c.strokeStyle=C.gold;c.lineWidth=1.2;c.beginPath();c.arc(p.x,p.y,11.6,0,TAU);c.stroke();c.fillStyle='#1a1410';for(let i=0;i<12;i++){const an=i/12*TAU;c.fillRect(p.x+Math.cos(an)*8.8-.5,p.y+Math.sin(an)*8.8-.5,1,1);}
-    c.strokeStyle='#14100c';c.lineCap='round';c.lineWidth=1.3;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x-4.6,p.y-3.4);c.moveTo(p.x,p.y);c.lineTo(p.x+1.4,p.y-7.6);c.stroke();c.lineCap='butt';}
-  for(const L of STN_LAMPS){const p=q(L.x,GB-L.h,L.d),top=q(L.x,GB-178,L.d);c.strokeStyle='#0c0c10';c.lineWidth=1;c.beginPath();c.moveTo(p.x,top.y);c.lineTo(p.x,p.y-10);c.stroke();
-    c.fillStyle=C.goldD;c.fillRect(p.x-5,p.y-11,10,2.2);c.fillRect(p.x-4,p.y+8,8,2);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=.7;c.beginPath();for(const kx of [-4.5,-1.5,1.5,4.5]){c.moveTo(p.x+kx,p.y-9);c.lineTo(p.x+kx*.8,p.y+8);}c.stroke();
+    c.strokeStyle='#14100c';c.lineCap='round';c.lineWidth=1.51;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x-4.6,p.y-3.4);c.moveTo(p.x,p.y);c.lineTo(p.x+1.4,p.y-7.6);c.stroke();c.lineCap='butt';}
+  for(const L of STN_LAMPS){const p=q(L.x,GB-L.h,L.d),top=q(L.x,GB-178,L.d);c.strokeStyle='#0c0c10';c.lineWidth=1.51;c.beginPath();c.moveTo(p.x,top.y);c.lineTo(p.x,p.y-10);c.stroke();
+    c.fillStyle=C.goldD;c.fillRect(p.x-5,p.y-11,10,2.2);c.fillRect(p.x-4,p.y+8,8,2);c.strokeStyle=rgba(C.gold,.8);c.lineWidth=1.01;c.beginPath();for(const kx of [-4.5,-1.5,1.5,4.5]){c.moveTo(p.x+kx,p.y-9);c.lineTo(p.x+kx*.8,p.y+8);}c.stroke();
     c.fillStyle=L.lit?C.cyanL:'#14262a';c.beginPath();c.moveTo(p.x,p.y-6);c.lineTo(p.x+3.4,p.y);c.lineTo(p.x,p.y+6);c.lineTo(p.x-3.4,p.y);c.closePath();c.fill();
     if(L.lit){glow(c,p.x,p.y+4,110,'#ffcf86',.24);glow(c,p.x,p.y,22,C.cyan,.5);}}
   c.restore();
@@ -191,7 +215,7 @@ function stnSprite(k){const sc=bucket(k);if(ST&&ST.sc===sc)return ST;
   flags(PE,WD);
   {const a=q(0,GB,PE),b=q(STN_L,GB,PE);c.fillStyle='#1c1812';c.fillRect(a.x,a.y,b.x-a.x,12);c.fillStyle=rgba('#d8cfb0',.25);c.fillRect(a.x,a.y,b.x-a.x,.9);
     const e=[q(STN_L,GB,PE),q(STN_L,GB,WD),q(STN_L,GB+BED,WD),q(STN_L,GB+BED,PE)];c.fillStyle='#120f0c';c.beginPath();e.forEach(p=>c.lineTo(p.x,p.y));c.closePath();c.fill();
-    c.strokeStyle=rgba('#d8cfb0',.2);c.lineWidth=.8;c.beginPath();c.moveTo(e[0].x,e[0].y);c.lineTo(e[1].x,e[1].y);c.stroke();}
+    c.strokeStyle=rgba('#d8cfb0',.2);c.lineWidth=1.01;c.beginPath();c.moveTo(e[0].x,e[0].y);c.lineTo(e[1].x,e[1].y);c.stroke();}
   // the side of the recess at its start, facing down the line
   {const P=[q(0,GB,WD),q(0,GB,SD),q(0,y0+SD*PSY,SD),q(0,y0+WD*PSY,WD)];c.fillStyle=patAt(c,EnvTex.brick(13,{base:'#2e1a14',alt:'#1e100c',hot:'#3a2018',mortar:'#0a0706'}),0,0,1/6);
     c.beginPath();P.forEach(p=>c.lineTo(p.x,p.y));c.closePath();c.fill();c.fillStyle=lin(c,0,y0,0,yO,[[0,rgba('#010101',.95)],[1,rgba('#060404',.55)]]);c.fill();
@@ -239,7 +263,7 @@ function paint(c){const X0=-160,X1=W+260,T0=-140;
   deck(c);
   // the car's lantern: its light on the deck rides with the car
   c.save();floorT(c,0);c.beginPath();c.rect(X0,DN,X1-X0,DF-DN);c.clip();c.globalCompositeOperation='lighter';
-  c.fillStyle=rad(c,LANTERN.x,DF-14,0,230,[[0,rgba('#ffc070',.14)],[.4,rgba('#ffc070',.05)],[1,rgba('#ffc070',0)]]);c.fillRect(LANTERN.x-230,DN,460,DF-DN);c.restore();}
+  for(const Ln of LANTERNS){c.fillStyle=rad(c,Ln.x,DF-14,0,230,[[0,rgba('#ffc070',.14)],[.4,rgba('#ffc070',.05)],[1,rgba('#ffc070',0)]]);c.fillRect(Ln.x-230,DN,460,DF-DN);}c.restore();}
 // where things stand along the line (world x, from where the line starts); on the screen at depth 0 a thing is at its x less S.scroll
 const lampAt=i=>i*LAMP+LAMP/2,lampOn=i=>hash(i)>.16,passAt=i=>i*PASS+900;
 function stnAt(xw,m){m=m||0;const i=Math.floor((xw-STN_AT+m)/STN);if(i<0)return null;const s=i*STN+STN_AT;return xw>=s-m&&xw<=s+STN_L+m?s:null;}
@@ -253,8 +277,11 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
   else{ctx.fillStyle='#0a0606';ctx.fillRect(vx0,sh-130,vx1-vx0,wb-sh+130);}
   // the vault over it, on up as far as the view goes
   {const V=vaultTile(k),vy0=Math.max(-400,-Tr.f/Tr.d-20);if(V)for(let j=0,yb=V.y0+V.h;yb>vy0&&j<6;j++,yb-=V.h){const y=yb-V.h,sx=j*V.h*VLEAN;let x=ox-sx-frac(s0/PER)*PER;while(x>vx0)x-=PER;
-      for(;x<vx1;x+=PER){if(blurA<1)ctx.drawImage(V.cv,x,y,PER+.6,V.h+.6);if(blurA>0){ctx.globalAlpha=blurA;ctx.drawImage(V.blur,x,y,PER+.6,V.h+.6);ctx.globalAlpha=1;}}
+      const T=j?V:V.l0;for(;x<vx1;x+=PER){if(blurA<1)ctx.drawImage(T.cv,x,y,PER+.6,V.h+.6);if(blurA>0){ctx.globalAlpha=blurA;ctx.drawImage(T.blur,x,y,PER+.6,V.h+.6);ctx.globalAlpha=1;}}
       if(j){ctx.fillStyle=rgba('#020203',Math.min(.3,.075*j));ctx.fillRect(vx0,y,vx1-vx0,V.h+.6);}}}
+  // a dead lamp's light taken out of the wall and the vault again (upLight, made into them)
+  {const i0=Math.floor((s0+vx0-ox-UP.r-90)/LAMP),i1=Math.ceil((s0+vx1-ox+UP.r)/LAMP);
+    for(let i=i0;i<=i1;i++){if(lampOn(i))continue;const xw=lampAt(i);if(stnAt(xw,40)!=null)continue;upLight(ctx,xw-s0+ox,sh+28,true);}}
   // the strip of track bed at the wall's foot beyond the car, streaming by
   // (in the light on the fight: the near black it was, as that light leaves it)
   ctx.fillStyle='#131c1a';ctx.fillRect(vx0,wb-1,vx1-vx0,df-wb+1);
@@ -278,6 +305,16 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
       ctx.globalCompositeOperation='lighter';ctx.imageSmoothingEnabled=false;ctx.drawImage(LS.cv,x-LS.R,y-4-LS.R,2*LS.R,2*LS.R);ctx.imageSmoothingEnabled=true;ctx.globalCompositeOperation='source-over';
       const L=Math.min(70,v*.06);if(L>4){ctx.fillStyle=lin(ctx,x,0,x+L,0,[[0,rgba(C.cyanL,.55)],[1,rgba(C.cyanL,0)]]);ctx.fillRect(x,y-1.6,L,3.2);}
       ctx.fillStyle=C.cyanL;ctx.beginPath();ctx.moveTo(x,y-6);ctx.lineTo(x+3.4,y);ctx.lineTo(x,y+6);ctx.lineTo(x-3.4,y);ctx.closePath();ctx.fill();}}
+  // the signals on their brackets at the spring of the vault: a red lamp, one in three green, going by in a streak at speed; and the
+  // car's own lantern lighting the wall it passes, a warm pool that rides with the car while the brick streams through it (since V90:
+  // between the lamps the wall and the vault over the fight were one dark smear)
+  {const i0=Math.floor((s0+vx0-ox-80)/SIG),i1=Math.ceil((s0+vx1-ox+80)/SIG),y=sh-14;
+    for(let i=i0;i<=i1;i++){const xw=i*SIG;if(stnAt(xw,60)!=null)continue;const x=xw-s0+ox;if(x<vx0-80||x>vx1+80)continue;const col=hash(i+.21)<.34?'#5aff9a':'#ff4a3a';
+      ctx.fillStyle='#08080b';ctx.fillRect(x-4.5,y-10,9,20);ctx.fillRect(x-1.2,y+10,2.4,12);ctx.fillRect(x-6,y-11,12,2.6);
+      ctx.globalCompositeOperation='lighter';glow(ctx,x,y-3,56,col,.12);glow(ctx,x,y-3,22,col,.42);const L=Math.min(60,v*.05);if(L>4){ctx.fillStyle=lin(ctx,x,0,x+L,0,[[0,rgba(col,.45)],[1,rgba(col,0)]]);ctx.fillRect(x,y-4.4,L,2.8);}
+      ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y-3,2.5,0,TAU);ctx.fill();ctx.globalCompositeOperation='source-over';}}
+  for(const Ln of LANTERNS){const p=q(Ln.x,GB,WD),cy=(sh+wb)/2,fl=.9+.1*Math.sin(t*9+Ln.x)*Math.sin(t*3.7);ctx.save();ctx.globalCompositeOperation='lighter';ctx.translate(p.x,cy);ctx.scale(1.6,1);
+    ctx.fillStyle=rad(ctx,0,0,0,150,[[0,rgba('#ffc070',.13*fl)],[.45,rgba('#ffb060',.05*fl)],[1,rgba('#ffb060',0)]]);ctx.fillRect(-150,-150,300,300);ctx.restore();}
   ctx.restore();
   // their light thrown across the deck, sliding past with them; the station's, broad and warm, as it goes by
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.imageSmoothingEnabled=false;
@@ -287,8 +324,8 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
     const s=stnAt(s0+(vx0+vx1)/2,STN_L);if(s!=null)for(const L of STN_LAMPS){if(L.lit)pool(s+L.x-s0,PLs.stn);}}
   ctx.restore();
   // the far rail, the car's lantern lit on it
-  {const R=railTile(k);ctx.drawImage(R.cv,R.x0,R.y0,R.w,R.h);const p=q(LANTERN.x,GB,LANTERN.d),fl=.85+.15*Math.sin(t*9)*Math.sin(t*3.7);
-    glow(ctx,p.x+5,p.y-36,56,'#ffc070',.42*fl);glow(ctx,p.x+5,p.y-36,10,'#fff0c8',.85*fl);}
+  {const R=railTile(k);ctx.drawImage(R.cv,R.x0,R.y0,R.w,R.h);for(const Ln of LANTERNS){const p=q(Ln.x,GB,Ln.d),fl=.85+.15*Math.sin(t*9+Ln.x)*Math.sin(t*3.7);
+    glow(ctx,p.x+5,p.y-36,56,'#ffc070',.42*fl);glow(ctx,p.x+5,p.y-36,10,'#fff0c8',.85*fl);}}
   // the engine's breath streaming back overhead, and the dust and grit of the tunnel going past at three depths
   {const B=smokeBand(),y=sh-104;let x=-frac((s0*.42+t*14)/B.SW)*B.SW-300;ctx.globalAlpha=.45;ctx.imageSmoothingEnabled=false;for(;x<vx1;x+=B.SW)if(x+B.SW>vx0)ctx.drawImage(B.cv,x,y,B.SW+.5,B.H2);ctx.imageSmoothingEnabled=true;ctx.globalAlpha=1;}
   {const r=rng(5),span=1500;for(const [f,n,y0,y1,a0,w0] of [[.7,24,sh,df,.07,.7],[1,20,sh+60,GB-20,.09,.9],[1.4,12,GB-120,GB+30,.12,1.3]]){
@@ -330,6 +367,6 @@ function light(f){const x=f.p[PEL].x,s0=S.scroll||0,sh=yS(),s=stnAt(x+s0,60);
 // the light on the fight (the style guide's rule 8, sk_scene_glue.js): the passing lamps' cyan on the flatcar and the tunnel's walls
 // round the fight, laid into the layer (the deck) and into the made pictures that go by (lit, above)
 const SET={col:'#bcf5ee',soft:1,gain:1.3,air:.04,y:[GB-360,GB-280,GB-60,GB+20],x:[-400,2400]};
-E.S.tunnel={set:SET,ground:.26,paint,live,light,warm,LAYOUT:{DN,DF,WD,BED,SPR,SILL,deckY:GB,railTop:GB-24,railDep:LANTERN.d,lantern:LANTERN,STN,STN_AT,STN_L}};
+E.S.tunnel={set:SET,ground:.26,paint,live,light,warm,LAYOUT:{DN,DF,WD,BED,SPR,SILL,deckY:GB,railTop:GB-24,railDep:LANTERN.d,lantern:LANTERN,STN,STN_AT,STN_L,SIG,lampAt,lampOn,stnAt}};
 })();
 // ===== ENV TUNNEL END =====
