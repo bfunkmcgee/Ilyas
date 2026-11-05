@@ -163,7 +163,9 @@ function stnTip(K,D){if(!K||K.dead)return'';const ob=DOWNF.rise==='off'?', off b
     // (of two answers as strong, the marked stance's)
     const mine=ans(s),m=stanceMatch(K,D),best=STANCE_ORDER.map(ans).filter(a=>a&&a.v>0).sort((a,b)=>b.v-a.v||(b.s===m)-(a.s===m))[0],
       say=a=>`${a.jam?(a.in?'strike in Close and it jams':'Close jams his swing'):a.in&&a.v>0?'strike in Close to get inside it':STN_SAY[a.s][kind]} (${STN_SIGNED(a.v)})`;
-    let t=`${D.name} is gearing up ${STN_KIND[kind]}${far?' from range':''}`+(mine?`: ${say(mine)}.`:'.');
+    // (a man who reads stances throws what yours gives way to: the line says he read it, since V89)
+    const read=!!mine&&mine.v<0&&stnReads(D)>=1;
+    let t=`${D.name} ${read?`reads ${STANCES[s].name} and `:''}is gearing up ${STN_KIND[kind]}${far?' from range':''}`+(mine?`: ${say(mine)}.`:'.');
     if(best&&(!mine||best.s!==mine.s)){const b=say(best);t+=` ${b[0].toUpperCase()+b.slice(1)}.`;}
     if(mine||best)return t;}}
   // (kept to two lines on a phone: what a whip's Parry and Counter lose is in the answer window and the setup)

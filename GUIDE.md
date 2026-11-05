@@ -307,10 +307,24 @@ the toll) still wrap them.
   reach jammed on its haft, -1 to everyone else while tied up inside one man). He changes it free on his own turn before he acts
   (`setStance`; the stance bar over the dock, keys Z, X and C). `STN_ANS` is what each stance does to a man's blow (Bound beats a
   thrust aside +3 and takes a cut on the blade +2, Close gets inside an overhead +3 or a cut +2 from a man in reach, Unbound catches
-  the raised arm of a man coming in with an overhead +3), and an answered blow that misses costs the man a pip more (`STN_MISS`);
+  the raised arm of a man coming in with an overhead +3; and what each gives way to: an overhead beats Bound -2, a point catches
+  Close -2 and comes inside Unbound's chain -2, a sweep takes Close planted -1; Bound's and Close's were -1 until V89), and an
+  answered blow that misses costs the man a pip more (`STN_MISS`);
   `stnRange` is the range of Ilyas's own blows in each. The bar marks the stance that answers his target best (`stanceMatch`, scored
   by `stanceFactors`: the man's weapon and its habits `STN_HABIT`, the range, the blow each man shows, the crowd) with its reason,
-  and Ilyas on auto takes it (`STANCE.policy`); a blow a man shows is the blow he throws (the ensureIntents wrapper). Unbound's chain
+  and Ilyas on auto takes it (`STANCE.policy`); a blow a man shows is the blow he throws (the ensureIntents wrapper).
+- A man who reads the stance (since V89, asked for: there was rarely a reason to change stance; Bound answers the thrust and the cut,
+  the blows men throw most, and holding it won as often as changing): a foe of Veteran rank or better plans his blow against the
+  stance Ilyas holds (`STN_READ`, `stnReads`: by skill, Trained half, Novice none; `stnReadWeights` in the moveWeights wrapper): a
+  blow it answers by a weighs 1/(1 + shy x a x read), one it gives way to by a gains give x a x read. So a Veteran in reach shows
+  Bound an overhead about half the time and Close a thrust, and the stance taken on Ilyas's turn answers the blow shown; the next
+  one reads that stance. The bar scores his habits as he would throw them (`stnHabitRead`), and the tip line says "Qadir reads Bound
+  and is gearing up an overhead". STN_READ.on false is the old play.
+- His grip (sk_arc.js, since V89, asked for: the arc-blade was knocked out of his hand too often, in about one lab fight in six,
+  nearly all of it a bind after a man parried him, which won three times in four): a disarm takes the arc-blade only on a crushing
+  roll, ten over the mark or a natural 20 (`ARC_GRIP`, `arcGrip`, the tryDisarm wrapper); a lesser win leaves it in his hand (`r.held`:
+  a bind pins it, three pips and +20 tempo; a guard is still broken) and the log says what would have taken it (`gripNote`, sk_ui.js).
+  Broken (ten easier) is where he still loses it. Unbound's chain
   is the page's own (`K._whip`: stepped after each simStep by `whipTick`, drawn over the arc-blade's hilt by `whipPaint`; the rules
   read nothing from it): it trails the hand, is thrown with each lash window (`whipWin`: a combo's leads to the parry, the blow onto
   the blade's tip, the catch round a man's arm), hangs at rest and locks into the blade for a relocked blow or a blow taken on it.
@@ -328,7 +342,10 @@ the toll) still wrap them.
 Suites: `stances` (sk_stances_page.js: the lab's fight with the bar, the whip, the answers and their dice, each spell's button and
 what it does, a fall and a blow on the floor, the rules off) and `stnmotion` (sk_stnmotion_page.js: the variants, combos and
 answers, no game dice). `node tools/cmp/stances_probe.js [fights] [key=value ...]` plays the lab's auto fights with each rule on or
-off and counts what they do (its usage lines list the options). The logic suites that look at a man after a move read him where the
+off and counts what they do (its usage lines list the options; since V89 also how often the bar marks another stance at his turn,
+his changes, the blows thrown at each stance and the disarms tried on him and won). At V89, 54 fights each (3 a setup): matching
+the bar won 91% with 70% of his health left, Bound held throughout 83% and 56%, Close 83% and 53%, Unbound 80% and 61%; before,
+Bound held had won 89% to the bar's 83%. He lost the blade in one fight in fifty, from about one in six. The logic suites that look at a man after a move read him where the
 move's exchange ends (`wasDown`): their runs play on into his free rise.
 
 **The room (sk_room.js, since V42).** Events: in V11.step, any body knocked flying (`roomFlying`: dead or motor < .62, not the man
@@ -666,6 +683,11 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   frame in eight on its stub canvas. `SK_DRAW_EVERY=1 node sk_cast_page.js` runs a suite drawing every frame.
 - Read pictures at a pose you set (`put()` the fighters, step, then read), not wherever a seeded fight happens to leave them: a
   change to the dice moves every fight.
+- Time an event by what the game records for it, not by the frame a check first sees it in: `S.t` at a frame's end is a sim step
+  or two past an event that fell mid-frame, and where in its frame an event falls moves with everything run before it (V89's fights
+  moved the fall's first blow off a frame's last step, and the wake check, which compared the two, failed; it now reads the blow's
+  own time from pitImpact). And force every answer a forced outcome depends on: `FORCE=['block']` can come as a counter, whose
+  opening has no bind (`REACTS=['parry']` too).
 - Timing belongs in sk_perf_page.js only (it draws every frame and runs alone at the end of a full run).
 - A new suite: add it to SUITES in test.py (command, kind, what it covers), to ORDER (longest first), and to COVERS for the source
   files it covers. A suite fails on a nonzero exit, a line starting `FAIL`, or a closing `errors N` / `problems [...]` that is not empty.
@@ -760,7 +782,7 @@ as the work lands); (3) the look held in one place in the code, in the style gui
 light, the rim from the key, cheaper crowds, the shared finish, the words, the colour script), working down the list; (4) a
 reviewer, checks and a lookbook. Phase 3 began with V74 (Nov 2): the push-in (P1 to P4) and the ground in front of every fight
 (the action's part of P5 to P29); V75 (Nov 3, asked for) drew Lamplight Street to the size of the people on it and moved the
-Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below); V82 (Nov 4) drew the places' faults (D1 to D25: the sundown's cirrus and dust, the avenue's speed, the checkpoint's firelight, a blow's flash, the station's crystals, clean trails, the roof's cloud, the hay's straw, the back room's lamp, the Pit's wall, floors and skies, `pitKit.mottle`, below); V83 (Nov 4) set the fine marks (T1 to T6: the places' thin lines brought to the drawing guide's widths from where they land, `uiwork/look/lines.js`; the world's signs in Alegreya SC, 12 units where they are read, the checkpoint's message board in hand-drawn lamps, below) and, asked for, brought the bistro's dining room to life behind its windows in the Qadir fight and made the ride out of the field fast. The remediation list is done; V84 (Nov 4, asked for) gave the fighters the same line pass (Ilyas, the weapons, the guns, the beasts and the figure kit's folds, below); V85 (Nov 4, asked for) drew the bistro's diners as the game's people, made the avenue three blocks in a seeded order, dashed him to the bike and to the grenade, walled the checkpoint's carrier and shouldered his rifle (above); V86 (Nov 4, asked for) nested the rifle's butt into the pocket of his shoulder and V87 (asked for) lifted his head back up behind the sight (above); V88 (Nov 4, asked for) began phase 4 with the reviewer (`python3 test.py look`, below) and put right what its first run failed, and the lookbook (Nov 4, asked for: the Noir Gilt Lookbook, https://claude.ai/artifact/UGQyH4NAZm5wik41FkMVqs) finished it: every place beside the frame of its kind, with the review's numbers and a verdict by eye, 15 hold, 13 mixed and none falls off of 28 views (9, 12 and 6 of 27 at the audit).
+Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5 to P29): the scenes framed closer on an upright phone where a place stops at its ceiling (`camCutFit`), the Sump's ceilings drawn, the lobby's and the office's coffers going on up (`upTile`), the lobby's marble and the chase's pavement run on toward us (`below`, the front band), the tunnel's vault, the night skies lifted to a deep blue at their tops (`sceneNightLift`); V77 (Nov 3) made light one soft piece (L1 to L20: `EnvLook.softCone` and `softSpill`, below); V78 (Nov 3) gave the figures' rim each place's key light and lit the ground behind every fight (M1 to M22: `FigKit.useKey`, each place's `set`, below); V79 (Nov 3) made the crowded fights cheaper and gave every place the finish (C1 to C5, F1, F2: `EnvLook.finish`, below); V80 (Nov 3) set the fight's words in one style, two at most (W1 to W15: `fightWords`, `logNote`, below); V81 (Nov 4) wrote the colour script (K1 to K9: the office and the lobby lit gold, the Pit's hay and lamplight kept off it, the roof's gold draining with the round, the Pit's sun, ivory cloths in the dining room; `pitKit.sun`, `sunlight`, the roof's `GILT`, below); V82 (Nov 4) drew the places' faults (D1 to D25: the sundown's cirrus and dust, the avenue's speed, the checkpoint's firelight, a blow's flash, the station's crystals, clean trails, the roof's cloud, the hay's straw, the back room's lamp, the Pit's wall, floors and skies, `pitKit.mottle`, below); V83 (Nov 4) set the fine marks (T1 to T6: the places' thin lines brought to the drawing guide's widths from where they land, `uiwork/look/lines.js`; the world's signs in Alegreya SC, 12 units where they are read, the checkpoint's message board in hand-drawn lamps, below) and, asked for, brought the bistro's dining room to life behind its windows in the Qadir fight and made the ride out of the field fast. The remediation list is done; V84 (Nov 4, asked for) gave the fighters the same line pass (Ilyas, the weapons, the guns, the beasts and the figure kit's folds, below); V85 (Nov 4, asked for) drew the bistro's diners as the game's people, made the avenue three blocks in a seeded order, dashed him to the bike and to the grenade, walled the checkpoint's carrier and shouldered his rifle (above); V86 (Nov 4, asked for) nested the rifle's butt into the pocket of his shoulder and V87 (asked for) lifted his head back up behind the sight (above); V88 (Nov 4, asked for) began phase 4 with the reviewer (`python3 test.py look`, below) and put right what its first run failed, and the lookbook (Nov 4, asked for: the Noir Gilt Lookbook, https://claude.ai/artifact/UGQyH4NAZm5wik41FkMVqs) finished it: every place beside the frame of its kind, with the review's numbers and a verdict by eye, 15 hold, 13 mixed and none falls off of 28 views (9, 12 and 6 of 27 at the audit). V89 (Nov 4, asked for: the arc-blade knocked out of his hand too much, and rarely a reason to change stance) gave him his grip (a disarm takes the arc-blade only on a crushing roll) and men who read his stance (a Veteran throws what it gives way to; Bound's overhead and Close's point -2): matching the bar now wins the lab's auto fights 91% to Bound's 83%, and he loses the blade in one fight in fifty.
 
 **The look's rules (the style guide, approved Nov 2).** Visual work follows them; the guide has the reasons and the numbers' sources.
 1. An upright phone: push in. On the player's turn the moves cover the band under the floor; when they drop for the action the
@@ -824,7 +846,14 @@ drawing guide's width (the avenue's new fronts, the diners' glasses), and the bi
 detail (`o.lod`: their sprite shows at under a pixel a unit of the figure, so a face's fine lines landed under half a unit of the
 world). Kept: the three title cards' black, the dream's open sky and the sundown's late one, the repeats of the gilt, the
 underground, the dining room's ceiling beams, the tower's windows and Lamplight Street's arches and lamps, and the 251 thin lines
-judged in V83 and V84.
+judged in V83 and V84. A change to the fights moves what the frames hold: V89's (men who read his stance) brought the chase's f8
+and the kitchen's f5 to the push-in at its closest on a clash, and Ilyas into Unbound, none of it shot before. Nothing was drawn
+differently, so they are kept, and the open ones say so ("open (V89)", with what is to do): the two frames' cost (119 and 116% of
+the fall's dearest; the avenue's bands are 22 ms of the chase's 45 there, the light's sprites 16 of the kitchen's), the avenue's
+29 lines at .7 of their width pushed in, and with their tiers the whip's 5 lines and the blade's 3 (the figure tier) and one
+reflection's width (the caller's). A kept cost holds up to its max, as a flat patch does (since V89): those two to 130%, and the
+deep station's f4 to 115%, at the line since V88 and 108% in one of V89's runs, when the fall's own dearest frame came in at 38.5 ms
+against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames).
 
 ## Publishing
 Run `python3 test.py full` first, then `python3 test.py look` (alone, about 20 minutes: it times the drawing), and `python3 test.py
@@ -834,14 +863,14 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V89 ..." (V88 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V90 ..." (V89 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V89: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V90: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 

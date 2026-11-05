@@ -176,8 +176,11 @@ def judge(out, P, kept, kept_lines, desk=True):
         for n, c in cost.get('frames', {}).items():
             if n in frames:
                 frames[n]['phone']['cost'] = c
-            if c['of'] is not None and c['of'] > COST_OVER and R.keep('cost', n + '@' + ph, n, frames.get(n, {}).get('id')) is None:
-                R.fail(n, ph, 'cost', '%.1f ms a frame against the fall\'s dearest %.1f, timed by turns (%.0f%%)' % (c['ms'], cost['fall']['ms'], c['of'] * 100))
+            # (a kept cost holds up to its max, as a flat patch does; since V89)
+            k = R.keep('cost', n + '@' + ph, n, frames.get(n, {}).get('id')) if c['of'] is not None and c['of'] > COST_OVER else None
+            if c['of'] is not None and c['of'] > COST_OVER and (k is None or (isinstance(k, dict) and c['of'] > k.get('max', 0))):
+                R.fail(n, ph, 'cost', '%.1f ms a frame against the fall\'s dearest %.1f, timed by turns (%.0f%%%s)' % (c['ms'], cost['fall']['ms'], c['of'] * 100,
+                       ', kept to %.0f%%' % (k['max'] * 100) if isinstance(k, dict) else ''))
         for e in cost.get('errors') or []:
             R.fail('costs', ph, 'errors', e[:160])
     # the line widths (drawing rule 2)

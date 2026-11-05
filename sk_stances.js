@@ -131,17 +131,18 @@ function isWhip(T){return!!T&&!!T.whip&&T.stance==='unbound';}
   f.sticks[10][2]=len;f.lashLen=len;};}
 // ---------- what he is gearing up, and how far off he is ----------
 // Against the blow a man throws at him (the one he showed), as it lands, by the stance Ilyas holds:
-//   Bound    beats a thrust aside (+3 DEF) and takes a cut on the locked blade (+2), but an overhead beats a single blade (-1)
+//   Bound    beats a thrust aside (+3 DEF) and takes a cut on the locked blade (+2), but an overhead beats a single blade (-2)
 //   Close    gets inside an overhead (+3) or a cut (+2) from a man already in reach with more than a dagger (an axe's swings are
-//            jammed instead, above), but walks onto a point (-1) and stands planted for a sweep (-1)
+//            jammed instead, above), but walks onto a point (-2) and stands planted for a sweep (-1)
 //   Unbound  catches the raised arm of a man who has to come to him for an overhead (+3), but a thrust comes inside the chain (-2)
-// An answered blow that misses him costs the man a pip of balance more, and the answer is named over him.
+// An answered blow that misses him costs the man a pip of balance more, and the answer is named over him. (Bound's overhead and
+// Close's point were -1 until V89: a man who reads the stance throws them, below, and they cost what the answers pay.)
 // A blow with the butt, the haft or a choked grip, a kick or a dirty move is none of these. "Has to come to him": he was past his own
 // striking distance when he took his turn (a run-in that a stop-hit held up keeps it). And Ilyas's own blows have a range in each
 // stance, his gap past his own striking distance: Bound at blade's length is +1 to hit and -1 once the man is inside it, Close inside
 // his reach is +1, and Unbound's is the tip's crack.
-const STN_ANS={bound:{thrust:['beats the point aside',3],slash:['on the locked blade',2],overhead:['an overhead beats a single blade',-1]},
-  close:{overhead:['inside his swing',3,'in'],slash:['inside his cut',2,'in'],thrust:['onto his point',-1],sweep:['planted inside',-1]},
+const STN_ANS={bound:{thrust:['beats the point aside',3],slash:['on the locked blade',2],overhead:['an overhead beats a single blade',-2]},
+  close:{overhead:['inside his swing',3,'in'],slash:['inside his cut',2,'in'],thrust:['onto his point',-2],sweep:['planted inside',-1]},
   unbound:{overhead:['the chain catches his arm',3,'far'],thrust:['inside the chain',-2]}};
 // what is said over him when an answered blow misses
 const STN_POP={bound:{thrust:'Beaten aside',slash:'On the blade'},close:{overhead:'Inside the swing',slash:'Inside the cut'},unbound:{overhead:'Arm caught'}};
@@ -286,12 +287,31 @@ const STN_W={jam:2,crowdAfter:false};
 function stnVs(K,D,E,s,kind){const after=s==='close'&&E===D&&stnStrikes(K,D)&&(STN_W.crowdAfter||!stanceNear(K,D));
   if(s==='close'&&stanceHeavy(E)&&(kind==='slash'||kind==='overhead')&&(after||stanceAs(K,s,()=>stnJams(E,K,kind))))return{v:STN_W.jam,jam:true,after};
   const T=stanceAs(K,s,()=>pickTechnique(E,K,kind)),a=stnAnswer(s,kind,T,E,after?false:comesFar(E,K));return a?{v:a[1],jam:false,after}:null;}
-function stanceHabit(K,D,s){const H=STN_HABIT[D.weaponKey]||STN_HABIT.other;let v=0,top=null;
+function stanceHabit(K,D,s){const H=stnHabitRead(K,D,s,STN_HABIT[D.weaponKey]||STN_HABIT.other);let v=0,top=null;
   for(const kind in H){const r=stnVs(K,D,D,s,kind),a=r?r.v:0;
     const c=H[kind]*a;v+=c;if(c&&(!top||Math.abs(c)>Math.abs(top.c)))top={c,kind};}
   v=Math.round(v*STN_HABIT_W*10)/10;return top&&Math.abs(v)>=.3?{v,short:STN_HABIT_SHORT[s][top.kind]||''}:null;}
 function stanceAs(K,s,fn){const was=K.stance;K.stance=s;try{return fn();}finally{K.stance=was;}}
 function stanceNear(K,D){return foes().filter(o=>o!==D&&upright(o)&&!o.walkIn&&Math.abs(o.station-K.station)-engageGap(K,o)<90).length;}
+// ---------- a man who reads his stance ----------
+// (since V89, asked for: there was rarely a reason to change stance. Bound answers the thrust and the cut, the blows men throw most,
+// so holding it won as often as changing.) A man of Veteran rank or better reads the stance Ilyas holds as he plans his blow, and
+// throws what it gives way to: an overhead at Bound, a thrust at Close or Unbound and a sweep at Close; what it answers he throws
+// less. A Trained man reads it half as well, a Novice not at all (STN_READ.rank, by skill). He reads the stance Ilyas holds when he
+// plans, and the blow he shows is the blow he throws, so the stance taken on Ilyas's turn answers it; the next blow he plans reads
+// that one. For each blow he could throw, what the stance does to it as it would come (stnVs): an answer worth a takes the blow's
+// weight down to 1/(1 + shy x a x read), a blow it gives way to by a gains give x a x read. The stance bar weighs his habits so too.
+const STN_READ={on:true,rank:[0,0,.5,1,1.25,1.5],give:1.2,shy:.35};
+function stnReads(A){return STN_READ.on&&!!A&&A.team===1&&!A.npc?STN_READ.rank[clamp(A.skill|0,0,5)]||0:0;}
+function stnReadWeights(K,D,A,s,w,ok){const q=stnReads(A);if(!q||!s)return w;
+  for(const kind of ATTACKS){if(!(kind in w)||(ok&&!ok(kind)))continue;const r=stnVs(K,D,A,s,kind),a=r?r.v:0;
+    if(a>0)w[kind]/=1+STN_READ.shy*a*q;else if(a<0)w[kind]+=STN_READ.give*-a*q;}
+  return w;}
+{const mw=moveWeights;moveWeights=function(A,D,w,sT,ok){mw.apply(this,arguments);const K=hero();
+  if(!K||D!==K||!stanceOn(K)||K.downed||A.clinch||K.clinch||heldBy(K))return;stnReadWeights(K,targetOf(K)||A,A,stanceOf(K),w,ok);};}
+// his habits as a man who reads stance s throws them (shares again)
+function stnHabitRead(K,D,s,H){if(!stnReads(D))return H;const w={};for(const k in H)w[k]=H[k]*10;stnReadWeights(K,D,D,s,w);
+  const t=Object.values(w).reduce((a,b)=>a+b,0)||1;return Object.fromEntries(Object.entries(w).map(([k,v])=>[k,v/t]));}
 // the reasons for (v>0) and against (v<0) a stance against him now, each with the bar's words and what it is about (k: 3 a blow he
 // shows, 2 the range, 1 his weapon, 0 the crowd; of two reasons as strong, the bar names the one about what he is doing)
 function stanceFactors(K,D,s){const F=[];if(!K||!D||D.dead||D.downed)return F;const add=(v,short,k)=>{if(v)F.push({v,short,k});},w=stanceWord(D),g=lashGap(K,D);

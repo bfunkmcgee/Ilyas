@@ -391,9 +391,10 @@ def build(review_dir, out):
             if name.startswith('_'):
                 continue
             why = v['why'] if isinstance(v, dict) else v
-            title = byid[name]['title'] if name in byid else (byid[name.split('_')[0]]['title'] + ', ' + when(name.split('_')[-1]) if name.split('_')[0] in byid else name)
-            w('<li><b>%s</b> (%s): %s</li>' % (esc(title), esc({'black': 'flat black', 'flat': 'a flat patch', 'repeat': 'repeats'}.get(rule, rule)), esc(why)))
-    w('<li><b>%d thin lines</b>: the figure tier\'s, held to the fighters\' drawing budgets, and the places\' fine texture, hairlines and callers\' widths, as judged in V83 and V84.</li>' % L['kept'])
+            nm = name.split('@')[0]   # (a frame kept at one size: name@412x714)
+            title = byid[nm]['title'] if nm in byid else (byid[nm.split('_')[0]]['title'] + ', ' + when(nm.split('_')[-1]) if nm.split('_')[0] in byid else nm)
+            w('<li><b>%s</b> (%s): %s</li>' % (esc(title), esc({'black': 'flat black', 'flat': 'a flat patch', 'repeat': 'repeats', 'cost': 'its cost'}.get(rule, rule)), esc(why)))
+    w('<li><b>%d thin lines</b>: the figure tier\'s, held to the fighters\' drawing budgets, and the places\' fine texture, hairlines and callers\' widths, as judged in V83, V84 and V89.</li>' % L['kept'])
     w('</ul></section>')
     # how it was made
     w('<section id="how"><h2>How it was made</h2><div class="legend">'

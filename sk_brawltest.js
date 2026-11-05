@@ -147,6 +147,16 @@ for(const r of ['ok','fail']){
  act(0,'slash','bind');run();settle(120);check('bind disarm',st()+' opened '+opened.splice(0).join(',')+' items '+S.items.length);
  if(!S.F[0].wp.unarmed)errs.push('bind: Kael not disarmed');
  const L=pickupInfo(S.F[0]);act(0,'pickup','K retrieve');run();check('K retrieve',(L?lootLabel(S.F[0],L):'-')+' '+st());}
+// his grip on the arc-blade (sk_arc.js, since V89): a bind or a broken guard that wins without crushing leaves it in his hand, a
+// crushing one takes it, and with the grip off any win does (the man parries his blow, so the opening is one a bind is in)
+for(const [r,grip] of [['ok',true],['crush',true],['ok',false]]){ARC_GRIP.on=grip;
+  setup('field',['elven',4],[['sword',2]],[[330,92],[430,92,1]]);REACTS=['parry'];FORCE=['block'];READS=[true];ROLLS=[r];PICKS=['bind'];
+  act(0,'slash','grip bind '+r);run();settle(120);const lost=S.F[0].weaponKey!=='elven',tag='grip bind '+r+(grip?'':' (grip off)');
+  check(tag,st()+' opened '+opened.splice(0).join(','));if(lost!==(r==='crush'||!grip))errs.push(tag+': '+(lost?'lost':'kept')+' the arc-blade');}
+ARC_GRIP.on=true;
+for(const r of ['ok','crush']){setup('field',['elven',4],[['axe',3]],[[330,92],[430,92,1]]);REACTS=['parry'];FORCE=['block'];ROLLS=[r];
+  act(1,'overhead','grip break '+r);run();settle(120);const lost=S.F[0].weaponKey!=='elven';
+  check('grip break '+r,st());if(lost!==(r==='crush'))errs.push('grip break '+r+': '+(lost?'lost':'kept')+' the arc-blade');}
 // enemy weapon: Kael unarmed with only Qadir's dropped axe nearby
 {setup('field',['sword',3],[['axe',2],['spear',2]],[[330,92],[440,92,1],[200,96,-1]]);dropWeapon(S.F[1],-1,false);S.F[0].setWeapon('fists');S.F[0].ownWeapon=null;
  const L=pickupInfo(S.F[0]);act(0,'pickup','take axe');run();check('take enemy axe',(L?lootLabel(S.F[0],L):'-')+' '+st());if(S.F[0].weaponKey!=='axe')errs.push('take axe failed');}

@@ -171,6 +171,22 @@ const SIZES={port:{w:390,h:844,dpr:2,mob:true},land:{w:844,h:390,dpr:2,mob:true}
   expect('sword against sword: his thrust marks Bound, his cut inside marks Close, his overhead from range marks Unbound',
     !r.none&&r.wp==='sword'&&r.thrust.fit==='bound'&&/beats his thrust/.test(r.thrust.why)&&r.cut.fit==='close'&&/inside his cut/.test(r.cut.why)&&
     r.over.fit==='unbound'&&/catches his arm/.test(r.over.why),JSON.stringify(r));
+  // 4g2. a man who reads the stance (since V89): a Veteran swordsman in reach plans the overhead Bound gives way to more often against
+  // Bound than against Close, and the thrust Close walks onto more often against Close; a Novice plans the same against both; and with
+  // his overhead shown at Bound the tip line says he read it and names the stance that answers it
+  r=await p.evaluate(()=>{mix('swords');S.cfg.n=1;S.cfg.crew=false;S.F=[];restart();untilMine(6000);const K=hero(),D=targetOf(K);if(!mine()||!D)return{none:true};
+    const fa=Math.sign(D.station-K.station)||1;K.station=clampSt(K,D.station-fa*(engageGap(K,D)+10));K.build();fast(3);
+    const plan=(st,skill)=>{const sk0=D.skill,s0=K.stance,rng=S.rng,n={slash:0,overhead:0,thrust:0,sweep:0,other:0};let a=7;D.skill=skill;K.stance=st;
+      S.rng=()=>{a=(a*1103515245+12345)&0x7fffffff;return a/0x7fffffff;};
+      try{for(let i=0;i<400;i++){const c=aiChoice(D.idx);n[c in n?c:'other']++;}}finally{D.skill=sk0;K.stance=s0;S.rng=rng;}return n;};
+    const vb=plan('bound',3),vc=plan('close',3),nb=plan('bound',1),nc=plan('close',1);
+    stb('bound').click();fast(2);D.intent={cmd:'overhead',tgt:K.idx,gap:Math.abs(D.station-K.station),dz:D.lane-K.lane,pinned:pinned(D),band:D.posture,tband:K.posture,tguard:false,tctr:false,changed:false,paid:0};
+    updateStatus();stnUiNow();fast(3);const tip=(document.querySelector('.fl-tip')||{}).textContent||'',b=document.querySelector('#stnBar .stn-b.fit');
+    const out={wp:D.weaponKey,skill:D.skill,vb,vc,nb,nc,tip,fit:b?b.dataset.s:null};mix('mixed');S.cfg.n=2;S.F=[];restart();untilMine(6000);return out;});
+  expect('a Veteran reads the stance: more overheads against Bound than Close, more thrusts against Close than Bound; a Novice the same against both',
+    !r.none&&r.vb.overhead>=r.vc.overhead*1.5+5&&r.vc.thrust>=r.vb.thrust*1.5+5&&JSON.stringify(r.nb)===JSON.stringify(r.nc),JSON.stringify(r));
+  expect('his overhead shown at Bound: the tip line says he read it, and the bar marks the stance that answers it',
+    !r.none&&/reads Bound and is gearing up an overhead/.test(r.tip)&&/beats a locked blade \(−2\)/.test(r.tip)&&(r.fit==='close'||r.fit==='unbound'),JSON.stringify({tip:r.tip,fit:r.fit}));
   // 4h. the new spells: six buttons in the Aether row (the older three alone with the new ones off), each reading the moment
   r=await p.evaluate(()=>{const fresh=(m,n)=>{mix(m);S.cfg.n=n;S.cfg.crew=false;S.F=[];restart();untilMine(6000);};
     const place=g=>{const K=hero(),D=targetOf(K),fa=Math.sign(D.station-K.station)||1;K.station=clampSt(K,D.station-fa*(engageGap(K,D)+g));K.lane=D.lane;K.build();fast(4);};

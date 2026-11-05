@@ -23,6 +23,20 @@ function lashStep(f){const L=f.lash;if(!L)return;const base=f.wp.len;
   else if(u>=L.c&&u<L.d)len=lerp(L.L,base,sstep((u-L.c)/Math.max(.01,L.d-L.c)));
   f.sticks[10][2]=len;f.lashLen=len;}
 
+// ---------- his grip ----------
+// (since V89, asked for: the arc-blade was knocked out of his hand too often, in about one fight in six of the lab's on auto,
+// nearly all of it a bind after a man parried his blow, which won three times in four, or a broken guard under an overhead.) A
+// disarm takes the arc-blade from Ilyas only on a crushing roll: ten over its mark, or a natural 20. A lesser win wrenches it
+// round in his hand and he keeps it: a bind still pins it (three pips and +20 tempo), a broken guard is still broken. Broken,
+// he is ten easier to disarm, so that is where it still happens. ARC_GRIP.on false is the old rule.
+const ARC_GRIP={on:true};
+function arcGrip(D){return ARC_GRIP.on&&!!D&&D===hero()&&D.weaponKey==='elven'&&!D.wp.improv;}
+{const td=tryDisarm;tryDisarm=function(A,D,src,fa){if(!arcGrip(D)||D.dead)return td.apply(this,arguments);
+  const r=rollVs(disarmMods(A,D,src),{kind:'disarm',src});
+  if(r.ok&&!r.crush){r.ok=false;r.held=true;}
+  if(r.ok){const it=dropWeapon(D,fa,true);sparks(D.p[HAF],12,'#fff3cf',D.dep);popup(D,'Disarmed','#ffc163','torn from his grip',22,-30);S.hooks.sound('clang',1);r.item=it;}
+  return r;};}
+
 // ---------- readying weapons before a fight ----------
 // Swords and daggers start in their scabbards with a hand on the hilt; a spear stands upright at its owner's side; a greataxe
 // rests on the shoulder; the arc-blade is rolled up inside its hilt. Everyone gets their weapon out, then the first turn begins.

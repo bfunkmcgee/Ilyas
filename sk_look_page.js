@@ -263,10 +263,14 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   const FALL_EYE_T=await ev(()=>FALL_EYE);
   const fallEnd=await ev(()=>{const seen=[],Dk=[],F=EnvLook.S.fall,dr={min:1e9,open:null,impAt:null,wokeAt:null,after:0,drawn:0,drawnAfter:0},cam0={post:F.pfx.n,drawn:F.span.n,bloom:0,sandMax:0,drained:false,sandAfter:0};storyGo('fall');S.storyAuto=true;S.auto=true;step(2);
     let n=0,last=null,n0=F.dream.n,nWoke=null;
-    while(S.story&&!S.story.ended&&n<9000){step(1);n++;const th=S.thought,P=S.pit;if(th&&th.text!==last){last=th.text;seen.push(th.text);Dk.push(+fallDream().toFixed(2));}
+    // (the first blow's own time, as pitImpact sets it: the time at the end of the frame it lands in is a sim step or two later
+    // when it lands mid-frame, which V89's fights before this one made it do; since V89)
+    const pi=pitImpact;pitImpact=function(){const P=S.pit,was=P&&P.impT;const out=pi.apply(this,arguments);if(dr.impAt==null&&P&&P.impT!==was&&P.impT>0)dr.impAt=P.impT;return out;};
+    try{while(S.story&&!S.story.ended&&n<9000){step(1);n++;const th=S.thought,P=S.pit;if(th&&th.text!==last){last=th.text;seen.push(th.text);Dk.push(+fallDream().toFixed(2));}
       cam0.bloom=Math.max(cam0.bloom,F.pfx.bloom);if(P&&P.woke==null){if(F.sand.max<cam0.sandMax-1e-6)cam0.drained=true;cam0.sandMax=F.sand.max;}else cam0.sandAfter=F.sand.max;
       if(P&&!P.on&&seen.length>2)dr.min=Math.min(dr.min,Math.round(S.scrollYV));if(P&&P.on&&dr.open==null)dr.open=Math.round(P.cv);
-      if(P&&P.impT>0&&dr.impAt==null)dr.impAt=S.t;if(P&&P.woke!=null){if(dr.wokeAt==null){dr.wokeAt=P.woke;nWoke=F.dream.n;}dr.after=Math.max(dr.after,fallDream());}}
+      if(P&&P.woke!=null){if(dr.wokeAt==null){dr.wokeAt=P.woke;nWoke=F.dream.n;}dr.after=Math.max(dr.after,fallDream());}}}
+    finally{pitImpact=pi;}
     dr.drawn=F.dream.n-n0;dr.drawnAfter=nWoke==null?null:F.dream.n-nWoke;dr.same=dr.impAt!=null&&dr.wokeAt===dr.impAt;dr.Dk=Dk;
     dr.cam={frames:F.span.n-cam0.drawn,post:F.pfx.n-cam0.post,bloom:+cam0.bloom.toFixed(2),sandMax:+cam0.sandMax.toFixed(2),drained:cam0.drained,sandAfter:cam0.sandAfter};
     const K=hero(),P=S.pit,h=K.p[HEAD],c=K.p[CHE],ux=h.x-c.x,Q=P&&P.arm?P.arm.pts.map(q=>pitToW(q.x,q.y)):null;

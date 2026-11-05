@@ -1089,11 +1089,13 @@ S.hooks.feint=(ex,r)=>{if(!ex||!ex.li)return;const o=ex.li.querySelector('.out')
 S.hooks.perf2=ex=>{if(!ex.li)return;const o=ex.li.querySelector('.lg-sec .out');if(o)o.classList.remove('pending');};
 S.hooks.domino=(ex,D2,i)=>{if(!ex.li)return;const d=document.createElement('div');d.className='lg-perf';
   d.textContent=`drove ${ex.D.name} into ${D2.name}: ${D2.name} ${i.crush?'knocked down':'loses three pips of balance'}, pushed ${i.pushed}u, +15 tempo`;ex.li.appendChild(d);};
+// a disarm his grip on the arc-blade held (sk_arc.js, since V89): what it would have taken
+function gripNote(dr){return`his grip holds (${dr.dc+10} or a natural 20 tears the arc-blade away)`;}
 S.hooks.perf=ex=>{if(!ex.li)return;const p=ex.perf,o=ex.li.querySelector('.out');o.classList.remove('pending');
   if(ex.res.out==='wall'){const w=ex.res.div;ex.li.querySelector('.lg-perf').textContent=p.divBroke?`${divThe(w)} gave way · ${ex.D.name} untouched`:`${divThe(w)} ${w.hp<=1?'is about to give':'cracked'} · ${ex.D.name} untouched · ${ex.A.name} jarred, loses a pip of balance`;return;}
   if(ex.res.guardBreak&&ex.res.out==='block'){o.textContent='Guard broken';o.className='out out-crit';}
   const how=[p.vault?'vaulted the table':'',p.around?(ex.res.tech.aroundW?'circled '+divThe(ex.res.tech.aroundW):'circled the table'):'',ex.res.tech.through?'broke through '+divThe(ex.res.tech.through):'',p.slip!=null?`${ex.D.name} slipped off the line`:''].filter(Boolean).join(' · ');
-  const dr=ex.res.disarm,dis=dr?(dr.ok?` · disarm d20 ${dr.roll} ${signed(dr.bonus)} = ${dr.total} vs ${dr.dc}: weapon knocked away`:` · disarm d20 ${dr.roll} ${signed(dr.bonus)} = ${dr.total} vs ${dr.dc}: kept hold`):'';
+  const dr=ex.res.disarm,dis=dr?(dr.ok?` · disarm d20 ${dr.roll} ${signed(dr.bonus)} = ${dr.total} vs ${dr.dc}: weapon knocked away`:` · disarm d20 ${dr.roll} ${signed(dr.bonus)} = ${dr.total} vs ${dr.dc}: ${dr.held?gripNote(dr):'kept hold'}`):'';
   if(dr&&dr.ok)o.textContent='Disarmed';else if(ex.res.weaponHit==='haft')o.textContent='Haft cut';else if(ex.res.weaponHit==='wrap')o.textContent='Wrapped';
   ex.li.querySelector('.lg-perf').textContent=`${footNote(ex)}${ex.freed?` · ${ex.freed.name} freed from the hold`:''}${ex.res.guardBreak?', guard broken, +15 tempo':''}${dis}${how?' · '+how:''}${p.dash?` · dash ${p.dash}u`:''}${p.windup!=null?` · windup ${p.windup.toFixed(2)}s`:''} · contact ${p.speed}u/s${p.knock?` · knockback ${p.knock}u`:''}${ex.res.shatter?' · the bottle shattered':''}${ex.res.drive&&(ex.res.table||ex.res.wallRes||ex.res.divRes||ex.res.propDmg)?' · driven into '+ex.res.drive.label+', dazed':ex.res.table||ex.res.wallRes||ex.res.divRes?' · slammed, dazed':''}${movePerf(ex)}`;};
 S.hooks.wound=(ex,D,i)=>{if(!ex||!ex.li)return;const d=document.createElement('div');d.className='lg-perf lg-hurt';
@@ -1107,7 +1109,7 @@ S.hooks.breakfree=(ex,i)=>{if(!ex||!ex.li)return;const o=ex.li.querySelector('.o
   ex.li.querySelector('.lg-perf').textContent=i.ok?`${ex.A.name} is out of the hold`:`${ex.D.name} keeps hold`;};
 S.hooks.pickup=(ex,i)=>{if(!ex||!ex.li)return;const o=ex.li.querySelector('.out');o.classList.remove('pending');o.textContent=i.name||WEAPONS[i.kind].short;ex.li.querySelector('.lg-perf').textContent=`now fighting with a ${(i.full||WEAPONS[i.kind].name).toLowerCase()}`;};
 S.hooks.shove=(ex,i)=>{if(!ex||!ex.li)return;const o=ex.li.querySelector('.out');o.className='out '+(i.ok?'out-shove':'out-dodge');o.textContent=i.label+(i.tableDmg||i.wallDmg||i.divDmg?' '+(i.tableDmg+i.wallDmg+(i.divDmg||0)):'');
-  const dr=i.disarm,dis=dr?` · disarm d20 ${dr.roll} ${signed(dr.bonus)} = ${dr.total} vs ${dr.dc}`:'';
+  const dr=i.disarm,dis=dr?` · disarm d20 ${dr.roll} ${signed(dr.bonus)} = ${dr.total} vs ${dr.dc}${dr.held?', '+gripNote(dr):''}`:'';
   ex.li.querySelector('.lg-perf').textContent=i.bind?(dr&&dr.ok?`${ex.D.name}'s weapon twisted out of their hand${dis} · +10 tempo`:`${ex.D.name}'s weapon pinned${dis} · ${ex.D.name} loses three pips of balance, +20 tempo`)
     :i.ok?`${i.shoulder?'shoulder check · ':''}${ex.freed?`${ex.freed.name} torn free · `:''}${i.floored?'floored · ':''}pushed ${i.pushed}u${i.tableDmg?(i.crush?', through the table':', into the table'):''}${i.wallDmg?(i.wallDmg>=8?', through the wall':', into the wall'):''}${i.divDmg?(i.divRes==='breach'?', through '+divThe(i.div):', into '+divThe(i.div)):''}${i.tripped?', '+tripText(i.tripped):''} · ${ex.D.name} delayed +${i.push?12:25} tempo, three pips of balance lost`:`${ex.D.name} braced · ${ex.A.name} loses three pips of balance, +15 tempo`;};
 S.hooks.read=function(ex,f,read,out){if(!ex.li)return;const d=document.createElement('div');d.className='lg-read'+(read.ok?'':' miss');
