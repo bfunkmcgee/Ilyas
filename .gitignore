@@ -24,6 +24,7 @@ __pycache__/
 # (and the look review's lists of what it lets stand, uiwork/look/kept*.json)
 !/uiwork/look/kept.json
 !/uiwork/look/kept_lines.json
+!/uiwork/look/lookbook.json
 /uiwork/qa_full.*
 /uiwork/qa_test.html
 
