@@ -686,6 +686,33 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   auto, cuts and all), `node uiwork/act1/mapshot.js <out.png> [stage] [w h]` (the Pit map as it opens there), `node
   uiwork/act1/tammprobe.js [n]` (Tamm's outro after n endings of the toll: who walked through whom).
 
+**Saves (since V92).** The night is kept in the browser at the start of every stage, and the title's Continue starts it again.
+- The record (sk_save.js, the game's part; no storage there): `storyStage` takes `S.story.at` as each stage begins, before the stage
+  is set up: `{v: SAVE_V, key, after, flags, hp, healAt, t, parts}` (the run's flags, his health as he came to it, the stage that has
+  had its heal, the game's clock, and what each part of the game says a run carries, `savePart(name, take, put)`: 'act1', the Pit's
+  record `S.act1`, and 'suit', the tears in his suit, `K.rips` and `K.hemTears`). The record's times are on the game's clock (an Act I
+  scene's `t0`): a visit later starts the clock from nothing, so Continue puts it on to the record's `t` when it is behind. `saveData` copies only data (numbers, strings, true and false, null,
+  lists, plain objects): a fighter, a function, an object with ways of its own or anything met twice is left out, as a chapter
+  starts without them. A stage not built yet (the end of what is built) is kept as the stage it came after (`after`, `key` null), so
+  a build that goes on from there continues the night (`saveResumeKey`: the stage a record starts in this build, or null).
+  `storyBegin(key, {resume: record})` begins the run as a chapter does and puts the record back as its first stage begins
+  (`saveRestore`): a fresh body for him, with the night's flags, health and parts. Continue is to a stage what Try again is.
+- The page (sk_saveui.js): localStorage 'ilyas.night' = `{t, label, cp: record}`, written at each 'stage' (and the 'end') of a kept
+  night. A night is kept when it is begun from the title (Begin, Continue, Play again from the top) or picked from Chapters with none
+  kept; a chapter picked while one is kept is a replay and leaves it as it was (`SAVE_UI.keep`, decided in storyGo). With a night kept
+  the title has Continue first and "Where you left off:" with `saveLabel` (the act, the scene's number and title; a stage without
+  them has the last before it in its act that has them), Begin asks first ("A new night takes the place of the one kept at ...",
+  Begin anew or Back), and a night kept at the end of what is built says so and has no Continue until a build goes on from there. A
+  record that does not parse, of another `v`, or at a stage this build does not know is not offered; storage refused (a private
+  window) keeps nothing. The settings picked are kept too ('ilyas.settings': gore and sound; the effects keep their own, 'sk_fx').
+- Suite: `savepage` (sk_save_page.js, on the test copy with the title put up): a fresh page, Begin, the title after it, the question
+  and Back; a prologue night carried into its next stage (hurt, the suit cut) and a reload and Continue that begin it the same; the
+  Act I record (the purse, the satchel, the map, the crate's choice) the same through Continue; a whole night on auto kept at each of
+  its 33 stages, each begun again from its record (on a clock from nothing) as the night began it and played on; a chapter as a
+  replay; Begin anew;
+  the end of what is built and a build that goes on; a broken, unknown or other record; storage refused; the settings; and the
+  record throwing none of the game's dice. A new part of a run that a stage needs and a chapter does not have goes in `savePart`.
+
 ## Rules
 1. **The drawing never changes the game.** render() and everything it calls may not change anything the game or the page reads. Work
    that must happen every frame goes in `V11UI.tick`. Game-time code in UI files (hooks the game calls, like the suit-tear hook
@@ -892,14 +919,14 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V92 ..." (V91 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V93 ..." (V92 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V92: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V93: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -908,6 +935,11 @@ They read on a phone. Reports are declarative and matter-of-fact, short, with fe
 was checked, and anything that did not work, plainly.
 
 ## Pitfalls met before
+- ragdoll-skirmish-lab.html carries no charset (the publish wrapper adds one): opened as a file, its first load can read the page's
+  "·" and "’" as Latin-1 ("Â·"), and later loads as UTF-8 (V92's first full run). A check that reads such text uses test_page.html,
+  which declares it, and puts the title up itself (`storyMenu(true)`) where it needs the title.
+- sk_dom.js runs the UI on a stub page whose elements have appendChild, insertBefore, prepend, querySelector and little else: a
+  part of the UI that runs at load (V11UI.init) builds with those (V92's title parts first used insertAdjacentElement there).
 - Seed both of the game's dice handles in a check: `Math.random=...;S.rng=Math.random;`. The game keeps its own handle (S.rng, set
   at load); a check that only replaces Math.random is not reproducible (the finale suite was like that until Oct 20).
 - sk_dom.js plays at random on purpose (a fuzz run): its counts differ every run. Only its errors and problem counters matter.

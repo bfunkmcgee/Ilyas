@@ -15,6 +15,10 @@
 .st-btn:hover,.st-btn:focus-visible{background:rgba(226,182,90,.14);border-color:var(--gold);color:var(--gold-hi);outline:none}
 .st-btn.st-go{background:linear-gradient(180deg,#f4d48e,#b98a3c);color:#120d05;border-color:#f4d48e}
 .st-btn.st-go:hover,.st-btn.st-go:focus-visible{background:linear-gradient(180deg,#fff0c6,#d8a855);color:#120d05}
+/* a kept night (sk_saveui.js): where it stands, under the buttons, and Begin's question */
+.st-saved{margin:6px 0 0;font:italic 500 14px var(--ui);color:#cfc4a8;letter-spacing:.02em;max-width:min(440px,100%)}
+.st-ask{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:min(440px,100%)}
+.st-ask-t{margin:0;font:500 16px/1.35 var(--ui);color:#f1e9d6}
 .st-chap{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;width:min(440px,100%);max-height:46vh;overflow:auto}
 .st-chapbtn{appearance:none;display:grid;grid-template-columns:2.6em 1fr;grid-template-rows:auto auto;column-gap:10px;width:100%;text-align:left;cursor:pointer;
   background:rgba(5,5,10,.55);border:1px solid rgba(226,182,90,.25);border-radius:3px;padding:7px 10px;color:var(--ink)}

@@ -20,7 +20,7 @@ function storyMenuBuild(){
     if((st.act||0)!==act){act=st.act||0;const h=stEl('li','st-chaphead',act?`Act ${['','I','II','III'][act]||act} · ${ACT_NAMES[act]||''}`:'Prologue');list.appendChild(h);}
     const li=stEl('li');const b=stEl('button','st-chapbtn',`<span class="st-num">${st.num}</span><span class="st-ct">${st.title}</span><span class="st-cs">${st.sub||''}</span>`);b.type='button';
     b.addEventListener('click',()=>{ensureAudio();storyGo(st.key);});li.appendChild(b);list.appendChild(li);}
-  m.querySelector('#stBegin').addEventListener('click',()=>{ensureAudio();storyGo(null);});
+  m.querySelector('#stBegin').addEventListener('click',()=>{ensureAudio();storyBeginPressed();});
   m.querySelector('#stChapters').addEventListener('click',()=>{list.hidden=!list.hidden;});
   m.querySelector('#stLab').addEventListener('click',()=>{ensureAudio();storyMenu(false);document.body.classList.remove('story');});
   // the line of dialogue, the skip button, the end and retry cards
@@ -33,8 +33,11 @@ function storyMenuBuild(){
   back.addEventListener('click',()=>{storyQuit();restart();storyMenu(true);});
 }
 function storyMenu(on){if(!ST_UI.menu)return;ST_UI.menu.hidden=!on;if(on){ST_UI.end.hidden=true;ST_UI.quit.hidden=true;}}
-function storyGo(key){storyMenu(false);document.body.classList.add('story');ST_UI.quit.hidden=false;ST_UI.end.hidden=true;
-  clearTimeout(overTimer);$('over').hidden=true;$('opening').hidden=true;logPlaceholder();storyBegin(key);buildRows();updateStatus();}
+// Begin on the title: the prologue from its start (sk_saveui.js asks first when a night is kept)
+function storyBeginPressed(){storyGo(null);}
+// o: storyBegin's (o.resume: the record of a kept night's stage, for Continue)
+function storyGo(key,o){storyMenu(false);document.body.classList.add('story');ST_UI.quit.hidden=false;ST_UI.end.hidden=true;
+  clearTimeout(overTimer);$('over').hidden=true;$('opening').hidden=true;logPlaceholder();storyBegin(key,o);buildRows();updateStatus();}
 // a click or a key moves a line on: the first press finishes the line being written, the next one closes it
 function storyAdvance(){const s=S.say;if(!s)return;const shown=storyShown(s);if(shown<s.text.length){s.t0=S.t-s.text.length/STORY_CPS-.01;return;}s.adv=true;}
 const STORY_CPS=46;
