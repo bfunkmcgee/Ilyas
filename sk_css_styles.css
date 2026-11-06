@@ -21,6 +21,8 @@
 .wrap.hud[data-mode="desk"] .sty-b{height:40px}
 /* the meter beside the balance pips: the plate's bottom edge at the right */
 .wrap.hud .frow .fmeter{position:absolute;right:9px;bottom:5px;display:flex;gap:3px;pointer-events:none}
+/* an upright phone's plate with its dots (and the enemy's chevron): they move over to make room for it */
+.wrap.hud[data-mode="port"] .frow:has(> .fmeter:not([hidden])) .fpager{margin-right:calc(var(--fmw,0px) + 10px)}
 .wrap.hud[data-mode="desk"] .frow .fmeter{bottom:7px}
 .wrap.hud .frow .fmeter span{display:flex;gap:3px}
 .fmeter span{display:inline-flex;gap:3px}

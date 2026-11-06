@@ -37,10 +37,10 @@ Live sources (the only files to edit for the game):
   sk_x.js (game), sk_xui.js (UI) and sk_css_x.css once its name is in FEAT/CSS.
 - Game (no DOM; node loads it through sk_src.js): sk_core.js, sk_rules.js, sk_anim.js, sk_brawl.js, sk_fin.js, sk_team.js, sk_env.js, sk_phase.js,
   sk_arc.js, then the features' game parts: crew chain insure style secret lobby breach office finale ctxmoves cast arms guns story
-  beast elf (hud and light have UI parts only) react room rise stances spells stnmotion, the styles (styles, wire), then Act I's
+  beast elf (hud and light have UI parts only) react room rise stances spells stnmotion, the styles (styles, wire, order), then Act I's
   (explore, the pit scenes, short), then the saves and the levels (save, growth).
 - UI: sk_envui.js, sk_phaseui.js, sk_arcui.js, the features' UI parts (crewui ... figui lookui castui sceneui armsui gunsui storyui
-  beastui elfui hudui lightui reactui roomui stancesui spellsui stylesui ... sfxui, in FEAT order), then sk_ui.js last (its frame loop starts
+  beastui elfui hudui lightui reactui roomui stancesui spellsui stylesui orderui ... sfxui, in FEAT order), then sk_ui.js last (its frame loop starts
   the game).
 - Page: sk_head.txt, sk_body.html, the sk_css_*.css in build.py's CSS list.
 - Music: music/lepers_ascent.mp3, the prologue's song. Not built into the page: published beside it (see "Publishing").
@@ -769,12 +769,16 @@ the page loads. Its fields:
   to it at), `order`, `meter` ({key, name, cap: [[level, most], ...], what}), `ranks` ([{level, key, name, what}]: its moves by
   expertise), `lessons` (a style taught a move at a time: Short Hand's), `signature`, `answers` ({answer: DEF}), `rules` (RULES
   entries without `src`: `who` 'A', 'D' or 'f' is the man in the style; the id becomes 'style.KEY.ID' and the src the style's name),
-  `mastery` ({what, rules}: from level 17, in any style he fights in), `known(f)` (whether he has it at all).
+  `mastery` ({what, rules}: from level 17, in any style he fights in), `known(f)` (whether he has it at all), `enemy` (since V95: a
+  style only the others fight in, the Order drill: never his, so never on his cards, his chip or his levels; `heroStyles()` is the
+  registry less these, and growth, the cards and the Pit read it).
+- A stage's foe fights in a style by its entry (`style: 'order'`: storyRoster puts it on `f.style`) whenever he holds what it needs;
+  the first time each fight he does in an enemy style, `S.hooks.styleOn(f, k)` (the log's one line for all who take it at once).
 - Who fights in what (`styleOf(f)`): `f.style`, the one picked, when he can use it with what he holds now (`styleNeeds`: 'needs the
   gilt', 'needs two hands', 'needs ' + weaponNeed, 'the blade will not lock' for the arc-blade drained); else the hero fights in his
   own, the Sareth cut, whenever he can; else none. `stylesFor(f)`: the ones he could fight in now. `styleLevelFor(f, k)`: his
-  expertise (the night's in the story, sk_growth.js; else `start`; another man's from his rank). `styleKnows(f, k, move)`: a move, by
-  rank or by lesson.
+  expertise (the night's in the story, sk_growth.js; else `start`; another man's from his rank: Novice 1, Trained 5, Veteran 9,
+  Expert 13, Master 17). `styleKnows(f, k, move)`: a move, by rank or by lesson.
 - The switch (`setStyle(K, k)`): the hero's, on his own turn before he acts (`styleCanSwitch`), for 10 tempo (STYLE_SW); his meter
   empties; the pick goes in the night's flags (`S.story.flags.style`: a stage's record keeps it, and so do Try again and Continue) or,
   in the lab, in `STYLE_PICK.lab` for the next fight. `S.hooks.style(K, k, was)`. The AI never switches.
@@ -798,13 +802,35 @@ the page loads. Its fields:
   yet. Act I's open question (uiwork/act1/doc.md) is settled as data: with the scrap arm (`f.scrapArm`, not built yet) it works,
   badly (-2 to hit, -1 DEF: SARETH.scrap); `scrap: 'locked'` would keep it shut until the joining.
 - Short Hand is in the registry too (sk_short.js: its lessons, `known` once taught); its rules are sk_short.js's own, as before.
+- The Order drill (sk_order.js, every number in ORDER_DRILL; since V95): the guards' baton course, the Eclipsera Constabulary's
+  public-order course cut to forty hours and sold to the city's security firms, with Levy basic's hand-to-hand; generic, not elite:
+  formally trained civilians. `enemy: true`. The lobby's three guards fight in it once their guns run dry (sk_story.js: the batons
+  come out in the intro and in its skip). The baton (WEAPONS.baton): one hand, blunt (a man it puts down is knocked out), a weapon in
+  its own right (`realWeapon`; LOOT_RANK 2); its blows named for what they are (BATON_T: the Baton strike, the Baton jab, the High
+  strike, the Leg strike). Cover, its meter (1 for a Novice, 2 from Trained): the partners in the drill (his side, on their feet)
+  within their reach + 40 of the man he is on and within 60 of his lane, each +1 to hit (`orderCover(f, D)`, as the blow is
+  thrown; his plate follows a fifth of a second behind). To the limbs: his Baton strikes and Leg strikes that land do 1 less and
+  knock a pip more; the High strike -1 to hit. Its answers: Parry +1, Step back +1, Slip -1, Counter -1. Alone (the partners he had
+  this fight all down; a man who never had one is not): -1 to hit, his Parry and Step back plain, and on auto a Withdraw now and then.
+  The baton push (Trained, its signature): his shove +2 and a pip more when it lands, both hands on the baton, upright (planShove's
+  arm keys, `P.batonPush`). The arm bar (Veteran): his shove at a Committed man takes him down (unless the better man is outclassing
+  him: `kdBlocked`). No mastery: the course stops at Veteran. On auto: the Baton strike and the Leg strike first, the jab, the High
+  strike hardly ever, the push from Trained; a Parry or a Step back for an answer more often than not. `S.hooks.order('shove' |
+  'down', {A, D})`. Its motion (ANIM_STYLE.order, all of it at any rank: the course drills the same motion into every man who sits
+  it): upright and side-on, the baton at the shoulder pointing up and back, the free hand up in front (the fence), the feet set
+  wider; every blow from the shoulder and straight back to it (follow .7, reach .55, recover .72, against a Novice's 1.15, 1.22 and
+  1.2 in the regular motion). The page (sk_orderui.js): the baton drawn (the grip and its cap, two tubes, the tip), and the callouts
+  "Get back!" (a shove of theirs that lands) and "Man down!" (from a partner when one falls).
 - Stances and styles are two things: a stance is the arc-blade's form (Bound, Unbound, Close), a style how he fights with it. Any
   style goes with any stance.
 - The page (sk_stylesui.js, sk_css_styles.css): the chip on the stance bar while he has two styles or more to fight in (the style,
   its meter's pips, "⇄" and the next; a tap or V takes the next, on his turn only); upright it is a row of its own over the stances
   (they keep their names whole), sideways and on the desktop beside them at their height. The meter on his plate beside the balance
-  pips (`.fmeter`, kept on the row as `fr._fm`); the style's short name ahead of the weapon on his plate's line when it is not his
-  own; a callout and a log line when he changes ("fights in Wire drill", the doctrine, +10 tempo); the meter's changes as notes
+  pips (`.fmeter`, kept on the row as `fr._fm`; since V95 on any man's plate with a meter, the guards' Cover; upright, a plate's dots
+  and chevron move over by the meter's width, `--fmw`); the style's short name ahead of the weapon on his plate's line when it is not
+  his own, and on any man's in an enemy style ("Order drill · Baton · Novice"); one log line when the others first fight in one
+  ("Guard A, Guard B and Guard C fight in the Order drill", the doctrine: the names in one span, or the line's gap opens before each
+  comma); a callout and a log line when he changes ("fights in Wire drill", the doctrine, +10 tempo); the meter's changes as notes
   ("Count 2, a new point"); the Long count's callout. The cards (`styleCardHtml`): the name and its corner (`styleNow`: rank and 'in
   use' or 'ready', 'Dark: ...', 'Locked: ...', 'Works badly: the scrap arm'), weapon, origin, doctrine, how it looks, the level line
   (in the lab the level alone), the meter, the moves by lesson or rank (the signature marked) and the mastery. The Pit's styles
@@ -816,9 +842,12 @@ the page loads. Its fields:
   the growth and the record take it from the registry.
 - Suites: `styles` (sk_styles_test.js: the registry and a malformed style; who fights in what and each lock; the switch; the look; the
   count at each impact; the Long count; the drill's rules and mastery; the AI; a night's XP, the pick through a stage and the record;
-  the scrap arm; Short Hand) and `stylespage` (sk_styles_page.js: the chip, the switch by tap and V, the count on the plate and in the
-  log, the Long count, the menu's tab and cards, the prologue, Continue, Act I, and the chip and the plate at each screen). For a
-  style's strips: `node uiwork/anim/moves.js` takes `prep`, a line of script on the stage before the blow ("A.style='wire'").
+  the scrap arm; Short Hand; the Order drill: not his, the baton, its look and pace, Cover, alone, the limbs and the head, its
+  answers, the push and the arm bar, a partner down, the AI, the lobby's guards) and `stylespage` (sk_styles_page.js: the chip, the
+  switch by tap and V, the count on the plate and in the log, the Long count, the menu's tab and cards, the prologue, Continue, the
+  lobby's guards in the drill (their line in the log, Guard C's plate, the batons drawn, nothing of it his, what they shout), Act I,
+  and the chip and the plates at each screen). For a style's strips: `node uiwork/anim/moves.js` takes `prep`, a line of script on
+  the stage before the blow ("A.style='wire'"); a shove's Timp is its contact.
 
 ## Rules
 1. **The drawing never changes the game.** render() and everything it calls may not change anything the game or the page reads. Work
@@ -1026,14 +1055,14 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V95 ..." (V94 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V96 ..." (V95 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V95: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V96: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -1284,3 +1313,12 @@ was checked, and anything that did not work, plainly.
   4 ms); `node uiwork/fall48/pagesab.js w h dpr <secs,...> <pageA> <pageB> [full|lite|off]` times two builds by turns.
 - In headless Chromium the canvas is rastered on the CPU when it is drawn, so a profile puts most of a frame in `restore`/`drawImage`
   (FXL's `put`); time a painter's own work with performance.now() round it (as `JK.ms` does) rather than from that profile.
+- The logic suites eval the game and their own code in one scope, so a game global's name must not be one a suite declares at its
+  top: the Order drill's numbers were `ORDER` until the finale suite's own `const ORDER` threw before a check ran (V95: they are
+  `ORDER_DRILL`). Give a feature's globals its own prefix, and run the suites (or `node uiwork/anim/suites.js`) before trusting a
+  trace that "differs".
+- A still taken straight after a loop of frames run in one go can show the dock hidden on an upright phone: the opening card hides
+  on a real-time timer (120 to 260 ms after the answer, `S.hooks.opening`), so the frames have gone by and the card has not. Wait
+  300 ms before the shot (V95's lobby stills).
+- In a log line (`.lg-l`, a flex row with a gap), a list of names joined with ", " and " and " opens a gap before each comma: put
+  the whole list in one span (V95's "Guard A, Guard B and Guard C fight in the Order drill").

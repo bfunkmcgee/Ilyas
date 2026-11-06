@@ -10,6 +10,7 @@
 //   variant  a key of the blow's variants (ATTACK.variant), combo the leads as ["kind:variant", ...] (S.animForce, sk_anim.js)
 //   flourish true lets an expert's flourish come; otherwise it does not (styleRoll forced high)
 //   back     the man struck faces away
+//   kind     the blow ('slash', 'thrust', 'overhead', 'sweep'), or 'shove' (its Timp is the contact, since V95)
 //   prep     a line of script run on the stage before the blow, with A (the attacker) and D: e.g. "A.style='wire'" for a style
 //            with its rules as well as its motion (since V94), or the Wire drill's full count
 const {chromium}=require('playwright'),fs=require('fs'),path=require('path');
@@ -90,7 +91,7 @@ fs.mkdirSync(OUT,{recursive:true});
       g.fillText(`${sh.name}: ${A.name} (${A.weaponKey}, skill ${A.skill}, ${A.animStyle}) ${sh.kind} ${res?res.out:'?'} ${T?T.name:''} ${plan&&plan.anim?JSON.stringify(plan.anim):''} react ${ex&&ex.D?(ex.D.lastReact||''):''}`,6,16);
       cells.forEach((c,i)=>g.drawImage(c,(i%cols)*W,22+Math.floor(i/cols)*H));
       ST.on=false;S.animForce=null;
-      return{png:out.toDataURL('image/png'),info:{out:res&&res.out,tech:T&&T.name,Timp:plan&&plan.Timp,end:A.action?A.action.end:null,anim:plan&&plan.anim||null}};},sh);
+      return{png:out.toDataURL('image/png'),info:{out:res&&res.out,tech:T&&T.name,Timp:plan&&(plan.Timp??(plan.events&&plan.events[0]?plan.events[0].t:null)),end:A.action?A.action.end:null,anim:plan&&plan.anim||null}};},sh);
     if(r.err){console.log(sh.name,'ERR',r.err);continue;}
     fs.writeFileSync(path.join(OUT,sh.name+'.png'),Buffer.from(r.png.split(',')[1],'base64'));
     console.log(sh.name,JSON.stringify(r.info));}

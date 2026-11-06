@@ -1220,12 +1220,13 @@ STAGES.push({key:'deep',num:'VIII',title:'The Deep Station',sub:'Under Hallowell
 // ===== STAGE IX: THE LOBBY =====
 // The lift opens on the Hallowell lobby and three guards with submachine guns empty them at him. The coat takes all of it and is torn to
 // rags; he throws it off. Under it: the vest, the tattoos, the dagger, the charge. Then Sable and the three of them, and the charge on
-// the executive's door.
+// the executive's door. The guards' batons come out when the guns run dry, and with them the course every licensed guard in the city
+// has sat (since V95: the Order drill, sk_order.js).
 STAGES.push({key:'lobby',num:'IX',title:'The Lobby',sub:'Hallowell Tower, the executive floor',arena:'restaurant',room:'lobby',next:'office',flagsOut:{coatOff:true,charged:true},
   foes:[{name:'Sable',seed:9001,weapon:'sword',skill:3,temper:'keeper',hp:80},
-        {name:'Guard',human:true,ward:'lobby',arms:'lobby',seed:9033,weapon:'smg',skill:1,temper:'plain',hp:26},
-        {name:'Guard',human:true,ward:'lobby',arms:'lobby',seed:9061,weapon:'smg',skill:1,temper:'plain',hp:26},
-        {name:'Guard',human:true,ward:'lobby',arms:'lobby',seed:9097,weapon:'smg',skill:2,temper:'rusher',hp:28}],
+        {name:'Guard',human:true,ward:'lobby',arms:'lobby',seed:9033,weapon:'smg',skill:1,temper:'plain',hp:26,style:'order'},
+        {name:'Guard',human:true,ward:'lobby',arms:'lobby',seed:9061,weapon:'smg',skill:1,temper:'plain',hp:26,style:'order'},
+        {name:'Guard',human:true,ward:'lobby',arms:'lobby',seed:9097,weapon:'smg',skill:2,temper:'rusher',hp:28,style:'order'}],
   spawn:[[150,140],[600,150,1],[470,60,1],[560,100,1],[650,40,1]],
   // the cage comes up out of the dark of the shaft: the picture comes up with it
   setup(st){const K=hero();S.liftT0=null;S.fade=1;
@@ -1268,14 +1269,14 @@ STAGES.push({key:'lobby',num:'IX',title:'The Lobby',sub:'Hallowell Tower, the ex
     K.coatOff=true;K.charge='belt';S.story.flags.coatOff=true;S.hooks.sound('swoosh',2,{s:'coat_throw'});
     yield* wait(.9);
     // empty guns on the marble; out come the batons
-    gs.forEach((f,i)=>{f.action=null;dropWeapon(f,-1,false);f.setWeapon('club');S.hooks.sound('drop_gun',.9,{delay:.2+i*.14});});
+    gs.forEach((f,i)=>{f.action=null;dropWeapon(f,-1,false);f.setWeapon('baton');S.hooks.sound('drop_gun',.9,{delay:.2+i*.14});});
     yield* speak('Sable','Ranger mithril. That coat was worth more than all three of them.',{dur:3.2});
     yield* speak(HERO_NAME,'Send Hallowell the bill.',{dur:1.8});
     standEasy(Sb,false);
     yield* wait(.1);},
   introSkip(st){const K=hero(),gs=S.F.slice(2,5);S.fade=0;K.action=null;K.coatShield=0;K.coatShred=1;K.coatOff=true;K.charge='belt';S.story.flags.coatOff=true;
     K.station=st.spawn[0][0];K.lane=K.dep=st.spawn[0][1];K.offstage=false;K.facing=1;K.build();
-    for(const f of gs)if(f.weaponKey==='smg'){f.action=null;dropWeapon(f,-1,false);f.setWeapon('club');}standEasy(S.F[1],false);},
+    for(const f of gs)if(f.weaponKey==='smg'){f.action=null;dropWeapon(f,-1,false);f.setWeapon('baton');}standEasy(S.F[1],false);},
   *outro(st){const K=hero();letter(1);camTo(EXEC_DOOR.x-80,800,1);
     K.guarding=false;K.counter=false;
     yield* act(K,rollUpAction(K,S.t));stowBlade(K);

@@ -3,8 +3,10 @@
 // count on his plate and the chip, its name on his plate's line), the chip shut while he cannot change, the count at a blow's impact
 // with its line in the log, V back to his own, the Long count named in the dock and over him as he goes, the menu's Styles tab with
 // each card, a sword in his hand, and the pick kept for the lab's next fight; in the prologue the chip, the pick in the night's flags,
-// the drawer's two tabs, the next stage in it, and Continue after a reload in it; in Act I no chip and the cards as they were; and
-// at each screen (upright, sideways, desktop) the chip and the plate's count where they belong: the stances keep their names whole.
+// the drawer's two tabs, the next stage in it, and Continue after a reload in it; the lobby's guards in the Order drill (since V95:
+// one line in the log for the three, Guard C's plate with his Cover clear of the dots, the batons drawn, nothing of it his, "Get
+// back!" and "Man down!"); in Act I no chip and the cards as they were; and at each screen (upright, sideways, desktop) the chip and
+// the plate's count where they belong: the stances keep their names whole (on the desktop every guard's plate too).
 // usage: node sk_styles_page.js [outdir]   (stills of each screen go to outdir when one is named)
 const SK_T0=Date.now();
 const {chromium}=require('playwright');const fs=require('fs'),path=require('path');
@@ -30,6 +32,16 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
       const c=computeMods(A,D,kind,opening,T||pickTechnique(A,D,kind));let v=20;for(let i=2;i<=19;i++){const t=i+c.bonus;if(t>=c.def&&!isCrit(i,t,c.def)){v=i;break;}}
       const save=S.rng;let first=true;S.rng=()=>{if(first){first=false;return(v-.5)/20;}return save();};try{return ra.apply(this,arguments);}finally{S.rng=save;}};}
     {const ar=aiReact;aiReact=function(D){return ANS.has(D)?ANS.get(D):ar.apply(this,arguments);};}
+    // a shove of his that lands, as wanted; a man set a step off another, on his line
+    window.SHOVE=null;{const rs=resolveShove;resolveShove=function(A){const r=rs.apply(this,arguments);if(SHOVE&&A===SHOVE){r.ok=true;r.crush=false;}return r;};}
+    window.near=(A,D)=>{A.station=D.station+(D.station<W/2?1:-1)*engageGap(A,D);A.lane=A.dep=A.stepDep=D.lane;A.build();};
+    window.guards=()=>S.F.filter(f=>f&&/^Guard/.test(f.name));
+    // a plate's meter and where it sits: inside the plate, over nothing else on it
+    window.plateOf=f=>{const fr=document.getElementById('fr'+f.idx),fm=fr&&fr._fm,R=e=>{const r=e.getBoundingClientRect();return{l:r.left,r:r.right,t:r.top,b:r.bottom,w:r.width,h:r.height};};
+      if(!fr)return null;const F=R(fr),M=fm&&!fm.hidden&&fm.isConnected?R(fm):null,over=(a,b)=>a.l<b.r-1&&b.l<a.r-1&&a.t<b.b-1&&b.t<a.b-1;
+      const others=[...fr.querySelectorAll('.fpips > *, .hpbar, .hp, .fname, .fmeta, .fpager > *')].map(R).filter(r=>r.w>0);
+      return{meta:(document.getElementById('meta'+f.idx)||{}).textContent||'',shown:F.w>0,n:M?fm.querySelectorAll('i.on').length:-1,max:M?fm.querySelectorAll('i').length:0,title:M?fm.title:'',
+        inPlate:!!M&&M.l>=F.l-.5&&M.r<=F.r+.5&&M.t>=F.t-.5&&M.b<=F.b+.5,onOther:!!M&&others.some(o=>over(M,o))};};
     window.chip=()=>document.querySelector('#stnBar .sty-b');
     window.chipInfo=()=>{const c=chip(),bar=document.getElementById('stnBar');if(!c||!bar||bar.hidden)return null;const n=c.querySelector('.sty-n');
       return{name:n.textContent,next:c.dataset.style,x:(c.querySelector('.sty-x')||{}).textContent||'',pips:c.querySelectorAll('.sty-m i').length,on:c.querySelectorAll('.sty-m i.on').length,dis:c.disabled,whole:n.scrollWidth<=n.clientWidth+1};};
@@ -133,6 +145,27 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   m=await ev(p,()=>{untilMine(9000);draw();return{key:S.story&&S.story.key,style:styleOf(hero()),c:chipInfo()};});
   expect('Continue after a reload: the night goes on in the Wire drill',m.key==='kitchen'&&m.style==='wire'&&!!m.c&&m.c.name==='Wire drill',JSON.stringify(m));
 
+  // ================= the lobby: the guards in the Order drill =================
+  m=await ev(p,()=>{storyGo('lobby');untilMine(9000);draw();const K=hero(),G=guards();
+    const lines=[...document.querySelectorAll('#log .lg')].filter(li=>/in the Order drill/.test(li.textContent)).map(li=>{const sp=li.querySelectorAll('.lg-l > span');
+      return{names:sp[0]?sp[0].textContent:'',says:sp[1]?sp[1].textContent:'',perf:(li.querySelector('.lg-perf')||{}).textContent||''};});
+    setTgt(K,G[2].idx);draw();let batons=0;const dw=drawWeaponAt;drawWeaponAt=function(key){if(key==='baton')batons++;return dw.apply(this,arguments);};try{render();}finally{drawWeaponAt=dw;}
+    const tabs=(hudMenu(true),step(2),[...hudEl('sideCol').querySelectorAll('.drawer-tabs [data-dtab="styles"]')].map(b=>(b.click(),step(2),[...hudEl('sideCol').querySelectorAll('.pm-styles .a9-card')].map(c=>c.dataset.style).join()))[0]);hudMenu(false);step(2);
+    return{key:S.story.key,mine:mine(),G:G.map(f=>f.weaponKey+' '+styleOf(f)+' '+f.animStyle),lines,c:chipInfo(),pc:plateOf(G[2]),batons,cards:tabs,doc:STYLES.order.doctrine};});
+  expect('the lobby: the guns run dry, the batons come out, and the three guards fight in the Order drill',m.key==='lobby'&&m.mine&&m.G.length===3&&m.G.every(g=>g==='baton order order'),JSON.stringify(m.G));
+  expect('one line in the log for the three of them, the names in one piece, with its doctrine',m.lines.length===1&&m.lines[0].names==='Guard A, Guard B and Guard C'&&m.lines[0].says==='fight in the Order drill'&&m.lines[0].perf===m.doc,JSON.stringify(m.lines));
+  expect('Guard C\'s plate: the drill ahead of the weapon on its line, his Cover beside the balance pips (Trained: to 2), clear of the dots and the chevron',!!m.pc&&m.pc.meta.startsWith('Order drill · Baton · ')&&m.pc.max===2&&/^Cover \d of 2$/.test(m.pc.title)&&m.pc.inPlate&&!m.pc.onOther,JSON.stringify(m.pc));
+  expect('the batons drawn in their hands',m.batons===3,m.batons);
+  expect('not his: no Order drill on his chip or among his cards',!!m.c&&m.c.next!=='order'&&!/Order/.test(m.c.name+m.c.x)&&!!m.cards&&!m.cards.includes('order'),JSON.stringify({c:m.c,cards:m.cards}));
+  await shot(p,'port_5_lobby');
+  // what they shout: a shove of theirs that lands, and a partner down
+  m=await ev(p,()=>{const K=hero(),[A,B,C]=guards();S.callouts.length=0;near(C,K);C.foot=footMaxOf(C);SHOVE=C;const g=S.game;g.phase='input';g.active=C.idx;g.aiAt=null;S.opening=null;g.ex=null;
+    const ok=command(C.idx,'shove');let n=0,shout=false;while(n<900&&!shout){if(S.opening&&!isAI(S.opening.f.idx))resolveOpening(S.opening.source==='react'?'parry':'hold');fast(1);n++;shout=called('Get back!');if(S.game.phase!=='exchange'&&!S.opening&&n>40)break;}
+    SHOVE=null;untilMine(9000);S.callouts.length=0;near(A,K);A.hp=1;setTgt(K,A.idx);ANS.set(A,'parry');FORCE={A:K};humanCommand('slash');let k=0,down=false;
+    while(k<900&&!down){fast(1);k++;down=called('Man down!');}FORCE=null;ANS.delete(A);
+    return{ok,shout,dead:A.dead,down,by:(S.callouts.find(c=>c.text==='Man down!')||{}).i,a:A.idx};});
+  expect('what they shout: "Get back!" as a shove of theirs lands, "Man down!" from a partner when one falls',m.ok&&m.shout&&m.dead&&m.down&&m.by!=null&&m.by!==m.a,JSON.stringify(m));
+
   // ================= Act I =================
   m=await ev(p,()=>{storyGo('sh2');fast(90);draw();a9Fill();const now=[...document.querySelectorAll('#a9Cards .a9-card .a9-now')].map(e=>e.textContent);return{key:S.story.key,c:chipInfo(),style:styleOf(hero()),now};});
   expect('Act I: no chip (Short Hand is all he has), and the cards as they were',m.key==='sh2'&&!m.c&&m.style==='shorthand'&&m.now.join(' | ')==='Novice, learning | Dark: needs the gilt | Locked: needs two hands',JSON.stringify(m));
@@ -145,6 +178,10 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
       m.g.names&&!m.g.wide&&m.g.inView&&m.c.whole,JSON.stringify(m.g.chip));
     expect(sz+': the count inside his plate, over nothing else on it',!!m.pm&&m.pm.n===2&&!!m.g.meter&&m.g.meter.inPlate&&!m.g.meter.onOther,JSON.stringify({pm:m.pm,g:m.g.meter}));
     await shot(p,sz+'_wire');
+    if(sz==='desk'){m=await ev(p,()=>{storyMenu(true);storyGo('lobby');untilMine(9000);draw();return guards().map(f=>({name:f.name,...plateOf(f)}));});
+      expect('desk: each guard\'s plate: the drill ahead of the weapon on its line, his Cover beside the balance pips (1 for a Novice, 2 for Guard C), inside the plate over nothing else',
+        m.length===3&&m.every((g,i)=>g.shown&&g.meta.startsWith('Order drill · Baton · ')&&g.max===(i===2?2:1)&&g.inPlate&&!g.onOther),JSON.stringify(m));
+      await shot(p,'desk_lobby');}
     await p.context().close();}
 
   expect('no page errors',pageErrs.length===0,pageErrs.slice(0,3).join(' | '));

@@ -18,6 +18,8 @@
 //   rules                  RULES entries without src (who: 'A', 'D' or 'f', the one in the style; id within the style)
 //   mastery                {what, rules}: what mastering it (level 17) gives in any style he fights in
 //   known(f)               whether he has the style at all (default: yes)
+//   enemy                  a style only the others fight in (since V95: the Order drill): never on the hero's cards, chip or
+//                          levels; a stage's foe is given one by its entry (style: 'order'), and takes it whenever he holds what it needs
 // A fighter's style is f.style, the one he picked; with none picked, or one he cannot use with what he holds now (a sword in his hand
 // for the Wire drill), the hero fights in his own, the Sareth cut, whenever he can (styleOf); else in none. Switching is the hero's,
 // on his own turn before he acts (the stance
@@ -26,7 +28,7 @@
 const STYLES={},STYLE_ORDER=[];
 const STYLE_SW={tempo:10};
 const STYLE_FIELDS=['key','name','short','weapon','weapons','weaponNeed','hands','scrap','gilt','origin','doctrine','what','motion','start','order',
-  'meter','ranks','lessons','signature','answers','rules','mastery','known'];
+  'meter','ranks','lessons','signature','answers','rules','mastery','known','enemy'];
 function styleDef(d){const no=w=>{throw new Error('styleDef'+(d&&d.key?' '+d.key:'')+': '+w);};
   if(!d||!d.key||!d.name)no('a style needs a key and a name');if(STYLES[d.key])no('defined twice');
   for(const k of Object.keys(d))if(!STYLE_FIELDS.includes(k))no('no such field '+k);
@@ -62,7 +64,9 @@ function styleOf(f){if(!f)return null;const k=f.style;
   if(k&&STYLES[k]&&styleCan(f,k))return k;
   return f===S.F[0]&&STYLES.sareth&&styleCan(f,'sareth')?'sareth':null;}
 function styleIn(f,k){return styleOf(f)===k;}
-function styleKnown(f,k){const d=STYLES[k];return!!d&&!!f&&(!d.known||!!d.known(f));}
+function styleKnown(f,k){const d=STYLES[k];return!!d&&!!f&&!(d.enemy&&f===S.F[0])&&(!d.known||!!d.known(f));}
+// the styles that are the hero's to have (the cards, the levels): all but the ones only the others fight in
+function heroStyles(){return STYLE_ORDER.filter(k=>!STYLES[k].enemy);}
 // the styles he could fight in with what he holds now
 function stylesFor(f){return STYLE_ORDER.filter(k=>styleKnown(f,k)&&styleCan(f,k));}
 // his expertise in a style: the night's (sk_growth.js) for the hero in the story, else where he starts it; another man's by his rank
@@ -99,6 +103,13 @@ V11.duelStart.push(()=>{for(const f of S.F)if(f)f.meter=null;const K=S.F[0];if(!
 // a meter goes with its style: out of it (another weapon in his hand, the gilt gone out), it is gone
 V11.step.push(()=>{for(const f of S.F)if(f&&f.meter&&f.meter.k!==styleOf(f))meterClear(f,'out of the style');});
 if(!S.hooks.meter)S.hooks.meter=()=>{};
+// a stage's foe can be given a style by its entry (style: 'order'); one of the styles only the others fight in is told once a fight,
+// the moment he first fights in it (the guards' batons out)
+{const sr=storyRoster;storyRoster=function(st){const r=sr.apply(this,arguments);(st.foes||[]).forEach((e,i)=>{const f=S.F[i+1];if(f&&e.style)f.style=e.style;});return r;};}
+V11.duelStart.push(()=>{for(const f of S.F)if(f)f._styOn=null;});
+V11.step.push(()=>{for(const f of S.F){if(!f||f.dead||f===S.F[0]||!f.style||f._styOn===f.style)continue;const k=styleOf(f);
+  if(k&&STYLES[k].enemy){f._styOn=k;S.hooks.styleOn(f,k);}}});
+if(!S.hooks.styleOn)S.hooks.styleOn=()=>{};
 
 // ---------- how a style moves ----------
 // the animation style is the style's (a style without one keeps the fighter's own: Kael's tactical motion, everyone else's regular)

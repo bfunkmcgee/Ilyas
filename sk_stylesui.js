@@ -4,7 +4,7 @@
 // meter's changes in the log, the Long count's callout, and the style cards from the registry (sk_styles.js): the styles screen and
 // the menu's Styles in the Pit, and a Styles tab of the menu in the prologue and the lab (the styles he has, with his level in each,
 // its meter, its moves by rank and its signature).
-const STYUI={plate:'',chip:'',picked:false};
+const STYUI={plate:'',chip:'',picked:false,on:[]};
 function styEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function styPips(m,cls){if(!m||!m.max)return'';return`<span class="${cls}" aria-hidden="true">`+Array.from({length:m.max},(_,i)=>`<i${i<m.n?' class="on"':''}></i>`).join('')+'</span>';}
 // ---------- the chip on the stance bar ----------
@@ -18,16 +18,21 @@ function styPick(k){const K=hero();if(!K||isAI(K.idx))return;if(typeof ensureAud
   if(setStyle(K,k)){updateStatus();if(typeof stnUiNow==='function')stnUiNow();}}
 function styNext(){const K=hero();if(!K)return;const ks=stylesFor(K);if(ks.length<2)return;const cur=styleOf(K);styPick(ks[(ks.indexOf(cur)+1)%ks.length]);}
 
-// ---------- his plate ----------
-// the meter beside the balance pips; the style's name on the plate's line (desktop), when it is not his own
+// ---------- the plates ----------
+// a style's meter beside the balance pips, on his plate and on the plate of any man with one (since V95: the guards' Cover); the
+// style's name on the plate's line (desktop): his when it is not his own, and an enemy's style (the Order drill)
 // (the row is rebuilt with the plates, so the meter goes with it: kept on the row itself)
-function styPlate(){const K=hero(),fr=K&&!K.dead&&document.getElementById('fr'+K.idx);if(!fr)return;const m=meterOf(K),key=m&&m.max?m.k+'|'+m.n+'|'+m.max:'';
+function styPlate(){for(const f of S.F)if(f)styPlateFor(f);}
+// (its width on the row, --fmw: an upright phone's plate keeps its dots and chevron clear of it, sk_css_styles.css)
+function styPlateFor(K){const fr=K&&!K.dead&&document.getElementById('fr'+K.idx);if(!fr)return;const m=meterOf(K),key=m&&m.max?m.k+'|'+m.n+'|'+m.max:'';
   let el=fr._fm||null;if(!key){if(el&&!el.hidden)el.hidden=true;return;}
   if(!el){el=document.createElement('span');el.className='fmeter';el._k='';if(fr.appendChild)fr.appendChild(el);fr._fm=el;}
-  if(el.hidden)el.hidden=false;if(el._k!==key){el._k=key;el.innerHTML=styPips(m,'fm-p');el.title=`${m.name} ${m.n} of ${m.max}`;}}
+  if(el.hidden)el.hidden=false;if(el._k!==key){el._k=key;el.innerHTML=styPips(m,'fm-p');el.title=`${m.name} ${m.n} of ${m.max}`;
+    if(fr.style&&fr.style.setProperty)fr.style.setProperty('--fmw',(m.max*7-3)+'px');}}
 {const br=buildRows;buildRows=function(){const r=br.apply(this,arguments);styPlate();return r;};}
-{const us=updateStatus;updateStatus=function(){const r=us.apply(this,arguments);styPlate();
-  const K=hero(),el=K?$('meta'+K.idx):null,k=K&&!K.dead?styleOf(K):null;if(el&&k&&k!=='sareth'&&el.textContent.indexOf(STYLES[k].short)!==0)el.textContent=STYLES[k].short+' · '+el.textContent;
+{const us=updateStatus;updateStatus=function(){const r=us.apply(this,arguments);styPlate();const K=hero();
+  for(const f of S.F){const el=f?$('meta'+f.idx):null,k=f&&!f.dead?styleOf(f):null;if(!el||!k||(f===K?k==='sareth':!STYLES[k].enemy))continue;
+    if(el.textContent.indexOf(STYLES[k].short)!==0)el.textContent=STYLES[k].short+' · '+el.textContent;}
   return r;};}
 
 // ---------- the cards ----------
@@ -54,7 +59,7 @@ function styleCardHtml(K,k){const d=STYLES[k],L=styleLevelFor(K,k);
     `<p class="a9-w">${d.weapon}</p><p class="a9-o">${d.origin}</p><p class="a9-dc">${styEsc(d.doctrine)}</p><p class="a9-wh">${styEsc(d.what)}</p>${lv}${meter}${moves}${master}</section>`;}
 function styleCardsHtml(keys){const K=hero();return keys.map(k=>styleCardHtml(K,k)).join('');}
 // the styles a card shows: in the Pit all three (what he has, what he lost, and what comes back); elsewhere the ones he has
-function styleCardKeys(){const K=hero();if(typeof act1On==='function'&&act1On())return STYLE_ORDER.slice();return STYLE_ORDER.filter(k=>styleKnown(K,k));}
+function styleCardKeys(){const K=hero();if(typeof act1On==='function'&&act1On())return heroStyles();return heroStyles().filter(k=>styleKnown(K,k));}
 
 // ---------- the menu's Styles, in the prologue and the lab ----------
 function styTabOn(){const side=hudEl('sideCol');return!!side&&!side.dataset.pit&&!!hero()&&styleCardKeys().length>0&&HUD.state!=='title';}
@@ -82,9 +87,18 @@ V11UI.init.push(()=>{const E=typeof STNUI!=='undefined'?STNUI.el:null,bar=E&&E.b
     S.callouts.push({i:K.idx,text:d.name,age:0,life:1.2,dx:0,dy:-26});S.hooks.sound('shing',.6);
     const li=newEntry(false);li.innerHTML=`<div class="lg-l">${who(K)}<span>fights in ${styEsc(d.name)}</span></div><div class="lg-perf">${styEsc(d.doctrine)} +${STYLE_SW.tempo} tempo${was&&meterOf(K)?'; the meter starts empty':''}</div>`;pushEntry(li);
     styPlate();if(typeof stnUiNow==='function')stnUiNow();};
-  // the meter: each change in the log, under the exchange it came of
+  // the meter: each change of his in the log, under the exchange it came of (another man's shows on his plate alone)
   const mh=S.hooks.meter;S.hooks.meter=function(f,k,n,was,why){if(mh)mh.apply(this,arguments);const d=STYLES[k];if(!d||!d.meter||S.warming)return;
+    if(f!==hero()){styPlateFor(f);return;}
     const full=n>0&&n>=meterMax(f,k);logNote(f,n>0?`${d.meter.name} ${n}${full?', full':''}`:`${d.meter.name} gone`,why||null);styPlate();if(typeof stnUiNow==='function')stnUiNow();};
+  // a style only the others fight in, taken: one line for all who take it at once (the guards' batons out), with its doctrine
+  const so=S.hooks.styleOn;S.hooks.styleOn=function(f,k){if(so)so.apply(this,arguments);if(!S.warming)STYUI.on.push({f,k});};
   // the Long count: its name over him as he goes
   const wh=S.hooks.wire;S.hooks.wire=function(ev,o){if(wh)wh.apply(this,arguments);if(ev==='long'&&o&&o.A)S.callouts.push({i:o.A.idx,text:'Long count',age:0,life:1.1,dx:-(o.A.facing||1)*20,dy:-20});};});
+V11UI.tick.push(()=>{if(!STYUI.on.length)return;const L=STYUI.on.splice(0);
+  for(const k of [...new Set(L.map(o=>o.k))]){const d=STYLES[k],F=L.filter(o=>o.k===k).map(o=>o.f),N=F.map(f=>who(f));
+    const list=N.length>1?N.slice(0,-1).join(', ')+' and '+N[N.length-1]:N[0];
+    // (the names in one piece: the line's gap would open before each comma)
+    const li=newEntry(false);li.innerHTML=`<div class="lg-l"><span>${list}</span><span>${F.length>1?'fight':'fights'} in the ${styEsc(d.name)}</span></div><div class="lg-perf">${styEsc(d.doctrine)}</div>`;pushEntry(li);}
+  styPlate();});
 // ===== STYLES UI END =====

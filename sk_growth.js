@@ -22,7 +22,7 @@ function growthCount(list,L){let n=0;for(const x of list)if(L>=x)n++;return n;}
 // a style's expertise: levels 1 to 20, a rank every four (SKILLS: Novice, Trained, Veteran, Expert, Master); where he starts each
 // (the prologue's numbers are his at these); its perks: +1 to hit fighting in it at each of hit's levels, +1 DEF at each of def's
 // (where he starts each is the style's own, in the registry: sk_styles.js)
-const STYLE_GROWTH={max:20,start:Object.fromEntries(STYLE_ORDER.map(k=>[k,STYLES[k].start])),hit:[5,10,15,20],def:[8,16]};
+const STYLE_GROWTH={max:20,start:Object.fromEntries(heroStyles().map(k=>[k,STYLES[k].start])),hit:[5,10,15,20],def:[8,16]};
 function styleNeed(L){return 40+20*(L-1);}
 const STYLE_XP_AT=(()=>{const a=[0,0];for(let L=1;L<STYLE_GROWTH.max;L++)a[L+1]=a[L]+styleNeed(L);return a;})();
 function styleLevelOf(xp){let L=1;while(L<STYLE_GROWTH.max&&xp>=STYLE_XP_AT[L+1])L++;return L;}
@@ -144,6 +144,6 @@ RULES.add({id:'level.dmg',src:'Level',on:'dmg',label:'level',add:()=>growthCount
   when:x=>heroIn(x.A)&&x.r&&(x.r.out==='hit'||x.r.out==='crit')&&x.r.dmg>0&&growthCount(GROWTH.dmg,heroLevel())>0});
 // a style's perks, past where he started it: to hit fighting in it, DEF while he stands in it
 function stylePerk(k,list){return growthCount(list,styleLevel(k))-growthCount(list,STYLE_GROWTH.start[k]||1);}
-for(const k of STYLE_ORDER){const name=STYLES[k].name;
+for(const k of heroStyles()){const name=STYLES[k].name;
   RULES.add({id:'style.'+k+'.hit',src:name,on:'attack',to:'hit',label:name,v:()=>stylePerk(k,STYLE_GROWTH.hit)||null,when:x=>heroIn(x.A)&&heroStyle(x.A)===k});
   RULES.add({id:'style.'+k+'.def',src:name,on:'attack',to:'def',label:name,v:()=>stylePerk(k,STYLE_GROWTH.def)||null,when:x=>heroIn(x.D)&&heroStyle(x.D)===k});}

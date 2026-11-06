@@ -1,4 +1,4 @@
-// The styles as a framework (sk_styles.js, sk_wire.js; since V94). The registry: the three styles, each one well made, a malformed one
+// The styles as a framework (sk_styles.js, sk_wire.js, sk_order.js; since V94). The registry: the four styles, each well made, a malformed one
 // refused, their entries in the rules list. Who fights in what: his own Sareth cut by default, the Wire drill once picked, everyone
 // else in none; each lock (the gilt, two hands, the weapon, the blade that will not lock drained) and the scrap arm's way in. The
 // switch: only on his own turn, a beat of tempo, the meter emptied, the pick kept for the night and for the lab's next fight. The look:
@@ -7,7 +7,9 @@
 // line, +1 to hit a count. The Long count: only at a full count with
 // the Aether, no cost to close in, spent as it is thrown, 2 harder and 2 more pips; the count running on at Master. The drill's own
 // rules (thrown whole, carried through, on the line) and its mastery in any style; the AI keeping the drill; the night's XP to the style
-// he fights in; the pick through a stage and the record; the Sareth cut with the scrap arm; and Short Hand in the registry.
+// he fights in; the pick through a stage and the record; the Sareth cut with the scrap arm; and Short Hand in the registry. And (since
+// V95) the Order drill, the guards' baton course: not his to have; the baton; its look and pace; Cover by rank, from the partners in
+// reach; alone; the limbs and the head; its answers; the baton push and the arm bar; a partner down; the AI; the lobby's guards.
 const core=require('./sk_src.js')(process.argv[2]);
 eval(core+`
 const errs=[];let nOk=0,base=mulberry32(94);S.rng=()=>base();Math.random=()=>base();
@@ -43,12 +45,12 @@ function lands(K,D,kind){return blow(K,D,kind,'hit');}
 function misses(K,D,kind){return blow(K,D,kind,'miss');}
 
 // ---------- the registry ----------
-expect('three styles, in the screen\\'s order: Short Hand, the Wire drill, the Sareth cut',STYLE_ORDER.join()==='shorthand,wire,sareth'&&STYLE_ORDER.every(k=>{const d=STYLES[k];
+expect('four styles, in the screen\\'s order: Short Hand, the Wire drill, the Sareth cut, and the Order drill (the guards\\')',STYLE_ORDER.join()==='shorthand,wire,sareth,order'&&STYLE_ORDER.every(k=>{const d=STYLES[k];
   return d.key===k&&d.name&&d.weapon&&d.weapons.length&&(d.hands===1||d.hands===2)&&d.origin&&d.doctrine&&d.what;}),STYLE_ORDER.join());
 {const bad=[{},{key:'sareth',name:'x',weapons:['sword'],hands:2},{key:'q1',name:'Q',weapons:[],hands:1},{key:'q2',name:'Q',weapons:['sword'],hands:3},
     {key:'q3',name:'Q',weapons:['sword'],hands:1,colour:'red'},{key:'q4',name:'Q',weapons:['sword'],hands:1,meter:{name:'M'}}];
   const thrown=bad.filter(d=>{try{styleDef(d);return false;}catch(e){return true;}}).length;
-  expect('a malformed style is refused as the page loads (no key, twice, no weapons, three hands, a field it does not know, a meter with no cap)',thrown===bad.length&&STYLE_ORDER.length===3,thrown+' of '+bad.length);}
+  expect('a malformed style is refused as the page loads (no key, twice, no weapons, three hands, a field it does not know, a meter with no cap)',thrown===bad.length&&STYLE_ORDER.length===4,thrown+' of '+bad.length);}
 {const want=['style.wire.count','style.wire.whole','style.wire.tempo','style.wire.long','style.wire.long.approach','style.wire.answer','style.wire.mastery.back','style.sareth.scrap.hit','style.sareth.scrap.def'];
   const miss=want.filter(id=>!RULES.ids[id]);
   expect('the styles\\' rules are entries in the one list, under the style\\'s name',!miss.length&&RULES.list.filter(r=>r.id.startsWith('style.wire.')&&!/\\.(hit|def)$/.test(r.id)).every(r=>r.src==='Wire drill'),miss.join());}
@@ -183,6 +185,104 @@ function night(key){storyQuit();S.F=[];base=mulberry32(94);S.storyAuto=true;S.au
 {const {K,D}=lab({weapon:'dagger'});K.style='shorthand';K.styleMoves={stance:true,hinge:true};
   expect('Short Hand: in it with the dagger, its moves by lesson',styleOf(K)==='shorthand'&&shortOn(K)&&styleKnows(K,'shorthand','hinge')&&!styleKnows(K,'shorthand','toll')&&styleKnown(K,'shorthand'));
   K.style=null;K.styleMoves=null;}
+
+// ---------- the Order drill (since V95): the guards' baton course ----------
+// a lab fight: Ilyas and three guards with batons in the drill (named, so they are no elves): A a step off him, B beside A in the next
+// lane (in reach of him too), C on his other side; o.skill is their rank, o.hero his
+function guards(o={}){base=mulberry32(o.seed||95);S.arenaKey='street';S.room=null;S.auto=false;S.tableOn=false;S.divOn=false;S.cfg.n=o.n||3;S.cfg.crew=false;S.cfg.ally.on=false;S.allyAuto=false;
+  S.cfg.hero={seed:2207,weapon:'elven',skill:o.hero||5};for(let i=0;i<3;i++)S.cfg.foes[i]={seed:5113+i*31,weapon:'baton',skill:o.skill||1,temper:'plain'};
+  S.F=[];rosterBuild();S.F.slice(1).forEach((g,i)=>{g.name='Guard '+'ABC'[i];});initDuel();warm(20);turn(0);const K=S.F[0],[A,B,C]=S.F.slice(1);
+  for(const f of S.F){f.intent=null;f.ready=f.idx?60:0;f.foot=footMaxOf(f);f.reads={};f.hp=f.maxHp=9999;}
+  for(const g of S.F.slice(1)){g.style='order';setTgt(g,0);}
+  K.station=380;A.lane=K.lane;A.station=K.station+engageGap(K,A);
+  if(B){B.lane=K.lane+(K.lane>120?-30:30);B.station=K.station+engageGap(K,B)+10;}if(C){C.lane=K.lane;C.station=K.station-engageGap(K,C);}
+  setTgt(K,A.idx);K.aether=MAGIC.max;return{K,A,B,C};}
+// let the drill's step see the room (who is a partner, the meter on the plate) as the game would, a beat at a time
+function beat(n=30){for(let i=0;i<n;i++)step();}
+{const {K,A}=guards();A.setWeapon('baton');
+  expect('the Order drill: one of the styles only the others fight in (not on his cards or his chip, no level of his)',STYLES.order.enemy&&!heroStyles().includes('order')&&STYLE_GROWTH.start.order==null&&!styleKnown(K,'order')&&!stylesFor(K).includes('order'));
+  const want=['style.order.cover','style.order.limbs','style.order.head','style.order.alone','style.order.answer','style.order.push'],miss=want.filter(id=>!RULES.ids[id]);
+  expect('its rules are entries in the one list, under its name',!miss.length&&RULES.list.filter(r=>r.id.startsWith('style.order.')).every(r=>r.src==='Order drill'),miss.join());
+  expect('the baton: one hand, blunt (a man it puts down is knocked out), a weapon in its own right (the lash can take it)',WEAPONS.baton.fam==='blunt'&&!WEAPONS.baton.off&&realWeapon('baton')&&!!GUARD.baton&&LOOT_RANK.baton>0);
+  expect('a guard with a baton fights in it, and moves in its motion',styleOf(A)==='order'&&A.animStyle==='order');
+  A.setWeapon('club');const cl=styleOf(A),why=styleNeeds(A,'order');A.setWeapon('baton');
+  expect('with anything else in his hand, none (it needs a baton)',cl===null&&why==='needs a baton'&&styleOf(A)==='order',why);
+  K.setWeapon('baton');const kb=styleOf(K);K.setWeapon('elven');expect('a baton in Ilyas\\'s hand is no Order drill for him',kb!=='order');
+  const nm=k=>pickTechnique(A,K,k).name;
+  expect('its blows are named for what they are: the Baton strike, the Baton jab, the High strike, the Leg strike',nm('slash')==='Baton strike'&&nm('thrust')==='Baton jab'&&nm('overhead')==='High strike'&&nm('sweep')==='Leg strike',['slash','thrust','overhead','sweep'].map(nm).join());}
+// the look: against what the lobby's guards held before (a table leg, a Novice's arms) and a plain man's baton
+{const {A}=guards();const g1=styleGuard(A),m1=styleMoves(A,null);A.style=null;const g0=styleGuard(A);A.setWeapon('club');const gc=styleGuard(A),mc=styleMoves(A,null);A.setWeapon('baton');A.style='order';
+  expect('its guard: the baton up at the shoulder, the free hand out in front and up (the fence), stood taller than a Novice with a table leg',g1.hy<gc.hy-.1&&g1.hx<gc.hx&&g1.w<gc.w-.3&&g1.off[0]>gc.off[0]*1.5&&g1.off[1]<gc.off[1]-.3&&g1.crouch>gc.crouch,JSON.stringify({hy:[gc.hy,g1.hy],w:[gc.w,g1.w],off:[gc.off,g1.off],crouch:[gc.crouch,g1.crouch]}));
+  expect('and against a plain man\\'s baton: the fence, and the feet set wider',g1.off[0]>g0.off[0]*1.4&&g1.off[1]<g0.off[1]-.2&&g1.sf>g0.sf*1.15,JSON.stringify({off:[g0.off,g1.off],sf:[g0.sf,g1.sf]}));
+  expect('its pace, at any rank: from the shoulder and straight back to it (the follow-through short, the guard back sooner)',m1.follow<mc.follow*.7&&m1.reach<mc.reach*.5&&m1.recover<mc.recover*.7&&m1.follow<1&&m1.reach<1,JSON.stringify([mc.follow,m1.follow,mc.reach,m1.reach,mc.recover,m1.recover]));}
+// Cover
+{const {K,A,B,C}=guards();beat();
+  expect('Cover, its meter: to 1 for a Novice',meterOf(A).name==='Cover'&&meterOf(A).max===1&&orderCover(A)===1,orderCover(A));
+  const hit=()=>computeMods(A,K,'slash',false).bonus-without('style.order.cover',()=>computeMods(A,K,'slash',false).bonus);
+  expect('each partner in cover is +1 to hit',hit()===1,hit());
+  expect('on his plate, a beat behind the room',meterN(A,'order')===1);}
+{const {K,A,B,C}=guards({skill:2});beat();const two=orderCover(A),m2=meterN(A,'order');
+  B.station=K.station+engageGap(K,B)+ORDER_DRILL.reach+60;const one=orderCover(A);B.station=K.station+engageGap(K,B)+10;B.lane=K.lane+ORDER_DRILL.lanes+20;const lane=orderCover(A);
+  B.lane=K.lane;B.downed=true;const dn=orderCover(A);B.downed=false;METER.length=0;C.station=K.station-900;beat();const e=METER.find(m=>m.f===A);
+  expect('to 2 from Trained: two partners in reach of the man he is on',meterOf(A).max===2&&two===2&&m2===2,two+' '+m2);
+  expect('a partner out of reach, in a lane well off, or on the ground is no cover; the plate follows',one===1&&lane===1&&dn===1&&!!e&&e.n===1&&e.why==='his cover gone',[one,lane,dn,JSON.stringify(e&&[e.n,e.why])].join(' '));}
+// alone
+{const {K,A,B,C}=guards();beat();const had=A._orderHad;B.dead=true;C.dead=true;const al=orderAlone(A);
+  const hit=computeMods(A,K,'slash',false).bonus-without('style.order.alone',()=>computeMods(A,K,'slash',false).bonus);
+  expect('once the partners he had this fight are down, the book is out: -1 to hit',had&&al&&hit===ORDER_DRILL.alone&&orderCover(A)===0,[had,al,hit].join());
+  const one=guards({n:1});beat();const h1=computeMods(one.A,one.K,'slash',false).bonus-without('style.order.alone',()=>computeMods(one.A,one.K,'slash',false).bonus);
+  expect('a man in it who had no partner this fight is not alone in its sense (a lone guard is no worse for it)',!orderAlone(one.A)&&h1===0,h1);}
+// the blows: the damage as the blow is resolved (the same dice, its entry in and out); the pips at its impact (no partners to pile in,
+// no opening after it)
+{const {K,A,B,C}=guards({hero:1});B.dead=C.dead=true;
+  const res=(kind,off)=>{base=mulberry32(7);const T=pickTechnique(A,K,kind),c=computeMods(A,K,kind,false,T);let v=null;
+    for(let i=2;i<=19&&v==null;i++){const t=i+c.bonus;if(t>=c.def&&!isCrit(i,t,c.def))v=i;}const go=()=>rolled(v,()=>resolveAttack(A,K,kind,false,T));const r=off?without(off,go):go();return r.out==='hit'?r.dmg:'('+r.out+')';};
+  const d={};for(const k of ['slash','sweep','thrust'])d[k]=[res(k),res(k,'style.order.limbs')];
+  expect('to the limbs: a Baton strike or a Leg strike that lands does 1 less; the Baton jab is a plain blow',d.slash[0]-d.slash[1]===ORDER_DRILL.limbs.dmg&&d.sweep[0]-d.sweep[1]===ORDER_DRILL.limbs.dmg&&d.thrust[0]===d.thrust[1],JSON.stringify(d));
+  const kb=knockBalance,co=considerOpening,knocks=[];knockBalance=function(f,n,by){if(f===K&&by===A)knocks.push(n);return kb.apply(this,arguments);};considerOpening=()=>{};
+  const pips=kind=>{knocks.length=0;turn(1);A.foot=footMaxOf(A);K.foot=footMaxOf(K);place(A,K);ANS.set(K,'parry');FORCE={A,out:'hit'};try{act(1,kind);run();}finally{FORCE=null;ANS.delete(K);}return knocks.reduce((s,n)=>s+n,0);};
+  let p1,p0,pt1,pt0;try{p1=pips('slash');pt1=pips('thrust');A.style=null;p0=pips('slash');pt0=pips('thrust');A.style='order';}finally{knockBalance=kb;considerOpening=co;}
+  expect('and knocks a pip more (the jab no more than any)',p1-p0===ORDER_DRILL.limbs.pips&&pt1===pt0,[p1,p0,pt1,pt0].join());
+  const hd=computeMods(A,K,'overhead',false).bonus-without('style.order.head',()=>computeMods(A,K,'overhead',false).bonus);
+  expect('the head is a last resort: the High strike -1 to hit',hd===ORDER_DRILL.head,hd);}
+// the answers it teaches, and the ones it does not
+{const {K,A,B,C}=guards();beat();
+  const def=k=>withReact(A,k,()=>computeMods(K,A,'slash',false).def)-without('style.order.answer',()=>withReact(A,k,()=>computeMods(K,A,'slash',false).def));
+  expect('its answers: Parry +1 and Step back +1 (the block and the gap), Slip -1 and Counter -1 (the course has neither)',def('parry')===1&&def('back')===1&&def('slip')===-1&&def('counter')===-1,['parry','back','slip','counter'].map(def).join());
+  B.dead=true;C.dead=true;expect('alone, his Parry and Step back are plain again',def('parry')===0&&def('back')===0&&def('slip')===-1,['parry','back','slip'].map(def).join());}
+// the baton push (Trained) and the arm bar (Veteran)
+let SHOVE=null;{const rs=resolveShove;resolveShove=function(A,D){const r=rs.apply(this,arguments);if(SHOVE&&A===SHOVE.A){r.ok=SHOVE.ok;r.crush=false;}return r;};}
+function push(K,A,foot){const kb=knockBalance,knocks=[],ev=[];knockBalance=function(f,n,by){if(f===K&&by===A)knocks.push(n);return kb.apply(this,arguments);};
+  const oh=S.hooks.order;S.hooks.order=(e,o)=>ev.push(e);let ok=false,plan=null;const ps=planShove;planShove=function(){const P=ps.apply(this,arguments);if(arguments[0]===A)plan=P;return P;};
+  try{turn(1);A.foot=footMaxOf(A);K.foot=foot??footMaxOf(K);K.downed=false;place(A,K);SHOVE={A,ok:true};ok=act(1,'shove');for(let n=0;n<600&&S.game.phase==='exchange';n++){simStep();if(S.opening)tickOpening(S.opening.left+.01);}}
+  finally{SHOVE=null;knockBalance=kb;S.hooks.order=oh;planShove=ps;}
+  return{ok,knocks,ev,down:K.downed,two:!!(plan&&plan.batonPush)};}
+{const {K,A}=guards({skill:2});
+  const p=shoveMods(A,K,false).bonus-without('style.order.push',()=>shoveMods(A,K,false).bonus),r=push(K,A);
+  expect('the baton push, its signature, from Trained: his shove +2, a pip more when it lands, both hands on the baton',p===ORDER_DRILL.push.hit&&r.ok&&r.knocks.includes(ORDER_DRILL.push.pips)&&r.two,JSON.stringify({p,r}));
+  const c=push(K,A,3);expect('a Trained man\\'s push does not take a Committed man down',c.ok&&!c.down);}
+{const {K,A}=guards();const p=shoveMods(A,K,false).bonus-without('style.order.push',()=>shoveMods(A,K,false).bonus),r=push(K,A);
+  expect('a Novice has no push: a plain shove, one hand ("Get back!" all the same)',p===0&&r.ok&&!r.two&&r.ev.includes('shove')&&r.knocks.length===1,JSON.stringify({p,r}));}
+{const {K,A}=guards({skill:3,hero:3});const r=push(K,A,3),s=push(K,A);
+  expect('the arm bar, from Veteran: his push at a Committed man takes him down (a Set one stays up)',r.ok&&r.down&&s.ok&&!s.down,JSON.stringify([r.down,s.down]));}
+{const {K,A}=guards({skill:3,hero:5});const r=push(K,A,3);expect('the better man is taken down by it only as any shove would (outclassed, it needs a crush)',r.ok&&!r.down);}
+// a partner down
+{const {K,A,B}=guards();const ev=[],oh=S.hooks.order;S.hooks.order=(e,o)=>ev.push([e,o&&o.A&&o.A.name]);try{for(const h of V11.kill)h(B);}finally{S.hooks.order=oh;}
+  expect('a partner down: the one beside him says so ("Man down!")',ev.length===1&&ev[0][0]==='down'&&ev[0][1]!=='Guard B',JSON.stringify(ev));}
+// on auto
+{const {K,A,B,C}=guards({skill:2});beat();const w={slash:10,overhead:10,thrust:10,sweep:1};moveWeights(A,K,w,pickTechnique(A,K,'slash'),()=>true);
+  const n={slash:10,overhead:10,thrust:10,sweep:1};A.style=null;moveWeights(A,K,n,pickTechnique(A,K,'slash'),()=>true);A.style='order';
+  expect('on auto: the Baton strike and the Leg strike first, the High strike hardly ever, the push from Trained',w.slash>n.slash&&w.sweep>n.sweep&&w.overhead<n.overhead*.5&&w.shove>0&&!n.shove,JSON.stringify({w,n}));
+  const share=()=>{let k=0;for(let i=0;i<400;i++){const a=aiReact(A,K,'slash',pickTechnique(K,A,'slash'),false);if(a==='parry'||a==='back')k++;}return k/400;};
+  const s1=share();A.style=null;const s0=share();A.style='order';
+  expect('its answers more often than not: a Parry or a Step back',s1>.6&&s1>s0+.2,s1.toFixed(2)+' / '+s0.toFixed(2));
+  B.dead=true;C.dead=true;let wd=0;for(let i=0;i<200;i++)if(temperChoice(A,K,c=>c==='withdraw'||cmdValid(A,K,c),()=>i<40?.05:.9,Math.abs(A.station-K.station),false)==='withdraw')wd++;
+  expect('alone, he gives ground now and then',wd>=40,wd);}
+// the lobby: the guards' batons out after the volley, and the drill with them
+{const SV=night('lobby'),G=S.F.filter(f=>/^Guard/.test(f.name)),Sb=S.F.find(f=>f.name==='Sable');
+  expect('the lobby: the guns run dry, the batons come out, and the three guards fight in the Order drill (Sable in none)',G.length===3&&G.every(f=>f.weaponKey==='baton'&&styleOf(f)==='order'&&f.animStyle==='order')&&!!Sb&&styleOf(Sb)===null,G.map(f=>f.name+' '+f.weaponKey+' '+styleOf(f)).join(', '));
+  expect('Guards A and B are Novices in it, Guard C Trained (the push his)',styleLevelFor(G[0],'order')===1&&styleLevelFor(G[2],'order')===5&&styleKnows(G[2],'order','push')&&!styleKnows(G[0],'order','push'));
+  storyQuit();}
 
 console.log('\\n'+nOk+' ok, '+errs.length+' failed');console.log('errors '+errs.length+' '+JSON.stringify(errs));
 process.exit(errs.length?1:0);
