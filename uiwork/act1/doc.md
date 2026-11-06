@@ -76,7 +76,7 @@ behind the gilt.
 > **Dob** (at the ladder): "Stairs are round the side. Takes longer. Everything does now, I bet."
 
 ### 5. Tamm's list
-*The stair-streets and the Shelf market.* Tamm hands him a canvas satchel, a short list, a purse of Crown coin and three pump
+*The stair-streets and the Shelf market.* Tamm hands him a canvas satchel, a short list, a purse of copper bits and three pump
 chits. The chits are Osgood Tarr's water paper, and in the Pit they pass for money.
 
 The Pit has four tiers: the Floor where the Sump stands, the stair-streets switchbacking up the walls, the Shelf market on a broad
@@ -90,7 +90,7 @@ in one. The old man at the end of the row turns his head and follows Ilyas with 
 **Play:** three tutorials in one errand.
 - **Navigation.** The Pit map: its tiers, routes and landmarks, a waypoint for each item on the list, and the closed ladders that
   force the long way round.
-- **Buying.** The shop screen, with prices in coin or chits. The good lamp oil costs a chit; the cheap oil smokes. An optional
+- **Buying.** The shop screen, with prices in bits or chits. The good lamp oil costs a chit; the cheap oil smokes. An optional
   salve heals between fights, and a whetstone sharpens the dagger.
 - **Inventory.** The satchel is a grid with slots and a weight limit. The rice sack takes three slots in the bag, or it can ride in
   his hand, which leaves no hand for a knife. Whatever is in his hand on the way home is what he has when the toll men step out.
@@ -99,7 +99,7 @@ in one. The old man at the end of the row turns his head and follows Ilyas with 
 > **Ilyas** (thought, at the spike): "Gone. Somebody climbed for it."
 > **Nim:** "Ranger gilt."
 > **Ilyas:** "You know it?"
-> **Nim:** "I know what it guarded. Valve's two coin. For you, three."
+> **Nim:** "I know what it guarded. Valve's two bits. For you, three."
 
 ### 6. The toll
 *A stair-street below the Shelf, at dusk.* Two of Tarr's collectors close a switchback, one above him and one below. Thirty years of

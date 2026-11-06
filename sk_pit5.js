@@ -1,8 +1,8 @@
 // ===== ACT I, SCENE 5 START =====
-// Tamm's List: the stair-streets and the Shelf market. Tamm hands him a canvas satchel, a short list, a purse of Crown coin and three
+// Tamm's List: the stair-streets and the Shelf market. Tamm hands him a canvas satchel, a short list, a purse of copper bits and three
 // pump chits (Osgood Tarr's water paper; in the Pit they pass for money). Three tutorials in one errand: the Pit map (its tiers,
 // routes and landmarks, a waypoint for each thing on the list, the closed ladders that force the long way round), buying (the shop
-// screen, prices in coin or chits), and the satchel (a grid with slots and a weight limit; the rice sack takes three slots in it, or
+// screen, prices in bits or chits), and the satchel (a grid with slots and a weight limit; the rice sack takes three slots in it, or
 // rides in his hand, which leaves no hand for a knife). Whatever is in his hand on the way home is what he has when the toll men step
 // out. On the way up, the spike from the first landing: bare but for a dark stain and a strip of black coat cloth. At the Shelf, Nim
 // at the pump stall looks at his tattoos longer than at his coin. On the way back the street goes quiet along a row of silent beggars,
@@ -10,7 +10,9 @@
 
 // ---------- the errand: what he carries and what he has to spend ----------
 // GOODS: what can be had (slots in the satchel, weight). STALLS: the Shelf's five, keyed as ACT1_PLACES.shelf.stalls are, each with what
-// it sells and the price in coin, chits or both (a chit goes for two coin's worth; the good lamp oil is a chit or nothing).
+// it sells and the price in bits, chits or both (a chit goes for two bits' worth; the good lamp oil is a chit or nothing). Bits are
+// copper, the Crown's small money (canon: chimes gold, rings silver, bits copper); the code's word for them is coin (`g.coin`, `E.coin`,
+// the pay 'coin'), kept so that a save goes on working.
 const GOODS={oil:{name:'Lamp oil',slots:1,wt:2,list:'oil'},oilcheap:{name:'Cheap lamp oil',slots:1,wt:2,list:'oil'},rice:{name:'Rice sack',slots:3,wt:4,list:'rice'},
   salt:{name:'Salt',slots:1,wt:1,list:'salt'},valve:{name:'Pump valve',slots:1,wt:1,list:'valve'},linen:{name:'Clean linen',slots:1,wt:1,list:'linen'},
   salve:{name:'Salve',slots:1,wt:1},whet:{name:'Whetstone work',service:true}};
@@ -64,7 +66,7 @@ function errandAffords(E,got,coin,chits){
 // buying: the money first, then where it goes (the satchel, else his hand if it is free); null when bought, else why not
 function errandBuy(stall,id,pay){const E=errand(),St=STALLS[stall],g=St&&St.goods.find(x=>x.id===id);if(!g)return'Not sold here';const G=GOODS[id],pr=goodPrice(stall,g);
   const cost=pay==='chit'?pr.chit:pr.coin;if(cost==null)return pay==='chit'?'Not for chits':'Chits only';
-  if(pay==='chit'?E.chits<cost:E.coin<cost)return pay==='chit'?'Not enough chits':'Not enough coin';
+  if(pay==='chit'?E.chits<cost:E.coin<cost)return pay==='chit'?'Not enough chits':'Not enough bits';
   if(G.service){if(id==='whet'&&E.sharp)return'Already sharp';}
   else if(G.list&&E.got[G.list])return'Already on the list as got';
   if(!errandAffords(E,G.list?{...E.got,[G.list]:true}:E.got,E.coin-(pay==='chit'?0:cost),E.chits-(pay==='chit'?cost:0)))
@@ -208,7 +210,7 @@ STAGES.push({key:'shelf',act:1,num:'',title:'',sub:'',arena:'shelf',next:'stairs
         // Nim, the first time: she looks at his tattoos longer than at his coin
         if(s.id==='nim'&&!E.nim){const N=A.keepers.nim;N.facing=K.station<N.station?-1:1;yield* wait(.5);
           yield* speak('Nim','Ranger gilt.',{dur:1.8});yield* speak(HERO_NAME,'You know it?',{dur:1.6});
-          yield* speak('Nim','I know what it guarded. Valve’s two coin. For you, three.',{dur:3.4});E.nim=3;}
+          yield* speak('Nim','I know what it guarded. Valve’s two bits. For you, three.',{dur:3.4});E.nim=3;}
         const Sh=act1ShopOpen(s.id);yield* until(()=>!Sh.open,1e6);}});
     return{area:'shelf',bounds:{x0:R.floor.x0,x1:R.floor.x1,z0:R.floor.z0,z1:R.floor.z1},view:760,map:true,hand:E.hand?{id:E.hand,name:GOODS[E.hand].name,good:true}:null,
       goal:{text:()=>errandCount()<ERRAND_LIST.length?'Tamm’s list: '+errandCount()+' of '+ERRAND_LIST.length:'Back down the stair-street to the Sump',done:()=>!!A.downOff},

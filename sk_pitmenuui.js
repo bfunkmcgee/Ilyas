@@ -68,7 +68,7 @@ function pmGear(){const K=hero();if(!K)return;const kit=kitOf(),wear=K.wear&&typ
   // (him drawn again only when what he wears or the room for him has changed)
   const cv=hudEl('pmFig'),r=cv.getBoundingClientRect(),key=JSON.stringify(wear)+'|'+Math.round(r.width)+'x'+Math.round(r.height);if(PM.figKey!==key){PM.figKey=key;a1FigDraw(cv,wear);}}
 function pmBag(){const E=S.act1&&S.act1.errand,el=hudEl;if(!E)return;const live=exOn()&&!S.cut,C=SATCHEL.cols,G=satchelGrid(E.bag)||{items:[]};
-  el('pmPurse').textContent=`Coin ${E.coin} · Chits ${E.chits}`;
+  el('pmPurse').textContent=`Bits ${E.coin} · Chits ${E.chits}`;
   el('pmBag').innerHTML=Array.from({length:SATCHEL.cols*SATCHEL.rows},(_,i)=>`<span class="a1-cell" style="grid-column:${i%C+1};grid-row:${Math.floor(i/C)+1}"></span>`).join('')+
     G.items.map(it=>`<button type="button" class="a1-item" data-tohand="${it.i}" style="grid-column:${it.cell%C+1}/span ${it.n};grid-row:${Math.floor(it.cell/C)+1}"${live?' title="Carry in hand"':' disabled'}>${GOODS[it.id].name}</button>`).join('');
   el('pmWt').textContent=`Weight ${satchelWeight(E.bag)} of ${SATCHEL.wt}`;

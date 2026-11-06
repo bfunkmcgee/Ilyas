@@ -95,11 +95,11 @@ function a1ShopFill(){const s=A1M.shop;if(!s)return;const A=S.act1,Sh=A&&A.shop&
   const only=!Sh&&A1M.bagOnly;s.classList.toggle('a1-bagonly',only);
   if(Sh){const St=STALLS[Sh.stall],R=ACT1_PLACES.shelf.stalls.find(x=>x.id===Sh.stall);$('a1ShopK').textContent=St.keeper;$('a1ShopT').textContent=R?R.name:'';
     $('a1Goods').innerHTML=St.goods.map(g=>{const G=GOODS[g.id],pr=goodPrice(Sh.stall,g),got=G.list?E.got[G.list]:g.id==='whet'?E.sharp:false,onList=!!G.list;
-      const btn=(pay,n)=>n==null?'':`<button type="button" class="a1-buy" data-buy="${g.id}" data-pay="${pay}"${got&&g.id!=='salve'?' disabled':''}>${n} ${pay==='chit'?(n===1?'chit':'chits'):'coin'}</button>`;
+      const btn=(pay,n)=>n==null?'':`<button type="button" class="a1-buy" data-buy="${g.id}" data-pay="${pay}"${got&&g.id!=='salve'?' disabled':''}>${n} ${pay==='chit'?(n===1?'chit':'chits'):(n===1?'bit':'bits')}</button>`;
       return`<li class="a1-good${got?' got':''}"><span class="a1-good-n">${G.name}${onList?'<span class="a1-onlist">'+(got?'Got':'On the list')+'</span>':''}</span>`+
         `<span class="a1-good-w">${g.what||''}</span><span class="a1-good-b">${btn('coin',pr.coin)}${btn('chit',pr.chit)}</span></li>`;}).join('');}
   else{$('a1ShopK').textContent='Satchel';$('a1ShopT').textContent='What he carries';$('a1Goods').innerHTML='';}
-  $('a1Purse').textContent=`Coin ${E.coin} · Chits ${E.chits}`;
+  $('a1Purse').textContent=`Bits ${E.coin} · Chits ${E.chits}`;
   // the grid: each good as a block over the cells it takes; a good is tapped to go into his hand
   const G=satchelGrid(E.bag)||{items:[]},C=SATCHEL.cols;
   $('a1Bag').innerHTML=Array.from({length:SATCHEL.cols*SATCHEL.rows},(_,i)=>`<span class="a1-cell" style="grid-column:${i%C+1};grid-row:${Math.floor(i/C)+1}"></span>`).join('')+

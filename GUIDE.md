@@ -488,6 +488,13 @@ on is the Sump, its sign THE SUMP). The lines in play order: `node uiwork/names_
 against shown names too (logs, popups, hooks that record `f.name`, the Fighters panel, sorted name lists): a rename touches
 sk_react_test.js, sk_teamtest_body.js, sk_cast_page.js, sk_arms_page.js, sk_v12finale_test.js and others; grep them all.
 
+**Money (since V96).** The Pit's prices, the purse and Nim's line are in copper bits, the Crown's small money (the lore's coins are
+chimes gold, rings silver, bits copper, Book XI.6; the user's lore repo filed this game as rulings LN1 to LN11 on Nov 6). The code
+keeps coin as its word for them (STALLS' `coin:`, PURSE.coin, the errand's `E.coin`, the shop's pay `'coin'`), so a save goes on
+working; only the words shown say bits: the shop's buttons ("3 bits", "1 bit"), the purse ("Bits 12 · Chits 3") in the shop and
+the menu, "Not enough bits", and Nim's "Valve’s two bits. For you, three." `act1page` checks the purse and the line. Coin as plain
+money (a coin dropped in a tin cup) is the lore's own word and stays.
+
 **Act I, the Pit (since V49).** The user's doc tab "Act I, beats 1 and 2" (copy: uiwork/act1/doc.md; plan: uiwork/act1/PLAN.md) is
 nine scenes. Scenes 1 to 5 are built: the fall goes on (`fall.next`) to `roof1` and `kitchen1` (scene 1, sk_pit.js), `backroom`
 (scene 2, sk_pit.js), `lostprop` (scene 3) and `yard1` (scene 4, sk_pit2.js), then scene 5 (sk_pit5.js): `list` (the yard, Tamm's
@@ -662,7 +669,7 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   `f.inside` (+2 on his next attack after a Hinge); `A.shortThreat` and `shortRelease(A)`; `S.hooks.short(event, {A, D, kind, res})`
   for 'hinge', 'toll', 'ladder', 'check', 'hook'; every number in SHORT_HAND; SHORT_MOVES, its lessons (the style itself is in the
   registry since V94: `STYLES.shorthand`, see "Styles"). Nothing
-  changes for a fighter without the style. Suite: `short` (sk_short_test.js). GOODS, STALLS (prices in coin and chits), ERRAND_LIST, SATCHEL (4x2 cells, weight 9) and the errand
+  changes for a fighter without the style. Suite: `short` (sk_short_test.js). GOODS, STALLS (prices in bits and chits; coin in the code, see "Money"), ERRAND_LIST, SATCHEL (4x2 cells, weight 9) and the errand
   record `S.act1.errand` {bag, hand, coin, chits, got, nim, sharp, salve}; `riceWhere()` ('bag', 'hand' or null) is what Tamm's lines
   in scene 7 read. The Shelf's keepers stand 200 deep behind their counters (their own `f.zMax`; the painter's default). What the
   shop sells works (sk_pit6.js, ACT1_GOODS): the whetstone gives his blade +2 a cut for the next fight he fights (`K.whet`, spent at
@@ -1055,14 +1062,14 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V96 ..." (V95 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V97 ..." (V96 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V96: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V97: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 

@@ -260,7 +260,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
       out.log=LOG.map(l=>l.key+' | '+l.who+': '+l.text);return out;});
     const said5=r5.log.filter(l=>!l.includes('(thought)'));
     expect('scene 5: Tamm\'s two lines with the list and the chits, then Nim and he at the pump stall, in order',JSON.stringify(said5)===JSON.stringify(['list | Tamm: Lamp oil, rice, salt. A valve from the goblin at the pump stall. Clean linen for that shoulder.',
-      'list | Tamm: Chits are the Pump King’s paper. Spend them before they’re worth less.','shelf | Nim: Ranger gilt.','shelf | Ilyas: You know it?','shelf | Nim: I know what it guarded. Valve’s two coin. For you, three.']),said5.join(' / '));
+      'list | Tamm: Chits are the Pump King’s paper. Spend them before they’re worth less.','shelf | Nim: Ranger gilt.','shelf | Ilyas: You know it?','shelf | Nim: I know what it guarded. Valve’s two bits. For you, three.']),said5.join(' / '));
     expect('the map shows the way; at the first landing the picture crosses the Pit to the spike and he thinks "Gone. Somebody climbed for it."',r5.mapSeen&&r5.spike===1&&r5.log.includes('stairsup | (thought): Gone. Somebody climbed for it.'),JSON.stringify({map:r5.mapSeen,spike:r5.spike}));
     expect('on auto the list is got (the good oil for a chit, the valve at Nim\'s three coin), all of it in the satchel, the rice too',
       r5.errand.got==='linen,oil,rice,salt,valve'&&r5.errand.rice==='bag'&&r5.errand.nim===3&&r5.errand.chits===2&&r5.errand.coin===3,JSON.stringify(r5.errand));
@@ -297,7 +297,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
       act1ShopOpen('grind');out.salves=[1,2,3,4].map(()=>act1ShopBuy('salve','coin'));out.note=S.act1.shop.note&&S.act1.shop.note.text;act1ShopClose();
       act1ShopOpen('linen');out.linenChit=act1ShopBuy('linen','chit');out.linenCoin=act1ShopBuy('linen','coin');act1ShopClose();
       act1ShopOpen('nim');out.valve=act1ShopBuy('valve','coin');act1ShopClose();act1ShopOpen('grain');out.rice=act1ShopBuy('rice','chit');act1ShopClose();
-      out.count=errandCount();out.purse=E.coin+' coin, '+E.chits+' chits';out.salve=E.salve;storyQuit();return out;});
+      out.count=errandCount();out.purse=E.coin+' bits, '+E.chits+' chits';out.salve=E.salve;storyQuit();return out;});
     expect('the shop keeps Tamm\'s money for her list: a fourth salve is refused ("Tamm’s money: the list first"), so is paying the linen in the chit the valve needs; the list is still got',
       guard.salves.join('|')==='|||Tamm’s money: the list first'&&guard.note==='Tamm’s money: the list first'&&guard.linenChit==='That leaves too little for the list'&&
       guard.linenCoin===null&&guard.valve===null&&guard.rice===null&&guard.count===5&&guard.salve===3,JSON.stringify(guard));
@@ -477,7 +477,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   expect('the menu then: Gear alone, him drawn in what he wears, each slot, the right arm Missing and his hand; opened, the mark and the note go',
     pm.gear.tabs==='gear'&&pm.gear.tab==='gear'&&pm.gear.shown==='gear'&&/^Body:.+ \| Coat:.+ \| Hands:.+ \| Feet:.+ \| Belt:.+ \| Right arm:Missing \| Hand:.+$/.test(pm.gear.slots)&&pm.gear.lit>.01&&pm.gear.badge===''&&!pm.gear.toast,JSON.stringify(pm.gear));
   expect('scene 5: the satchel and the map once Tamm has handed them over (the satchel\'s grid, the purse and her list of five; the map with him marked)',
-    pm.listStart==='gear'&&pm.list.tabs==='gear,satchel,map'&&pm.list.items===5&&pm.list.cells===8&&/^Coin \d+ · Chits \d+$/.test(pm.list.purse)&&pm.list.map,JSON.stringify([pm.listStart,pm.list]));
+    pm.listStart==='gear'&&pm.list.tabs==='gear,satchel,map'&&pm.list.items===5&&pm.list.cells===8&&/^Bits \d+ · Chits \d+$/.test(pm.list.purse)&&pm.list.map,JSON.stringify([pm.listStart,pm.list]));
   expect('the codex comes into the menu with the first fight in the Pit, the styles after the first lesson (three style cards)',
     pm.tollStart==='gear,satchel,map'&&pm.toll==='gear,satchel,map,codex'&&pm.sh2==='gear,satchel,map,codex,styles'&&pm.sh2m.tabs==='gear,satchel,map,styles,codex'&&pm.sh2m.cards===3,JSON.stringify([pm.tollStart,pm.toll,pm.sh2,pm.sh2m]));
   expect('in the prologue the drawer is as it was: Paused, on the codex (his styles beside it since V94, not the Pit\'s last tab)',pm.pro.title==='Paused'&&pm.pro.tabs==='styles,codex'&&pm.pro.tab==='codex'&&pm.pro.shown==='',JSON.stringify(pm.pro));
