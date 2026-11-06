@@ -1,26 +1,38 @@
-/* Act I, scenes 3 and 4: the gear screen (Tamm's crate): him drawn in what is chosen beside the five slots and the empty one */
+/* Act I, scenes 3 and 4: the gear screen (Tamm's crate): him drawn in what is chosen with the sum of what it does under him, beside
+   the gear's eight slots and the empty one, and the slot last changed told at length */
 .a1-gear{position:absolute;inset:0;z-index:7;display:flex;align-items:center;justify-content:center;padding:14px;
   background:radial-gradient(70% 80% at 50% 45%,rgba(5,5,10,.7),rgba(3,3,7,.93))}
 .a1-gear[hidden]{display:none}
-.a1-gear-in{display:flex;flex-direction:column;align-items:center;gap:8px;width:min(880px,100%);max-height:100%;overflow:auto;text-shadow:0 1px 0 rgba(0,0,0,.8)}
+.a1-gear-in{display:flex;flex-direction:column;align-items:center;gap:8px;width:min(920px,100%);max-height:100%;overflow:auto;text-shadow:0 1px 0 rgba(0,0,0,.8)}
 .a1-gear-t{margin:0;font:800 clamp(26px,5vw,38px)/1.05 var(--display);letter-spacing:.06em;color:#f3ead2}
-.a1-gear-body{display:flex;gap:16px;align-items:stretch;width:100%}
-/* (the page's own canvas rules are for the game's picture: this one is a small portrait in the panel, him twice: in profile and from
-   the front) */
-.wrap .stage .a1-gear .a1-gear-fig{position:static;inset:auto;display:block;flex:0 0 auto;width:min(380px,40vw);aspect-ratio:1/1;height:auto;border:1px solid rgba(226,182,90,.3);border-radius:3px;background:#0a090c;touch-action:auto}
-.a1-slots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px;flex:1 1 auto;min-width:0}
-.a1-slot{display:grid;grid-template-columns:5.2em 40px 1fr 40px;grid-template-rows:auto auto;align-items:center;column-gap:6px;
-  background:rgba(5,5,10,.55);border:1px solid rgba(226,182,90,.22);border-radius:3px;padding:4px 6px}
-.a1-slot:focus-within{border-color:rgba(226,182,90,.6)}
-.a1-slot-k{font:600 11px var(--ui);letter-spacing:.2em;text-transform:uppercase;color:#8a6a2e}
-.a1-slot-v{font:700 15px var(--display);letter-spacing:.03em;color:#f3ead2;text-align:center;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.a1-slot-w{grid-column:2/5;font:italic 500 12.5px var(--ui);color:#a99f88;text-align:center;min-height:1.2em}
-.a1-step{appearance:none;width:40px;height:40px;cursor:pointer;font:700 22px/1 var(--display);color:#e2b65a;background:rgba(226,182,90,.06);
+.a1-gear-body{display:flex;gap:16px;align-items:flex-start;width:100%}
+.a1-gear-l{flex:0 0 min(380px,40vw);display:flex;flex-direction:column;gap:8px;min-width:0}
+.a1-gear-r{flex:1 1 auto;display:flex;flex-direction:column;gap:6px;min-width:0}
+/* (the page's own canvas rules are for the game's picture: this one is a small portrait in the panel, him three times over) */
+.wrap .stage .a1-gear .a1-gear-fig{position:static;inset:auto;display:block;width:100%;aspect-ratio:5/4;height:auto;border:1px solid rgba(226,182,90,.3);border-radius:3px;background:#0a090c;touch-action:auto}
+.a1-slots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+.a1-slot{display:grid;grid-template-columns:4.8em 34px minmax(0,1fr) 34px;align-items:center;column-gap:6px;
+  background:rgba(5,5,10,.55);border:1px solid rgba(226,182,90,.22);border-radius:3px;padding:2px 6px}
+.a1-slot:focus-within,.a1-slot.a1-on{border-color:rgba(226,182,90,.6)}
+.a1-slot-k{font:600 10.5px var(--ui);letter-spacing:.18em;text-transform:uppercase;color:#a07a33}
+.a1-slot-m{display:flex;flex-direction:column;align-items:center;min-width:0;line-height:1.15}
+.a1-slot-v{font:700 14.5px var(--display);letter-spacing:.03em;color:#f3ead2;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a1-slot-g{font:500 11.5px var(--ui);color:#a99f88;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a1-step{appearance:none;width:34px;height:34px;cursor:pointer;font:700 20px/1 var(--display);color:#e2b65a;background:rgba(226,182,90,.06);
   border:1px solid rgba(226,182,90,.4);border-radius:3px;padding:0}
 .a1-step:hover,.a1-step:focus-visible{background:rgba(226,182,90,.18);color:#fff0c6;outline:none}
-.a1-missing{grid-template-columns:5.2em 40px 1fr;opacity:.92}
+.a1-step:disabled{opacity:.25;cursor:default;background:none}
+.a1-missing{grid-template-columns:4.8em 34px minmax(0,1fr);opacity:.92;padding-block:1px}
 .a1-missing .a1-slot-v{color:#8a8070;font-style:italic;text-align:left;padding-left:4px}
-.a1-hatch{width:26px;height:40px;justify-self:center}
-@media (max-width:620px){.a1-gear-body{flex-direction:column;align-items:center}.wrap .stage .a1-gear .a1-gear-fig{width:min(340px,88vw);aspect-ratio:4/3}.a1-slots{width:100%}
-  .a1-slot{grid-template-columns:4.4em 40px 1fr 40px}.a1-slot-w{font-size:12px}}
-@media (max-height:520px){.a1-gear{padding:6px 10px}.a1-gear .st-kick{display:none}.a1-slots{gap:3px}.a1-gear-in{gap:4px}.a1-gear-t{font-size:22px}.wrap .stage .a1-gear .a1-gear-fig{width:min(300px,34vw)}.a1-slot-w{display:none}.a1-slot{padding:2px 6px}.a1-step{width:36px;height:36px}}
+.a1-hatch{width:22px;height:34px;justify-self:center}
+/* the slot told at length */
+.a1-gear-det{min-height:4.1em;padding:6px 10px;border:1px solid rgba(226,182,90,.18);border-radius:3px;background:rgba(5,5,10,.45)}
+.a1-gear-det p{margin:0}
+/* (the button stays in reach while the slots scroll under it) */
+.a1-gear-go{position:sticky;bottom:0;width:100%;padding-top:10px;background:linear-gradient(180deg,rgba(3,3,7,0),rgba(3,3,7,.9) 40%)}
+@media (max-width:620px){.a1-gear{padding:10px 8px}.a1-gear-body{flex-direction:column;align-items:stretch}.a1-gear-l{flex:none;width:100%}
+  .wrap .stage .a1-gear .a1-gear-fig{aspect-ratio:16/10}.a1-slot{grid-template-columns:4.2em 34px minmax(0,1fr) 34px}
+  .a1-slot-g{white-space:normal}}
+@media (max-height:520px){.a1-gear{padding:6px 10px}.a1-gear .st-kick{display:none}.a1-gear-in{gap:4px}.a1-gear-t{font-size:22px}
+  .a1-gear-l{flex-basis:min(330px,38vw)}.wrap .stage .a1-gear .a1-gear-fig{aspect-ratio:16/9}.a1-slots{gap:2px}.a1-slot{padding:1px 6px}
+  .a1-step{width:30px;height:30px}.a1-slot{grid-template-columns:4.6em 30px minmax(0,1fr) 30px}.a1-gear-det{display:none}.a1-hatch{height:28px}}

@@ -91,10 +91,10 @@ that changed the number); the tempo line names the ones on a man's tempo. A comm
 `cmdDef(src, match, ok)` (the guns' shots and cover, the toss, the spells, the room's two moves): cmdValid asks the bars first, then
 these, then its own rules, so a bar holds whatever brought the command. `RULES.off(id)` takes one out of play for a check. The rules
 suite (sk_rules_test.js) holds the list (every entry, its order, a malformed one refused), each reader, and each system against the
-game without it. What stays a wrapper: what a scene does to a fight (a stage that spares everyone, the toll, a forced outcome, a
-lesson's blows), what needs an exchange's state in hand (the Short Hand's cap on the balance a glancing blow takes, the pip a missed
-answer costs), how a command is carried out (command, beginAction, slotAction), the room's own costs for its two moves, and what the
-AI picks.
+game without it (the gear's: a blow of each kind on each part, the weight, the holds, a save from before V97). What stays a wrapper:
+what a scene does to a fight (a stage that spares everyone, the toll, a forced outcome, a lesson's blows), what needs an exchange's
+state in hand (the Short Hand's cap on the balance a glancing blow takes, the pip a missed answer costs), how a command is carried
+out (command, beginAction, slotAction), the room's own costs for its two moves, and what the AI picks.
 
 **The frame** (sk_ui.js `frame`): sim steps at DT=1/120 (simStep), the opening timer, shake/punch/camKick decay, updateTags every
 .25 s, updateCamera, camVert, `uiTick()` (V11UI.tick), then `render()`.
@@ -509,14 +509,41 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   holds nothing), `st.wear` (what he wears, below; 'kit' means the crate's choice), and one arm. `f.oneArm` turns off the BACK arm's
   sticks and keeps its points at the chest; the rig's front arm (every weapon system's) is his left. Scene 1 keeps the fall's own
   wound instead (`st.wound`: `armOff`, the front arm gone), and the skillet sets `K.seared`. `S.act1` is the Pit's record of what each
-  scene did (reset when a story run starts); `S.story.flags.kit` is the crate's choice.
-- The look (sk_lookui.js): `F.wear` = {top 'bare'|'shirt'|'jersey'|'under', coat 'oilcloth'|'canvas'|null, scarf, hands 'glove'|'wrap',
-  feet 'boots'|'sandals'|'bare', belt 'belt'|'rope', bandage, pinned} draws him in the Pit's colours (`pitLook`: PIT_COL over each
+  scene did (reset when a story run starts); `S.story.flags.kit` is what he wears (slot -> a thing's id; see "Gear").
+- Gear (sk_gear.js, since V97): what he wears is a system of eight slots (`GEAR_SLOTS`: head, body, armour, coat, hands, legs, feet,
+  belt). Each thing in `GEAR` {slot, name, what, wt, def {cut, thrust, blunt}, cover [head|body|legs], grip, footing, snag, look}
+  takes its `def` off a blow of that kind that lands on a part it covers (never under 1: the rules' 'gear.armour', which names what
+  stopped it in the log, and a blow it keeps from killing him is no finisher); `gearZone(kind, T)` says where a blow lands (an
+  overhead, a headbutt or the face or neck: the head; a sweep or the shin: the legs; the rest the body) and `gearKind(A, kind, T)`
+  what it is (a thrust or a cut from an edge, blunt from anything else). Over `GEAR_FREE` (6) in weight every move and every long
+  step costs 2.5% more for each unit (at most 25%: 'gear.weight', 'gear.weight.step'); grip is his defense against a disarm
+  ('gear.grip'), footing against a sweep ('gear.footing'), snag against a grab ('gear.snag'). The rules read `f.wear.gear` (the
+  ids `kitWear` puts there), so any fighter dressed from a kit has them and nobody else does. What he has: the crate's things
+  (`GEAR_CRATE`: the first of each slot is what a chapter picked from the menu starts in, the old default, 5.3 in weight) and what
+  he bought (`S.story.flags.gearOwn`; `gearOwned(slot)`, `gearHas(id)`). `kitRead` reads a save from before V97 (a place in each
+  slot's old list, `GEAR_OLD`). He changes at the crate (scene 3, and its spot in the back room after) or from the menu's Gear
+  while he walks about (`gearFree`, `gearStep(slot, dir)`, which dresses him at once: `gearDress`); a thing bought at the Shelf is
+  his and on him (`gearGet`). The screens share sk_gearui.js: `gearTag(id)` (a thing's short line), `gearSumHtml(stats, was)` (the
+  sum: Cut, Thrust and Blunt on the head, the body and the legs, the weight and the pace, the holds, each marked with what the last
+  change did), `gearDetHtml(id)`, `GEAR_HOW`. The things (weight in brackets): from the crate the watch cap (blunt 1 on the head, .1),
+  the knitted jersey (blunt 1 on the body, .8), the drover's jerkin (cut 1, thrust 1 on the body, 2), the oilcloth coat (cut 1, thrust
+  1 on the body, 2.5: until V97 it took 1 off any blow but a fist's or a club's, wherever it landed), the fingerless glove (grip +1), the dock boots (cut 1,
+  blunt 1 on the legs, footing +1, 2.6) and the rope sandals (footing −1); from the Shelf the quarry helmet (cut 2, blunt 3 on the
+  head, 1.2), the stab vest (cut 2, thrust 3, blunt 1 on the body, 3.5), the tyre plates (cut 1, blunt 3 on the body, snag −1, 5), the
+  shin guards (cut 1, blunt 2 on the legs, 1.2) and the grinder's gauntlet (grip +2, cut 1 on the body, .5).
+- The look (sk_lookui.js): `F.wear` = {top 'bare'|'shirt'|'jersey'|'under', coat 'oilcloth'|'canvas'|null, scarf, hands 'glove'|'wrap'|
+  'gauntlet', feet 'boots'|'dock'|'sandals'|'bare', belt 'belt'|'rope', head 'cap'|'helmet'|null, vest 'jerkin'|'stab'|'tyre'|null, legs
+  'shins'|null, bandage, pinned, gear} draws him in the Pit's colours (`pitLook`: PIT_COL over each
   look, `look.noGold`: goldLine and tornTrim draw nothing). With `F.oneArm` the arm he has is drawn as the far arm with the weapon in
   its hand (`weaponArm`, `pitArm` per sleeve), and the near shoulder carries what is left (`lostArm`: `bandStump`, dressed or not, or
   `pinnedSleeve`, hanging its full length until Tamm pins it). `F.phantom` (0..1, set by an action that has `phantom`) is the reach of
   the arm that is not there: the empty side comes up. In the Pit the hip dagger is 'crew:kaeldull' (sk_armsui.js: the gilt gone).
-  The crate's slots are KIT in sk_pit2.js (`kitWear`, `KIT_CUT`: the oilcloth coat takes 1 off a blade's blow, the rules' 'gear.oilcloth'). The crate's preview
+  The gear's look (since V97): the cap and the helmet are drawn in the head's own frame (`PIT_HAT`; profile `drawHead`, in the round
+  `pitHatRound`), the hair only below the edge (`under`; the round model keeps only the spikes rooted under it, `headModelOf(hair,
+  HT)`), the ear over it; the armour over whatever he wears and under the scarf (`armour()` in pitTorso: `vestOut`, let out over a
+  coat, the shoulders less so a front view keeps to them; the jerkin's lacing, the stab vest's binding, straps and badge patch, the
+  tyre plates' rows); the shin guards over the trouser and the boot (`leg`), the dock boots' higher shaft, steel toecap and hobnails
+  (`footDetail` 'dock'), the gauntlet's cuff over the sleeve (`weaponArm`). No gold on any of it. The crate's preview
   draws him three times (sk_pit2ui.js `A1G_VIEWS`, since V60): in profile, at yaw 3π/2 (turned to face the viewer:
   `KaelLook.draw(c,F,{yaw,headYaw})`) and at yaw π (the profile from his other side, the arm he has toward the viewer), one pose
   (`a1StandFront`) seen three ways, his scarf's end hanging still. `a1FigDraw(canvas, wear)` draws them for any canvas (the menu's
@@ -595,7 +622,8 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   edge is lifted onto its top and the body bobs. In the kitchen Tamm and Dob stand on the floor at the table's ends with
   `f.gr=()=>GB` (since V53); Dob holds the ankles with `F.lookBack` (his face turned away), and Tamm's pan is aimed at the stump.
 - The scenes' own things: sk_pitui.js (skillet, soup, hilt, plates, curtain, the skillet's flash and steam, the Aether tab's one
-  flicker), sk_pit2ui.js (the gear screen with him drawn in the choice, the crate, the bucket), sk_pit5ui.js (the Pit map, a stall's
+  flicker), sk_pit2ui.js (the gear screen: him drawn in the choice with the sum under him, the eight slots with each thing's short
+  line, the slot last changed or in focus told at length; the crate, the bucket), sk_pit5ui.js (the Pit map, a stall's
   shop with the purse and the satchel grid, the satchel alone, the Map and Satchel buttons; while one of them is up the stage wrap
   has `.a1-modal` and the walking-about controls are put away). Each of sk_pitui.js's things is drawn only in its own room (the
   skillet in the kitchen; the soup, hilt and plates in the back room), and the next scene's setup clears what the last one left
@@ -606,8 +634,9 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   Codex with the toll's fight (scene 6), Styles after the first lesson (scene 9, `A.styles`). `pitMenuOpen()` is what is open (a
   section's own stage once `got()`, every stage after it along `storyRank`, the chain of `next` from the first stage); `pitScene(st)`
   is the scene a stage belongs to. The drawer's head reads his name and Act I · Scene n · title; before the crate it holds a line and
-  the way to the title. The page (`PM`): a tab and pane per section (the Gear pane draws him with `a1FigDraw` and lists the slots,
-  the right arm Missing and his hand; the Satchel pane moves goods to his hand and back while he walks about; the Map pane is
+  the way to the title. The page (`PM`): a tab and pane per section (the Gear pane draws him with `a1FigDraw`, the sum under him and
+  the slots, each with its short line and, while he walks about, the next and the last he has for it (`gearStep`), the right arm
+  Missing and his hand; the Satchel pane moves goods to his hand and back while he walks about; the Map pane is
   `a1MapSvg(at)`; the Styles pane `a9CardsHtml()`; the codex is the drawer's own). A section newly open marks the menu button
   (`data-new`), opens the menu on itself, and shows "New in the menu: ..." under the button and the top's boxes and plates once he
   is the player's (`pmFree`). Outside Act I the drawer is the lab's and the prologue's as before. `node uiwork/act1/pmshot.js <outdir>
@@ -673,14 +702,16 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   record `S.act1.errand` {bag, hand, coin, chits, got, nim, sharp, salve}; `riceWhere()` ('bag', 'hand' or null) is what Tamm's lines
   in scene 7 read. The Shelf's keepers stand 200 deep behind their counters (their own `f.zMax`; the painter's default). What the
   shop sells works (sk_pit6.js, ACT1_GOODS): the whetstone gives his blade +2 a cut for the next fight he fights (`K.whet`, spent at
-  its end), and a salve heals four tenths at the start of the next real fight he is hurt for (not the lessons). No buy may leave the
+  its end), and a salve heals four tenths at the start of the next real fight he is hurt for (not the lessons). Four stalls sell gear
+  (since V97; GOODS with `wear`): the oil seller the quarry helmet (3 bits), the linen seller the stab vest (4), Nim the tyre plates
+  (4) and the shin guards (2), the grinder the gauntlet (2); bought, it goes on him, not in the satchel ("Bought and put on: ..."). No buy may leave the
   list out of reach (`errandAffords(E, got, coin, chits)`: "Tamm’s money: the list first", "That leaves too little for the list"),
   since the way home opens only with the list got (since V61). `errandHome(A)` gives the list's goods over at night and in the
   lessons (what he bought for himself stays in the satchel; a chapter picked there starts with it done).
 - Checks: sk_act1_page.js (`act1page`: the scenes on auto, their lines and cards, walking the back room and the yard by hand, the
-  gear screen, scene 5's map, shop and satchel rules and the purse kept for the list, the goods given over at home, nobody walked
+  gear screen's eight slots, scene 5's map, shop and satchel rules and the purse kept for the list, the goods given over at home, nobody walked
   through in the outros, the drained Flow, a lesson with nothing pressed that still ends with no blood and the knife kept, the menu
-  in the Pit, the Pit's look), and draw_free plays on through them. The V61 audit's tools (uiwork/audit61/): `node anim.js
+  in the Pit, the Pit's look and the gear's), and draw_free plays on through them. The V61 audit's tools (uiwork/audit61/): `node anim.js
   [stages] [secs]` watches every Act I stage on auto for stepping in place, sliding feet, feet under the floor, joint jumps, a
   speaker turned away and people in one another; `node lesson.js <stage> <follow|naive|passive|random|literal> [secs] [seed]`
   plays a lesson as a player would; `node shopbrute.js` tries every way of shopping the list. Stills: `node uiwork/act1/play.js <outdir> <stage> w h dpr
@@ -1062,14 +1093,14 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V97 ..." (V96 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V98 ..." (V97 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V97: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V98: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 

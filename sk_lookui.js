@@ -143,27 +143,40 @@ const tone=(look,mat,far,i=0)=>{const C=look.col[mat+(far?'Far':'')]||look.col[m
 // With the arm gone the gilt went out of him, and the Noir Gilt gold with it. In the Pit (F.wear: what Tamm's lost property gave him)
 // he is drawn in the same light as ever, but in soot, oilcloth and rust, and there is no gold on him anywhere: each look has its Pit
 // colours over its own (linen: the dressings; horn: the toggles and buttons; pin: Tamm's pin and the iron fittings; stain: the old
-// wound come through the linen). The oilcloth takes the light as leather does, with a sheen along its edge.
+// wound come through the linen). The oilcloth takes the light as leather does, with a sheen along its edge. The gear's (since V97,
+// sk_gear.js): the drover's jerkin; the stab vest (stab), its bound edges and the patch where its badge was; the tyre plates' rubber
+// and its tread; the watch cap; the quarry helmet, pressed steel gone dull; the shin guards' rubber; the dock boots and their steel
+// (the toecaps, the hobnails); the grinder's gauntlet's split hide.
 const PIT_COL={
   noir:{suit:'#120f0d',suitFar:'#29221b',shirt:'#2f2c26',shirtFar:'#48433a',coat:'#181a12',coatFar:'#2e3224',lining:'#2c2719',liningFar:'#1e1b12',
     scarf:'#7c3b1f',scarfShade:'#57291a',scarfBack:'#4a2214',gold:'#7c3b1f',goldDim:'#57291a',band:'#1c140d',bandFar:'#2e2117',shoe:'#2a1e15',shoeFar:'#3a2b1e',
     linen:'#bdb4a0',linenFar:'#8e8776',horn:'#4a3d2e',pin:'#9a958a',stain:'#5e2d1d',
-    jersey:'#1c1d24',jerseyFar:'#33343e',under:'#4a463d',underFar:'#5e594e',canvas:'#2f2a1f',canvasFar:'#463f30',glove:'#1d140d',gloveFar:'#2f2318',rope:'#5c4c33',ropeFar:'#433827'},
+    jersey:'#1c1d24',jerseyFar:'#33343e',under:'#4a463d',underFar:'#5e594e',canvas:'#2f2a1f',canvasFar:'#463f30',glove:'#1d140d',gloveFar:'#2f2318',rope:'#5c4c33',ropeFar:'#433827',
+    jerkin:'#261b12',jerkinFar:'#3a2b1e',stab:'#15181e',stabFar:'#282c35',stabEdge:'#0b0c10',stabPatch:'#2b2f36',tyre:'#141414',tyreFar:'#272727',tread:'#050505',
+    cap:'#17171b',capFar:'#2b2b31',helmet:'#2e2f2c',helmetFar:'#42433f',shin:'#151515',shinFar:'#282828',dock:'#1c1611',dockFar:'#2d241b',steel:'#5a5852',
+    hide:'#352a21',hideFar:'#4a3c30'},
   cel:{suit:['#3d3832','#25211d'],suitFar:['#2e2a25','#1b1815'],shirt:['#7d7465','#5a5348'],shirtFar:['#5f584d','#433e36'],coat:['#454a34','#2b2f20'],coatFar:['#353a29','#22251a'],
     lining:['#6a6048','#4a4232'],liningFar:['#4f4836','#363024'],scarf:['#a4532e','#743a20'],scarfBack:['#6e341c','#4e2414'],gold:['#a4532e','#743a20'],
     band:['#3a2a20','#1f1610'],bandFar:['#2a1f18','#150f0b'],shoe:['#2c241e','#16120e'],shoeFar:['#211b16','#110e0b'],linen:['#ebe3cf','#c2b9a5'],linenFar:['#c9c1ad','#a39b89'],
     horn:'#6b5a44',pin:'#b8b3a6',stain:'#7a3a24',
     jersey:['#3a3d4c','#262833'],jerseyFar:['#2c2e3a','#1c1d26'],under:['#cfc8b6','#a49d8b'],underFar:['#a8a292','#857f70'],canvas:['#8a7a58','#62563d'],canvasFar:['#6b5f45','#4c4331'],
-    glove:['#3a2a20','#1f1610'],gloveFar:['#2a1f18','#150f0b'],rope:['#a08a5e','#76643f'],ropeFar:['#7c6b49','#5a4d33']},
+    glove:['#3a2a20','#1f1610'],gloveFar:['#2a1f18','#150f0b'],rope:['#a08a5e','#76643f'],ropeFar:['#7c6b49','#5a4d33'],
+    jerkin:['#5a4232','#3a2a20'],jerkinFar:['#46342a','#2c2018'],stab:['#3a404c','#252932'],stabFar:['#2c313b','#1b1e25'],stabEdge:'#16181e',stabPatch:'#525a66',
+    tyre:['#2f2f31','#19191b'],tyreFar:['#242426','#141415'],tread:'#0c0c0d',cap:['#34343b','#1f1f25'],capFar:['#28282e','#18181d'],helmet:['#7a7c77','#50524e'],helmetFar:['#5e605c','#3e403d'],
+    shin:['#2f2f31','#19191b'],shinFar:['#242426','#141415'],dock:['#2a221c','#14100c'],dockFar:['#201a15','#0f0c0a'],steel:'#9a9a94',hide:['#6a5a4a','#4a3e32'],hideFar:['#52463a','#392f26']},
   paint:{suit:['#3d3731','#111010'],suitFar:['#29241f','#0c0b0a'],shirt:['#4c463b','#14120e'],shirtFar:['#36312a','#0e0d0b'],coat:['#3e4433','#0c0e09'],coatFar:['#2b3024','#0a0b08'],
     lining:['#4c4434','#14110c'],liningFar:['#36301f','#0e0c08'],scarf:['#b4592e','#3c1a0c'],scarfBack:['#7a3618','#2a1208'],gold:['#b4592e','#4a2412'],
     band:['#4a3426','#140d09'],bandFar:['#33241b','#0e0907'],shoe:['#3a3430','#0a0908'],shoeFar:['#28231f','#080706'],linen:['#f2ead6','#8c8474'],linenFar:['#cfc7b3','#6e675a'],
     horn:'#5e4e3a',pin:'#c4bfb2',stain:'#7a3a24',
     jersey:['#3c3f4e','#0e0f14'],jerseyFar:['#2a2c37','#0b0b10'],under:['#d8d0bc','#6e685a'],underFar:['#b4ad9a','#58534a'],canvas:['#8c7c5a','#221d13'],canvasFar:['#6a5e44','#18140e'],
-    glove:['#4a3426','#140d09'],gloveFar:['#33241b','#0e0907'],rope:['#a89060','#3e331f'],ropeFar:['#84714c','#2e2617']}};
+    glove:['#4a3426','#140d09'],gloveFar:['#33241b','#0e0907'],rope:['#a89060','#3e331f'],ropeFar:['#84714c','#2e2617'],
+    jerkin:['#5c4434','#160f0a'],jerkinFar:['#42302a','#100b08'],stab:['#3e4452','#0d0f14'],stabFar:['#2b2f39','#0a0b0f'],stabEdge:'#0a0b0f',stabPatch:'#596170',
+    tyre:['#343436','#0a0a0b'],tyreFar:['#252527','#080809'],tread:'#050505',cap:['#3a3a42','#0e0e12'],capFar:['#2a2a30','#0b0b0e'],helmet:['#84867f','#1b1c1a'],helmetFar:['#5e605b','#141513'],
+    shin:['#343436','#0a0a0b'],shinFar:['#252527','#080809'],dock:['#332a22','#0a0807'],dockFar:['#241e18','#080605'],steel:'#a4a49c',hide:['#6e5e4e','#1a140f'],hideFar:['#4e4338','#130f0b']}};
 const PIT_LOOKS={};
 function pitLook(key){if(PIT_LOOKS[key])return PIT_LOOKS[key];const L0=LOOKS[key]||LOOKS.noir,L=Object.create(L0);
-  L.of=L0;L.noGold=true;L.col=Object.assign({},L0.col,PIT_COL[key]||PIT_COL.noir);L.lit={coat:'leather',linen:'cotton',jersey:'wool',under:'cotton',canvas:'cotton',glove:'leather',rope:'cotton'};
+  L.of=L0;L.noGold=true;L.col=Object.assign({},L0.col,PIT_COL[key]||PIT_COL.noir);L.lit={coat:'leather',linen:'cotton',jersey:'wool',under:'cotton',canvas:'cotton',glove:'leather',rope:'cotton',
+    jerkin:'leather',stab:'cotton',tyre:'leather',cap:'wool',helmet:'leather',shin:'leather',dock:'leather',hide:'hide'};
   return PIT_LOOKS[key]=L;}
 const isNoir=l=>l===LOOKS.noir||l.of===LOOKS.noir,isCel=l=>l===LOOKS.cel||l.of===LOOKS.cel;
 
@@ -767,8 +780,12 @@ function draw(c,F,o={}){
     return A;};
   // the arm he has left and what is in its hand, drawn as the far arm is
   const weaponArm=far=>{if(armed&&o.drawOther)across(LAT[HAF],()=>o.drawOther(F));
-    const A=pitArm(p[ELF],p[HAF],SH[1],far),op=!!F.openHand&&!(armed&&o.drawOther);
-    paint([op?openHand(p[HAF],A.fd,sz):fist(p[HAF],armed?tipDir:A.fd,sz)],WEAR&&WEAR.hands==='glove'?'glove':'skin',far);
+    const A=pitArm(p[ELF],p[HAF],SH[1],far),op=!!F.openHand&&!(armed&&o.drawOther),gnt=!!WEAR&&WEAR.hands==='gauntlet';
+    // (the grinder's gauntlet: split hide from the knuckles most of the way to the elbow, its cuff flared over the sleeve, a seam down it)
+    if(gnt){const H=p[HAF],c0=sub(H,mul(A.fd,2.2*sz)),c1=mix(H,A.E,.62),cp=capsule(c1,c0,8.8*sz,6.9*sz);paint([cp],'hide',far);
+      if(lod>=1||k>1.6){const q=perp(A.fd);c.save();c.clip(cp.p);c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.35,.45*sz);c.setLineDash([1*sz,.8*sz]);c.beginPath();c.moveTo(c1.x+q.x*1.2*sz,c1.y+q.y*1.2*sz);c.lineTo(c0.x+q.x*.9*sz,c0.y+q.y*.9*sz);c.stroke();c.setLineDash([]);
+        c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=Math.max(.5,.8/k);const e=mix(c1,c0,.08);c.beginPath();c.moveTo(e.x+q.x*4.6*sz,e.y+q.y*4.6*sz);c.lineTo(e.x-q.x*4.6*sz,e.y-q.y*4.6*sz);c.stroke();c.restore();}}
+    paint([op?openHand(p[HAF],A.fd,sz):fist(p[HAF],armed?tipDir:A.fd,sz)],gnt?'hide':WEAR&&WEAR.hands==='glove'?'glove':'skin',far);
     // (the open hand's fingers, close up)
     if(op&&(lod>=1||k>1.6)){const g=A.fd,q=perp(g),H=p[HAF],pt=(a,bb)=>add(H,add(mul(g,a*sz*1.12),mul(q,bb*sz*1.12)));c.save();c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.6,.9/k);c.lineCap='round';c.beginPath();
       for(const bb of [-1.2,.1,1.3]){const a0=pt(4.6,bb),a1=pt(8.6,bb*.75);c.moveTo(a0.x,a0.y);c.lineTo(a1.x,a1.y);}c.stroke();c.restore();}};
@@ -811,7 +828,7 @@ function draw(c,F,o={}){
         c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=.2*sz;c.beginPath();for(let j=0;j<T.length-1;j++){const a=T[j],b=T[j+1],m=mix(a.t,b.t,a.r/(a.r+b.r));c.moveTo(m.x,m.y-.5*sz);c.lineTo(m.x,m.y+.9*sz);}c.stroke();
         for(const {r,t} of T){c.fillStyle=rimC;c.globalAlpha=(far?.1:.22);c.beginPath();c.ellipse(t.x,t.y-.3*r*sz,.36*r*sz,.3*r*sz,0,0,TAU);c.fill();}c.globalAlpha=far?.8:1;};
     c.save();c.lineCap='round';c.lineJoin='round';
-    if(kind==='boots'){
+    if(kind==='boots'||kind==='dock'){
       if(fr){fill([pt(-3.7,2.35),pt(3.7,2.35),pt(3.7,3.35),pt(-3.7,3.35)],'#0c0907');ln([pt(-3.75,2.3),pt(3.75,2.3)],'#7a5c3e',.55*sz,.85);
         ln([pt(-3.1,1.1),pt(0,-.8),pt(3.1,1.1)],'rgba(0,0,0,.55)',.4*sz);
         // laces up the front from the instep to the top of the shaft
@@ -821,7 +838,12 @@ function draw(c,F,o={}){
         ln([pt(-3.5,-2.2),pt(11.6,-2.35)],'#7a5c3e',.5*sz,.85);ln([pt(7.4,-.7),pt(8,-1.9),pt(8.7,-2.4)],'rgba(0,0,0,.55)',.38*sz);
         // laces over the instep and up the front of the shaft
         for(let i=0;i<3;i++){const t=i/2,m=add(mul(pt(1.8,1.7),1-t),mul(pt(5.6,0),t)),w=nrm(sub(pt(0,1),pt(0,0)));ln([sub(m,mul(w,.9*sz)),add(m,mul(w,.9*sz))],lace,.4*sz,.9);}
-        const up=nrm(sub(Kn,A)),fw=S.d;for(let i=0;i<3;i++){const m=add(add(A,mul(up,(1.6+i*2)*sz)),mul(fw,3.2*sz));ln([sub(m,mul(up,.7*sz)),add(add(m,mul(up,.7*sz)),mul(fw,.6*sz))],lace,.38*sz,.9);}}}
+        const up=nrm(sub(Kn,A)),fw=S.d;for(let i=0;i<3;i++){const m=add(add(A,mul(up,(1.6+i*2)*sz)),mul(fw,3.2*sz));ln([sub(m,mul(up,.7*sz)),add(add(m,mul(up,.7*sz)),mul(fw,.6*sz))],lace,.38*sz,.9);}}
+      // (the dock boots: the steel toecap showing through the worn leather, and the hobnails along the sole)
+      if(kind==='dock'){const st=tone(look,'steel',far)||'#5a5852',dot2=(q,r)=>{c.fillStyle=st;c.globalAlpha=far?.45:.7;c.beginPath();c.arc(q.x,q.y,r,0,TAU);c.fill();};
+        if(fr){fill([pt(-3.5,1.2),pt(3.5,1.2),pt(3.8,2.3),pt(-3.8,2.3)],st,.55);ln([pt(-3.4,1.15),pt(3.4,1.15)],'rgba(0,0,0,.5)',.3*sz);for(let x=-3;x<=3.01;x+=1.5)dot2(pt(x,2.9),.24*sz);}
+        else{fill([pt(7.3,-3.25),pt(11.1,-3.2),pt(11.8,-2.5),pt(11.2,-1.5),pt(9.4,-1.1),pt(7.6,-1.5)],st,.5);ln([pt(7.6,-1.5),pt(7.3,-3.2)],'rgba(0,0,0,.55)',.32*sz);
+          for(let a=-2.6;a<11;a+=1.7)dot2(pt(a,-3.45),.24*sz);}}}
     else if(kind==='sandals'){
       if(fr){fill([pt(-3.8,2.6),pt(3.8,2.6),pt(3.8,3.5),pt(-3.8,3.5)],lace);toes(1.9);ln([pt(-3.4,-.6),pt(3.4,-.6)],lace,.6*sz);ln([pt(-3.3,1.05),pt(3.3,1.05)],lace,.5*sz,.9);}
       else{ln([pt(-3.4,-3.15),pt(11.3,-3.15)],lace,1.4*sz);c.globalAlpha=1;for(let a=-2.8;a<11;a+=1.6)ln([pt(a,-3.7),pt(a+.8,-2.6)],'rgba(0,0,0,.35)',.25*sz);
@@ -833,17 +855,25 @@ function draw(c,F,o={}){
     c.restore();};
   const leg=(kn,ft,side,far)=>{const L=legParts(p[kn],p[ft],HIP[side>0?0:1]),S=shoeAt(kn,ft,side*LH),bare=!!WEAR&&WEAR.feet==='bare';
     // (seen from the front the foot is nearer the viewer than the end of the leg: it is drawn over the trouser and the boot's shaft)
-    const sand=!!WEAR&&WEAR.feet==='sandals',footMat=bare||sand?'skin':'shoe';if(!S.front)paint([S.pc],footMat,far);paint([L.tb],'suit',far);
+    const sand=!!WEAR&&WEAR.feet==='sandals',dock=!!WEAR&&WEAR.feet==='dock',footMat=bare||sand?'skin':dock?'dock':'shoe';if(!S.front)paint([S.pc],footMat,far);paint([L.tb],'suit',far);
     // (the rope sandals: a sole under the foot, a strap over the toes and one round the ankle)
     if(sand&&S.sole){c.save();c.strokeStyle=tone(look,'rope',far);c.lineCap='round';c.lineWidth=Math.max(.6,1.1*sz);c.beginPath();c.moveTo(S.sole[0].x,S.sole[0].y);c.lineTo(S.sole[1].x,S.sole[1].y);c.stroke();
       c.lineWidth=Math.max(.5,.8*sz);const t0=S.toe,a0=p[ft];c.beginPath();if(S.front){c.moveTo(t0.x-4.3*sz,t0.y+.3*sz);c.lineTo(t0.x+2.9*sz,t0.y+.1*sz);}else{c.moveTo(t0.x-1.4*sz,t0.y+1.6*sz);c.lineTo(t0.x-.6*sz,t0.y-1.6*sz);}c.stroke();
       c.beginPath();c.moveTo(a0.x-2.2*sz,a0.y);c.lineTo(a0.x+2.2*sz,a0.y+.4*sz);c.stroke();c.restore();}
 FigKit.folds(c,L.tb,env,far?foldFar:foldCol);tear(side>0?'legN':'legF',L.tb.p,far?colOf('underFar','#2a141b'):colOf('under','#3b1a22'));
-    // (the Pit's boots: the trousers tucked into them, the shaft up the shin)
-    if(WEAR&&WEAR.feet==='boots'){const A=p[ft],sd=nrm(sub(p[kn],A)),b0=add(A,mul(sd,(S.front?2.2:-.4)*sz)),b1=add(A,mul(sd,7.4*sz));paint([capsule(b0,b1,7.4*sz,7.8*sz)],'shoe',far);
+    // (the Pit's boots: the trousers tucked into them, the shaft up the shin; the dock boots' higher and heavier)
+    if(WEAR&&(WEAR.feet==='boots'||dock)){const A=p[ft],sd=nrm(sub(p[kn],A)),b0=add(A,mul(sd,(S.front?2.2:-.4)*sz)),b1=add(A,mul(sd,(dock?9.6:7.4)*sz)),bw=dock?8.4:7.4;paint([capsule(b0,b1,bw*sz,(bw+.4)*sz)],footMat,far);
+      // (the edge of the shaft's top: the work boots' own line, the dock boots' a little inside their wider top)
       if(lod>=1||k>1.6){const q=perp(sd);c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=Math.max(.8,1.2/k);c.beginPath();c.moveTo(b1.x+q.x*3.9*sz,b1.y+q.y*3.9*sz);c.lineTo(b1.x-q.x*3.9*sz,b1.y-q.y*3.9*sz);c.stroke();}}
+    // (the shin guards: tyre rubber strapped over the trousers from under the knee to the top of the boot, on the front of the shin;
+    // seen from the front, square on)
+    if(WEAR&&WEAR.legs==='shins'){const K=p[kn],A=p[ft],sd=nrm(sub(A,K)),q=perp(sd),cf=dot(q,V(-fv,0))>0?-1:1,pf=TN?cl(Math.abs(VW.c)*1.3,0,1):1,off=mul(q,cf*1.6*sz*pf),
+        g0=add(add(K,mul(sd,2.4*sz)),off),g1=add(add(A,mul(sd,-(WEAR.feet==='bare'||sand?2.2:5.4)*sz)),off),gp=capsule(g0,g1,(7.4-1*pf)*sz,(6.4-.8*pf)*sz);
+      paint([gp],'shin',far);
+      if(lod>=1||k>1.6){c.save();c.clip(gp.p);c.strokeStyle=tone(look,'tread',far)||'#050505';c.lineWidth=Math.max(.35,.5*sz);for(let t=.3;t<.72;t+=.1){const m=mix(g0,g1,t),a=add(m,mul(q,4*sz)),b=add(add(m,mul(q,-4*sz)),mul(sd,.8*sz));c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}c.restore();
+        for(const t of [.14,.84]){const m=mix(g0,g1,t),hw=(4.6-.4*pf)*sz;paint([capsule(add(m,mul(q,-hw)),add(m,mul(q,hw)),1.7*sz,1.7*sz)],'band',far);}}}
     if(S.front)paint([S.pc],footMat,far);
-    if(WEAR&&S.pt&&(lod>=1||k>1.6))footDetail(S,bare?'bare':sand?'sandals':'boots',far,p[kn],p[ft]);
+    if(WEAR&&S.pt&&(lod>=1||k>1.6))footDetail(S,bare?'bare':sand?'sandals':dock?'dock':'boots',far,p[kn],p[ft]);
     if(!far&&S.sole&&!bare&&!sand){if(lod>=1){c.strokeStyle=isCel(look)?look.line:'rgba(255,230,190,.3)';c.lineWidth=1.01;c.beginPath();c.moveTo(S.sole[0].x,S.sole[0].y);c.lineTo(S.sole[1].x,S.sole[1].y);c.stroke();}
       {c.save();c.globalAlpha*=isCel(look)?.7:.85;c.fillStyle=isCel(look)?'#8d93ad':'#ffe2ad';c.beginPath();c.ellipse(S.toe.x,S.toe.y,1.6*sz,.55*sz,Math.atan2(S.d.y,S.d.x),0,TAU);c.fill();c.restore();}}};
   // the seat of the trousers: the weight of the hips, both thighs going into it (turned: round the hips as they are seen, down to the
@@ -1028,9 +1058,47 @@ FigKit.folds(c,L.tb,env,far?foldFar:foldCol);tear(side>0?'legN':'legF',L.tb.p,fa
     if(lod>=1||k>1.6){line([AT(T*.78,3.2),AT(T*.78,7.2),AT(T*.7,7.3),AT(T*.7,3.3)]);line([AT(T*.06,-8.4),AT(T*.06,7.4)]);}c.restore();
     for(const a0 of [T*.78,T*.6,T*.42,T*.24]){const q=AT(a0,7.4);if(q.h)continue;c.fillStyle=tone(look,'horn');c.beginPath();c.arc(q.x,q.y,.75*sz,0,TAU);c.fill();}
     if(side>=0)tear('torso',jk.p,colOf('lining','#1d625c'),c,side?AT:null);};
+  // Act I's armour (WEAR.vest, sk_gear.js), over whatever he wears and under the scarf: the drover's leather jerkin, the stab vest's
+  // panels front and back, the tyre plates laced onto canvas. Each ends above the belt, so the belt and the dagger's sheath show under
+  // it; over a coat it is let out to go round it (B: how far out from the shirt's line it stands, lo: where its hem is)
+  const vestOut=(B,lo)=>{const Bt=1+(B-1)*.25,Bm=1+(B-1)*.7;return[[T+1.3,-3.6],[T*.97,-6.9*Bt],[T*.80,-9.1*Bm],[T*.55,-7.9*B],[T*.40,-7.1*B],[T*.22,-8.1*B],[lo,-8.9*B],[lo-T*.025,-1],[lo,8.0*B],[T*.22,8.0*B],
+    [T*.33,7.8*B],[T*.48,8.6*B],[T*.64,9.8*B],[T*.80,9.7*Bm],[T*.92,7.7*Bt],[T+.5,4.8],[T+1.3,1.6],[T+1.5,-1.4]];};
+  const seamIn=(AT,Q,col,w,dash)=>{const R=Q.map(([a,s])=>AT(a,s));for(const run of FigKit.seen(R)){c.strokeStyle=col;c.lineWidth=w;if(dash)c.setLineDash(dash);c.beginPath();c.moveTo(run[0].x,run[0].y);for(const q of run.slice(1))c.lineTo(q.x,q.y);c.stroke();c.setLineDash([]);}};
+  const armour=()=>{const V0=WEAR.vest;if(!V0)return;const B=WEAR.coat==='oilcloth'?1.2:WEAR.coat==='canvas'?1.1:WEAR.top==='jersey'?1.12:1.06,lo=T*.1,det=lod>=1||k>1.6;
+    const Q=vestOut(V0==='tyre'?B*1.02:V0==='stab'?B*1.05:B,lo),vps=copies.map(([AT])=>{const vp=piece(Q.map(([a,s])=>AT(a,s)),.4,true);vp.pw=7*sz;vp.pf=.5;return vp;});
+    paint(vps,V0==='jerkin'?'jerkin':V0==='stab'?'stab':'canvas');if(TN)env.flat=true;
+    copies.forEach(([AT,side],i)=>{const vp=vps[i];c.save();c.clip(vp.p);c.lineCap='round';
+      if(V0==='jerkin'){
+        // the drover's jerkin: stiff old leather, stitched round its edges, laced up the front, a seam down the side under the arm
+        seamIn(AT,[[T*.92,7.0*B],[T*.80,8.9*B],[T*.64,9.0*B],[T*.48,7.9*B],[T*.33,7.1*B],[T*.22,7.3*B],[lo+T*.03,7.3*B]],'rgba(0,0,0,.55)',Math.max(.4,.7/k));
+        if(det){seamIn(AT,[[lo+T*.035,-8.2*B],[lo+T*.035,7.4*B]],'rgba(0,0,0,.45)',Math.max(.3,.35*sz),[1.2*sz,1*sz]);seamIn(AT,[[T*.9,-2.8],[T*.5,-1.6],[lo+T*.04,-1.4]],'rgba(0,0,0,.4)',Math.max(.3,.5/k));
+          c.strokeStyle=tone(look,'rope');c.lineWidth=Math.max(.35,.42*sz);for(let j=0;j<5;j++){const a0=T*.82-j*T*.14,p1=AT(a0,8.3*B),p2=AT(a0-T*.07,6.6*B),p3=AT(a0,6.6*B),p4=AT(a0-T*.07,8.3*B);
+            if(p1.h||p2.h||p3.h||p4.h)continue;c.beginPath();c.moveTo(p1.x,p1.y);c.lineTo(p2.x,p2.y);c.moveTo(p3.x,p3.y);c.lineTo(p4.x,p4.y);c.stroke();}}}
+      else if(V0==='stab'){
+        // the stab vest: its bound edge all round, the strap over the shoulder and the two across his side, and on the chest the patch
+        // where the badge was cut off
+        c.strokeStyle=tone(look,'stabEdge');c.lineWidth=Math.max(.8,2.2*sz);c.stroke(vp.p);
+        const strap=(a0,a1)=>{const P=[AT(a0,-3.4),AT(a0,3.4),AT(a1,3.4),AT(a1,-3.4)];if(P.some(q=>q.h))return;c.fillStyle=tone(look,'stabEdge');c.beginPath();c.moveTo(P[0].x,P[0].y);for(const q of P.slice(1))c.lineTo(q.x,q.y);c.closePath();c.fill();};
+        strap(T*.36,T*.29);strap(T*.6,T*.53);
+        {const P=[AT(T+1.4,-2.6),AT(T+1.5,2.2),AT(T*.9,2.6),AT(T*.9,-2.9)];if(!P.some(q=>q.h)){c.fillStyle=tone(look,'stabEdge');c.beginPath();c.moveTo(P[0].x,P[0].y);for(const q of P.slice(1))c.lineTo(q.x,q.y);c.closePath();c.fill();}}
+        if(det){seamIn(AT,[[T*.88,-8.2*B],[T*.3,-7.4*B],[lo+T*.04,-8.0*B]],'rgba(0,0,0,.35)',Math.max(.3,.5/k));seamIn(AT,[[T*.88,8.4*B],[T*.5,7.8*B],[lo+T*.04,7.4*B]],'rgba(0,0,0,.35)',Math.max(.3,.5/k));}
+        if(side>=0){const P=[AT(T*.76,5.0),AT(T*.76,8.2),AT(T*.63,8.4),AT(T*.63,5.0)];if(!P.some(q=>q.h)){c.fillStyle=tone(look,'stabPatch');c.beginPath();c.moveTo(P[0].x,P[0].y);for(const q of P.slice(1))c.lineTo(q.x,q.y);c.closePath();c.fill();
+          if(det){c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.3,.3*sz);c.setLineDash([.6*sz,.7*sz]);c.stroke();c.setLineDash([]);}}}}
+      else{
+        // the tyre plates: rounds of old tyre, laced onto the canvas in rows front and back, the lower under the upper, the tread across each
+        c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=Math.max(.7,1.6*sz);c.stroke(vp.p);
+        const plates=[];for(const a0 of [T*.3,T*.53,T*.76])for(const s0 of [-6.6,-2.6,2.6,6.6])plates.push([a0,s0*B]);
+        const ra=T*.115,rs=2.55*B;
+        for(const [a0,s0] of plates){const P=[];for(let j=0;j<10;j++){const t=j/10*TAU;P.push(AT(a0+ra*Math.sin(t),s0+rs*Math.cos(t)));}if(P.some(q=>q.h))continue;
+          const pc=piece(P,.5);env.flat=!!TN;paint([pc],'tyre');
+          if(det){c.save();c.clip(pc.p);c.strokeStyle=tone(look,'tread');c.lineWidth=Math.max(.35,.55*sz);for(let j=-2;j<=2;j++){const m=AT(a0+j*ra*.42,s0-rs),m2=AT(a0+j*ra*.42+ra*.12,s0+rs);c.beginPath();c.moveTo(m.x,m.y);c.lineTo(m2.x,m2.y);c.stroke();}c.restore();
+            const L0=AT(a0+ra*.75,s0-rs*.3),L1=AT(a0+ra*.75,s0+rs*.3);c.strokeStyle=tone(look,'rope');c.lineWidth=Math.max(.3,.4*sz);c.beginPath();c.moveTo(L0.x,L0.y);c.lineTo(L1.x,L1.y);c.stroke();}}
+        if(TN)env.flat=true;}
+      c.restore();});
+    env.flat=false;};
   const pitTorso=()=>{const top=WEAR.top||'bare';
     if(WEAR.coat==='oilcloth'){waist();const jks=copies.map(([AT])=>{const jk=piece(J.map(([a,s])=>AT(a,s)),.42,true);jk.pw=7.6*sz;jk.pf=.55;return jk;});
-      paint(jks,'coat');if(TN)env.flat=true;copies.forEach(([AT,side],i)=>coatDetails(AT,side,jks[i]));env.flat=false;scarfWrap();return;}
+      paint(jks,'coat');if(TN)env.flat=true;copies.forEach(([AT,side],i)=>coatDetails(AT,side,jks[i]));env.flat=false;armour();scarfWrap();return;}
     // (under the rest: his skin, dressed or not; the jersey hangs over the trousers, the shirt and the undershirt tuck into them)
     const skin=top==='bare'||top==='under',sps=copies.map(([AT])=>piece(shirtOutline(AT,T,top==='shirt'?1.05:top==='jersey'?1.08:.94),.42,true));
     if(top==='jersey')waist();
@@ -1042,7 +1110,7 @@ FigKit.folds(c,L.tb,env,far?foldFar:foldCol);tear(side>0?'legN':'legF',L.tb.p,fa
     copies.forEach(([AT,side],i)=>top==='shirt'?shirtDetails(AT,side,sps[i]):top==='jersey'?jerseyDetails(AT,side,sps[i]):null);
     if(top!=='bare')copies.forEach(([AT,side])=>belt(AT,side));
     if(WEAR.coat==='canvas'){const jks=copies.map(([AT])=>{const jk=piece(JC.map(([a,s])=>AT(a,s)),.42,true);jk.pw=7*sz;jk.pf=.55;return jk;});paint(jks,'canvas');copies.forEach(([AT,side],i)=>canvasDetails(AT,side,jks[i]));}
-    env.flat=false;scarfWrap();};
+    env.flat=false;armour();scarfWrap();};
   // the rust scarf: wound round his neck over the collar, one end hanging down his front (the other trails behind him, scarfRibbon).
   // Turned to face the viewer: the wrap from the side of his neck round to the middle, on each half of him, and the end down the near
   // half of his chest
@@ -1215,14 +1283,18 @@ function drawHead(c,F,look,hair,env,lod,o,sz,hj){
   // light in the head's frame
   const Lw=env.L,Lh=rot(V(Lw.x*fa*back,Lw.y),-thw*fa*back),he={...env,L:Lh,rw:env.rw/s,ow:env.ow/s,k:env.k*s};
   const noir=isNoir(look),cel=isCel(look);
-  // the skull, then the hair over it, then the ear in front of the hair
+  // the skull, then the hair over it (under a cap or a helmet, what of it is below its edge, and the cap or the helmet over it), then
+  // the ear in front of the hair
+  const HT=pitHatOf(F);
   look.paint(c,[{p:H.skull,c:V(6,10),r:42}],'skin',he);
   if(!noir&&lod>=1){c.save();c.clip(H.skull);c.globalAlpha=cel?.85:.5;c.fillStyle=tone(look,'skin',false,1);c.fill(H.skullShade);c.restore();}
+  if(HT){c.save();c.clip(pitHatUnder(HT));}
   if(noir){const G=hairGlow(hair,look.col.hair,env.k*s);c.drawImage(G.cv,G.x0,G.y0,G.w,G.h);}
   if(noir){// pale, with the underside a step darker away from the light
     c.fillStyle=look.col.hairShade;c.fill(hair.p);c.save();c.clip(hair.p);c.translate(Lh.x*9,Lh.y*9);c.fillStyle=look.col.hair;c.fill(hair.p);c.restore();}
   else look.paint(c,[{p:hair.p,c:V(-24,-34),r:40}],'hair',he);
   if(lod>=1){c.save();c.clip(hair.p);c.strokeStyle=look.col.hairHi;c.lineWidth=4.8;c.globalAlpha=noir?.8:.55;c.stroke(hair.ph);c.restore();}
+  if(HT){c.restore();pitHat(c,HT,look,he,lod);}
   look.paint(c,[{p:H.ear,c:V(-26,-2),r:16}],'skin',he);
   if(lod>=1){c.strokeStyle=noir?'#2b2128':cel?'#b8978a':'rgba(120,90,100,.7)';c.lineWidth=noir?7.19:6.32;c.stroke(new Path2D(HD.earIn));}
   // the face
@@ -1243,6 +1315,39 @@ function drawHead(c,F,look,hair,env,lod,o,sz,hj){
   c.restore();
 }
 const EYE_DULL='#3b4349',CRYSTAL_DULL='#34413f';
+// ---------- what he wears on his head in the Pit ----------
+// Act I's headgear (F.wear.head, sk_gear.js), in the head's frame (the face toward +x): the docker's watch cap, black wool with its
+// cuff turned up; the quarry helmet, a pressed steel shell with a brim all round, a ridge over the top and the empty bracket a lamp rode
+// in. Under either only the hair below its edge shows (under: the line it shows below, from the front to the back), and his ear stands
+// out over it. round: the same thing on the head in the round (pitHatRound: a dome from base up to top, puff out from the head, its
+// cuff, the helmet's brim)
+const PIT_HAT={
+  cap:{mat:'cap',crown:smoothD(HP([[35,-13],[36,-26],[27,-40],[7,-47],[-15,-46],[-31,-36],[-40,-20],[-42,-6],[-30,-8],[-8,-14],[14,-16]]),true,.45),
+    band:smoothD(HP([[37,-12],[37,-23],[-43,-11],[-43,-1]]),true,.2),under:[[70,-15],[37,-11],[-43,0],[-150,0]],
+    round:{top:-50,base:-11,puff:5.5,band:[-21,-10]}},
+  helmet:{mat:'helmet',crown:smoothD(HP([[40,-15],[41,-31],[31,-47],[11,-57],[-12,-57],[-32,-47],[-45,-29],[-47,-9],[-20,-13],[10,-16]]),true,.42),
+    brim:smoothD(HP([[55,-18],[57,-14],[40,-12],[-46,-3],[-55,-1],[-53,-6],[-45,-8],[40,-17]]),true,.25),ridge:'M35,-40 Q12,-66 -40,-44',
+    bracket:smoothD(HP([[32,-37],[41,-32],[43,-22],[35,-23]]),true,.3),under:[[80,-14],[55,-12],[-55,1],[-150,1]],
+    round:{top:-57,base:-14,puff:9,brim:{y:-15,len:9}}}};
+function pitHatOf(F){const W=F&&F.wear;return W&&typeof W==='object'&&W.head?PIT_HAT[W.head]||null:null;}
+// (the hair shows below its edge)
+function pitHatUnder(HT){if(HT._u)return HT._u;const P=new Path2D(),Q=HT.under;P.moveTo(Q[0][0],-160);for(const [x,y] of Q)P.lineTo(x,y);P.lineTo(Q[Q.length-1][0],160);P.lineTo(Q[0][0],160);P.closePath();return HT._u=P;}
+// a piece of the hat: lit along the edge toward the light (in each look as the look lights its own things)
+function pitHatFill(c,look,he,P,mat,shade){const C=look.col[mat],base=Array.isArray(C)?C[0]:C,dk=Array.isArray(C)?C[1]:mid(base,'#000000',.35),col=shade?dk:base;
+  if(isCel(look)){c.strokeStyle=look.line;c.lineWidth=he.ow*2;c.stroke(P);}
+  const dx=he.L.x*he.rw,dy=he.L.y*he.rw;c.save();c.translate(dx,dy);c.fillStyle=FigKit.rimCol(look.col.rim||'#ffcf86');c.globalAlpha*=shade?.35:.6;c.fill(P);c.restore();
+  c.fillStyle=col;c.fill(P);
+  // (the side away from the light a step darker, as the skull is)
+  if(!isNoir(look)){c.save();c.clip(P);c.translate(-he.L.x*9,-he.L.y*9);c.globalAlpha*=.5;c.fillStyle=dk;c.fillRect(-200,-200,400,400);c.restore();
+    c.save();c.clip(P);c.translate(he.L.x*3,he.L.y*3);c.fillStyle=col;c.fill(P);c.restore();}}
+function pitHat(c,HT,look,he,lod){const P=k=>HT['_'+k]||(HT['_'+k]=new Path2D(HT[k]));
+  pitHatFill(c,look,he,P('crown'),HT.mat,false);
+  if(HT.band){pitHatFill(c,look,he,P('band'),HT.mat,true);
+    // the knit's rib up the cuff
+    if(lod>=1){c.save();c.clip(P('band'));c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=1.6;c.beginPath();for(let x=-40;x<=34;x+=5.5){const y0=-23+(37-x)/80*12;c.moveTo(x,y0-2);c.lineTo(x+.6,y0+12);}c.stroke();c.restore();}}
+  if(HT.ridge&&lod>=1){c.strokeStyle=rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.28);c.lineWidth=2.4;c.stroke(P('ridge'));c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=1.6;c.save();c.translate(0,3);c.stroke(P('ridge'));c.restore();}
+  if(HT.bracket){c.fillStyle='#0a0a0a';c.fill(P('bracket'));if(lod>=1){c.fillStyle=look.col.steel||'#5a5852';for(const [x,y] of [[36,-33],[39,-26]]){c.beginPath();c.arc(x,y,1.3,0,TAU);c.fill();}}}
+  if(HT.brim){pitHatFill(c,look,he,P('brim'),HT.mat,true);if(lod>=1){c.strokeStyle=rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.22);c.lineWidth=1.4;c.beginPath();c.moveTo(56,-17);c.lineTo(-52,-6.5);c.stroke();}}}
 // how dark his eye is: the drain, less what light has come back into it of its own (F.eyeLit, the end of the fall)
 function eyeDr(F){return cl((F.drain||0)-(F.eyeLit||0),0,1);}
 // ---------- his head in the round ----------
@@ -1250,20 +1355,22 @@ function eyeDr(F){return cl((F.drain||0)-(F.eyeLit||0),0,1);}
 // standing off it, the cap of pale hair and the spikes swept back from it. The spikes down the middle are the profile's own; a row
 // either side of them is a little shorter and turned out, and a row over the temples shorter again.
 const HMODEL={};
-function headModelOf(hair){if(HMODEL[hair.name])return HMODEL[hair.name];
+function headModelOf(hair,HT){const key=hair.name+(HT?'|'+HT.mat:'');if(HMODEL[key])return HMODEL[key];
   const Q=hair.pts,C0=V(-8,-8),sp=[];
   Q.forEach((q,j)=>{if(!q[2])return;const a=Q[j-1],b=Q[j+1]||Q[j-1],m=mix(mix(V(a[0],a[1]),V(b[0],b[1]),.5),C0,.25),R=[m.x,m.y],Tp=[q[0],q[1]];
     sp.push([[R[0],R[1],0],[Tp[0],Tp[1],0],9]);
     sp.push([[R[0]*.9,R[1]*.9+2,15],[R[0]+(Tp[0]-R[0])*.8,R[1]+(Tp[1]-R[1])*.8,20],8.5]);
     if(R[0]<12&&R[1]<12)sp.push([[R[0]*.82,R[1]*.75+7,26],[R[0]+(Tp[0]-R[0])*.58,R[1]+(Tp[1]-R[1])*.58+5,31],7]);});
-  return HMODEL[hair.name]=FigKit.headModel({skull:SKULL_PTS,w:.97,ear:{pts:EAR_PTS,root:[-4,14],out:15,flare:4.5,base:27},eye:[IRIS.x,IRIS.y,12.5],
-    hair:{line:[[0,-19],[.45,-12],[.75,-2],[1.05,8],[1.25,8],[1.42,-4],[1.7,-4],[1.95,12],[2.4,22],[3.15,25]],puff:3.5,spikes:sp}});}
-function roundGlow(hair,hy,M,col,ks){if(typeof document==='undefined')return null;const st=Math.round(((hy%TAU)+TAU)%TAU/(Math.PI/12))%24,q=Math.pow(2,Math.round(Math.log2(Math.max(.15,ks))*2)/2),key='r'+hair.name+col+q+'|'+st;
+  // (under a cap or a helmet only the spikes whose roots are below its edge, at the nape)
+  const R=HT&&HT.round,spk=R?sp.filter(([Rt])=>Rt[1]>R.base+2):sp;
+  return HMODEL[key]=FigKit.headModel({skull:SKULL_PTS,w:.97,ear:{pts:EAR_PTS,root:[-4,14],out:15,flare:4.5,base:27},eye:[IRIS.x,IRIS.y,12.5],
+    hair:{line:[[0,-19],[.45,-12],[.75,-2],[1.05,8],[1.25,8],[1.42,-4],[1.7,-4],[1.95,12],[2.4,22],[3.15,25]],puff:3.5,spikes:spk}});}
+function roundGlow(hair,hy,M,col,ks,tag=''){if(typeof document==='undefined')return null;const st=Math.round(((hy%TAU)+TAU)%TAU/(Math.PI/12))%24,q=Math.pow(2,Math.round(Math.log2(Math.max(.15,ks))*2)/2),key='r'+hair.name+tag+col+q+'|'+st;
   if(GLOW[key])return GLOW[key];const HV=FigKit.headView(M,st*Math.PI/12),x0=-120,y0=-125,w=240,h=200,cv=document.createElement('canvas');cv.width=Math.ceil(w*q);cv.height=Math.ceil(h*q);
   const g=cv.getContext('2d');g.scale(q,q);g.translate(-x0,-y0);g.shadowColor='rgba(255,236,190,.55)';g.shadowBlur=13*q;g.fillStyle=col;if(HV.hairBack)g.fill(HV.hairBack);if(HV.hairFront)g.fill(HV.hairFront);
   return GLOW[key]={cv,x0,y0,w,h};}
 function headRound(c,F,look,hair,env,lod,o,s,h,thw,fa,hy){
-  const M=headModelOf(hair),HV=FigKit.headView(M,hy),noir=isNoir(look);
+  const HT=pitHatOf(F),M=headModelOf(hair,HT),HV=FigKit.headView(M,hy),noir=isNoir(look);
   c.save();c.translate(h.x,h.y);c.scale(fa,1);c.rotate(thw*fa);c.scale(s,s);c.translate(0,-8);
   const Lw=env.L,Lh=rot(V(Lw.x*fa,Lw.y),-thw*fa),he={...env,L:Lh,rw:env.rw/s,ow:env.ow/s,k:env.k*s};
   // the hair: pale, the side away from the light a step darker
@@ -1271,11 +1378,12 @@ function headRound(c,F,look,hair,env,lod,o,s,h,thw,fa,hy){
     else look.paint(c,[{p:P,c:V(-10,-30),r:40}],'hair',he);};
   // the glow round the pale hair, then the hair behind his head and the ear on the far side, the skull and face, the hair over them
   // and the ear toward the viewer
-  if(noir){const G=roundGlow(hair,hy,M,look.col.hair,env.k*s);if(G)c.drawImage(G.cv,G.x0,G.y0,G.w,G.h);}
+  if(noir){const G=roundGlow(hair,hy,M,look.col.hair,env.k*s,HT?HT.mat:'');if(G)c.drawImage(G.cv,G.x0,G.y0,G.w,G.h);}
   hairFill(HV.hairBack);
   for(const E of HV.earsBack)look.paint(c,[{p:E.p,c:V(-26,-2),r:16}],'skin',{...he,far:true});
   look.paint(c,[{p:HV.skull,c:V(6,10),r:42}],'skin',he);
   hairFill(HV.hairFront);
+  if(HT)pitHatRound(c,HT,HV,M,look,he,lod,hy);
   for(const E of HV.earsFront)look.paint(c,[{p:E.p,c:V(-26,-2),r:16}],'skin',he);
   // the face: the brow over each eye that can be seen, the eye, its glow, each as squarely as it faces the viewer
   const open=!!o.opening||!!F.opening,dr=eyeDr(F),eyeC=mid(open?look.col.open:noir?look.col.eye:look.col.iris,EYE_DULL,dr);
@@ -1311,6 +1419,29 @@ function headRound(c,F,look,hair,env,lod,o,s,h,thw,fa,hy){
   // the mouth, close up, when he faces the viewer
   if(lod>=1&&HV.noseZ>.3){c.strokeStyle=noir?'#020104':'rgba(70,45,55,.85)';c.lineWidth=2;c.beginPath();c.moveTo(HV.mouth[0].x,HV.mouth[0].y);c.quadraticCurveTo(HV.mouth[1].x,HV.mouth[1].y+.6,HV.mouth[2].x,HV.mouth[2].y);c.stroke();}
   c.restore();}
+// the cap or the helmet on his head in the round: the crown, the cuff and its rib; the helmet's brim all round it (seen level, a band
+// across the bottom of the crown), the ridge over its top where it faces the viewer, the lamp's bracket at its front
+function pitHatRound(c,HT,HV,M,look,he,lod,hy){const R=HT.round,cs=Math.cos(hy),sn=Math.sin(hy),P=q=>V(q[0]*cs+q[2]*sn,q[1]),Z=q=>-q[0]*sn+q[2]*cs,cr=M.cran;
+  // (seen level, the crown is the outline of a dome over the head: half an ellipse on its base, as wide as the dome is across the way
+  // he is turned; the cuff and the brim are bands across it)
+  const Rx=cr.r[0]+R.puff,Rz=cr.r[2]+R.puff,W=Math.hypot(Rx*cs,Rz*sn),x0=cr.c[0]*cs,Hh=R.base-R.top,ext=R.band?R.band[1]+.6:R.base+1.5;
+  const crown=new Path2D();crown.moveTo(x0-W,ext);crown.lineTo(x0-W,R.base);crown.ellipse(x0,R.base,W,Hh,0,Math.PI,TAU);crown.lineTo(x0+W,ext);crown.closePath();
+  pitHatFill(c,look,he,crown,HT.mat,false);
+  if(R.band){const B=new Path2D(),[y0,y1]=R.band,w0=W*Math.sqrt(Math.max(0,1-((R.base-y0)/Hh)**2));B.moveTo(x0-w0,y0);B.lineTo(x0+w0,y0);B.lineTo(x0+W,R.base);B.lineTo(x0+W,y1+.6);B.lineTo(x0-W,y1+.6);B.lineTo(x0-W,R.base);B.closePath();
+    pitHatFill(c,look,he,B,HT.mat,true);
+    // (the knit's rib round the cuff, the ribs that face the viewer)
+    if(lod>=1){c.save();c.clip(B);c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=1.6;c.beginPath();
+      for(let i=0;i<30;i++){const az=i/30*TAU,d=[Math.cos(az),0,Math.sin(az)];if(Z(d)<=.05)continue;const a=P([cr.c[0]+Rx*d[0],y0-1,Rz*d[2]]),b=P([cr.c[0]+Rx*d[0],y1+1,Rz*d[2]]);c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);}
+      c.stroke();c.restore();}}
+  if(R.brim){const Bm=R.brim,bw=Math.hypot((Rx+Bm.len)*cs,(Rz+Bm.len*.55)*sn),P0=new Path2D();
+    P0.moveTo(x0-bw,Bm.y-1.4);P0.lineTo(x0+bw,Bm.y-1.4);P0.quadraticCurveTo(x0+bw+2.5,Bm.y+.6,x0+bw,Bm.y+2.6);P0.lineTo(x0-bw,Bm.y+2.6);P0.quadraticCurveTo(x0-bw-2.5,Bm.y+.6,x0-bw,Bm.y-1.4);P0.closePath();
+    // (the ridge over the top, the half of it that faces the viewer; the bracket on the front of the shell when it faces the viewer)
+    if(lod>=1){c.save();c.clip(crown);const pts=[];for(let i=0;i<=16;i++){const th=.1*Math.PI+i/16*.8*Math.PI,q=[cr.c[0]+Rx*Math.cos(th),R.base-Hh*Math.sin(th),0];pts.push({q:P(q),z:-Math.cos(th)*sn});}
+      for(const [col,w,dy] of [['rgba(0,0,0,.45)',1.8,2.6],[rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.26),2.4,0]]){c.strokeStyle=col;c.lineWidth=w;c.beginPath();let on=false;
+        for(const p of pts){if(p.z>.05){on?c.lineTo(p.q.x+dy*.3,p.q.y+dy):c.moveTo(p.q.x+dy*.3,p.q.y+dy);on=true;}else on=false;}c.stroke();}c.restore();}
+    if(Z([1,0,0])>-.15){const fy=y=>cr.c[0]+Rx*Math.sqrt(Math.max(0,1-((R.base-y)/Hh)**2))*.98,a=P([fy(-36),-36,-4]),b=P([fy(-36),-36,4]),d=P([fy(-25),-25,4.6]),e=P([fy(-25),-25,-4.6]);
+      c.fillStyle='#0a0a0a';c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(d.x,d.y);c.lineTo(e.x,e.y);c.closePath();c.fill();}
+    pitHatFill(c,look,he,P0,HT.mat,true);}}
 function scarfRibbon(c,F,look,env,now,sz){
   const s=F.scarf,pts=resample(s.map(q=>V(q.x,q.y)),3),N=pts.length,cel=isCel(look);
   const A=[],B=[],side=[];

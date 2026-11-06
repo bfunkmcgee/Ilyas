@@ -1,49 +1,28 @@
 // ===== ACT I, SCENES 3 AND 4 START =====
 // Scene 3, Lost Property: Tamm's crate of thirty years of what her customers left behind, and what he puts on from it. The gear screen
-// has five slots (body, coat, hands, feet, belt) and the right arm's, which is empty: Missing. Scene 4, A Man's Pace: the yard, and
+// has the gear's eight slots (sk_gear.js) and the right arm's, which is empty: Missing. Scene 4, A Man's Pace: the yard, and
 // the movement tutorial. He walks and jogs about the floor and its depth, lurching until he finds his weight; his one hand holds the
 // bucket or nothing, so a latched gate means setting the bucket down first; the ladder to the roof loft needs two hands; Dob sits on
 // the yard wall and says what he sees. Tamm gives him the job at the start: fill the bucket at the pump and take it up to Dob's birds
 // in the loft.
 
 // ---------- what he wears in the Pit ----------
-// The crate, slot by slot. The oilcloth coat turns a knife a little (cut: what a blade's blow takes off him is that much less). The
-// choice rides in the story's flags (S.story.flags.kit), so it goes with him from scene to scene, and a chapter picked from the menu
-// after scene 3 starts in the first of each slot.
-const KIT={
-  body:[{id:'shirt',name:'Work shirt',what:'Collarless linen gone grey.'},
-    {id:'jersey',name:'Knitted jersey',what:'Dark wool, darned at the elbow.'},
-    {id:'under',name:'Undershirt',what:'Sleeveless. The scars and the dressing show.'}],
-  coat:[{id:'oilcloth',scarf:true,name:'Oilcloth coat and scarf',what:'An orc dockhand’s coat, two sizes too big, and a rust wool scarf. Turns a knife a little.',cut:1},
-    {id:'canvas',scarf:true,name:'Canvas jacket and scarf',what:'Short, stiff canvas and the rust scarf.'},
-    {id:null,scarf:true,name:'Scarf',what:'The rust scarf, and nothing else over it.'},
-    {id:null,scarf:false,name:'Nothing',what:'Nothing over it.'}],
-  hands:[{id:null,name:'Nothing',what:'A bare hand.'},{id:'glove',name:'Fingerless glove',what:'Old leather, for the left hand.'},{id:'wrap',name:'Wrist wrap',what:'A strip of linen round the wrist.'}],
-  feet:[{id:'boots',name:'Work boots',what:'They nearly fit.'},{id:'sandals',name:'Rope sandals',what:'Light. They slap on the steps.'},{id:null,name:'Barefoot',what:'The yard is cold.'}],
-  belt:[{id:'belt',name:'Belt and sheath',what:'The hip dagger rides at his side.'},{id:'rope',name:'Rope belt',what:'The dagger goes through the knot.'}]};
-const KIT_SLOTS=['body','coat','hands','feet','belt'],KIT_NAMES={body:'Body',coat:'Coat',hands:'Hands',feet:'Feet',belt:'Belt'};
-function kitDefault(){return{body:0,coat:0,hands:0,feet:0,belt:0};}
-function kitOf(){const F=S.story&&S.story.flags;return Object.assign(kitDefault(),F&&F.kit||{});}
-function kitItem(slot,i){const L=KIT[slot];return L[((i%L.length)+L.length)%L.length];}
-// what the look draws for a kit (pinned: Tamm has pinned the empty sleeve up)
-function kitWear(k,o={}){const b=kitItem('body',k.body),c=kitItem('coat',k.coat),h=kitItem('hands',k.hands),f=kitItem('feet',k.feet),bl=kitItem('belt',k.belt);
-  return{top:b.id,coat:c.id,scarf:c.scarf?'rust':null,hands:h.id,feet:f.id||'bare',belt:bl.id,bandage:b.id==='under'&&!c.id,pinned:o.pinned!==false};}
-// a sleeve on the right to pin up
-function kitSleeve(w){return!!w&&(!!w.coat||w.top==='shirt'||w.top==='jersey');}
-// the coat turns a knife a little: a blade's blow takes that much less off him
-const KIT_CUT={oilcloth:1};
-RULES.add({id:'gear.oilcloth',src:'Gear',on:'dmg',label:'the oilcloth coat',add:x=>-KIT_CUT[x.D.wear.coat],min:1,
-  when:x=>{const A=x.A,D=x.D,r=x.r;return r&&r.dmg>0&&D&&D===S.F[0]&&act1On()&&D.wear&&KIT_CUT[D.wear.coat]&&A&&A.wp&&!A.wp.unarmed&&A.weaponKey!=='club';}});
+// The crate's things and what they do are the gear's (sk_gear.js: GEAR, GEAR_CRATE, kitOf, kitWear and the rules). The choice rides in
+// the story's flags (S.story.flags.kit: slot -> what he wears), so it goes with him from scene to scene, and a chapter picked from the
+// menu after scene 3 starts in the first of each slot.
 // an Act I stage that says wear:'kit' dresses him from the crate's choice
 {const sd=storyDuel;storyDuel=function(st){sd(st);if(st&&st.act&&st.wear==='kit'){const K=hero();if(K)K.wear=kitWear(kitOf());}};}
 V11.duelStart.push(()=>{const st=act1Stage();if(st&&st.wear==='kit'){const K=S.F[0];if(K)K.wear=kitWear(kitOf());}});
 
 // ---------- the gear screen ----------
-// Opened by a scene (S.act1.gear = {open, kit, wear}); the page shows it and calls these. On auto the crate's first choices are taken.
-function act1GearOpen(kit,o={}){const A=act1State();A.gear={open:true,kit:Object.assign({},kit||kitOf()),pinned:o.pinned!==false,t0:S.t};A.gear.wear=kitWear(A.gear.kit,{pinned:A.gear.pinned});
+// Opened by a scene (S.act1.gear = {open, kit (slot -> what he has on), wear, last: the slot last changed}); the page shows it and calls
+// these. Each slot steps through what he has for it (gearOwned: the crate's, then what he bought). On auto the crate's first choices are
+// taken.
+function act1GearOpen(kit,o={}){const A=act1State();A.gear={open:true,kit:kitRead(kit||kitOf()),pinned:o.pinned!==false,t0:S.t,last:null};A.gear.wear=kitWear(A.gear.kit,{pinned:A.gear.pinned});
   S.hooks.act1('gear',A.gear);return A.gear;}
-function act1GearSet(slot,i){const G=S.act1&&S.act1.gear;if(!G||!G.open||!KIT[slot])return;const L=KIT[slot].length;G.kit[slot]=((i%L)+L)%L;G.wear=kitWear(G.kit,{pinned:G.pinned});}
-function act1GearStep(slot,dir){const G=S.act1&&S.act1.gear;if(G)act1GearSet(slot,(G.kit[slot]||0)+dir);}
+function act1GearSet(slot,id){const G=S.act1&&S.act1.gear;if(!G||!G.open||!GEAR_CRATE[slot])return;const L=gearOwned(slot);
+  if(typeof id==='number')id=L[((id%L.length)+L.length)%L.length];if(!L.includes(id))return;G.kit[slot]=id;G.last=slot;G.wear=kitWear(G.kit,{pinned:G.pinned});}
+function act1GearStep(slot,dir){const G=S.act1&&S.act1.gear;if(!G||!GEAR_CRATE[slot])return;const L=gearOwned(slot),i=Math.max(0,L.indexOf(G.kit[slot]));act1GearSet(slot,L[((i+dir)%L.length+L.length)%L.length]);}
 function act1GearDone(){const G=S.act1&&S.act1.gear;if(!G||!G.open)return;G.open=false;if(S.story)S.story.flags.kit=Object.assign({},G.kit);S.hooks.act1('geardone',G);}
 V11.step.push(()=>{const G=S.act1&&S.act1.gear;if(G&&G.open&&(S.storyAuto||S.auto)&&S.t-G.t0>1.4)act1GearDone();});
 S.hooks.act1=()=>{};

@@ -16,12 +16,17 @@
 const GOODS={oil:{name:'Lamp oil',slots:1,wt:2,list:'oil'},oilcheap:{name:'Cheap lamp oil',slots:1,wt:2,list:'oil'},rice:{name:'Rice sack',slots:3,wt:4,list:'rice'},
   salt:{name:'Salt',slots:1,wt:1,list:'salt'},valve:{name:'Pump valve',slots:1,wt:1,list:'valve'},linen:{name:'Clean linen',slots:1,wt:1,list:'linen'},
   salve:{name:'Salve',slots:1,wt:1},whet:{name:'Whetstone work',service:true}};
+// (and the gear four of the stalls sell, sk_gear.js: it goes on him, not in the satchel, and it is his from then on)
+for(const id of ['helmet','stabvest','tyres','shins','gauntlet'])GOODS[id]={name:GEAR[id].name,wear:id};
 const STALLS={
-  oil:{keeper:'Oil seller',goods:[{id:'oil',chit:1,what:'The good oil. Burns clean.'},{id:'oilcheap',coin:2,what:'Cheap. It smokes.'}]},
+  oil:{keeper:'Oil seller',goods:[{id:'oil',chit:1,what:'The good oil. Burns clean.'},{id:'oilcheap',coin:2,what:'Cheap. It smokes.'},
+    {id:'helmet',coin:3,what:'From the quarry days. The lamp it carried is long gone.'}]},
   grain:{keeper:'Grocer',goods:[{id:'rice',coin:3,what:'A sack. Three slots in the satchel, or a hand to carry.'},{id:'salt',coin:1,what:'A twist of salt.'}]},
-  linen:{keeper:'Linen seller',goods:[{id:'linen',coin:2,what:'Clean linen for that shoulder.'}]},
-  nim:{keeper:'Nim',goods:[{id:'valve',coin:2,what:'For the Sump’s pump.'}]},
-  grind:{keeper:'Grinder',goods:[{id:'salve',coin:2,what:'Heals him between fights.'},{id:'whet',coin:1,what:'Sharpens the dagger: it cuts deeper in the next fight.'}]}};
+  linen:{keeper:'Linen seller',goods:[{id:'linen',coin:2,what:'Clean linen for that shoulder.'},{id:'stabvest',coin:4,what:'Constabulary issue, the badge cut off. Nobody asks where from.'}]},
+  nim:{keeper:'Nim',goods:[{id:'valve',coin:2,what:'For the Sump’s pump.'},{id:'tyres',coin:4,what:'Her own work: old tyre laced onto canvas.'},
+    {id:'shins',coin:2,what:'Tyre rubber, strapped from the knee to the ankle.'}]},
+  grind:{keeper:'Grinder',goods:[{id:'salve',coin:2,what:'Heals him between fights.'},{id:'whet',coin:1,what:'Sharpens the dagger: it cuts deeper in the next fight.'},
+    {id:'gauntlet',coin:2,what:'Split hide to the elbow, worn at the wheel.'}]}};
 const ERRAND_LIST=[{id:'oil',name:'Lamp oil'},{id:'rice',name:'Rice'},{id:'salt',name:'Salt'},{id:'valve',name:'A valve from the goblin at the pump stall'},{id:'linen',name:'Clean linen'}];
 const SATCHEL={cols:4,rows:2,wt:9},PURSE={coin:12,chits:3};
 // the errand's record in S.act1.errand: {bag: goods in the satchel, hand: what his hand holds (a good's id) or null, coin, chits, got
@@ -67,13 +72,14 @@ function errandAffords(E,got,coin,chits){
 function errandBuy(stall,id,pay){const E=errand(),St=STALLS[stall],g=St&&St.goods.find(x=>x.id===id);if(!g)return'Not sold here';const G=GOODS[id],pr=goodPrice(stall,g);
   const cost=pay==='chit'?pr.chit:pr.coin;if(cost==null)return pay==='chit'?'Not for chits':'Chits only';
   if(pay==='chit'?E.chits<cost:E.coin<cost)return pay==='chit'?'Not enough chits':'Not enough bits';
-  if(G.service){if(id==='whet'&&E.sharp)return'Already sharp';}
+  if(G.wear){if(gearHas(id))return'Already his';}
+  else if(G.service){if(id==='whet'&&E.sharp)return'Already sharp';}
   else if(G.list&&E.got[G.list])return'Already on the list as got';
   if(!errandAffords(E,G.list?{...E.got,[G.list]:true}:E.got,E.coin-(pay==='chit'?0:cost),E.chits-(pay==='chit'?cost:0)))
     return G.list?'That leaves too little for the list':'Tamm’s money: the list first';
-  let into=null;if(!G.service){into=satchelWhyNot(E,id)?(E.hand?null:'hand'):'bag';if(!into)return satchelWhyNot(E,id)+', and his hand is full';}
+  let into=null;if(!G.service&&!G.wear){into=satchelWhyNot(E,id)?(E.hand?null:'hand'):'bag';if(!into)return satchelWhyNot(E,id)+', and his hand is full';}
   if(pay==='chit')E.chits-=cost;else E.coin-=cost;
-  if(id==='whet')E.sharp=true;else if(into==='bag')E.bag.push(id);else errandHand(id);
+  if(G.wear)gearGet(id);else if(id==='whet')E.sharp=true;else if(into==='bag')E.bag.push(id);else errandHand(id);
   if(G.list)E.got[G.list]=true;if(id==='salve')E.salve++;
   S.hooks.act1('buy',{stall,id,pay,cost,into});return null;}
 function errandCount(){const E=errand();return ERRAND_LIST.filter(l=>E.got[l.id]).length;}
@@ -91,7 +97,8 @@ function act1MapOpen(o={}){const A=act1State();A.map={open:true,t0:S.t,tutor:!!o
 function act1MapClose(){const A=S.act1;if(A&&A.map)A.map.open=false;}
 function act1ShopOpen(stall){const A=act1State();A.shop={open:true,stall,t0:S.t,note:null};S.hooks.act1('shop',A.shop);return A.shop;}
 function act1ShopClose(){const A=S.act1;if(A&&A.shop)A.shop.open=false;}
-function act1ShopBuy(id,pay){const A=S.act1,Sh=A&&A.shop;if(!Sh||!Sh.open)return'Closed';const why=errandBuy(Sh.stall,id,pay);Sh.note=why?{text:why,t0:S.t}:{text:'Bought: '+GOODS[id].name,t0:S.t,ok:true};return why;}
+function act1ShopBuy(id,pay){const A=S.act1,Sh=A&&A.shop;if(!Sh||!Sh.open)return'Closed';const why=errandBuy(Sh.stall,id,pay);
+  Sh.note=why?{text:why,t0:S.t}:{text:(GOODS[id].wear?'Bought and put on: ':'Bought: ')+GOODS[id].name,t0:S.t,ok:true};return why;}
 V11.step.push(()=>{const A=S.act1;if(!A||!(S.storyAuto||S.auto))return;
   if(A.map&&A.map.open&&S.t-A.map.t0>1.4)act1MapClose();
   const Sh=A.shop;if(Sh&&Sh.open&&S.t-Sh.t0>.9){const E=errand(),St=STALLS[Sh.stall];

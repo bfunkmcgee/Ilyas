@@ -214,7 +214,7 @@ RULES.add({id:'short.blow',src:'Short Hand',on:'dmg',when:x=>shortHinge(x.D)||sh
 // on the shoulder: under half the damage, never a crit's double, no finisher, no knockdown, nothing driven into the furniture
 function shortGlance(A,D,r,T){
   const dc=T.dice||A.wp.dice,base=dc[2],sum=(r.dice||[]).reduce((s,d)=>s+d,0),pre=(sum+base)*(r.mult||1)+(r.hgDmg||0),crit=r.out==='crit';
-  // (what another module took off it, the oilcloth coat's cut, still comes off)
+  // (what another module took off it, what he wears (sk_gear.js), still comes off)
   const core=Math.max(1,Math.round(pre*(crit?2:1)))+(r.shatter?3:0)+(r.tableDmg||0)+(r.wall||0)+(r.divDmg||0)+(r.propDmg||0),adj=r.dmg-core;
   r.glance=true;r.glanceFrom=r.out;r.out='hit';
   r.dmg=Math.max(1,Math.round(pre*SHORT_HAND.hinge.glance)+(r.shatter?3:0)+adj);

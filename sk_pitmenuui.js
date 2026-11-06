@@ -23,7 +23,11 @@ V11UI.init.push(()=>{const side=hudEl('sideCol'),tabs=side&&side.querySelector('
   // the sections, ahead of the drawer's foot
   const pane=(id,html)=>{const d=document.createElement('div');d.className='pm-pane pm-'+id;d.dataset.pm=id;d.innerHTML=html;side.insertBefore(d,foot);return d;};
   pane('none','<p class="pm-empty">Nothing yet. What he wears and what he carries will be here once he has them.</p>');
-  pane('gear','<canvas class="pm-fig" id="pmFig" width="400" height="260" aria-hidden="true"></canvas><ul class="pm-slots" id="pmSlots"></ul>');
+  pane('gear','<div class="pm-gl"><canvas class="pm-fig" id="pmFig" width="400" height="260" aria-hidden="true"></canvas><div class="pm-gsum" id="pmGearSum"></div></div>'+
+    '<div class="pm-gr"><ul class="pm-slots" id="pmSlots"></ul><p class="pm-note" id="pmGearNote" aria-live="polite"></p></div>');
+  // his gear: the next or the last thing he has for a slot (while he walks about; not in a fight or a scene)
+  side.querySelector('.pm-gear').addEventListener('click',e=>{const b=e.target.closest('button[data-gs]');if(!b)return;
+    const was=kitStats(kitOf()),why=gearStep(b.dataset.gs,+b.dataset.d);PM.gearNote=why;if(!why)PM.gearWas=was;pmGear();});
   pane('satchel','<div class="pm-bagbox"><p class="a1-purse" id="pmPurse"></p><div class="a1-bag" id="pmBag"></div><p class="a1-wt" id="pmWt"></p><div class="a1-handrow" id="pmHand"></div>'+
     '<p class="pm-note" id="pmBagNote" aria-live="polite"></p></div><h2 class="pm-h">Tamm’s list</h2><ul class="pm-list" id="pmList"></ul>');
   pane('map','<div class="pm-mapbox" id="pmMap"></div><p class="pm-cap">The stair-streets go up to the Shelf. The ladders are shorter and need two hands.</p>');
@@ -52,19 +56,26 @@ function pmTabsShow(open){const side=hudEl('sideCol'),tabs=side.querySelector('.
   if(HUD.dtab!==t)hudDrawerTab(t);pmFill();};}
 // opened: what was new has been seen, and the note goes
 {const hm=hudMenu;hudMenu=function(on){const was=HUD.menu;hm.apply(this,arguments);if(!PM.built)return;
-  if(HUD.menu&&!was){PM.unseen=[];PM.want=[];PM.note=null;if(PM.toastEl)PM.toastEl.hidden=true;PM.toast=null;pmBadge();}};}
+  if(HUD.menu&&!was){PM.unseen=[];PM.want=[];PM.note=null;PM.gearNote=null;PM.gearWas=null;if(PM.toastEl)PM.toastEl.hidden=true;PM.toast=null;pmBadge();}};}
 function pmFill(){const side=hudEl('sideCol');if(!side||!side.dataset.pit)return;const t=HUD.dtab;
   try{if(t==='gear')pmGear();else if(t==='satchel')pmBag();else if(t==='map')pmMap();else if(t==='styles')pmStyles();}catch(e){console.error('menu '+t,e);}}
 // what his one hand holds: what he carries about, a good from the errand, or the blade he fights with
 function pmHand(){const E=S.ex,K=hero();if(E&&E.on)return E.hand?E.hand.name:null;
   const er=S.act1&&S.act1.errand;if(er&&er.hand&&GOODS[er.hand])return GOODS[er.hand].name;
   if(K&&K.weaponKey&&typeof ARMS_NAME!=='undefined'&&ARMS_NAME[K.weaponKey]&&S.story&&S.story.step==='fight')return ARMS_NAME[K.weaponKey];return null;}
-function pmGear(){const K=hero();if(!K)return;const kit=kitOf(),wear=K.wear&&typeof K.wear==='object'?K.wear:kitWear(kit);
-  const row=(k,v,w,cls='')=>`<li class="pm-slot${cls}"><span class="pm-k">${k}</span><span class="pm-v">${v}</span>${w?`<span class="pm-w">${w}</span>`:''}</li>`;
-  const rows=KIT_SLOTS.map(s=>{const it=kitItem(s,kit[s]);return row(KIT_NAMES[s],it.name,it.what);});
+// his gear: each slot's thing (and, while he walks about, the next and the last he has for it), its short line and its words, the
+// right arm and his hand; the sum of what it does under him, marked with what the last change did
+function pmGear(){const K=hero();if(!K)return;const kit=kitOf(),wear=K.wear&&typeof K.wear==='object'?K.wear:kitWear(kit),free=gearFree();
+  const row=(k,v,w,cls='',b='')=>`<li class="pm-slot${cls}"><span class="pm-k">${k}</span><span class="pm-v">${v}</span>${b}${w?`<span class="pm-w">${w}</span>`:''}</li>`;
+  const rows=GEAR_SLOTS.map(s=>{const it=kitItem(s,kit[s]),n=GEAR_SLOT_NAME[s].toLowerCase(),more=gearOwned(s).length>1;
+    const b=more?`<span class="pm-b"><button type="button" class="pm-step" data-gs="${s}" data-d="-1" aria-label="Previous for the ${n}"${free?'':' disabled'}>&#8249;</button>`+
+      `<button type="button" class="pm-step" data-gs="${s}" data-d="1" aria-label="Next for the ${n}"${free?'':' disabled'}>&#8250;</button></span>`:'';
+    return row(GEAR_SLOT_NAME[s],it.name,`<span class="pm-g">${gearTag(it.id)}</span>${it.what}`,'',b);});
   rows.push(row('Right arm',PM_HATCH+'<span>Missing</span>',wear.pinned?'The sleeve pinned up.':'The sleeve hangs empty.',' pm-miss'));
   const h=pmHand();rows.push(row('Hand',h||'Free',h?'His one hand is full.':'His one hand.',h?'':' pm-free'));
   const L=hudEl('pmSlots'),html=rows.join('');if(L.innerHTML!==html)L.innerHTML=html;
+  const sm=hudEl('pmGearSum'),sh=gearSumHtml(kitStats(kit),PM.gearWas||null);if(sm.innerHTML!==sh)sm.innerHTML=sh;
+  const nt=hudEl('pmGearNote'),tx=PM.gearNote||(free?'':'He changes what he wears when he is walking about.');if(nt.textContent!==tx)nt.textContent=tx;
   // (him drawn again only when what he wears or the room for him has changed)
   const cv=hudEl('pmFig'),r=cv.getBoundingClientRect(),key=JSON.stringify(wear)+'|'+Math.round(r.width)+'x'+Math.round(r.height);if(PM.figKey!==key){PM.figKey=key;a1FigDraw(cv,wear);}}
 function pmBag(){const E=S.act1&&S.act1.errand,el=hudEl;if(!E)return;const live=exOn()&&!S.cut,C=SATCHEL.cols,G=satchelGrid(E.bag)||{items:[]};

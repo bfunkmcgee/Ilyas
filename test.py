@@ -70,7 +70,7 @@ ORDER = ['drawfree', 'stnmotion', 'armspage', 'lookpage', 'castpage', 'dom', 'st
          'v12finale', 'anim', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'savepage', 'growthpage', 'stylespage', 'arcpage', 'live', 'env', 'rules', 'growth', 'styles']
 
 # ---------- what covers what ----------
-GAME = r'^sk_(core|rules|anim|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|rise|stances|spells|stnmotion|explore|pit|pit2|pit5|short|pit6|pit7|pit8|pit9|pitmenu|save|growth|styles|wire|order)\.js$'
+GAME = r'^sk_(core|rules|anim|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|rise|stances|spells|stnmotion|explore|pit|pit2|gear|pit5|short|pit6|pit7|pit8|pit9|pitmenu|save|growth|styles|wire|order)\.js$'
 COVERS = [
     (GAME, 'ALL'),                                                     # the rules: everything
     (r'^build\.py$|^sk_src\.js$', 'ALL'),
@@ -85,7 +85,7 @@ COVERS = [
     (r'^sk_storyui\.js$|^music/|^sfx/', ['soundpage']),
     (r'^sk_sfxui\.js$', ['soundpage', 'dom']),
     (r'^sk_lightui\.js$', ['lightpage', 'lookpage', 'dom']),
-    (r'^sk_(exploreui|pitui|pitcastui|pit2ui|pit5ui|pit6ui|pit7ui|pit8ui|pit9ui|pitmenuui)\.js$|^sk_css_(explore|pit|pit2|pit5|pit6|pit7|pit8|pit9|pitmenu)\.css$', ['act1page', 'hudpage', 'dom']),
+    (r'^sk_(exploreui|pitui|pitcastui|gearui|pit2ui|pit5ui|pit6ui|pit7ui|pit8ui|pit9ui|pitmenuui)\.js$|^sk_css_(explore|pit|pit2|gear|pit5|pit6|pit7|pit8|pit9|pitmenu)\.css$', ['act1page', 'hudpage', 'dom']),
     (r'^sk_(lookui|armsui|storyui)\.js$', ['act1page']),
     (r'^sk_(stancesui|spellsui)\.js$|^sk_css_(stances|spells)\.css$', ['stances', 'stnmotion', 'hudpage', 'dom']),
     (r'^sk_(saveui|storyui)\.js$|^sk_css_story\.css$', ['savepage', 'growthpage', 'hudpage', 'dom']),

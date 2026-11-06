@@ -1,9 +1,10 @@
 // ===== ACT I, SCENE 5 UI =====
 // (loaded ahead of the main UI script; everything here runs only once the UI is up)
 // Scene 5 on the page: the Pit map (the four tiers, the routes and the closed ladders, the landmarks, a waypoint for each thing on
-// Tamm's list, and where he is), the stall's shop screen with the satchel and the purse beside it, the satchel on its own (what rides
-// in it and what rides in his hand), and the buttons that open them while he walks about. The buttons call the game's own
-// act1MapClose, act1ShopBuy, act1ShopClose, errandToHand and errandToBag.
+// Tamm's list, and where he is), the stall's shop screen with the satchel and the purse beside it (the gear a stall sells with its
+// short line, gearTag, sk_gearui.js, and whether it is his and on him), the satchel on its own (what rides in it and what rides in
+// his hand), and the buttons that open them while he walks about. The buttons call the game's own act1MapClose, act1ShopBuy,
+// act1ShopClose, errandToHand and errandToBag.
 
 const A1M={};
 // ---------- the Pit map ----------
@@ -94,10 +95,13 @@ function a1Note(t){A1M.note=t?{text:t,t0:S.t}:null;}
 function a1ShopFill(){const s=A1M.shop;if(!s)return;const A=S.act1,Sh=A&&A.shop&&A.shop.open?A.shop:null,E=A&&A.errand;if(!E)return;
   const only=!Sh&&A1M.bagOnly;s.classList.toggle('a1-bagonly',only);
   if(Sh){const St=STALLS[Sh.stall],R=ACT1_PLACES.shelf.stalls.find(x=>x.id===Sh.stall);$('a1ShopK').textContent=St.keeper;$('a1ShopT').textContent=R?R.name:'';
-    $('a1Goods').innerHTML=St.goods.map(g=>{const G=GOODS[g.id],pr=goodPrice(Sh.stall,g),got=G.list?E.got[G.list]:g.id==='whet'?E.sharp:false,onList=!!G.list;
+    // (gear: its short line under its words, marked Gear until it is his, then His or Wearing)
+    const worn=kitOf();
+    $('a1Goods').innerHTML=St.goods.map(g=>{const G=GOODS[g.id],pr=goodPrice(Sh.stall,g),got=G.wear?gearHas(G.wear):G.list?E.got[G.list]:g.id==='whet'?E.sharp:false,onList=!!G.list;
       const btn=(pay,n)=>n==null?'':`<button type="button" class="a1-buy" data-buy="${g.id}" data-pay="${pay}"${got&&g.id!=='salve'?' disabled':''}>${n} ${pay==='chit'?(n===1?'chit':'chits'):(n===1?'bit':'bits')}</button>`;
-      return`<li class="a1-good${got?' got':''}"><span class="a1-good-n">${G.name}${onList?'<span class="a1-onlist">'+(got?'Got':'On the list')+'</span>':''}</span>`+
-        `<span class="a1-good-w">${g.what||''}</span><span class="a1-good-b">${btn('coin',pr.coin)}${btn('chit',pr.chit)}</span></li>`;}).join('');}
+      const tag=onList?'<span class="a1-onlist">'+(got?'Got':'On the list')+'</span>':G.wear?'<span class="a1-onlist a1-wear">'+(!got?'Gear':worn[GEAR[G.wear].slot]===G.wear?'Wearing':'His')+'</span>':'';
+      return`<li class="a1-good${got?' got':''}"><span class="a1-good-n">${G.name}${tag}</span>`+
+        `<span class="a1-good-w">${g.what||''}${G.wear?`<span class="a1-good-g">${gearTag(G.wear)}</span>`:''}</span><span class="a1-good-b">${btn('coin',pr.coin)}${btn('chit',pr.chit)}</span></li>`;}).join('');}
   else{$('a1ShopK').textContent='Satchel';$('a1ShopT').textContent='What he carries';$('a1Goods').innerHTML='';}
   $('a1Purse').textContent=`Bits ${E.coin} · Chits ${E.chits}`;
   // the grid: each good as a block over the cells it takes; a good is tapped to go into his hand

@@ -1,0 +1,24 @@
+/* The gear's sum and a thing told at length (sk_gearui.js), on the crate's screen and in the menu's Gear: what is taken off a cut, a
+   thrust and a blunt blow on the head, the body and the legs, his weight and pace and his holds, each with what the last change did */
+.gs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:4px 12px;align-items:start;padding:6px 8px 7px;
+  border:1px solid rgba(226,182,90,.22);border-radius:3px;background:rgba(5,5,10,.5);font:500 12.5px/1.25 var(--ui);color:#cfc4a8}
+.gs-t{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.gs-t caption{text-align:left;font:600 10px var(--ui);letter-spacing:.18em;text-transform:uppercase;color:#a07a33;padding-bottom:2px}
+.gs-t th{font:600 10.5px var(--ui);letter-spacing:.06em;color:#a99f88;text-align:left;padding:1px 2px}
+.gs-t thead th{text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.gs-t td{text-align:center;font:700 14px/1.2 var(--display);color:#f3ead2;padding:1px 2px;white-space:nowrap}
+.gs-t td.gs-0{color:#5e574b;font-weight:600}
+.gs-x{margin:0;display:flex;flex-direction:column;gap:1px}
+.gs-r{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.gs-r dt{font:600 11px var(--ui);color:#a99f88;white-space:nowrap}
+.gs-r dd{margin:0;font:700 13px var(--display);color:#f3ead2;white-space:nowrap;font-variant-numeric:tabular-nums}
+.gs-s{font:500 11px var(--ui);color:#8a8070}
+.gs-over dd{color:#e8a58f}
+.gs-d{font:700 10.5px var(--ui);font-style:normal;margin-left:3px;vertical-align:1px}
+.gs-up{color:#9fd08f}.gs-dn{color:#e58f7a}
+@media (max-width:330px){.gs{grid-template-columns:1fr}}
+/* a thing told at length */
+.gd-n{display:flex;justify-content:space-between;gap:8px;font:700 14.5px/1.25 var(--display);color:#f3ead2}
+.gd-wt{font:600 11px var(--ui);letter-spacing:.06em;color:#a99f88}
+.gd-w{font:italic 500 12.5px/1.35 var(--ui);color:#a99f88}
+.gd-g{font:600 12px/1.35 var(--ui);color:#cfc4a8}

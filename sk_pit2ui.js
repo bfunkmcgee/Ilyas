@@ -1,35 +1,48 @@
 // ===== ACT I, SCENES 3 AND 4 UI =====
 // (loaded ahead of the main UI script; everything here runs only once the UI is up)
-// The gear screen (scene 3): what he takes from Tamm's crate, slot by slot, with him drawn in it as it is chosen, and the right arm's
-// slot hatched and marked Missing. The things the scenes handle: the crate, the bucket (on the floor, in his hand, under the pump's
-// spout, the water rising in it and running from the spout). Everything here reads the game and changes nothing it reads; the gear
-// screen's buttons call the game's own act1GearStep and act1GearDone.
+// The gear screen (scene 3, and the crate in the back room after it): what he puts on, slot by slot (the gear's eight, sk_gear.js),
+// with him drawn in it as it is chosen and the sum of what it does under him (gearSumHtml, sk_gearui.js), each slot's thing and its
+// short line, the right arm's slot hatched and marked Missing, and the slot last changed or in focus at length. The things the scenes
+// handle: the crate, the bucket (on the floor, in his hand, under the pump's spout, the water rising in it and running from the
+// spout). Everything here reads the game and changes nothing it reads; the gear screen's buttons call the game's own act1GearStep and
+// act1GearDone.
 
 // ---------- the gear screen ----------
 const A1G={};
 V11UI.init.push(()=>{const W=storyStageWrap();if(!W)return;
   const g=stEl('div','a1-gear');g.id='a1Gear';g.hidden=true;g.setAttribute('role','dialog');g.setAttribute('aria-label','Lost property');
-  const rows=KIT_SLOTS.map(s=>`<li class="a1-slot" data-slot="${s}"><span class="a1-slot-k">${KIT_NAMES[s]}</span>`+
-    `<button type="button" class="a1-step" data-d="-1" aria-label="Previous ${KIT_NAMES[s].toLowerCase()}">&#8249;</button><span class="a1-slot-v"></span>`+
-    `<button type="button" class="a1-step" data-d="1" aria-label="Next ${KIT_NAMES[s].toLowerCase()}">&#8250;</button><span class="a1-slot-w"></span></li>`).join('');
+  const rows=GEAR_SLOTS.map(s=>{const n=GEAR_SLOT_NAME[s].toLowerCase();return`<li class="a1-slot" data-slot="${s}"><span class="a1-slot-k">${GEAR_SLOT_NAME[s]}</span>`+
+    `<button type="button" class="a1-step" data-d="-1" aria-label="Previous for the ${n}">&#8249;</button>`+
+    `<span class="a1-slot-m"><span class="a1-slot-v"></span><span class="a1-slot-g"></span></span>`+
+    `<button type="button" class="a1-step" data-d="1" aria-label="Next for the ${n}">&#8250;</button></li>`;}).join('');
   // (the right arm's slot: an arm's outline, hatched, and nothing in it)
   const hatch='<svg class="a1-hatch" viewBox="0 0 40 64" aria-hidden="true"><defs><pattern id="a1h" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'+
     '<line x1="0" y1="0" x2="0" y2="5" stroke="#8a6a2e" stroke-width="1.4"/></pattern></defs>'+
     '<path d="M14 3 C24 1 31 6 30 15 L28 34 C30 40 29 46 27 52 C26 58 23 62 18 62 C13 62 11 58 12 53 L14 36 C10 30 9 22 10 14 C10 8 11 4 14 3 Z" fill="url(#a1h)" stroke="#8a6a2e" stroke-width="1.4" stroke-dasharray="3 2"/></svg>';
   g.innerHTML='<div class="a1-gear-in"><p class="st-kick">Lost property</p><h2 class="a1-gear-t">The crate</h2>'+
-    '<div class="a1-gear-body"><canvas class="a1-gear-fig" id="a1GearFig" width="300" height="320" aria-hidden="true"></canvas>'+
-    '<ul class="a1-slots">'+rows+`<li class="a1-slot a1-missing"><span class="a1-slot-k">Right arm</span>${hatch}<span class="a1-slot-v">Missing</span></li></ul></div>`+
-    '<div class="st-btns"><button type="button" class="st-btn st-go" id="a1GearDone">Wear these</button></div></div>';
+    '<div class="a1-gear-body"><div class="a1-gear-l"><canvas class="a1-gear-fig" id="a1GearFig" width="300" height="240" aria-hidden="true"></canvas>'+
+    '<div class="a1-gear-sum" id="a1GearSum"></div></div>'+
+    '<div class="a1-gear-r"><ul class="a1-slots">'+rows+`<li class="a1-slot a1-missing"><span class="a1-slot-k">Right arm</span>${hatch}<span class="a1-slot-v">Missing</span></li></ul>`+
+    '<div class="a1-gear-det" id="a1GearDet" aria-live="polite"></div></div></div>'+
+    '<div class="st-btns a1-gear-go"><button type="button" class="st-btn st-go" id="a1GearDone">Wear these</button></div></div>';
   W.appendChild(g);A1G.el=g;A1G.fig=g.querySelector('#a1GearFig');
-  g.addEventListener('click',e=>{const b=e.target.closest('.a1-step');if(b){const s=b.closest('.a1-slot').dataset.slot;act1GearStep(s,+b.dataset.d);a1GearFill(true);return;}
+  g.addEventListener('click',e=>{const b=e.target.closest('.a1-step');if(b){const s=b.closest('.a1-slot').dataset.slot;a1GearStep(s,+b.dataset.d);return;}
     if(e.target.id==='a1GearDone')act1GearDone();});
   // keys: left and right change the slot that has the focus; Enter on the button wears them
   g.addEventListener('keydown',e=>{const li=e.target.closest&&e.target.closest('.a1-slot');if(!li||!li.dataset.slot)return;
-    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){act1GearStep(li.dataset.slot,e.key==='ArrowLeft'?-1:1);a1GearFill(true);e.preventDefault();}});});
-// the slots' names and words, and him drawn in what is chosen
+    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){a1GearStep(li.dataset.slot,e.key==='ArrowLeft'?-1:1);e.preventDefault();}});
+  // the slot in focus is the one told at length
+  g.addEventListener('focusin',e=>{if(A1G.quiet)return;const li=e.target.closest&&e.target.closest('.a1-slot');const s=li&&li.dataset.slot;if(s&&A1G.focus!==s){A1G.focus=s;a1GearFill(false);}});});
+// a change: what it did is marked on the sum until the next
+function a1GearStep(slot,dir){const G=S.act1&&S.act1.gear;if(!G)return;const was=kitStats(G.kit),k0=G.kit[slot];act1GearStep(slot,dir);
+  if(G.kit[slot]!==k0)A1G.was=was;A1G.focus=slot;a1GearFill(true);}
+// the slots' things and their lines, the sum, the slot told at length, and him drawn in what is chosen
 function a1GearFill(redraw){const G=S.act1&&S.act1.gear;if(!G||!A1G.el)return;
-  for(const li of A1G.el.querySelectorAll('.a1-slot[data-slot]')){const s=li.dataset.slot,it=kitItem(s,G.kit[s]);
-    li.querySelector('.a1-slot-v').textContent=it.name;li.querySelector('.a1-slot-w').textContent=it.what;}
+  for(const li of A1G.el.querySelectorAll('.a1-slot[data-slot]')){const s=li.dataset.slot,it=kitItem(s,G.kit[s]),one=gearOwned(s).length<2;
+    li.querySelector('.a1-slot-v').textContent=it.name;li.querySelector('.a1-slot-g').textContent=gearTag(it.id);li.classList.toggle('a1-on',A1G.focus===s);
+    for(const b of li.querySelectorAll('.a1-step'))if(b.disabled!==one)b.disabled=one;}
+  const sum=A1G.el.querySelector('#a1GearSum'),html=gearSumHtml(kitStats(G.kit),A1G.was||null);if(sum.innerHTML!==html)sum.innerHTML=html;
+  const det=A1G.el.querySelector('#a1GearDet'),f=A1G.focus&&GEAR_CRATE[A1G.focus]?A1G.focus:null,dh=f?gearDetHtml(G.kit[f]):`<p class="gd-w">${GEAR_HOW}</p>`;if(det.innerHTML!==dh)det.innerHTML=dh;
   if(redraw)a1GearFig(G);}
 // him, standing easy in what the screen has chosen, three times over, all at one size on one floor: in profile as the game shows him
 // (his right side toward the viewer, the empty sleeve or the dressed stump), turned to face the viewer (yaw near 3π/2: his right on
@@ -82,8 +95,10 @@ function a1FigDraw(cv,wear){const K=hero();if(!cv||!K||!KaelLook.ok)return;const
     left+=(V.x1-V.x0+gap)*s;}
   c.setTransform(1,0,0,1,0,0);}
 V11UI.tick.push(()=>{const g=A1G.el;if(!g)return;const G=S.act1&&act1On()&&S.act1.gear,on=!!G&&G.open;
-  if(g.hidden===on){g.hidden=!on;if(on){A1G.shown=G;a1GearFill(true);const b=g.querySelector('.a1-step');if(b&&!EX_UI.touch)b.focus({preventScroll:true});}}
-  else if(on&&A1G.shown!==G){A1G.shown=G;a1GearFill(true);}});
+  if(g.hidden===on){g.hidden=!on;if(on){A1G.shown=G;A1G.was=null;A1G.focus=null;a1GearFill(true);const b=g.querySelector('.a1-step:not(:disabled)');
+    // (the focus put on its first button is not a choice: the screen says how the gear works until one is made)
+    if(b&&!EX_UI.touch){A1G.quiet=true;try{b.focus({preventScroll:true});}finally{A1G.quiet=false;}}}}
+  else if(on&&A1G.shown!==G){A1G.shown=G;A1G.was=null;A1G.focus=null;a1GearFill(true);}});
 
 // ---------- the things in the scenes ----------
 {const ei=envItems;envItems=function(items){ei(items);const A=S.act1;if(!A||!act1On())return;

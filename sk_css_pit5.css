@@ -44,6 +44,8 @@
 .a1-good-n{font:700 15px var(--display);color:#f3ead2;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .a1-onlist{font:600 10px var(--ui);letter-spacing:.18em;text-transform:uppercase;color:#8a6a2e;border:1px solid rgba(226,182,90,.35);border-radius:2px;padding:1px 5px}
 .a1-good-w{grid-column:1;font:italic 500 12.5px var(--ui);color:#a99f88}
+.a1-good-g{display:block;font:600 11.5px/1.35 var(--ui);font-style:normal;color:#cfc4a8}
+.a1-wear{color:#b9b09a;border-color:rgba(207,196,168,.35)}
 .a1-good-b{grid-column:2;grid-row:1/3;display:flex;gap:6px;align-items:center}
 .a1-buy{appearance:none;min-height:40px;min-width:64px;cursor:pointer;font:700 13px var(--display);letter-spacing:.04em;color:#e2b65a;background:rgba(226,182,90,.08);
   border:1px solid rgba(226,182,90,.5);border-radius:3px;padding:6px 10px}

@@ -182,8 +182,9 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   {const c=run.crate||{};
     expect('scene 3: Tamm carries the crate in, in her arms (off the floor, in her hands, drawn with her) every step of the way, and sets it down where it goes',
       c.walk>60&&c.walkHeld===c.walk&&c.lift>40&&c.gapWalk<6&&c.gapSet<6&&c.floorHeld===0&&c.drawnHeld>20&&c.drawnFloor>0&&c.on&&!c.held&&!!c.want&&Math.abs(c.x-c.want.x)<3&&Math.abs(c.d-c.want.d)<1,JSON.stringify(c));}
-  expect('scene 3 starts bare under the dressings; the gear screen opens with the five slots and the right arm Missing, and closes with the crate\'s choice kept',
-    /"top":"bare"/.test(run.st.lostprop0.wear)&&run.gear.open&&run.gear.slots==='Body:Work shirt | Coat:Oilcloth coat and scarf | Hands:Nothing | Feet:Work boots | Belt:Belt and sheath | Right arm:Missing'&&run.gear.closed&&run.gear.kit==='{"body":0,"coat":0,"hands":0,"feet":0,"belt":0}',JSON.stringify(run.gear));
+  expect('scene 3 starts bare under the dressings; the gear screen opens with the gear\'s eight slots and the right arm Missing, and closes with the crate\'s choice kept',
+    /"top":"bare"/.test(run.st.lostprop0.wear)&&run.gear.open&&run.gear.slots==='Head:Nothing | Body:Work shirt | Armour:Nothing | Coat:Oilcloth coat and scarf | Hands:Nothing | Legs:Linen trousers | Feet:Work boots | Belt:Belt and sheath | Right arm:Missing'&&
+    run.gear.closed&&run.gear.kit==='{"head":"nohat","body":"shirt","armour":"noarmour","coat":"oilcloth","hands":"nohand","legs":"trousers","feet":"boots","belt":"belt"}',JSON.stringify(run.gear));
   expect('he dresses in it and Tamm pins the empty sleeve up: the work shirt, the oilcloth coat, the rust scarf, the boots, the belt',/"top":"shirt","coat":"oilcloth","scarf":"rust","hands":null,"feet":"boots","belt":"belt".*"pinned":true/.test(run.st.pinned.wear),JSON.stringify(run.st.pinned));
   expect('scene 4 dresses him from the crate\'s choice, lurching at first; Dob sits up on the crate by the yard wall',/"coat":"oilcloth"/.test(run.st.yard0.wear)&&run.st.yard0.lurch===1&&run.st.yard0.dob&&run.st.yard0.dobY===ACT1_DOBTOP,JSON.stringify(run.st.yard0));
   const Y=run.yard;
@@ -475,7 +476,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   expect('the crate\'s choice opens the menu\'s Gear: the menu button marked, and a note under it once he is walking about ("New in the menu: Gear")',
     !!pm.fresh&&pm.fresh.text==='New in the menu: Gear'&&pm.fresh.badge==='1'&&pm.fresh.free&&pm.fresh.key==='lostprop',JSON.stringify(pm.fresh));
   expect('the menu then: Gear alone, him drawn in what he wears, each slot, the right arm Missing and his hand; opened, the mark and the note go',
-    pm.gear.tabs==='gear'&&pm.gear.tab==='gear'&&pm.gear.shown==='gear'&&/^Body:.+ \| Coat:.+ \| Hands:.+ \| Feet:.+ \| Belt:.+ \| Right arm:Missing \| Hand:.+$/.test(pm.gear.slots)&&pm.gear.lit>.01&&pm.gear.badge===''&&!pm.gear.toast,JSON.stringify(pm.gear));
+    pm.gear.tabs==='gear'&&pm.gear.tab==='gear'&&pm.gear.shown==='gear'&&/^Head:.+ \| Body:.+ \| Armour:.+ \| Coat:.+ \| Hands:.+ \| Legs:.+ \| Feet:.+ \| Belt:.+ \| Right arm:Missing \| Hand:.+$/.test(pm.gear.slots)&&pm.gear.lit>.01&&pm.gear.badge===''&&!pm.gear.toast,JSON.stringify(pm.gear));
   expect('scene 5: the satchel and the map once Tamm has handed them over (the satchel\'s grid, the purse and her list of five; the map with him marked)',
     pm.listStart==='gear'&&pm.list.tabs==='gear,satchel,map'&&pm.list.items===5&&pm.list.cells===8&&/^Bits \d+ · Chits \d+$/.test(pm.list.purse)&&pm.list.map,JSON.stringify([pm.listStart,pm.list]));
   expect('the codex comes into the menu with the first fight in the Pit, the styles after the first lesson (three style cards)',
@@ -493,11 +494,13 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   // from the room's lamp for it: facing it, its light along the edge of the rust scarf counts as gold to this test)
   const look=await ev(()=>{const out={};storyGo('backroom');step(2);runUntil(()=>S.story.step==='explore',8000);const K=hero();K.facing=-1;
     out.calls=0;const _d=KaelLook.draw;KaelLook.draw=function(c,F,o){if(F===K)out.calls++;return _d.call(this,c,F,o);};
-    for(const [n,w] of [['vest',null],['bare',{top:'bare',bandage:true,feet:'bare'}],['shirt',{top:'shirt',feet:'boots',belt:true}],['coat',{top:'shirt',coat:'oilcloth',scarf:'rust',feet:'boots',belt:true}]]){
+    for(const [n,w] of [['vest',null],['bare',{top:'bare',bandage:true,feet:'bare'}],['shirt',{top:'shirt',feet:'boots',belt:true}],['coat',{top:'shirt',coat:'oilcloth',scarf:'rust',feet:'boots',belt:true}],
+      ['stab',{top:'jersey',head:'helmet',vest:'stab',hands:'gauntlet',legs:'shins',feet:'dock',belt:'belt'}],['plates',{top:'shirt',coat:'canvas',scarf:'rust',head:'cap',vest:'tyre',feet:'dock',belt:'rope'}],
+      ['jerkin',{top:'under',vest:'jerkin',hands:'glove',feet:'sandals',belt:'belt'}]]){
       K.wear=w;drawAll(()=>step(8));render();out[n]=paint();}
     KaelLook.draw=_d;storyQuit();return out;});
-  expect('the Pit\'s look in each of his clothes: no gold on him (the Noir Gilt vest shows its gold in the same place), his pale hair still showing; he is drawn by his own look every frame',
-    look.calls>=32&&look.vest.gold>=10&&['bare','shirt','coat'].every(n=>look[n].gold<=2&&look[n].pale>10),JSON.stringify(look));
+  expect('the Pit\'s look in each of his clothes and his gear (the helmet, the stab vest, the cap, the tyre plates, the jerkin): no gold on him (the Noir Gilt vest shows its gold in the same place), his pale hair still showing; he is drawn by his own look every frame',
+    look.calls>=56&&look.vest.gold>=10&&['bare','shirt','coat','stab','plates','jerkin'].every(n=>look[n].gold<=2&&look[n].pale>10),JSON.stringify(look));
 
   expect('no page errors',pageErrs.length===0,pageErrs.slice(0,3).join(' | '));
   console.log(rep.join('\n'));console.log(errs.length?`\n${errs.length} FAILED`:`\nall ${rep.length} checks passed`);

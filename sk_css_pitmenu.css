@@ -11,12 +11,18 @@
 .pm-empty{margin:6px 0 0;font:italic 500 14.5px/1.45 var(--ui);color:#a99f88}
 .pm-h{margin:6px 0 0;font:700 13px/1.2 var(--display);letter-spacing:.16em;color:#c9a95c}
 /* his gear */
+.pm-gl,.pm-gr{display:flex;flex-direction:column;gap:8px;min-width:0}
 .pm-fig{display:block;width:100%;aspect-ratio:4/3;height:auto;max-height:max(150px,calc(100vh - 220px));border:1px solid rgba(226,182,90,.3);border-radius:3px;background:#0a090c}
-.pm-slots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.pm-slot{display:grid;grid-template-columns:92px minmax(0,1fr);column-gap:10px;row-gap:1px;align-items:center;padding:7px 10px;border:1px solid rgba(226,182,90,.22);border-radius:3px;background:rgba(5,5,10,.5)}
+.pm-slots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.pm-slot{display:grid;grid-template-columns:80px minmax(0,1fr) auto;column-gap:10px;row-gap:1px;align-items:center;padding:6px 8px 6px 10px;border:1px solid rgba(226,182,90,.22);border-radius:3px;background:rgba(5,5,10,.5)}
 .pm-k{grid-row:1/3;font:600 10.5px/1.2 var(--ui);letter-spacing:.2em;text-transform:uppercase;color:#a07a33}
 .pm-v{grid-column:2;display:flex;align-items:center;gap:8px;font:700 15px/1.2 var(--display);color:#f3ead2}
 .pm-w{grid-column:2;font:italic 500 12.5px/1.3 var(--ui);color:#a99f88}
+.pm-g{display:block;font:600 11.5px/1.3 var(--ui);font-style:normal;color:#cfc4a8}
+.pm-b{grid-column:3;grid-row:1/3;display:flex;gap:4px}
+.pm-step{appearance:none;width:36px;height:36px;cursor:pointer;font:700 20px/1 var(--display);color:#e2b65a;background:rgba(226,182,90,.06);border:1px solid rgba(226,182,90,.4);border-radius:3px;padding:0}
+.pm-step:hover,.pm-step:focus-visible{background:rgba(226,182,90,.18);color:#fff0c6;outline:none}
+.pm-step:disabled{opacity:.3;cursor:default;background:none}
 .pm-miss{border-style:dashed}.pm-miss .pm-v{color:#a99f88;font-style:italic}
 .pm-free .pm-v{color:#a99f88;font-style:italic}
 .pm-hatch{flex:none;width:13px;height:21px}
@@ -35,9 +41,9 @@
 .pm-cap{margin:0;font:italic 500 13px/1.4 var(--ui);color:#a99f88}
 .wrap.hud .side-col .pm-styles .a9-cards{grid-template-columns:1fr}
 .pm-styles .a9-lead{text-align:left}
-/* a wide drawer: him beside his slots, the satchel beside Tamm's list, the styles side by side */
+/* a wide drawer: him and the sum beside his slots, the satchel beside Tamm's list, the styles side by side */
 @media (min-width:640px){
-  .wrap.hud .side-col[data-tab="gear"] .pm-gear{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:start}
+  .wrap.hud .side-col[data-tab="gear"] .pm-gear{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:14px;align-items:start}
   .wrap.hud .side-col .pm-gear .pm-fig{aspect-ratio:1/1}
   .wrap.hud .side-col[data-tab="satchel"] .pm-satchel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr;column-gap:18px;row-gap:8px;align-items:start}
   .pm-satchel .pm-bagbox{grid-row:1/3}.pm-satchel .pm-h{grid-column:2;margin:0}.pm-satchel .pm-list{grid-column:2}
