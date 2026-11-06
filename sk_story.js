@@ -384,7 +384,7 @@ function storyDuel(st){
   S.F.forEach((f,i)=>initFighter(f,sp[i],sp));S.cfg.hero.weapon=hw;K.stow=false;K.arcRev=null;K.perch=null;K.grenade=S.story.flags.grenade?'coat':null;K.coatOpen=0;K.nadeUp=0;K.nadeAng=0;K.nadePin=false;
   K.zMax=null;K.hidden=false;K.pitClip=null;K.coatOff=!!S.story.flags.coatOff;K.coatShield=0;K.coatShred=0;K.charge=S.story.flags.coatOff&&!S.story.flags.charged?'belt':null;K.rideLift=false;K.drain=0;K.eyeLit=0;
   // between stages he gets some of his breath back: a third of his strength, never more than all of it
-  K.maxHp=STORY_KAEL.hp;K.hp=SV.hp==null?K.maxHp:Math.min(K.maxHp,Math.round(SV.hp+K.maxHp*(SV.healAt===SV.key?0:.3)));SV.healAt=SV.key;K.sidearm='sheathed';
+  K.maxHp=ruleNum('hpmax',{f:K},()=>STORY_KAEL.hp);K.hp=SV.hp==null?K.maxHp:Math.min(K.maxHp,Math.round(SV.hp+K.maxHp*(SV.healAt===SV.key?0:.3)));SV.healAt=SV.key;K.sidearm='sheathed';
   for(const f of S.F)if(f.team===1&&f.storyHp){f.maxHp=f.hp=f.storyHp;}
   S.target=1;S.table=null;S.wares=[];if(S.tableOn){const td=tableDefault();if(td)placeTable(td.x,td.d);}
   envBuild();

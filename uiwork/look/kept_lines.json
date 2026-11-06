@@ -1,292 +1,1808 @@
 [
-{"file": "envx/beasts.js", "src": "function line(c,Q,col,w){c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(Q[0].x,Q[0].y);for(const q of Q.slice(1))c.li", "med": 0.677, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "r&&env.lod>=1){c.strokeStyle=rgba('#000000',.42);c.lineWidth=Math.max(.6,.8*s);c.beginPath();", "med": 0.707, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "ar&&env.lod>=1){c.strokeStyle=rgba('#e8dcc0',.4);c.lineWidth=Math.max(.6,.7*s);c.stroke(GL);}", "med": 0.621, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "if(lod>=1&&!far){c.strokeStyle=rgba(C.mottle,.6);c.lineWidth=Math.max(.8,1*sz);c.beginPath();const m=mix(hip,K,.55);c.moveTo(m.x+q.", "med": 0.878, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "v.h&&g.side>=0){c.strokeStyle=rgba('#000000',.5);c.lineWidth=Math.max(.6,.9*sz);c.beginPath();c.arc(nv.x,nv.y,W(.9),Math.atan2(nd.y", "med": 0.805, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "if(lod>=1){c.strokeStyle=rgba('#000000',.3);c.lineWidth=Math.max(.3,.4*sz);c.beginPath();for(let i=0;i<5;i++){const a=-T*.12+i", "med": 0.339, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "c.strokeStyle=rgba('#000000',.36);c.lineWidth=Math.max(.35,.55*sz);c.beginPath();for(const [s0,s1] of [[-4.6,-6],[3.", "med": 0.479, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "h([W(1),W(.8)]);c.strokeStyle=rgba(C.thread,.85);c.lineWidth=Math.max(.6,.9*sz);c.stroke(pp.p);c.setLineDash([]);}", "med": 0.771, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "pk,.5),sag=add(m,V(0,W(3)));c.strokeStyle=C.gold;c.lineWidth=Math.max(.6,.9*sz);c.beginPath();c.moveTo(b0.x,b0.y);c.quadraticCurveT", "med": 0.771, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "c.strokeStyle=rgba('#000000',.42);c.lineWidth=Math.max(.6,.8*sz);c.beginPath();", "med": 0.738, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "4,1.35,.95],[4,1.2,1.7]];c.strokeStyle='#3e1414';c.lineWidth=Math.max(.6,.8*sz);", "med": 0.677, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "if(lod>=1){c.strokeStyle='rgba(255,190,170,.42)';c.lineWidth=Math.max(.6,W(.7));c.beginPath();c.ellipse(o.x,o.y,hl*.62,th*.45,Math.", "med": 0.621, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "c.lineWidth=1.1;c.strokeStyle=rgba('#0a0a08',.7);c.beginPath();for(const [x,y] of", "med": 0.439, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "if(lod>=1){c.strokeStyle=rgba('#fff4d8',.55);c.lineWidth=1.6;c.beginPath();c.moveTo(x-1.8,29);c.quadraticCurveTo(x-1.1,30-hgt*.", "med": 0.648, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "if(lod>=1){c.strokeStyle=rgba(C.rim,.3);c.lineWidth=1.2;c.beginPath();c.moveTo(18,-19);c.quadraticCurveTo(30,-26.5,40,-15)", "med": 0.479, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "160,90,20,.8)':rgba(mid(C.eye,'#0a1a14',.55),.9);c.lineWidth=1.8;c.beginPath();c.ellipse(E.x+.6,E.y,3.4,3.2,0,0,TAU);c.stroke();}", "med": 0.707, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "neDash([2.4,2]);c.strokeStyle=rgba('#a8946a',.5);c.lineWidth=2;c.beginPath();c.moveTo(-6,-50);c.quadraticCurveTo(-34,-36,-38,-6);c.", "med": 0.771, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": ",BR,'hide',he);c.strokeStyle=rgba('#000000',.55);c.lineWidth=2;c.stroke(BU);", "med": 0.648, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "c.strokeStyle=rgba('#000000',.4);c.lineWidth=.8;c.beginPath();for(let i=0;i<9;i++){const x=36+i*6.6,y=lerp(14.6,10.", "med": 0.25, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": ".fill();if(lod>=1){c.strokeStyle=rgba(C.rim,.35);c.lineWidth=1.8;c.beginPath();c.ellipse(88,-1.6,3.8,2.4,-.2,Math.PI*1.1,Math.PI*1.", "med": 0.569, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "=open?'rgba(255,240,200,.9)':rgba(C.eyeCore,.85);c.lineWidth=2;c.beginPath();c.ellipse(E.x,E.y,6.2,4,-.1,0,TAU);c.stroke();}", "med": 0.648, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "nst fill=(P,col,ol,lw)=>{if(ol){c.strokeStyle=ol;c.lineWidth=lw||1.99;c.stroke(P);}c.fillStyle=col;c.fill(P);};", "med": 0.677, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "c.strokeStyle='#6b5a3a';c.lineWidth=.9;c.beginPath();for(let x=-butt+1.6;x<5;x+=1.4){c.moveTo(x,-2.7);c.li", "med": 0.958, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "c.strokeStyle=WOOD.l;c.lineWidth=.7;c.globalAlpha=k*.6;c.beginPath();c.moveTo(-butt+.6,-.6);c.lineTo(-.", "med": 0.677, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": ",'#3a2c1e','#0d0b08',.6);c.strokeStyle='#6b5a3a';c.lineWidth=.4;c.beginPath();for(let x=-butt+4;x<4;x+=1.5){c.moveTo(x,-2.8);c.line", "med": 0.42, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "c.strokeStyle=WOOD.l;c.lineWidth=.8;c.globalAlpha=k*.5;c.beginPath();c.moveTo(-butt+4,-.8);c.lineTo(len", "med": 0.5, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "c.strokeStyle='rgba(10,9,8,.7)';c.lineWidth=1.2;c.beginPath();c.moveTo(len0-24,10);c.lineTo(len0-18,16);c.lineTo(l", "med": 0.738, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/beasts.js", "src": "0+2.4,4,2.6,0,TAU);c.fill();c.strokeStyle=IRON.s;c.lineWidth=1.2;c.stroke();", "med": 0.738, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/env_backroom.js", "src": "[bx,by]=tops[2];c.strokeStyle=rgba('#2a2420',.7);c.lineWidth=.8;c.beginPath();c.moveTo(ax,ay+2);c.quadraticCurveTo((ax+bx)/2,Math.m", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "c.strokeStyle=rgba(C.gold,.7);c.lineWidth=.9;c.strokeRect(x+1.3,y+1.3,w-2.6,h-2.6);c.fillStyle=rgba(C.gold,.85);", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "o,dx,dy,dw,base-dy,true);c.strokeStyle='#040305';c.lineWidth=1;c.strokeRect(dx+.25,dy+.25,dw-.5,base-dy-.5);", "med": 0.917, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "roof();c.clip();c.strokeStyle=rgba('#2a3046',.5);c.lineWidth=.5;c.beginPath();for(let y=top-rh+3;y<top;y+=3){c.moveTo(x0-3,y);c.lin", "med": 0.5, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.35;c.beginPath();for(let y=top-rh,k=0;y<top;y+=3,k++)for(let x=x0-3+(", "med": 0.354, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.4;c.beginPath();for(let k=1;k<7;k++){const a=Math.PI+k*Math.PI/7;c.mo", "med": 0.369, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "const px=x0+w*.5;c.strokeStyle=C.goldD;c.lineWidth=1;c.beginPath();c.arc(px,y1-4.4,1,Math.PI,0);c.stroke();c.fillStyle=li", "med": 0.917, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": ",3,0,TAU);c.fill();c.strokeStyle=rgba(C.gold,.6);c.lineWidth=.7;c.beginPath();c.arc(gx,gy-1.5,3.6,-2.4,.8);c.stroke();},", "med": 0.707, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "ign='center';g.lineJoin='round';g.strokeStyle=cl;g.lineWidth=lw;g.strokeText(text,x,y);};", "med": 1.414, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "21,sy=gTop-12,shell=(g,lw,cl)=>{g.strokeStyle=cl;g.lineWidth=lw;g.lineCap='round';g.beginPath();for(let k=-3;k<=3;k++){g.moveTo(sx,", "med": 0.595, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "c.strokeStyle=rgba(C.gold,.55);c.lineWidth=.5;c.beginPath();for(let x=wx0+8;x<wx1;x+=8){c.moveTo(x,yc);c.lineTo(x", "med": 0.5, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "c.strokeStyle=rgba(C.rim,.32);c.lineWidth=.4;c.beginPath();c.moveTo(cx-2.2*s,y-9.3);c.lineTo(cx+2.6*s,y-9.8);c.s", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "const r=rng(5);c.strokeStyle=rgba('#ece6da',.5);c.lineWidth=.32;for(let k=0;k<4;k++){const ly=ty+5.8+k*1.8,l=4+r()*2.4;c.beginPath", "med": 0.297, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "c.strokeStyle=rgba('#08070a',.9);c.lineWidth=1.2;for(const rr of [3.2,6.2]){c.beginPath();c.arc(0,0,rr,0,TAU);c.str", "med": 0.958, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "c.strokeStyle=rgba(C.gold,.22);c.lineWidth=.5;c.beginPath();c.arc(0,0,4.6,0,TAU);c.stroke();", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "c.strokeStyle=rgba('#ffd8a0',.2);c.lineWidth=.55;c.beginPath();c.ellipse(p.x,p.d,p.rw*.74,4.6,0,Math.PI*.1,Math.PI*", "med": 0.439, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "lineWidth=1.1;c.stroke();c.strokeStyle='#2a1c10';c.lineWidth=.5;for(let k=0;k<12;k++){const a2=k/12*TAU;c.beginPath();c.moveTo(cx+M", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=1;c.strokeRect(x-5,y-h+14,10,15);c.fillStyle=rgba(C.gold,.8);c.beginPa", "med": 0.917, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_crops.js", "src": "c.strokeStyle=rgba('#000000',.6);c.lineWidth=.4;c.beginPath();for(let k=-30;k<=30;k+=4){c.moveTo(x+k,b-24-Math.max(", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_crops.js", "src": "c.lineWidth=.9;c.beginPath();for(let k=0;k<6;k++){const t0=k/6,t1=(k+1)/6,ya=lerp(", "med": 0.917, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_crops.js", "src": "c.strokeStyle=rgba('#000000',.22);c.lineWidth=.5;for(let t=.06;t<1;t+=.03){const x=bx(t),d=bd(t);c.beginPath();c.mov", "med": 0.439, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_crops.js", "src": "c.strokeStyle=rgba('#6e5e40',.34);c.lineWidth=.45;c.stroke(sp1);c.strokeStyle=rgba('#b8a478',.32);c.lineWidth=.45;c.", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_crops.js", "src": ";c.stroke(sp1);c.strokeStyle=rgba('#b8a478',.32);c.lineWidth=.45;c.stroke(sp2);}", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_crops.js", "src": "c.strokeStyle=rgba('#d8c89a',.22);c.lineWidth=.35;c.stroke(Wf.awn);", "med": 0.354, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_crops.js", "src": "const wires=(h,col,w)=>{c.strokeStyle=col;c.lineWidth=w;c.beginPath();let prev=null;for(const x of posts){const q=top(x);if(", "med": 0.354, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "c.strokeStyle=rgba('#ffffff',.5);c.lineWidth=.8;c.beginPath();c.moveTo(x-3,y-8);c.lineTo(x-2,y);c.stroke();glow(c,x", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "<d1-.5;d+=1.1){c.strokeStyle=rgba('#d8ccb0',.75);c.lineWidth=.9;c.beginPath();c.moveTo(fx,d);c.lineTo(fx+s*(4+Math.sin(d*3.1)*1.2),", "med": 0.771, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "c.strokeStyle=rgba('#1a0a04',.7);c.lineWidth=.6;c.stroke();}}", "med": 0.595, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "c.strokeStyle=rgba('#c8d8f0',.22);c.lineWidth=.35;c.beginPath();for(let i=0;i<34;i++){const rx=x+r()*w,ry=y+r()*h,le", "med": 0.354, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "c.strokeStyle=rgba('#ffffff',.35);c.lineWidth=.7;c.stroke();}}", "med": 0.707, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "c.strokeStyle=rgba('#ff7a2a',.5);c.lineWidth=.8;c.beginPath();c.moveTo(fx+fw*.25,y1-2);c.lineTo(fx+fw*.5,top2+1);c.", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "c.strokeStyle=rgba('#e8f0ff',.35);c.lineWidth=.4;c.beginPath();for(let i=0;i<6;i++){c.moveTo(14,11);c.lineTo(14+Math", "med": 0.354, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "ctx.strokeStyle=rgba('#3a2a1a',.55);ctx.lineWidth=.9;ctx.beginPath();for(let d=w.d0+4;d<w.d1;d+=1.5){const y=g-22-Math.s", "med": 0.297, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": ",base,B-A,50);ctx.strokeStyle=rgba(C.gold,.35);ctx.lineWidth=.6;for(let d=Math.ceil(w.d0/32)*32;d<w.d1;d+=32)ctx.strokeRect(d+3,bas", "med": 0.193, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "ctx.strokeStyle=rgba('#ffffff',.25);ctx.lineWidth=1.2;for(let k=0;k<5;k++){const d0=w.d0+(w.d1-w.d0)*(.1+k*.2);ctx.begin", "med": 0.386, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "ctx.strokeStyle=rgba('#000000',.35);ctx.lineWidth=1.6;for(let d=Math.ceil(w.d0/12)*12;d<w.d1;d+=12){ctx.beginPath();ctx.", "med": 0.522, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_dining.js", "src": "*.48,28,h*.42);ctx.strokeStyle=rgba(C.gold,.4);ctx.lineWidth=1.2;ctx.strokeRect(d+7,yt+h*.5,22,h*.38);}", "med": 0.386, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_fall.js", "src": "g.strokeStyle=rgba('#fffaf0',.3+.4*u);g.lineWidth=.5+u*.9;g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(", "med": 0.958, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_fall.js", "src": "=rgba('#3a2a1e',.85);for(const f of [.92,.6,.3]){g.lineWidth=.45;g.beginPath();for(let k=0;k<P.length;k++){const p=P[k],y=p.y-p.h*f", "med": 0.439, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_fall.js", "src": "g.strokeStyle=rgba('#fff4dc',.7);g.lineWidth=.45;g.beginPath();for(let x=0;x<=WW;x++)x?g.lineTo(x,S(x)):g.moveTo(x,", "med": 0.439, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_fall.js", "src": "g.strokeStyle=rgba('#000000',.42);g.lineWidth=u;g.beginPath();for(let i=0;i<3;i++){const s=-hw+r()*w;g.moveTo(s,-hh*", "med": 1.0, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_fall.js", "src": "g.strokeStyle=rgba('#6a6a72',.3*lt);g.lineWidth=u;g.beginPath();g.arc(0,0,hw*.8,Math.PI*1.1,Math.PI*1.7);g.stroke();", "med": 1.0, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_fall.js", "src": "g.strokeStyle=rgba('#4a4a52',.32*lt);g.lineWidth=.8*u;g.beginPath();for(let q=1;q<6;q++){const xx=-hw+dx+w*q/6;g.moveTo", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_fall.js", "src": "g.strokeStyle=jmix(base,'#000000',.45);g.lineWidth=u;g.beginPath();const n=Math.max(2,Math.round(h/(12*u)));for(let i=1;i", "med": 1.0, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_fall.js", "src": "62');g.lineWidth=2.2*u;g.strokeRect(-hw,-hh,w,h);g.lineWidth=u;g.beginPath();", "med": 1.0, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_field.js", "src": "(lit&&r()<.22){c.strokeStyle=rgba('#c8d4ff',.22);c.lineWidth=.35;c.beginPath();c.moveTo(fx+(x<MOON.x?.5:-.5),fy+1);c.quadraticCurve", "med": 0.354, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_field.js", "src": "c.strokeStyle=rgba('#000000',.35);c.lineWidth=.45;c.beginPath();for(let k=1;k<6;k++){const t=k/6,ax=lerp(a0,a1,t),ay", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_field.js", "src": "ody,'evenodd');c.strokeStyle=rgba('#000000',.32);c.lineWidth=.45;c.beginPath();for(let y=top+6.5;y<base;y+=6.5){c.moveTo(x0,y);c.li", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_field.js", "src": "c.strokeStyle=rgba('#000000',.6);c.lineWidth=.4;c.beginPath();for(let k=1;k<9;k++){const t=k/9,yy=lerp(y+1,y-17,t),", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_field.js", "src": "llRect(lx-.9,ly-1,7,1.2);c.strokeStyle='#0d0907';c.lineWidth=.8;c.beginPath();c.moveTo(lx+5,ly);c.lineTo(lx+5,ly+2.5);c.stroke();", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_field.js", "src": "if(r3()<.55){c.strokeStyle=rgba('#c8d4ff',.3);c.lineWidth=.4;c.beginPath();c.moveTo(x+lean*.5-.3,y-h*.7);c.lineTo(x+lean-.3,y-h)", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_hill.js", "src": "c.strokeStyle=rgba('#000000',.35);c.lineWidth=.45;c.beginPath();for(let y=b-h+5;y<b;y+=5){c.moveTo(x-w/2,y);c.lineTo", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_lobby.js", "src": "c.strokeStyle=rgba('#5a3a14',.35);c.lineWidth=.3;c.beginPath();for(let y=cy-rr;y<cy+rr;y+=4){c.moveTo(cx-rr,y);c.lin", "med": 0.297, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_lobby.js", "src": "c.strokeStyle=rgba('#a87a40',.35);c.lineWidth=.4;c.beginPath();for(let k=0;k<4;k++){c.moveTo(sx-3.6,sy+6+k*7);c.quad", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_lobby.js", "src": "function segL(a,b,w,col){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()", "med": 0.707, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_look.js", "src": "();if(a!=null)c.globalAlpha*=a;c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i", "med": 0.917, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_look.js", "src": "c.strokeStyle=col;c.lineWidth=Math.max(1,w);c.beginPath();S.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.mov", "med": 1.0, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_look.js", "src": ",y,r,dir,col,w,turns){c.save();c.strokeStyle=col;c.lineWidth=Math.max(1,w);c.lineCap='round';c.beginPath();const T=turns||1.6;", "med": 1.0, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_look.js", "src": "c.save();c.strokeStyle=frame;c.lineWidth=o.fw||Math.max(1,w*.07);c.beginPath();if(arch){c.moveTo(x,y+h);c.lineT", "med": 1.0, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_look.js", "src": "const mull=o.mull==null?2:o.mull;c.lineWidth=Math.max(.6,w*.04);c.beginPath();", "med": 0.595, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_look.js", "src": "c.strokeStyle=rgba(C.cyan,.9*lit);c.lineWidth=1.2*s;c.beginPath();c.ellipse(x,cy-h*.025,cw*.42,cw*.1,0,0,TAU);c.stro", "med": 0.841, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_office.js", "src": "c.strokeStyle=rgba('#a0784a',.35);c.lineWidth=.4;c.beginPath();for(let k=-5;k<=5;k++){c.moveTo(lx+k*1.3,by-35);c.lin", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_office.js", "src": "c.strokeStyle=rgba('#a0784a',.3);c.lineWidth=.35;c.beginPath();for(let k=-3;k<=3;k++){c.moveTo(x+k*1.3,y-22);c.line", "med": 0.354, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_office.js", "src": "d<d1-.5;d+=1.1){c.strokeStyle=rgba('#cfc2a0',.6);c.lineWidth=.9;c.beginPath();c.moveTo(x0,d);c.lineTo(x0-(4+Math.sin(d*3.1)*1.2),d+", "med": 0.771, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_office.js", "src": "ctx.strokeStyle=rgba('#5a4020',.35);ctx.lineWidth=.8;for(const k of [-6,0,6]){ctx.beginPath();ctx.ellipse(c0.x,c0.y,R,Ma", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_office.js", "src": "ctx.strokeStyle=rgba('#a0784a',.3);ctx.lineWidth=.4;ctx.beginPath();for(let k=-6;k<=6;k++){ctx.moveTo(t.x+k*1.4,t.y-12)", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_outskirts.js", "src": "4',.34);c.fill(P.shadow);c.strokeStyle='#120c08';c.lineWidth=w;c.stroke(P.dark);", "med": 0.707, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_outskirts.js", "src": "c.strokeStyle=rgba('#ffa858',.4);c.lineWidth=Math.max(.6,1*p.s);c.beginPath();c.moveTo(p.x-.6*p.s,p.b);c.lineTo(p.x", "med": 0.595, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_outskirts.js", "src": "c.strokeStyle=rgba('#1a100c',.7);c.lineWidth=.45;for(let i=0;i<P.length-1;i++){const A=P[i],B=P[i+1];for(const k of", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_props.js", "src": "strokeStyle=rgba(town?'#3a2a2a':'#5a4e44',.45);ctx.lineWidth=.4;ctx.beginPath();for(let j=0;j<3;j++){const x=d+1.5+j*1.8;ctx.moveTo", "med": 0.193, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_props.js", "src": "ctx.strokeStyle=C.gold;ctx.lineWidth=1.2;ctx.strokeRect(1.5,1.5,bw-3,bh-3);", "med": 0.569, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_props.js", "src": "',bw/2,bh*.82);ctx.strokeStyle=rgba(C.gold,.6);ctx.lineWidth=.8;ctx.strokeRect(1,1,bw-2,bh-2);});", "med": 0.386, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_roof.js", "src": "c.strokeStyle=rgba('#05060a',.8);c.lineWidth=.45;c.beginPath();for(const [gx,gy] of [[x-160,base-6],[x+120,base-6]]", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_street.js", "src": "3===2?.6:1),.7);c.strokeStyle=rgba('#3a2208',.9);c.lineWidth=.8;c.strokeRect(px+.6,py+.6,pw-3.6,ph-1.2);", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_street.js", "src": ",TAU);c.fill();c.strokeStyle=rgba('#b0a498',.22);c.lineWidth=.35;", "med": 0.31, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_street.js", "src": "c.strokeStyle=rgba(C.rim,.3);c.lineWidth=.5;c.beginPath();c.arc(0,0,4.2,Math.PI*1.15,Math.PI*1.85);c.stroke();c", "med": 0.439, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_street.js", "src": "c.strokeStyle=rgba(C.rim,.22);c.lineWidth=.4;c.beginPath();c.moveTo(X0,y0+7);c.quadraticCurveTo((X0+X1)/2,y0+25,", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumpkitchen.js", "src": "0,TAU);c.fill();c.strokeStyle=rgba('#4a2e1a',.6);c.lineWidth=.8;c.beginPath();c.arc(p.x+.6,p.y-.4,2,0,TAU);c.stroke();}", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumproof.js", "src": "w,-hh,w,h);c.strokeStyle=dim(base,'#000000',.45);c.lineWidth=u;c.beginPath();for(let i=1;i<3;i++){c.moveTo(-hw,-hh+h*i/3);c.lineTo(", "med": 1.0, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumproof.js", "src": "c.strokeStyle='#120d0f';c.lineWidth=1.6*s;c.beginPath();for(let q=0;q<4;q++){const xx=x-30*s-q*34*s,yy=top", "med": 0.522, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumproof.js", "src": "c.strokeStyle=rgba('#ffbe8c',.35);c.lineWidth=1.2*s;c.beginPath();c.moveTo(A.ax,A.ay-.8*s);c.lineTo(A.bx,A.by-.6*s);", "med": 0.386, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumproof.js", "src": "ation='lighter';c.strokeStyle=rgba(C.cyan,.95*k);c.lineWidth=1.8*s;c.beginPath();c.moveTo(hx-.7*s,hy+2*s);c.lineTo(ex-.9*s,ey);c.li", "med": 0.569, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumproof.js", "src": "c.strokeStyle=rgba(C.goldL,.95*k);c.lineWidth=1.6*s;c.beginPath();c.moveTo(hx+1.3*s,hy+1*s);c.lineTo(ex+1.4*s,ey);c.", "med": 0.522, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumproof.js", "src": "c.strokeStyle=rgba(C.cyanL,.5*k);c.lineWidth=.8*s;c.beginPath();c.moveTo(hx,hy+4*s);c.lineTo(ex+.2*s,ey+1*s);c.stro", "med": 0.261, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumproof.js", "src": "0,TAU);c.fill();c.strokeStyle=rgba('#8a7050',.5);c.lineWidth=.8*s;c.beginPath();c.moveTo(bx,by-rr);c.lineTo(bx,by+rr*.6);c.stroke()", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumproof.js", "src": "c.strokeStyle=rgba('#c8b890',.3);c.lineWidth=.4;c.beginPath();for(let xx=x-hw-h;xx<x+hw;xx+=3){c.moveTo(xx,y);c.lin", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_sumproof.js", "src": "w,hgt);c.clip();c.strokeStyle=rgba('#9a9aa2',.3);c.lineWidth=.45;c.beginPath();", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_yard.js", "src": "if(r()<.45){c.strokeStyle=col('#2a221e',y);c.lineWidth=.8*ur;c.beginPath();c.moveTo(a,y-9*ur);c.lineTo(b,y-9*ur);for(let x=a+", "med": 0.439, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_yard.js", "src": "yle=col(jm('#5a4a3c',P.light,P.lightA*.6),gy-oh);c.lineWidth=1.6*ur;c.beginPath();c.moveTo(x+ow*.1,gy-oh*.6);c.quadraticCurveTo(x+o", "med": 0.958, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_yard.js", "src": "c.strokeStyle=col('#2a221e',y1);c.lineWidth=.7*ur;c.beginPath();c.moveTo(x,y0-9*ur);c.lineTo(x+sw,y1-9*ur);for(let", "med": 0.42, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_yard.js", "src": ")*ur,ly=top+3*ur;c.strokeStyle=col('#8a8070',ly);c.lineWidth=.9*ur;c.beginPath();c.moveTo(x+w,ly);c.quadraticCurveTo((x+w+x2)/2,ly+", "med": 0.5, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_yard.js", "src": "tyle=col(jm('#4a3e32',P.light,P.lightA*.5),sy-h);c.lineWidth=.7*u*s2;c.beginPath();tops.forEach(([px,py],k)=>k?c.lineTo(px,py):c.mo", "med": 0.479, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/fx_elven.js", "src": "if(a>.4){c.strokeStyle=rgba(PAL.core,.45*a);c.lineWidth=Math.max(.6/k,.5);c.stroke();}}", "med": 0.5, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_elven.js", "src": "c.strokeStyle=rgba(tint,.9*a);c.lineWidth=Math.max(1.6/k,R*.09);c.beginPath();c.arc(0,0,R,0,TAU);c.stroke();", "med": 0.771, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_elven.js", "src": "c.strokeStyle=rgba(PAL.cyan,.85*a);c.lineWidth=Math.max(1.1/k,R*.06);c.beginPath();c.arc(0,0,R*.64,0,TAU);c.stroke();", "med": 0.522, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "c.save();c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.beginPath();Q.forEach((q,i)=>", "med": 0.177, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": ".stock,'evenodd');c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=.6;c.stroke(R.stock);", "med": 0.354, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "Cap='round';c.lineJoin='round';c.stroke(R.guard);c.lineWidth=1.2;c.stroke(R.trig);", "med": 0.707, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": ",K.cyanL]]));c.fill(R.cell);c.strokeStyle=K.gold;c.lineWidth=.9;c.stroke(R.cell);", "med": 0.522, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=.6;c.beginPath();c.moveTo(13.4,-4.4);c.lineTo(15.2,-11.6);c.stroke();", "med": 0.354, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "c.strokeStyle=rgba(K.gold,.8);c.lineWidth=.7;c.beginPath();c.moveTo(18,5.6);c.lineTo(18,9.6);c.moveTo(4.6,5.6);c", "med": 0.403, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "'#0c0c0e';c.fill(R.rail);c.strokeStyle='#26272d';c.lineWidth=.18;c.beginPath();for(let u=6.6;u<10.2;u+=.7){c.moveTo(u,-2.25);c.line", "med": 0.115, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "tg,'evenodd');c.strokeStyle='rgba(74,77,87,.55)';c.lineWidth=.28;c.stroke(R.tg);c.strokeStyle='#2c2d33';c.lineWidth=.7;c.lineCap='r", "med": 0.177, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "Width=.28;c.stroke(R.tg);c.strokeStyle='#2c2d33';c.lineWidth=.7;c.lineCap='round';c.stroke(R.trig);", "med": 0.439, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": ".fill(R.grip);c.strokeStyle='rgba(74,77,87,.45)';c.lineWidth=.28;c.stroke(R.grip);c.fillStyle='#0a0a0c';c.fill(R.tail);", "med": 0.177, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "c.strokeStyle='#050506';c.lineWidth=.32;c.beginPath();for(let u=-2.7;u<.2;u+=.45){c.moveTo(u,-.5);c.lineTo", "med": 0.201, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "='#0d0e10';c.fill(R.pad);c.strokeStyle='#26282d';c.lineWidth=.2;c.beginPath();for(let v=-4.2;v<2.4;v+=.8){c.moveTo(-16.4,v);c.lineT", "med": 0.06, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "c.fill(R.mag);c.strokeStyle='rgba(89,96,110,.6)';c.lineWidth=.36;c.stroke(R.mag);", "med": 0.105, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": ".fill(R.grip);c.strokeStyle='rgba(89,96,110,.5)';c.lineWidth=.32;c.stroke(R.grip);", "med": 0.092, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "'#14161a';c.fill(R.rail);c.strokeStyle='#2c3038';c.lineWidth=.16;c.beginPath();for(let u=-1.6;u<17.8;u+=.8){c.moveTo(u,2.25);c.line", "med": 0.046, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": ".fill(R.fore);c.strokeStyle='rgba(89,96,110,.5)';c.lineWidth=.32;c.stroke(R.fore);c.stroke(R.recv);c.stroke(R.hg);c.strokeStyle='#0", "med": 0.092, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "e(R.recv);c.stroke(R.hg);c.strokeStyle='#08090b';c.lineWidth=.3;c.beginPath();for(const v of [-4.6,-6.4,-8.2]){c.moveTo(15.7,v);c.l", "med": 0.088, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "fff8e6']]));c.fill(R.grip);c.strokeStyle=K.goldD;c.lineWidth=.6;c.stroke(R.grip);", "med": 0.595, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": ");c.fill(R.tg,'evenodd');c.strokeStyle='#3a3020';c.lineWidth=.7;c.lineCap='round';c.stroke(R.trig);", "med": 0.707, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "#fffaf0']]));c.fill(R.lock);c.strokeStyle=K.gold;c.lineWidth=.8;c.stroke(R.lock);", "med": 0.805, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "ff':'#6a4aa8';c.fill(R.gem);c.strokeStyle=K.gold;c.lineWidth=.5;c.stroke(R.gem);", "med": 0.5, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "c.strokeStyle='#07070b';c.lineWidth=.84;c.beginPath();c.moveTo(6,0);c.lineTo(22,0);c.stroke();", "med": 0.841, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "const glow=ch>0;c.lineWidth=.44;c.lineCap='round';", "med": 0.439, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "c.globalCompositeOperation='lighter';c.lineWidth=.84/k;", "med": 0.522, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/fx_guns.js", "src": "lpha=fl*.75*(o.alpha??1);c.strokeStyle='#ffffff';c.lineWidth=1.1;", "med": 0.648, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "envx/veh_apc.js", "src": "c.strokeStyle=rgba('#6a6060',.35);c.lineWidth=.4;c.save();c.clip(P.cabWin);c.beginPath();for(let k=0;k<9;k++){const", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "nction stroke(c,pts,col,w,cap){c.strokeStyle=col;c.lineWidth=w;c.lineCap=cap||'round';c.lineJoin='round';c.beginPath();c.moveTo(pts", "med": 1.091, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "t P=cr(new Path2D(),pts,false);c.strokeStyle=col;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.stroke(P);}", "med": 0.595, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.save();c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.beginPath();Q.forEach((q,i)=>", "med": 0.297, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "ny*side*(r+rr*Math.cos(t))+rr*Math.sin(t)*side);}c.lineWidth=w*1.6;c.stroke();}}", "med": 0.479, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=K.lac;c.lineWidth=r*.07;c.beginPath();c.moveTo(0,-L*.8);c.lineTo(0,L*.86);for(const t of", "med": 0.239, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba(K.goldD,.55);c.lineWidth=.8;c.beginPath();c.arc(0,0,19.6,0,TAU);c.stroke();", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#1c1c22',.9);c.lineWidth=.45;c.beginPath();for(let i=0;i<28;i++){const a=i/28*TAU;c.moveTo(Math", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "DD]]);c.fill(P);c.strokeStyle=rgba('#000000',.5);c.lineWidth=.8;c.stroke(P);}}", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": ");c.clip(P.panel);c.strokeStyle=rgba(K.gold,.65);c.lineWidth=.9;c.translate(-20.4,52.4);c.scale(.86,.86);c.translate(20.4,-52.4);c.", "med": 0.771, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "fill(P.muffler);c.strokeStyle=rgba('#000000',.6);c.lineWidth=.8;c.stroke(P.muffler);", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.clip(P.seat);c.strokeStyle=rgba('#000000',.32);c.lineWidth=.42;c.beginPath();for(let x=-12;x>=-40;x-=4.4){c.moveTo(x,63.4);c.line", "med": 0.42, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "ineDash([.6,.7]);c.strokeStyle=rgba(K.goldL,.75);c.lineWidth=.56;c.beginPath();c.moveTo(-6,66);c.bezierCurveTo(-16,65.6,-30,66.2,-4", "med": 0.569, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "();c.clip(P.tail);c.strokeStyle=rgba(K.gold,.75);c.lineWidth=.8;c.translate(-55,68);c.scale(.84,.8);c.translate(55,-68);c.stroke(P.", "med": 0.648, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "D]]);c.fill(pg);c.strokeStyle=rgba('#000000',.4);c.lineWidth=.25;c.beginPath();for(let x=-24.6;x<-19.4;x+=.9){c.moveTo(x,27);c.line", "med": 0.25, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "D]]);c.fill(Sc);c.strokeStyle=rgba('#000000',.6);c.lineWidth=.8;c.stroke(Sc);", "med": 0.805, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "LineDash([.6,.7]);c.strokeStyle=rgba(K.goldL,.6);c.lineWidth=.52;c.beginPath();c.moveTo(...pt(.03,w0-1.2));c.lineTo(...pt(.96,w1-1)", "med": 0.522, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "K.scabD;c.fill(mo);c.strokeStyle=rgba(K.gold,.6);c.lineWidth=.7;c.stroke(mo);", "med": 0.707, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#000000',.4);c.lineWidth=.25;c.beginPath();for(let x=29;x<36;x+=1){c.moveTo(x,84.4+(x-27.8)*.17", "med": 0.25, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba(K.cyan,.25+.45*k);c.lineWidth=.64;c.lineCap='round';c.lineJoin='round';c.beginPath();", "med": 0.648, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#34343c',.7);c.lineWidth=.8;c.beginPath();c.arc(0,0,19.2,0,TAU);c.stroke();}", "med": 0.479, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "if(!blur){c.strokeStyle='#121316';c.lineWidth=.5;c.beginPath();for(let i=0;i<7;i++){const a=i/7*TAU;c.moveTo(Math.co", "med": 0.297, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#111215',.8);c.lineWidth=.8;c.beginPath();c.arc(0,0,5.4,0,TAU);c.moveTo(6.6,0);c.arc(0,0,6.6,0,", "med": 0.479, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "0,al)=>{c.globalAlpha=al;c.strokeStyle='#a4aab4';c.lineWidth=.32;c.beginPath();for(let i=0;i<28;i++){const a=a0+i/28*TAU,b=a+(i%2?.", "med": 0.193, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.9;c.beginPath();c.arc(cx,cy,15.3,0,TAU);c.stroke();", "med": 0.841, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "lip(P.rfender);c.strokeStyle=rgba('#9aa0aa',.45);c.lineWidth=.9;c.beginPath();c.arc(-60,25,29.1,1.16,2.88);c.stroke();c.restore();", "med": 0.841, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "945c']]);c.fill(P.plate);c.strokeStyle='#1a170e';c.lineWidth=.9;c.stroke(P.plate);", "med": 0.841, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#1a1810',.85);c.lineWidth=.42;c.beginPath();for(const x of [-87.6,-86.9,-86.2]){c.moveTo(x,41.2+", "med": 0.386, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "clip(P.ffender);c.strokeStyle=rgba('#9aa0aa',.5);c.lineWidth=.9;c.beginPath();c.arc(64,25,29,.66,2.16);c.stroke();", "med": 0.841, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": ",TAU);c.fill();c.strokeStyle=rgba('#c8ccd6',.45);c.lineWidth=.6;c.beginPath();c.ellipse(79.4,48.6,2.6,1.4,-.6,Math.PI*1.1,Math.PI*1", "med": 0.545, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": ".fill(P.cguard);c.strokeStyle=rgba('#6a6f7a',.5);c.lineWidth=.6;c.stroke(P.cguard);", "med": 0.545, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.fill(P.case);c.strokeStyle=rgba('#000000',.65);c.lineWidth=1.2;c.stroke(P.case);", "med": 1.091, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#0c0c0e',.7);c.lineWidth=1;c.beginPath();c.moveTo(-15.6,34);c.bezierCurveTo(-8,40,2,40.6,6,37.6", "med": 0.917, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#0b0b0d',.75);c.lineWidth=.6;c.beginPath();for(let i=0;i<4;i++){const y=14.4+i*1.7;c.moveTo(16,y", "med": 0.545, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba(K.rim,.25);c.lineWidth=.6;c.beginPath();c.moveTo(-10,41);c.lineTo(23,41);c.stroke();", "med": 0.545, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "rokeStyle=rgba('#9aa0aa',.28+.25*clamp(L.y,0,1));c.lineWidth=.9;c.beginPath();c.moveTo(ax-hx,ay+.15);c.lineTo(ax+hx,ay+1.35);c.stro", "med": 0.841, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#000000',.7);c.lineWidth=.4;c.beginPath();for(let x=-7.8;x<1;x+=1.4){c.moveTo(x,47.6);c.lineTo(", "med": 0.369, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "0,TAU);c.fill();c.strokeStyle=rgba('#000000',.5);c.lineWidth=1;c.stroke();", "med": 0.917, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": ",TAU);c.fill();c.strokeStyle=rgba('#000000',.55);c.lineWidth=1;c.stroke();", "med": 0.917, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#1a1b1f',.6);c.lineWidth=.7;c.beginPath();c.arc(12,25.6,5.2,0,TAU);c.stroke();", "med": 0.648, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#ffffff',.35);c.lineWidth=.5;c.beginPath();c.moveTo(8.4,28.6);c.lineTo(14.2,23.4);c.moveTo(9.4,2", "med": 0.459, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "0,TAU);c.fill();c.strokeStyle=rgba('#000000',.4);c.lineWidth=.6;c.stroke();", "med": 0.545, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba(Q.hi,.6);c.lineWidth=.9;c.beginPath();c.ellipse(24,77.6,5.2,2.3,.1,Math.PI*1.08,Math.PI*1.9", "med": 0.841, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#c8c0b0',.45);c.lineWidth=.44;c.beginPath();c.moveTo(19,79.6);c.lineTo(16.4,81.2);c.moveTo(29.4,", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#000000',.6);c.lineWidth=.6;c.beginPath();c.moveTo(-28.2,68.6);c.lineTo(-29.6,66.4);c.lineTo(-3", "med": 0.545, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#c8ccd2',.35);c.lineWidth=.44;c.beginPath();c.moveTo(-11.6,63);c.lineTo(-12.1,68);c.moveTo(-13.4", "med": 0.403, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "']]);c.fill(tl);c.strokeStyle=rgba('#c6ccd6',.6);c.lineWidth=.7;c.stroke(tl);}", "med": 0.648, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "']]);c.fill(pg);c.strokeStyle=rgba('#000000',.6);c.lineWidth=.3;c.beginPath();for(let x=-25;x<-18.8;x+=1){c.moveTo(x,26.8);c.lineTo", "med": 0.273, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.3;c.beginPath();for(let x=28.6;x<36;x+=.9){c.moveTo(x,84.6+(x-27.8)*.", "med": 0.273, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "AU);c.fill();c.strokeStyle=lg(c,-3,0,3,0,CHROME);c.lineWidth=.9;c.stroke();c.restore();", "med": 0.841, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "a=.8*a;c.lineCap='round';c.strokeStyle='#d8dce4';c.lineWidth=.64;c.beginPath();", "med": 0.31, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.stroke();c.strokeStyle=rgba('#ffffff',.5);c.lineWidth=.6;c.beginPath();c.moveTo(-3,75.6);c.lineTo(8,76.2);c.moveTo(-57,68.6)", "med": 0.297, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "c.strokeStyle=rgba('#000000',.7);c.lineWidth=.35;c.beginPath();for(let t=21.6;t<34;t+=1.5){c.moveTo(...pt(t,-3));c.", "med": 0.324, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/veh_bike.js", "src": "tock,'evenodd');c.strokeStyle=rgba('#000000',.6);c.lineWidth=.6;c.stroke(R.stock);", "med": 0.595, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "sk_armsui.js", "src": "c.globalAlpha=k;c.strokeStyle=o.line||'#04060a';c.lineWidth=o.line?o.lw*2:Y.vine?.84:1.4;c.stroke(Y.body);", "med": 1.0, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "c.globalAlpha=k;c.strokeStyle=P.bladeEdge;c.lineWidth=.76;c.stroke(Y.edge);", "med": 0.545, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "Width=1.8;c.stroke(Y.ful);c.globalAlpha=k*thread;c.lineWidth=.84;c.stroke(Y.ful);", "med": 0.595, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "ositeOperation='lighter';c.strokeStyle='#fff3da';c.lineWidth=.75;c.globalAlpha=k*clamp(.12+Math.abs(d)*.7,0,.85);c.stroke(d>0?Y.edg", "med": 0.545, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "1]+w*.8);c.lineTo(q[0]+2.2,q[1]+w*.8);c.stroke();c.lineWidth=.56;c.beginPath();c.moveTo(q[0],q[1]+w*.8-1);c.lineTo(q[0],q[1]+w*.8+1", "med": 0.5, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "'lighter';c.strokeStyle=P.glow;c.globalAlpha=.42;c.lineWidth=1;c.stroke(J.lit);c.globalCompositeOperation='source-over';", "med": 0.707, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "c,J,P,k){c.globalAlpha=k;c.strokeStyle='#04060a';c.lineWidth=.75;c.stroke(J.kn);c.fillStyle=arcTones(P).knuckle;c.fill(J.kn);c.fill", "med": 0.545, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": ";else c.fill(op.p);}else{c.strokeStyle=op.stroke;c.lineWidth=op.lw;c.stroke(op.p);}", "med": 0.459, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "positeOperation='lighter';c.strokeStyle=W.rimCol;c.lineWidth=W.rimW;c.globalAlpha=k*clamp(.15+Math.abs(d)*.75,0,.9);c.stroke(d>0?W.", "med": 0.595, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": ");c.moveTo(x-2.4,y);c.lineTo(x+2.4,y);c.stroke();c.lineWidth=.6;c.beginPath();c.moveTo(x,y-1);c.lineTo(x,y+1);c.stroke();c.globalCo", "med": 0.439, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "c.globalAlpha=k;c.strokeStyle=r.shade;c.lineWidth=r.w+.7;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo(cx,cy,ex,ey);c", "med": 1.091, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "c.strokeStyle=r.col;c.lineWidth=r.w;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo(cx,cy,ex,ey);c.st", "med": 0.386, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "if(r.bead&&i===0){c.strokeStyle=r.col;c.lineWidth=.22;c.beginPath();for(const dx of [-.45,0,.45]){c.moveTo(ex,ey+.5);c.l", "med": 0.162, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "balAlpha=k*.6;c.strokeStyle=mix(bc,'#000000',.5);c.lineWidth=.3;c.setLineDash([.8,.8]);c.beginPath();for(let i=0;i<=N;i++){const [x", "med": 0.297, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "d(-.6,-w0*.9,3.4,w0*1.05,.6);c.strokeStyle=mat.o;c.lineWidth=1.2;c.stroke(th);c.fillStyle=mat.b;c.fill(th);c.fillStyle=mat.l;c.glob", "med": 0.677, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_armsui.js", "src": "S0.acc){c.globalAlpha=k*.75;c.strokeStyle=S0.acc;c.lineWidth=.32;c.beginPath();for(let i=1;i<N;i++){const u=i/N,x=u*len,y=-cv*u*u+.", "med": 0.162, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_castui.js", "src": "een(Q))line(c,R,col,w);return;}c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(Q[0].x,Q[0].y);for(const q of Q.slice(1))c.li", "med": 0.459, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_castui.js", "src": "ass||'#b28d3d','#000000',.45):C.brass||'#b28d3d';c.lineWidth=5.2;c.beginPath();c.ellipse(x1,y1,r*.42,r,an,0,TAU);c.stroke();", "med": 0.841, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_figui.js", "src": "c.strokeStyle=lit?o.lit:o.dark;c.lineWidth=Math.max(.52,(o.w||.55)*F.r*.27);c.lineCap='round';c.beginPath();", "med": 0.545, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "c.strokeStyle='#7ff3e3';c.lineWidth=Math.max(.55,1.05/k);c.globalAlpha=Math.min(1,.85*G*wave(.5));c.stroke", "med": 0.621, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "alAlpha=.5*em;c.stroke();c.strokeStyle='#ffd7a8';c.lineWidth=Math.max(.5,.95/k);c.globalAlpha=.8*em;c.stroke();}", "med": 0.569, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "oly(J);c.strokeStyle=col[0];c.globalAlpha=.95*a0;c.lineWidth=sw;c.stroke();", "med": 1.091, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "oly(J);c.strokeStyle=col[1];c.globalAlpha=.55*a0;c.lineWidth=sw*.42;c.stroke();}", "med": 0.459, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "rokeStyle='#000000';c.globalAlpha=al*(lod?.6:.5);c.lineWidth=w*2.12;c.stroke(P);", "med": 1.0, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "c.strokeStyle=tone(look,'gold',false,lod?1:0);c.lineWidth=ink;c.stroke();", "med": 0.878, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "c.strokeStyle=vcol(look,'brass',false);c.lineWidth=Math.max(.9,1.8/k);c.stroke();", "med": 0.459, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "5.6,3.4);c.strokeStyle=tone(look,'gold',false,0);c.lineWidth=Math.max(.9,1.6/k);c.beginPath();c.moveTo(r0.x,r0.y);c.lineTo(ring.x,r", "med": 0.403, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "c.save();c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=Math.max(.45,.7/k);c.stroke(P.p);", "med": 0.459, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "c.strokeStyle='rgba(0,0,0,.34)';c.lineWidth=Math.max(.4,.55/k);", "med": 0.403, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "c.save();c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=Math.max(.62,1.06/k);c.stroke(sl.p);", "med": 0.878, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "baHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.3);c.lineWidth=Math.max(.5,.75/k);c.beginPath();c.moveTo(f0.x-hd.x*.9*sz,f0.y-hd.y*.9", "med": 0.621, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=Math.max(.5,.75/k);for(const [a0,b0,a1,b1] of [[.14,1.8,.5,.6],[.2,-1.", "med": 0.621, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "=pt(.66,.9),pc=tone(look,'pin');c.strokeStyle=pc;c.lineWidth=Math.max(.69,.81*sz);c.lineCap='round';c.beginPath();c.moveTo(p0.x,p0.", "med": 0.805, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "(Q);c.globalAlpha=1;c.strokeStyle=ar<0?lin:coatC;c.lineWidth=Math.max(.6,1.1/k);c.stroke(Q);", "med": 1.0, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "cc.strokeStyle=rim;cc.globalAlpha*=.72;cc.lineWidth=Math.max(.5,.95/k);cc.stroke(acc.rim);cc.restore();};", "med": 0.805, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "*1.12)));c.save();c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.6,.9/k);c.lineCap='round';c.beginPath();", "med": 0.595, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "t pt=S.pt,ln=(pts,col,w,a=1)=>{c.strokeStyle=col;c.lineWidth=w;c.globalAlpha=a*(far?.7:1);c.beginPath();c.moveTo(pts[0].x,pts[0].y)", "med": 0.403, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=.2*sz;c.beginPath();for(let j=0;j<T.length-1;j++){const a=T[j],b=T[j+1", "med": 0.201, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "const q=perp(sd);c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=Math.max(.8,1.2/k);c.beginPath();c.moveTo(b1.x+q.x*3.9*sz,b1.y+q.y*3.9", "med": 0.805, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": ";if(!a.h&&!b.h){c.strokeStyle=tone(look,'linen');c.lineWidth=Math.max(.5,.63*sz);c.beginPath();c.moveTo(a.x,a.y);c.quadraticCurveTo", "med": 0.648, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "ve();c.clip(pc.p);c.strokeStyle='rgba(0,0,0,.3)';c.lineWidth=Math.max(.35,.5/k);c.stroke(pc.p);", "med": 0.354, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "ve();c.clip(jk.p);c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.57,1/k);line([AT(T*.9,7.4*D),AT(T*.6,8.6*D),AT(T*.3,7.0*D),A", "med": 0.841, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "e();c.clip(wp.p);c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.5,.75/k);line([AT(T+3.4,-.2),AT(T+3.0,4.4)]);c.restore();}", "med": 0.621, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "e();c.clip(wp.p);c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.5,.75/k);line([AT(T+.9,-2.2),AT(T+3.4,-1.6),AT(T+4.6,1.6)]);", "med": 0.621, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "#120d0b'):(tone(look,'suit',false,0)||'#0e0c14');c.lineWidth=Math.max(.5,1.1*sz);c.beginPath();", "med": 1.091, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "c.strokeStyle=lod?gs:gc;c.lineWidth=Math.max(.56,(lod?.56:.94)*w);c.beginPath();c.moveTo(pts[0].x,pts[0].y", "med": 0.648, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_lookui.js", "src": "=perp(d);c.strokeStyle=tone(look,'gold',false,0);c.lineWidth=.68;c.beginPath();", "med": 0.677, "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"},
-{"file": "sk_storyui.js", "src": "(!(hand&&f.nadePin)){ctx.strokeStyle='#c8ccd4';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(2.2,-5,1.4,0,TAU);ctx.stroke();}ctx.restor", "med": 0.771, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "sk_ui.js", "src": "if(m.edge){ctx.lineWidth=1.7;ctx.beginPath();ctx.moveTo(x-Math.cos(ang)*m.len/2,y-Math.sin(ang)", "med": 1.189, "why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.8;c.beginPath();for(let y=top+8,k=0;y<gTop-6;y+=8,k++){c.moveTo(x0,y", "med": 1.242, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "  c.strokeStyle='#060405';c.lineWidth=1.7;c.strokeRect(win0,wy,win1-win0,wh);glassSheen(c,win0,wy,win1-win0,", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "16,30,'#ff9a5a',.32,1.3);c.strokeStyle='#040306';c.lineWidth=1.7;for(let y=base-118;y<base-30;y+=22){c.beginPath();c.moveTo(a0,y);c", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "by-7-r()*h*.38;c.strokeStyle=rgba('#1c3a1e',.92);c.lineWidth=1.7;c.beginPath();c.moveTo(bx,by-5);c.quadraticCurveTo((bx+fx)/2+(r()-", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle=rgba(C.goldL,.9);c.lineWidth=1.1;c.beginPath();c.arc(bx,by-11,3.4,.3,Math.PI-.3);c.stroke();c.fillS", "med": 0.771, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "TAU,a2=r()*TAU;c.strokeStyle=rgba('#120c08',.95);c.lineWidth=1.7;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.c", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle='#120c08';c.lineWidth=1.7;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx,cy-3.4", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "      c.strokeStyle='#060405';c.lineWidth=1.7;c.strokeRect(a,wy,bb-a,wh);glassSheen(c,a,wy,bb-a,wh,.04);panel(c,", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "  c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.6;c.beginPath();for(let y=top+30;y<base-14;y+=8){c.moveTo(x0,y);c.li", "med": 1.139, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle=rgba('#a8b4d8',.22);c.lineWidth=1.2;c.beginPath();c.arc(tx-2,cyy-2,tr*.95,-Math.PI*.9,-Math.PI*.45);c.", "med": 0.841, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "  const ry=base+.5;c.strokeStyle='#08070b';c.lineWidth=1.78;c.beginPath();c.moveTo(x0,ry-13);c.lineTo(cx-12,ry-13);c.moveTo(c", "med": 1.242, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "  c.strokeStyle='#08070b';c.lineWidth=1.8;c.beginPath();c.moveTo(cx-10,ry-22);c.quadraticCurveTo(cx,ry-32,cx", "med": 1.242, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "x-58,sy-13,116,16);c.strokeStyle=rgba(C.gold,.7);c.lineWidth=1.19;c.strokeRect(cx-56.5,sy-11.5,113,13);", "med": 0.841, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "9,fy=y-9-r()*9;c.strokeStyle=rgba('#1c3a1e',.95);c.lineWidth=1.7;c.beginPath();c.moveTo(x,y-6);c.lineTo(fx,fy);c.stroke();c.fillSty", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "  c.strokeStyle='#09080c';c.lineWidth=1.7;c.beginPath();c.moveTo(lx2,ly+4);c.lineTo(lx2,ly+14);c.stroke();c.", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "const r=rng(81);c.strokeStyle=rgba('#000000',.6);c.lineWidth=1.8;for(let x=8+r()*12;x<P-6;x+=30+r()*26){c.beginPath();c.moveTo(x,yt", "med": 1.242, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "t(px,pd,pl,pw);c.strokeStyle=rgba('#040306',.55);c.lineWidth=2.02;c.strokeRect(px,pd,pl,pw);});", "med": 1.242, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "ineJoin='round';c.strokeStyle=rgba('#050406',.6);c.lineWidth=1.96;c.beginPath();pts.forEach((q,j)=>j?c.lineTo(q.x,q.y):c.moveTo(q.x", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle=rgba(C.rim,.3);c.lineWidth=1.4;c.beginPath();c.arc(0,0,10,Math.PI*.15,Math.PI*.85);c.stroke();c.r", "med": 0.841, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "  c.strokeStyle=col;c.lineWidth=1.6;c.beginPath();for(const f of [-.4,.4]){c.moveTo(x+f*w,top-leg);c.l", "med": 1.091, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle=rgba(C.gold,.55);c.lineWidth=1.2;for(const ph of [-.75,-.4,0,.4,.75]){c.beginPath();for(let t=0;t<=", "med": 0.805, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle=C.gold;c.lineWidth=1.1;c.stroke();c.strokeStyle='#2a1c10';c.lineWidth=.5;for(let k=0;k<12", "med": 0.738, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.lineWidth=1.6;c.beginPath();c.moveTo(cx,cy);c.lineTo(cx-R*.62,cy-R*.06);c.moveTo", "med": 1.091, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle='#0a0b11';c.lineWidth=1.6;c.beginPath();for(let x=a+10;x<=b-10;x+=14){c.moveTo(x,top);c.line", "med": 1.091, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle='#120f17';c.lineWidth=1.8;c.beginPath();for(let k=0;k<8;k++){const a2=k/8*TAU;c.moveTo(tx,ry", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "();body();c.clip();c.strokeStyle=rgba(C.rim,.55);c.lineWidth=1.19;c.beginPath();c.moveTo(x-3.6,y-h+7);c.quadraticCurveTo(x-3.8,y-h,", "med": 0.805, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "  c.strokeStyle=rgba(C.rim,.5);c.lineWidth=1.13;c.beginPath();c.moveTo(x0-1.6,y-h+4.4);c.quadraticCurveTo(x0-1.6,", "med": 0.771, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "  c.strokeStyle='#09080c';c.lineWidth=1.8;c.beginPath();c.moveTo(x,ly);c.lineTo(x,ly+9);c.stroke();c.fillSty", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_chase.js", "src": "    c.strokeStyle=rgba('#000000',.6);c.lineWidth=1.8;for(let x=6+r()*10;x<P-6;x+=34+r()*24){c.beginPath();c.moveTo(x,yt", "med": 1.189, "why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"},
-{"file": "envx/env_look.js", "src": ".globalAlpha=.25;c.strokeStyle=o.refl||'#8a7a8a';c.lineWidth=w*.12;c.beginPath();c.moveTo(x+w*.2,y+h);c.lineTo(x+w*.75,y);c.stroke(", "med": 1.354, "why": "a width the caller gives (a reflection's, w*.12), first under the rule in V89's frames"},
-{"file": "sk_armsui.js", "src": "g);c.globalAlpha=k*fl*.8;c.strokeStyle='#ffffff';c.lineWidth=1.1;", "med": 0.595, "why": "the figure tier: the arc-blade's own lash and flash, held to the fighters' drawing budgets (V84); first in the review's frames in V89"},
-{"file": "sk_armsui.js", "src": "alAlpha=k*.32;c.stroke(tp);c.strokeStyle=P.glow2;c.lineWidth=.9;c.globalAlpha=k*.85;c.stroke(tp);c.globalCompositeOperation='source", "med": 0.648, "why": "the figure tier: the arc-blade's own lash and flash, held to the fighters' drawing budgets (V84); first in the review's frames in V89"},
-{"file": "sk_armsui.js", "src": "r';c.globalAlpha=k*fl*.7;c.strokeStyle='#ffffff';c.lineWidth=1.37;", "med": 0.958, "why": "the figure tier: the arc-blade's own lash and flash, held to the fighters' drawing budgets (V84); first in the review's frames in V89"},
-{"file": "sk_stancesui.js", "src": "lAlpha=k*.3*hot;c.stroke();c.strokeStyle=P.glow2;c.lineWidth=.9;c.globalAlpha=k*.85*hot;c.stroke();c.globalCompositeOperation='sour", "med": 0.648, "why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"},
-{"file": "sk_stancesui.js", "src": "pha=k;poly(body);c.strokeStyle=o.line||'#04060a';c.lineWidth=o.line?o.lw*2:.7;c.stroke();c.fillStyle=P.blade;c.fill();", "med": 0.5, "why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"},
-{"file": "sk_stancesui.js", "src": "    c.globalAlpha=k;c.strokeStyle=P.bladeEdge;c.lineWidth=.38;c.beginPath();c.moveTo(E[0][0],E[0][1]);for(let j=1;j<n;j++)c.line", "med": 0.273, "why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"},
-{"file": "sk_stancesui.js", "src": "b=lp(E[n-1],Sp[n-1],.58);c.strokeStyle='#010304';c.lineWidth=.95;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke();", "med": 0.677, "why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"},
-{"file": "sk_stancesui.js", "src": "ompositeOperation='lighter';c.strokeStyle=P.glow;c.lineWidth=.45;c.globalAlpha=k*hot;c.stroke();c.globalCompositeOperation='source-", "med": 0.324, "why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"},
-{"file": "envx/env_tunnel.js", "src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.8;c.beginPath();for(let x=0;x<=STN_L;x+=36){c.moveTo(x,d0);c.lineTo(x", "med": 0.677, "why": "the old station's platform flags: their joints, a run of fine texture drawn in a loop, as mortar is (first shot in V90, when the station came into the line's f5)"}
+{
+"file": "envx/beasts.js",
+"src": "function line(c,Q,col,w){c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(Q[0].x,Q[0].y);for(const q of Q.slice(1))c.li",
+"med": 0.677,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "r&&env.lod>=1){c.strokeStyle=rgba('#000000',.42);c.lineWidth=Math.max(.6,.8*s);c.beginPath();",
+"med": 0.707,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "ar&&env.lod>=1){c.strokeStyle=rgba('#e8dcc0',.4);c.lineWidth=Math.max(.6,.7*s);c.stroke(GL);}",
+"med": 0.621,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "if(lod>=1&&!far){c.strokeStyle=rgba(C.mottle,.6);c.lineWidth=Math.max(.8,1*sz);c.beginPath();const m=mix(hip,K,.55);c.moveTo(m.x+q.",
+"med": 0.878,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "v.h&&g.side>=0){c.strokeStyle=rgba('#000000',.5);c.lineWidth=Math.max(.6,.9*sz);c.beginPath();c.arc(nv.x,nv.y,W(.9),Math.atan2(nd.y",
+"med": 0.805,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "if(lod>=1){c.strokeStyle=rgba('#000000',.3);c.lineWidth=Math.max(.3,.4*sz);c.beginPath();for(let i=0;i<5;i++){const a=-T*.12+i",
+"med": 0.339,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle=rgba('#000000',.36);c.lineWidth=Math.max(.35,.55*sz);c.beginPath();for(const [s0,s1] of [[-4.6,-6],[3.",
+"med": 0.479,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "h([W(1),W(.8)]);c.strokeStyle=rgba(C.thread,.85);c.lineWidth=Math.max(.6,.9*sz);c.stroke(pp.p);c.setLineDash([]);}",
+"med": 0.771,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "pk,.5),sag=add(m,V(0,W(3)));c.strokeStyle=C.gold;c.lineWidth=Math.max(.6,.9*sz);c.beginPath();c.moveTo(b0.x,b0.y);c.quadraticCurveT",
+"med": 0.771,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle=rgba('#000000',.42);c.lineWidth=Math.max(.6,.8*sz);c.beginPath();",
+"med": 0.738,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "4,1.35,.95],[4,1.2,1.7]];c.strokeStyle='#3e1414';c.lineWidth=Math.max(.6,.8*sz);",
+"med": 0.677,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "if(lod>=1){c.strokeStyle='rgba(255,190,170,.42)';c.lineWidth=Math.max(.6,W(.7));c.beginPath();c.ellipse(o.x,o.y,hl*.62,th*.45,Math.",
+"med": 0.621,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.lineWidth=1.1;c.strokeStyle=rgba('#0a0a08',.7);c.beginPath();for(const [x,y] of",
+"med": 0.439,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "if(lod>=1){c.strokeStyle=rgba('#fff4d8',.55);c.lineWidth=1.6;c.beginPath();c.moveTo(x-1.8,29);c.quadraticCurveTo(x-1.1,30-hgt*.",
+"med": 0.648,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "if(lod>=1){c.strokeStyle=rgba(C.rim,.3);c.lineWidth=1.2;c.beginPath();c.moveTo(18,-19);c.quadraticCurveTo(30,-26.5,40,-15)",
+"med": 0.479,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "160,90,20,.8)':rgba(mid(C.eye,'#0a1a14',.55),.9);c.lineWidth=1.8;c.beginPath();c.ellipse(E.x+.6,E.y,3.4,3.2,0,0,TAU);c.stroke();}",
+"med": 0.707,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "neDash([2.4,2]);c.strokeStyle=rgba('#a8946a',.5);c.lineWidth=2;c.beginPath();c.moveTo(-6,-50);c.quadraticCurveTo(-34,-36,-38,-6);c.",
+"med": 0.771,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": ",BR,'hide',he);c.strokeStyle=rgba('#000000',.55);c.lineWidth=2;c.stroke(BU);",
+"med": 0.648,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle=rgba('#000000',.4);c.lineWidth=.8;c.beginPath();for(let i=0;i<9;i++){const x=36+i*6.6,y=lerp(14.6,10.",
+"med": 0.25,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": ".fill();if(lod>=1){c.strokeStyle=rgba(C.rim,.35);c.lineWidth=1.8;c.beginPath();c.ellipse(88,-1.6,3.8,2.4,-.2,Math.PI*1.1,Math.PI*1.",
+"med": 0.569,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "=open?'rgba(255,240,200,.9)':rgba(C.eyeCore,.85);c.lineWidth=2;c.beginPath();c.ellipse(E.x,E.y,6.2,4,-.1,0,TAU);c.stroke();}",
+"med": 0.648,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "nst fill=(P,col,ol,lw)=>{if(ol){c.strokeStyle=ol;c.lineWidth=lw||1.99;c.stroke(P);}c.fillStyle=col;c.fill(P);};",
+"med": 0.677,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle='#6b5a3a';c.lineWidth=.9;c.beginPath();for(let x=-butt+1.6;x<5;x+=1.4){c.moveTo(x,-2.7);c.li",
+"med": 0.958,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle=WOOD.l;c.lineWidth=.7;c.globalAlpha=k*.6;c.beginPath();c.moveTo(-butt+.6,-.6);c.lineTo(-.",
+"med": 0.677,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": ",'#3a2c1e','#0d0b08',.6);c.strokeStyle='#6b5a3a';c.lineWidth=.4;c.beginPath();for(let x=-butt+4;x<4;x+=1.5){c.moveTo(x,-2.8);c.line",
+"med": 0.42,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle=WOOD.l;c.lineWidth=.8;c.globalAlpha=k*.5;c.beginPath();c.moveTo(-butt+4,-.8);c.lineTo(len",
+"med": 0.5,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle='rgba(10,9,8,.7)';c.lineWidth=1.2;c.beginPath();c.moveTo(len0-24,10);c.lineTo(len0-18,16);c.lineTo(l",
+"med": 0.738,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/beasts.js",
+"src": "0+2.4,4,2.6,0,TAU);c.fill();c.strokeStyle=IRON.s;c.lineWidth=1.2;c.stroke();",
+"med": 0.738,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/env_backroom.js",
+"src": "[bx,by]=tops[2];c.strokeStyle=rgba('#2a2420',.7);c.lineWidth=.8;c.beginPath();c.moveTo(ax,ay+2);c.quadraticCurveTo((ax+bx)/2,Math.m",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "c.strokeStyle=rgba(C.gold,.7);c.lineWidth=.9;c.strokeRect(x+1.3,y+1.3,w-2.6,h-2.6);c.fillStyle=rgba(C.gold,.85);",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "o,dx,dy,dw,base-dy,true);c.strokeStyle='#040305';c.lineWidth=1;c.strokeRect(dx+.25,dy+.25,dw-.5,base-dy-.5);",
+"med": 0.917,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "roof();c.clip();c.strokeStyle=rgba('#2a3046',.5);c.lineWidth=.5;c.beginPath();for(let y=top-rh+3;y<top;y+=3){c.moveTo(x0-3,y);c.lin",
+"med": 0.5,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.35;c.beginPath();for(let y=top-rh,k=0;y<top;y+=3,k++)for(let x=x0-3+(",
+"med": 0.354,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.4;c.beginPath();for(let k=1;k<7;k++){const a=Math.PI+k*Math.PI/7;c.mo",
+"med": 0.369,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "const px=x0+w*.5;c.strokeStyle=C.goldD;c.lineWidth=1;c.beginPath();c.arc(px,y1-4.4,1,Math.PI,0);c.stroke();c.fillStyle=li",
+"med": 0.917,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": ",3,0,TAU);c.fill();c.strokeStyle=rgba(C.gold,.6);c.lineWidth=.7;c.beginPath();c.arc(gx,gy-1.5,3.6,-2.4,.8);c.stroke();},",
+"med": 0.707,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "ign='center';g.lineJoin='round';g.strokeStyle=cl;g.lineWidth=lw;g.strokeText(text,x,y);};",
+"med": 1.414,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "21,sy=gTop-12,shell=(g,lw,cl)=>{g.strokeStyle=cl;g.lineWidth=lw;g.lineCap='round';g.beginPath();for(let k=-3;k<=3;k++){g.moveTo(sx,",
+"med": 0.595,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "c.strokeStyle=rgba(C.gold,.55);c.lineWidth=.5;c.beginPath();for(let x=wx0+8;x<wx1;x+=8){c.moveTo(x,yc);c.lineTo(x",
+"med": 0.5,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "c.strokeStyle=rgba(C.rim,.32);c.lineWidth=.4;c.beginPath();c.moveTo(cx-2.2*s,y-9.3);c.lineTo(cx+2.6*s,y-9.8);c.s",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "const r=rng(5);c.strokeStyle=rgba('#ece6da',.5);c.lineWidth=.32;for(let k=0;k<4;k++){const ly=ty+5.8+k*1.8,l=4+r()*2.4;c.beginPath",
+"med": 0.297,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "c.strokeStyle=rgba('#08070a',.9);c.lineWidth=1.2;for(const rr of [3.2,6.2]){c.beginPath();c.arc(0,0,rr,0,TAU);c.str",
+"med": 0.958,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "c.strokeStyle=rgba(C.gold,.22);c.lineWidth=.5;c.beginPath();c.arc(0,0,4.6,0,TAU);c.stroke();",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "c.strokeStyle=rgba('#ffd8a0',.2);c.lineWidth=.55;c.beginPath();c.ellipse(p.x,p.d,p.rw*.74,4.6,0,Math.PI*.1,Math.PI*",
+"med": 0.439,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "lineWidth=1.1;c.stroke();c.strokeStyle='#2a1c10';c.lineWidth=.5;for(let k=0;k<12;k++){const a2=k/12*TAU;c.beginPath();c.moveTo(cx+M",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=1;c.strokeRect(x-5,y-h+14,10,15);c.fillStyle=rgba(C.gold,.8);c.beginPa",
+"med": 0.917,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_crops.js",
+"src": "c.strokeStyle=rgba('#000000',.6);c.lineWidth=.4;c.beginPath();for(let k=-30;k<=30;k+=4){c.moveTo(x+k,b-24-Math.max(",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_crops.js",
+"src": "c.lineWidth=.9;c.beginPath();for(let k=0;k<6;k++){const t0=k/6,t1=(k+1)/6,ya=lerp(",
+"med": 0.917,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_crops.js",
+"src": "c.strokeStyle=rgba('#000000',.22);c.lineWidth=.5;for(let t=.06;t<1;t+=.03){const x=bx(t),d=bd(t);c.beginPath();c.mov",
+"med": 0.439,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_crops.js",
+"src": "c.strokeStyle=rgba('#6e5e40',.34);c.lineWidth=.45;c.stroke(sp1);c.strokeStyle=rgba('#b8a478',.32);c.lineWidth=.45;c.",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_crops.js",
+"src": ";c.stroke(sp1);c.strokeStyle=rgba('#b8a478',.32);c.lineWidth=.45;c.stroke(sp2);}",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_crops.js",
+"src": "c.strokeStyle=rgba('#d8c89a',.22);c.lineWidth=.35;c.stroke(Wf.awn);",
+"med": 0.354,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_crops.js",
+"src": "const wires=(h,col,w)=>{c.strokeStyle=col;c.lineWidth=w;c.beginPath();let prev=null;for(const x of posts){const q=top(x);if(",
+"med": 0.354,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "c.strokeStyle=rgba('#ffffff',.5);c.lineWidth=.8;c.beginPath();c.moveTo(x-3,y-8);c.lineTo(x-2,y);c.stroke();glow(c,x",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "<d1-.5;d+=1.1){c.strokeStyle=rgba('#d8ccb0',.75);c.lineWidth=.9;c.beginPath();c.moveTo(fx,d);c.lineTo(fx+s*(4+Math.sin(d*3.1)*1.2),",
+"med": 0.771,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "c.strokeStyle=rgba('#1a0a04',.7);c.lineWidth=.6;c.stroke();}}",
+"med": 0.595,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "c.strokeStyle=rgba('#c8d8f0',.22);c.lineWidth=.35;c.beginPath();for(let i=0;i<34;i++){const rx=x+r()*w,ry=y+r()*h,le",
+"med": 0.354,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "c.strokeStyle=rgba('#ffffff',.35);c.lineWidth=.7;c.stroke();}}",
+"med": 0.707,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "c.strokeStyle=rgba('#ff7a2a',.5);c.lineWidth=.8;c.beginPath();c.moveTo(fx+fw*.25,y1-2);c.lineTo(fx+fw*.5,top2+1);c.",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "c.strokeStyle=rgba('#e8f0ff',.35);c.lineWidth=.4;c.beginPath();for(let i=0;i<6;i++){c.moveTo(14,11);c.lineTo(14+Math",
+"med": 0.354,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "ctx.strokeStyle=rgba('#3a2a1a',.55);ctx.lineWidth=.9;ctx.beginPath();for(let d=w.d0+4;d<w.d1;d+=1.5){const y=g-22-Math.s",
+"med": 0.297,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": ",base,B-A,50);ctx.strokeStyle=rgba(C.gold,.35);ctx.lineWidth=.6;for(let d=Math.ceil(w.d0/32)*32;d<w.d1;d+=32)ctx.strokeRect(d+3,bas",
+"med": 0.193,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "ctx.strokeStyle=rgba('#ffffff',.25);ctx.lineWidth=1.2;for(let k=0;k<5;k++){const d0=w.d0+(w.d1-w.d0)*(.1+k*.2);ctx.begin",
+"med": 0.386,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "ctx.strokeStyle=rgba('#000000',.35);ctx.lineWidth=1.6;for(let d=Math.ceil(w.d0/12)*12;d<w.d1;d+=12){ctx.beginPath();ctx.",
+"med": 0.522,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_dining.js",
+"src": "*.48,28,h*.42);ctx.strokeStyle=rgba(C.gold,.4);ctx.lineWidth=1.2;ctx.strokeRect(d+7,yt+h*.5,22,h*.38);}",
+"med": 0.386,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_fall.js",
+"src": "g.strokeStyle=rgba('#fffaf0',.3+.4*u);g.lineWidth=.5+u*.9;g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(",
+"med": 0.958,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_fall.js",
+"src": "=rgba('#3a2a1e',.85);for(const f of [.92,.6,.3]){g.lineWidth=.45;g.beginPath();for(let k=0;k<P.length;k++){const p=P[k],y=p.y-p.h*f",
+"med": 0.439,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_fall.js",
+"src": "g.strokeStyle=rgba('#fff4dc',.7);g.lineWidth=.45;g.beginPath();for(let x=0;x<=WW;x++)x?g.lineTo(x,S(x)):g.moveTo(x,",
+"med": 0.439,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_fall.js",
+"src": "g.strokeStyle=rgba('#000000',.42);g.lineWidth=u;g.beginPath();for(let i=0;i<3;i++){const s=-hw+r()*w;g.moveTo(s,-hh*",
+"med": 1.0,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_fall.js",
+"src": "g.strokeStyle=rgba('#6a6a72',.3*lt);g.lineWidth=u;g.beginPath();g.arc(0,0,hw*.8,Math.PI*1.1,Math.PI*1.7);g.stroke();",
+"med": 1.0,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_fall.js",
+"src": "g.strokeStyle=rgba('#4a4a52',.32*lt);g.lineWidth=.8*u;g.beginPath();for(let q=1;q<6;q++){const xx=-hw+dx+w*q/6;g.moveTo",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_fall.js",
+"src": "g.strokeStyle=jmix(base,'#000000',.45);g.lineWidth=u;g.beginPath();const n=Math.max(2,Math.round(h/(12*u)));for(let i=1;i",
+"med": 1.0,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_fall.js",
+"src": "62');g.lineWidth=2.2*u;g.strokeRect(-hw,-hh,w,h);g.lineWidth=u;g.beginPath();",
+"med": 1.0,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_field.js",
+"src": "(lit&&r()<.22){c.strokeStyle=rgba('#c8d4ff',.22);c.lineWidth=.35;c.beginPath();c.moveTo(fx+(x<MOON.x?.5:-.5),fy+1);c.quadraticCurve",
+"med": 0.354,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_field.js",
+"src": "c.strokeStyle=rgba('#000000',.35);c.lineWidth=.45;c.beginPath();for(let k=1;k<6;k++){const t=k/6,ax=lerp(a0,a1,t),ay",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_field.js",
+"src": "ody,'evenodd');c.strokeStyle=rgba('#000000',.32);c.lineWidth=.45;c.beginPath();for(let y=top+6.5;y<base;y+=6.5){c.moveTo(x0,y);c.li",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_field.js",
+"src": "c.strokeStyle=rgba('#000000',.6);c.lineWidth=.4;c.beginPath();for(let k=1;k<9;k++){const t=k/9,yy=lerp(y+1,y-17,t),",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_field.js",
+"src": "llRect(lx-.9,ly-1,7,1.2);c.strokeStyle='#0d0907';c.lineWidth=.8;c.beginPath();c.moveTo(lx+5,ly);c.lineTo(lx+5,ly+2.5);c.stroke();",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_field.js",
+"src": "if(r3()<.55){c.strokeStyle=rgba('#c8d4ff',.3);c.lineWidth=.4;c.beginPath();c.moveTo(x+lean*.5-.3,y-h*.7);c.lineTo(x+lean-.3,y-h)",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_hill.js",
+"src": "c.strokeStyle=rgba('#000000',.35);c.lineWidth=.45;c.beginPath();for(let y=b-h+5;y<b;y+=5){c.moveTo(x-w/2,y);c.lineTo",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_lobby.js",
+"src": "c.strokeStyle=rgba('#5a3a14',.35);c.lineWidth=.3;c.beginPath();for(let y=cy-rr;y<cy+rr;y+=4){c.moveTo(cx-rr,y);c.lin",
+"med": 0.297,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_lobby.js",
+"src": "c.strokeStyle=rgba('#a87a40',.35);c.lineWidth=.4;c.beginPath();for(let k=0;k<4;k++){c.moveTo(sx-3.6,sy+6+k*7);c.quad",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_lobby.js",
+"src": "function segL(a,b,w,col){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()",
+"med": 0.707,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_look.js",
+"src": "();if(a!=null)c.globalAlpha*=a;c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i",
+"med": 0.917,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_look.js",
+"src": "c.strokeStyle=col;c.lineWidth=Math.max(1,w);c.beginPath();S.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.mov",
+"med": 1.0,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_look.js",
+"src": ",y,r,dir,col,w,turns){c.save();c.strokeStyle=col;c.lineWidth=Math.max(1,w);c.lineCap='round';c.beginPath();const T=turns||1.6;",
+"med": 1.0,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_look.js",
+"src": "c.save();c.strokeStyle=frame;c.lineWidth=o.fw||Math.max(1,w*.07);c.beginPath();if(arch){c.moveTo(x,y+h);c.lineT",
+"med": 1.0,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_look.js",
+"src": "const mull=o.mull==null?2:o.mull;c.lineWidth=Math.max(.6,w*.04);c.beginPath();",
+"med": 0.595,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_look.js",
+"src": "c.strokeStyle=rgba(C.cyan,.9*lit);c.lineWidth=1.2*s;c.beginPath();c.ellipse(x,cy-h*.025,cw*.42,cw*.1,0,0,TAU);c.stro",
+"med": 0.841,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_office.js",
+"src": "c.strokeStyle=rgba('#a0784a',.35);c.lineWidth=.4;c.beginPath();for(let k=-5;k<=5;k++){c.moveTo(lx+k*1.3,by-35);c.lin",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_office.js",
+"src": "c.strokeStyle=rgba('#a0784a',.3);c.lineWidth=.35;c.beginPath();for(let k=-3;k<=3;k++){c.moveTo(x+k*1.3,y-22);c.line",
+"med": 0.354,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_office.js",
+"src": "d<d1-.5;d+=1.1){c.strokeStyle=rgba('#cfc2a0',.6);c.lineWidth=.9;c.beginPath();c.moveTo(x0,d);c.lineTo(x0-(4+Math.sin(d*3.1)*1.2),d+",
+"med": 0.771,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_office.js",
+"src": "ctx.strokeStyle=rgba('#5a4020',.35);ctx.lineWidth=.8;for(const k of [-6,0,6]){ctx.beginPath();ctx.ellipse(c0.x,c0.y,R,Ma",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_office.js",
+"src": "ctx.strokeStyle=rgba('#a0784a',.3);ctx.lineWidth=.4;ctx.beginPath();for(let k=-6;k<=6;k++){ctx.moveTo(t.x+k*1.4,t.y-12)",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_outskirts.js",
+"src": "4',.34);c.fill(P.shadow);c.strokeStyle='#120c08';c.lineWidth=w;c.stroke(P.dark);",
+"med": 0.707,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_outskirts.js",
+"src": "c.strokeStyle=rgba('#ffa858',.4);c.lineWidth=Math.max(.6,1*p.s);c.beginPath();c.moveTo(p.x-.6*p.s,p.b);c.lineTo(p.x",
+"med": 0.595,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_outskirts.js",
+"src": "c.strokeStyle=rgba('#1a100c',.7);c.lineWidth=.45;for(let i=0;i<P.length-1;i++){const A=P[i],B=P[i+1];for(const k of",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_props.js",
+"src": "strokeStyle=rgba(town?'#3a2a2a':'#5a4e44',.45);ctx.lineWidth=.4;ctx.beginPath();for(let j=0;j<3;j++){const x=d+1.5+j*1.8;ctx.moveTo",
+"med": 0.193,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_props.js",
+"src": "ctx.strokeStyle=C.gold;ctx.lineWidth=1.2;ctx.strokeRect(1.5,1.5,bw-3,bh-3);",
+"med": 0.569,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_props.js",
+"src": "',bw/2,bh*.82);ctx.strokeStyle=rgba(C.gold,.6);ctx.lineWidth=.8;ctx.strokeRect(1,1,bw-2,bh-2);});",
+"med": 0.386,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_roof.js",
+"src": "c.strokeStyle=rgba('#05060a',.8);c.lineWidth=.45;c.beginPath();for(const [gx,gy] of [[x-160,base-6],[x+120,base-6]]",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_street.js",
+"src": "3===2?.6:1),.7);c.strokeStyle=rgba('#3a2208',.9);c.lineWidth=.8;c.strokeRect(px+.6,py+.6,pw-3.6,ph-1.2);",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_street.js",
+"src": ",TAU);c.fill();c.strokeStyle=rgba('#b0a498',.22);c.lineWidth=.35;",
+"med": 0.31,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_street.js",
+"src": "c.strokeStyle=rgba(C.rim,.3);c.lineWidth=.5;c.beginPath();c.arc(0,0,4.2,Math.PI*1.15,Math.PI*1.85);c.stroke();c",
+"med": 0.439,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_street.js",
+"src": "c.strokeStyle=rgba(C.rim,.22);c.lineWidth=.4;c.beginPath();c.moveTo(X0,y0+7);c.quadraticCurveTo((X0+X1)/2,y0+25,",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumpkitchen.js",
+"src": "0,TAU);c.fill();c.strokeStyle=rgba('#4a2e1a',.6);c.lineWidth=.8;c.beginPath();c.arc(p.x+.6,p.y-.4,2,0,TAU);c.stroke();}",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumproof.js",
+"src": "w,-hh,w,h);c.strokeStyle=dim(base,'#000000',.45);c.lineWidth=u;c.beginPath();for(let i=1;i<3;i++){c.moveTo(-hw,-hh+h*i/3);c.lineTo(",
+"med": 1.0,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumproof.js",
+"src": "c.strokeStyle='#120d0f';c.lineWidth=1.6*s;c.beginPath();for(let q=0;q<4;q++){const xx=x-30*s-q*34*s,yy=top",
+"med": 0.522,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumproof.js",
+"src": "c.strokeStyle=rgba('#ffbe8c',.35);c.lineWidth=1.2*s;c.beginPath();c.moveTo(A.ax,A.ay-.8*s);c.lineTo(A.bx,A.by-.6*s);",
+"med": 0.386,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumproof.js",
+"src": "ation='lighter';c.strokeStyle=rgba(C.cyan,.95*k);c.lineWidth=1.8*s;c.beginPath();c.moveTo(hx-.7*s,hy+2*s);c.lineTo(ex-.9*s,ey);c.li",
+"med": 0.569,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumproof.js",
+"src": "c.strokeStyle=rgba(C.goldL,.95*k);c.lineWidth=1.6*s;c.beginPath();c.moveTo(hx+1.3*s,hy+1*s);c.lineTo(ex+1.4*s,ey);c.",
+"med": 0.522,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumproof.js",
+"src": "c.strokeStyle=rgba(C.cyanL,.5*k);c.lineWidth=.8*s;c.beginPath();c.moveTo(hx,hy+4*s);c.lineTo(ex+.2*s,ey+1*s);c.stro",
+"med": 0.261,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumproof.js",
+"src": "0,TAU);c.fill();c.strokeStyle=rgba('#8a7050',.5);c.lineWidth=.8*s;c.beginPath();c.moveTo(bx,by-rr);c.lineTo(bx,by+rr*.6);c.stroke()",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumproof.js",
+"src": "c.strokeStyle=rgba('#c8b890',.3);c.lineWidth=.4;c.beginPath();for(let xx=x-hw-h;xx<x+hw;xx+=3){c.moveTo(xx,y);c.lin",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_sumproof.js",
+"src": "w,hgt);c.clip();c.strokeStyle=rgba('#9a9aa2',.3);c.lineWidth=.45;c.beginPath();",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_yard.js",
+"src": "if(r()<.45){c.strokeStyle=col('#2a221e',y);c.lineWidth=.8*ur;c.beginPath();c.moveTo(a,y-9*ur);c.lineTo(b,y-9*ur);for(let x=a+",
+"med": 0.439,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_yard.js",
+"src": "yle=col(jm('#5a4a3c',P.light,P.lightA*.6),gy-oh);c.lineWidth=1.6*ur;c.beginPath();c.moveTo(x+ow*.1,gy-oh*.6);c.quadraticCurveTo(x+o",
+"med": 0.958,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_yard.js",
+"src": "c.strokeStyle=col('#2a221e',y1);c.lineWidth=.7*ur;c.beginPath();c.moveTo(x,y0-9*ur);c.lineTo(x+sw,y1-9*ur);for(let",
+"med": 0.42,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_yard.js",
+"src": ")*ur,ly=top+3*ur;c.strokeStyle=col('#8a8070',ly);c.lineWidth=.9*ur;c.beginPath();c.moveTo(x+w,ly);c.quadraticCurveTo((x+w+x2)/2,ly+",
+"med": 0.5,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_yard.js",
+"src": "tyle=col(jm('#4a3e32',P.light,P.lightA*.5),sy-h);c.lineWidth=.7*u*s2;c.beginPath();tops.forEach(([px,py],k)=>k?c.lineTo(px,py):c.mo",
+"med": 0.479,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/fx_elven.js",
+"src": "if(a>.4){c.strokeStyle=rgba(PAL.core,.45*a);c.lineWidth=Math.max(.6/k,.5);c.stroke();}}",
+"med": 0.5,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_elven.js",
+"src": "c.strokeStyle=rgba(tint,.9*a);c.lineWidth=Math.max(1.6/k,R*.09);c.beginPath();c.arc(0,0,R,0,TAU);c.stroke();",
+"med": 0.771,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_elven.js",
+"src": "c.strokeStyle=rgba(PAL.cyan,.85*a);c.lineWidth=Math.max(1.1/k,R*.06);c.beginPath();c.arc(0,0,R*.64,0,TAU);c.stroke();",
+"med": 0.522,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "c.save();c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.beginPath();Q.forEach((q,i)=>",
+"med": 0.177,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": ".stock,'evenodd');c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=.6;c.stroke(R.stock);",
+"med": 0.354,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "Cap='round';c.lineJoin='round';c.stroke(R.guard);c.lineWidth=1.2;c.stroke(R.trig);",
+"med": 0.707,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": ",K.cyanL]]));c.fill(R.cell);c.strokeStyle=K.gold;c.lineWidth=.9;c.stroke(R.cell);",
+"med": 0.522,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=.6;c.beginPath();c.moveTo(13.4,-4.4);c.lineTo(15.2,-11.6);c.stroke();",
+"med": 0.354,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "c.strokeStyle=rgba(K.gold,.8);c.lineWidth=.7;c.beginPath();c.moveTo(18,5.6);c.lineTo(18,9.6);c.moveTo(4.6,5.6);c",
+"med": 0.403,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "'#0c0c0e';c.fill(R.rail);c.strokeStyle='#26272d';c.lineWidth=.18;c.beginPath();for(let u=6.6;u<10.2;u+=.7){c.moveTo(u,-2.25);c.line",
+"med": 0.115,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "tg,'evenodd');c.strokeStyle='rgba(74,77,87,.55)';c.lineWidth=.28;c.stroke(R.tg);c.strokeStyle='#2c2d33';c.lineWidth=.7;c.lineCap='r",
+"med": 0.177,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "Width=.28;c.stroke(R.tg);c.strokeStyle='#2c2d33';c.lineWidth=.7;c.lineCap='round';c.stroke(R.trig);",
+"med": 0.439,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": ".fill(R.grip);c.strokeStyle='rgba(74,77,87,.45)';c.lineWidth=.28;c.stroke(R.grip);c.fillStyle='#0a0a0c';c.fill(R.tail);",
+"med": 0.177,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "c.strokeStyle='#050506';c.lineWidth=.32;c.beginPath();for(let u=-2.7;u<.2;u+=.45){c.moveTo(u,-.5);c.lineTo",
+"med": 0.201,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "='#0d0e10';c.fill(R.pad);c.strokeStyle='#26282d';c.lineWidth=.2;c.beginPath();for(let v=-4.2;v<2.4;v+=.8){c.moveTo(-16.4,v);c.lineT",
+"med": 0.06,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "c.fill(R.mag);c.strokeStyle='rgba(89,96,110,.6)';c.lineWidth=.36;c.stroke(R.mag);",
+"med": 0.105,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": ".fill(R.grip);c.strokeStyle='rgba(89,96,110,.5)';c.lineWidth=.32;c.stroke(R.grip);",
+"med": 0.092,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "'#14161a';c.fill(R.rail);c.strokeStyle='#2c3038';c.lineWidth=.16;c.beginPath();for(let u=-1.6;u<17.8;u+=.8){c.moveTo(u,2.25);c.line",
+"med": 0.046,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": ".fill(R.fore);c.strokeStyle='rgba(89,96,110,.5)';c.lineWidth=.32;c.stroke(R.fore);c.stroke(R.recv);c.stroke(R.hg);c.strokeStyle='#0",
+"med": 0.092,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "e(R.recv);c.stroke(R.hg);c.strokeStyle='#08090b';c.lineWidth=.3;c.beginPath();for(const v of [-4.6,-6.4,-8.2]){c.moveTo(15.7,v);c.l",
+"med": 0.088,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "fff8e6']]));c.fill(R.grip);c.strokeStyle=K.goldD;c.lineWidth=.6;c.stroke(R.grip);",
+"med": 0.595,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": ");c.fill(R.tg,'evenodd');c.strokeStyle='#3a3020';c.lineWidth=.7;c.lineCap='round';c.stroke(R.trig);",
+"med": 0.707,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "#fffaf0']]));c.fill(R.lock);c.strokeStyle=K.gold;c.lineWidth=.8;c.stroke(R.lock);",
+"med": 0.805,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "ff':'#6a4aa8';c.fill(R.gem);c.strokeStyle=K.gold;c.lineWidth=.5;c.stroke(R.gem);",
+"med": 0.5,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "c.strokeStyle='#07070b';c.lineWidth=.84;c.beginPath();c.moveTo(6,0);c.lineTo(22,0);c.stroke();",
+"med": 0.841,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "const glow=ch>0;c.lineWidth=.44;c.lineCap='round';",
+"med": 0.439,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "c.globalCompositeOperation='lighter';c.lineWidth=.84/k;",
+"med": 0.522,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "lpha=fl*.75*(o.alpha??1);c.strokeStyle='#ffffff';c.lineWidth=1.1;",
+"med": 0.648,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "envx/veh_apc.js",
+"src": "c.strokeStyle=rgba('#6a6060',.35);c.lineWidth=.4;c.save();c.clip(P.cabWin);c.beginPath();for(let k=0;k<9;k++){const",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "nction stroke(c,pts,col,w,cap){c.strokeStyle=col;c.lineWidth=w;c.lineCap=cap||'round';c.lineJoin='round';c.beginPath();c.moveTo(pts",
+"med": 1.091,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "t P=cr(new Path2D(),pts,false);c.strokeStyle=col;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.stroke(P);}",
+"med": 0.595,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.save();c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.beginPath();Q.forEach((q,i)=>",
+"med": 0.297,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "ny*side*(r+rr*Math.cos(t))+rr*Math.sin(t)*side);}c.lineWidth=w*1.6;c.stroke();}}",
+"med": 0.479,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=K.lac;c.lineWidth=r*.07;c.beginPath();c.moveTo(0,-L*.8);c.lineTo(0,L*.86);for(const t of",
+"med": 0.239,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba(K.goldD,.55);c.lineWidth=.8;c.beginPath();c.arc(0,0,19.6,0,TAU);c.stroke();",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#1c1c22',.9);c.lineWidth=.45;c.beginPath();for(let i=0;i<28;i++){const a=i/28*TAU;c.moveTo(Math",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "DD]]);c.fill(P);c.strokeStyle=rgba('#000000',.5);c.lineWidth=.8;c.stroke(P);}}",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": ");c.clip(P.panel);c.strokeStyle=rgba(K.gold,.65);c.lineWidth=.9;c.translate(-20.4,52.4);c.scale(.86,.86);c.translate(20.4,-52.4);c.",
+"med": 0.771,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "fill(P.muffler);c.strokeStyle=rgba('#000000',.6);c.lineWidth=.8;c.stroke(P.muffler);",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.clip(P.seat);c.strokeStyle=rgba('#000000',.32);c.lineWidth=.42;c.beginPath();for(let x=-12;x>=-40;x-=4.4){c.moveTo(x,63.4);c.line",
+"med": 0.42,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "ineDash([.6,.7]);c.strokeStyle=rgba(K.goldL,.75);c.lineWidth=.56;c.beginPath();c.moveTo(-6,66);c.bezierCurveTo(-16,65.6,-30,66.2,-4",
+"med": 0.569,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "();c.clip(P.tail);c.strokeStyle=rgba(K.gold,.75);c.lineWidth=.8;c.translate(-55,68);c.scale(.84,.8);c.translate(55,-68);c.stroke(P.",
+"med": 0.648,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "D]]);c.fill(pg);c.strokeStyle=rgba('#000000',.4);c.lineWidth=.25;c.beginPath();for(let x=-24.6;x<-19.4;x+=.9){c.moveTo(x,27);c.line",
+"med": 0.25,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "D]]);c.fill(Sc);c.strokeStyle=rgba('#000000',.6);c.lineWidth=.8;c.stroke(Sc);",
+"med": 0.805,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "LineDash([.6,.7]);c.strokeStyle=rgba(K.goldL,.6);c.lineWidth=.52;c.beginPath();c.moveTo(...pt(.03,w0-1.2));c.lineTo(...pt(.96,w1-1)",
+"med": 0.522,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "K.scabD;c.fill(mo);c.strokeStyle=rgba(K.gold,.6);c.lineWidth=.7;c.stroke(mo);",
+"med": 0.707,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#000000',.4);c.lineWidth=.25;c.beginPath();for(let x=29;x<36;x+=1){c.moveTo(x,84.4+(x-27.8)*.17",
+"med": 0.25,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba(K.cyan,.25+.45*k);c.lineWidth=.64;c.lineCap='round';c.lineJoin='round';c.beginPath();",
+"med": 0.648,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#34343c',.7);c.lineWidth=.8;c.beginPath();c.arc(0,0,19.2,0,TAU);c.stroke();}",
+"med": 0.479,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "if(!blur){c.strokeStyle='#121316';c.lineWidth=.5;c.beginPath();for(let i=0;i<7;i++){const a=i/7*TAU;c.moveTo(Math.co",
+"med": 0.297,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#111215',.8);c.lineWidth=.8;c.beginPath();c.arc(0,0,5.4,0,TAU);c.moveTo(6.6,0);c.arc(0,0,6.6,0,",
+"med": 0.479,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "0,al)=>{c.globalAlpha=al;c.strokeStyle='#a4aab4';c.lineWidth=.32;c.beginPath();for(let i=0;i<28;i++){const a=a0+i/28*TAU,b=a+(i%2?.",
+"med": 0.193,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.9;c.beginPath();c.arc(cx,cy,15.3,0,TAU);c.stroke();",
+"med": 0.841,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "lip(P.rfender);c.strokeStyle=rgba('#9aa0aa',.45);c.lineWidth=.9;c.beginPath();c.arc(-60,25,29.1,1.16,2.88);c.stroke();c.restore();",
+"med": 0.841,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "945c']]);c.fill(P.plate);c.strokeStyle='#1a170e';c.lineWidth=.9;c.stroke(P.plate);",
+"med": 0.841,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#1a1810',.85);c.lineWidth=.42;c.beginPath();for(const x of [-87.6,-86.9,-86.2]){c.moveTo(x,41.2+",
+"med": 0.386,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "clip(P.ffender);c.strokeStyle=rgba('#9aa0aa',.5);c.lineWidth=.9;c.beginPath();c.arc(64,25,29,.66,2.16);c.stroke();",
+"med": 0.841,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": ",TAU);c.fill();c.strokeStyle=rgba('#c8ccd6',.45);c.lineWidth=.6;c.beginPath();c.ellipse(79.4,48.6,2.6,1.4,-.6,Math.PI*1.1,Math.PI*1",
+"med": 0.545,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": ".fill(P.cguard);c.strokeStyle=rgba('#6a6f7a',.5);c.lineWidth=.6;c.stroke(P.cguard);",
+"med": 0.545,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.fill(P.case);c.strokeStyle=rgba('#000000',.65);c.lineWidth=1.2;c.stroke(P.case);",
+"med": 1.091,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#0c0c0e',.7);c.lineWidth=1;c.beginPath();c.moveTo(-15.6,34);c.bezierCurveTo(-8,40,2,40.6,6,37.6",
+"med": 0.917,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#0b0b0d',.75);c.lineWidth=.6;c.beginPath();for(let i=0;i<4;i++){const y=14.4+i*1.7;c.moveTo(16,y",
+"med": 0.545,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba(K.rim,.25);c.lineWidth=.6;c.beginPath();c.moveTo(-10,41);c.lineTo(23,41);c.stroke();",
+"med": 0.545,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "rokeStyle=rgba('#9aa0aa',.28+.25*clamp(L.y,0,1));c.lineWidth=.9;c.beginPath();c.moveTo(ax-hx,ay+.15);c.lineTo(ax+hx,ay+1.35);c.stro",
+"med": 0.841,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#000000',.7);c.lineWidth=.4;c.beginPath();for(let x=-7.8;x<1;x+=1.4){c.moveTo(x,47.6);c.lineTo(",
+"med": 0.369,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "0,TAU);c.fill();c.strokeStyle=rgba('#000000',.5);c.lineWidth=1;c.stroke();",
+"med": 0.917,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": ",TAU);c.fill();c.strokeStyle=rgba('#000000',.55);c.lineWidth=1;c.stroke();",
+"med": 0.917,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#1a1b1f',.6);c.lineWidth=.7;c.beginPath();c.arc(12,25.6,5.2,0,TAU);c.stroke();",
+"med": 0.648,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#ffffff',.35);c.lineWidth=.5;c.beginPath();c.moveTo(8.4,28.6);c.lineTo(14.2,23.4);c.moveTo(9.4,2",
+"med": 0.459,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "0,TAU);c.fill();c.strokeStyle=rgba('#000000',.4);c.lineWidth=.6;c.stroke();",
+"med": 0.545,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba(Q.hi,.6);c.lineWidth=.9;c.beginPath();c.ellipse(24,77.6,5.2,2.3,.1,Math.PI*1.08,Math.PI*1.9",
+"med": 0.841,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#c8c0b0',.45);c.lineWidth=.44;c.beginPath();c.moveTo(19,79.6);c.lineTo(16.4,81.2);c.moveTo(29.4,",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#000000',.6);c.lineWidth=.6;c.beginPath();c.moveTo(-28.2,68.6);c.lineTo(-29.6,66.4);c.lineTo(-3",
+"med": 0.545,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#c8ccd2',.35);c.lineWidth=.44;c.beginPath();c.moveTo(-11.6,63);c.lineTo(-12.1,68);c.moveTo(-13.4",
+"med": 0.403,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "']]);c.fill(tl);c.strokeStyle=rgba('#c6ccd6',.6);c.lineWidth=.7;c.stroke(tl);}",
+"med": 0.648,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "']]);c.fill(pg);c.strokeStyle=rgba('#000000',.6);c.lineWidth=.3;c.beginPath();for(let x=-25;x<-18.8;x+=1){c.moveTo(x,26.8);c.lineTo",
+"med": 0.273,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.3;c.beginPath();for(let x=28.6;x<36;x+=.9){c.moveTo(x,84.6+(x-27.8)*.",
+"med": 0.273,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "AU);c.fill();c.strokeStyle=lg(c,-3,0,3,0,CHROME);c.lineWidth=.9;c.stroke();c.restore();",
+"med": 0.841,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "a=.8*a;c.lineCap='round';c.strokeStyle='#d8dce4';c.lineWidth=.64;c.beginPath();",
+"med": 0.31,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.stroke();c.strokeStyle=rgba('#ffffff',.5);c.lineWidth=.6;c.beginPath();c.moveTo(-3,75.6);c.lineTo(8,76.2);c.moveTo(-57,68.6)",
+"med": 0.297,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#000000',.7);c.lineWidth=.35;c.beginPath();for(let t=21.6;t<34;t+=1.5){c.moveTo(...pt(t,-3));c.",
+"med": 0.324,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "tock,'evenodd');c.strokeStyle=rgba('#000000',.6);c.lineWidth=.6;c.stroke(R.stock);",
+"med": 0.595,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "sk_armsui.js",
+"src": "c.globalAlpha=k;c.strokeStyle=o.line||'#04060a';c.lineWidth=o.line?o.lw*2:Y.vine?.84:1.4;c.stroke(Y.body);",
+"med": 1.0,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "c.globalAlpha=k;c.strokeStyle=P.bladeEdge;c.lineWidth=.76;c.stroke(Y.edge);",
+"med": 0.545,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "Width=1.8;c.stroke(Y.ful);c.globalAlpha=k*thread;c.lineWidth=.84;c.stroke(Y.ful);",
+"med": 0.595,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "ositeOperation='lighter';c.strokeStyle='#fff3da';c.lineWidth=.75;c.globalAlpha=k*clamp(.12+Math.abs(d)*.7,0,.85);c.stroke(d>0?Y.edg",
+"med": 0.545,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "1]+w*.8);c.lineTo(q[0]+2.2,q[1]+w*.8);c.stroke();c.lineWidth=.56;c.beginPath();c.moveTo(q[0],q[1]+w*.8-1);c.lineTo(q[0],q[1]+w*.8+1",
+"med": 0.5,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "'lighter';c.strokeStyle=P.glow;c.globalAlpha=.42;c.lineWidth=1;c.stroke(J.lit);c.globalCompositeOperation='source-over';",
+"med": 0.707,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "c,J,P,k){c.globalAlpha=k;c.strokeStyle='#04060a';c.lineWidth=.75;c.stroke(J.kn);c.fillStyle=arcTones(P).knuckle;c.fill(J.kn);c.fill",
+"med": 0.545,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": ";else c.fill(op.p);}else{c.strokeStyle=op.stroke;c.lineWidth=op.lw;c.stroke(op.p);}",
+"med": 0.459,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "positeOperation='lighter';c.strokeStyle=W.rimCol;c.lineWidth=W.rimW;c.globalAlpha=k*clamp(.15+Math.abs(d)*.75,0,.9);c.stroke(d>0?W.",
+"med": 0.595,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": ");c.moveTo(x-2.4,y);c.lineTo(x+2.4,y);c.stroke();c.lineWidth=.6;c.beginPath();c.moveTo(x,y-1);c.lineTo(x,y+1);c.stroke();c.globalCo",
+"med": 0.439,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "c.globalAlpha=k;c.strokeStyle=r.shade;c.lineWidth=r.w+.7;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo(cx,cy,ex,ey);c",
+"med": 1.091,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "c.strokeStyle=r.col;c.lineWidth=r.w;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo(cx,cy,ex,ey);c.st",
+"med": 0.386,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "if(r.bead&&i===0){c.strokeStyle=r.col;c.lineWidth=.22;c.beginPath();for(const dx of [-.45,0,.45]){c.moveTo(ex,ey+.5);c.l",
+"med": 0.162,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "balAlpha=k*.6;c.strokeStyle=mix(bc,'#000000',.5);c.lineWidth=.3;c.setLineDash([.8,.8]);c.beginPath();for(let i=0;i<=N;i++){const [x",
+"med": 0.297,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "d(-.6,-w0*.9,3.4,w0*1.05,.6);c.strokeStyle=mat.o;c.lineWidth=1.2;c.stroke(th);c.fillStyle=mat.b;c.fill(th);c.fillStyle=mat.l;c.glob",
+"med": 0.677,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_armsui.js",
+"src": "S0.acc){c.globalAlpha=k*.75;c.strokeStyle=S0.acc;c.lineWidth=.32;c.beginPath();for(let i=1;i<N;i++){const u=i/N,x=u*len,y=-cv*u*u+.",
+"med": 0.162,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_castui.js",
+"src": "een(Q))line(c,R,col,w);return;}c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(Q[0].x,Q[0].y);for(const q of Q.slice(1))c.li",
+"med": 0.459,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_castui.js",
+"src": "ass||'#b28d3d','#000000',.45):C.brass||'#b28d3d';c.lineWidth=5.2;c.beginPath();c.ellipse(x1,y1,r*.42,r,an,0,TAU);c.stroke();",
+"med": 0.841,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_figui.js",
+"src": "c.strokeStyle=lit?o.lit:o.dark;c.lineWidth=Math.max(.52,(o.w||.55)*F.r*.27);c.lineCap='round';c.beginPath();",
+"med": 0.545,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.strokeStyle='#7ff3e3';c.lineWidth=Math.max(.55,1.05/k);c.globalAlpha=Math.min(1,.85*G*wave(.5));c.stroke",
+"med": 0.621,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "alAlpha=.5*em;c.stroke();c.strokeStyle='#ffd7a8';c.lineWidth=Math.max(.5,.95/k);c.globalAlpha=.8*em;c.stroke();}",
+"med": 0.569,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "oly(J);c.strokeStyle=col[0];c.globalAlpha=.95*a0;c.lineWidth=sw;c.stroke();",
+"med": 1.091,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "oly(J);c.strokeStyle=col[1];c.globalAlpha=.55*a0;c.lineWidth=sw*.42;c.stroke();}",
+"med": 0.459,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "rokeStyle='#000000';c.globalAlpha=al*(lod?.6:.5);c.lineWidth=w*2.12;c.stroke(P);",
+"med": 1.0,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.strokeStyle=tone(look,'gold',false,lod?1:0);c.lineWidth=ink;c.stroke();",
+"med": 0.878,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.strokeStyle=vcol(look,'brass',false);c.lineWidth=Math.max(.9,1.8/k);c.stroke();",
+"med": 0.459,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "5.6,3.4);c.strokeStyle=tone(look,'gold',false,0);c.lineWidth=Math.max(.9,1.6/k);c.beginPath();c.moveTo(r0.x,r0.y);c.lineTo(ring.x,r",
+"med": 0.403,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.save();c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=Math.max(.45,.7/k);c.stroke(P.p);",
+"med": 0.459,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.strokeStyle='rgba(0,0,0,.34)';c.lineWidth=Math.max(.4,.55/k);",
+"med": 0.403,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.save();c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=Math.max(.62,1.06/k);c.stroke(sl.p);",
+"med": 0.878,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "baHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.3);c.lineWidth=Math.max(.5,.75/k);c.beginPath();c.moveTo(f0.x-hd.x*.9*sz,f0.y-hd.y*.9",
+"med": 0.621,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=Math.max(.5,.75/k);for(const [a0,b0,a1,b1] of [[.14,1.8,.5,.6],[.2,-1.",
+"med": 0.621,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "=pt(.66,.9),pc=tone(look,'pin');c.strokeStyle=pc;c.lineWidth=Math.max(.69,.81*sz);c.lineCap='round';c.beginPath();c.moveTo(p0.x,p0.",
+"med": 0.805,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "(Q);c.globalAlpha=1;c.strokeStyle=ar<0?lin:coatC;c.lineWidth=Math.max(.6,1.1/k);c.stroke(Q);",
+"med": 1.0,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "cc.strokeStyle=rim;cc.globalAlpha*=.72;cc.lineWidth=Math.max(.5,.95/k);cc.stroke(acc.rim);cc.restore();};",
+"med": 0.805,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "*1.12)));c.save();c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.6,.9/k);c.lineCap='round';c.beginPath();",
+"med": 0.595,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "t pt=S.pt,ln=(pts,col,w,a=1)=>{c.strokeStyle=col;c.lineWidth=w;c.globalAlpha=a*(far?.7:1);c.beginPath();c.moveTo(pts[0].x,pts[0].y)",
+"med": 0.403,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=.2*sz;c.beginPath();for(let j=0;j<T.length-1;j++){const a=T[j],b=T[j+1",
+"med": 0.201,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "const q=perp(sd);c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=Math.max(.8,1.2/k);c.beginPath();c.moveTo(b1.x+q.x*3.9*sz,b1.y+q.y*3.9",
+"med": 0.805,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": ";if(!a.h&&!b.h){c.strokeStyle=tone(look,'linen');c.lineWidth=Math.max(.5,.63*sz);c.beginPath();c.moveTo(a.x,a.y);c.quadraticCurveTo",
+"med": 0.648,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "ve();c.clip(pc.p);c.strokeStyle='rgba(0,0,0,.3)';c.lineWidth=Math.max(.35,.5/k);c.stroke(pc.p);",
+"med": 0.354,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "ve();c.clip(jk.p);c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.57,1/k);line([AT(T*.9,7.4*D),AT(T*.6,8.6*D),AT(T*.3,7.0*D),A",
+"med": 0.841,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "e();c.clip(wp.p);c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.5,.75/k);line([AT(T+3.4,-.2),AT(T+3.0,4.4)]);c.restore();}",
+"med": 0.621,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "e();c.clip(wp.p);c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=Math.max(.5,.75/k);line([AT(T+.9,-2.2),AT(T+3.4,-1.6),AT(T+4.6,1.6)]);",
+"med": 0.621,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "#120d0b'):(tone(look,'suit',false,0)||'#0e0c14');c.lineWidth=Math.max(.5,1.1*sz);c.beginPath();",
+"med": 1.091,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.strokeStyle=lod?gs:gc;c.lineWidth=Math.max(.56,(lod?.56:.94)*w);c.beginPath();c.moveTo(pts[0].x,pts[0].y",
+"med": 0.648,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_lookui.js",
+"src": "=perp(d);c.strokeStyle=tone(look,'gold',false,0);c.lineWidth=.68;c.beginPath();",
+"med": 0.677,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits)"
+},
+{
+"file": "sk_storyui.js",
+"src": "(!(hand&&f.nadePin)){ctx.strokeStyle='#c8ccd4';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(2.2,-5,1.4,0,TAU);ctx.stroke();}ctx.restor",
+"med": 0.771,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "sk_ui.js",
+"src": "if(m.edge){ctx.lineWidth=1.7;ctx.beginPath();ctx.moveTo(x-Math.cos(ang)*m.len/2,y-Math.sin(ang)",
+"med": 1.189,
+"why": "kept in V83's pass (the remediation list's T1): a run of fine texture drawn in a loop, a hairline doubled, or a width the caller gives"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.8;c.beginPath();for(let y=top+8,k=0;y<gTop-6;y+=8,k++){c.moveTo(x0,y",
+"med": 1.242,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "  c.strokeStyle='#060405';c.lineWidth=1.7;c.strokeRect(win0,wy,win1-win0,wh);glassSheen(c,win0,wy,win1-win0,",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "16,30,'#ff9a5a',.32,1.3);c.strokeStyle='#040306';c.lineWidth=1.7;for(let y=base-118;y<base-30;y+=22){c.beginPath();c.moveTo(a0,y);c",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "by-7-r()*h*.38;c.strokeStyle=rgba('#1c3a1e',.92);c.lineWidth=1.7;c.beginPath();c.moveTo(bx,by-5);c.quadraticCurveTo((bx+fx)/2+(r()-",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle=rgba(C.goldL,.9);c.lineWidth=1.1;c.beginPath();c.arc(bx,by-11,3.4,.3,Math.PI-.3);c.stroke();c.fillS",
+"med": 0.771,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "TAU,a2=r()*TAU;c.strokeStyle=rgba('#120c08',.95);c.lineWidth=1.7;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.c",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle='#120c08';c.lineWidth=1.7;c.lineCap='round';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx,cy-3.4",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "      c.strokeStyle='#060405';c.lineWidth=1.7;c.strokeRect(a,wy,bb-a,wh);glassSheen(c,a,wy,bb-a,wh,.04);panel(c,",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "  c.strokeStyle=rgba('#000000',.5);c.lineWidth=1.6;c.beginPath();for(let y=top+30;y<base-14;y+=8){c.moveTo(x0,y);c.li",
+"med": 1.139,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle=rgba('#a8b4d8',.22);c.lineWidth=1.2;c.beginPath();c.arc(tx-2,cyy-2,tr*.95,-Math.PI*.9,-Math.PI*.45);c.",
+"med": 0.841,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "  const ry=base+.5;c.strokeStyle='#08070b';c.lineWidth=1.78;c.beginPath();c.moveTo(x0,ry-13);c.lineTo(cx-12,ry-13);c.moveTo(c",
+"med": 1.242,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "  c.strokeStyle='#08070b';c.lineWidth=1.8;c.beginPath();c.moveTo(cx-10,ry-22);c.quadraticCurveTo(cx,ry-32,cx",
+"med": 1.242,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "x-58,sy-13,116,16);c.strokeStyle=rgba(C.gold,.7);c.lineWidth=1.19;c.strokeRect(cx-56.5,sy-11.5,113,13);",
+"med": 0.841,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "9,fy=y-9-r()*9;c.strokeStyle=rgba('#1c3a1e',.95);c.lineWidth=1.7;c.beginPath();c.moveTo(x,y-6);c.lineTo(fx,fy);c.stroke();c.fillSty",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "  c.strokeStyle='#09080c';c.lineWidth=1.7;c.beginPath();c.moveTo(lx2,ly+4);c.lineTo(lx2,ly+14);c.stroke();c.",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "const r=rng(81);c.strokeStyle=rgba('#000000',.6);c.lineWidth=1.8;for(let x=8+r()*12;x<P-6;x+=30+r()*26){c.beginPath();c.moveTo(x,yt",
+"med": 1.242,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "t(px,pd,pl,pw);c.strokeStyle=rgba('#040306',.55);c.lineWidth=2.02;c.strokeRect(px,pd,pl,pw);});",
+"med": 1.242,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "ineJoin='round';c.strokeStyle=rgba('#050406',.6);c.lineWidth=1.96;c.beginPath();pts.forEach((q,j)=>j?c.lineTo(q.x,q.y):c.moveTo(q.x",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle=rgba(C.rim,.3);c.lineWidth=1.4;c.beginPath();c.arc(0,0,10,Math.PI*.15,Math.PI*.85);c.stroke();c.r",
+"med": 0.841,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "  c.strokeStyle=col;c.lineWidth=1.6;c.beginPath();for(const f of [-.4,.4]){c.moveTo(x+f*w,top-leg);c.l",
+"med": 1.091,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle=rgba(C.gold,.55);c.lineWidth=1.2;for(const ph of [-.75,-.4,0,.4,.75]){c.beginPath();for(let t=0;t<=",
+"med": 0.805,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle=C.gold;c.lineWidth=1.1;c.stroke();c.strokeStyle='#2a1c10';c.lineWidth=.5;for(let k=0;k<12",
+"med": 0.738,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.lineWidth=1.6;c.beginPath();c.moveTo(cx,cy);c.lineTo(cx-R*.62,cy-R*.06);c.moveTo",
+"med": 1.091,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle='#0a0b11';c.lineWidth=1.6;c.beginPath();for(let x=a+10;x<=b-10;x+=14){c.moveTo(x,top);c.line",
+"med": 1.091,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle='#120f17';c.lineWidth=1.8;c.beginPath();for(let k=0;k<8;k++){const a2=k/8*TAU;c.moveTo(tx,ry",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "();body();c.clip();c.strokeStyle=rgba(C.rim,.55);c.lineWidth=1.19;c.beginPath();c.moveTo(x-3.6,y-h+7);c.quadraticCurveTo(x-3.8,y-h,",
+"med": 0.805,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "  c.strokeStyle=rgba(C.rim,.5);c.lineWidth=1.13;c.beginPath();c.moveTo(x0-1.6,y-h+4.4);c.quadraticCurveTo(x0-1.6,",
+"med": 0.771,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "  c.strokeStyle='#09080c';c.lineWidth=1.8;c.beginPath();c.moveTo(x,ly);c.lineTo(x,ly+9);c.stroke();c.fillSty",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_chase.js",
+"src": "    c.strokeStyle=rgba('#000000',.6);c.lineWidth=1.8;for(let x=6+r()*10;x<P-6;x+=34+r()*24){c.beginPath();c.moveTo(x,yt",
+"med": 1.189,
+"why": "open (V89): the avenue's lines at the push-in's closest, which V89's chase first reaches at f8; they meet the rule at the turn's framing (V88's frames) and come to .7 of it pushed in. To do: paint the bands' lines for the push-in"
+},
+{
+"file": "envx/env_look.js",
+"src": ".globalAlpha=.25;c.strokeStyle=o.refl||'#8a7a8a';c.lineWidth=w*.12;c.beginPath();c.moveTo(x+w*.2,y+h);c.lineTo(x+w*.75,y);c.stroke(",
+"med": 1.354,
+"why": "a width the caller gives (a reflection's, w*.12), first under the rule in V89's frames"
+},
+{
+"file": "sk_armsui.js",
+"src": "g);c.globalAlpha=k*fl*.8;c.strokeStyle='#ffffff';c.lineWidth=1.1;",
+"med": 0.595,
+"why": "the figure tier: the arc-blade's own lash and flash, held to the fighters' drawing budgets (V84); first in the review's frames in V89"
+},
+{
+"file": "sk_armsui.js",
+"src": "alAlpha=k*.32;c.stroke(tp);c.strokeStyle=P.glow2;c.lineWidth=.9;c.globalAlpha=k*.85;c.stroke(tp);c.globalCompositeOperation='source",
+"med": 0.648,
+"why": "the figure tier: the arc-blade's own lash and flash, held to the fighters' drawing budgets (V84); first in the review's frames in V89"
+},
+{
+"file": "sk_armsui.js",
+"src": "r';c.globalAlpha=k*fl*.7;c.strokeStyle='#ffffff';c.lineWidth=1.37;",
+"med": 0.958,
+"why": "the figure tier: the arc-blade's own lash and flash, held to the fighters' drawing budgets (V84); first in the review's frames in V89"
+},
+{
+"file": "sk_stancesui.js",
+"src": "lAlpha=k*.3*hot;c.stroke();c.strokeStyle=P.glow2;c.lineWidth=.9;c.globalAlpha=k*.85*hot;c.stroke();c.globalCompositeOperation='sour",
+"med": 0.648,
+"why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"
+},
+{
+"file": "sk_stancesui.js",
+"src": "pha=k;poly(body);c.strokeStyle=o.line||'#04060a';c.lineWidth=o.line?o.lw*2:.7;c.stroke();c.fillStyle=P.blade;c.fill();",
+"med": 0.5,
+"why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"
+},
+{
+"file": "sk_stancesui.js",
+"src": "    c.globalAlpha=k;c.strokeStyle=P.bladeEdge;c.lineWidth=.38;c.beginPath();c.moveTo(E[0][0],E[0][1]);for(let j=1;j<n;j++)c.line",
+"med": 0.273,
+"why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"
+},
+{
+"file": "sk_stancesui.js",
+"src": "b=lp(E[n-1],Sp[n-1],.58);c.strokeStyle='#010304';c.lineWidth=.95;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke();",
+"med": 0.677,
+"why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"
+},
+{
+"file": "sk_stancesui.js",
+"src": "ompositeOperation='lighter';c.strokeStyle=P.glow;c.lineWidth=.45;c.globalAlpha=k*hot;c.stroke();c.globalCompositeOperation='source-",
+"med": 0.324,
+"why": "the figure tier: the arc-blade's chain in Unbound, held to the fighters' drawing budgets as the blade's own lines are (V84); first in the review's frames in V89, when Ilyas first goes Unbound in its fights"
+},
+{
+"file": "envx/env_tunnel.js",
+"src": "c.strokeStyle=rgba('#000000',.55);c.lineWidth=.8;c.beginPath();for(let x=0;x<=STN_L;x+=36){c.moveTo(x,d0);c.lineTo(x",
+"med": 0.677,
+"why": "the old station's platform flags: their joints, a run of fine texture drawn in a loop, as mortar is (first shot in V90, when the station came into the line's f5)"
+},
+{
+"file": "envx/beasts.js",
+"src": "if(sp.ribs&&lod>=1){c.strokeStyle=C.mottle;c.lineWidth=Math.max(1.1,1.65*sz);c.beginPath();for(let i=0;i<4;i++){const a=T*(.4",
+"med": 1.414,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "else if(k==='keys'){c.strokeStyle=C.brass;c.lineWidth=Math.max(.8,1.14*sz);c.beginPath();c.arc(cpt.x,cpt.y,W(1.4),0,TAU);c.s",
+"med": 0.958,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "ul(dd,W(3.4))),qq=perp(dd);c.strokeStyle=C.brass;c.lineWidth=Math.max(.67,W(1.15));c.beginPath();c.moveTo(b0.x,b0.y);c.lineTo(e.x,e",
+"med": 0.958,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "if(sp.scar){c.strokeStyle=rgba('#c9b89a',.55);c.lineWidth=2.44;c.beginPath();c.moveTo(-16,-33);c.quadraticCurveTo(-6,-24,4,-15);",
+"med": 0.958,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "and'||sp.hat==='tufts')){c.strokeStyle='#14110d';c.lineWidth=1.3;c.beginPath();c.moveTo(-4,-37);c.quadraticCurveTo(-12,-50,-26,-52)",
+"med": 0.545,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "m,.35));if(lod>=1){c.strokeStyle=rgba(C.rim,.35);c.lineWidth=2.38;c.beginPath();c.moveTo(36,-22.6);c.lineTo(57,-20.6);c.stroke();}}",
+"med": 0.958,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "'cap'&&lod>=1){c.strokeStyle=rgba('#000000',.55);c.lineWidth=3.53;c.beginPath();c.moveTo(-28,-29);c.quadraticCurveTo(4,-34,34,-25);",
+"med": 1.414,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "(sp.hat==='cap'&&lod>=1){c.strokeStyle='#05070b';c.lineWidth=3.55;c.beginPath();c.moveTo(-6,-44);c.quadraticCurveTo(2,-38,10,-44);c",
+"med": 1.414,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "1.6,-.6,4.2,0,TAU);c.fill();c.strokeStyle=BONE.o;c.lineWidth=1.41;c.stroke();",
+"med": 1.414,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle='#4a3f2c';c.lineWidth=1.44;c.beginPath();c.moveTo(len0*.3,-1.2);c.lineTo(len0*.36,.4);c.move",
+"med": 1.414,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle=IRON.b;c.lineWidth=1.41;c.beginPath();c.moveTo(len0-3,-7.6);c.lineTo(len0-1.6,-11);c.move",
+"med": 1.414,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+}
 ]

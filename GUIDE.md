@@ -19,7 +19,7 @@ https://github.com/bfunkmcgee/Ilyas (since V63): work in a clone of it.
 | `python3 build.py` | builds the page and everything the checks load | 1 s |
 | `python3 build.py --qa` | the same into uiwork/qa_*.html, for screenshots while checks run on test_page.html | 1 s |
 | `python3 check.py` | build, then the static check: ESLint over the assembled script, the UI dice rule, CSS braces. Messages name the source file and line | 6 s |
-| `python3 test.py` | quick tier: the static check and the seven game-logic suites | 1.5 min |
+| `python3 test.py` | quick tier: the static check and the twelve game-logic suites | 2 min |
 | `python3 test.py affected` | the static check, then the suites that cover what changed since the last full pass (game rules: everything; drawing or page: the page suites it touches) | varies |
 | `python3 test.py full` | every suite two at a time, then the timing checks alone. Run before every publish | 13 min (was 36) |
 | `python3 test.py NAME ...` | named suites (`--list` shows them and what each covers) | |
@@ -35,9 +35,10 @@ machine has two cores and about 7 GB. GitHub runs `python3 build.py` and the qui
 Live sources (the only files to edit for the game):
 - **build.py**: the module lists, in load order (CORE, FEAT, UI_FIRST, UI_LAST, CSS, SCENES). A new feature `x` is picked up from
   sk_x.js (game), sk_xui.js (UI) and sk_css_x.css once its name is in FEAT/CSS.
-- Game (no DOM; node loads it through sk_src.js): sk_core.js, sk_anim.js, sk_brawl.js, sk_fin.js, sk_team.js, sk_env.js, sk_phase.js, sk_arc.js,
-  then the features' game parts: crew chain insure style secret lobby breach office finale ctxmoves cast arms guns story beast elf
-  (hud and light have UI parts only) react room rise stances spells stnmotion, then Act I's (explore, the pit scenes, short).
+- Game (no DOM; node loads it through sk_src.js): sk_core.js, sk_rules.js, sk_anim.js, sk_brawl.js, sk_fin.js, sk_team.js, sk_env.js, sk_phase.js,
+  sk_arc.js, then the features' game parts: crew chain insure style secret lobby breach office finale ctxmoves cast arms guns story
+  beast elf (hud and light have UI parts only) react room rise stances spells stnmotion, then Act I's (explore, the pit scenes,
+  short), then the saves and the levels (save, growth).
 - UI: sk_envui.js, sk_phaseui.js, sk_arcui.js, the features' UI parts (crewui ... figui lookui castui sceneui armsui gunsui storyui
   beastui elfui hudui lightui reactui roomui stancesui spellsui ... sfxui, in FEAT order), then sk_ui.js last (its frame loop starts
   the game).
@@ -74,10 +75,10 @@ world coordinates, after effects and labels), `V11UI.screen` (end of render, dev
 after sk_core.js), and the one function that works a number out reads it: a roll's modifiers (`ruleRoll` at the end of computeMods,
 shotMods, grabMods, shoveMods, throwMods, breakMods, disarmMods, feintMods, tossMods, bottleMods, kickMods, galeMods, roomMods and
 lineMods), the tempo of a move (actionCost), what closing in costs (approachCost), the balance a move costs (footDelta), the most
-balance a man has (footMaxOf), a blow's damage (`ruleDmg` on each of resolveAttack's results) and whether a command is his (cmdValid:
-`ruleBar`). `RULES.add({id, src, on, when, ...})`: id `'<module>.<name>'`; src the system as the log names it (Elven, Stance, Spell,
-Short Hand, Gear, Act I, Cover, Riding, Gun, Lesson, Free rise); on what it changes (a roll by its name, 'tempo', 'approach', 'foot',
-'footmax', 'dmg', 'cmd'); when(x) whether it applies (x: the function's arguments by name, and c, the roll so far, or r, the result;
+balance a man has (footMaxOf), his health in the story (`hpmax`, storyDuel; since V93), a blow's damage (`ruleDmg` on each of
+resolveAttack's results) and whether a command is his (cmdValid: `ruleBar`). `RULES.add({id, src, on, when, ...})`: id `'<module>.<name>'`; src the system as the log names it (Elven, Stance, Spell,
+Short Hand, Gear, Act I, Cover, Riding, Gun, Lesson, Free rise, Level and each style's name since V93); on what it changes (a roll
+by its name, 'tempo', 'approach', 'foot', 'footmax', 'hpmax', 'dmg', 'cmd'); when(x) whether it applies (x: the function's arguments by name, and c, the roll so far, or r, the result;
 it throws no dice and changes nothing: the planners and the log ask it too). A roll's entry gives to:'hit' or 'def' with label and v
 (or mod(x) giving [label, v]; null leaves it out), and goes in among the modifiers as [label, v, src]; edit(x) is for the rest (putting
 a modifier to nothing, putting one in another's place), giving the words and what it changed. A number's entry gives set (the last
@@ -713,6 +714,51 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   the end of what is built and a build that goes on; a broken, unknown or other record; storage refused; the settings; and the
   record throwing none of the game's dice. A new part of a run that a stage needs and a chapter does not have goes in `savePart`.
 
+**Levels and growth (since V93).** Ilyas grows over the night: XP makes his level, 1 to 100, and each fighting style has a level of
+its own, 1 to 20. All of it is the night's (`S.story.growth = {xp, styles: {shorthand, wire, sareth}, got}`); the lab has none.
+- The curve (sk_growth.js): `xpNeed(L) = 80 + 18(L-1) + (L-1)²` from L to the next; `XP_AT[L]` where each starts (level 2 at 80,
+  level 10 at 1,572, 50 at 63,112, 100 at 413,787, the most there is). What is built ends near level 8: the prologue's par is about
+  810 (level 7; a night played gets a little more, from the men it breaks and disarms) and Act I's about 1,255 (level 8). The cap is
+  far past it on purpose; a later act that wants faster growth raises what its enemies are worth (an enemy level, when they get
+  one), not the curve.
+- Where XP comes from (`XP_GAIN`): every enemy that dies, whoever puts him down (`xpFoe`: 12, 20, 32, 50, 75 by rank, a crew man
+  three quarters, a named elf a quarter more, a boss half again, times his health against sixty from a half to three); by his own
+  move also two (+6) or three (+10) down in it; a stage's end once (a fight 10 and 4 an enemy, a scene 8); a man he breaks (4) or
+  disarms (6); Tamm's list got (25) and a collector put down (30), each once; each Short Hand move a lesson teaches (30). `xpGain(n,
+  why)` adds it (none past the top, and it gives what it added), logs "+n XP, why" and tells `S.hooks.growth('xp', ...)`.
+- A level (`growthLevelUp`): 2 more health at once, healed by it; said over him as "Level N" with what it gives on its second line
+  (the log), when the move it came of is over (`growthSay`: the drawing shows a move's biggest word only, and a kill's is bigger,
+  so it waits for the exchange's end and comes in a stretch of its own); `S.hooks.growth('level', {L0, L1})`.
+- What a level gives is read by the rules (src 'Level', label 'level'): +1 to hit in every roll of his at 5, 12, 20, 30, 42, 56, 72,
+  90; +1 DEF in every roll made at him at 8, 18, 32, 50, 70, 95; his health (`hpmax`, a number of the rules since V93: storyDuel
+  reads it) 2 a level after the first; a pip more balance at 25, 60, 100; +1 on every blow of his that lands at 10, 35, 65, 90; a
+  hundredth off every cost he pays at 11, 21, 31 and on to 91 (the tempo line names it from 11, "level ×0.99").
+- The styles (`STYLE_GROWTH`; `styleNeed(L) = 40 + 20(L-1)`; a rank every four levels: Novice, Trained, Veteran, Expert, Master).
+  The style he fights in (`heroStyle`): Short Hand with the knife in its stance; the arc-blade in Unbound is the Wire drill; the rest
+  of the arc-blade, or a sword, the Sareth cut; drained, or one arm, none. Its XP: 3 a blow of his that lands in it, 5 a crit; a
+  Short Hand answer he uses (the Hinge, the toll) 4; two fifths of an enemy's worth when he puts one down in it; 40 a Short Hand move
+  learned. Where he starts each: the prologue is tuned for the Sareth cut at Master (17) and the Wire drill at Expert (13), and Short
+  Hand starts at Novice (1); a style's perks count from there (`stylePerk`: +1 to hit fighting in it at its levels 5, 10, 15, 20,
+  +1 DEF at 8 and 16), so the prologue plays as it was tuned and the knife's style grows from nothing. Short Hand's rank on its card
+  is its level's.
+- Chapters, Try again and the saves: a chapter begins with its par (`growthPar(key)`: what the stages before it give a night that
+  played them: each enemy, each stage's end, the list, the collector, the lessons' moves). Try again puts back his growth as the stage
+  began (what the try gave goes with the try), from the stage's record; the record carries it (`savePart('growth')`), and
+  `growthFrom` takes only what is usable from one (the numbers in their bounds). A night kept before V93 begins with its par.
+- The page (sk_growthui.js): "Lv N" with his name on his plate in the story (`.flv`; the HUD's plate is narrow and clips the name to
+  its cell, so there it sits on the plate's top edge at the right, over his health); the drawer's line under where he is ("Level 4 ·
+  52 of 143 XP to the next", `#growthLine`); each style's level line on its card ("Level 2 · Novice · 40 of 60 to the next",
+  `styleLine`, on the styles screen and in the Pit menu's Styles); the title's line for a kept night ends with its level.
+- Next for the styles (planned, not built): a style's own moves and answers unlocked by its level (as Short Hand's come from Tamm's
+  lessons now), the Wire drill and the Sareth cut coming back to him with their levels as the story gives back the gilt and his arm,
+  and a style's level shown in the stance bar.
+- Suites: `growth` (sk_growth_test.js: the curve; what an enemy is worth; the lab without it; a chapter's par and his health; an enemy
+  defeated, a level, two at once and the top; each level's rules against the game without them; the style he fights in, what a blow
+  of his gives it in a real exchange, its perks and its top; a stage's end once; a man broken by him; a level said after his killing
+  blow; Act I's par and a lesson's moves; Short Hand's perks; Try again; a kept night, a broken record and one from before levels)
+  and `growthpage` (sk_growth_page.js: the plate in the lab and the story, the drawer's line, a level said and logged, the styles'
+  cards, the title's line, Continue at the kept level).
+
 ## Rules
 1. **The drawing never changes the game.** render() and everything it calls may not change anything the game or the page reads. Work
    that must happen every frame goes in `V11UI.tick`. Game-time code in UI files (hooks the game calls, like the suit-tear hook
@@ -909,7 +955,7 @@ the fall's dearest; the avenue's bands are 22 ms of the chase's 45 there, the li
 29 lines at .7 of their width pushed in, and with their tiers the whip's 5 lines and the blade's 3 (the figure tier) and one
 reflection's width (the caller's). A kept cost holds up to its max, as a flat patch does (since V89): those two to 130%, and the
 deep station's f4 to 115%, at the line since V88 and 108% in one of V89's runs, when the fall's own dearest frame came in at 38.5 ms
-against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames). V90's places brought the old station into the line's f5 and so its lines into the review for the first time: brought to the drawing guide's widths, its platform's joints kept as fine texture. At f5's push-in the kitchen's course of green tiles repeats at the line (r .71 in one run), kept as machine-made. And the prologue's crowded fights cross the cost line and back from run to run, the fall's own dearest frame at 40 to 47 ms in V90's four timings: the chase's f8 110 to 139%, the dining room's f2 96 to 119% and f5 88 to 103%, the kitchen's f2 89 to 101%, the deep station's f4 up to 106%, none of them drawn differently (by turns against V89's build). They are kept to a max with those ranges: the chase's f8 to 145%, the dining room's f2 to 125%, the others to 115 or 120%.
+against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames). V90's places brought the old station into the line's f5 and so its lines into the review for the first time: brought to the drawing guide's widths, its platform's joints kept as fine texture. At f5's push-in the kitchen's course of green tiles repeats at the line (r .71 in one run), kept as machine-made. And the prologue's crowded fights cross the cost line and back from run to run, the fall's own dearest frame at 40 to 47 ms in V90's four timings: the chase's f8 110 to 139%, the dining room's f2 96 to 119% and f5 88 to 103%, the kitchen's f2 89 to 101%, the deep station's f4 up to 106%, none of them drawn differently (by turns against V89's build). They are kept to a max with those ranges: the chase's f8 to 145%, the dining room's f2 to 125%, the others to 115 or 120%. V93's levels change how the story's fights go (his health and his dice grow with him), and so what the frames hold, nothing drawn differently: the office's f4 on a phone has its coffered walnut ceiling in frame (a coffer every 124 units, kept as built, drawing rule 6), and 11 of the beasts' lines came into the phone's frames under their width (the goblins' ribs, the keys on their belts, their scars and hats, the bone and iron of the beasts' weapons), kept with the figure tier's reason.
 
 ## Publishing
 Run `python3 test.py full` first, then `python3 test.py look` (alone, about 20 minutes: it times the drawing), and `python3 test.py
@@ -919,14 +965,14 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V93 ..." (V92 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V94 ..." (V93 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
 so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
-Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V93: ..." and a line or two of what
+Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V94: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git
 access refuses a tag push, so a version that wants a tag is tagged from GitHub's Releases page or from a clone with full access.)
 
@@ -939,7 +985,9 @@ was checked, and anything that did not work, plainly.
   "·" and "’" as Latin-1 ("Â·"), and later loads as UTF-8 (V92's first full run). A check that reads such text uses test_page.html,
   which declares it, and puts the title up itself (`storyMenu(true)`) where it needs the title.
 - sk_dom.js runs the UI on a stub page whose elements have appendChild, insertBefore, prepend, querySelector and little else: a
-  part of the UI that runs at load (V11UI.init) builds with those (V92's title parts first used insertAdjacentElement there).
+  part of the UI that runs at load (V11UI.init) builds with those (V92's title parts first used insertAdjacentElement there). Its
+  document has getElementById and createElement but no querySelector: reach a part by an element's querySelector (V93's drawer
+  line first used document.querySelector), and nothing there has parentNode.
 - Seed both of the game's dice handles in a check: `Math.random=...;S.rng=Math.random;`. The game keeps its own handle (S.rng, set
   at load); a check that only replaces Math.random is not reproducible (the finale suite was like that until Oct 20).
 - sk_dom.js plays at random on purpose (a fuzz run): its counts differ every run. Only its errors and problem counters matter.
@@ -961,6 +1009,10 @@ was checked, and anything that did not work, plainly.
   end of each full run, and the V69 build timed beside it read 1.14 to 1.28: the machine again (V70 was published on the 24 other
   suites and the timing checks passing alone).
 - Under SK_TEST the effects never auto-drop; in a real browser a slow first second can move a device to Lite.
+- Two of the look suite's pixel counts sit near their limits and move with the machine's load: the drained tattoos' cyan (the
+  check wants under 15% of the lit count) and the eye's light at the end of the fall (over 15% of what it had). On Nov 5 the V92
+  and V93 builds, whose lab layout, canvas and camera are the same, each missed one or the other in some runs (a full run, or the
+  suite alone) and passed in others: rerun, and compare against the build before the change before suspecting it.
 - The node checks have no Path2D or DOMMatrix: FXL and the scene painters stand down there (`SCENE_OK`).
 - A scene's still layer (sceneLayer) covers RC: y -90 to 870 since V74 (the part below 610 kept only on an upright screen,
   `sceneLayerH`), painted for the push-in's closest view (`camCloseW`: 2.4 pixels a unit at the most, about twice V73's paint time

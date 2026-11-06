@@ -1,0 +1,12 @@
+/* ===== levels and growth (since V93): his level on his plate, the drawer's line, each style's level on its card ===== */
+.fname .flv{display:inline-block;margin-left:.42em;padding:.16em .36em .12em;font:700 .6em/1 var(--ui);font-style:normal;letter-spacing:.08em;text-transform:uppercase;
+  vertical-align:.2em;color:#ffd36b;border:1px solid rgba(255,211,107,.55);border-radius:2px;background:rgba(255,211,107,.08)}
+.wrap.hud .drawer-sub.growth-line{color:var(--gl-gold2)}
+.a9-lv{margin:0;font:600 12px/1.3 var(--ui);color:#cfc4a8;letter-spacing:.02em}
+.a9-lv b{font-weight:800;color:#e2b65a}
+.a9-card.dark .a9-lv{color:rgba(207,238,233,.6)}.a9-card.dark .a9-lv b{color:rgba(127,243,227,.75)}
+.a9-card.locked .a9-lv{color:#a99f88}.a9-card.locked .a9-lv b{color:#cfc4a8}
+/* the HUD's plate is narrow (the name is clipped to its cell): there his level sits on the plate's top edge at the right, over its health */
+.wrap.hud .frow .fname .flv{position:absolute;top:-9px;right:8px;margin:0;padding:1px 4px 0;font:800 9px/10px var(--ui);letter-spacing:.1em;vertical-align:baseline;
+  color:#ffd36b;background:rgb(14,11,18);border:1px solid rgba(255,211,107,.6);border-radius:2px;pointer-events:none;z-index:1}
+.wrap.hud[data-mode="desk"] .frow .fname .flv{top:-9px;padding:2px 5px 1px;font-size:10px;line-height:12px}

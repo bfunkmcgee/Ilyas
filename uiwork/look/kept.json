@@ -14,6 +14,7 @@
   "platform": "the underground's ribs and the track's sleepers, in a steady beat (drawing rule 3)",
   "line": "the tunnel's ribs and the track's sleepers, in a steady beat (drawing rule 3)",
   "dining": "the dining room's ceiling beams: built, so they may repeat exactly (drawing rule 6)",
+  "office": "the office's coffered walnut ceiling (a coffer every 124 units): built, so it may repeat exactly (drawing rule 6); in f4's frame on a phone since V93, whose levels change how the fight goes and so where the camera stands",
   "kitchen": "the kitchen's course of green glazed tiles over the range: machine-made, so it may repeat exactly (drawing rule 6); at the line at f5's push-in (r .71 in one of V90's runs, under .7 in V89's and the other)",
   "fall": "the tower's face: its windows are one set painted once, machine-made (drawing rule 6)",
   "lab_street": "Lamplight Street's arches and the beat of its gas lamps, machine-made (judged in V82)"

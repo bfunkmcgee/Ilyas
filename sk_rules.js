@@ -16,8 +16,8 @@
 //     It goes in as [label, v, src]. Or edit(x) changes the roll another way (puts a modifier to nothing, puts one in another's place)
 //     and gives what the log says: a label, or [label, v]; nothing when it changed nothing.
 //   'tempo' (actionCost; x {f, cmd, extra}), 'approach' (approachCost; x {A, D, cmd}), 'foot' (footDelta, the balance a move costs,
-//     a negative number; x {A, cmd, T}), 'footmax' (footMaxOf; x {f}): set (the number, or set(x)) takes the place of the game's own;
-//     mul (rounded) and add change it.
+//     a negative number; x {A, cmd, T}), 'footmax' (footMaxOf; x {f}), 'hpmax' (the story's hero's most health as a stage sets him
+//     up, storyDuel; x {f}): set (the number, or set(x)) takes the place of the game's own; mul (rounded) and add change it.
 //   'dmg' (resolveAttack, every result it gives; x {A, D, kind, opening, T, r}): add (a number, or add(x)) with min (the least it
 //     leaves), or edit(x) for the rest, giving what the log says as a roll's edit does.
 //   'cmd' (cmdValid; x {A, D, cmd}): when(x) bars the command; why (a word, or why(x)) says why.
@@ -47,7 +47,7 @@ const RULES={list:[],on:{},ids:{},
   off(id,v){const r=this.ids[id];if(!r)throw new Error('RULES.off: no rule '+id);r.off=v!==false;return r;}};
 // the rolls a rule can change (each is read by ruleRoll at the end of the function named), and the numbers (ruleNum)
 const RULE_ROLLS=['attack','shot','grab','shove','throw','break','disarm','feint','toss','bottle','kick','gale','room','line'];
-const RULE_NUMS=['tempo','approach','foot','footmax'];
+const RULE_NUMS=['tempo','approach','foot','footmax','hpmax'];
 function ruleVal(v,x){return typeof v==='function'?v(x):v;}
 function ruleOn(e,x){return!e.off&&e.when(x);}
 function ruleNote(e,on,note,to){const n=Array.isArray(note)?note:[typeof note==='string'?note:e.label||e.id,null];
