@@ -21,7 +21,8 @@ function levelOf(xp){let lo=1,hi=GROWTH.max;while(lo<hi){const m=(lo+hi+1)>>1;if
 function growthCount(list,L){let n=0;for(const x of list)if(L>=x)n++;return n;}
 // a style's expertise: levels 1 to 20, a rank every four (SKILLS: Novice, Trained, Veteran, Expert, Master); where he starts each
 // (the prologue's numbers are his at these); its perks: +1 to hit fighting in it at each of hit's levels, +1 DEF at each of def's
-const STYLE_GROWTH={max:20,start:{shorthand:1,wire:13,sareth:17},hit:[5,10,15,20],def:[8,16]};
+// (where he starts each is the style's own, in the registry: sk_styles.js)
+const STYLE_GROWTH={max:20,start:Object.fromEntries(STYLE_ORDER.map(k=>[k,STYLES[k].start])),hit:[5,10,15,20],def:[8,16]};
 function styleNeed(L){return 40+20*(L-1);}
 const STYLE_XP_AT=(()=>{const a=[0,0];for(let L=1;L<STYLE_GROWTH.max;L++)a[L+1]=a[L]+styleNeed(L);return a;})();
 function styleLevelOf(xp){let L=1;while(L<STYLE_GROWTH.max&&xp>=STYLE_XP_AT[L+1])L++;return L;}
@@ -41,11 +42,9 @@ function growthNew(xp,styles){const s={};for(const k of Object.keys(STYLE_GROWTH
   return{xp:xp||0,styles:Object.assign(s,styles||{}),got:{}};}
 function heroLevel(){const g=growth();return g?levelOf(g.xp):1;}
 function styleLevel(k){const g=growth();return styleLevelOf(g&&g.styles&&g.styles[k]!=null?g.styles[k]:STYLE_XP_AT[STYLE_GROWTH.start[k]||1]);}
-// the style he fights in now: Short Hand with the knife; the arc-blade's Unbound is the Wire drill (it needs the gilt), and the rest
-// of the arc-blade, or a sword, the Sareth cut (it needs two hands)
-function heroStyle(f){if(!f||f!==S.F[0])return null;if(typeof shortOn==='function'&&shortOn(f))return'shorthand';if(f.oneArm)return null;
-  if(f.weaponKey==='elven')return typeof stanceOf==='function'&&stanceOf(f)==='unbound'?'wire':(typeof drained==='function'&&drained(f)?null:'sareth');
-  if(f.weaponKey==='sword')return'sareth';return null;}
+// the style he fights in now (since V94 the one he picks, sk_styles.js: his own Sareth cut unless he has picked another; in V93 it
+// was read off the arc-blade's stance)
+function heroStyle(f){return f&&f===S.F[0]?styleOf(f):null;}
 function heroIn(f){return!!f&&f===S.F[0]&&growthOn();}
 
 // ---------- gaining it ----------
@@ -93,9 +92,11 @@ V11.kill.push(D=>{if(!growthOn()||!D||D.team!==1||D.npc||S.warming)return;const 
 {const bf=breakFighter;breakFighter=function(D,by){const was=!!(D&&D.broken);const r=bf.apply(this,arguments);
   if(growthOn()&&D&&!was&&D.broken&&D.team===1&&!D.npc&&by&&by===hero())xpGain(XP_GAIN.break,D.name+' broken');return r;};}
 {const td=tryDisarm;tryDisarm=function(A,D){const r=td.apply(this,arguments);if(growthOn()&&r&&r.ok&&A===hero()&&D&&D.team===1)xpGain(XP_GAIN.disarm,D.name+' disarmed');return r;};}
-// a blow of his that lands, for the style he fights in; a Short Hand answer he uses
-V11.exchangeEnd.push(last=>{if(!growthOn()||!last||last.A!==hero())return;const st=heroStyle(last.A);if(!st)return;
-  for(const r of [last.res,last.res2])if(r&&!r.weaponHit&&(r.out==='hit'||r.out==='crit'))styleGain(st,r.out==='crit'?XP_GAIN.style.crit:XP_GAIN.style.hit);});
+// a blow of his that lands, for the style he fights in (at its impact, since V94: a follow-up from an opening is a blow of its own,
+// and an exchange's end comes only after the last of them); a Short Hand answer he uses
+{const ap=applyImpact;applyImpact=function(ex,A,D,res){const r=ap.apply(this,arguments);
+  if(growthOn()&&A&&A===hero()&&res&&!res.weaponHit&&(res.out==='hit'||res.out==='crit')){const st=heroStyle(A);if(st)styleGain(st,res.out==='crit'?XP_GAIN.style.crit:XP_GAIN.style.hit);}
+  return r;};}
 {const sh=S.hooks.short;S.hooks.short=(ev,d)=>{if(sh)sh(ev,d);if(!growthOn()||!d)return;const K=hero();
   if((ev==='hinge'||ev==='toll')&&d.D===K)styleGain('shorthand',XP_GAIN.style.answer);};}
 // a lesson learned: each move new to him
@@ -143,6 +144,6 @@ RULES.add({id:'level.dmg',src:'Level',on:'dmg',label:'level',add:()=>growthCount
   when:x=>heroIn(x.A)&&x.r&&(x.r.out==='hit'||x.r.out==='crit')&&x.r.dmg>0&&growthCount(GROWTH.dmg,heroLevel())>0});
 // a style's perks, past where he started it: to hit fighting in it, DEF while he stands in it
 function stylePerk(k,list){return growthCount(list,styleLevel(k))-growthCount(list,STYLE_GROWTH.start[k]||1);}
-for(const k of Object.keys(STYLES)){const name=STYLES[k].name;
+for(const k of STYLE_ORDER){const name=STYLES[k].name;
   RULES.add({id:'style.'+k+'.hit',src:name,on:'attack',to:'hit',label:name,v:()=>stylePerk(k,STYLE_GROWTH.hit)||null,when:x=>heroIn(x.A)&&heroStyle(x.A)===k});
   RULES.add({id:'style.'+k+'.def',src:name,on:'attack',to:'def',label:name,v:()=>stylePerk(k,STYLE_GROWTH.def)||null,when:x=>heroIn(x.D)&&heroStyle(x.D)===k});}

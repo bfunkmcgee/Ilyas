@@ -10,6 +10,8 @@
 //   variant  a key of the blow's variants (ATTACK.variant), combo the leads as ["kind:variant", ...] (S.animForce, sk_anim.js)
 //   flourish true lets an expert's flourish come; otherwise it does not (styleRoll forced high)
 //   back     the man struck faces away
+//   prep     a line of script run on the stage before the blow, with A (the attacker) and D: e.g. "A.style='wire'" for a style
+//            with its rules as well as its motion (since V94), or the Wire drill's full count
 const {chromium}=require('playwright'),fs=require('fs'),path=require('path');
 const OUT=process.argv[2],SHOTS=JSON.parse(fs.readFileSync(process.argv[3],'utf8')),PAGE=path.resolve(process.argv[4]||path.join(__dirname,'..','..','test_page.html'));
 if(!OUT||!SHOTS){console.log('usage: node uiwork/anim/moves.js <out dir> <shots.json> [page]');process.exit(1);}
@@ -73,6 +75,7 @@ fs.mkdirSync(OUT,{recursive:true});
       const st=animStage({who:sh.a&&sh.a.who||'hero',hero:sh.a&&sh.a.who==='foe'?(sh.d||{}):(sh.a||{}),foe:sh.a&&sh.a.who==='foe'?(sh.a||{}):(sh.d||{}),
         style:sh.a&&sh.a.style,gap:sh.gap,back:sh.back,seed:sh.seed,n:sh.n,human:sh.human});
       if(!st)return{err:'no stage'};
+      if(sh.prep)new Function('A','D',sh.prep)(st.A,st.D);
       window.step(20);
       ST.force=sh.out||'hit';const ok=command(st.A.idx,sh.kind||'slash');if(!ok){ST.on=false;return{err:'command refused'}}
       const ex=S.game.ex,A=st.A,t0=S.t;const frames=[],tEnd=(A.action?A.action.end:1.5)+.15;

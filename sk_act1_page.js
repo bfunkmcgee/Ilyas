@@ -393,7 +393,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
         if(T&&R&&S.story.step==='fight'&&!S.cut){const w=S.hooks.arms(T,T.weaponKey),kk=k+':'+R.phase;if(!out.arms[kk])out.arms[kk]=w+(T.pocketHand?' pocket':'');if(!out.props)out.props=S.props.filter(p=>p.painted&&p.fixed).length;}
         const A=S.act1,el=document.getElementById('a9Styles');
         if(A&&A.styles&&A.styles.open&&!out.styles&&el&&!el.hidden){out.styles={key:k,cards:[...el.querySelectorAll('.a9-card')].map(c=>c.querySelector('h3').textContent+': '+c.querySelector('.a9-now').textContent),
-          moves:[...el.querySelectorAll('.a9-moves li.got .a9-m')].map(m=>m.textContent)};}
+          moves:[...el.querySelectorAll('.a9-card[data-style="shorthand"] .a9-moves li.got .a9-m')].map(m=>m.textContent)};}
         return S.story.step==='done';},90000);
       const K=hero();out.style=K.style;out.moves=Object.keys(K.styleMoves||{}).filter(m=>K.styleMoves[m]).sort().join(',');out.ended=S.story.ended;
       step(90);const EC=document.getElementById('stEnd');out.card=EC&&!EC.hidden?document.getElementById('stEndK').textContent:null;
@@ -409,7 +409,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
       r9.drill.sh1>=4&&r9.drill.sh2>=2&&r9.drill.sh3>=2&&r9.drill.sh4>=2&&r9.drill.sh5>=2,JSON.stringify(r9.drill));
     expect('each lesson\'s bout ends on his first touch or her fifth, and the last on his third or her sixth',
       ['sh1','sh2','sh3','sh4','sh5'].every(k=>r9.bout[k]>=1||r9.hers[k]>=5)&&(r9.bout.sh6>=3||r9.hers.sh6>=6),JSON.stringify({his:r9.bout,hers:r9.hers}));
-    expect('after the first lesson the styles screen: Short Hand learning, Wire drill dark, the Sareth cut locked; the stance learned',
+    expect('after the first lesson the styles screen: Short Hand learning, Wire drill dark, the Sareth cut locked; the stance learned (on Short Hand\'s card)',
       !!r9.styles&&r9.styles.key==='sh1'&&r9.styles.cards.join(' | ')==='Short Hand: Novice, learning | Wire drill: Dark: needs the gilt | The Sareth cut: Locked: needs two hands'&&r9.styles.moves.join(',')==='Stance',JSON.stringify(r9.styles));
     expect('Tamm drills him with a broom and fights the bouts with a rolling pin, the last with her other hand in her apron pocket; the barrels and crates are fixed props',
       r9.arms['sh1:drill']==='crew:broom'&&r9.arms['sh2:bout']==='crew:rollingpin'&&r9.arms['sh6:bout']==='crew:rollingpin pocket'&&r9.props===4,JSON.stringify({a:r9.arms,p:r9.props}));
@@ -480,7 +480,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     pm.listStart==='gear'&&pm.list.tabs==='gear,satchel,map'&&pm.list.items===5&&pm.list.cells===8&&/^Coin \d+ · Chits \d+$/.test(pm.list.purse)&&pm.list.map,JSON.stringify([pm.listStart,pm.list]));
   expect('the codex comes into the menu with the first fight in the Pit, the styles after the first lesson (three style cards)',
     pm.tollStart==='gear,satchel,map'&&pm.toll==='gear,satchel,map,codex'&&pm.sh2==='gear,satchel,map,codex,styles'&&pm.sh2m.tabs==='gear,satchel,map,styles,codex'&&pm.sh2m.cards===3,JSON.stringify([pm.tollStart,pm.toll,pm.sh2,pm.sh2m]));
-  expect('in the prologue the drawer is as it was: Paused, and the codex',pm.pro.title==='Paused'&&pm.pro.tabs==='codex'&&pm.pro.shown==='',JSON.stringify(pm.pro));
+  expect('in the prologue the drawer is as it was: Paused, on the codex (his styles beside it since V94, not the Pit\'s last tab)',pm.pro.title==='Paused'&&pm.pro.tabs==='styles,codex'&&pm.pro.tab==='codex'&&pm.pro.shown==='',JSON.stringify(pm.pro));
 
   // ---- the hip dagger, and leaving the story ----
   const arms=await ev(()=>{const out={};storyGo('roof1');step(2);const K=hero();out.act1=S.hooks.arms(K,'dagger');storyQuit();restart();step(2);out.lab=S.hooks.arms(S.F[0],'dagger');

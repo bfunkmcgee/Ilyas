@@ -103,15 +103,16 @@ const setXP=xp=>{S.story.growth.xp=xp;};
 // ---------- the style he fights in ----------
 {const K=hero(),st0=K.stance,wk=K.weaponKey;
   expect('the arc-blade: the Sareth cut',heroStyle(K)==='sareth',heroStyle(K)+' '+K.weaponKey+' '+stanceOf(K));
-  K.stance='unbound';const w=heroStyle(K);K.stance=st0;K.drain=1;const dr=heroStyle(K);K.drain=0;K.oneArm=true;const oa=heroStyle(K);K.oneArm=false;
-  expect('Unbound is the Wire drill; drained, or one arm, no style',(stanceOn(K)?w==='wire':true)&&dr===null&&oa===null,[w,dr,oa].join());
+  K.stance='unbound';const ub=heroStyle(K);K.stance=st0;K.style='wire';const w=heroStyle(K);K.style=null;K.drain=1;const dr=heroStyle(K);K.drain=0;K.oneArm=true;const oa=heroStyle(K);K.oneArm=false;
+  expect('his own in any stance, the Wire drill once he picks it (since V94); drained, or one arm, no style',ub==='sareth'&&w==='wire'&&dr===null&&oa===null,[ub,w,dr,oa].join());
   const D=foe();expect('an enemy has none of his',heroStyle(D)===null);
   // a blow of his that lands, real, to its end; and what lands of his in the exchanges after it
   for(const f of S.F)if(f.team===1)f.hp=f.maxHp=9999;const g=growth(),s0=g.styles.sareth;let want=0;
-  const tally=last=>{if(last&&last.A===K&&heroStyle(K)==='sareth')for(const r of [last.res,last.res2])if(r&&!r.weaponHit&&(r.out==='hit'||r.out==='crit'))want+=r.out==='crit'?XP_GAIN.style.crit:XP_GAIN.style.hit;};
-  V11.exchangeEnd.push(tally);
+  // (counted at each blow's impact, as the game counts it since V94)
+  let tallyOn=true;{const ap=applyImpact;applyImpact=function(ex,A,D,res){const r=ap.apply(this,arguments);
+    if(tallyOn&&A===K&&heroStyle(K)==='sareth'&&res&&!res.weaponHit&&(res.out==='hit'||res.out==='crit'))want+=res.out==='crit'?XP_GAIN.style.crit:XP_GAIN.style.hit;return r;};}
   for(let i=0;i<10;i++){K.foot=footMaxOf(K);const c=computeMods(K,D,'slash',false);let v=2;while(v<20&&v+c.bonus<c.def)v++;rolled(v,()=>act(0,'slash'));run();}
-  V11.exchangeEnd.splice(V11.exchangeEnd.indexOf(tally),1);
+  tallyOn=false;
   expect('a blow of his that lands gives the style he fights in its XP (3 a hit, 5 a crit)',want>0&&g.styles.sareth-s0===want,(g.styles.sareth-s0)+' of '+want);
   g.styles.wire=STYLE_XP_AT[20]-1;const a=styleGain('wire',100),b=styleGain('wire',5);
   expect('a style stops at 20',g.styles.wire===STYLE_XP_AT[20]&&a===1&&b===0&&styleLevel('wire')===20);

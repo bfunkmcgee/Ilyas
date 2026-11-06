@@ -1,0 +1,42 @@
+/* ===== styles (since V94): the chip on the stance bar, the meter on his plate, the cards, the menu's Styles tab ===== */
+.wrap.hud .sty-b{appearance:none;flex:0 0 auto;min-width:0;max-width:132px;height:44px;margin:0;padding:3px 9px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;
+  color:var(--gl-cream);background:rgba(233,196,110,.1);border:1px solid rgba(233,196,110,.55);border-radius:2px;cursor:pointer}
+.wrap.hud .sty-n{display:block;max-width:100%;font:700 13.5px/1 var(--display);letter-spacing:.05em;color:var(--gl-gold3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .sty-b small{display:flex;align-items:center;gap:6px;max-width:100%;font:500 11px/1.1 var(--ui);color:var(--gl-dim);white-space:nowrap;overflow:hidden}
+.wrap.hud .sty-x{overflow:hidden;text-overflow:ellipsis}
+.wrap.hud .sty-m{display:inline-flex;gap:3px;flex:none}
+.wrap.hud .sty-m i,.wrap.hud .fmeter i{display:block;width:4px;height:9px;transform:skewX(-14deg);border:1px solid rgba(255,211,107,.6);box-sizing:border-box}
+.wrap.hud .sty-m i.on,.wrap.hud .fmeter i.on{background:#ffd36b;border-color:#ffd36b}
+.wrap.hud .sty-b:disabled{cursor:default;opacity:.62}
+.wrap.hud .sty-b:focus-visible{outline:0;box-shadow:inset 0 0 0 1px rgba(233,196,110,.9)}
+@media (hover:hover){.wrap.hud .sty-b:not(:disabled):hover{border-color:var(--gl-gold);background:rgba(233,196,110,.18)}}
+/* upright phone: a row of its own over the three stances (they keep their full width): the style and its meter, the next at the right */
+.wrap.hud[data-mode="port"] .stn-bar{flex-wrap:wrap;row-gap:4px}
+.wrap.hud[data-mode="port"] .sty-b{flex:1 1 100%;max-width:none;height:30px;padding:0 10px;flex-direction:row;align-items:center;justify-content:flex-start;gap:10px}
+.wrap.hud[data-mode="port"] .sty-b small{flex:1 1 auto;justify-content:space-between;gap:10px}
+.wrap.hud[data-mode="port"] .sty-x{flex:0 1 auto;min-width:0}
+/* sideways phone: as low as the stances there, on one line (the stances keep only their names too) */
+.wrap.hud[data-mode="land"] .sty-b{height:34px;padding:2px 8px;flex-direction:row;align-items:center;gap:8px}
+.wrap.hud[data-mode="land"] .sty-x{display:none}
+.wrap.hud[data-mode="desk"] .sty-b{height:40px}
+/* the meter beside the balance pips: the plate's bottom edge at the right */
+.wrap.hud .frow .fmeter{position:absolute;right:9px;bottom:5px;display:flex;gap:3px;pointer-events:none}
+.wrap.hud[data-mode="desk"] .frow .fmeter{bottom:7px}
+.wrap.hud .frow .fmeter span{display:flex;gap:3px}
+.fmeter span{display:inline-flex;gap:3px}
+/* the cards */
+.a9-dc{margin:0;font:italic 600 12.5px/1.35 var(--ui);color:#e8dcc0}
+.a9-wh{margin:0;font:500 12.5px/1.4 var(--ui);color:#c9bea4}
+.a9-mt,.a9-ms{margin:0;font:500 12px/1.35 var(--ui);color:#b8ad94}
+.a9-mt b,.a9-ms b{color:#e2b65a;font-weight:800}
+.a9-ms{font-style:italic}
+.a9-moves li.sig .a9-m::after{content:"";display:inline-block;width:5px;height:5px;margin:0 0 2px 6px;background:#e2b65a;transform:rotate(45deg)}
+.a9-card.dark .a9-dc,.a9-card.locked .a9-dc,.a9-card.dark .a9-wh,.a9-card.locked .a9-wh{color:#a99f88}
+/* a style he cannot fight in now: what his level in it gives is shown, dimmed (it comes back with the style) */
+.a9-card.dark .a9-moves li.got,.a9-card.locked .a9-moves li.got{color:#b8ad94}
+.a9-card.dark .a9-moves li.got .a9-l,.a9-card.locked .a9-moves li.got .a9-l{color:#a08a5a}
+/* the menu's Styles tab, in the prologue and the lab */
+.wrap.hud .side-col[data-styles="1"]:not([data-story="1"]):not([data-pit="1"]) .drawer-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+.wrap.hud .side-col[data-story="1"][data-styles="1"]:not([data-pit="1"]) .drawer-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+.wrap.hud .side-col[data-story="1"][data-styles="1"]:not([data-pit="1"]) .drawer-tabs button[data-dtab="styles"]{display:block}
+.wrap.hud .side-col[data-styles="1"]:not([data-pit="1"]) .pm-styles .a9-cards{grid-template-columns:1fr}

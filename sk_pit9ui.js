@@ -29,16 +29,9 @@ V11UI.init.push(()=>{const W=storyStageWrap();if(!W)return;
 // his turn, with nothing moving: the screen can come up
 function a9CanOpen(){const g=S.game,L=typeof shLesson==='function'?shLesson():null;return!!L&&!!S.story&&S.story.step==='fight'&&g.phase==='input'&&!isAI(g.active)&&!S.opening&&!S.cut;}
 function a9Fill(){document.getElementById('a9Lead').textContent='What he has, what he lost, and what comes back.';document.getElementById('a9Cards').innerHTML=a9CardsHtml();}
-// the style cards: Short Hand with the moves he has learned and its rank as his level in it makes it, the Wire dark, Sareth's locked,
-// each with its level (styleLine, sk_growthui.js; the menu's Styles section shows them too)
-function a9CardsHtml(){const K=S.F[0],known=K&&K.styleMoves||(typeof shKnown==='function'&&shKnown())||{},n=SHORT_MOVES.filter(m=>known[m.key]).length;
-  const card=(st,cls,now,body)=>`<section class="a9-card ${cls}"><div class="a9-c-head"><h3>${st.name}</h3><span class="a9-now">${now}</span></div>`+
-    `<p class="a9-w">${st.weapon}</p><p class="a9-o">${st.origin}</p>${body||''}</section>`;
-  const moves='<ul class="a9-moves">'+SHORT_MOVES.map(m=>`<li class="${known[m.key]?'got':''}"><span class="a9-m">${m.name}</span><span class="a9-l">${known[m.key]?'learned':'Lesson '+m.lesson}</span></li>`).join('')+'</ul>';
-  const rank=styleRank(styleLevel('shorthand'));
-  return card(STYLES.shorthand,'on',rank+(n>=SHORT_MOVES.length?', all lessons':', learning'),styleLine('shorthand')+moves)+
-    card(STYLES.wire,'dark','Dark: needs the gilt',styleLine('wire'))+
-    card(STYLES.sareth,'locked','Locked: needs two hands',styleLine('sareth'));}
+// the style cards: the registry's, all three (sk_stylesui.js: Short Hand with the moves he has learned and its rank as his level in it
+// makes it, the Wire drill dark, the Sareth cut locked, each with its level; the menu's Styles section shows them too)
+function a9CardsHtml(){return styleCardsHtml(STYLE_ORDER);}
 V11UI.tick.push(()=>{if(!A9.goal)return;const L=typeof shLesson==='function'?shLesson():null,R=L&&S.act1?S.act1.sh:null,A=S.act1;
   // the box: in the fight, not while a scene plays
   const on=!!R&&!!S.story&&S.story.step==='fight'&&!S.cut&&!S.card;if(A9.goal.hidden===on){A9.goal.hidden=!on;if(typeof HUD!=='undefined')HUD.measAt=0;}

@@ -12,12 +12,8 @@
 //                while the knife threatens high; a barrel or a crate behind him puts him over it.
 // Nothing here touches a fighter without the style: every wrapper below passes straight through for him, and draws no dice.
 
-// ---------- the styles ----------
-// (for the styles screen: each weapon has its styles, each with its own origin)
-const STYLES={
-  shorthand:{key:'shorthand',name:'Short Hand',weapon:'Dagger, one hand',origin:'Tarkesh veterans of the Poisoned River war, A.V. 1950 to 1983'},
-  wire:{key:'wire',name:'Wire drill',weapon:'Arc-blade',origin:"Noon Company, on the Confederacy's border wire, the 2270s"},
-  sareth:{key:'sareth',name:'The Sareth cut',weapon:'Arc-blade, sword',origin:'Thirty years of Eclipsera enforcement'}};
+// ---------- the style ----------
+// (in the registry with the others, sk_styles.js; it is taught a move at a time, so its moves are its lessons)
 // Short Hand's moves in the order they are taught (lesson: the lesson that teaches it; key: its key in f.styleMoves)
 const SHORT_MOVES=[
   {key:'stance',lesson:1,name:'Stance',what:'Low, the weight forward, the knife tight to the chest, the steps short. Shoves and sweeps at him are at −2, and a shove takes a pip less.'},
@@ -26,6 +22,10 @@ const SHORT_MOVES=[
   {key:'ladder',lesson:4,name:'The Short ladder',what:'A rising stab from the low stance, under the guard. It hits hardest from inside his reach.'},
   {key:'check',lesson:5,name:'The Blind-side check',what:'The empty shoulder drives into a man who is not set: a cheaper Shoulder check.'},
   {key:'hook',lesson:5,name:'The Ankle hook',what:'The foot hooks behind his ankle while the knife threatens high. A barrel or a crate behind him puts him over it.'}];
+styleDef({key:'shorthand',name:'Short Hand',short:'Short Hand',weapon:'Dagger, one hand',weapons:['dagger'],weaponNeed:'a dagger in hand',hands:1,order:1,start:1,
+  origin:'Tarkesh veterans of the Poisoned River war, A.V. 1950 to 1983',doctrine:'Your feet are your other hand.',
+  what:'Low, the weight forward, the knife tight to the chest, the empty side turned to the blow; he answers by walking in.',
+  motion:null,lessons:SHORT_MOVES,signature:'hinge',known:f=>f.style==='shorthand'||!!(f.styleMoves&&f.styleMoves.stance)});
 // the numbers
 //   guard: the stance, as the GUARD entry it replaces (hx, hy: the knife hand, in arm lengths from the shoulder; w: the blade's angle)
 //   step: dur and lift scale a step, len caps it (in leg lengths), gap keeps the feet apart (in leg lengths)

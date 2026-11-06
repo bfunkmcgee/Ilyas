@@ -174,7 +174,7 @@ for(const [sz,red] of [['port',false],['port',true],['land',false],['desk',false
   expect('in a scene only the menu button stays (the corner Menu button gives way to it)',m.hud==='cut'&&m.menu==='visible'&&m.plates&&m.dock==='none'&&m.log==='hidden'&&m.quit==='none',JSON.stringify(m));
   await p.click('#menuBtn');await p.waitForTimeout(350);
   m=await ev(p,()=>({story:document.getElementById('sideCol').dataset.story,tab:document.getElementById('sideCol').dataset.tab,tabs:[...document.querySelectorAll('.drawer-tabs button')].filter(b=>b.offsetParent).map(b=>b.dataset.dtab),sub:document.getElementById('drawerSub').textContent,paused:S.paused}));
-  expect('the menu in the prologue: paused, the codex only, the stage named',m.story==='1'&&m.tab==='codex'&&m.tabs.join()==='codex'&&/prologue/i.test(m.sub)&&m.paused,JSON.stringify(m));
+  expect('the menu in the prologue: paused, on the codex (and his styles beside it, since V94), the stage named',m.story==='1'&&m.tab==='codex'&&m.tabs.join()==='styles,codex'&&/prologue/i.test(m.sub)&&m.paused,JSON.stringify(m));
   await p.click('#resumeBtn');await p.waitForTimeout(300);
   m=await ev(p,()=>{for(let i=0;i<60000;i++){step(1);if(S.cut&&S.cut.skip&&i%30===0)cutSkip();if(S.say&&i%20===0)storyAdvance();if(S.story&&S.story.step==='fight'&&S.game.phase==='input'&&!isAI(S.game.active))break;}step(5);
     return{hud:document.getElementById('wrap').dataset.hud,step:S.story&&S.story.step,ins:[HUD_IN.top,HUD_IN.bottom],plates:document.querySelectorAll('.frow').length};});

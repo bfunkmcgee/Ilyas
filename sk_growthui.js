@@ -6,8 +6,9 @@
 function growthLineText(xp){const L=levelOf(xp);return'Level '+L+' · '+(L>=GROWTH.max?'the most there is':(xp-XP_AT[L])+' of '+xpNeed(L)+' XP to the next');}
 // a style's card line: its level, its rank, and its XP to the next
 function styleLine(k){const L=styleLevel(k),g=growth(),xp=g&&g.styles&&g.styles[k]!=null?g.styles[k]:STYLE_XP_AT[STYLE_GROWTH.start[k]||1];
-  const next=L>=STYLE_GROWTH.max?'the most there is':(xp-STYLE_XP_AT[L])+' of '+styleNeed(L)+' to the next';
-  return'<p class="a9-lv"><b>Level '+L+'</b> · '+styleRank(L)+' · '+next+'</p>';}
+  // (in the lab, where nothing grows, the level alone)
+  const next=!g?'':L>=STYLE_GROWTH.max?'the most there is':(xp-STYLE_XP_AT[L])+' of '+styleNeed(L)+' to the next';
+  return'<p class="a9-lv"><b>Level '+L+'</b> · '+styleRank(L)+(next?' · '+next:'')+'</p>';}
 // his plate: the level after his name (the plate as it was in the lab)
 function growthPlate(){const K=hero(),fr=K&&document.getElementById('fr'+K.idx),nm=fr&&fr.querySelector('.fname');if(!nm||!nm.dataset)return;
   const L=growthOn()?heroLevel():null,key=L==null?'':String(L);if((nm.dataset.lv||'')===key)return;nm.dataset.lv=key;

@@ -211,4 +211,6 @@ The dark lattice is written into Ilyas's numbers, so the player feels the loss i
 - **Gates for later.** Closed ladders, two-handed clinch moves and two-handed weapons are all visible and locked in beats 1 and 2.
 - **Seeds for beat 4.** The empty spike in scene 5, the collector's cut-off line in scene 6, and Tamm's "half the Pit saw that arm" in
   scene 8 all point at Tarr's pumphouse before anyone says it outright.
-- **Open question.** Should the Sareth cut work, badly, with the scrap arm, or stay locked until the joining?
+- **Settled (V94).** Should the Sareth cut work, badly, with the scrap arm, or stay locked until the joining? It works, badly: -2 to
+  hit and -1 DEF while he fights in it with the scrap arm (`scrap: 'badly'` on its entry in sk_styles.js, the numbers in SARETH.scrap).
+  One word on the entry (`scrap: 'locked'`) keeps it shut until the joining instead. The scrap arm itself is not built yet.
