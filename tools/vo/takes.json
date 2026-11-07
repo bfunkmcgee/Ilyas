@@ -1,0 +1,3 @@
+{"takes":[
+ {"src": "takes/ilyas_sundown_field.mp3", "suno": "ebf14fbb-0e47-4023-bb15-d3da34a34dac", "align": "align/ebf14fbb-0e47-4023-bb15-d3da34a34dac.json", "who": "Ilyas", "lines": ["sundown_1", "sundown_2", "sundown_3", "field_1", "field_3"], "gap": 0.6},
+ {"src": "takes/driver_field.mp3", "suno": "837723c1-bcc6-446e-b0c5-7e20dfbd578f", "align": "align/837723c1-bcc6-446e-b0c5-7e20dfbd578f.json", "who": "Driver", "lines": ["field_2"], "gap": 0.42, "skip": [[6.42, 16.4, "after the line: a cough, a breath, an \"uh, uh\" and a chuckle"]]}]}
