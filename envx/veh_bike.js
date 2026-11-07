@@ -549,6 +549,6 @@ function headBeam(c,B,o){o=o||{};const lie=clamp(B.lie||0,0,1),lk=clamp(B.light?
   c.translate(m.x,m.y);c.scale(1,.26);c.fillStyle=rg(c,0,0,0,120,[[0,rgba(c1,.16*lk*k2)],[1,rgba(c1,0)]]);c.beginPath();c.arc(0,0,120,0,TAU);c.fill();
   c.restore();}
 
-return{bike,bikePt,headBeam,rifle,rifleAt,DIM};
+return{bike,bikePt,headBeam,rifle,rifleAt,DIM,K,PAINT,CHROME};
 })();
 // ===== VEH BIKE END =====

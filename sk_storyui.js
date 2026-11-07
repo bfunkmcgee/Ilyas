@@ -396,6 +396,9 @@ Object.assign(CastLook.CREWS,{
 // an open-face helmet: the shell down over the ears, the goggle strap round it and the lens catching the light at the brow
 CastLook.HATS.helmet={crown:'M38,-9 C41,-28 31,-49 6,-55 C-17,-59 -41,-47 -48,-24 C-51,-9 -49,7 -42,15 L-31,11 C-26,-1 -9,-9 12,-11 Z',
   band:'M41,-13 L41,-23 C12,-30 -20,-28 -48,-19 L-49,-9 C-21,-17 12,-20 41,-13 Z',badge:[33,-18],mat:'hat'};
+// (and seen turned, a rider coming at the camera on the Tower Road's ramp: the shell round the skull from the brow up, the strap round
+// it; since V102)
+CastLook.HAT3.helmet={top:-60,base:-14,puff:6,band:[-27,-17]};
 
 // ---------- sounds the scenes need ----------
 // the engine is a held voice: two saws and a rumble through a filter, pitched by the bike's speed, while any bike is running. Its throb

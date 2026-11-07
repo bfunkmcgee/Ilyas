@@ -3,8 +3,8 @@
 // district (asked for in V101). It is the Avenue's second half: a stage of its own with no card, part of the Avenue's chapter
 // (STAGES: 'highway', part 'chase', so the chapters do not list it and the banner and the saves give the Avenue's name).
 // The ramp: he comes down off the interchange on a ramp that bends toward the camera, far and small at its top, close and whole at
-// its foot, and the picture turns with it: the bikes on the ramp are drawn smaller with their distance and narrower as they come at
-// the camera (B.vk, B.vsx: the page reads them; a bike heading east is drawn the other way round). Four more of Hallowell's riders
+// its foot, and the picture turns with it: the bikes on the ramp are drawn smaller with their distance and turned the way they head,
+// their fronts to the camera as they come at it (B.vk, B.vyaw: the page reads them; since V102). Four more of Hallowell's riders
 // come off the top deck of a parking garage beside it, through its rail and across onto the ramp behind him. At the foot the ramp
 // joins the highway and the road straightens out: he rides west now, to the left of the picture, the road going by under the riders
 // the other way (S.scrollV under 0). Ahead of them a truck: in its open bed a man heaves fuel drums off a stack and throws them down
@@ -29,10 +29,12 @@ function hwyBez(s){const u=1-s,a=u*u*u,b=3*u*u*s,c=3*u*s*s,d=s*s*s,P=RAMP;
 const HWY_FAR=236;
 function hwyK(dep){return clamp(1-(dep-HWY_FAR)/540,.34,1);}
 // a point of the ramp on the floor: s along it, off across it (+ to the rider's right as he comes down it), the across shrunk with the
-// distance; and how the ramp turns there: sx, the share of its heading that goes across the picture, + heading west and - east (a
-// bike heading at the camera is drawn narrower, and one heading east the other way round)
+// distance; and which way the ramp heads there, as the looks turn a figure (yaw: 0 his profile heading west, the way the riders face,
+// -π/2 his front to the camera, -π heading east)
 function hwyFloor(s,off){const P=hwyBez(s),L=Math.hypot(P.tx,P.ty)||1,nx=-P.ty/L,ny=P.tx/L,k0=hwyK((GB-P.Y)/PSY),X=P.X+nx*off*k0,Y=P.Y+ny*off*k0*.62,dep=(GB-Y)/PSY;
-  return{x:X-dep*PSX,dep,k:hwyK(dep),sx:(P.tx>0?-1:1)*clamp(Math.abs(P.tx)/L*1.08,.3,1)};}
+  return{x:X-dep*PSX,dep,k:hwyK(dep),yaw:hwyYaw(P.tx+P.ty*PSX/PSY,-P.ty/PSY)};}
+// the yaw of a heading on the floor: dx across it (+ east) and dd in depth (+ away from the camera)
+function hwyYaw(dx,dd){return Math.atan2(-dx,-dd)-Math.PI/2;}
 // The parking garage on the far side of the ramp: its top deck's edge, as far off as the ramp's top (y in the picture), and each of
 // the four riders on it: the picture's x where he goes through its rail, when (seconds into the ride down), where on the ramp he
 // comes down (s along it, off across it), and how far down it he has come when Kael reaches its foot
@@ -45,22 +47,23 @@ const HWY_HELI={x:640,y:86,dep:262};
 
 // ---------- the ramp's bikes ----------
 // Driven along the ramp a bike goes where the ramp puts it (vehStep moves it at B.vx and carries its rider: B.carry), at the road's
-// pace (B.spd, for the engine's note); the page draws it at its distance and its heading (vk, vsx).
-function hwyAim(B,F){B.vx=(F.x-B.x)/DT;B.dep=F.dep;B.vk=F.k;B.vsx=F.sx;B.fa=-1;B.spd=HWY_V;B.carry=1;B.ctl='script';
+// pace (B.spd, for the engine's note); the page draws it at its distance and its heading (vk, vyaw).
+function hwyAim(B,F){B.vx=(F.x-B.x)/DT;B.dep=F.dep;B.vk=F.k;B.vyaw=F.yaw;B.fa=-1;B.spd=HWY_V;B.carry=1;B.ctl='script';
   const f=B.rider;if(f){f.dep=f.stepDep=B.dep;f.facing=-1;}}
 function* hwyRide(B,s0,s1,dur,off,ease){const t0=S.t,E=ease||lin;
   while(true){const u=clamp((S.t+DT-t0)/dur,0,1);hwyAim(B,hwyFloor(lerp(s0,s1,E(u)),typeof off==='function'?off(u):off));if(u>=1)break;yield;}}
 // off the deck: the run at the rail out of the deck's dark (GARAGE.run seconds), then a leap through it across the gap onto the ramp,
 // the front up through the rail and level for the landing
-function* hwyLeap(B,J){const [X0,,s1,o1]=J,dur=.95,F1=hwyFloor(s1,o1),z0=GARAGE.dep,x0=X0-z0*PSX,up=58,f0=B.rider;
+function* hwyLeap(B,J){const [X0,,s1,o1]=J,dur=.95,F1=hwyFloor(s1,o1),z0=GARAGE.dep,x0=X0-z0*PSX,up=58,f0=B.rider,
+    yRun=hwyYaw(26,-GARAGE.back),yLeap=hwyYaw(F1.x-x0,F1.dep-z0);
   B.hide=false;B.ctl='script';B.spd=HWY_V*.6;B.carry=1;if(f0)f0.hidden=false;S.hooks.sound('rev',.7);
   {const t1=S.t,zb=z0+GARAGE.back;while(true){const u=clamp((S.t+DT-t1)/GARAGE.run,0,1),e=eIn(u),z=lerp(zb,z0,e);
-    B.vx=(lerp(x0-26,x0,e)-B.x)/DT;B.dep=z;B.vk=hwyK(z);B.vsx=-.75;B.fa=-1;B.pitchT=u>.75?.22:0;if(f0){f0.dep=f0.stepDep=z;f0.facing=-1;}if(u>=1)break;yield;}}
+    B.vx=(lerp(x0-26,x0,e)-B.x)/DT;B.dep=z;B.vk=hwyK(z);B.vyaw=yRun;B.fa=-1;B.pitchT=u>.75?.22:0;if(f0){f0.dep=f0.stepDep=z;f0.facing=-1;}if(u>=1)break;yield;}}
   const t0=S.t;B.spd=HWY_V*.8;if(S.hwy)(S.hwy.broke||(S.hwy.broke=[])).push(X0);
   S.hooks.sound('crash',.45,{s:'debris_rattle'});
   sparks({x:x0-10,y:GB-6},10,'#ffd27a',z0);dust(x0,GB,.7,z0,'rgba(150,140,130,.5)');
   while(true){const u=clamp((S.t+DT-t0)/dur,0,1),z=lerp(z0,F1.dep,u);
-    B.vx=(lerp(x0,F1.x,u)-B.x)/DT;B.dep=z;B.air=up*4*u*(1-u);B.vk=hwyK(z);B.vsx=lerp(-.7,F1.sx,sstep(u));B.fa=-1;B.pitchT=u<.3?.24:u<.75?.06:-.03;
+    B.vx=(lerp(x0,F1.x,u)-B.x)/DT;B.dep=z;B.air=up*4*u*(1-u);B.vk=hwyK(z);B.vyaw=u<.3?lerp(yRun,yLeap,sstep(u/.3)):lerp(yLeap,F1.yaw,sstep((u-.3)/.7));B.fa=-1;B.pitchT=u<.3?.24:u<.75?.06:-.03;
     const f=B.rider;if(f){f.dep=f.stepDep=z;f.facing=-1;}
     if(u>=1)break;yield;}
   // down on the ramp: the springs bottom out, sparks off the frame, and on
@@ -160,11 +163,11 @@ STAGES.splice(stageIx('chase')+1,0,{key:'highway',num:'',title:'',part:'chase',s
     // Kael at the top of the ramp, small in the distance
     const KB=bikeNew({x:600,dep:300,fa:-1,holster:'rifle',light:1,run:1});sv.bike=KB;
     K.station=KB.x-SEAT_DX;K.lane=K.dep=K.stepDep=KB.dep;K.facing=-1;K.build();mount(K,KB,0);stowBlade(K);
-    {const F=hwyFloor(0,-6);bikePlace(KB,F.x,F.dep);KB.vk=F.k;KB.vsx=F.sx;}
+    {const F=hwyFloor(0,-6);bikePlace(KB,F.x,F.dep);KB.vk=F.k;KB.vyaw=F.yaw;}
     // the four still up on the garage's top deck, behind its rail
     for(const f of S.F)if(f.team===1){const J=GARAGE.jump[f.idx-1],sp=st.spawn[f.idx];f.homeX=sp[0];f.homeZ=sp[1];
       const B=bikeNew({x:J[0]-GARAGE.dep*PSX-26,dep:GARAGE.dep+GARAGE.back,fa:-1,style:'street',paint:f.idx%2?'red':'black',light:1,run:1,hide:true});
-      B.vk=hwyK(B.dep);B.vsx=-.7;f.station=B.x-SEAT_DX;f.lane=f.dep=f.stepDep=B.dep;f.facing=-1;f.build();mount(f,B,0);f.offstage=true;f.hidden=true;}
+      B.vk=hwyK(B.dep);B.vyaw=hwyYaw(26,-GARAGE.back);f.station=B.x-SEAT_DX;f.lane=f.dep=f.stepDep=B.dep;f.facing=-1;f.build();mount(f,B,0);f.offstage=true;f.hidden=true;}
     // the truck on the highway ahead, out of the picture for now, its thrower in the bed among the drums
     const T=truckNew({x:-520});sv.truck=T;const Bd=truckBed(T);
     const M=storyExtra('Drum man',{ward:'bikers',arms:'street',seed:5419,x:Bd.x1-18,dep:T.dep-8,facing:1,weapon:'fists',color:'#a0805a'});
@@ -232,15 +235,15 @@ function hwyShot(k,rate,o){const C=HWY_SHOTS[k],x=o&&o.x!=null?o.x:C.x;camTo(x,C
 // homes) while the road takes up their pace: S.scrollV goes from nothing to the highway's speed as the bikes slow in the picture, and
 // the ramp and the garage go away behind with the road.
 function* hwyMerge(st,fs){const K=hero(),dur=1.4,t0=S.t;S.hwy.phase='merge';
-  const L=[[K.mount,st.spawn[0][0]+SEAT_DX,st.spawn[0][1]],...fs.map(f=>[f.mount,f.homeX+SEAT_DX,f.homeZ])].map(([B,x,z])=>({B,x0:B.x,z0:B.dep,x,z,k0:B.vk||1,s0:B.vsx||1}));
+  const L=[[K.mount,st.spawn[0][0]+SEAT_DX,st.spawn[0][1]],...fs.map(f=>[f.mount,f.homeX+SEAT_DX,f.homeZ])].map(([B,x,z])=>({B,x0:B.x,z0:B.dep,x,z,k0:B.vk||1,s0:B.vyaw||0}));
   while(true){const u=clamp((S.t+DT-t0)/dur,0,1),e=sstep(u);S.scrollV=-HWY_V*sstep(clamp(u*1.5,0,1));
-    for(const b of L){const B=b.B;B.vx=(lerp(b.x0,b.x,e)-B.x)/DT;B.dep=lerp(b.z0,b.z,e);B.vk=lerp(b.k0,1,e);B.vsx=lerp(b.s0,1,e);B.spd=HWY_V;
+    for(const b of L){const B=b.B;B.vx=(lerp(b.x0,b.x,e)-B.x)/DT;B.dep=lerp(b.z0,b.z,e);B.vk=lerp(b.k0,1,e);B.vyaw=lerp(b.s0,0,e);B.spd=HWY_V;
       const f=B.rider;if(f){f.dep=f.stepDep=B.dep;}}
     if(u>=1)break;yield;}
   hwyRoad(st);}
 // on the straight: everyone where the fight starts, the ramp behind them, the road at the highway's speed
 function hwyRoad(st){const K=hero(),fs=S.F.filter(f=>f.team===1&&!f.npc);S.hwy.phase='road';S.hwy.persp=false;S.scrollV=-HWY_V;
-  const put=(f,x,z)=>{const B=f.mount;if(!B)return;B.hide=false;B.air=0;B.vk=1;B.vsx=1;B.fa=-1;B.carry=0;B.spd=0;bikePlace(B,x,z);f.hidden=false;f.offstage=false;f.look=null;f.facing=-1;};
+  const put=(f,x,z)=>{const B=f.mount;if(!B)return;B.hide=false;B.air=0;B.vk=1;B.vyaw=0;B.fa=-1;B.carry=0;B.spd=0;bikePlace(B,x,z);f.hidden=false;f.offstage=false;f.look=null;f.facing=-1;};
   put(K,st.spawn[0][0]+SEAT_DX,st.spawn[0][1]);for(const f of fs)put(f,f.homeX+SEAT_DX,f.homeZ);}
 
 // ---------- between the turns: the drums, and the helicopter ----------

@@ -670,10 +670,11 @@ function draw(c,F,o={}){
   // dp how far toward the viewer a place on him is, which decides what is drawn over what -----
   const yaw=+(o.yaw??F.yaw??0)||0,TN=Math.abs(Math.sin(yaw))>.015||Math.cos(yaw)<0;
   const onGrip=(P,td)=>{const h=P[HAB],a=sub(P[HAF],mul(td,9)),bq=P[TIP],ab=sub(bq,a),t=cl(dot(sub(h,a),ab)/(dot(ab,ab)||1),0,1);return len(sub(h,add(a,mul(ab,t))))<4.5;};
-  const tipDir0=nrm(sub(p0[TIP],p0[HAF])),offOnGrip=!ONE&&onGrip(p0,tipDir0);
+  const tipDir0=nrm(sub(p0[TIP],p0[HAF])),offOnGrip=!ONE&&!o.apart&&onGrip(p0,tipDir0);
   // (o.latArm, o.latLeg: how far out from his middle his hands and elbows, and his legs, are drawn, as a share of where they would be: in
   // a turn round, his hands come in to the middle of him and his feet in under him as he faces the viewer)
-  const kA=o.latArm??1,kE=.3+.7*kA;
+  // (o.latElbow: his elbows' own share, and o.apart his hands each on its own grip, a machine's bars: riding turned, since V102)
+  const kA=o.latArm??1,kE=o.latElbow??(.3+.7*kA);
   const pxs=(P0.x+C0.x)/2,VW=TN?FigKit.view(pxs,fa,yaw):null,LS=12*sz,LH=5.6*sz*(o.latLeg??1),fwd=q=>cl((q.x-pxs)*fa/(.55*T),0,1);
   // (a hand out in front of him comes in toward his middle, an elbow a little; a far hand on the grip is with the near one)
   const sw=ONE?-1:1,lHF=sw*LS*(1-.5*fwd(p0[HAF]))*kA,lEF=sw*LS*(1-.15*fwd(p0[ELF]))*kE,lHB=offOnGrip?lHF:-LS*(1-.5*fwd(p0[HAB]))*kA,lEB=offOnGrip?0:-LS*(1-.15*fwd(p0[ELB]))*kE;
@@ -1496,7 +1497,7 @@ function kaelWind(f){const sc=S.arena&&S.arena.scroll?(S.scrollV||0):0;
   return 0;}
 function drawKael(f){
   const L=kaelLight(f),drawing=f.sheath&&S.t<f.sheath.t0+f.sheath.out&&f.scab===f.weaponKey;
-  KaelLook.draw(ctx,f,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,wind:kaelWind(f),yaw:f._yaw||0,spin:f._spinU,headYaw:f._headYaw??(f.headTurn||undefined),latArm:f._latArm,latLeg:f._latLeg,latKnee:f._latKnee,latFoot:f._latFoot,phys:f._phys,opening:!!(S.opening&&S.opening.f===f),arcSt:f.weaponKey==='elven'?arcState(f):null,gore:S.gore!=='off'?GORE_COL[S.gore].mark:null,
+  KaelLook.draw(ctx,f,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,wind:kaelWind(f),yaw:f._yaw||0,spin:f._spinU,headYaw:f._headYaw??(f.headTurn||undefined),latArm:f._latArm,latElbow:f._latElbow,apart:f._apart,latLeg:f._latLeg,latKnee:f._latKnee,latFoot:f._latFoot,phys:f._phys,opening:!!(S.opening&&S.opening.f===f),arcSt:f.weaponKey==='elven'?arcState(f):null,gore:S.gore!=='off'?GORE_COL[S.gore].mark:null,
     lookBack:!!(f.look&&tacLook(f)<-.4),bladeOK:!drawing,drawOther:drawWeapon,afterFarArm:f.sidearm==='offhand'?drawOffDagger:null,afterTorso:f.scab&&!f.dead?drawScabbard:null});
   if(f.severed&&S.gore!=='off'){ctx.fillStyle=GORE_COL[S.gore].mark;circ(f.p[CHE],f.body.torsoW*.34);}
   drawMarks(f);}

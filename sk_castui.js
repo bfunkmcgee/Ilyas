@@ -220,10 +220,14 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   // seems to face, dp how far toward the viewer a place is -----
   const yaw=+(o.yaw??F.yaw??0)||0,TN=Math.abs(Math.sin(yaw))>.015||Math.cos(yaw)<0;
   const onGrip=(P,td)=>{const h=P[HAB],a=sub(P[HAF],mul(td,9)),bq=P[TIP],ab=sub(bq,a),t=cl(dot(sub(h,a),ab)/(dot(ab,ab)||1),0,1);return len(sub(h,add(a,mul(ab,t))))<4.5;};
-  const tipDir0=nrm(sub(p0[TIP],p0[HAF])),offOnGrip=onGrip(p0,tipDir0);
+  // (o.apart: his hands each on its own grip, a machine's bars, not one on a weapon's; o.latArm, o.latElbow, o.latKnee, o.latFoot: how
+  // far out from his middle his hands, elbows, knees and feet are drawn as a share of where they would be, as KaelLook's: a rider
+  // turned to the viewer, his hands out on the grips and his knees round the tank, since V102)
+  const tipDir0=nrm(sub(p0[TIP],p0[HAF])),offOnGrip=!o.apart&&onGrip(p0,tipDir0);
   const pxs=(P0.x+C0.x)/2,VW=TN?FigKit.view(pxs,fa,yaw):null,LS=12*sz*wf,LH=5.6*sz*wf,fwd=q=>cl((q.x-pxs)*fa/(.55*T),0,1);
-  const lHF=LS*(1-.5*fwd(p0[HAF])),lEF=LS*(1-.15*fwd(p0[ELF])),lHB=offOnGrip?lHF:-LS*(1-.5*fwd(p0[HAB])),lEB=offOnGrip?0:-LS*(1-.15*fwd(p0[ELB]));
-  const LAT=[0,0,0,lEF,lHF,lEB,lHB,LH,LH,-LH,-LH,lHF];
+  const kA=o.latArm??1,kE=o.latElbow??(.3+.7*kA),LK=LH*(o.latKnee??1),LF=LH*(o.latFoot??1);
+  const lHF=LS*(1-.5*fwd(p0[HAF]))*kA,lEF=LS*(1-.15*fwd(p0[ELF]))*kE,lHB=offOnGrip?lHF:-LS*(1-.5*fwd(p0[HAB]))*kA,lEB=offOnGrip?0:-LS*(1-.15*fwd(p0[ELB]))*kE;
+  const LAT=[0,0,0,lEF,lHF,lEB,lHB,LK,LF,-LK,-LF,lHF];
   const p=TN?p0.map((q,i)=>VW.at(q,LAT[i])):p0,fv=TN?VW.fv:fa,u=TN?nrm(sub(p[CHE],p[PEL])):u0;
   const dp=(q,l)=>TN?VW.dep(q,l):l;
   const across=(l,fn)=>{if(!TN){fn();return;}const cc=Math.abs(VW.c)<.07?(VW.c<0?-.07:.07):VW.c;c.save();c.translate(VW.px+fa*l*VW.s,0);c.scale(cc,1);c.translate(-VW.px,0);fn();c.restore();};
@@ -734,7 +738,7 @@ function castSpec(f){
   return CastLook.CAST[f.name==='Mr. Hallowell'?'Hallowell':f.name];}
 function drawCast(f){
   const L=kaelLight(f),sp=castSpec(f);
-  CastLook.draw(ctx,f,sp,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,yaw:f._yaw||0,spin:f._spinU,opening:!!(S.opening&&S.opening.f===f),lookBack:!!(f.look&&typeof tacLook==='function'&&tacLook(f)<-.4),
+  CastLook.draw(ctx,f,sp,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,yaw:f._yaw||0,headYaw:f._headYaw,latArm:f._latArm,latElbow:f._latElbow,latKnee:f._latKnee,latFoot:f._latFoot,apart:f._apart,spin:f._spinU,opening:!!(S.opening&&S.opening.f===f),lookBack:!!(f.look&&typeof tacLook==='function'&&tacLook(f)<-.4),
     drawOther:drawWeapon,afterFarArm:f.sidearm==='offhand'?drawOffDagger:null,afterTorso:f.sidearm==='sheathed'?drawSheath:f.scab&&!f.dead?drawScabbard:null});
   if(f.severed&&S.gore!=='off'){ctx.fillStyle=GORE_COL[S.gore].mark;circ(f.p[CHE],f.body.torsoW*.34);}
   drawMarks(f);}

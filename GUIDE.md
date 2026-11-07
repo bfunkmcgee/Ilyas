@@ -224,11 +224,31 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   its banner, the HUD's drawer and the saves the Avenue's name), between the chase and the checkpoint. The ramp: `RAMP`, a curve in
   the picture (x, y on the floor's line) from under the interchange's flyover high on the right, down toward the camera and round
   into our middle lane heading west; `hwyFloor(s, off)` turns a point of it into the floor's x and depth, how big a thing there is
-  drawn for its distance (`hwyK`: whole on our own lanes, out to depth 236, a third far up the ramp) and its heading (`sx`: the
-  share of it across the picture, signed: a bike heading at the camera is drawn narrower, one heading east the other way round).
-  The bikes on the ramp carry those (`B.vk`, `B.vsx`), and the page draws each bike and its rider about the point where it meets
-  the road with them (sk_highwayui.js wraps `drawFighterItem`, `drawVehicle` and `drawVehShadow`; the light's sprites come out the
-  same, as the scaled drawing stays inside the man's box), its lamp flaring as it comes at the camera. `hwyRide` drives a bike along
+  drawn for its distance (`hwyK`: whole on our own lanes, out to depth 236, a third far up the ramp) and its heading as the looks
+  turn a figure (`yaw`, from `hwyYaw`: 0 the profile heading west, the way the riders face, -π/2 the front to the camera, -π
+  heading east). The bikes on the ramp carry those (`B.vk`, `B.vyaw`), and the page draws each bike and its rider about the point
+  where it meets the road with them (sk_highwayui.js wraps `drawFighterItem`, `drawVehicle` and `drawVehShadow`; the light's
+  sprites come out the same, as the scaled drawing stays inside the man's box), turned the way he heads (since V102, asked for:
+  V101 drew a bike coming at the camera as its profile squeezed narrow). The rider is turned by his own look (`f._yaw`, with
+  `_headYaw`; his hands out on the grips, his elbows between, his knees round the tank and his feet on the pegs: `hwyRiderTurn`
+  sets the looks' lateral spreads, `_latArm`, `_latElbow`, `_latKnee`, `_latFoot`, and `_apart`, his hands each on its own grip;
+  CastLook takes them as KaelLook does since V102, and the riders' open helmet has its turned shape, `HAT3.helmet`). The bike
+  is drawn in the round (`hwyBikeParts`, the parts of each kind in `HWY_BK`, in the bike's own frame with `l` across it, turned
+  about the rider's middle by `FigKit.view` as his look turns him): tyres as their two sides and the tread between, the fork's
+  legs, the lamp's shell and lens (lit, its flare as it faces the camera), the bars out to the grips, the mirrors, the tank,
+  seat, tail and side panels as rounded masses, the engine's case, barrel and head as blocks, the exhaust, the mudguards. Each
+  part lies at its depth toward the viewer: those behind the rider (and the rear wheel, the seat and the tail always) are drawn
+  at the bike's place in the draw list before him, the rest after him with him (in his sprite); he lies at his middle, further
+  forward as the bike turns from the camera (seen square on the tank is in front of him, from three quarters his near knee is in
+  front of it), and the engine is behind him from three quarters (his near leg over it) and in front square on (over the coat
+  that hangs between his shins). Near a profile (`HWY_TURN`: within .7 of it) the bike is its side drawing squeezed by the turn,
+  and its rider his profile squeezed with it (turned there, the pack at the ramp's foot stood wider round Ilyas and hid a third of
+  what showed of him, the look review's rule 8 on a phone, and drew 2.6 ms dearer); out to .95 the side drawing is laid at a share
+  over the round one (straight down: its own overlaps show for the moment it takes) and the rider turns by the share the round one
+  has come in, the rest of his turn a squeeze, so he comes out of his profile without a jump (round from the profile heading east
+  he turns at once: that is in the air off the garage). Its shadow and its lamp's light on the road are laid along its heading
+  (`hwyShadowT`). Hidden riders' bikes are not drawn at all
+  (the deck's riders before they jump). `hwyRide` drives a bike along
   the ramp (`B.carry` 1, `B.spd` the road's pace for the engine's note: sfxBikes reads it), `hwyLeap` runs a rider at the garage's
   rail (`GARAGE`: its top deck, each rider's moment and where he comes down), through it (`S.hwy.broke`: the gaps the page tears in
   the rail) and across onto the ramp (`B.air`, his height over the line he flies along, which the step turns into the bike's `gy`
@@ -265,6 +285,10 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   when a rider tears a gap in it (`front`); at full speed the near parapet and its smear are one band (`ghostOf`). By turns against
   the build before, the ramp's foot on a phone drew in 3 to 7 ms less in three runs (over thirty turns its lower quartile 43.7 to
   40.8 ms), the picture the same but for the lamps' edges (a sub-pixel) and that lamp's head. Most of what is left is the riders: five bikes, their riders and their lamps' beams.
+  V102's turned bikes and riders drew 6.7 ms dearer than V101's there at first (by turns, the fade's band then .5 to .9 and every
+  part with a clip of its own); the side drawing laid straight down at its share, flat fills for the tail, seat and panels, the
+  rims without a clip, the band moved out to .7 and the riders near a profile in their profile brought it to 2.2 ms (fifteen turns
+  each against V101's build; the drums' frame, f4, the same to a few tenths).
 - The held sounds (sk_storyui.js, run from `V11UI.tick`): the bike's engine (`engineFrame`: the first bike in `S.veh` with `run`
   above 0 and near the picture; its level `ENG_LVL` x run, a quarter when far), the rails (`railFrame`) and the wind (`windFrame`).
   Each is one voice made once and set every frame. A held voice's modulation must work on a gain of its own ahead of the level,
@@ -1211,7 +1235,7 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V102 ..." (V101 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V103 ..." (V102 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
