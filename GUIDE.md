@@ -259,8 +259,9 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   their spectrograms (a loop's seam measured). A take is seeded by its key and number, so a render comes out the same every
   time. A new sound: its recipe and its line in list.json, render all and install (the manifest installed is the whole of
   <out>/web/manifest.json), its level in `SFX_GAIN` or `SFX_LOOP`, the stage that loads it in `SFX_STAGE`, and the call that plays it.
-- Voices (since V98): the cast says its lines aloud, so far the opening's, the field's (V98), the Avenue's and the Checkpoint's (V99):
-  Ilyas's seven, one each for the Driver, the Pack leader and the Sergeant. The
+- Voices (since V98): the cast says its lines aloud, so far the opening's, the field's (V98), the Avenue's and the Checkpoint's (V99),
+  Lamplight Street's and the dining room's (V100): Ilyas's eleven, Qadir's three, one each for the Driver, the Pack leader, the
+  Sergeant, Brask and Iyla. The
   recordings are Suno speech, made through the author's Suno connector: one take a character for a scene or two, so a voice stays
   the same from line to line (separate generations come out as different men), the author choosing the take. `VO_LINES`
   (sk_vo.js) names each line (id, the stage that loads it, who, its words exactly as its speak() call has them) and `VO_LEN` its
@@ -287,13 +288,23 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   Keeping a voice: a new generation comes out as a different man, so a character's later lines are a continuation of his first take
   (the connector's audio-extensions-create from just after its last line, the same style, audio_influence .85), and the take is the
   joined clip (audio-full-song), its earlier lines null: Ilyas's Avenue and Checkpoint lines continue take I from 26.2 s (the author
-  chose the second of the two continuations). Shouted lines come out deep and growly, as if processed, whatever the style asks (the
-  Sergeant took five rounds). A new line: its take (the script word for word, a blank line between lines; the style kept to the
+  chose the second of the two continuations), and his Lamplight Street and dining room lines continue that continuation from 8.3 s
+  (the author's pick of four; the joined take ends in a groan, breaths and a held tone, skipped). Shouted lines come out deep and
+  growly, as if processed, whatever the style asks (the Sergeant took five rounds). The elves are aristocratic and upper class, each
+  with a manner of their own: their styles name the accent ("mid-Atlantic upper-class accent, aristocratic" as Ilyas's, or an
+  upper-class English one) besides the manner, and since it often comes out ordinary American anyway, make several (Qadir took over
+  fifty takes, Brask twenty; the author chose Brask's third reading). Suno's speech rewrites the style into its own line, adding a
+  manner of its own ("deep bass register, flat affectless monotone", "tense and strident"), so most reads drift to the same older,
+  somber voice; and for all `backing_music: false`, about a third of the takes for bright manners (smiling, a showman, a salesman)
+  came with music under the voice, which no cut can take out. The connector's audio-analysis tells a music bed better than its
+  listener does (`terms` "music + speech", "song" or an instrument; "a cappella" or "speech" when there is none, and it often calls
+  speech singing). A voice saved in the author's Suno library (voices-list, its id as `voice_id`) holds the timbre, and its takes
+  came out clean. A new line: its take (the script word for word, a blank line between lines; the style kept to the
   voice, "spoken word, voice only ... close microphone, dry voice recording", with music, instruments and reverb in the negative
   style, since words for a manner such as "elegant" can bring in a music bed), the alignment saved, its entry in takes.json and
   `VO_LINES`, cut and install. Suite: soundpage (every voiced line is one a scene speaks, word for word, with its file; over http
-  the opening's and the Avenue's load with their next stage's, play, step the song back, stop, go silent with the switch and hold
-  with the game).
+  the opening's, the Avenue's and Lamplight Street's load with their next stage's, the dining room's with it, and they play, step
+  the song back, stop, go silent with the switch and hold with the game).
 - sk_lookui.js (Kael), sk_castui.js (everyone else), sk_figui.js (FigKit: the shared shaping and light). drawFighterItem in sk_ui.js.
 - sk_lightui.js (FXL): effects Full/Lite/Off (localStorage sk_fx; auto-drops to Lite on a slow device, never under SK_TEST). Full
   draws each fighter into a sprite (ctx swapped) reused for cast shadows and reflections; the fx are restyled as light; the vignette
@@ -1145,7 +1156,7 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V100 ..." (V99 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V101 ..." (V100 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

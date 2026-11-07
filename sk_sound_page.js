@@ -13,7 +13,8 @@
 // standing still in the lab, the field's floor under the men walking out of the maize. The cast's voices (vo/, sk_voui.js, since V98):
 // every voiced line is one a scene speaks, word for word, with its file; over http the opening's load with it, a line's plays as it
 // comes up with the song stepping back under it, and is stopped by moving the line on, silenced by the sound switch and held with
-// the game; the Avenue's load with it and the Checkpoint's next (since V99), and the Pack leader's plays in its turn.
+// the game; the Avenue's load with it and the Checkpoint's next (since V99), and the Pack leader's plays in its turn; Lamplight
+// Street's load with it and the dining room's next, Qadir's first plays in its turn, and in the dining room Brask's (since V100).
 // usage: node sk_sound_page.js   (needs test_page.html from build.py; PAGE=... to point it at another copy)
 const SK_T0=Date.now();
 const {chromium}=require('playwright');
@@ -174,13 +175,32 @@ await p.evaluate(()=>{storyQuit();step(2);});
   await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
   // the Avenue (since V99): its voiced lines load with it, and the Checkpoint's, next; the Pack leader's plays as it comes up
   await h.evaluate(()=>{storyGo('chase');S.storyAuto=true;S.auto=true;step(2);});
-  const cv0=await (async()=>{let r;for(let i=0;i<40;i++){r=await h.evaluate(()=>{step(1);return{want:[...VOX.want],have:Object.keys(VOX.bufs),bad:Object.keys(VOX.bad)};});
-    if(r.want.length&&r.want.every(k=>r.have.includes(k)))break;await h.waitForTimeout(150);}return r;})();
+  const voLoaded=async()=>{let r;for(let i=0;i<40;i++){r=await h.evaluate(()=>{step(1);return{want:[...VOX.want],have:Object.keys(VOX.bufs),bad:Object.keys(VOX.bad)};});
+    if(r.want.length&&r.want.every(k=>r.have.includes(k)))break;await h.waitForTimeout(150);}return r;};
+  const cv0=await voLoaded();
   expect('the Avenue\'s voiced lines load with it, and the Checkpoint\'s, next; none fails',
     ['chase_1','chase_2','roadblock_1','roadblock_2'].every(k=>cv0.want.includes(k))&&cv0.want.every(k=>cv0.have.includes(k))&&!cv0.bad.length,JSON.stringify(cv0));
   const cv1=await h.evaluate(()=>{const n=runUntil(()=>S.say&&S.say.vo==='chase_1',12000);step(2);return{n,vo:S.say&&S.say.vo,cur:VOX.cur&&VOX.cur.id};});
   await h.waitForTimeout(350);const cv2=await voLevel();
   expect('the Avenue: the Pack leader\'s line plays as it comes up',cv1.vo==='chase_1'&&cv1.cur==='chase_1'&&cv2>HEARD,JSON.stringify({cv1,level:cv2}));
+  await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
+  // Lamplight Street (since V100): its voiced lines load with it, and the dining room's, next; Qadir's first plays as it comes up
+  await h.evaluate(()=>{storyGo('vargo');S.storyAuto=true;S.auto=true;step(2);});
+  const lv0=await voLoaded();
+  expect('Lamplight Street\'s voiced lines load with it, and the dining room\'s, next; none fails',
+    ['vargo_1','vargo_2','vargo_3','vargo_4','vargo_5','vargo_6','dining_1','dining_2','dining_3'].every(k=>lv0.want.includes(k))&&lv0.want.every(k=>lv0.have.includes(k))&&!lv0.bad.length,
+    JSON.stringify(lv0));
+  const lv1=await h.evaluate(()=>{const n=runUntil(()=>S.say&&S.say.vo==='vargo_1',12000);step(2);return{n,vo:S.say&&S.say.vo,cur:VOX.cur&&VOX.cur.id};});
+  await h.waitForTimeout(350);const lv2=await voLevel();
+  expect('Lamplight Street: Qadir\'s first line plays as it comes up',lv1.vo==='vargo_1'&&lv1.cur==='vargo_1'&&lv2>HEARD,JSON.stringify({lv1,level:lv2}));
+  await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
+  // the dining room (since V100): its lines load with it, and Brask's plays as he says it
+  await h.evaluate(()=>{storyGo('dining');S.storyAuto=true;S.auto=true;step(2);});
+  const dv0=await voLoaded();
+  const dv1=await h.evaluate(()=>{const n=runUntil(()=>S.say&&S.say.vo==='dining_1',12000);step(2);return{n,vo:S.say&&S.say.vo,cur:VOX.cur&&VOX.cur.id};});
+  await h.waitForTimeout(350);const dv2=await voLevel();
+  expect('the dining room: its voiced lines load with it, and Brask\'s plays as he says it',
+    ['dining_1','dining_2','dining_3'].every(k=>dv0.have.includes(k))&&!dv0.bad.length&&dv1.vo==='dining_1'&&dv1.cur==='dining_1'&&dv2>HEARD,JSON.stringify({dv0,dv1,level:dv2}));
   await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
   away=true;
   await h.evaluate(()=>{storyGo(null);S.storyAuto=true;S.auto=true;step(2);});await h.waitForTimeout(1500);
