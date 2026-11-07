@@ -132,7 +132,7 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
 `f.station` (x), `f.lane`/`f.dep` (depth), `f.facing` +1/-1, `f.action={t0,end,body:[keys],arm:[keys]}` drives the motors.
 
 **Modules worth knowing.**
-- sk_story.js / sk_storyui.js: STAGES (sundown field chase roadblock vargo dining kitchen platform line deep lobby office roof fall). A
+- sk_story.js / sk_storyui.js: STAGES (sundown field chase highway roadblock vargo dining kitchen platform line deep lobby office roof fall). A
   scene is a generator the sim runs a step at a time (`S.cut`), so scenes are as repeatable as fights. `S.story` null means the lab.
   The hero is one Fighter for the whole run (`S.story.K`): what a stage leaves on him (a bike under him, `rideLean`, `offstage`) goes
   on into the next stage unless that stage or the one before clears it. A bike the scene drives can carry its rider (`B.carry`: that
@@ -159,6 +159,9 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   short stride apart and both knees soft, the support hand on the handguard (`off` 24, the foregrip of GunLook's rifle with it).
   sk_story.js lays the ready on whoever he faces (shouldered, the muzzle a little down), over the top of a barrier he stands at,
   and upright in front of him when he is down behind it; a lowered muzzle turns about the butt in his shoulder (`rifleDip`).
+  A shot's keys still playing once the gun has left his hands (killed as he fires: the gun drops with him) fall back to his guard's
+  pose (`aimArmAt`, `aimBody`, since V101: the save suite's whole night, which kills a stage's enemies wherever they stand, came on
+  one such once the Tower Road moved the dice, and the pose read a gun that was gone).
 - The opening, `sundown` (since V58; no number, no title, so not a chapter: Begin plays it): the road outside the Sprawl at sundown
   (arena `outskirts`, envx/env_outskirts.js: the sun going down behind hills on the left, `sunNow()` sinking it over the scene from `S.story.sun.t0`,
   the city with the Hallowell tower on the right, poplars on the brow, the road along the rise bending over it on the right:
@@ -213,6 +216,55 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   lit, a hatter, the Royal, a grocer shut, the Maison and a tobacconist. `light(f)` and the lamps' flames follow the blocks. Our own
   kerb is three times as long (3510) and laid out from its seed: bollards in twos and threes, pillar boxes, the pavement's lamps,
   benches and fire points. The strips take about twice as long to make when the stage starts (about half a second here).
+- The Tower Road, `highway` (since V101, asked for: after the avenue's riders, a highway that curves toward the camera, more riders
+  jumping their bikes off a parking garage onto it, a straight where he rides west with a truck ahead and a man throwing exploding
+  drums off it, and after two riders down the man in white's helicopter taking out the truck and the rest with a machine gun):
+  sk_highway.js (the game) and sk_highwayui.js (the page), envx/env_highway.js (the place) and envx/veh_truck.js (`TruckLook`). A
+  stage of its own with no card, number or title (`part:'chase'`: the chapters do not list it, and `stageTitle` in sk_story.js gives
+  its banner, the HUD's drawer and the saves the Avenue's name), between the chase and the checkpoint. The ramp: `RAMP`, a curve in
+  the picture (x, y on the floor's line) from under the interchange's flyover high on the right, down toward the camera and round
+  into our middle lane heading west; `hwyFloor(s, off)` turns a point of it into the floor's x and depth, how big a thing there is
+  drawn for its distance (`hwyK`: whole on our own lanes, out to depth 236, a third far up the ramp) and its heading (`sx`: the
+  share of it across the picture, signed: a bike heading at the camera is drawn narrower, one heading east the other way round).
+  The bikes on the ramp carry those (`B.vk`, `B.vsx`), and the page draws each bike and its rider about the point where it meets
+  the road with them (sk_highwayui.js wraps `drawFighterItem`, `drawVehicle` and `drawVehShadow`; the light's sprites come out the
+  same, as the scaled drawing stays inside the man's box), its lamp flaring as it comes at the camera. `hwyRide` drives a bike along
+  the ramp (`B.carry` 1, `B.spd` the road's pace for the engine's note: sfxBikes reads it), `hwyLeap` runs a rider at the garage's
+  rail (`GARAGE`: its top deck, each rider's moment and where he comes down), through it (`S.hwy.broke`: the gaps the page tears in
+  the rail) and across onto the ramp (`B.air`, his height over the line he flies along, which the step turns into the bike's `gy`
+  and his body's height). `hwyMerge` brings everyone off the bend into the fight's places while the road takes up its pace
+  (`S.scrollV` from 0 to -1050: the road goes by to the right, and `roadGone` in sk_story.js sends what it takes off that side);
+  `hwyRoad` puts them there at once (the skip). `S.hwy.phase`: ramp, merge, road; `S.hwy.persp` while the ramp's scale holds.
+  The truck (`truckNew`, `TRUCK`, T.x its tail, the bed `truckBed`) runs at the road's pace (T.vx moves it in the picture and the
+  man on its bed with it: `truckShift`, `f.onTruck` standing him on the bed); its drums (`T.drums`, the tail's first) are thrown
+  between the fight's turns: `startTurn` is wrapped so a turn starts only when the road allows it: every few turns (`sv.drumAt`, by
+  the dice) the drum scene (`hwyDrum`: the man heaves one onto his shoulder and throws it; `throwDrum` puts it in `S.drums`, which
+  falls, bounces once, rolls back with the road and goes up `after` seconds after it lands, a blast that spares the riders), and the
+  dice settle as it leaves his hands whether it goes up on Kael (12 to 20), close by (5 to 9) or clear. Once two riders are down
+  (`sv.kills`, counted on `V11.kill`) the helicopter scene (`hwyHeli`): the family's helicopter in from behind over the road
+  (`HWY_HELI`), the man in white in its door on a machine gun on its pintle (`HWY_GUN`, `hwyGun`: its pivot, muzzle and grips in the
+  world; `H.gunAng`, its heading as drawn, eased toward `gunAngT`; `hwyBurst` lays it on a point, round by round, with the gunfire's
+  own muzzles, tracers and strikes), a burst into each rider left (killed in the saddle, so the road throws him off), then along the
+  truck into its drums: two blasts, the truck a burning wreck that slews off and falls behind (`T.ctl` 'wreck'), the drum man
+  thrown. The scene ends where the turn would have started; with nobody left the stage's outro (if the last riders went down
+  together, the outro brings the helicopter for the truck first). The two who are not in the fight keep their poses through it
+  (`hwyHands`: the fight's start sets every fighter's own guard) and stay out of the scroll camera's framing (`f.camSkip`, read by
+  the road's camera in sk_storyui.js and `camBand` in sk_ui.js). The blasts fall behind the riders slowly at first, then at the
+  road's pace; a fire on the road goes by with it, a fire on the truck with the truck. The place: the deck between its parapets,
+  four lanes, sodium lamps on the far parapet; past it the drop to the city far below and the skyline with the Hallowell tower on
+  the left; strips slid by S.scroll as the avenue's are. The set pieces are painted once while they can be seen and let go once the
+  road has taken them (`pieces`, `drop`): the garage beyond the drop with the flyover's piers behind it and the ramp's deck (with
+  the road), the flyover over both; the garage and the flyover go by at a little over half the road's pace. The garage's parapet
+  and rail are drawn among the riders (`front`, an item at the deck's depth: in front of those still on the deck, behind those in
+  the air). The ramp's lane line streams down it toward the camera while he comes down it (`rampLive`).
+  Its cost (since V101's first look review, where the ramp's foot on a phone came in at 117% of the fall's dearest frame): what is
+  hidden is not put down. The sky and the city stop where the band in front of them hides them (`HIDE`) and are put down only either
+  side of the garage below its roof (`behind`); the far parapet's band is the parapet alone and each lamp a sprite of its own put
+  down where it stands (`POST`; the band's lamp at its left end had lost its head, now whole); a set piece is put down only where
+  it holds anything, 32 of its rows at a time (`spansOf`, read once when it is made); the garage's parapet is a sprite made again
+  when a rider tears a gap in it (`front`); at full speed the near parapet and its smear are one band (`ghostOf`). By turns against
+  the build before, the ramp's foot on a phone drew in 3 to 7 ms less in three runs (over thirty turns its lower quartile 43.7 to
+  40.8 ms), the picture the same but for the lamps' edges (a sub-pixel) and that lamp's head. Most of what is left is the riders: five bikes, their riders and their lamps' beams.
 - The held sounds (sk_storyui.js, run from `V11UI.tick`): the bike's engine (`engineFrame`: the first bike in `S.veh` with `run`
   above 0 and near the picture; its level `ENG_LVL` x run, a quarter when far), the rails (`railFrame`) and the wind (`windFrame`).
   Each is one voice made once and set every frame. A held voice's modulation must work on a gain of its own ahead of the level,
@@ -245,7 +297,8 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   `sfxRoute` is the table from a call to a recording (a swing by the weapon's mass, a thud by its weight and the floor, `sfxFloor`).
   The held sounds, from `V11UI.tick`: the stage's background (`SFX_BED`, crossfaded), his bike on two loops blended by speed (the
   synthesized engine, rails and wind stand down while their recordings are loaded), the riders' bike, the rails and their joints, the
-  carrier, the fire, the train at the platform, the freight lift, the helicopter's hover and the fall's wind. Footsteps are the game's
+  carrier, the fire, the train at the platform, the freight lift, the helicopter's hover (on the roof, and over the Tower Road, fading
+  as it goes off the picture) and the fall's wind. Footsteps are the game's
   own steps (`f.steps`) put down, by the floor; fight footwork scuffs now and then. Levels: `SFX_GAIN` (the one-shots peak at -1
   dBTP) and `SFX_LOOP` (a loop's loudness in LUFS where it is heard fullest; the files hold -20). Every recording goes out through
   `SFX.bus`, which the sound switch closes at once. Voices are capped (`SFX_CAP`, 4 a sound, 40 in all). Nothing here writes what
@@ -259,7 +312,8 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   their spectrograms (a loop's seam measured). A take is seeded by its key and number, so a render comes out the same every
   time. A new sound: its recipe and its line in list.json, render all and install (the manifest installed is the whole of
   <out>/web/manifest.json), its level in `SFX_GAIN` or `SFX_LOOP`, the stage that loads it in `SFX_STAGE`, and the call that plays it.
-- Voices (since V98): the cast says its lines aloud, so far the opening's, the field's (V98), the Avenue's and the Checkpoint's (V99),
+- Voices (since V98): the cast says its lines aloud, so far the opening's, the field's (V98), the Avenue's and the Checkpoint's (V99; the
+  Tower Road between them has none, so since V101 the Checkpoint's load with it, not with the Avenue),
   Lamplight Street's and the dining room's (V100): Ilyas's eleven, Qadir's three, one each for the Driver, the Pack leader, the
   Sergeant, Brask and Iyla. The
   recordings are Suno speech, made through the author's Suno connector: one take a character for a scene or two, so a voice stays
@@ -303,7 +357,8 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   voice, "spoken word, voice only ... close microphone, dry voice recording", with music, instruments and reverb in the negative
   style, since words for a manner such as "elegant" can bring in a music bed), the alignment saved, its entry in takes.json and
   `VO_LINES`, cut and install. Suite: soundpage (every voiced line is one a scene speaks, word for word, with its file; over http
-  the opening's, the Avenue's and Lamplight Street's load with their next stage's, the dining room's with it, and they play, step
+  the opening's and Lamplight Street's load with their next stage's, the Avenue's with it and the Checkpoint's with the Tower Road,
+  the dining room's with it, and they play, step
   the song back, stop, go silent with the switch and hold with the game).
 - sk_lookui.js (Kael), sk_castui.js (everyone else), sk_figui.js (FigKit: the shared shaping and light). drawFighterItem in sk_ui.js.
 - sk_lightui.js (FXL): effects Full/Lite/Off (localStorage sk_fx; auto-drops to Lite on a slow device, never under SK_TEST). Full
@@ -1145,7 +1200,7 @@ the fall's dearest; the avenue's bands are 22 ms of the chase's 45 there, the li
 29 lines at .7 of their width pushed in, and with their tiers the whip's 5 lines and the blade's 3 (the figure tier) and one
 reflection's width (the caller's). A kept cost holds up to its max, as a flat patch does (since V89): those two to 130%, and the
 deep station's f4 to 115%, at the line since V88 and 108% in one of V89's runs, when the fall's own dearest frame came in at 38.5 ms
-against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames). V90's places brought the old station into the line's f5 and so its lines into the review for the first time: brought to the drawing guide's widths, its platform's joints kept as fine texture. At f5's push-in the kitchen's course of green tiles repeats at the line (r .71 in one run), kept as machine-made. And the prologue's crowded fights cross the cost line and back from run to run, the fall's own dearest frame at 40 to 47 ms in V90's four timings: the chase's f8 110 to 139%, the dining room's f2 96 to 119% and f5 88 to 103%, the kitchen's f2 89 to 101%, the deep station's f4 up to 106%, none of them drawn differently (by turns against V89's build). They are kept to a max with those ranges: the chase's f8 to 145%, the dining room's f2 to 125%, the others to 115 or 120%. V93's levels change how the story's fights go (his health and his dice grow with him), and so what the frames hold, nothing drawn differently: the office's f4 on a phone has its coffered walnut ceiling in frame (a coffer every 124 units, kept as built, drawing rule 6), and 11 of the beasts' lines came into the phone's frames under their width (the goblins' ribs, the keys on their belts, their scars and hats, the bone and iron of the beasts' weapons), kept with the figure tier's reason.
+against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames). V90's places brought the old station into the line's f5 and so its lines into the review for the first time: brought to the drawing guide's widths, its platform's joints kept as fine texture. At f5's push-in the kitchen's course of green tiles repeats at the line (r .71 in one run), kept as machine-made. And the prologue's crowded fights cross the cost line and back from run to run, the fall's own dearest frame at 40 to 47 ms in V90's four timings: the chase's f8 110 to 139%, the dining room's f2 96 to 119% and f5 88 to 103%, the kitchen's f2 89 to 101%, the deep station's f4 up to 106%, none of them drawn differently (by turns against V89's build). They are kept to a max with those ranges: the chase's f8 to 145%, the dining room's f2 to 125%, the others to 115 or 120%. V93's levels change how the story's fights go (his health and his dice grow with him), and so what the frames hold, nothing drawn differently: the office's f4 on a phone has its coffered walnut ceiling in frame (a coffer every 124 units, kept as built, drawing rule 6), and 11 of the beasts' lines came into the phone's frames under their width (the goblins' ribs, the keys on their belts, their scars and hats, the bone and iron of the beasts' weapons), kept with the figure tier's reason. V101's Tower Road (two places' frames more: `highway` t4 on the ramp, f4 in the fight) draws the bikes and riders on its ramp smaller for their distance (`B.vk`), and their lines with them: 20 sites of the bike, the figure's rim, a weapon and a small blast's sparks came in under their widths there and are kept with that reason; the drop under its near parapet is the city far below, lit, so an upright phone's view past the parapet is not flat black (12% at the first try).
 
 ## Publishing
 Run `python3 test.py full` first, then `python3 test.py look` (alone: it times the drawing), each running only what its last pass
@@ -1156,13 +1211,19 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V101 ..." (V100 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V102 ..." (V101 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files), and every file in vo/ (since V98). An update
 keeps the files it does not name, so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the
-sounds, V98 the voices). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16.) Never delete the duplicate artifact
+sounds, V98 the voices). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16. At V101 the arc-blade's "locked, under 0.2 ms at
+game size" read .194 to .215 in six runs, alone or at the end of a full run, with sk_armsui.js unchanged; V100's build by turns beside
+it read .127, .219 and .137. That check warms the painter with 20 calls and times the next 300 at 300 ms after the page loads: each
+build then reads either about .13 or about .21, as the JIT has the painter ready in time or not, and beside V101's bigger page on
+this machine's two cores the slow reading came more often. After 1500 warm-up calls both builds read .12 (medians .126 and .121, by
+turns), and 4 s after load the two read the same: the timing, not the blade's cost. A later run alone read .123 and passed.) Never
+delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
 Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V98: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git

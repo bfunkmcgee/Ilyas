@@ -3,7 +3,7 @@
 // or one of the lab's grounds ('lab') fought free. The fall is drawn all the way (draw:'all': its sand and its pieces follow what was
 // drawn). Every story stage in order, then the lab's own grounds (the four the story does not use, and the street it does).
 const SHOTS=[
-  {id:'sundown',stage:'sundown',at:['t6','t16']},{id:'field',stage:'field',at:['t2','f4']},{id:'chase',stage:'chase',at:['f3','f8']},
+  {id:'sundown',stage:'sundown',at:['t6','t16']},{id:'field',stage:'field',at:['t2','f4']},{id:'chase',stage:'chase',at:['f3','f8']},{id:'highway',stage:'highway',at:['t4','f4']},
   {id:'roadblock',stage:'roadblock',at:['t2','f4']},{id:'vargo',stage:'vargo',at:['t3','f4']},{id:'dining',stage:'dining',at:['f2','f5']},
   {id:'kitchen',stage:'kitchen',at:['f2','f5']},{id:'platform',stage:'platform',at:['t3','t8']},{id:'line',stage:'line',at:['f2','f5']},
   {id:'deep',stage:'deep',at:['t3','f4']},{id:'lobby',stage:'lobby',at:['t3','f4']},{id:'office',stage:'office',at:['t3','f4']},

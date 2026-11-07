@@ -57,7 +57,7 @@ function sceneUp(L,T,h){const sh=Math.max(1,Math.round(h*L.sc)),top=RC.y0-h*6;
   for(let y=RC.y0-h;y+h>T;y-=h)ctx.drawImage(L.cv,0,0,L.cv.width,sh,RC.x0,y,RC.w,h+.6);
   const g=ctx.createLinearGradient(0,RC.y0,0,top);g.addColorStop(0,'rgba(3,3,6,0)');g.addColorStop(1,'rgba(3,3,6,.35)');ctx.fillStyle=g;
   ctx.fillRect(RC.x0,Math.max(T,top),RC.w,RC.y0-Math.max(T,top));if(T<top){ctx.fillStyle='rgba(3,3,6,.35)';ctx.fillRect(RC.x0,T,RC.w,top-T);}}
-const SCENE_NIGHT={street:1,field:1,hill:1,ledge:1,wall:1,crops:1,roadblock:1,chase:1,roof:1};
+const SCENE_NIGHT={street:1,field:1,hill:1,ledge:1,wall:1,crops:1,roadblock:1,chase:1,highway:1,roof:1};
 // a field of faint stars, made once (300 by 200 units, on its own dice), laid as a repeat between y0 and y1
 // (each star a speck drawn where the view needs it, the specks of a colour and a brightness filled at once: a pattern scaled to the
 // world costs a CPU canvas several milliseconds over a phone's sky, V79)
@@ -150,7 +150,7 @@ function sceneRimK(f){const g=sceneGround(f);return g==null?1:1+.8*clamp((.2-g)/
 // stage (sk_css_light.css) is for a picture with no finish: the old drawing.
 const SCENE_FINISH={city:{glow:.3,edges:.5,edgeCol:'#04030a'},rooms:{glow:.3,edges:.5,edgeCol:'#06030a'},under:{glow:.2,edges:.62,edgeCol:'#020308'},
   pit:{glow:.2,edges:.62,edgeCol:'#080604'},set:{glow:.42,streak:.24,streakCol:'#ffcf96',edges:.42,edgeCol:'#120804'}};
-const SCENE_WORLD={street:'city',chase:'city',roadblock:'city',roof:'city',field:'city',crops:'city',hill:'city',ledge:'city',wall:'city',
+const SCENE_WORLD={street:'city',chase:'city',highway:'city',roadblock:'city',roof:'city',field:'city',crops:'city',hill:'city',ledge:'city',wall:'city',
   dining:'rooms',kitchen:'rooms',lobby:'rooms',office:'rooms',station:'under',tunnel:'under',
   sumproof:'pit',sumpkitchen:'pit',backroom:'pit',yard:'pit',stairs:'pit',shelf:'pit',outskirts:'set'};
 let SCENE_FIN=null;

@@ -98,10 +98,11 @@ function aimPoint(D){const P=D.p[PEL],C=D.p[CHE];return{x:lerp(P.x,C.x,.72),y:le
 const AIM={rifle:{hx:.55,hy:.03,tilt:.25,kick:.17,back:.08},pistol:{hx:.86,hy:-.05,tilt:.06,kick:.32,back:.1},smg:{hx:.5,hy:.12,tilt:.08,kick:.13,back:.05}};
 function aimArm(A,D,rc){return aimArmAt(A,aimPoint(D),rc);}
 // the same, laid on a point (a scene's target: a fuel tank, a lock)
-function aimArmAt(A,T,rc){const a=A.arm,g=A.wp.gun,fa=A.facing,C=A.p[CHE],Q=AIM[g.kind]||AIM.pistol;
+// (a man whose gun has left his hands while his shot still plays, killed as he fired: his guard, not the gun's)
+function aimArmAt(A,T,rc){if(!A.wp.gun)return A.guardArm();const a=A.arm,g=A.wp.gun,fa=A.facing,C=A.p[CHE],Q=AIM[g.kind]||AIM.pistol;
   const H={x:C.x+fa*Q.hx*a,y:C.y+Q.hy*a},ang=clamp(Math.atan2(T.y-H.y,Math.max(10,(T.x-H.x)*fa)),-1.15,1.15);
   return{hand:{sh:[(Q.hx-rc*Q.back)*a,(Q.hy-rc*.03)*a]},wAng:ang-rc*Q.kick,off:g.kind==='pistol'?{sh:[(Q.hx-.07-rc*Q.back)*a,(Q.hy+.05)*a]}:'grip',tilt:Q.tilt};}
-function aimBody(A){const b=A.guardBody(),r=A.wp.gun.kind==='rifle';return{...b,crouch:b.crouch-(r?.02:.01),lean:r?b.lean*.5+.15:b.lean*.4+.03,stF:b.stF*1.08,stB:b.stB*1.08};}
+function aimBody(A){const b=A.guardBody();if(!A.wp.gun)return b;const r=A.wp.gun.kind==='rifle';return{...b,crouch:b.crouch-(r?.02:.01),lean:r?b.lean*.5+.15:b.lean*.4+.03,stF:b.stF*1.08,stB:b.stB*1.08};}
 // the gun comes up, settles, fires (each round's kick), holds on him a moment, comes down
 function planShot(A,D,kind,shots){const K=SHOT[kind],g=A.wp.gun,tAim=K.aim*(A.skill>=4?.85:1),gap=kind==='double'?(g.burst?.075:K.gap):0;
   const fireT=shots.map((s,i)=>tAim+i*gap),last=fireT[fireT.length-1],Tend=last+.66,aim=()=>aimArm(A,D,0);

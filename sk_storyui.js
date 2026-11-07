@@ -58,12 +58,12 @@ function storyEndCard(kind){
 {const sh=S.hooks.story;S.hooks.story=(k,a)=>{sh(k,a);
   const b=$('banner');
   if(k==='stage'){if(a.title)b.textContent=`${a.num} · ${a.title}`;b.style.visibility=a.title?'':'hidden';buildRows();updateStatus();if(typeof FxLook!=='undefined'&&FxLook.prewarm&&!ST_UI.fxWarm){ST_UI.fxWarm=1;try{FxLook.prewarm();}catch(e){}}}
-  else if(k==='fight'){if(STAGES[S.story.i].title)b.textContent=STAGES[S.story.i].title;b.style.visibility=STAGES[S.story.i].noFight?'hidden':'';buildRows();updateStatus();}
+  else if(k==='fight'){const tt=stageTitle(STAGES[S.story.i]);if(tt)b.textContent=tt;b.style.visibility=STAGES[S.story.i].noFight?'hidden':'';buildRows();updateStatus();}
   else if(k==='fallen')setTimeout(()=>storyEndCard('fallen'),1200);
   else if(k==='end')storyEndCard('end');
   else if(k==='quit'){b.style.visibility='';document.body.classList.remove('story');ST_UI.say.hidden=true;ST_UI.skip.hidden=true;ST_UI.quit.hidden=true;}};}
 // the panels: no commands during a scene
-{const uc=updateCommands;updateCommands=function(){uc();if(S.game.phase==='cut'){$('cmdHead').textContent=S.story?STAGES[S.story.i].title:'…';}};}
+{const uc=updateCommands;updateCommands=function(){uc();if(S.game.phase==='cut'){$('cmdHead').textContent=S.story?stageTitle(STAGES[S.story.i]):'…';}};}
 
 // in a scene the fight's own marks stand down: the footing rings and their labels, the bars over heads, the target and intent marks
 function storyQuiet(){return!!(S.story&&(S.game.phase==='cut'||S.story.step!=='fight'));}
@@ -109,10 +109,11 @@ function camCutFit(C,wOld){
   cam.viewW+=(w-cam.viewW)*k;const x=clamp(tx,cam.viewW/2-130,W-cam.viewW/2+200);cam.x+=(x-cam.x)*k;};}
 
 // on a moving road the camera keeps to the riders still in the fight (whole bikes, not just the men on them), never to the ones
-// the road has taken (and pushes in for the action on an upright phone, camNarrowW in sk_ui.js)
+// the road has taken, nor to anyone the scene keeps out of its framing (f.camSkip: the man in the truck's bed) (and pushes in for
+// the action on an upright phone, camNarrowW in sk_ui.js)
 {const uc=updateCamera;updateCamera=function(rdt){if(S.camCut||!S.arena||!S.arena.scroll){uc(rdt);return;}
   const narrow=cssW<640;let lo=1e9,hi=-1e9;
-  for(const f of S.F){if(f.gone||f.crashed)continue;const B=f.mount,x0=prjX(B?B.x-92:f.p[PEL].x,f.dep),x1=prjX(B?B.x+92:f.p[PEL].x,f.dep);if(x0<lo)lo=x0;if(x1>hi)hi=x1;}
+  for(const f of S.F){if(f.gone||f.crashed||f.camSkip)continue;const B=f.mount,x0=prjX(B?B.x-92:f.p[PEL].x,f.dep),x1=prjX(B?B.x+92:f.p[PEL].x,f.dep);if(x0<lo)lo=x0;if(x1>hi)hi=x1;}
   if(lo>hi){lo=W/2-120;hi=W/2+120;}
   const tw=narrow?camNarrowW(hi-lo,110,110):W,k=camRate(rdt,3.5);cam.viewW+=(tw-cam.viewW)*k;const half=cam.viewW/2;cam.x+=(clamp((lo+hi)/2,half,W-half)-cam.x)*k;};}
 

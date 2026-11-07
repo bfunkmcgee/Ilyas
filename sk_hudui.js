@@ -128,7 +128,7 @@ function hudDrawerTab(t){HUD.dtab=t;const side=hudEl('sideCol');side.dataset.tab
 function hudDrawerSync(){
   const side=hudEl('sideCol'),story=!!S.story;side.dataset.story=story?'1':'';if(story&&HUD.dtab!=='codex')hudDrawerTab('codex');
   const sub=hudEl('drawerSub');let t;
-  if(story){const st=typeof STAGES!=='undefined'&&S.story&&STAGES[S.story.i];t='The prologue'+(st&&st.title?' · '+st.title:'');}
+  if(story){const st=typeof STAGES!=='undefined'&&S.story&&STAGES[S.story.i];t='The prologue'+(st&&stageTitle(st)?' · '+stageTitle(st):'');}
   else t='Skirmish lab · '+(hudEl('fieldLine').textContent||'').split(' · ').slice(0,2).join(' · ');
   sub.textContent=t;}
 

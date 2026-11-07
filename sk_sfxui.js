@@ -32,7 +32,7 @@ const SFX_GAIN={swing_light:.32,swing_mid:.42,swing_heavy:.55,hit_cut:.8,hit_blu
 const SFX_LOOP={amb_sundown_loop:-28,amb_field_loop:-28,amb_avenue_loop:-26,amb_checkpoint_loop:-28,amb_street_loop:-29,amb_dining_loop:-31,amb_kitchen_loop:-29,
   amb_station_loop:-29,amb_lobby_loop:-31,amb_office_loop:-31,amb_roof_loop:-27,fire_loop:-29,fall_wind_loop:-25,bike_loop_low:-25,bike_loop_high:-24,
   bike_rival_loop:-27,apc_idle_loop:-30,train_idle_loop:-30,rail_loop:-27,freight_loop:-28,heli_loop:-24};
-const SFX_BED={sundown:'amb_sundown_loop',field:'amb_field_loop',chase:'amb_avenue_loop',roadblock:'amb_checkpoint_loop',vargo:'amb_street_loop',
+const SFX_BED={sundown:'amb_sundown_loop',field:'amb_field_loop',chase:'amb_avenue_loop',highway:'amb_avenue_loop',roadblock:'amb_checkpoint_loop',vargo:'amb_street_loop',
   dining:'amb_dining_loop',kitchen:'amb_kitchen_loop',platform:'amb_station_loop',deep:'amb_station_loop',lobby:'amb_lobby_loop',office:'amb_office_loop',
   roof:'amb_roof_loop'};
 // what each stage plays, loaded with it (and the next stage's, while this one plays); the fights' own are always kept
@@ -46,6 +46,8 @@ const SFX_STAGE={
   sundown:['amb_sundown_loop','bike_start','bike_loop_low','bike_loop_high','bike_rev_dirt'],
   field:['amb_field_loop','maize_push','thud_dirt','step_dirt','bike_start','bike_loop_low','bike_loop_high','bike_rev_dirt'],
   chase:['amb_avenue_loop','bike_loop_low','bike_loop_high','bike_rival_loop','bike_rev','bike_crash','road_tumble'],
+  highway:['amb_avenue_loop','bike_loop_low','bike_loop_high','bike_rival_loop','bike_rev','bike_crash','road_tumble','debris_rattle','thud_metal','swing_heavy',
+    'boom_fuel','fire_loop','heli_approach','heli_loop','heli_door','shot_mg','bullet_ground','bullet_metal','hit_bullet'],
   roadblock:['amb_checkpoint_loop','apc_idle_loop','shot_mg','bullet_ground','rifle_draw','bike_into_apc','shot_rifle','boom_fuel','fire_loop','shot_pistol','ricochet',
     'hit_bullet','casing','bullet_whiz','gun_dryfire','concrete_slam','drop_gun','grenade_unclip','coat_sweep','step_wet_stone','bike_rev','bike_loop_low','bike_loop_high'],
   vargo:['amb_street_loop','grenade_unclip','grenade_pin','grenade_bounce','boom_grenade','step_wet_stone','coat_sweep','glass_large','debris_rattle'],
@@ -211,13 +213,13 @@ V11UI.init.push(()=>{const sd=S.hooks.sound;S.hooks.sound=(k,v,c)=>{
 {const wf=windFrame;windFrame=function(){if(!(sfxReady('amb_sundown_loop')&&sfxCan()))return wf();if(WIND)WIND.g.gain.setTargetAtTime(0,WIND.a.currentTime,.3);};}
 // the bikes: his own on the low and high loops by its speed (the road's too, in the chase), the riders' on theirs
 function sfxBikes(on){const bikes=on&&S.soundOn?S.veh.filter(v=>v.kind==='bike'&&v.run>0&&v.x>-400&&v.x<W+400):[],K=hero(),mine=bikes.find(B=>K&&K.mount===B)||bikes.find(B=>S.story&&B===S.story.bike)||null;
-  if(mine){const road=S.arena&&S.arena.scroll?Math.abs(S.scrollV||0)*.35:0,sp=clamp((Math.abs(mine.vx||0)+road)/360,0,1),rv=mine.rev||0,far=mine.x>W+60||mine.x<-160?.25:1,
+  if(mine){const road=S.arena&&S.arena.scroll?Math.max(Math.abs(S.scrollV||0),mine.spd||0)*.35:0,sp=clamp((Math.abs(mine.vx||0)+road)/360,0,1),rv=mine.rev||0,far=mine.x>W+60||mine.x<-160?.25:1,
       lv=mine.run*far,wake=clamp((S.t-SFX.startT-.45)/.6,0,1);
     sfxLoop('bikeLo','bike_loop_low',sfxLoopLv('bike_loop_low')*Math.cos(sp*Math.PI/2)*lv*wake,.8+.9*sp+.25*rv);
     sfxLoop('bikeHi','bike_loop_high',sfxLoopLv('bike_loop_high')*Math.sin(sp*Math.PI/2)*lv*wake,.78+.3*sp+.12*rv);}
   else{sfxLoop('bikeLo','bike_loop_low',0);sfxLoop('bikeHi','bike_loop_high',0);}
   const riders=bikes.filter(B=>B!==mine);let near=null,nd=1e9;for(const B of riders){const d=Math.abs(B.x-cam.x);if(d<nd){nd=d;near=B;}}
-  if(near&&sfxReady('bike_rival_loop')){const road=S.arena&&S.arena.scroll?Math.abs(S.scrollV||0)*.35:0,sp=clamp((Math.abs(near.vx||0)+road)/360,0,1),far=near.x>W+60||near.x<-160?.3:1;
+  if(near&&sfxReady('bike_rival_loop')){const road=S.arena&&S.arena.scroll?Math.max(Math.abs(S.scrollV||0),near.spd||0)*.35:0,sp=clamp((Math.abs(near.vx||0)+road)/360,0,1),far=near.x>W+60||near.x<-160?.3:1;
     sfxLoop('rival','bike_rival_loop',sfxLoopLv('bike_rival_loop')*near.run*far*(.6+.4*sp)*(riders.length>1?1.15:1),.85+.3*sp);}
   else sfxLoop('rival','bike_rival_loop',0);}
 // the rails: the rumble opening up with the speed, the joints going under the wheels; the engine ticking over at the platform
@@ -239,8 +241,9 @@ function sfxHeld(){const SV=S.story,SK=SV&&SV.key,K=hero(),fadeK=1-.85*clamp(S.f
   const T=S.veh.find(v=>v.kind==='train');sfxLoop('train','train_idle_loop',T&&SK==='platform'&&Math.abs(T.v||0)<1?sfxLoopLv('train_idle_loop')*(.35+.65*clamp(T.lamp||0,0,1))*fadeK:0,null,.4);
   // the freight lift going up out of the deep
   sfxLoop('freight','freight_loop',SK==='deep'&&K&&K.rideLift&&S.t-SFX.liftT>.5?sfxLoopLv('freight_loop')*fadeK:0,null,.3);
-  // the helicopter in its hover over the pad (after its approach)
-  const H=SK==='roof'&&S.veh.find(v=>v.kind==='heli');sfxLoop('heli','heli_loop',H&&H.x>-200&&S.t-SFX.heliT>4.4?sfxLoopLv('heli_loop')*fadeK:0,null,.6);
+  // the helicopter in its hover over the pad (after its approach), or over the Tower Road while the man in white fires, fading as it goes
+  const H=(SK==='roof'||SK==='highway')&&S.veh.find(v=>v.kind==='heli'),hk=H?clamp(1-(Math.max(0,-H.x-100,H.x-W-100))/600,0,1):0;
+  sfxLoop('heli','heli_loop',H&&hk>0&&S.t-SFX.heliT>4.4?sfxLoopLv('heli_loop')*fadeK*hk:0,null,.6);
   // the fall: the wind of it until he is in the hay (down the face it goes with the speed of the fall: quieter and lower as the memory
   // slows it, back to all of it before the Pit)
   const P=S.pit,th=SK==='fall'&&!!P&&!P.on,fk=th?clamp(Math.abs(S.scrollYV||0)/1800,0,1):1;
@@ -250,7 +253,7 @@ function sfxRoll(){const K=hero();if(!K||!K.arcRev||K.arcRev===SFX.rev)return;if
 // footsteps: each step a man takes (f.steps, the game's own: a step put down when it finishes), by what the floor is and how long
 // the stride; fight footwork scuffs
 function sfxSteps(){if(!S.soundOn||!sfxCan())return;const fl=sfxFloor(),ok=sfxReady('step_'+fl),gob=sfxReady('step_goblin');if(!ok&&!gob)return;
-  const vx0=cam.x-cam.viewW/2-60,vx1=cam.x+cam.viewW/2+60,quiet=S.arenaKey==='chase'||S.arenaKey==='fall';
+  const vx0=cam.x-cam.viewW/2-60,vx1=cam.x+cam.viewW/2+60,quiet=S.arenaKey==='chase'||S.arenaKey==='highway'||S.arenaKey==='fall';
   for(const f of S.F){if(!f.steps)continue;let st=SFX.feet.get(f);if(!st){st={s:[null,null],a:[false,false],t:-9};SFX.feet.set(f,st);}
     const off=quiet||f.hidden||f.dead||f.downed||f.mount||f.inHeli||f.perch||f.gone||f.crashed||f.bed||(f.motor??1)<.45,g=f.beast==='goblin';
     for(let j=0;j<2;j++){const s=f.steps[j];if(!s)continue;

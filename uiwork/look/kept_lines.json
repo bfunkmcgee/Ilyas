@@ -1804,5 +1804,125 @@
 "src": "c.strokeStyle=IRON.b;c.lineWidth=1.41;c.beginPath();c.moveTo(len0-3,-7.6);c.lineTo(len0-1.6,-11);c.move",
 "med": 1.414,
 "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); in the phone's frames since V93, whose levels change how the underground's fights go and what the frames hold"
+},
+{
+"file": "envx/fx_guns.js",
+"src": "rgba('#ffc861',1-u*.7):rgba('#ff6a26',(1-u)*1.6);c.lineWidth=p.w*(1-u*.5);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(e.x,e.y);c.strok",
+"med": 0.958,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "drive(c,dark,link,ring,boss){c.strokeStyle=dark;c.lineWidth=1.57;c.beginPath();c.moveTo(-9,27.4);c.lineTo(-60,33.6);c.moveTo(-9,19",
+"med": 1.189,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.setLineDash([.7,.9]);c.strokeStyle=link;c.lineWidth=1.04;c.beginPath();c.moveTo(-9,27.4);c.lineTo(-60,33.6);c.moveTo(-9,19",
+"med": 0.805,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=ring;c.lineWidth=1.03;c.beginPath();c.arc(-60,25,7.2,0,TAU);c.stroke();",
+"med": 0.805,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "16141b';c.fill(P);c.strokeStyle=rgba(K.gold,.85);c.lineWidth=1.09;c.beginPath();c.moveTo(A[0],A[1]);c.quadraticCurveTo(B2[0],B2[1],",
+"med": 0.917,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#3a3a44',.55);c.lineWidth=1.48;c.beginPath();c.arc(0,0,24.2,0,TAU);c.stroke();",
+"med": 1.242,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "if(blur){c.strokeStyle=rgba('#0a0a0c',.55);c.lineWidth=1.6;c.beginPath();c.arc(0,0,10,0,TAU);c.stroke();}",
+"med": 1.354,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba(K.rim,.32);c.lineWidth=1.1;c.beginPath();c.arc(cx,cy,24.1,la-.9,la+.9);c.stroke();",
+"med": 0.917,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba('#000000',.6);c.lineWidth=1.5;c.beginPath();c.arc(cx,cy,16.5,0,TAU);c.stroke();",
+"med": 1.242,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": ";c.fill(P.hugger);c.strokeStyle=rgba(K.gold,.55);c.lineWidth=.98;c.stroke(P.hugger);",
+"med": 0.841,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": ");c.clip(P.fender);c.strokeStyle=rgba(K.gold,.8);c.lineWidth=1;c.beginPath();c.arc(64,25,29,.38,2.56);c.stroke();c.restore();",
+"med": 0.841,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "30,-36,60,[[0,K.goldD],[.5,K.gold],[1,K.goldD]]);c.lineWidth=1.6;c.beginPath();for(let i=0;i<=9;i++){const t=.18+i/9*.66,x=lerp(-41",
+"med": 1.354,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": ";c.fill(P.case);c.strokeStyle=rgba('#000000',.7);c.lineWidth=1.51;c.stroke(P.case);",
+"med": 1.297,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "p(40,59,t),hx=10.6+i*.18;c.strokeStyle='#050407';c.lineWidth=1.57;c.beginPath();c.moveTo(ax-hx,ay-.8);c.lineTo(ax+hx,ay+.4);c.strok",
+"med": 1.297,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "rokeStyle=rgba('#8a8898',.35+.25*clamp(L.y,0,1));c.lineWidth=1;c.beginPath();c.moveTo(ax-hx,ay+.15);c.lineTo(ax+hx,ay+1.35);c.strok",
+"med": 0.841,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "6,0,TAU);c.fill();c.strokeStyle=rgba(K.gold,.55);c.lineWidth=1;c.stroke();",
+"med": 0.841,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "c.strokeStyle=rgba(K.rim,.3);c.lineWidth=1;c.beginPath();c.moveTo(...pt(.05,w0-.3));c.lineTo(...pt(.95,w1-.3));",
+"med": 0.841,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "envx/veh_bike.js",
+"src": "3.2),q1=pt(22,3.1);c.strokeStyle=rgba(K.rim,.32);c.lineWidth=1.05;c.beginPath();c.moveTo(q0[0],q0[1]);c.lineTo(q1[0],q1[1]);c.strok",
+"med": 0.805,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "sk_figui.js",
+"src": "='butt';c.lineJoin='bevel';c.strokeStyle=o.light;c.lineWidth=rw*(1+(bk-1)*.5);",
+"med": 0.958,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "sk_ui.js",
+"src": "function seg(a,b,w,col){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()",
+"med": 0.771,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
 }
 ]

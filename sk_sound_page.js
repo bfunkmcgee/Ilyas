@@ -13,7 +13,8 @@
 // standing still in the lab, the field's floor under the men walking out of the maize. The cast's voices (vo/, sk_voui.js, since V98):
 // every voiced line is one a scene speaks, word for word, with its file; over http the opening's load with it, a line's plays as it
 // comes up with the song stepping back under it, and is stopped by moving the line on, silenced by the sound switch and held with
-// the game; the Avenue's load with it and the Checkpoint's next (since V99), and the Pack leader's plays in its turn; Lamplight
+// the game; the Avenue's load with it (since V99), and the Pack leader's plays in its turn; the Tower Road's sounds and the
+// Checkpoint's lines load with it, and its helicopter is heard once it has come (since V101); Lamplight
 // Street's load with it and the dining room's next, Qadir's first plays in its turn, and in the dining room Brask's (since V100).
 // usage: node sk_sound_page.js   (needs test_page.html from build.py; PAGE=... to point it at another copy)
 const SK_T0=Date.now();
@@ -173,16 +174,30 @@ await p.evaluate(()=>{storyQuit();step(2);});
   const ws2=Object.keys(w2.heard).filter(k=>/^step_/.test(k));
   expect('the field: the men coming out of the maize are heard, and their steps on its floor',w1&&w2.heard.maize_push>0&&ws2.length===1&&ws2[0]==='step_dirt'&&w2.heard.step_dirt>2,JSON.stringify(w2));
   await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
-  // the Avenue (since V99): its voiced lines load with it, and the Checkpoint's, next; the Pack leader's plays as it comes up
+  // the Avenue (since V99): its voiced lines load with it (the Tower Road after it has none of its own, since V101); the Pack
+  // leader's plays as it comes up
   await h.evaluate(()=>{storyGo('chase');S.storyAuto=true;S.auto=true;step(2);});
   const voLoaded=async()=>{let r;for(let i=0;i<40;i++){r=await h.evaluate(()=>{step(1);return{want:[...VOX.want],have:Object.keys(VOX.bufs),bad:Object.keys(VOX.bad)};});
     if(r.want.length&&r.want.every(k=>r.have.includes(k)))break;await h.waitForTimeout(150);}return r;};
   const cv0=await voLoaded();
-  expect('the Avenue\'s voiced lines load with it, and the Checkpoint\'s, next; none fails',
-    ['chase_1','chase_2','roadblock_1','roadblock_2'].every(k=>cv0.want.includes(k))&&cv0.want.every(k=>cv0.have.includes(k))&&!cv0.bad.length,JSON.stringify(cv0));
+  expect('the Avenue\'s voiced lines load with it; none fails',
+    ['chase_1','chase_2'].every(k=>cv0.want.includes(k))&&cv0.want.every(k=>cv0.have.includes(k))&&!cv0.bad.length,JSON.stringify(cv0));
   const cv1=await h.evaluate(()=>{const n=runUntil(()=>S.say&&S.say.vo==='chase_1',12000);step(2);return{n,vo:S.say&&S.say.vo,cur:VOX.cur&&VOX.cur.id};});
   await h.waitForTimeout(350);const cv2=await voLevel();
   expect('the Avenue: the Pack leader\'s line plays as it comes up',cv1.vo==='chase_1'&&cv1.cur==='chase_1'&&cv2>HEARD,JSON.stringify({cv1,level:cv2}));
+  await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
+  // the Tower Road (since V101): its sounds load with it and the Checkpoint's lines, next; the helicopter is heard over the road once
+  // it has come, and the bed under it is the avenue's
+  await h.evaluate(()=>{storyGo('highway');S.storyAuto=true;S.auto=true;step(2);});
+  const tl=await loaded('highway'),tv0=await voLoaded();
+  expect('the Tower Road: its sounds load with it, and the Checkpoint\'s lines next; none fails',
+    !tl.miss.length&&!tl.bad.length&&['roadblock_1','roadblock_2'].every(k=>tv0.want.includes(k))&&tv0.want.every(k=>tv0.have.includes(k))&&!tv0.bad.length,JSON.stringify({tl,tv0}));
+  const tv1=await h.evaluate(()=>{let seen=0;const n=runUntil(()=>{const H=S.veh.find(v=>v.kind==='heli');if(H)seen=Math.max(seen,S.t-SFX.heliT);
+      return!S.story||S.story.key!=='highway'||(H&&S.t-SFX.heliT>4.6);},40000);step(2);return{n,seen:+seen.toFixed(2)};});
+  // (the loop comes up over a moment of the audio's own clock, the game held)
+  await h.waitForTimeout(450);
+  const tv2=await h.evaluate(()=>{const L=SFX.loops.heli,B=SFX.loops['bed:amb_avenue_loop'];return{heli:!!L&&L.key==='heli_loop'&&L.g.gain.value>.0005,bed:!!B,key:S.story&&S.story.key};});
+  expect('the Tower Road: the helicopter heard over the road once it has come, over the avenue\'s bed',tv2.heli&&tv2.bed&&tv2.key==='highway',JSON.stringify({tv1,tv2}));
   await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
   // Lamplight Street (since V100): its voiced lines load with it, and the dining room's, next; Qadir's first plays as it comes up
   await h.evaluate(()=>{storyGo('vargo');S.storyAuto=true;S.auto=true;step(2);});

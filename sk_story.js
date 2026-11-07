@@ -191,7 +191,7 @@ function vehStep(){
       if(B.lie>.4){B.vx-=Math.sign(rel)*Math.min(Math.abs(rel),640*DT);
         if(Math.abs(rel)>70&&!S.warming&&Math.random()<.8){const q=bikeAt(B,-10+Math.random()*60,4);sparks(q,1,Math.random()<.5?'#ffd27a':'#fff3cf',B.dep);}}
       else B.vx-=Math.sign(rel)*Math.min(Math.abs(rel),180*DT);
-      if(B.x<-360){S.veh.splice(i,1);continue;}}
+      if(roadGone(B.x,360)){S.veh.splice(i,1);continue;}}
     B.x+=B.vx*DT;B.wheel+=(B.vx+gv)*B.fa*DT/BIKE.R*(1-B.lie*.7);B.gy=S.arena.ground(B.x,B.dep);
     // a bike the scene drives can carry its rider along with it (B.carry: the share of its speed), so a fast ride keeps him in the
     // saddle instead of trailing his seat (his springs follow only what is left over)
@@ -329,13 +329,15 @@ function bikeCrash(f){const B=f.mount;if(!B)return;
   S.hooks.sound('crash',1);S.shake=Math.max(S.shake,5);}
 // every step: a man going limp in the saddle comes off; whoever has slid far enough back down the road is gone from the fight;
 // on a moving road what lies on it goes by with it
+// (past the picture's edge the road goes by toward: the left on the avenue, the right where the riders ride west, S.scrollV under 0)
+function roadGone(x,m){return(S.scrollV||0)<0?x>W+m:x<-m;}
 function riderStep(){
   for(const f of S.F){
     if(f.mount){if((f.dead||f.downed)&&f.motor<.32&&!f.impaled)bikeCrash(f);continue;}
-    if(f.crashed&&!f.gone&&f.p[PEL].x<-240&&f.p[HEAD].x<-200)f.gone=true;}
-  if(S.arena&&S.arena.scroll&&S.scrollV){const dx=S.scrollV*DT;
-    for(let i=S.stains.length-1;i>=0;i--){const s=S.stains[i];s.x-=dx;if(s.x<-260)S.stains.splice(i,1);}
-    for(let i=S.items.length-1;i>=0;i--){const it=S.items[i];if(!it.stuck&&Math.max(it.a.x,it.b.x)<-260)S.items.splice(i,1);}}}
+    if(f.crashed&&!f.gone&&roadGone(f.p[PEL].x,240)&&roadGone(f.p[HEAD].x,200))f.gone=true;}
+  if(S.arena&&S.arena.scroll&&S.scrollV){const dx=S.scrollV*DT,west=S.scrollV<0;
+    for(let i=S.stains.length-1;i>=0;i--){const s=S.stains[i];s.x-=dx;if(roadGone(s.x,260))S.stains.splice(i,1);}
+    for(let i=S.items.length-1;i>=0;i--){const it=S.items[i];if(!it.stuck&&roadGone(west?Math.min(it.a.x,it.b.x):Math.max(it.a.x,it.b.x),260))S.items.splice(i,1);}}}
 V11.step.push(riderStep);
 // the road: a body or a loose weapon on it slides, losing speed against a surface that goes by at the chase's speed
 // The whole body loses speed against the road as long as some of it is down on it (the friction is the body's weight, wherever it
@@ -410,6 +412,9 @@ function storyFight(list){for(const f of S.F){standEasy(f,false);if(f.stow)stowB
 // are scripts; next is the stage after it. Stages that are not built yet end the prologue for now.
 const STAGES=[];
 function stageIx(key){return STAGES.findIndex(s=>s.key===key);}
+// a stage's name on the page: its own title, or the title of the chapter it is a part of (st.part: a stage of the chapter's that has
+// no card of its own, as the Tower Road is the Avenue's)
+function stageTitle(st){return st?st.title||(st.part&&stageIx(st.part)>=0?STAGES[stageIx(st.part)].title:''):'';}
 function storyBegin(key,o={}){
   S.story={i:0,key:null,step:'card',flags:{},K:null,hp:null,auto:!!o.auto,lab:S.story&&S.story.lab||labSave()};
   // a chapter picked from the menu starts the night as the stages before it left it: the grenade in the coat, the bistro's doors
