@@ -470,7 +470,8 @@ V11UI.init.push(()=>{const sd=S.hooks.sound;S.hooks.sound=(k,v)=>{
 // page opened as a local file, where the audio graph would hear only silence. Sound off or the page hidden holds it where it is;
 // leaving the story fades it out and lets it go; beginning the prologue again starts it from the top. A chapter picked from the
 // menu does not start it.
-const MUSIC={src:'music/lepers_ascent.mp3',lvl:.5,fade:1,el:null,node:null,g:null,plain:true,on:false,lv:-1,offAt:0,t:0,trying:false,blocked:false};
+// (duck: how far it steps back while a line is said, sk_voui.js)
+const MUSIC={src:'music/lepers_ascent.mp3',lvl:.5,fade:1,el:null,node:null,g:null,plain:true,on:false,lv:-1,offAt:0,t:0,trying:false,blocked:false,duck:1};
 function musicDrop(){const M=MUSIC,el=M.el;M.el=null;if(M.node){try{M.node.disconnect();}catch(e){}M.node=null;}
   if(el){el.pause();el.removeAttribute('src');try{el.load();}catch(e){}}}
 // a new element for the song: through the audio graph where it can be heard there, else plain
@@ -487,8 +488,9 @@ function musicStart(){if(typeof Audio!=='function')return;const M=MUSIC;ensureAu
   M.on=true;M.blocked=false;musicSync();}
 // each frame, and at the moments that change it: the level, playing or held, and let go once the story is left or the song is over
 function musicSync(){const M=MUSIC,el=M.el;if(!el)return;const now=performance.now()/1000,dt=Math.min(.1,Math.max(0,now-M.t)),
-    hidden=typeof document!=='undefined'&&!!document.hidden,hear=M.on&&S.soundOn&&!hidden,lv=hear?M.lvl:0;M.t=now;
-  if(lv!==M.lv){M.lv=lv;M.offAt=now;if(!M.plain&&M.g&&AC)M.g.gain.setTargetAtTime(lv,AC.currentTime,hear?.02:M.fade/4);}
+    hidden=typeof document!=='undefined'&&!!document.hidden,hear=M.on&&S.soundOn&&!hidden,lv=hear?M.lvl*(M.duck??1):0;M.t=now;
+  // (stepping back under a line and up again after it, more slowly than coming in)
+  if(lv!==M.lv){const duck=hear&&M.lv>0;M.lv=lv;M.offAt=now;if(!M.plain&&M.g&&AC)M.g.gain.setTargetAtTime(lv,AC.currentTime,duck?.15:hear?.02:M.fade/4);}
   if(M.plain)el.volume=hear?lv:Math.max(0,Math.min(el.volume,M.lvl)-dt*M.lvl/M.fade);
   if(hear){if(el.paused&&!el.ended&&!M.trying&&!M.blocked){M.trying=true;let p=null;try{p=el.play();}catch(e){p=null;}
       if(p&&p.then)p.then(()=>{M.trying=false;},()=>{M.trying=false;M.blocked=true;});else M.trying=false;}

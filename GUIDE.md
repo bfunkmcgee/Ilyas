@@ -244,6 +244,31 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   their spectrograms (a loop's seam measured). A take is seeded by its key and number, so a render comes out the same every
   time. A new sound: its recipe and its line in list.json, render all and install (the manifest installed is the whole of
   <out>/web/manifest.json), its level in `SFX_GAIN` or `SFX_LOOP`, the stage that loads it in `SFX_STAGE`, and the call that plays it.
+- Voices (since V98): the cast says its lines aloud, so far the opening's and the field's (Ilyas's five, the Driver's one). The
+  recordings are Suno speech, made through the author's Suno connector: one take a character for a scene or two, so a voice stays
+  the same from line to line (separate generations come out as different men), the author choosing the take. `VO_LINES`
+  (sk_vo.js) names each line (id, the stage that loads it, who, its words exactly as its speak() call has them) and `VO_LEN` its
+  length; `speak()` keeps a voiced line up at least its length and .35 seconds (`S.say.vo` names it), so a scene times the same with
+  the sound on or off. The page (sk_voui.js) loads the stage's lines and the next stage's from vo/ by a relative path, starts a line's
+  recording as it comes up, stops it when the line is moved on, gone or replaced, holds it with the game (the menu, the page hidden)
+  and goes on from where the line had got to; a file that loads late starts only within .4 seconds of its line. Voices go through a
+  gain of their own straight to the speakers, as the song does (`VO_GAIN` .8: the files hold -16 LUFS), the song steps back to .55
+  of its level under a line (`MUSIC.duck`), and the sound switch closes the gain. A page opened as a file plays none.
+  Making them: tools/vo/cut.py cuts the takes named in tools/vo/takes.json (the file in tools/vo/takes/, the Suno clip, who, the lines
+  it carries in order, the longest pause to keep inside a line) by Suno's word timings for the clip (tools/vo/align/<clip>.json, from
+  the connector's lyrics-alignment; the takes not chosen are kept there too), from a little before each line's first word to a
+  little after its last, any longer pause inside it taken in, a take's lines brought to -16 LUFS together, peaks under -1.5 dBFS,
+  mono MP3: `python3 tools/vo/cut.py --install` writes vo/ and `VO_LEN` (`--takes DIR`, `--out DIR` for a trial). Suno's timings
+  are sometimes wrong (a word put after the pause it came before), so the tool checks each cut against the take's own sound and
+  reports, on a "!" line, talk no line keeps or a stretch that begins or ends mid-word: the fix is that word's start and end in the
+  align file, then cut again. Talk left out can also be sound beyond the script (the Driver's take ends in a cough, a breath and a
+  chuckle), right to leave out: a take's `skip` in takes.json names it, and the check passes over it. This workspace cannot reach
+  Suno's file host, so a take comes in as a file the author downloads and attaches (a scene's takes share a title, so the clip is
+  told by its length). A new line: its take (the script word for word, a blank line between lines; the style kept to the voice,
+  "spoken word, voice only ... close microphone, dry voice recording", with music, instruments and reverb in the negative style,
+  since words for a manner such as "elegant" can bring in a music bed), the alignment saved, its entry in takes.json and
+  `VO_LINES`, cut and install. Suite: soundpage (every voiced line is one a scene speaks, word for word, with its file; over http
+  they load, play, step the song back, stop, go silent with the switch and hold with the game).
 - sk_lookui.js (Kael), sk_castui.js (everyone else), sk_figui.js (FigKit: the shared shaping and light). drawFighterItem in sk_ui.js.
 - sk_lightui.js (FXL): effects Full/Lite/Off (localStorage sk_fx; auto-drops to Lite on a slow device, never under SK_TEST). Full
   draws each fighter into a sprite (ctx swapped) reused for cast shadows and reflections; the fx are restyled as light; the vignette
@@ -1093,12 +1118,13 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V98 ..." (V97 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V99 ..." (V98 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
-...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files). An update keeps the files it does not name,
-so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the sounds). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16.) Never delete the duplicate artifact
+...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files), and every file in vo/ (since V98). An update
+keeps the files it does not name, so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the
+sounds, V98 the voices). (At V56 the perf check "each elf or crew member under 1.2 ms" ran 1.13 to 1.39 ms here, the V55 look file the same or slower: this machine, not the code. At V71 it ran 1.14 to 1.27 ms, and V70's code 1.09 to 1.25 ms in the same hour, run by turns; at V72, 1.28 at the end of the full run. At V82, 1.17 to 1.32, and V81's build 1.24 to 1.33 by turns in the same hour. At V90 his suit cut to ribbons came in .80 ms over him plain in one full run, at the limit, with nothing of his drawing changed, and under it in the runs either side. At V91 each cast figure came in at 1.24 ms at the end of a full run and 1.22 alone, with no drawing changed; V90's build ran 1.22 and 1.13 by turns beside it, and then both 1.12 to 1.16.) Never delete the duplicate artifact
 https://claude.ai/artifact/GFgjvMLi5jWg7TAKFgkqqm.
 Then the version goes into the repository: commit the changed sources (`git add -A`; the message "V98: ..." and a line or two of what
 changed) and push it (`git push origin main`). One commit per published version, named by its message. (Tags: the workspace's git

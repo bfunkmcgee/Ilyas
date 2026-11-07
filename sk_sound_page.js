@@ -10,11 +10,20 @@
 // fights' own and the stage's load beside the page; a call plays its recording, or the one it names, and is silent when it says
 // another carries it; the stage's background plays, the bike's recordings take over from the synthesized engine, the sound switch
 // silences them at once, and leaving the story lets every held sound go. Footsteps come from the feet coming down: none from men
-// standing still in the lab, the field's floor under the men walking out of the maize.
+// standing still in the lab, the field's floor under the men walking out of the maize. The cast's voices (vo/, sk_voui.js, since V98):
+// every voiced line is one a scene speaks, word for word, with its file; over http the opening's load with it, a line's plays as it
+// comes up with the song stepping back under it, and is stopped by moving the line on, silenced by the sound switch and held with
+// the game.
 // usage: node sk_sound_page.js   (needs test_page.html from build.py; PAGE=... to point it at another copy)
 const SK_T0=Date.now();
 const {chromium}=require('playwright');
 (async()=>{
+// (the cast's voiced lines, sk_vo.js: each a line a scene speaks, word for word, by the one who says it, with its file cut)
+const voCheck=()=>{const fs=require('fs'),src=fs.readdirSync('.').filter(f=>/^sk_.*\.js$/.test(f)&&!/^sk_(full|sceneui)\.js$|_page\.js$|_test\.js$/.test(f)).map(f=>fs.readFileSync(f,'utf8')).join('\n');
+  const V=new Function('HERO_NAME',fs.readFileSync('sk_vo.js','utf8')+';return{VO_LINES,VO_LEN};')('Ilyas'),bad=[];
+  for(const L of V.VO_LINES){const who=L.who==='Ilyas'?'HERO_NAME':"'"+L.who+"'";if(!src.includes('speak('+who+",'"+L.text+"'"))bad.push(L.id+': no such line');
+    const f='vo/'+L.id+'.mp3';if(!(V.VO_LEN[L.id]>0))bad.push(L.id+': not cut');else if(!fs.existsSync(f)||fs.statSync(f).size<2000)bad.push(L.id+': no file');}
+  return{n:V.VO_LINES.length,bad};};
 const b=await chromium.launch({executablePath:process.env.SK_CHROMIUM||(require('fs').existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined),args:['--autoplay-policy=no-user-gesture-required']}),errs=[],rep=[];
 const expect=(label,cond,info)=>{rep.push((cond?'ok   ':'FAIL ')+label+(process.env.SK_TIMING?' ['+((Date.now()-SK_T0)/1000).toFixed(1)+'s]':'')+(info?'  '+info:''));if(!cond)errs.push(label+(info?' ('+info+')':''));};
 const p=await (await b.newContext({viewport:{width:1100,height:620}})).newPage();
@@ -121,6 +130,28 @@ await p.evaluate(()=>{storyQuit();step(2);});
     return{swoosh:call('swoosh',1.5,{A:K}),named:call('crit',30,{s:'finish_neck'}),carried:call('swoosh',1.5,{skip:'swing_mid'}),heavy:call('thud',500)};});   // (the road at sundown is dirt)
   expect('a call plays its recording, or the one it names; one that another recording carries is silent',
     c1.swoosh==='swing_mid'&&c1.named==='finish_neck'&&c1.carried===''&&c1.heavy==='thud_dirt',JSON.stringify(c1));
+  // the cast's voices (vo/, sk_voui.js, since V98): the opening's lines load with it (and the field's, next), each plays as it comes up
+  // with the song stepping back under it, moving it on stops it, the sound switch silences it, and it is held with the game
+  const v0=await (async()=>{let r;for(let i=0;i<40;i++){r=await h.evaluate(()=>{step(1);return{want:[...VOX.want],have:Object.keys(VOX.bufs),bad:Object.keys(VOX.bad)};});
+    if(r.want.length&&r.want.every(k=>r.have.includes(k)))break;await h.waitForTimeout(150);}return r;})();
+  expect('the opening\'s voiced lines load with it, and the field\'s, next; none fails',v0.want.includes('sundown_1')&&v0.want.includes('field_2')&&v0.want.every(k=>v0.have.includes(k))&&!v0.bad.length,JSON.stringify(v0));
+  const v1=await h.evaluate(()=>{const n=runUntil(()=>S.say&&S.say.vo==='sundown_1',8000);step(2);const an=AC.createAnalyser();an.fftSize=4096;VOX.bus.connect(an);window.__van=an;
+    return{n,vo:S.say&&S.say.vo,dur:S.say&&+S.say.dur.toFixed(2),len:VO_BY.sundown_1.len,cur:VOX.cur&&VOX.cur.id,duck:MUSIC.duck,gain:+MUSIC.g.gain.value.toFixed(3)};});
+  await h.waitForTimeout(450);
+  const voLevel=()=>h.evaluate(()=>{const an=window.__van,d=new Float32Array(an.fftSize);an.getFloatTimeDomainData(d);let s=0;for(const v of d)s+=v*v;return+Math.sqrt(s/d.length).toFixed(5);});
+  const v2=await voLevel(),vm=await h.evaluate(()=>+MUSIC.g.gain.value.toFixed(3));
+  expect('his first line plays as it comes up, kept up as long as it takes him to say it, and the song steps back under it',
+    v1.vo==='sundown_1'&&v1.cur==='sundown_1'&&v1.dur>=v1.len+.3&&v1.duck===.55&&v2>HEARD&&vm<.3,JSON.stringify({v1,level:v2,song:vm}));
+  const v3=await h.evaluate(()=>{storyAdvance();storyAdvance();step(2);return{cur:VOX.cur&&VOX.cur.id,duck:MUSIC.duck,say:S.say&&S.say.text};});
+  await h.waitForTimeout(350);const v4=await voLevel();
+  expect('moved on, the line\'s voice stops and the song comes back up',!v3.cur&&v3.duck===1&&v4<QUIET,JSON.stringify({v3,level:v4}));
+  const v5=await h.evaluate(()=>{runUntil(()=>S.say&&S.say.vo==='sundown_2',4000);step(2);return{vo:S.say&&S.say.vo,cur:VOX.cur&&VOX.cur.id};});
+  await h.waitForTimeout(350);const v6=await voLevel();
+  await h.evaluate(()=>{S.soundOn=false;step(2);});await h.waitForTimeout(350);const v7=await voLevel();
+  await h.evaluate(()=>{S.soundOn=true;step(2);});
+  expect('the next line plays in its turn, and the sound switch silences it at once',v5.vo==='sundown_2'&&v5.cur==='sundown_2'&&v6>HEARD&&v7<QUIET,JSON.stringify({v5,on:v6,off:v7}));
+  const v8=await h.evaluate(()=>{const t=S.t;S.paused=true;step(3);const held=VOX.cur&&VOX.cur.id;S.paused=false;step(2);return{held,again:VOX.cur&&VOX.cur.id,frozen:S.t-t<.1};});
+  expect('held with the game (the menu open), and on again from where the line had got to',v8.held===null&&v8.again==='sundown_2',JSON.stringify(v8));
   const b1=await h.evaluate(()=>{const n=runUntil(()=>S.story.bike&&S.story.bike.run>0,8000);step(40);const an=AC.createAnalyser();an.fftSize=4096;SFX.bus.connect(an);window.__san=an;
     return{n,bed:!!SFX.loops['bed:amb_sundown_loop'],lo:!!SFX.loops.bikeLo,eng:!!ENG};});
   await h.waitForTimeout(500);
@@ -149,6 +180,7 @@ await p.evaluate(()=>{storyQuit();step(2);});
   await h.evaluate(()=>{storyQuit();step(2);});await h.close();
   for(const s of [A,B]){s.close();if(s.closeAllConnections)s.closeAllConnections();}}
 
+{const r=voCheck();expect('every voiced line is one a scene speaks, word for word, by the one who says it, and has its file',r.n>0&&!r.bad.length,JSON.stringify(r));}
 for(const l of rep)console.log(l);
 console.log('errors',errs.length,JSON.stringify(errs));
 await b.close();})();

@@ -44,8 +44,10 @@ function* walkLeg(f,x,z,v,more){f.cutWalk=true;f.walkEnd=more?null:{x,z};
   if(!more){f.cutWalk=false;f.walkV=null;f.walkEnd=null;f.velX=0;}}
 // a keyframed pose (the game's own action format), then on when it has played
 function* act(f,a){f.action=a;const t=a.t0+a.end;while(S.t<t)yield;}
-// a line of dialogue: on screen until the player moves it on, or for its time when nobody is there to (auto battle, the checks)
-function* speak(who,text,o={}){const dur=o.dur??Math.max(2.2,1.1+text.length*.055);S.say={who,text,t0:S.t,dur,col:o.col||null,adv:false,side:o.side||0};
+// a line of dialogue: on screen until the player moves it on, or for its time when nobody is there to (auto battle, the checks); a
+// voiced one (sk_vo.js) for at least as long as it takes to say, and S.say.vo names its recording for the page to play
+function* speak(who,text,o={}){const vo=voOf(who,text),d0=o.dur??Math.max(2.2,1.1+text.length*.055),dur=vo?Math.max(d0,vo.len+.35):d0;
+  S.say={who,text,t0:S.t,dur,col:o.col||null,adv:false,side:o.side||0,vo:vo?vo.id:null};
   while(!(S.say&&S.say.adv)&&S.t<S.say.t0+dur*(S.auto||S.storyAuto?1:1.35))yield;S.say=null;yield* wait(o.gap??.15);}
 // ride a bike to (x, depth) in dur seconds along an easing (the scene drives it; its rider goes with it)
 function* rideTo(B,x,z,dur,ease){const x0=B.x,z0=B.dep,t0=S.t,E=ease||sstep;B.ctl='script';
