@@ -13,7 +13,7 @@
 // standing still in the lab, the field's floor under the men walking out of the maize. The cast's voices (vo/, sk_voui.js, since V98):
 // every voiced line is one a scene speaks, word for word, with its file; over http the opening's load with it, a line's plays as it
 // comes up with the song stepping back under it, and is stopped by moving the line on, silenced by the sound switch and held with
-// the game.
+// the game; the Avenue's load with it and the Checkpoint's next (since V99), and the Pack leader's plays in its turn.
 // usage: node sk_sound_page.js   (needs test_page.html from build.py; PAGE=... to point it at another copy)
 const SK_T0=Date.now();
 const {chromium}=require('playwright');
@@ -171,6 +171,16 @@ await p.evaluate(()=>{storyQuit();step(2);});
     return{floor:sfxFloor(),heard:out};});
   const ws2=Object.keys(w2.heard).filter(k=>/^step_/.test(k));
   expect('the field: the men coming out of the maize are heard, and their steps on its floor',w1&&w2.heard.maize_push>0&&ws2.length===1&&ws2[0]==='step_dirt'&&w2.heard.step_dirt>2,JSON.stringify(w2));
+  await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
+  // the Avenue (since V99): its voiced lines load with it, and the Checkpoint's, next; the Pack leader's plays as it comes up
+  await h.evaluate(()=>{storyGo('chase');S.storyAuto=true;S.auto=true;step(2);});
+  const cv0=await (async()=>{let r;for(let i=0;i<40;i++){r=await h.evaluate(()=>{step(1);return{want:[...VOX.want],have:Object.keys(VOX.bufs),bad:Object.keys(VOX.bad)};});
+    if(r.want.length&&r.want.every(k=>r.have.includes(k)))break;await h.waitForTimeout(150);}return r;})();
+  expect('the Avenue\'s voiced lines load with it, and the Checkpoint\'s, next; none fails',
+    ['chase_1','chase_2','roadblock_1','roadblock_2'].every(k=>cv0.want.includes(k))&&cv0.want.every(k=>cv0.have.includes(k))&&!cv0.bad.length,JSON.stringify(cv0));
+  const cv1=await h.evaluate(()=>{const n=runUntil(()=>S.say&&S.say.vo==='chase_1',12000);step(2);return{n,vo:S.say&&S.say.vo,cur:VOX.cur&&VOX.cur.id};});
+  await h.waitForTimeout(350);const cv2=await voLevel();
+  expect('the Avenue: the Pack leader\'s line plays as it comes up',cv1.vo==='chase_1'&&cv1.cur==='chase_1'&&cv2>HEARD,JSON.stringify({cv1,level:cv2}));
   await h.evaluate(()=>{storyQuit();step(2);});await h.waitForTimeout(1300);await h.evaluate(()=>step(2));
   away=true;
   await h.evaluate(()=>{storyGo(null);S.storyAuto=true;S.auto=true;step(2);});await h.waitForTimeout(1500);

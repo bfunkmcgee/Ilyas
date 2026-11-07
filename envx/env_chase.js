@@ -281,7 +281,7 @@ function cinema(c,b){const base=FB(),x0=b.x0,x1=b.x1,w=x1-x0,top=b.top,gTop=base
   const wall=()=>{c.beginPath();c.moveTo(x0,base);c.lineTo(x0,top);c.lineTo(B0,top);c.lineTo(B0,top-10);c.lineTo(B0+15,top-10);c.lineTo(B0+15,top-21);c.lineTo(B1-15,top-21);c.lineTo(B1-15,top-10);c.lineTo(B1,top-10);c.lineTo(B1,top);c.lineTo(x1,top);c.lineTo(x1,base);c.closePath();};
   c.save();wall();c.clip();c.fillStyle=patAt(c,TX().plaster(b.seed,128,128,{base:'#4a3e44'}),x0,top-21,.7);c.fillRect(x0,top-21,w,base-top+21);
   c.fillStyle=lin(c,0,top-21,0,base,[[0,rgba('#04030a',.76)],[1,rgba('#04030a',.6)]]);c.fillRect(x0,top-21,w,base-top+21);
-  c.strokeStyle=rgba('#000000',.42);c.lineWidth=1.65;c.beginPath();for(let y=top+6;y<gTop-8;y+=6){c.moveTo(x0,y);c.lineTo(B0-8,y);c.moveTo(B1+8,y);c.lineTo(x1,y);}c.stroke();
+  c.strokeStyle=rgba('#000000',.42);c.lineWidth=1.9;c.beginPath();for(let y=top+6;y<gTop-8;y+=6){c.moveTo(x0,y);c.lineTo(B0-8,y);c.moveTo(B1+8,y);c.lineTo(x1,y);}c.stroke();
   c.fillStyle=lin(c,0,top-21,0,top+10,[[0,rgba('#030206',.5)],[1,rgba('#030206',0)]]);c.fillRect(x0,top-21,w,31);c.restore();
   // the copings, each step's edge gilt
   for(const [a,bb,y] of [[x0-2,B0+2,top],[B1-2,x1+2,top],[B0-2,B0+17,top-10],[B1-17,B1+2,top-10],[B0+13,B1-13,top-21]]){stone(c,a,y-2.6,bb-a,3,{dark:.55,lit:.3});c.fillStyle=rgba(C.gold,.55);c.fillRect(a,y+.4,bb-a,.5);}
@@ -293,7 +293,7 @@ function cinema(c,b){const base=FB(),x0=b.x0,x1=b.x1,w=x1-x0,top=b.top,gTop=base
     c.fillStyle=rgba('#000000',.55);c.fillRect(wx-1,wy-.5,ww+2,wh+.5);windowPane(c,wx,wy,ww,wh,lit,{mull:2,rows:[.36],fw:1,r,sky:'#121628'});stone(c,wx-2,wy+wh,ww+4,2.2,{lit:.3});
     c.fillStyle=rgba(C.gold,.5);c.fillRect(wx-1,wy-2.6,ww+2,.6);}
   // the name: LYRIC in gilt on black, ringed with bulbs
-  const ny0=top+6,ny1=top+38,nx0=B0+5,nx1=B1-5;c.fillStyle='#050407';c.fillRect(nx0,ny0,nx1-nx0,ny1-ny0);c.strokeStyle=rgba(C.gold,.85);c.lineWidth=1.13;c.strokeRect(nx0+2.4,ny0+2.4,nx1-nx0-4.8,ny1-ny0-4.8);
+  const ny0=top+6,ny1=top+38,nx0=B0+5,nx1=B1-5;c.fillStyle='#050407';c.fillRect(nx0,ny0,nx1-nx0,ny1-ny0);c.strokeStyle=rgba(C.gold,.85);c.lineWidth=1.25;c.strokeRect(nx0+2.4,ny0+2.4,nx1-nx0-4.8,ny1-ny0-4.8);
   const title=b.title||'LYRIC';bloom(c,nx0,ny0,nx1-nx0,ny1-ny0,3.2,.55,g=>{g.font='700 19px "Alegreya SC", Georgia, serif';g.textAlign='center';g.letterSpacing='3px';g.fillStyle=C.amber;g.fillText(title,cx,ny1-8.5);});gilt(c,title,cx,ny1-8.5,19,{style:'700',track:3});
   for(let x=nx0+1.5;x<=nx1-1.4;x+=3.6)bulb(c,x,ny0-1.6);for(let y=ny0+2;y<=ny1-1;y+=3.6)bulb(c,nx1+1.6,y);for(let x=nx1-1.5;x>=nx0+1.4;x-=3.6)bulb(c,x,ny1+1.6);for(let y=ny1-2;y>=ny0+1;y-=3.6)bulb(c,nx0-1.6,y);
   REFL.push({x:cx,w:44,y:(ny0+ny1)/2,col:'#ffd890',a:.12});
@@ -567,7 +567,7 @@ function park(c,x0,x1){const base=FB(),r=rng(23),bk=base-30,hT=BAND.mid.y1-10,cx
 function chapel(c,b){const base=FB(),x0=b.x0,x1=b.x1,w=x1-x0,top=b.top,cx=(x0+x1)/2;
   c.save();c.beginPath();c.moveTo(x0,base);c.lineTo(x0,top);c.lineTo(cx,top-40);c.lineTo(x1,top);c.lineTo(x1,base);c.closePath();c.clip();
   c.fillStyle=patAt(c,TX().granite(67,96,96,{base:'#6a6670'}),x0,top-40,.25);c.fillRect(x0,top-40,w,base-top+40);c.fillStyle=rgba('#05040a',.66);c.fillRect(x0,top-40,w,base-top+40);
-  c.strokeStyle=rgba('#000000',.45);c.lineWidth=1.6;c.beginPath();for(let y=top-36,k=0;y<base;y+=7,k++){c.moveTo(x0,y);c.lineTo(x1,y);for(let x=x0+(k%2)*11;x<x1;x+=22){c.moveTo(x,y);c.lineTo(x,y+7);}}c.stroke();c.restore();
+  c.strokeStyle=rgba('#000000',.45);c.lineWidth=1.85;c.beginPath();for(let y=top-36,k=0;y<base;y+=7,k++){c.moveTo(x0,y);c.lineTo(x1,y);for(let x=x0+(k%2)*11;x<x1;x+=22){c.moveTo(x,y);c.lineTo(x,y+7);}}c.stroke();c.restore();
   line(c,[{x:x0-3,y:top+1},{x:cx,y:top-41},{x:x1+3,y:top+1}],rgba(C.rim,.38),1.2);
   // a cross of gilt at the gable's peak, buttresses at the corners
   c.fillStyle=C.gold;c.fillRect(cx-.8,top-56,1.6,16);c.fillRect(cx-5,top-51,10,1.6);

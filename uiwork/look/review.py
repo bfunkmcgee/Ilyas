@@ -24,7 +24,8 @@ and fails a frame for each rule it breaks:
 What was judged and kept is in kept.json (frames and places, each with its reason) and kept_lines.json (the line widths kept, each
 with its reason); a kept entry no frame needs any more is named, so the lists stay true. Writes <out>/review.json (every frame's
 numbers, pictures and verdicts: the lookbook reads it) and prints the fails, each on a line starting FAIL; exit status 1 on any.
---judge judges what is already in the folder without running anything again; --no-desk leaves out the wide screen (not a full
+--judge judges what is already in the folder without running anything again; --analyse (since V99) reads the pictures already in
+it again (the line widths, the colours, the faults) and judges, keeping the timings; --no-desk leaves out the wide screen (not a full
 review); --keep-lines "why" adds the lines the run finds under the rule to kept_lines.json with that reason (once judged).
 """
 import json, os, re, subprocess, sys, time
@@ -234,18 +235,28 @@ def main():
     klf = os.path.join(HERE, 'kept_lines.json')
     kept_lines = json.load(open(klf))
     t0 = time.time()
+    # --analyse (since V99): the pictures and the timings the last review took are kept, and only read again and judged (for a change
+    # to what reads them, hues.py, faults.py, lines.py or the kept lists, with the page and what takes the pictures as they were:
+    # test.py look decides)
+    analyse = '--analyse' in flags
+    if analyse and not all(os.path.exists(os.path.join(out, d, 'audit.json')) for d in ('phone', 'desk')):
+        sys.exit('FAIL --analyse: no pictures in %s to read again' % out)
     if '--judge' not in flags:
         os.makedirs(out, exist_ok=True)
         env = {'PAGE': page}
-        print('look review of %s into %s' % (os.path.relpath(page, REPO), out), flush=True)
-        ok = run('the audit, 412x714 (alone)', ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'phone')] + [str(v) for v in PHONE],
-                 os.path.join(out, 'phone.log'), env)
-        jobs = [('the line widths, 412x714', ['node', os.path.join(HERE, 'lines.js'), os.path.join(out, 'lines')] + [str(v) for v in PHONE],
-                 os.path.join(out, 'lines.log'), env)]
-        if desk:
-            jobs.insert(0, ('the audit, 1280x800', ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'desk')] + [str(v) for v in DESK],
-                            os.path.join(out, 'desk.log'), dict(env, COSTN='2')))
-        ok = together(jobs) and ok
+        ok = True
+        if analyse:
+            print('look review of %s: the pictures in %s read again' % (os.path.relpath(page, REPO), out), flush=True)
+        else:
+            print('look review of %s into %s' % (os.path.relpath(page, REPO), out), flush=True)
+            ok = run('the audit, 412x714 (alone)', ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'phone')] + [str(v) for v in PHONE],
+                     os.path.join(out, 'phone.log'), env)
+            jobs = [('the line widths, 412x714', ['node', os.path.join(HERE, 'lines.js'), os.path.join(out, 'lines')] + [str(v) for v in PHONE],
+                     os.path.join(out, 'lines.log'), env)]
+            if desk:
+                jobs.insert(0, ('the audit, 1280x800', ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'desk')] + [str(v) for v in DESK],
+                                os.path.join(out, 'desk.log'), dict(env, COSTN='2')))
+            ok = together(jobs) and ok
         ok = run('the line widths, read', [sys.executable, os.path.join(HERE, 'lines.py'), page, os.path.join(out, 'lines')],
                  os.path.join(out, 'lines_read.log')) and ok
         ok = run('the colours', [sys.executable, '-W', 'ignore', os.path.join(HERE, 'hues.py'), os.path.join(out, 'phone')], os.path.join(out, 'hues.log')) and ok
@@ -255,11 +266,12 @@ def main():
         line = max([s['ms'] for s in A['shots'] if s['id'] == 'fall' and not s.get('gone')] or [0])
         sus = [frame_name(s) for s in A['shots'] if s['id'] != 'fall' and not s.get('gone') and line and s['ms'] >= SUSPECT * line]
         cf = os.path.join(out, 'costs.json')
-        if os.path.exists(cf):
-            os.remove(cf)
-        if sus:
-            ok = run('the cost of %d frames, by turns (alone)' % len(sus), ['node', os.path.join(HERE, 'costs.js'), cf, ','.join(sus)] + [str(v) for v in PHONE],
-                     os.path.join(out, 'costs.log'), env) and ok
+        if not analyse:
+            if os.path.exists(cf):
+                os.remove(cf)
+            if sus:
+                ok = run('the cost of %d frames, by turns (alone)' % len(sus), ['node', os.path.join(HERE, 'costs.js'), cf, ','.join(sus)] + [str(v) for v in PHONE],
+                         os.path.join(out, 'costs.log'), env) and ok
         if not ok:
             print('FAIL a step of the review did not finish: see its log in %s' % out)
             sys.exit(1)

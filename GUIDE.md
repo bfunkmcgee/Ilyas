@@ -21,12 +21,27 @@ https://github.com/bfunkmcgee/Ilyas (since V63): work in a clone of it.
 | `python3 check.py` | build, then the static check: ESLint over the assembled script, the UI dice rule, CSS braces. Messages name the source file and line | 6 s |
 | `python3 test.py` | quick tier: the static check and the thirteen game-logic suites | 2 min |
 | `python3 test.py affected` | the static check, then the suites that cover what changed since the last full pass (game rules: everything; drawing or page: the page suites it touches) | varies |
-| `python3 test.py full` | every suite two at a time, then the timing checks alone. Run before every publish | 13 min (was 36) |
+| `python3 test.py full` | every suite whose last pass no longer stands (since V99: what a pass rests on, below), two at a time, then the timing checks alone if theirs does not stand either; `--all` every suite. Run before every publish | 0 to 17 min (17 when the page changed) |
 | `python3 test.py NAME ...` | named suites (`--list` shows them and what each covers) | |
 | `python3 test.py perf` | the timing checks alone; nothing else may load the machine | 50 s |
-| `python3 test.py look` | the look review alone (uiwork/look/review.py, since V88): every place the game draws, on a phone and a wide screen, against the style and drawing guides' measured rules; a frame that breaks one fails. Run before every publish, after the full run, with nothing beside it | 20 min |
-| `python3 test.py --status` | whether the sources are the ones the last full run and the last look review passed with | instant |
+| `python3 test.py look` | the look review alone (uiwork/look/review.py, since V88): every place the game draws, on a phone and a wide screen, against the style and drawing guides' measured rules; a frame that breaks one fails. Only what its last pass does not cover (since V99): nothing, its pictures read again and judged, or the whole review; `--all` the whole. Run before every publish, after the full run, with nothing beside it | 0, 1 or 16 min |
+| `python3 test.py --status` | builds, then says whether every suite's last pass and the look review's still stand, and for each that does not, why | seconds |
 
+What a pass rests on (since V99). The checks are seeded and run on a fake clock, so a suite's verdict follows from what it reads,
+and a suite that passed need not run again while all of that is as it was. Each node suite runs with tools/test_reads.js, which
+notes every file of the repository it reads, every folder it lists and every file it looks at; test.py keeps its pass with them and
+what each held (test_out/passes.json), along with what it rests on without reading it: its own file; for a page suite the page
+(test_page.html, which Chromium opens) and the song the page loads beside it (a page opened as a file loads no other recording); and
+the machine's node, Chromium and Playwright. Scripts, styles and pages are compared by tools/canon.js, which leaves out comments and
+spacing (keeping where a line break can end a statement). A suite runs again when any of that differs, when it last failed, or when
+its kept output no longer meets the verdict; `live` always runs. So: a change to the game runs the suites that read it (the
+thirteen logic suites read only the rules' modules, so a change to the drawing, a scene or the page leaves them standing; the page
+suites, anything the page is built from); a voice or sound file, the suites that load it (soundpage); a suite's own file, that suite;
+a document, a comment, the spacing, the build's own code where the page comes out the same, or a tool no suite uses, nothing; a run
+cut short or failed carries on with what had not passed. The look review rests on the page, the song and its own files: the page or
+what takes its pictures (places.js, audit.js, lines.js, costs.js, review.py) changed, the whole review; only what reads them (hues.py,
+faults.py, lines.py, kept.json, kept_lines.json), its pictures read again and judged (`review.py --analyse`, about a minute). The
+machine matters to the review's costs: a different one can move the fall's dearest frame and the frames timed against it (V99).
 Each suite's output is in test_out/NAME.txt. uiwork/qa_build.py calls `build.py --qa`. Always run long things under `timeout`. The
 machine has two cores and about 7 GB. GitHub runs `python3 build.py` and the quick tier on every push to main
 (.github/workflows/checks.yml).
@@ -244,7 +259,8 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   their spectrograms (a loop's seam measured). A take is seeded by its key and number, so a render comes out the same every
   time. A new sound: its recipe and its line in list.json, render all and install (the manifest installed is the whole of
   <out>/web/manifest.json), its level in `SFX_GAIN` or `SFX_LOOP`, the stage that loads it in `SFX_STAGE`, and the call that plays it.
-- Voices (since V98): the cast says its lines aloud, so far the opening's and the field's (Ilyas's five, the Driver's one). The
+- Voices (since V98): the cast says its lines aloud, so far the opening's, the field's (V98), the Avenue's and the Checkpoint's (V99):
+  Ilyas's seven, one each for the Driver, the Pack leader and the Sergeant. The
   recordings are Suno speech, made through the author's Suno connector: one take a character for a scene or two, so a voice stays
   the same from line to line (separate generations come out as different men), the author choosing the take. `VO_LINES`
   (sk_vo.js) names each line (id, the stage that loads it, who, its words exactly as its speak() call has them) and `VO_LEN` its
@@ -263,12 +279,21 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   reports, on a "!" line, talk no line keeps or a stretch that begins or ends mid-word: the fix is that word's start and end in the
   align file, then cut again. Talk left out can also be sound beyond the script (the Driver's take ends in a cough, a breath and a
   chuckle), right to leave out: a take's `skip` in takes.json names it, and the check passes over it. This workspace cannot reach
-  Suno's file host, so a take comes in as a file the author downloads and attaches (a scene's takes share a title, so the clip is
-  told by its length). A new line: its take (the script word for word, a blank line between lines; the style kept to the voice,
-  "spoken word, voice only ... close microphone, dry voice recording", with music, instruments and reverb in the negative style,
-  since words for a manner such as "elegant" can bring in a music bed), the alignment saved, its entry in takes.json and
+  Suno's file host, so a take comes in as a file the author downloads and attaches. Takes share titles, so a file is told by the clip
+  id in its comment tag (`ffprobe -show_entries format_tags=comment`). Suno often reads a short line twice or adds a breath, a
+  chuckle or a throat-clearing: a reading not used is null in the take's lines, sound beside the line goes in its `skip`, and a
+  take's `tail` (seconds after the last word) shortens the cut where a sound follows the line closely. A correction to Suno's timings
+  is noted in the align file's `fixed`.
+  Keeping a voice: a new generation comes out as a different man, so a character's later lines are a continuation of his first take
+  (the connector's audio-extensions-create from just after its last line, the same style, audio_influence .85), and the take is the
+  joined clip (audio-full-song), its earlier lines null: Ilyas's Avenue and Checkpoint lines continue take I from 26.2 s (the author
+  chose the second of the two continuations). Shouted lines come out deep and growly, as if processed, whatever the style asks (the
+  Sergeant took five rounds). A new line: its take (the script word for word, a blank line between lines; the style kept to the
+  voice, "spoken word, voice only ... close microphone, dry voice recording", with music, instruments and reverb in the negative
+  style, since words for a manner such as "elegant" can bring in a music bed), the alignment saved, its entry in takes.json and
   `VO_LINES`, cut and install. Suite: soundpage (every voiced line is one a scene speaks, word for word, with its file; over http
-  they load, play, step the song back, stop, go silent with the switch and hold with the game).
+  the opening's and the Avenue's load with their next stage's, play, step the song back, stop, go silent with the switch and hold
+  with the game).
 - sk_lookui.js (Kael), sk_castui.js (everyone else), sk_figui.js (FigKit: the shared shaping and light). drawFighterItem in sk_ui.js.
 - sk_lightui.js (FXL): effects Full/Lite/Off (localStorage sk_fx; auto-drops to Lite on a slow device, never under SK_TEST). Full
   draws each fighter into a sprite (ctx swapped) reused for cast shadows and reflections; the fx are restyled as light; the vignette
@@ -991,8 +1016,9 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   units where it lands on the screen (through the still layer, sprites and offscreen bitmaps), put down to the lineWidth assignment
   that set it (file, line and column): its median, least and most, colour and alpha, and whether it meets the drawing guide's rule 2
   (1.5 units; 1 for a highlight). `LWF=<file>` ({"line:col": k} for the page the run uses) previews a change to those assignments.
-- `python3 uiwork/look/review.py [out] [--judge] [--no-desk] [--keep-lines "why"]`: the look review (since V88; `python3 test.py
-  look` runs it alone into test_out/look and records its pass in test_out/look_pass.json, which `--status` checks). It runs the
+- `python3 uiwork/look/review.py [out] [--judge] [--analyse] [--no-desk] [--keep-lines "why"]`: the look review (since V88; `python3
+  test.py look` runs it alone into test_out/look and keeps its pass in test_out/passes.json, which `--status` checks; `--analyse`,
+  since V99, reads the pictures already taken again and judges). It runs the
   audit at 412x714 alone, then the audit at 1280x800 beside the line widths, the colours and the picture faults, and times again
   by turns against the fall (`costs.js`) the phone's frames that cost 85% of the fall's dearest frame or more. Then it fails a frame
   for each rule it breaks, on a line starting FAIL: black (the style guide's rule 1: 5% at most, in the action and the scenes),
@@ -1111,14 +1137,15 @@ deep station's f4 to 115%, at the line since V88 and 108% in one of V89's runs, 
 against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames). V90's places brought the old station into the line's f5 and so its lines into the review for the first time: brought to the drawing guide's widths, its platform's joints kept as fine texture. At f5's push-in the kitchen's course of green tiles repeats at the line (r .71 in one run), kept as machine-made. And the prologue's crowded fights cross the cost line and back from run to run, the fall's own dearest frame at 40 to 47 ms in V90's four timings: the chase's f8 110 to 139%, the dining room's f2 96 to 119% and f5 88 to 103%, the kitchen's f2 89 to 101%, the deep station's f4 up to 106%, none of them drawn differently (by turns against V89's build). They are kept to a max with those ranges: the chase's f8 to 145%, the dining room's f2 to 125%, the others to 115 or 120%. V93's levels change how the story's fights go (his health and his dice grow with him), and so what the frames hold, nothing drawn differently: the office's f4 on a phone has its coffered walnut ceiling in frame (a coffer every 124 units, kept as built, drawing rule 6), and 11 of the beasts' lines came into the phone's frames under their width (the goblins' ribs, the keys on their belts, their scars and hats, the bone and iron of the beasts' weapons), kept with the figure tier's reason.
 
 ## Publishing
-Run `python3 test.py full` first, then `python3 test.py look` (alone, about 20 minutes: it times the drawing), and `python3 test.py
---status` just before publishing (it names any file changed since either passed). A version that changes the look republishes the
+Run `python3 test.py full` first, then `python3 test.py look` (alone: it times the drawing), each running only what its last pass
+does not cover (since V99), and `python3 test.py --status` just before publishing (it names every suite whose pass no longer stands,
+and why). A version that changes the look republishes the
 lookbook too: `python3 uiwork/look/lookbook.py` after the look review, its verdicts brought up to date in lookbook.json, then
 test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/artifact/UGQyH4NAZm5wik41FkMVqs with the artifacts
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V99 ..." (V98 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V100 ..." (V99 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

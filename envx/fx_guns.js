@@ -325,7 +325,7 @@ function rifleDraw(c,o){const R=riflePaths(),now=o.now||0,k=o.alpha??1;
   c.fillStyle=G(c,'rb',c=>lgr(c,-31,0,-29,0,[[0,K.goldD],[.5,K.goldL],[1,K.goldD]]));c.fill(R.butt);
   vine(c,[[-27,.2],[-18,1.4],[-8,1]],.24,1,rgba(K.gold,.85),2);
   c.fillStyle=G(c,'rg',c=>lgr(c,-6,-11,2,-3,[[0,'#060509'],[1,'#1e1d24']]));c.fill(R.grip);
-  c.strokeStyle='#0d0c10';c.lineWidth=2.59;c.lineCap='round';c.lineJoin='round';c.stroke(R.guard);c.lineWidth=1.2;c.stroke(R.trig);
+  c.strokeStyle='#0d0c10';c.lineWidth=2.85;c.lineCap='round';c.lineJoin='round';c.stroke(R.guard);c.lineWidth=1.2;c.stroke(R.trig);
   // the cell: cyan crystal in a gold frame, glowing
   c.fillStyle=G(c,'rc',c=>lgr(c,12,-13,19,-3,[[0,K.cyanD],[.5,K.cyan],[1,K.cyanL]]));c.fill(R.cell);c.strokeStyle=K.gold;c.lineWidth=.9;c.stroke(R.cell);
   c.save();c.globalCompositeOperation='lighter';c.globalAlpha=k*(.35+.15*Math.sin(now*3))/.5;c.fillStyle=G(c,'rcg',c=>{const g=c.createRadialGradient(16,-8,0,16,-8,9);g.addColorStop(0,rgba(K.cyanL,.5));g.addColorStop(1,rgba(K.cyan,0));return g;});

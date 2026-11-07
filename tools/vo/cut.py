@@ -7,8 +7,10 @@
 
 A take is one Suno speech clip carrying a character's lines for a scene or two, so the voice stays the same from line to line (one
 take a character: separate generations come out as different men). takes.json says, for each take: its file (src, beside this
-script in takes/), the Suno clip it came from (suno), who speaks, which lines it carries in order (lines: ids in VO_LINES, sk_vo.js),
-the longest pause to keep inside a line (gap, seconds), and where Suno's word timings for the clip are kept (align: a file in align/,
+script in takes/), the Suno clip it came from (suno), who speaks, which lines it carries in order (lines: ids in VO_LINES, sk_vo.js;
+null for a reading not used, when Suno read a line twice),
+the longest pause to keep inside a line (gap, seconds), optionally how long to keep after a line's last word (tail, seconds, when
+something follows it closely that is not to be kept), and where Suno's word timings for the clip are kept (align: a file in align/,
 {suno, who, title, words: [[start, end, word], ...]}, from the connector's lyrics-alignment; a word with a blank line before its
 letters begins the next line of the script). align/ keeps the takes not chosen as well, so a take can be swapped for another. Each line is cut from a little
 before its first word to a little after its last, any pause inside it longer than gap taken in to gap, and the take's lines brought to
@@ -51,13 +53,13 @@ def lines_of(take):
     if cur: out.append(cur)
     return out
 
-def spans(words, gap, lo, hi):
+def spans(words, gap, lo, hi, tail=TAIL):
     """The stretches of the take a line keeps: from before its first word to after its last, a long pause inside taken in."""
     a = max(lo, words[0][0] - LEAD); keep = []
     for (s0, e0), (s1, e1) in zip(words, words[1:]):
         if s1 - e0 > gap:
             keep.append((a, e0 + gap * .55)); a = s1 - gap * .45
-    keep.append((a, min(hi, words[-1][1] + TAIL)))
+    keep.append((a, min(hi, words[-1][1] + tail)))
     return keep
 
 def loudness(path):
@@ -106,7 +108,10 @@ def check(src, cuts, skip=()):
         for k, (a, b) in enumerate(sp):
             for t, edge in ((a, 'begins'), (b, 'ends')):
                 f = min(len(lv) - 1, max(0, int(round(t / HOP))))
-                if talk[f]: out.append('%s: stretch %d %s in talk at %.2f s' % (lid, k + 1, edge, t))
+                if not talk[f]: continue
+                # at the take's own start or end the clip itself is cut there, which no timing can mend: a note, not a warning
+                if f == 0 or f == len(lv) - 1: out.append('note: %s %s with the take, which %s partway into a word' % (lid, edge, edge))
+                else: out.append('%s: stretch %d %s in talk at %.2f s' % (lid, k + 1, edge, t))
     return out
 
 def cut_take(take, tmp):
@@ -115,11 +120,13 @@ def cut_take(take, tmp):
     L = lines_of(take)
     if len(L) != len(take['lines']):
         raise SystemExit('%s: %d lines in the words, %d named' % (take['src'], len(L), len(take['lines'])))
-    raw = []
+    raw, unused = [], []
     for i, (lid, words) in enumerate(zip(take['lines'], L)):
+        # a reading not used (null in lines: Suno read the line twice, say): not cut, and the check passes over it
+        if not lid: unused.append((words[0][0] - LEAD, words[-1][1] + TAIL, 'a reading not used')); continue
         lo = (L[i - 1][-1][1] + .02) if i else 0.0
         hi = (L[i + 1][0][0] - .05) if i + 1 < len(L) else 1e9
-        sp = spans(words, take.get('gap', .6), lo, hi)
+        sp = spans(words, take.get('gap', .6), lo, hi, take.get('tail', TAIL))
         # each stretch faded a breath at its edges, then joined
         parts = ''.join('[0:a]atrim=%.3f:%.3f,asetpts=PTS-STARTPTS,afade=t=in:d=%.3f,areverse,afade=t=in:d=%.3f,areverse[s%d];'
                         % (a, b, EDGE, EDGE * 2, j) for j, (a, b) in enumerate(sp))
@@ -142,8 +149,9 @@ def cut_take(take, tmp):
         out[lid] = round(d, 2)
         print('  %-10s %5.2f s  (%d stretch%s)' % (lid, d, len(sp), '' if len(sp) == 1 else 'es'))
     print('  take %s: %.1f LUFS, brought to %.1f (%+.1f dB)' % (take['src'], I, TARGET, g))
-    warn = check(src, {lid: sp for lid, _, sp in raw}, take.get('skip', []))
-    for w in warn: print('  ! ' + w)
+    found = check(src, {lid: sp for lid, _, sp in raw}, list(take.get('skip', [])) + unused)
+    warn = [w for w in found if not w.startswith('note: ')]
+    for w in found: print(('  - ' + w[6:]) if w.startswith('note: ') else ('  ! ' + w))
     return out, warn
 
 def install(lens):

@@ -13,8 +13,12 @@ const VO_LINES=[
   {id:'sundown_3',stage:'sundown',who:HERO_NAME,text:'Going to be a long night.'},
   {id:'field_1',stage:'field',who:HERO_NAME,text:'Every floor lit. Hallowell knows I’m coming. Good.'},
   {id:'field_2',stage:'field',who:'Driver',text:'Turn the bike around, elf. Hallowell’s paying, and there’s six of us.'},
-  {id:'field_3',stage:'field',who:HERO_NAME,text:'I counted.'}];
-const VO_LEN=/*VO_LEN*/{"field_1":3.24,"field_2":5.2,"field_3":1.12,"sundown_1":2.4,"sundown_2":4.94,"sundown_3":1.65}/*VO_LEN_END*/;
+  {id:'field_3',stage:'field',who:HERO_NAME,text:'I counted.'},
+  {id:'chase_1',stage:'chase',who:'Pack leader',text:'Hallowell pays by the ear, elf. We’d have done you for nothing.'},
+  {id:'chase_2',stage:'chase',who:HERO_NAME,text:'Then you’ve been overpaid.'},
+  {id:'roadblock_1',stage:'roadblock',who:'Sergeant',text:'On your feet! It’s one elf! Put him down!'},
+  {id:'roadblock_2',stage:'roadblock',who:HERO_NAME,text:'Qadir always did like a big entrance.'}];
+const VO_LEN=/*VO_LEN*/{"chase_1":4.78,"chase_2":1.36,"field_1":3.24,"field_2":5.2,"field_3":1.12,"roadblock_1":4.13,"roadblock_2":2.95,"sundown_1":2.4,"sundown_2":4.94,"sundown_3":1.65}/*VO_LEN_END*/;
 for(const L of VO_LINES)L.len=VO_LEN[L.id]||0;
 // the recording of a line, if it has one (and the file is cut): by who says it and its words
 function voOf(who,text){for(const L of VO_LINES)if(L.len>0&&L.who===who&&L.text===text)return L;return null;}
