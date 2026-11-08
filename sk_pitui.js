@@ -140,12 +140,17 @@ V11UI.screen.push(()=>{const A=S.act1;if(!A||!A.sear||!act1On())return;const u=S
 // A scene framed closer on an upright phone (C.fit, camCutFit in sk_storyui.js) keeps its view between the bars inside the part of
 // the place that is painted, the people in it (or the floor's band, BAND0, raised with the ground where it climbs: camBand below)
 // in the middle where that allows; a painted part shorter than the view is centred.
-{const ct=camTarget;camTarget=function(){const C=S.camCut;if(!C)return ct();
+// A scene gliding from one shot to the next (C.from: the band, and the narrow screen's, of the shot it comes from; C.blend: how far
+// it has come, 0 to 1) puts the picture's top between where each would put it (since V110: the Tower Road's ramp foot into the road).
+{const ct=camTarget,top=C=>{
   const s=cssW/Math.max(1,cam.viewW),bar=S.letter?cssH*.105:0,t=Math.max(HUD_IN.top,bar),b=Math.max(HUD_IN.bottom,bar),free=Math.max(40,cssH-t-b);
   const F=C.fit&&C.fit.band;if(F){const v=free/s;if((F.foot-F.top)<=v)return(F.top+F.foot)/2-(t+free/2)/s;
     const b0=camBand(),mid=C.fit.mid??(b0.top+b0.foot)/2;return clamp(mid-v/2,F.top,F.foot-v)-t/s;}
   const B=cssW<640&&C.bandN?C.bandN:C.band||(C.bandS&&(BAND0.foot-BAND0.top)*s>free?C.bandS:null);if(!B)return ct();
-  return(B.foot-B.top)*s<=free?(B.top+B.foot)/2-(t+free/2)/s:B.top-t/s;};}
+  return(B.foot-B.top)*s<=free?(B.top+B.foot)/2-(t+free/2)/s:B.top-t/s;};
+  camTarget=function(){const C=S.camCut;if(!C)return ct();
+    if(C.from&&C.blend<1)return lerp(top({...C,band:C.from.band,bandN:C.from.bandN,fit:null}),top(C),Math.max(0,C.blend));
+    return top(C);};}
 // A walk about or a cut with no band of its own, where the ground climbs (an arena with climb: the stair-streets), frames the floor's
 // band (BAND0) raised as far as the ground has come up where the camera looks: the picture goes up the stair with him (a phone on its
 // side lost his head over the top landing). Elsewhere nothing changes.

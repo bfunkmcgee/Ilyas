@@ -238,7 +238,8 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   stage of its own with no card, number or title (`part:'chase'`: the chapters do not list it, and `stageTitle` in sk_story.js gives
   its banner, the HUD's drawer and the saves the Avenue's name), between the chase and the checkpoint. The ramp: `RAMP`, a curve in
   the picture (x, y on the floor's line) from under the interchange's flyover high on the right, down toward the camera and round
-  into our middle lane heading west; `hwyFloor(s, off)` turns a point of it into the floor's x and depth, how big a thing there is
+  onto our two far lanes heading west (since V110, its foot's middle at depth 171; it came down into the middle lane); `hwyFloor(s,
+  off)` turns a point of it into the floor's x and depth, how big a thing there is
   drawn for its distance (`hwyK`: whole on our own lanes, out to depth 236, a third far up the ramp) and its heading as the looks
   turn a figure (`yaw`, from `hwyYaw`: 0 the profile heading west, the way the riders face, -π/2 the front to the camera, -π
   heading east). The bikes on the ramp carry those (`B.vk`, `B.vyaw`), and the page draws each bike and its rider about the point
@@ -265,11 +266,23 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   (`hwyShadowT`). Hidden riders' bikes are not drawn at all
   (the deck's riders before they jump). `hwyRide` drives a bike along
   the ramp (`B.carry` 1, `B.spd` the road's pace for the engine's note: sfxBikes reads it), `hwyLeap` runs a rider at the garage's
-  rail (`GARAGE`: its top deck, each rider's moment and where he comes down), through it (`S.hwy.broke`: the gaps the page tears in
-  the rail) and across onto the ramp (`B.air`, his height over the line he flies along, which the step turns into the bike's `gy`
-  and his body's height). `hwyMerge` brings everyone off the bend into the fight's places while the road takes up its pace
-  (`S.scrollV` from 0 to -1050: the road goes by to the right, and `roadGone` in sk_story.js sends what it takes off that side);
-  `hwyRoad` puts them there at once (the skip). `S.hwy.phase`: ramp, merge, road; `S.hwy.persp` while the ramp's scale holds.
+  rail (`GARAGE`: its top deck, each rider's moment and where he comes down; `JUMP_OF`, which of them each takes: since V110 the two
+  whose places are ahead of Kael's jump first), through it (`S.hwy.broke`: the gaps the page tears in the rail) and across onto the
+  ramp (`B.air`, his height over the line he flies along, which the step turns into the bike's `gy` and his body's height), and
+  rides on down it at an even pace. `hwyMerge` brings everyone off the bend into the fight's places while the road takes up its pace
+  (`S.scrollV` from 0 to -1050: the road goes by to the right, and `roadGone` in sk_story.js sends what it takes off that side), in
+  one move since V110 (asked for: the bikes came almost to a stop at the foot before the road took up its pace, those still on the
+  bend cut across it to their places, and the camera turned to the road's framing after): Kael's own pace goes from what he comes off
+  the bend at to the road's while in the picture he eases from his pace to still at his place, the road's pace in the picture is
+  what is left over (so it comes up from nothing), and the others ride on down the rest of the ramp and along an S in the lanes to
+  where their places will be once the road is at its pace, how far along it each is a cubic in time from his own pace to the road's.
+  `hwyRoad` puts them there at once (the skip). `S.hwy.phase`: ramp, merge, road; `S.hwy.persp` while the ramp's scale holds. The
+  camera down the ramp and onto the road is one move too (since V110: each shot cut to its band, the picture lurching after the
+  bikes): `hwyGlide` takes a shot over from the one before it (where it looks, how wide, how fast it follows, and the band it keeps,
+  `C.from` and `C.blend`, which sk_pitui.js's `camTarget` blends between), and from the bend the shots ride with Kael (`hwyRideX`,
+  `HWY_RIDE`: held where the shot has it until he comes out of the bend, then a little ahead of him, rounded from the one to the
+  other), the road's shot coming in over the merge as he comes to his place; they snap to that (rate 0), so he moves only one way
+  across the screen from the bend to his place.
   The truck (`truckNew`, `TRUCK`, T.x its tail, the bed `truckBed`) runs at the road's pace (T.vx moves it in the picture and the
   man on its bed with it: `truckShift`, `f.onTruck` standing him on the bed); its drums (`T.drums`, the tail's first) are thrown
   between the fight's turns: `startTurn` is wrapped so a turn starts only when the road allows it: every few turns (`sv.drumAt`, by
@@ -296,12 +309,23 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   and rail are drawn among the riders (`front`, an item at the deck's depth: in front of those still on the deck, behind those in
   the air). The ramp's markings lie still on it, as the road's do (since V107, asked for: its lane line's dashes streamed down it at a
   pace of their own, `rampLive`, and took another pattern at the merge): down its middle a dash every 120 of the world and 54 long,
-  shorter with the distance by its k, measured from its foot so that the last one falls on the highway's own. Its two lanes come
-  down onto the highway's second and third: `RAMP`'s foot is on the lane line at depth 114 (it was at 104), the painter's half width
-  `RW` 87 puts its edge lines on the lines at 52 and 176 (at 110 they ran down the middle of the lanes, beside the lane lines), its
-  own paint gives way to the road's over its last stretch (`S_FADE` .86 to `S_HI` 1: the road under it shows through, so its solid
-  edge lines run into the highway's dashed ones), and each of its parapets ends where its edge comes onto the highway's deck at the
-  far parapet's line (the outer one, round the outside of the bend, ran on across the highway's lanes as a wall).
+  shorter with the distance by its k. The ramp is built as the highway is (since V110, asked for: more detail and more structural
+  sense; it was a ribbon of road with a low parapet, nothing under it, its outer parapet running on across the highway's lanes as a
+  wall). `paintRamp`, back to front: the drop east of its foot, its piers (a bent of two columns under its edges every 170 of its
+  length, set from s .4, the one round its bend whose outer column shows past its outer edge over the barrier; the deck hides the
+  rest, as it would from above), its slab's edges, the gore, the deck (with its wheel tracks, its lamps' pools and its joints between
+  the bents), its parapets (as high as the far parapet and shaded and jointed as it is, with coping, rail, posts and reflectors), the
+  highway's barrier with the impact cushion at the gore's nose and two lamps, the ramp's lamps on its outer parapet. Its two lanes
+  run on as the highway's third and fourth: its edge lines (`RE` 69 across) come onto the lane line at 114 and the far edge line at
+  228, its middle line goes over onto the lane line at 176, its dashes are measured from its foot so they fall on the road's (`L0`),
+  and its own paint gives way to the road's over its last stretch (`S_FADE` .9 to `S_HI` 1). Its parapets (`RW` 79) stand at the
+  deck's edges: the inner one at its foot on the far parapet's line, where the far parapet ends (`XF`: its band is cut there while
+  the ramp is in the picture, its lamps and their light `LAMP_ON` 30 past it, the one at the foot standing on the inner parapet's
+  start: without it his outline at the foot read under two thirds on a phone) and the inner one takes it over and climbs away with
+  it; the outer one
+  from the gore's nose (`S_NOSE`, where its edge has come `GAP` 26 clear of the lane line at 114) up. East of its foot the highway is
+  its two near lanes behind a barrier at depth `HB` 118 (its face as the far parapet's), the drop beyond it, the gore between it
+  and the ramp paved and chevroned.
   Its cost (since V101's first look review, where the ramp's foot on a phone came in at 117% of the fall's dearest frame): what is
   hidden is not put down. The sky and the city stop where the band in front of them hides them (`HIDE`) and are put down only either
   side of the garage below its roof (`behind`); the far parapet's band is the parapet alone and each lamp a sprite of its own put
@@ -1441,7 +1465,7 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V110 ..." (V109 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V111 ..." (V110 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

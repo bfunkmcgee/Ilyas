@@ -4,13 +4,15 @@
 // the drop to the city far below, its streets and roofs going by slowly, and over it the skyline with the Hallowell tower far off to
 // the left, where the riders are going. The near parapet's outer face is at the picture's foot, the drop again under it.
 // The set piece at the start: the ramp down from the interchange high on the right, bending toward the camera across the drop on its
-// piers and round into our lanes (where it runs is the game's, RAMP and hwyBez in sk_highway.js), and the parking garage beyond the
-// drop inside its bend, its top deck as high as the ramp's top, the rail the riders come through. Both are painted once and go away
-// to the right with the road once the riders are on the straight (S.scroll). The ramp's markings lie still on it, as the road's do
-// (since V107, asked for: its lane line's dashes streamed down it at a pace of their own, and changed their pattern at the merge),
-// and its two lanes come down onto the highway's second and third, its lines onto the highway's lane lines, where the ramp's own
-// paint gives way to the road's. The bands (the skyline, the city below, the far parapet, the road, the near parapet, the drop) are each painted once
-// into a strip that repeats and is slid along by S.scroll at its own pace, as the avenue's are (env_chase.js).
+// piers and round onto our far lanes (where it runs is the game's, RAMP and hwyBez in sk_highway.js), and the parking garage beyond
+// the drop inside its bend, its top deck as high as the ramp's top, the rail the riders come through. Both are painted once and go
+// away to the right with the road once the riders are on the straight (S.scroll). The ramp is built as the highway is (since V110,
+// paintRamp): its slab on bents of two columns, parapets as the far one with their rails and its lamps, its joints; its two lanes run
+// on as the highway's third and fourth, its lines onto the highway's, where its own paint gives way to the road's; the far parapet
+// ends at its foot, its inner parapet taking it over, and east of that the highway is its two near lanes behind a barrier, the gore
+// between them and the ramp with an impact cushion at its nose. Its markings lie still on it, as the road's do (since V107). The
+// bands (the skyline, the city below, the far parapet, the road, the near parapet, the drop) are each painted once into a strip that
+// repeats and is slid along by S.scroll at its own pace, as the avenue's are (env_chase.js).
 (()=>{const E=EnvLook,{C,lin,rad,rgba,mix,glow,haze,stars,moon,cloudBank,skyline,hallTower,rng,lerp,clamp,TAU}=E;
 // ---------- the deck ----------
 // depths on the floor: the near parapet's face (NP) and its back (NP1), the road between the edge lines (EL0, EL1), the lane lines,
@@ -26,7 +28,7 @@ const ORDER=['sky','city','far','road','near','drop'];
 // (the tower's needle and its glow stay under the layer's top row, which an upright phone's view draws on up over the sky)
 const MOON={x:300,y:-12,r:10},TOWER={x:120,base:176,top:-14,w:46};
 // ---------- the ramp's shape (the game's, else the same copied here) ----------
-const RP=()=>typeof RAMP!=='undefined'?RAMP:[[820,-40],[900,250],[880,390],[580,384.5]];
+const RP=()=>typeof RAMP!=='undefined'?RAMP:[[820,-40],[905,220],[905,341.75],[610,341.75]];
 function bez(s){if(typeof hwyBez==='function')return hwyBez(s);const u=1-s,a=u*u*u,b=3*u*u*s,c=3*u*s*s,d=s*s*s,P=RP();
   return{X:a*P[0][0]+b*P[1][0]+c*P[2][0]+d*P[3][0],Y:a*P[0][1]+b*P[1][1]+c*P[2][1]+d*P[3][1],
     tx:3*u*u*(P[1][0]-P[0][0])+6*u*s*(P[2][0]-P[1][0])+3*s*s*(P[3][0]-P[2][0]),ty:3*u*u*(P[1][1]-P[0][1])+6*u*s*(P[2][1]-P[1][1])+3*s*s*(P[3][1]-P[2][1])};}
@@ -34,10 +36,22 @@ const kOf=dep=>typeof hwyK==='function'?hwyK(dep):clamp(1-(dep-236)/540,.34,1);
 // a point of the ramp in the picture: s along it (below 0 it goes on straight up out of the picture), off across it
 function rampPt(s,off){let P;if(s<0){const P0=bez(0),L=Math.hypot(P0.tx,P0.ty)||1;P={X:P0.X+P0.tx/L*s*300,Y:P0.Y+P0.ty/L*s*300,tx:P0.tx,ty:P0.ty};}else P=bez(s);
   const L=Math.hypot(P.tx,P.ty)||1,nx=-P.ty/L,ny=P.tx/L,k=kOf((GB-P.Y)/PSY);return{x:P.X+nx*off*k,y:P.Y+ny*off*k*.62,k,nx,ny,P};}
-// the ramp's half width (its edge lines RW-12 out: at its foot on the highway's lane lines at depths 52 and 176, about its middle on
-// the line at 114; it was 110, its lines then in the middle of the lanes), where it runs (S_LO to S_HI), where it reaches the
-// highway's far parapet, and the stretch at its foot over which its own paint gives way to the road's (S_FADE to S_HI)
-const RW=87,S_LO=-.04,S_HI=1,S_MERGE=.52,S_FADE=.86;
+// across it (rampPt's off, + toward the inside of its bend): its edge lines at RE (since V110, asked for: at its foot on the highway's
+// lane line at depth 114 and its far edge line at 228, its two lanes running on as the highway's third and fourth; from V107 they lay
+// on the lines at 52 and 176), the faces of its parapets at RW (the inner one at its foot on the far parapet's line, which it takes
+// over); how high its parapets stand and how deep its slab is (each shrinking with the distance, k); where it runs (S_LO to S_HI) and
+// the stretch at its foot over which its own paint gives way to the road's (S_FADE to S_HI)
+const RE=69,RW=79,RPH=34,SLAB=22,S_LO=-.04,S_HI=1,S_FADE=.9;
+// East of its foot the highway is its own two near lanes (since V110): behind a barrier (its face at depth HB, as high as the far
+// parapet) with the drop beyond, which parts from the ramp's outer parapet at the gore's nose, where the gap between the lane line at
+// 114 and the ramp's outer edge has opened to GAP across (S_NOSE along the ramp); the gore before that is paved and chevroned, and an
+// impact cushion stands in front of the nose. The far parapet ends at the ramp's foot (XF: the picture's x), where the ramp's inner
+// parapet takes it over and climbs away with it round the bend.
+const HB=118,GAP=26;
+function sOuterAt(d){let lo=0,hi=1;for(let i=0;i<32;i++){const m=(lo+hi)/2,dd=(GB-rampPt(m,-RE).y)/PSY;if(dd>d)lo=m;else hi=m;}return(lo+hi)/2;}
+let S_NOSE=null;const sNose=()=>S_NOSE??(S_NOSE=sOuterAt(HB+GAP));
+const XF=()=>rampPt(S_HI,RW).x,LAMP_ON=30;
+const sst=u=>u*u*(3-2*u);
 // the garage: its top deck's edge (the rail's foot) and its levels down to where the far parapet hides them, its two ends
 const GAR={x0:180,x1:766,top:70,lev:100,k:.45};
 // the set pieces' boxes in the world (what each canvas holds)
@@ -97,12 +111,12 @@ function paintFar(c,P){const r=rng(83),base=yG(FP),top=base-PH;
 // one of the lamps on the far parapet, standing at x 0 (put down every LP along it, live): a tapered pole up from the coping, the arm
 // out over our lanes, the sodium head under its hood; its foot in the shadow of the deck's edge beyond, as the parapet's band is
 const POST={x0:-58,x1:10,y0:86,y1:262};
-function paintPost(c){const top=yG(FP)-PH,h=150;
+function paintPost(c,bare){const top=yG(FP)-PH,h=150;
   c.fillStyle=lin(c,-3,0,3,0,[[0,'#0a0a0d'],[.6,'#2a2c32'],[1,'#121317']]);c.beginPath();c.moveTo(-3.4,top-4);c.lineTo(-1.6,top-4-h);c.lineTo(1.6,top-4-h);c.lineTo(3.4,top-4);c.closePath();c.fill();
   c.fillStyle=rgba(C.rim,.25);c.fillRect(1,top-4-h,.7,h);
   c.strokeStyle='#121317';c.lineWidth=2.4;c.beginPath();c.moveTo(0,top-4-h+4);c.quadraticCurveTo(-4,top-h-14,-22,top-h-14);c.lineTo(-40,top-h-12);c.stroke();
   c.fillStyle='#16171c';c.beginPath();c.ellipse(-44,top-h-11,9,3.4,0,0,TAU);c.fill();c.fillStyle='#fff0cc';c.beginPath();c.ellipse(-44,top-h-9,6,1.8,0,0,TAU);c.fill();
-  c.fillStyle='#0c0c10';c.fillRect(-6,top-6,12,3);
+  c.fillStyle='#0c0c10';c.fillRect(-6,top-6,12,3);if(bare)return;
   c.globalCompositeOperation='source-atop';c.fillStyle=lin(c,0,top-30,0,top-14,[[0,rgba('#000000',0)],[1,rgba('#000000',.25)]]);c.fillRect(POST.x0,top-30,POST.x1-POST.x0,16);
   c.globalCompositeOperation='source-over';}
 // the road: the asphalt from the far parapet to the near, its lane lines, the joints across it, wet, holding the lamps' light
@@ -200,53 +214,135 @@ function paintFly(c){const {y0,y1}=FLY,X0=SP.fly.x0,X1=SP.fly.x1,r=rng(171);
   for(let i=0;i<5;i++){const x=X0+r()*(X1-X0),red=r()<.5;c.fillStyle=rgba(red?'#ff3a26':'#fff2d0',.7);c.fillRect(x,y0+6,2,1.2);c.fillRect(x+7,y0+6,2,1.2);}
   // the air between: the city's haze over it
   c.fillStyle=rgba('#2a2230',.28);c.fillRect(X0,y0-50,X1-X0,y1-y0+50);}
-// the ramp's deck: its asphalt between the parapets, the edge lines and the lane line down its middle, the parapets, its lamps; the
-// fascia and the dark under its high part, and where it meets our lanes the gore's chevrons
-function paintRamp(c){const N=90,ss=[];for(let i=0;i<=N;i++)ss.push(lerp(S_LO,S_HI,i/N));
-  const L=ss.map(s=>rampPt(s,-RW)),R=ss.map(s=>rampPt(s,RW));
-  // the fascia under the deck's near edge where it is high, and its underside in shadow
-  for(let i=0;i<N;i++){const s=ss[i];if(s>S_MERGE)break;const a=R[i],b=R[i+1],a2=L[i],b2=L[i+1],lo=(p,q)=>p.y>q.y?p:q;
-    const p0=lo(a,a2),p1=lo(b,b2),h=18*p0.k;c.fillStyle=lin(c,0,p0.y,0,p0.y+h,[[0,'#2a2824'],[.2,'#1a1816'],[1,'#0d0c0e']]);c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.lineTo(p1.x,p1.y+h);c.lineTo(p0.x,p0.y+h);c.closePath();c.fill();}
-  // the deck
-  const deck=new Path2D();deck.moveTo(L[0].x,L[0].y);for(const p of L)deck.lineTo(p.x,p.y);for(let i=R.length-1;i>=0;i--)deck.lineTo(R[i].x,R[i].y);deck.closePath();
-  c.save();c.clip(deck);c.fillStyle=patAt(c,asphalt(),0,0,.3);c.fillRect(SP.front.x0,SP.front.y0,SP.front.x1-SP.front.x0,SP.front.y1-SP.front.y0);
-  c.fillStyle=lin(c,0,SP.front.y0,0,SP.front.y1,[[0,rgba('#05040a',.65)],[.4,rgba('#05040a',.25)],[1,rgba('#05040a',.05)]]);c.fillRect(SP.front.x0,SP.front.y0,SP.front.x1-SP.front.x0,SP.front.y1-SP.front.y0);
-  // its high part far off in the city's haze
-  c.fillStyle=lin(c,0,-60,0,170,[[0,rgba('#2a2230',.55)],[1,rgba('#2a2230',0)]]);c.fillRect(SP.front.x0,-60,SP.front.x1-SP.front.x0,230);
-  // the lamps' pools down it
-  for(const s of [.06,.3,.54,.8]){const p=rampPt(s,-RW*.3);c.save();c.translate(p.x,p.y);c.scale(1.1,.7);c.fillStyle=rad(c,0,0,0,90*p.k,[[0,rgba('#ffcf86',.18)],[1,rgba('#ffcf86',0)]]);c.beginPath();c.arc(0,0,90*p.k,0,TAU);c.fill();c.restore();}
-  // the edge lines, solid
-  for(const off of [-RW+12,RW-12]){c.strokeStyle='#d8d2c0';c.beginPath();for(let i=0;i<=N;i++){const p=rampPt(ss[i],off);if(i)c.lineTo(p.x,p.y);else c.moveTo(p.x,p.y);}c.lineWidth=2.6;c.stroke();}
-  // the lane line down its middle, still on it as the road's are: a dash every 120 of the world and 54 long, as the highway's lane
-  // lines (shorter in the picture with the distance, as everything on the ramp is drawn, by its k), measured from its foot so that
-  // the dash there falls on the highway's own on the line at 114 (from 42.8 to 96.8 of the world back up from it, the road still)
-  {const M=360,pts=[];for(let i=0;i<=M;i++){const s=lerp(S_HI,S_LO,i/M),p=rampPt(s,0);pts.push({s,p,l:0});}
-    for(let i=1;i<=M;i++){const a=pts[i-1].p,b=pts[i].p;pts[i].l=pts[i-1].l+Math.hypot(b.x-a.x,b.y-a.y)/((a.k+b.k)/2);}
-    const sAt=l=>{let i=1;while(i<M&&pts[i].l<l)i++;const a=pts[i-1],b=pts[i],u=clamp((l-a.l)/((b.l-a.l)||1),0,1);return lerp(a.s,b.s,u);},w=1.7;
-    c.fillStyle='#d8d2c0';
-    for(let l0=42.8;l0<pts[M].l;l0+=120){const s0=sAt(l0),s1=sAt(Math.min(l0+54,pts[M].l)),n=8;c.beginPath();
-      for(let j=0;j<=n;j++){const p=rampPt(lerp(s0,s1,j/n),w);if(j)c.lineTo(p.x,p.y);else c.moveTo(p.x,p.y);}
-      for(let j=n;j>=0;j--){const p=rampPt(lerp(s0,s1,j/n),-w);c.lineTo(p.x,p.y);}c.closePath();c.fill();}}
-  // the gore where it meets our lanes: chevrons between the ramp's near edge and the far parapet's line
-  {const g0=rampPt(S_MERGE+.02,RW),g1=rampPt(.66,RW);c.fillStyle=rgba('#d8d2c0',.55);for(let i=0;i<5;i++){const u=i/5,x=lerp(g0.x,g1.x,u),y=lerp(g0.y,g1.y,u);c.beginPath();c.moveTo(x,y);c.lineTo(x+10,y-8);c.lineTo(x+16,y-8);c.lineTo(x+6,y);c.closePath();c.fill();}}
-  c.restore();
-  // at its foot its own paint gives way to the road's, over the stretch where its lanes run on as the highway's (its lines on the
-  // highway's lane lines there): the road under it shows through, the dashes falling on the road's own
-  {const xa=rampPt(S_FADE,0).x,xb=rampPt(S_HI,0).x,y0=yG(EL1)+6,y1=yG(EL0);c.save();c.globalCompositeOperation='destination-out';
-    c.fillStyle=lin(c,xa,0,xb,0,[[0,rgba('#000000',0)],[1,rgba('#000000',1)]]);c.fillRect(SP.front.x0,y0,xa-SP.front.x0,y1-y0);c.restore();}
-  // the parapets along both edges: their inner faces and lit copings, shrinking with the distance; each ends where its edge comes onto
-  // the highway's deck at the far parapet's line (since V107: the outer one ran on round the bend across the highway's lanes)
-  const yFP=yG(FP);
-  for(const [E,side] of [[L,-1],[R,1]])for(let i=0;i<N;i++){const s=ss[i];if(s>S_MERGE-.2&&E[i+1].y>=yFP)break;const a=E[i],b=E[i+1],h=26*a.k;
-    c.fillStyle=lin(c,0,a.y-h,0,a.y,[[0,'#5a524a'],[.12,'#2a2724'],[1,'#151417']]);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(b.x,b.y-26*b.k);c.lineTo(a.x,a.y-h);c.closePath();c.fill();
-    c.strokeStyle=rgba(C.rim,.42);c.lineWidth=Math.max(1.05,1.2*a.k);c.beginPath();c.moveTo(a.x,a.y-h);c.lineTo(b.x,b.y-26*b.k);c.stroke();}
-  // its lamps on the outer parapet: a pole up from it, the arm out over the deck, the head
-  for(const s of [.0,.24,.48]){const p=rampPt(s,RW),k=p.k,h=150*k,hx=p.x+p.nx*RW*.55*k;
-    c.fillStyle='#121317';c.fillRect(p.x-1.6*k,p.y-26*k-h,3.2*k,h);c.strokeStyle='#121317';c.lineWidth=Math.max(1.6,2.2*k);c.beginPath();c.moveTo(p.x,p.y-26*k-h);c.quadraticCurveTo((p.x+hx)/2,p.y-26*k-h-10*k,hx,p.y-26*k-h+2*k);c.stroke();
-    c.fillStyle='#fff0cc';c.beginPath();c.ellipse(hx,p.y-26*k-h+4*k,5*k,1.8*k,0,0,TAU);c.fill();}}
-// what of the ramp burns live: its lamps' heads (its lane line lies still on it, painted with it: paintRamp)
+// The ramp as it stands (since V110, asked for: it was a ribbon of road hung from under the flyover, with nothing under it and a
+// parapet a few units high, its outer edge sweeping on across the highway's lanes). Back to front: the drop east of its foot (where
+// the highway's far lanes and far parapet are not), its piers going down into it, the slab's edges under the deck, the deck (painted
+// apart so that its foot can give way to the road's paint, the gore and the drop staying), the gore, its parapets, the highway's
+// barrier east of its foot with the impact cushion at the gore's nose and the barrier's lamps, the ramp's own lamps; the city's haze
+// over its high far end.
+// along it: its lamps on the outer parapet (s), the barrier's lamps east of its foot (their x past the gore's nose)
+const LAMP_S=[.05,.24,.43,.61],BAR_LAMPS=[150,450];
+function paintRamp(c){const N=120,ss=[];for(let i=0;i<=N;i++)ss.push(lerp(S_LO,S_HI,i/N));
+  const B=SP.front,sN=sNose(),xF=XF(),yHB=yG(HB),Bw=B.x1-B.x0,Bh=B.y1-B.y0;
+  // the slab's depth: whole where it stands on its piers, nothing at its foot, where it is the highway's own deck
+  const slab=s=>SLAB*rampPt(clamp(s,0,1),0).k*(1-sst(clamp((s-sN+.03)/.12,0,1)));
+  // its outer side: the parapet's face from the gore's nose up, its edge line below that, where the gore is
+  const oOut=s=>-lerp(RW,RE,sst(clamp((s-sN+.02)/.04,0,1)));
+  // lengths along it from its foot (its length in the picture over its k: what is far is drawn small), and where a length falls
+  const M=360,LT=[];for(let i=0;i<=M;i++){const s=lerp(S_HI,S_LO,i/M),p=rampPt(s,0);LT.push({s,p,l:0});}
+  for(let i=1;i<=M;i++){const a=LT[i-1].p,b=LT[i].p;LT[i].l=LT[i-1].l+Math.hypot(b.x-a.x,b.y-a.y)/((a.k+b.k)/2);}
+  const sAt=l=>{let i=1;while(i<M&&LT[i].l<l)i++;const a=LT[i-1],b=LT[i],u=clamp((l-a.l)/((b.l-a.l)||1),0,1);return lerp(a.s,b.s,u);},
+    lOf=s=>{let i=1;while(i<M&&LT[i].s>s)i++;const a=LT[i-1],b=LT[i],u=clamp((a.s-s)/((a.s-b.s)||1),0,1);return lerp(a.l,b.l,u);},lTop=LT[M].l,lN=lOf(sN);
+  const line=(P,o,f)=>{for(let i=0;i<P.length;i++){const p=P[i];if(i)o.lineTo(p.x,p.y+(f?f(i):0));else o.moveTo(p.x,p.y+(f?f(i):0));}};
+  // the deck's outline: its outer side (oOut) up, its inner side down
+  const PO=ss.map(s=>rampPt(s,oOut(s))),PI=ss.map(s=>rampPt(s,RW)),deck=new Path2D();line(PO,deck);for(let i=N;i>=0;i--)deck.lineTo(PI[i].x,PI[i].y);deck.closePath();
+  // the drop east of its foot: the air over the city far below, its streets' lamps in rows in the haze, darker going down; not under
+  // the deck, whose foot shows the road through it (the highway's own lanes there)
+  {const x0=xF,x1=B.x1,y0=236,y1=yHB,r=rng(181),D=new Path2D();D.rect(x0,y0,x1-x0,y1-y0);D.addPath(deck);c.save();c.clip(D,'evenodd');
+    c.fillStyle=lin(c,0,y0,0,y1,[[0,rgba('#0d0a10',0)],[.42,rgba('#0b0910',.97)],[1,'#07060a']]);c.fillRect(x0,y0,x1-x0,y1-y0);
+    for(let row=0;row<4;row++){const y=y0+60+row*21+r()*4,a=.36-row*.06;for(let x=x0+6;x<x1;x+=8+r()*14){if(r()<.45)continue;c.fillStyle=rgba(r()<.86?'#ffcf86':'#cfe8ff',a*(.4+.6*r()));c.fillRect(x,y+r()*3,1.4,1.2);}}
+    haze(c,x0,x1,y0+40,y0+96,'#3a2a34',.3,true);c.restore();}
+  // its piers: a bent every 170 of its length from the gore's nose up, two columns under its edges from the slab down into the drop
+  // (the highway's barrier hides their feet), a cap across the slab's underside on them; lit down the side toward us, the far ones in
+  // the city's haze. Seen from above the deck hides them, all but the outer column of the one round its bend (at s .4, where they are
+  // set from), which stands out past its outer edge over the barrier.
+  const lB=lOf(.4),l0B=lB-170*Math.floor((lB-lN-30)/170);
+  for(let l=l0B;l<lTop-24;l+=170){const s=sAt(l),k=rampPt(s,0).k,t=slab(s),w=Math.max(4,15*k),a=rampPt(s,-RE*.97),b=rampPt(s,RE*.97),ch=10*k,y1=yHB+6;
+    for(const o of [-RE*.9,RE*.9]){const p=rampPt(s,o),x0=p.x-w/2,y0=p.y+t+ch-1;
+      c.save();c.beginPath();c.rect(x0,y0,w,y1-y0);c.clip();wallFace(c,x0,y0,x0+w,y1,{dark:.6,u:.2+.2*k});
+      c.fillStyle=lin(c,x0,0,x0+w,0,[[0,rgba('#ffcf86',.16)],[.22,rgba('#000000',0)],[.65,rgba('#000000',.28)],[1,rgba('#000000',.55)]]);c.fillRect(x0,y0,w,y1-y0);
+      c.fillStyle=lin(c,0,y0,0,y0+70*k,[[0,rgba('#000000',.6)],[1,rgba('#000000',0)]]);c.fillRect(x0,y0,w,70*k);
+      if(k<.97){c.fillStyle=rgba('#2a2230',(1-k)*.6);c.fillRect(x0,y0,w,y1-y0);}c.restore();}
+    const Q=new Path2D();Q.moveTo(a.x,a.y+t);Q.lineTo(b.x,b.y+t);Q.lineTo(b.x,b.y+t+ch);Q.lineTo(a.x,a.y+t+ch);Q.closePath();
+    c.fillStyle=lin(c,0,Math.min(a.y,b.y)+t,0,Math.max(a.y,b.y)+t+ch,[[0,'#2c2926'],[1,'#121114']]);c.fill(Q);if(k<.97){c.fillStyle=rgba('#2a2230',(1-k)*.6);c.fill(Q);}}
+  // the slab: its two edges, as deep as it is (what shows is the face under the lower edge in the picture), cast and darkened
+  for(const off of [RW,-RW]){const E=ss.map(s=>rampPt(s,off)),P=new Path2D();line(E,P);for(let i=N;i>=0;i--)P.lineTo(E[i].x,E[i].y+slab(ss[i]));P.closePath();
+    c.save();c.clip(P);wallFace(c,B.x0,B.y0,B.x1,B.y1,{dark:.64,u:.22});c.fillStyle=rgba('#2a2230',.16);c.fillRect(B.x0,B.y0,Bw,Bh);c.restore();}
+  // the gore where the ramp parts from the highway: paved and chevroned, between the lane line at 114 and the ramp's outer edge
+  {const y114=yG(114),sA=.985,G=new Path2D(),O=[];for(let i=0;i<=40;i++)O.push(rampPt(lerp(sA,sN,i/40),-RE));line(O,G);
+    const pN=O[O.length-1];G.lineTo(pN.x+30,y114);G.lineTo(O[0].x,y114);G.closePath();
+    c.save();c.clip(G);c.fillStyle=patAt(c,asphalt(),0,0,.32);c.fillRect(B.x0,280,Bw,120);c.fillStyle=rgba('#d8d2c0',.72);
+    for(let x=xF-10;x<pN.x+40;x+=22){c.beginPath();c.moveTo(x,y114);c.lineTo(x+18,y114-36);c.lineTo(x+25,y114-36);c.lineTo(x+7,y114);c.closePath();c.fill();}
+    c.restore();
+    // its lower edge, the highway's second lane's edge east of the ramp's foot: solid
+    c.fillStyle='#d8d2c0';c.fillRect(O[0].x,y114-1.4,B.x1-O[0].x,2.8);}
+  // the deck, painted apart
+  {const dc=document.createElement('canvas');dc.width=c.canvas.width;dc.height=c.canvas.height;const d=dc.getContext('2d');d.setTransform(c.getTransform());
+    d.save();d.clip(deck);d.fillStyle=patAt(d,asphalt(),0,0,.32);d.fillRect(B.x0,B.y0,Bw,Bh);
+    // the wheels' tracks worn darker down each lane
+    for(const o of [-RE*.66,-RE*.34,RE*.34,RE*.66]){const T=new Path2D(),a=ss.map(s=>rampPt(s,o-3.5)),b=ss.map(s=>rampPt(s,o+3.5));line(a,T);for(let i=N;i>=0;i--)T.lineTo(b[i].x,b[i].y);T.closePath();d.fillStyle=rgba('#000000',.16);d.fill(T);}
+    // the lamps' light on it; darker away from them up the far end, and the city's haze over that
+    for(const s of LAMP_S){const p=rampPt(s,RE*.15);d.save();d.translate(p.x,p.y);d.scale(1.1,.75);d.fillStyle=rad(d,0,0,0,95*p.k,[[0,rgba('#ffcf86',.2)],[1,rgba('#ffcf86',0)]]);d.beginPath();d.arc(0,0,95*p.k,0,TAU);d.fill();d.restore();}
+    d.fillStyle=lin(d,0,B.y0,0,B.y1,[[0,rgba('#05040a',.6)],[.42,rgba('#05040a',.22)],[1,rgba('#05040a',.04)]]);d.fillRect(B.x0,B.y0,Bw,Bh);
+    // its joints: where each span of the slab meets the next, between the piers, a steel strip across it
+    for(let l=l0B+85-170*Math.floor((l0B+85-lN-20)/170);l<lTop-10;l+=170){const s0=sAt(l),s1=sAt(l+3),a=rampPt(s0,-RW),b=rampPt(s0,RW),b1=rampPt(s1,RW),a1=rampPt(s1,-RW);
+      d.fillStyle=rgba('#08070a',.85);d.beginPath();d.moveTo(a.x,a.y);d.lineTo(b.x,b.y);d.lineTo(b1.x,b1.y);d.lineTo(a1.x,a1.y);d.closePath();d.fill();
+      d.fillStyle=rgba(C.rim,.16);d.beginPath();d.moveTo(a1.x,a1.y);d.lineTo(b1.x,b1.y);d.lineTo(b1.x,b1.y+1);d.lineTo(a1.x,a1.y+1);d.closePath();d.fill();}
+    d.fillStyle=lin(d,0,-60,0,170,[[0,rgba('#2a2230',.5)],[1,rgba('#2a2230',0)]]);d.fillRect(B.x0,-60,Bw,230);d.restore();
+    // its lines: solid along its edges (on the highway's lane line at 114 and its far edge line at 228 at its foot), and down its
+    // middle a dash every 120 of the world and 54 long as the highway's, shorter with the distance by its k. At its foot they are the
+    // highway's own: its middle line goes over onto the lane line at 176 (OC across from its middle there; its two lanes as wide as
+    // the highway's third and fourth), and its dashes are measured from its foot so that they fall on the road's (L0, the road still)
+    d.strokeStyle='#d8d2c0';d.lineWidth=2.4;for(const off of [-RE,RE]){d.beginPath();line(ss.map(s=>rampPt(s,off)),d);d.stroke();}
+    d.fillStyle='#d8d2c0';
+    const OC=(LANES[2]-(GB-rampPt(S_HI,0).y)/PSY)*PSY/.62,oc=s=>OC*sst(clamp((s-.8)/.2,0,1)),L0=((-(rampPt(S_HI,OC).x-LANES[2]*PSX))%120+120)%120;
+    for(let l0=L0;l0<lTop;l0+=120){const s0=sAt(l0),s1=sAt(Math.min(l0+54,lTop)),n=8;d.beginPath();
+      for(let j=0;j<=n;j++){const s=lerp(s0,s1,j/n),p=rampPt(s,oc(s)+1.7);if(j)d.lineTo(p.x,p.y);else d.moveTo(p.x,p.y);}
+      for(let j=n;j>=0;j--){const s=lerp(s0,s1,j/n),p=rampPt(s,oc(s)-1.7);d.lineTo(p.x,p.y);}d.closePath();d.fill();}
+    // at its foot its own paint gives way to the road's, over the stretch where its lanes run on as the highway's: the road under it
+    // shows through, its dashes and lines falling on the road's own
+    {const xa=rampPt(S_FADE,0).x,xb=rampPt(S_HI,0).x,y0=yG(EL1)-8,y1=yG(EL0);d.save();d.globalCompositeOperation='destination-out';
+      d.fillStyle=lin(d,xa,0,xb,0,[[0,rgba('#000000',0)],[1,rgba('#000000',1)]]);d.fillRect(B.x0,y0,xa-B.x0,y1-y0);d.restore();}
+    c.save();c.setTransform(1,0,0,1,0,0);c.drawImage(dc,0,0);c.restore();dc.width=dc.height=0;}
+  // its parapets, cast as the highway's: a face as high as the far parapet's (which the inner one goes on from at its foot), shaded
+  // as that one's is (its top catching the lamps, its foot in shade: in rows along it, up its height) and cast in panels as it is (a
+  // joint every 60 along it from its foot, the first where the two meet), the coping on top with its arris lit, a steel rail over it
+  // on short posts, amber reflectors along the face; the outer one from the gore's nose up
+  for(const [off,s1] of [[RW,S_HI],[-RW,sN]]){const sL=ss.filter(s=>s<=s1+1e-9),Pb=sL.map(s=>rampPt(s,off)),h=i=>-RPH*Pb[i].k,n=Pb.length-1;
+    const F=new Path2D();line(Pb,F);for(let i=n;i>=0;i--)F.lineTo(Pb[i].x,Pb[i].y+h(i));F.closePath();
+    c.save();c.clip(F);wallFace(c,B.x0,B.y0,B.x1,B.y1,{dark:.58});
+    {const R=12;for(let j=0;j<R;j++){const f=(j+.5)/R,a=f<.3?.12*(1-f/.3):.35*(f-.3)/.7;if(a<.005)continue;const g=new Path2D();
+      for(let i=0;i<=n;i++){const p=Pb[i],y=p.y+h(i)*(1-j/R);if(i)g.lineTo(p.x,y);else g.moveTo(p.x,y);}for(let i=n;i>=0;i--){const p=Pb[i];g.lineTo(p.x,p.y+h(i)*(1-(j+1)/R));}
+      g.closePath();c.fillStyle=rgba(f<.3?'#ffcf86':mix('#ffcf86','#000000',(f-.3)/.7),a);c.fill(g);}}
+    for(let l=lOf(s1);l<lTop;l+=60){const p=rampPt(sAt(l),off),k=p.k,y0=p.y-RPH*k+2*k;c.fillStyle=rgba('#000000',.45);c.fillRect(p.x,y0,Math.max(.6,k),p.y-y0);c.fillStyle=rgba('#a89a88',.08);c.fillRect(p.x+k,y0,.8*k,p.y-y0);}
+    c.restore();
+    // the coping
+    const Cp=new Path2D();for(let i=0;i<=n;i++){const p=Pb[i],y=p.y+h(i)-5*p.k;if(i)Cp.lineTo(p.x,y);else Cp.moveTo(p.x,y);}for(let i=n;i>=0;i--){const p=Pb[i];Cp.lineTo(p.x,p.y+h(i)+1*p.k);}Cp.closePath();
+    c.fillStyle='#4e4840';c.fill(Cp);
+    c.strokeStyle=rgba(C.rim,.45);c.lineWidth=1.05;c.beginPath();for(let i=0;i<=n;i++){const p=Pb[i],y=p.y+h(i)-5*p.k;if(i)c.lineTo(p.x,y);else c.moveTo(p.x,y);}c.stroke();
+    // the rail on its posts, and the reflectors
+    const Rl=new Path2D();for(let i=0;i<=n;i++){const p=Pb[i],y=p.y+h(i)-15*p.k;if(i)Rl.lineTo(p.x,y);else Rl.moveTo(p.x,y);}for(let i=n;i>=0;i--){const p=Pb[i];Rl.lineTo(p.x,p.y+h(i)-12.8*p.k);}Rl.closePath();
+    c.fillStyle='#0c0c10';c.fill(Rl);
+    const l1=lOf(s1);for(let l=l1+12;l<lTop;l+=24){const s=sAt(l),p=rampPt(s,off),k=p.k,y=p.y-RPH*k;c.fillStyle='#0c0c10';c.fillRect(p.x-.8*k,y-14*k,Math.max(.8,1.6*k),9*k);}
+    for(let l=l1+30;l<lTop;l+=60){const s=sAt(l),p=rampPt(s,off),k=p.k;c.fillStyle=rgba('#ffb25e',.55*Math.min(1,k+.2));c.fillRect(p.x-1.2*k,p.y-RPH*k*.55,2.4*k,1.6*k);}}
+  // the highway's barrier east of the ramp's foot, its face toward us as the far parapet's is, its west end turned in to the outer
+  // parapet at the gore's nose; the impact cushion in front of the nose; the barrier's lamps
+  {const Np=rampPt(sN,-RW),xa=Np.x+28,x1=B.x1,base=yHB,top=base-PH,bP=[[Np.x,Np.y],[xa,base],[x1,base]];
+    const F=new Path2D();F.moveTo(bP[0][0],bP[0][1]);for(const q of bP)F.lineTo(q[0],q[1]);for(let i=bP.length-1;i>=0;i--)F.lineTo(bP[i][0],bP[i][1]-PH*(i?1:Np.k));F.closePath();
+    c.save();c.clip(F);wallFace(c,Np.x-4,top-60,x1,base+2,{dark:.58});c.fillStyle=lin(c,0,top,0,base,[[0,rgba('#ffcf86',.12)],[.3,rgba('#ffcf86',0)],[1,rgba('#000000',.35)]]);c.fillRect(Np.x-4,top-60,x1-Np.x+4,base-top+62);
+    for(let x=xa+40;x<x1;x+=60){c.fillStyle=rgba('#000000',.45);c.fillRect(x,top+2,1,base-top-2);}c.restore();
+    const Cp=new Path2D();Cp.moveTo(Np.x,Np.y-PH*Np.k-5);Cp.lineTo(xa,top-5);Cp.lineTo(x1,top-5);Cp.lineTo(x1,top+1);Cp.lineTo(xa,top+1);Cp.lineTo(Np.x,Np.y-PH*Np.k+1);Cp.closePath();
+    c.fillStyle=lin(c,0,top-5,0,top+1,[[0,'#7a7064'],[1,'#3a3632']]);c.fill(Cp);c.fillStyle=rgba(C.rim,.45);c.fillRect(xa,top-5,x1-xa,.8);
+    c.fillStyle='#0c0c10';c.fillRect(xa,top-15,x1-xa,2.2);for(let x=xa+8;x<x1;x+=24)c.fillRect(x,top-15,1.6,10);c.fillStyle=rgba('#c8ccd4',.3);c.fillRect(xa,top-15,x1-xa,.6);
+    // the cushion: its yellow and black bands, its lit top and its reflector
+    {const w=36,cx0=Np.x-w+6,cy1=Math.max(Np.y,base-14)+4,cy0=cy1-22;for(let i=0;i<6;i++){c.fillStyle=i%2?'#151316':'#a8822a';c.fillRect(cx0+i*w/6,cy0,w/6,cy1-cy0);}
+      c.fillStyle=rgba('#000000',.3);c.fillRect(cx0,cy0+12,w,cy1-cy0-12);c.fillStyle=rgba('#ffcf86',.45);c.fillRect(cx0,cy0,w,1.2);c.fillStyle='#ffb25e';c.fillRect(cx0+3,cy0+6,3.2,3.2);}
+    // its lamps: as the far parapet's (paintPost), each standing on it
+    for(const dx of BAR_LAMPS){const x=xa+dx;if(x>x1-10)continue;c.save();c.translate(x,base-yG(FP));paintPost(c,true);c.restore();}}
+  // the ramp's own lamps on its outer parapet: a pole up from it, the arm out over the deck, the head
+  for(const s of LAMP_S){const p=rampPt(s,-RW),q=rampPt(s,RE*.15),k=p.k,h=150*k,y0=p.y-RPH*k,hx=q.x;
+    c.fillStyle='#121317';c.fillRect(p.x-1.7*k,y0-h,3.4*k,h);c.fillStyle=rgba(C.rim,.22);c.fillRect(p.x+.6*k,y0-h,.9*k,h);
+    c.strokeStyle='#121317';c.lineWidth=Math.max(1.6,2.4*k);c.beginPath();c.moveTo(p.x,y0-h);c.quadraticCurveTo((p.x+hx)/2,y0-h-10*k,hx,y0-h+2*k);c.stroke();
+    c.fillStyle='#16171c';c.beginPath();c.ellipse(hx,y0-h+3*k,8*k,3*k,0,0,TAU);c.fill();c.fillStyle='#fff0cc';c.beginPath();c.ellipse(hx,y0-h+4.5*k,5*k,1.6*k,0,0,TAU);c.fill();}
+  // the city's haze over its high far end (only over what is there)
+  c.save();c.globalCompositeOperation='source-atop';c.fillStyle=lin(c,0,-80,0,200,[[0,rgba('#2a2230',.45)],[1,rgba('#2a2230',0)]]);c.fillRect(B.x0,-80,Bw,280);c.restore();}
+// where the ramp's lamps' heads are, and the barrier's (in the picture, before the road moves them)
+function rampLamps(){const out=[];for(const s of LAMP_S){const p=rampPt(s,-RW),q=rampPt(s,RE*.15),k=p.k;out.push({x:q.x,y:p.y-RPH*k-150*k+4.5*k,k});}
+  const xa=rampPt(sNose(),-RW).x+28,top=yG(HB)-PH;for(const dx of BAR_LAMPS){const x=xa+dx;if(x>SP.front.x1-10)continue;out.push({x:x-44,y:top-159,k:1});}return out;}
+let RLAMPS=null;
+// what of the ramp burns live: its lamps' heads and the barrier's (its lines lie still on it, painted with it: paintRamp)
 function rampLive(c,ox){c.save();c.translate(ox,0);
-  for(const s of [.0,.24,.48]){const p=rampPt(s,RW),k=p.k,hx=p.x+p.nx*RW*.55*k,y=p.y-26*k-150*k+4*k;glow(c,hx,y,30*k,'#ffcf86',.55);glow(c,hx,y+40*k,70*k,'#ffb25e',.12,.5);}
+  for(const q of RLAMPS||(RLAMPS=rampLamps())){glow(c,q.x,q.y,30*q.k,'#ffcf86',.55);glow(c,q.x,q.y+40*q.k,70*q.k,'#ffb25e',.12,.5);}
   c.restore();}
 
 // ---------- the strips and the set pieces: made once at the screen's scale ----------
@@ -321,9 +417,12 @@ function live(){const T=strips(),sp=speedOf(),H=hw(),m=ctx.getTransform(),L=-m.e
   // the sky and the city, only where the garage does not stand in front of them
   const G=show?{x0:GAR.x0+ox*FAR_F+3,x1:GAR.x1+ox*FAR_F-3,y:GAR.top+2}:null;behind(T.sky,G,HIDE.sky);behind(T.city,G,HIDE.city);
   if(show){const p=pieces();blitPiece(p.back,ox*FAR_F);}else if(PC&&ox>1600)drop();
-  blit(T.far);
-  // the lamps on the far parapet, each put down where it stands, their heads burning
-  {const o=offOf(T.far),top=yG(FP)-PH,Q=T.post,B=Q.box;for(let x=LAMP0-o-T.far.P;x<R+60;x+=LP){if(x<L-60)continue;const hx=x-44,hy=top-150-9;
+  // the far parapet, and the lamps on it each put down where it stands, their heads burning: while the ramp is there, only as far as
+  // its foot, where its inner parapet takes the far parapet over and climbs away with it (since V110: east of it the highway is its two
+  // near lanes behind their barrier, the ramp's piece paints them); its lamps as far as LAMP_ON past it, on the inner parapet's start
+  // while that still runs along the far parapet's line
+  const xEnd=show?XF()+ox:null;blit(T.far,null,xEnd);
+  {const o=offOf(T.far),top=yG(FP)-PH,Q=T.post,B=Q.box;for(let x=LAMP0-o-T.far.P;x<R+60;x+=LP){if(x<L-60||(xEnd!=null&&x>xEnd+LAMP_ON))continue;const hx=x-44,hy=top-150-9;
     ctx.drawImage(Q.cv,x+B.x0,B.y0,Q.cv.width/Q.sc,Q.cv.height/Q.sc);glow(ctx,hx,hy,26,'#fff0cc',.85);glow(ctx,hx,hy+30,80,'#ffb25e',.1,.5);}}
   behind(T.road,null,HIDE.road);
   if(sp>0){const o=offOf(T.road),sw=streakSpr('#ffc98a'),sc=streakSpr('#cfe0ff');ctx.save();ctx.globalCompositeOperation='lighter';
@@ -335,8 +434,9 @@ function live(){const T=strips(),sp=speedOf(),H=hw(),m=ctx.getTransform(),L=-m.e
 // the light that rims a rider: the lamps on the far parapet as they pass, the ramp's on the ramp, the moon when nothing nearer is lit
 function light(f){const T=strips(),o=offOf(T.far),pel=f.p[typeof PEL==='number'?PEL:0],px=pel.x+f.dep*PSX,top=yG(FP)-PH-150;let wx=0,wy=0,ws=0;
   const add=(sx,y,Rr,k)=>{const dd=Math.abs(sx-px);if(dd>=Rr)return;const w=k*(1-dd/Rr)*(1-dd/Rr);wx+=w*sx;wy+=w*y;ws+=w;};
-  for(let x=LAMP0-o-LP*2;x<W+LP*2;x+=LP)add(x-44,top,260,1);
-  const ox=pieceOff();if(ox<1500)for(const s of [.0,.24,.48]){const p=rampPt(s,RW);add(p.x+p.nx*RW*.55*p.k+ox,p.y-176*p.k,200,.8);}
+  const ox=pieceOff(),xEnd=ox<1500?XF()+ox:null;
+  for(let x=LAMP0-o-LP*2;x<W+LP*2;x+=LP)if(xEnd==null||x<=xEnd+LAMP_ON)add(x-44,top,260,1);
+  if(xEnd!=null)for(const q of RLAMPS||(RLAMPS=rampLamps()))add(q.x+ox,q.y,q.k<1?200:260,q.k<1?.8:1);
   wx+=.06*MOON.x;wy+=.06*MOON.y;ws+=.06;
   return{light:{x:wx/ws-f.dep*PSX,y:wy/ws+f.dep*PSY},col:'#ffc98a'};}
 // (the drop runs on under the layer in live(); past even that, the dark it goes into)

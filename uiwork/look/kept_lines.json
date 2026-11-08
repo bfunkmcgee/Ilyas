@@ -2104,5 +2104,35 @@
 "src": "ctx.strokeStyle='rgba(226,246,255,.5)';ctx.lineWidth=.55;ctx.beginPath();for(const c of cr){ctx.moveTo(c[0],c[1]);ctx.lineT",
 "med": 0.545,
 "why": "the office's broken pane: what is left in its frame edged in light and its cracks, fine as cracks in glass are; first in the review's frames in V106, the office again with the pane gone"
+},
+{
+"file": "sk_highwayui.js",
+"src": "tyle=`rgba(52,52,60,${(.85*(1-ac)).toFixed(3)})`;c.lineWidth=1.5;c.beginPath();",
+"med": 1.297,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "sk_highwayui.js",
+"src": "st?'rgba(164,170,180,.24)':'rgba(138,106,46,.5)';c.lineWidth=pal.st?1.5:1.6;c.beginPath();",
+"med": 1.354,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "sk_highwayui.js",
+"src": "nst ox=ld.x*w*.28,oy=ld.y*w*.28;c.strokeStyle=hi;c.lineWidth=Math.max(1.5,w*.3);c.beginPath();Q.forEach((q,i)=>i?c.lineTo(q.x+ox,q.",
+"med": 1.354,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "sk_highwayui.js",
+"src": "c,V,G.case,pal.case,ld);c.strokeStyle=pal.caseHi;c.lineWidth=1.5;c.globalAlpha=.5;c.beginPath();c.ellipse(E.C.x,E.C.y,Math.max(.4,E",
+"med": 1.354,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "sk_highwayui.js",
+"src": "(c,V,G.cyl,pal.case,ld);c.strokeStyle=pal.caseHi;c.lineWidth=1.5;c.globalAlpha=.55;c.beginPath();",
+"med": 1.354,
+"why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
 }
 ]

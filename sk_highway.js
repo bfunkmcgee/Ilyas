@@ -19,9 +19,11 @@ storyArena('highway',{label:'Highway',name:'The Tower Road',ground:()=>GB,wall:n
 const HWY_V=1050;                 // the road's speed past the riders, units a second: the avenue's, heading west
 // The ramp's middle in the picture (x, and y as drawn on the floor's line): down from the interchange high on the right, toward the
 // camera, and round at its foot into the highway's lanes heading west. A point of it is turned into the floor's x and depth
-// (hwyFloor), so whatever is on it is drawn where it is and sorted by its distance. Its foot is on the highway's middle lane line
-// (depth 114, y 384.5: since V107, the painter's two lanes then run on as the highway's second and third; it ended at depth 104)
-const RAMP=[[820,-40],[900,250],[880,390],[580,384.5]];
+// (hwyFloor), so whatever is on it is drawn where it is and sorted by its distance. Its foot is in the middle of the highway's two far
+// lanes (depth 171, y 341.75, heading west: since V110, asked for, its two lanes run on as the highway's third and fourth, the
+// highway east of it two lanes behind a barrier with the drop beyond, envx/env_highway.js; from V107 its foot was on the lane line
+// at 114 and its lanes the second and third, so its outer edge swept on across the highway's lanes east of it; before that 104)
+const RAMP=[[820,-40],[905,220],[905,341.75],[610,341.75]];
 function hwyBez(s){const u=1-s,a=u*u*u,b=3*u*u*s,c=3*u*s*s,d=s*s*s,P=RAMP;
   return{X:a*P[0][0]+b*P[1][0]+c*P[2][0]+d*P[3][0],Y:a*P[0][1]+b*P[1][1]+c*P[2][1]+d*P[3][1],
     tx:3*u*u*(P[1][0]-P[0][0])+6*u*s*(P[2][0]-P[1][0])+3*s*s*(P[3][0]-P[2][0]),ty:3*u*u*(P[1][1]-P[0][1])+6*u*s*(P[2][1]-P[1][1])+3*s*s*(P[3][1]-P[2][1])};}
@@ -33,7 +35,7 @@ function hwyK(dep){return clamp(1-(dep-HWY_FAR)/540,.34,1);}
 // distance; and which way the ramp heads there, as the looks turn a figure (yaw: 0 his profile heading west, the way the riders face,
 // -π/2 his front to the camera, -π heading east)
 function hwyFloor(s,off){const P=hwyBez(s),L=Math.hypot(P.tx,P.ty)||1,nx=-P.ty/L,ny=P.tx/L,k0=hwyK((GB-P.Y)/PSY),X=P.X+nx*off*k0,Y=P.Y+ny*off*k0*.62,dep=(GB-Y)/PSY;
-  return{x:X-dep*PSX,dep,k:hwyK(dep),yaw:hwyYaw(P.tx+P.ty*PSX/PSY,-P.ty/PSY)};}
+  return{x:X-dep*PSX,dep,k:hwyK(dep),yaw:hwyYaw(P.tx+P.ty*PSX/PSY,-P.ty/PSY),s,off};}
 // the yaw of a heading on the floor: dx across it (+ east) and dd in depth (+ away from the camera)
 function hwyYaw(dx,dd){return Math.atan2(-dx,-dd)-Math.PI/2;}
 // The parking garage on the far side of the ramp: its top deck's edge, as far off as the ramp's top (y in the picture), and each of
@@ -41,6 +43,11 @@ function hwyYaw(dx,dd){return Math.atan2(-dx,-dd)-Math.PI/2;}
 // comes down (s along it, off across it), and how far down it he has come when Kael reaches its foot
 const GARAGE={y:70,run:.5,back:34,jump:[[632,1.05,.2,20,.82],[688,1.4,.28,-20,.78],[584,1.75,.14,4,.72],[730,2.1,.34,-8,.66]]};
 GARAGE.dep=(GB-GARAGE.y)/PSY;
+// which of those each rider takes (since V110): the two whose places in the fight are ahead of Kael's jump first and so are furthest
+// down the ramp when he reaches its foot, the two who fall in behind him last (they had it the other way about, and the two at the
+// back had the furthest to go to get past him)
+const JUMP_OF=[2,3,0,1];
+const hwyJump=f=>GARAGE.jump[JUMP_OF[f.idx-1]];
 // the truck: where it settles ahead of the riders (its tail's x, in the far lane) and how high its bed stands
 const TRUCK={x:400,dep:200,bed:70,len:430};
 // the helicopter's place over the road while the man in white fires (its x, its height, its depth: beyond the median)
@@ -49,7 +56,8 @@ const HWY_HELI={x:640,y:86,dep:262};
 // ---------- the ramp's bikes ----------
 // Driven along the ramp a bike goes where the ramp puts it (vehStep moves it at B.vx and carries its rider: B.carry), at the road's
 // pace (B.spd, for the engine's note); the page draws it at its distance and its heading (vk, vyaw).
-function hwyAim(B,F){B.vx=(F.x-B.x)/DT;B.dep=F.dep;B.vk=F.k;B.vyaw=F.yaw;B.fa=-1;B.spd=HWY_V;B.carry=1;B.ctl='script';
+// (where on the ramp it is, and how fast its depth goes: the merge carries each bike on from there at its own pace)
+function hwyAim(B,F){B.vx=(F.x-B.x)/DT;B.vz=(F.dep-B.dep)/DT;B.dep=F.dep;B.vk=F.k;B.vyaw=F.yaw;B.fa=-1;B.spd=HWY_V;B.carry=1;B.ctl='script';B.rampS=F.s;B.rampOff=F.off;
   const f=B.rider;if(f){f.dep=f.stepDep=B.dep;f.facing=-1;}}
 function* hwyRide(B,s0,s1,dur,off,ease){const t0=S.t,E=ease||lin;
   while(true){const u=clamp((S.t+DT-t0)/dur,0,1);hwyAim(B,hwyFloor(lerp(s0,s1,E(u)),typeof off==='function'?off(u):off));if(u>=1)break;yield;}}
@@ -169,7 +177,7 @@ STAGES.splice(stageIx('chase')+1,0,{key:'highway',num:'',title:'',part:'chase',s
     K.station=KB.x-SEAT_DX;K.lane=K.dep=K.stepDep=KB.dep;K.facing=-1;K.build();mount(K,KB,0);stowBlade(K);
     {const F=hwyFloor(0,-6);bikePlace(KB,F.x,F.dep);KB.vk=F.k;KB.vyaw=F.yaw;}
     // the four still up on the garage's top deck, behind its rail
-    for(const f of S.F)if(f.team===1){const J=GARAGE.jump[f.idx-1],sp=st.spawn[f.idx];f.homeX=sp[0];f.homeZ=sp[1];
+    for(const f of S.F)if(f.team===1){const J=hwyJump(f),sp=st.spawn[f.idx];f.homeX=sp[0];f.homeZ=sp[1];
       const B=bikeNew({x:J[0]-GARAGE.dep*PSX-26,dep:GARAGE.dep+GARAGE.back,fa:-1,style:'street',paint:f.idx%2?'red':'black',light:1,run:1,hide:true});
       B.vk=hwyK(B.dep);B.vyaw=hwyYaw(26,-GARAGE.back);f.station=B.x-SEAT_DX;f.lane=f.dep=f.stepDep=B.dep;f.facing=-1;f.build();mount(f,B,0);f.offstage=true;f.hidden=true;}
     // the truck on the highway ahead, out of the picture for now, its thrower in the bed among the drums
@@ -186,16 +194,19 @@ STAGES.splice(stageIx('chase')+1,0,{key:'highway',num:'',title:'',part:'chase',s
     S.hooks.sound('rev',.8);
     // down the ramp toward the camera, the lanes streaming under him; the picture comes down with him
     const ride=hwyRide(KB,0,1,4.4,u=>-6+4*u,u=>u*u*(1.55-.55*u));
-    const cam=(function*(){yield* wait(2);hwyShot('mid',.7);yield* wait(1.4);hwyShot('foot',1.1);})();
-    // the four come off the garage's top deck one after another, through its rail and across onto the ramp behind him
-    const jumps=fs.map((f,i)=>(function*(){const J=GARAGE.jump[i];yield* wait(J[1]-GARAGE.run);
+    const cam=(function*(){const T=HWY_SHOTS.top,M=HWY_SHOTS.mid;yield* wait(1.8);
+      yield* hwyGlide('mid',0,1.3,{x:e=>lerp(T.x,hwyRideX(M.x,0),e),xn:e=>lerp(T.n.x,hwyRideX(M.n.x,1),e)});
+      yield* hwyGlide('foot',0,1.3,{x:()=>hwyRideX(M.x,0),xn:()=>hwyRideX(M.n.x,1)});})();
+    // the four come off the garage's top deck one after another, through its rail and across onto the ramp behind him, and ride on
+    // down it at an even pace (they slowed to a stop on it as he reached its foot until V110)
+    const jumps=fs.map(f=>(function*(){const j=JUMP_OF[f.idx-1],J=GARAGE.jump[j];yield* wait(J[1]-GARAGE.run);
       yield* hwyLeap(f.mount,J);
-      yield* hwyRide(f.mount,J[2],J[4],4.4-J[1]-.95,u=>lerp(J[3],[18,-14,22,-10][i],u),eOut);})());
+      yield* hwyRide(f.mount,J[2],J[4],4.4-J[1]-.95,u=>lerp(J[3],[18,-14,22,-10][j],u),lin);})());
     yield* all(ride,cam,...jumps);
-    // the ramp's foot: the highway, the road straightening out under them heading west, and the road takes over their pace
+    // the ramp's foot: onto the highway's far lanes, the camera taking up the road's pace with them and gliding to the road's framing
+    // as it does (all of it one move since V110)
     yield* hwyMerge(st,fs);
     // ahead of them all, the truck: they close on it, and Kael looks up the road at it
-    hwyShot('road',1.2);
     yield* all(truckTo(S.story.truck,TRUCK.x,2.2,eOut),(function*(){yield* wait(.6);lookAt(K,-1,1.6);})());
     yield* wait(.3);},
   introSkip(st){hwyRoad(st);S.scroll=Math.min(S.scroll,-3000);const T=S.story.truck;if(T){truckShift(T,TRUCK.x-T.x);T.vx=0;}S.fade=0;},
@@ -233,16 +244,69 @@ const HWY_SHOTS={top:{x:650,w:900,band:{top:-104,foot:296},n:{x:740,w:440,top:-1
   guns:{x:520,w:900,band:{top:-2,foot:398},n:{x:520,w:620,top:-110,foot:480}}};
 function hwyShot(k,rate,o){const C=HWY_SHOTS[k],x=o&&o.x!=null?o.x:C.x;camTo(x,C.w,rate);const c=S.camCut;if(C.band)c.band={...C.band};
   c.xn=o&&o.xn!=null?o.xn:C.n.x;c.wn=C.n.w;if(C.n.top!=null)c.bandN={top:C.n.top,foot:C.n.foot};}
+// A glide from the shot the camera is on to another (k) over dur seconds: where it looks, how wide and how fast it follows going
+// across from the one to the other (a rate of 0 snaps to it all the way), and the picture's band tilting with them (C.from, C.blend:
+// sk_pitui.js); the camera follows the shot as it moves, as it follows any (since V110: the ramp's shots each cut to their band, the
+// picture lurching down after the bikes). Where (x, xn) may be given as functions of how far it has come (e, and u before its easing),
+// for a glide that rides with someone.
+// Down the ramp the camera holds where the shot has it until Kael comes out of the bend, then rides with him, its centre a little
+// ahead of him (off, - is west of him, the way he goes; offN on a narrow screen), going over from the one to the other smoothly (the
+// nearer of the two, rounded over r); x is where the shot holds, n the narrow screen's, q his place in the picture (if not given, where
+// this step takes him: his ride has set his pace for it). The shots that use it snap to it (their rate 0), its own smoothness the camera's.
+const HWY_RIDE={off:-50,offN:-10,r:70};
+function hwyRideX(x,n,q){const B=hero()&&hero().mount;if(q==null)q=B?B.x+(B.vx||0)*DT+B.dep*PSX:x;const b=q+(n?HWY_RIDE.offN:HWY_RIDE.off);return(x+b-Math.hypot(x-b,HWY_RIDE.r))/2;}
+function* hwyGlide(k,rate,dur,o){const Cf=S.camCut?{...S.camCut}:null;hwyShot(k,rate);const Cm=S.camCut,T={x:Cm.x,w:Cm.w,xn:Cm.xn,wn:Cm.wn},t0=S.t;
+  if(!Cf)return;Cm.from={band:Cf.band,bandN:Cf.bandN};const k0=Cf.k;
+  while(S.camCut===Cm){const u=clamp((S.t+DT-t0)/dur,0,1),e=sstep(u);
+    Cm.x=o&&o.x?o.x(e,u):lerp(Cf.x,T.x,e);Cm.xn=o&&o.xn?o.xn(e,u):lerp(Cf.xn??Cf.x,T.xn,e);Cm.w=lerp(Cf.w,T.w,e);Cm.wn=lerp(Cf.wn??Cf.w,T.wn,e);
+    Cm.k=k0&&rate?lerp(k0,rate,e):rate;Cm.blend=e;if(u>=1){delete Cm.from;delete Cm.blend;return;}yield;}}
 
 // ---------- the ramp's foot ----------
-// Each bike comes off the bend onto the straight and settles into its place in the fight (Kael at his spawn, the others at their
-// homes) while the road takes up their pace: S.scrollV goes from nothing to the highway's speed as the bikes slow in the picture, and
-// the ramp and the garage go away behind with the road.
-function* hwyMerge(st,fs){const K=hero(),dur=1.4,t0=S.t;S.hwy.phase='merge';
-  const L=[[K.mount,st.spawn[0][0]+SEAT_DX,st.spawn[0][1]],...fs.map(f=>[f.mount,f.homeX+SEAT_DX,f.homeZ])].map(([B,x,z])=>({B,x0:B.x,z0:B.dep,x,z,k0:B.vk||1,s0:B.vyaw||0}));
-  while(true){const u=clamp((S.t+DT-t0)/dur,0,1),e=sstep(u);S.scrollV=-HWY_V*sstep(clamp(u*1.5,0,1));
-    for(const b of L){const B=b.B;B.vx=(lerp(b.x0,b.x,e)-B.x)/DT;B.dep=lerp(b.z0,b.z,e);B.vk=lerp(b.k0,1,e);B.vyaw=lerp(b.s0,0,e);B.spd=HWY_V;
-      const f=B.rider;if(f){f.dep=f.stepDep=B.dep;}}
+// One move off the ramp onto the road (since V110, asked for: the bikes came almost to a stop at its foot before the road took up its
+// pace, those still on the bend cut straight across it to their places, and the camera turned to the road's framing only after).
+// As Kael comes off the ramp's foot the camera starts to ride with him: his own pace goes up from what he comes off the bend at to the
+// highway's (wK), while in the picture he comes on to his place in the fight without a check (his x easing from his pace off the bend
+// to still, over T1), and the road's pace in the picture (S.scrollV) is what is left of his own over that: it comes up from nothing,
+// with him. The ramp goes away behind with the road (S.scroll), and the others ride on down the rest of it as it goes and along the
+// lanes to theirs: each one's way is down the ramp from where it is to its foot, then an S along the lanes to the place in the world
+// that will be its place in the picture once the road is at its pace (that place less the road gone by meanwhile, offD); how far
+// along it each is goes as a cubic in time from its own pace at the start to the road's at the end. The camera: the foot's shot
+// glides into the road's over the same time (hwyGlide), riding with Kael as it goes, so that he comes to his place in the picture as
+// it comes to its own, not across it and back.
+const HWY_MERGE=1.8;
+function* hwyMerge(st,fs){const K=hero(),KB=K.mount,D=HWY_MERGE,V=HWY_V,t0=S.t,S0=S.scroll||0;S.hwy.phase='merge';
+  // Kael: from where he comes off the foot to his place, his pace in the picture going from his own to nothing
+  const kx0=KB.x,kz0=KB.dep,kx1=st.spawn[0][0]+SEAT_DX,kz1=st.spawn[0][1],v0=Math.max(80,-(KB.vx||0)),dx=kx1-kx0;
+  let p=2,T1=dx<-2?-dx*(p+1)/v0:.5;
+  if(T1>D-.2){T1=D-.2;p=clamp(v0*T1/-dx-1,.6,2);}else if(T1<.5)T1=.5;
+  const xK=t=>{const u=clamp(t/T1,0,1);return kx0+dx*(1-Math.pow(1-u,p+1));},
+    vxK=t=>{const u=clamp(t/T1,0,1);return u>=1?0:dx*(p+1)/T1*Math.pow(1-u,p);},
+    wK=t=>v0+(V-v0)*sstep(clamp(t/D,0,1)),cAt=t=>t>=D?V:Math.max(0,wK(t)+vxK(t)),zK=t=>lerp(kz0,kz1,sstep(clamp(t/D,0,1)));
+  // (how far the road goes by over the merge, frame by frame as the step takes it)
+  let offD=0;for(let t=DT;t<D+DT*.5;t+=DT)offD+=cAt(Math.min(t,D))*DT;
+  // the camera: the road's shot glides in riding with him (his place in the picture, kp), its way off him going over from the foot's
+  // to the road's as he comes to his place (by how far he has come, so that it stops as he does), and what is left of its holding
+  // back from riding with him round the bend (dev) let go of over the glide
+  const kp=t=>xK(t)+zK(t)*PSX,kp0=kp(0),kpE=kp(D),Rd=HWY_SHOTS.road,M=HWY_SHOTS.mid,O=HWY_RIDE,span=kp0-kpE,gone=(q,e)=>span>10?sstep(clamp((kp0-q)/span,0,1)):e;
+  const camX=(x,n,x1,e,u)=>{const q=kp(u*D),o=n?O.offN:O.off,dev=q+o-hwyRideX(x,n,q);return q+lerp(o,x1-kpE,gone(q,e))-dev*(1-e);};
+  const cg=hwyGlide('road',0,D,{x:(e,u)=>camX(M.x,0,Rd.x,e,u),xn:(e,u)=>camX(M.n.x,1,Rd.n.x,e,u)});
+  // the others: down the rest of the ramp, then the S along the lanes; the lengths along it
+  const R=fs.map(f=>{const B=f.mount,x1=f.homeX+SEAT_DX,z1=f.homeZ,s0=B.rampS??1,o=B.rampOff??0,pts=[];
+    const n1=Math.max(1,Math.ceil((1-s0)*40));for(let i=0;i<=n1;i++){const F=hwyFloor(lerp(s0,1,i/n1),o);pts.push({x:F.x,z:F.dep,k:F.k,yaw:F.yaw});}
+    const A=pts[pts.length-1],xt=x1-offD,h=Math.max(20,(A.x-xt)/3);
+    for(let i=1;i<=30;i++){const u=i/30,v=1-u,b0=v*v*v,b1=3*v*v*u,b2=3*v*u*u,b3=u*u*u;
+      pts.push({x:b0*A.x+b1*(A.x-h)+b2*(xt+h)+b3*xt,z:(b0+b1)*A.z+(b2+b3)*z1,k:1,yaw:null});}
+    let L=0;pts[0].l=0;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];L+=Math.hypot(b.x-a.x,b.z-a.z);b.l=L;if(b.yaw==null)b.yaw=hwyYaw(b.x-a.x,b.z-a.z);}
+    return{B,pts,L,v0:Math.hypot(B.vx||0,B.vz||0),x1,z1,lMax:0};});
+  const lAt=(r,t)=>{const u=clamp(t/D,0,1),u2=u*u,u3=u2*u;return(u3-2*u2+u)*D*r.v0+(-2*u3+3*u2)*r.L+(u3-u2)*D*V;},
+    at=(r,l)=>{const P=r.pts;let i=1;while(i<P.length-1&&P[i].l<l)i++;const a=P[i-1],b=P[i],w=clamp((l-a.l)/((b.l-a.l)||1),0,1);
+      return{x:lerp(a.x,b.x,w),z:lerp(a.z,b.z,w),k:lerp(a.k,b.k,w),yaw:b.yaw};};
+  const put=(B,x,z,k,yaw)=>{B.vx=(x-B.x)/DT;B.dep=z;B.vk=k;B.vyaw=yaw;B.spd=V;B.fa=-1;B.carry=1;B.ctl='script';const f=B.rider;if(f){f.dep=f.stepDep=z;}};
+  while(true){const t=S.t+DT-t0,u=clamp(t/D,0,1),c=cAt(Math.min(t,D));S.scrollV=-c;cg.next();
+    // (how far the road will have gone by once this step has taken it)
+    const off=S0-(S.scroll+S.scrollV*DT);
+    if(u>=1)put(KB,kx1,kz1,1,0);else put(KB,xK(t),zK(t),1,hwyYaw(vxK(t)-c,(zK(t+DT)-zK(t))/DT));
+    for(const r of R){if(u>=1){put(r.B,r.x1,r.z1,1,0);continue;}r.lMax=Math.max(r.lMax,lAt(r,t));const P=at(r,r.lMax);put(r.B,P.x+off,P.z,P.k,P.yaw);}
     if(u>=1)break;yield;}
   hwyRoad(st);}
 // on the straight: everyone where the fight starts, the ramp behind them, the road at the highway's speed
