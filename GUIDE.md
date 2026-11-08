@@ -43,8 +43,10 @@ what takes its pictures (places.js, audit.js, lines.js, costs.js, review.py) cha
 faults.py, lines.py, kept.json, kept_lines.json), its pictures read again and judged (`review.py --analyse`, about a minute). The
 machine matters to the review's costs: a different one can move the fall's dearest frame and the frames timed against it (V99).
 Each suite's output is in test_out/NAME.txt. uiwork/qa_build.py calls `build.py --qa`. Always run long things under `timeout`. The
-machine has two cores and about 7 GB. GitHub runs `python3 build.py` and the quick tier on every push to main
-(.github/workflows/checks.yml).
+machine has two cores and about 7 GB. GitHub runs the quick tier on every push to main and every pull request, and once it passes
+the page suites in Playwright's Chromium (`python3 test.py full --no-timing`: every suite but the timing checks and the look review,
+whose limits are set for this machine; about fifteen minutes), keeping each suite's output with the run (.github/workflows/checks.yml;
+"Run workflow" on the Actions tab starts it by hand). The page there loads its Google fonts, which this machine's network refuses.
 
 ## The folder
 Live sources (the only files to edit for the game):

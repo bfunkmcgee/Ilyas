@@ -5,7 +5,8 @@
   python3 test.py affected     the static check, then the suites that cover what changed since the last full run that passed
                                (a change to the game's rules runs everything; a change to the drawing, the page suites it touches)
   python3 test.py full         every suite whose last pass no longer stands (two at a time: the machine has two cores), then the
-                               timing checks alone if theirs does not either; --all runs every suite whatever passed before
+                               timing checks alone if theirs does not either; --all runs every suite whatever passed before;
+                               --no-timing leaves the timing checks out (GitHub's runners: their limits are set for this machine)
   python3 test.py perf         the timing checks alone (sk_perf_page.js): nothing else may load the machine while they run
   python3 test.py look         the look review alone (uiwork/look/review.py, about 16 minutes): every place against the style and
                                drawing guides' measured rules; it times the drawing, so nothing else may run beside it. Only what
@@ -443,7 +444,10 @@ def main():
     names = [n for n in ORDER if n in names] + [n for n in names if n not in ORDER]
     print('%s: %s' % (mode, ', '.join(names) or 'nothing to run'), flush=True)
     res = run_many(names)
-    if mode == 'full' and all(r['ok'] for r in res):
+    timing = '--no-timing' not in flags
+    if mode == 'full' and not timing:
+        print('timing checks: not run (--no-timing: their limits are set for the machine the game is made on)')
+    elif mode == 'full' and all(r['ok'] for r in res):
         pw = 'asked for all' if every else stale('perf', P, RUN['start'], RUN['env'])
         if pw:
             print('timing checks, alone (%s):' % pw)
@@ -451,7 +455,7 @@ def main():
         else:
             print('timing checks: their last pass stands'); kept.append('perf')
     ok = all(r['ok'] for r in res)
-    if ok and mode == 'full':
+    if ok and mode == 'full' and timing:
         # (every suite's pass stands now: the sources they stand with, which "affected" reads)
         json.dump(dict(digest(tracked()), _when=time.time()), open(os.path.join(OUT, 'last_pass.json'), 'w'), indent=0)
     print('%s: %s in %.1f min (%d suites run%s)' % (mode, 'PASS' if ok else 'FAIL: ' + ', '.join(r['name'] for r in res if not r['ok']),

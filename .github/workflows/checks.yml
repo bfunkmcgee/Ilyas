@@ -1,10 +1,19 @@
-# The quick tier on every push to main and every pull request: the build, the static check and the game-logic suites (no browser).
-# The page suites (python3 test.py full) need a headless Chromium and about 13 minutes; they are run before each version is published.
+# Every push to main, every pull request, and by hand from the Actions tab ("Run workflow"):
+#   quick  the build, the static check and the game-logic suites (no browser, about two minutes)
+#   pages  once quick has passed: every page suite in Playwright's Chromium and the live check (python3 test.py full --no-timing,
+#          about fifteen minutes). Not the timing checks or the look review: both time the drawing against limits set on the machine
+#          the game is made on (GUIDE.md, "Tests"), and a runner's timings are not that machine's. They run there before each version
+#          is published. Each suite's output (test_out/*.txt) is kept with the run for two weeks, passed or failed.
+# A newer push to the same branch cancels a run still going.
 name: checks
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   quick:
     runs-on: ubuntu-latest
@@ -21,3 +30,34 @@ jobs:
       - run: npm ci
       - run: python3 build.py
       - run: python3 test.py
+  pages:
+    needs: quick
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - name: Cache Playwright's Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Chromium and what it needs
+        run: npx playwright install --with-deps chromium
+      - name: The page suites
+        run: python3 test.py full --no-timing
+      - name: Keep each suite's output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-output
+          path: test_out/*.txt
+          if-no-files-found: ignore
+          retention-days: 14
