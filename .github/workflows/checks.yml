@@ -1,14 +1,17 @@
-# Every push to main, every pull request, and by hand from the Actions tab ("Run workflow"):
+# Every push to main, every candidate (python3 test.py github pushes the working tree to try/candidate), every pull request, and by
+# hand from the Actions tab ("Run workflow"):
 #   quick  the build, the static check and the game-logic suites (no browser, about two minutes)
-#   pages  once quick has passed: every page suite in Playwright's Chromium and the live check (python3 test.py full --no-timing,
-#          about fifteen minutes). Not the timing checks or the look review: both time the drawing against limits set on the machine
-#          the game is made on (GUIDE.md, "Tests"), and a runner's timings are not that machine's. They run there before each version
-#          is published. Each suite's output (test_out/*.txt) is kept with the run for two weeks, passed or failed.
+#   pages  once quick has passed: every suite in Playwright's Chromium and the live check (python3 test.py full --no-timing, 10 to
+#          16 minutes). Not the timing checks or the look review: both time the drawing against limits set on the machine the game
+#          is made on (GUIDE.md, "Tests"), and a runner's timings are not that machine's. They run there before each version is
+#          published. It ends by packing its passes and their outputs into its log (python3 test.py --export), where test.py full and
+#          --status on that machine take those whose inputs hold there what they held here. Each suite's output (test_out/*.txt) is
+#          kept with the run for two weeks too, passed or failed.
 # A newer push to the same branch cancels a run still going.
 name: checks
 on:
   push:
-    branches: [main]
+    branches: [main, 'try/**']
   pull_request:
   workflow_dispatch:
 concurrency:
@@ -53,7 +56,10 @@ jobs:
       - name: Install Chromium and what it needs
         run: npx playwright install --with-deps chromium
       - name: The page suites
-        run: python3 test.py full --no-timing
+        run: python3 test.py full --no-timing --here
+      - name: The passes, for test.py on the machine the game is made on
+        if: always()
+        run: python3 test.py --export
       - name: Keep each suite's output
         if: always()
         uses: actions/upload-artifact@v4

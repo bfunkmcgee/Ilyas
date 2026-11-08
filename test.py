@@ -6,15 +6,25 @@
                                (a change to the game's rules runs everything; a change to the drawing, the page suites it touches)
   python3 test.py full         every suite whose last pass no longer stands (two at a time: the machine has two cores), then the
                                timing checks alone if theirs does not either; --all runs every suite whatever passed before;
-                               --no-timing leaves the timing checks out (GitHub's runners: their limits are set for this machine)
+                               --no-timing leaves the timing checks out (GitHub's runners: their limits are set for this machine).
+                               First it takes the passes GitHub made on the last candidate (test.py github) for the same inputs,
+                               waiting for that run while it goes on and the working tree is still the candidate; --here does not
+  python3 test.py github       pushes the working tree, as it is, to GitHub as a candidate (the branch try/candidate; nothing is
+                               committed here) for its checks to run the suites on it (12 to 18 minutes there); --wait waits for
+                               that run and takes its passes
   python3 test.py perf         the timing checks alone (sk_perf_page.js): nothing else may load the machine while they run
-  python3 test.py look         the look review alone (uiwork/look/review.py, about 16 minutes): every place against the style and
+  python3 test.py look         the look review alone (uiwork/look/review.py, about 25 minutes): every place against the style and
                                drawing guides' measured rules; it times the drawing, so nothing else may run beside it. Only what
-                               its last pass does not cover: nothing, the judging alone (a minute) or the whole review; --all: whole
+                               its last pass, or its last run that failed, does not cover: nothing, the judging alone (a minute),
+                               the costs timed again and the judging (about seven minutes) or the whole review; --all: whole
+  python3 test.py places [ID ...]  the places' check: the look review of those places alone (their ids in uiwork/look/places.js;
+                               none named, the places with a frame the last review did not shoot), about five minutes, into
+                               test_out/look_places; never a pass. Alone, as it times them; --no-cost leaves the timing out
   python3 test.py NAME ...     the named suites (see SUITES), after the static check
   python3 test.py --list       the suites and what each covers
-  python3 test.py --status     builds, then says whether every suite's last pass and the look review's still stand, and for each
-                               that does not, why (check before publishing)
+  python3 test.py --status     builds, takes GitHub's passes on the last candidate if its run is done, then says whether every
+                               suite's last pass and the look review's still stand, and for each that does not, why (check before
+                               publishing)
 
 Each suite's output goes to test_out/NAME.txt; the summary gives each one's time and verdict. A suite fails on a nonzero exit, a
 line starting "FAIL", or a closing "errors N" / "problems [...]" that is not empty.
@@ -30,11 +40,19 @@ again when any of it differs, when its kept output no longer meets today's verdi
 page) always runs. So: a change to the game runs the suites that read it (the page suites, for anything the page is built from); a
 voice, sound or song file runs the suites that load it; a suite's own file, that suite alone; a document, a comment or a tool no
 suite uses, nothing; a run cut short goes on with the suites it had not passed. The look review rests on the page, the song and its
-own files: a change to the page or to what takes its pictures (places.js, audit.js, lines.js, costs.js, review.py) takes them
-again; a change only to what reads them (hues.py, faults.py, lines.py, kept.json, kept_lines.json) reads them again and judges.
+own files: a change to the page or to what takes its pictures (places.js, audit.js, lines.js, review.py) takes them again; a change
+to costs.js times the costs again; a change only to what reads them (hues.py, faults.py, lines.py, kept.json, kept_lines.json) reads
+them again and judges. A review that failed keeps its pictures too (since Nov 8): the next takes them again only when what they rest
+on changed, times the costs again when it failed on them, and else reads the pictures again and judges.
 A full run that passes also records the sources it passed with (test_out/last_pass.json), which "affected" reads.
+
+GitHub (since Nov 8). `test.py github` pushes the working tree as a commit of its own (the index and HEAD untouched) to the branch
+try/candidate; GitHub's checks run on it, and its page job ends by packing its passes and their outputs into its log
+(`test.py --export`). `test.py full` and `--status` read that log over GitHub's API and take each pass whose inputs here hold what
+they held there, as a pass made here (marked "by"), when the machine there ran the same Playwright, Chromium build and node major;
+the timing checks and the look review are this machine's alone.
 """
-import os, sys, re, json, time, hashlib, subprocess, threading
+import os, sys, re, json, time, hashlib, subprocess, threading, shutil, zlib, base64, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, 'test_out')
@@ -160,9 +178,10 @@ def covered(changed):
 
 # ---------- what a pass rests on (since V99: the docstring's last paragraph) ----------
 LOCK = threading.Lock()
-# the look review's own files: what takes its pictures (a change: the whole review again) and what reads and judges them (a change:
-# those read again from the pictures it has)
-LOOK_SHOOT = ['uiwork/look/%s' % f for f in ('places.js', 'audit.js', 'lines.js', 'costs.js', 'review.py')]
+# the look review's own files: what takes its pictures (a change: the whole review again), what times its costs (since Nov 8: the
+# costs timed again, the pictures read again) and what reads and judges them (a change: those read again from the pictures it has)
+LOOK_SHOOT = ['uiwork/look/%s' % f for f in ('places.js', 'audit.js', 'lines.js', 'review.py')]
+LOOK_TIME = ['uiwork/look/costs.js']
 LOOK_JUDGE = ['uiwork/look/%s' % f for f in ('hues.py', 'faults.py', 'lines.py', 'kept.json', 'kept_lines.json')]
 
 def env_key():
@@ -201,8 +220,8 @@ def digests(keys):
 def passes():
     try:
         P = json.load(open(PASSES))
-        return {'suites': P.get('suites') or {}, 'look': P.get('look')}
-    except Exception: return {'suites': {}, 'look': None}
+        return {'suites': P.get('suites') or {}, 'look': P.get('look'), 'look_shot': P.get('look_shot')}
+    except Exception: return {'suites': {}, 'look': None, 'look_shot': None}
 
 def save_passes(P):
     tmp = PASSES + '.tmp'
@@ -219,7 +238,7 @@ def implicit(name):
     return keys
 
 def look_keys():
-    return sorted(set(implicit('look') + ['r:' + f for f in LOOK_SHOOT + LOOK_JUDGE]))
+    return sorted(set(implicit('look') + ['r:' + f for f in LOOK_SHOOT + LOOK_TIME + LOOK_JUDGE]))
 
 def reads_of(name):
     """The inputs a suite noted as it ran, every process of it (None when a note will not read)."""
@@ -265,15 +284,34 @@ def stale(name, P, now, env):
     ok, why = verdict(name, 0, text)
     return None if ok else 'its last output does not meet the verdict now (%s)' % why
 
+LOOK_DO = {'all': 'the whole review', 'judge': 'its pictures read again and judged',
+           'time': 'its costs timed again, its pictures read again and judged'}
+
 def look_stale(P, now, env):
-    """What the look review has to do again: None (its pass stands), 'judge' (read its pictures again and judge) or 'all'."""
+    """What the look review has to do again, and why: None (its pass stands), 'judge' (read its pictures again and judge), 'time'
+    (time its costs again, read its pictures again and judge) or 'all'. A review that failed after taking and judging its pictures
+    keeps them (P['look_shot'], since Nov 8): the next one takes them again only when the page, the song or what takes them changed,
+    times the costs again when it failed on them (or costs.js changed), and else reads the pictures again and judges."""
+    have = os.path.exists(os.path.join(OUT, 'look', 'review.json'))
+    part = lambda k: 'judge' if k[2:] in LOOK_JUDGE else 'time' if k[2:] in LOOK_TIME else 'shoot'
+    names = lambda ks: ', '.join(k[2:] for k in ks[:4]) + (' and %d more' % (len(ks) - 4) if len(ks) > 4 else '')
     rec = P.get('look')
-    if not rec or rec.get('env') != env: return 'all', 'no pass kept' if not rec else "the machine's tools changed"
-    ch = [k for k in look_keys() if now.get(k, 'unknown') != rec['inputs'].get(k)]
-    if not ch: return None, ''
-    shoot = [k for k in ch if k[2:] not in LOOK_JUDGE]
-    if shoot or not os.path.exists(os.path.join(OUT, 'look', 'review.json')): return 'all', 'changed: ' + ', '.join(k[2:] for k in (shoot or ch)[:4])
-    return 'judge', 'changed: ' + ', '.join(k[2:] for k in ch[:4])
+    if rec and rec.get('env') == env:
+        ch = [k for k in look_keys() if now.get(k, 'unknown') != rec['inputs'].get(k)]
+        if not ch: return None, ''
+        shoot = [k for k in ch if part(k) == 'shoot']
+        if shoot or not have: return 'all', 'changed: ' + names(shoot or ch)
+        return ('time' if any(part(k) == 'time' for k in ch) else 'judge'), 'changed: ' + names(ch)
+    S = P.get('look_shot')
+    if S and S.get('env') == env and have:
+        ch = [k for k in look_keys() if now.get(k, 'unknown') != S['inputs'].get(k)]
+        shoot = [k for k in ch if part(k) == 'shoot']
+        failed = S.get('failed') or []
+        if shoot: return 'all', 'changed since its last review failed: ' + names(shoot)
+        why = 'its last review failed on %s, and its pictures stand%s' % (', '.join(failed) or 'a step', ('; changed: ' + names(ch)) if ch else '')
+        return ('time' if 'cost' in failed or any(part(k) == 'time' for k in ch) else 'judge'), why
+    if not rec: return 'all', 'no pass kept'
+    return 'all', "the machine's tools changed"
 
 def all_keys(P):
     """Every input any kept pass names, and every suite's implicit ones: what a run digests once, as it begins."""
@@ -282,6 +320,160 @@ def all_keys(P):
     for n in SUITES: ks |= set(implicit(n))
     if P.get('look'): ks |= set(P['look']['inputs'])
     return sorted(ks)
+
+# ---------- GitHub: the suites run there on a candidate, their passes taken here (since Nov 8: the docstring's last paragraph) ----------
+GITHUB = os.path.join(OUT, 'github.json')   # the last candidate pushed: its commit, its tree, the HEAD it was made on, when
+BRANCH = 'try/candidate'
+MARK = 'SK-PASSES'
+
+def git(*a, env=None):
+    return subprocess.run(['git'] + list(a), cwd=HERE, capture_output=True, text=True, env=env)
+
+def repo_slug():
+    u = git('remote', 'get-url', 'origin').stdout.strip()
+    m = re.search(r'github\.com[:/]+([^/]+/[^/]+?)(?:\.git)?/?$', u)
+    return os.environ.get('SK_GITHUB_REPO') or (m.group(1) if m else 'bfunkmcgee/Ilyas')
+
+def work_tree():
+    """The working tree as `git add -A` would commit it (what .gitignore leaves out, left out), as a tree, the index untouched: a copy
+    of it takes the files."""
+    os.makedirs(OUT, exist_ok=True)
+    idx = os.path.join(OUT, 'candidate.index')
+    real = git('rev-parse', '--path-format=absolute', '--git-path', 'index').stdout.strip()
+    try: shutil.copyfile(real, idx)
+    except OSError:
+        if os.path.exists(idx): os.remove(idx)
+    e = dict(os.environ, GIT_INDEX_FILE=idx)
+    if git('add', '-A', env=e).returncode: return None
+    t = git('write-tree', env=e)
+    return t.stdout.strip() if t.returncode == 0 else None
+
+def push_candidate():
+    tree = work_tree()
+    if not tree: print('github: git could not read the working tree'); return 1
+    head = git('rev-parse', 'HEAD').stdout.strip()
+    if git('rev-parse', 'HEAD^{tree}').stdout.strip() == tree: sha = head
+    else:
+        c = git('commit-tree', tree, '-p', head, '-m', "Candidate: the working tree for GitHub's checks (python3 test.py github)")
+        if c.returncode: print('github: git could not make the candidate:\n' + c.stderr.strip()); return 1
+        sha = c.stdout.strip()
+    p = git('push', '-f', 'origin', '%s:refs/heads/%s' % (sha, BRANCH))
+    if p.returncode: print('github: the push was refused:\n' + p.stderr.strip()); return 1
+    json.dump({'sha': sha, 'tree': tree, 'head': head, 'when': time.time()}, open(GITHUB, 'w'), indent=0)
+    # (the repository is public: what the candidate carries that HEAD does not is named, the new files by name)
+    ch = [l.split('\t') for l in git('diff', '--name-status', head, sha).stdout.split('\n') if '\t' in l]
+    new = [p[-1] for p in ch if p[0].startswith('A')]
+    print('github: the working tree pushed as the candidate %s (on %s, %d files changed%s) to %s; its checks run the suites there,'
+          ' 12 to 18 minutes:\n  %s' % (sha[:7], head[:7], len(ch), ', new: ' + ', '.join(new[:12]) + (' and %d more' % (len(new) - 12) if len(new) > 12 else '') if new else '',
+                                        BRANCH, 'https://github.com/%s/actions?query=branch%%3A%s' % (repo_slug(), BRANCH.replace('/', '%2F'))))
+    return 0
+
+def api(p, text=False):
+    """GitHub's REST API (public reads); None when it does not answer."""
+    req = urllib.request.Request('https://api.github.com' + p, headers={'Accept': 'application/vnd.github+json', 'User-Agent': 'ilyas-test.py'})
+    try:
+        with urllib.request.urlopen(req, timeout=90) as r: b = r.read()
+        return b.decode('utf-8', 'replace') if text else json.loads(b)
+    except Exception: return None
+
+def unpack(log):
+    """The passes a page job packed into its log (test.py --export), or None."""
+    parts, on = [], False
+    for line in (log or '').split('\n'):
+        line = re.sub(r'^﻿?\d{4}-\d\d-\d\dT[\d:.]+Z ', '', line.rstrip('\r'))
+        if line.startswith(MARK + '-END'): break
+        if on and line.startswith(MARK + ' '): parts.append(line[len(MARK) + 1:].strip())
+        elif line.startswith(MARK + '-BEGIN'): on = True
+    try: return json.loads(zlib.decompress(base64.b64decode(''.join(parts))))
+    except Exception: return None
+
+def export():
+    """(GitHub's page job, at its end) its passes and their outputs, packed into its log for test.py on the machine the game is made on."""
+    P = passes()
+    outs = {}
+    for n in P['suites']:
+        try: outs[n] = open(os.path.join(OUT, n + '.txt')).read()
+        except OSError: pass
+    D = {'env': env_key(), 'sha': os.environ.get('GITHUB_SHA'), 'when': time.time(), 'suites': P['suites'], 'outputs': outs}
+    blob = base64.b64encode(zlib.compress(json.dumps(D, separators=(',', ':')).encode(), 9)).decode()
+    print('::group::%d passes, for test.py on the machine the game is made on' % len(P['suites']))
+    print(MARK + '-BEGIN')
+    for i in range(0, len(blob), 1000): print(MARK + ' ' + blob[i:i + 1000])
+    print(MARK + '-END')
+    print('::endgroup::')
+    return 0
+
+def same_tree(C):
+    """Whether the working tree is still the candidate's, but for documents (*.md) and the workflows."""
+    t = work_tree()
+    if not t or t == C['tree']: return bool(t)
+    d = git('diff', '--name-only', C['tree'], t)
+    return d.returncode == 0 and all(f.endswith('.md') or f.startswith('.github/') for f in d.stdout.split())
+
+def github_take(env, wait=False):
+    """The passes GitHub's page job made on the last candidate, each taken as this machine's where every input it rests on holds here
+    what it held there (and the suite's output meets the verdict): its pass then stands as one made here. wait: while that run goes
+    on and the working tree is still the candidate's, wait for it. Prints what it did; gives the suites taken."""
+    try: C = json.load(open(GITHUB))
+    except Exception: return []
+    slug, short, t0 = repo_slug(), C['sha'][:7], time.time()
+    if wait and not same_tree(C):
+        print('github: the working tree has changed since the candidate %s was pushed (python3 test.py github pushes it again): its'
+              ' passes taken where they rest on what is here, without waiting for its run' % short)
+        wait = False
+    told = 0
+    while True:
+        d = api('/repos/%s/actions/runs?head_sha=%s&per_page=20' % (slug, C['sha']))
+        if d is None: print("github: GitHub's API did not answer: no passes taken from it"); return []
+        runs = sorted((r for r in d.get('workflow_runs') or [] if r.get('name') == 'checks'), key=lambda r: r.get('created_at') or '')
+        run = runs[-1] if runs else None
+        if run and run.get('status') == 'completed': break
+        late = time.time() - C['when'] > 15 * 60
+        if not wait or (not run and late) or time.time() - t0 > 80 * 60:
+            print('github: %s on the candidate %s%s' % ('its run is %s' % run['status'].replace('_', ' ') if run else 'no run yet',
+                  short, ' (%s)' % run['html_url'] if run else ''))
+            return []
+        if time.time() - told > 120:
+            print('github: waiting for its run on the candidate %s (%s, %.0f min since the push)' % (
+                short, run['status'].replace('_', ' ') if run else 'not started', (time.time() - C['when']) / 60), flush=True)
+            told = time.time()
+        time.sleep(30)
+    j = api('/repos/%s/actions/runs/%d/jobs' % (slug, run['id'])) or {}
+    jobs = {x['name']: x for x in j.get('jobs') or []}
+    pages = jobs.get('pages')
+    head = 'github: run %d on the candidate %s (%s; quick %s, pages %s)' % (run['id'], short, run.get('conclusion'),
+           (jobs.get('quick') or {}).get('conclusion'), (pages or {}).get('conclusion'))
+    if not pages or pages.get('conclusion') in (None, 'skipped', 'cancelled'):
+        print(head + ': no passes to take'); return []
+    D = unpack(api('/repos/%s/actions/jobs/%d/logs' % (slug, pages['id']), text=True))
+    if not D: print(head + ': its log holds no passes'); return []
+    # (the machine there: the same Playwright, the same Chromium build and node's major version; a runner's Chromium is Playwright's
+    # own, the revision its browsers.json names, the one this machine's folder is named for)
+    def build(e):
+        if e.get('chromium') == "Playwright's own":
+            try: return next(b['revision'] for b in json.load(open(path('node_modules', 'playwright-core', 'browsers.json')))['browsers'] if b['name'] == 'chromium')
+            except Exception: return None
+        return (re.findall(r'chromium[-_](\d+)', e.get('chromium') or '') or [None])[-1]
+    there = D.get('env') or {}
+    if (there.get('playwright') != env.get('playwright') or build(there) is None or build(there) != build(env)
+            or (there.get('node') or 'x').split('.')[0] != (env.get('node') or 'y').split('.')[0]):
+        print(head + ': its node, Chromium or Playwright is not this machine\'s (%s against %s): no passes taken' % (there, env)); return []
+    S = {n: r for n, r in (D.get('suites') or {}).items() if n in SUITES and SUITES[n][1] in ('logic', 'page')}
+    now = digests(sorted(set(k for r in S.values() for k in r['inputs'])))
+    taken, differ = [], []
+    with LOCK:
+        P = passes()
+        for n, r in sorted(S.items()):
+            text = (D.get('outputs') or {}).get(n)
+            if (any(now.get(k, 'unknown') != v for k, v in r['inputs'].items()) or any(k not in r['inputs'] for k in implicit(n))
+                    or text is None or not verdict(n, 0, text)[0]):
+                differ.append(n); continue
+            open(os.path.join(OUT, n + '.txt'), 'w').write(text)
+            P['suites'][n] = {'inputs': r['inputs'], 'env': env, 'when': r.get('when'), 'by': 'GitHub run %d (%s)' % (run['id'], short)}
+            taken.append(n)
+        save_passes(P)
+    print(head + ': %d passes taken%s' % (len(taken), '; not taken, as their inputs here are not what they were there: ' + ', '.join(differ) if differ else ''))
+    return taken
 
 # ---------- running ----------
 def verdict(name, code, text):
@@ -365,16 +557,52 @@ def static():
     print(p.stdout.strip(), flush=True)
     return p.returncode == 0
 
+def new_places():
+    """The places in places.js with a frame the last look review did not shoot (none when there is no review to go by)."""
+    try: shot = set(json.load(open(os.path.join(OUT, 'look', 'review.json'))).get('frames') or {})
+    except Exception: return []
+    js = ("const P=require(%r);console.log(JSON.stringify(P.SHOTS.map(s=>[s.id,s.lab?[s.id]:s.at.map(m=>P.frameName(s.id,m))])))"
+          % path('uiwork', 'look', 'places.js'))
+    S = json.loads(subprocess.run(['node', '-e', js], capture_output=True, text=True, check=True).stdout)
+    return [i for i, names in S if any(n not in shot for n in names)]
+
+def places_check(ids, no_cost, t0):
+    """The places' check (since Nov 8): the look review of the places named, or of the new ones, alone; never a pass."""
+    if not ids:
+        ids = new_places()
+        if not ids:
+            print('places: every place in places.js has its frames in the last look review: name the places to look at'
+                  ' (python3 test.py places gondola officeback)')
+            return 1
+        print('places: the places with a frame the last look review did not shoot: ' + ', '.join(ids))
+    ids = [p for a in ids for p in a.split(',') if p]
+    cmd = [sys.executable, path('uiwork', 'look', 'review.py'), os.path.join(OUT, 'look_places'), '--places', ','.join(ids)] + (['--no-cost'] if no_cost else [])
+    print('places: %s, %s' % (', '.join(ids), 'not timed (--no-cost)' if no_cost else 'timed by turns against the fall (alone: it times the drawing)'), flush=True)
+    try:
+        p = subprocess.run(cmd, cwd=HERE, capture_output=True, text=True, timeout=3600)
+        code, text = p.returncode, p.stdout + ('\n' + p.stderr if p.stderr.strip() else '')
+    except subprocess.TimeoutExpired:
+        code, text = -999, 'timed out'
+    open(os.path.join(OUT, 'places.txt'), 'w').write(text)
+    print(text.rstrip())
+    print('places: %s in %.1f min (test_out/places.txt; its pictures in test_out/look_places)' % (
+        'clean' if code == 0 else 'FAIL', (time.time() - t0) / 60))
+    return 0 if code == 0 else 1
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     flags = [a for a in sys.argv[1:] if a.startswith('--')]
     os.makedirs(OUT, exist_ok=True)
     every = '--all' in flags
+    if '--export' in flags:
+        return export()
     if '--status' in flags:
         # (the page suites and the review rest on the page: built from today's sources first)
         b = subprocess.run([sys.executable, path('build.py')], cwd=HERE, capture_output=True, text=True)
         if b.returncode: print('the build failed:\n' + b.stderr[-2000:]); return 1
-        P, env = passes(), env_key()
+        env = env_key()
+        github_take(env)
+        P = passes()
         now = digests(all_keys(P))
         why = {n: stale(n, P, now, env) for n in ORDER + ['perf'] if n != 'live'}
         due = [n for n in why if why[n]]
@@ -382,37 +610,67 @@ def main():
             print('to run again, %d of %d suites:' % (len(due), len(why)))
             for n in due: print('  %-11s %s' % (n, why[n]))
         else: print("every suite's last pass stands (%d suites; live checks the published page whenever it runs)" % len(why))
+        by = sorted(set(P['suites'][n].get('by') for n in why if not why[n] and P['suites'].get(n, {}).get('by')))
+        if by: print('  (%d of them made by %s)' % (sum(1 for n in why if not why[n] and P['suites'].get(n, {}).get('by')), ', '.join(by)))
         lk, lwhy = look_stale(P, now, env)
-        print('the look review: ' + ('its last pass stands' if not lk else
-                                     ('its pictures to read and judge again' if lk == 'judge' else 'to run again') + ' (%s)' % lwhy))
+        print('the look review: ' + ('its last pass stands' if not lk else '%s to do (%s)' % (LOOK_DO[lk], lwhy)))
         return 1 if due or lk else 0
     if '--list' in flags:
         for n in ORDER + ['perf', 'look']:
             c, k, what = SUITES[n]; print('  %-11s %-6s %s' % (n, k, what))
         return 0
-    mode = args[0] if args and args[0] in ('quick', 'affected', 'full', 'perf', 'look') else ('named' if args else 'quick')
+    mode = args[0] if args and args[0] in ('quick', 'affected', 'full', 'perf', 'look', 'places', 'github') else ('named' if args else 'quick')
     t0 = time.time()
     if not static(): print('stopped: the static check found problems'); return 1
+    if mode == 'github':
+        if '--wait' in flags:
+            got = github_take(env_key(), wait=True)
+            return 0 if got else 1
+        return push_candidate()
+    if mode == 'places':
+        return places_check(args[1:], '--no-cost' in flags, t0)
     # (what every input holds as the run begins, and the machine's tools: what a pass is kept with)
     P = passes()
     RUN['env'] = env_key()
+    if mode == 'full' and not every and '--here' not in flags:
+        # (since Nov 8) the passes GitHub made on the last candidate, where they rest on what is here
+        if github_take(RUN['env'], wait=True): P = passes()
     RUN['start'] = digests(all_keys(P))
     if mode == 'look':
         lk, lwhy = ('all', 'asked for all') if every else look_stale(P, RUN['start'], RUN['env'])
         if not lk:
             print('look: its last pass stands, nothing to run (--all runs it whatever)')
             return 0
-        print('look: %s (%s)' % ('the whole review' if lk == 'all' else 'its pictures read and judged again', lwhy), flush=True)
-        r = run_one('look', extra=() if lk == 'all' else ('--analyse',))
+        print('look: %s (%s)' % (LOOK_DO[lk], lwhy), flush=True)
+        if lk == 'all':
+            # (its pictures are about to be taken again: what the last run left stands no more, however this one ends)
+            P['look'] = P['look_shot'] = None
+            save_passes(P)
+        began = time.time()
+        r = run_one('look', extra={'all': (), 'judge': ('--analyse',), 'time': ('--retime',)}[lk])
         show(r)
         P = passes()
+        now = digests(look_keys())
+        # (kept only when nothing it rests on changed while it ran)
+        steady = all(RUN['start'].get(k) == v for k, v in now.items())
         if r['ok']:
-            now = digests(look_keys())
-            # (kept only when nothing it rests on changed while it ran)
-            P['look'] = {'inputs': now, 'env': RUN['env'], 'when': time.time()} if all(RUN['start'].get(k) == v for k, v in now.items()) else None
-        else: P['look'] = None
+            P['look'] = {'inputs': now, 'env': RUN['env'], 'when': time.time()} if steady else None
+            P['look_shot'] = None
+        else:
+            P['look'] = None
+            # a review that took and judged its pictures (its review.json written by this run) leaves them to the next (since Nov 8);
+            # one that stopped at a step leaves what was there
+            rj = os.path.join(OUT, 'look', 'review.json')
+            try: R = json.load(open(rj)) if os.path.getmtime(rj) >= began else None
+            except Exception: R = None
+            if R is not None:
+                P['look_shot'] = {'inputs': now, 'env': RUN['env'], 'when': time.time(),
+                                  'failed': sorted(set(v['rule'] for v in R.get('fails') or []))} if steady else None
         save_passes(P)
         print('look: %s in %.1f min' % ('PASS' if r['ok'] else 'FAIL', (time.time() - t0) / 60))
+        if not r['ok'] and P.get('look_shot'):
+            nk, nwhy = look_stale(P, now, RUN['env'])
+            if nk and nk != 'all': print('look: the next run: %s (%s)' % (LOOK_DO[nk], nwhy))
         return 0 if r['ok'] else 1
     kept = []
     if mode == 'perf':

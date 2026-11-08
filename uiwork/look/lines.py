@@ -7,6 +7,9 @@
 # and the files with the most that do not; writes the table to sites.json (default <outdir>/sites.json).
 import json,sys,os,glob,collections,importlib.util,re,math
 HERE=os.path.dirname(os.path.abspath(__file__));REPO=os.path.abspath(os.path.join(HERE,'..','..'))
+# (no __pycache__ left in the repository's root by build.py's import: the folder's listing is an input of the sound suite, and
+# GitHub's checkout has none, so its pass there would never be taken here; since Nov 8)
+sys.dont_write_bytecode=True
 spec=importlib.util.spec_from_file_location('build',os.path.join(REPO,'build.py'));B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 starts=json.load(open(os.path.join(REPO,'build_map.json')))
 PAGE,IND=sys.argv[1],sys.argv[2];OUT=sys.argv[3] if len(sys.argv)>3 else os.path.join(IND,'sites.json')

@@ -2,13 +2,15 @@
 """The look review: the style guide's and the drawing guide's measured rules over every place the game draws, and a verdict on
 every frame (phase 4 of the visual director, since V88). `python3 test.py look` runs it alone and records its pass.
 
-    python3 uiwork/look/review.py [out folder] [--judge] [--no-desk] [--keep-lines "why"]
+    python3 uiwork/look/review.py [out folder] [--judge] [--analyse] [--retime] [--no-desk] [--keep-lines "why"]
+    python3 uiwork/look/review.py [out folder] --places id,id [--no-cost]
 
 It runs (about 20 minutes, and nothing else may load the machine: it times the drawing):
   1. the look audit on a 412x714 phone held upright (audit.js), alone, for the costs
   2. the same audit at 1280x800 (rules 1, 7 and 8 on a wide screen), beside the line widths (lines.js, then lines.py)
   3. the colours and the picture faults of the phone's frames (hues.py, faults.py)
-  4. the phone's frames that cost near the fall's dearest frame or more, timed again by turns against the fall (costs.js)
+  4. the phone's frames that cost near the fall's dearest frame or more, and those kept for their cost, timed again by turns
+     against the fall (costs.js: each cost the least of its timings, since Nov 8)
 and fails a frame for each rule it breaks:
   black    style rule 1: flat black (the audit's empty) 5% or less, in the action and in the scenes
   outline  style rule 8: two thirds of Ilyas's outline or more reads (the audit judges; a hidden or struck outline is not judged)
@@ -25,8 +27,14 @@ What was judged and kept is in kept.json (frames and places, each with its reaso
 with its reason); a kept entry no frame needs any more is named, so the lists stay true. Writes <out>/review.json (every frame's
 numbers, pictures and verdicts: the lookbook reads it) and prints the fails, each on a line starting FAIL; exit status 1 on any.
 --judge judges what is already in the folder without running anything again; --analyse (since V99) reads the pictures already in
-it again (the line widths, the colours, the faults) and judges, keeping the timings; --no-desk leaves out the wide screen (not a full
-review); --keep-lines "why" adds the lines the run finds under the rule to kept_lines.json with that reason (once judged).
+it again (the line widths, the colours, the faults) and judges, keeping the timings; --retime (since Nov 8) does that and times the
+costs again (step 4 alone, about six minutes: the pictures stand while what takes them is as it was, and test.py look decides);
+--no-desk leaves out the wide screen (not a full review); --keep-lines "why" adds the lines the run finds under the rule to
+kept_lines.json with that reason (once judged).
+--places id,id (since Nov 8) is the places' check: the same steps and rules for those places alone (their ids in places.js), into
+test_out/look_places unless a folder is named, every frame of theirs timed against the fall, the three shooting steps together (the
+audit's own timings choose nothing here); never a pass, and what is kept for other places is not named. --no-cost leaves the
+timing out (about three minutes then, and it may run beside other work: the pictures come out the same however busy the machine is).
 """
 import json, os, re, subprocess, sys, time
 
@@ -100,9 +108,11 @@ class Review:
         self.fails.append({'frame': name, 'size': size, 'rule': rule, 'what': what})
 
 
-def judge(out, P, kept, kept_lines, desk=True):
+def judge(out, P, kept, kept_lines, desk=True, only=None):
+    """only: the places' check (--places), whose rooms rule takes only the rooms among them and which names no kept entry of
+    another place's as no longer needed"""
     R = Review(kept)
-    act1, rooms = set(P['ACT1']), P['ROOMS']
+    act1, rooms = set(P['ACT1']), [r for r in P['ROOMS'] if only is None or r in only]
     sizes = [('phone', PHONE)] + ([('desk', DESK)] if desk else [])
     audits = {k: json.load(open(os.path.join(out, k, 'audit.json'))) for k, _ in sizes}
     frames = {}
@@ -181,7 +191,7 @@ def judge(out, P, kept, kept_lines, desk=True):
             k = R.keep('cost', n + '@' + ph, n, frames.get(n, {}).get('id')) if c['of'] is not None and c['of'] > COST_OVER else None
             if c['of'] is not None and c['of'] > COST_OVER and (k is None or (isinstance(k, dict) and c['of'] > k.get('max', 0))):
                 R.fail(n, ph, 'cost', '%.1f ms a frame against the fall\'s dearest %.1f, timed by turns (%.0f%%%s)' % (c['ms'], cost['fall']['ms'], c['of'] * 100,
-                       ', kept to %.0f%%' % (k['max'] * 100) if isinstance(k, dict) else ''))
+                       ', kept to %.0f%%' % (k['max'] * 100) if isinstance(k, dict) else '') + (', the least of each one\'s timings' if cost.get('how') == 'least' else ''))
         for e in cost.get('errors') or []:
             R.fail('costs', ph, 'errors', e[:160])
     # the line widths (drawing rule 2)
@@ -208,12 +218,14 @@ def judge(out, P, kept, kept_lines, desk=True):
             if fn.endswith('.json') and fn != 'sites.json':
                 for e in json.load(open(os.path.join(out, 'lines', fn))).get('errs') or []:
                     R.fail(fn[:-5], ph, 'errors', 'page error (lines): ' + e[:160])
-        lines['stale'] = len(set(KL) - seen)
+        lines['stale'] = len(set(KL) - seen) if only is None else 0
     for v in R.fails:
         if v['frame'] in frames:
             frames[v['frame']]['verdicts'].append(v)
+    # (the places' check names only what is kept for its own places: a frame of theirs, at a size or not, or one of them)
+    mine = lambda n: only is None or n in only or n.split('@')[0] in frames
     stale = sorted('%s %s' % (rule, n) for rule, K in kept.items() if not rule.startswith('_') for n in K
-                   if not n.startswith('_') and (rule, n) not in R.used)
+                   if not n.startswith('_') and (rule, n) not in R.used and mine(n))
     return R, frames, place, cost, lines, stale
 
 
@@ -227,18 +239,35 @@ def main():
         if not keep_why:
             sys.exit('--keep-lines needs the reason the lines are kept')
         args = [a for a in args if a != keep_why]
-    out = os.path.abspath(args[0] if args else os.path.join(REPO, 'test_out', 'look'))
+    # --places (since Nov 8): those places alone, the places' check
+    only = None
+    if '--places' in flags:
+        i = sys.argv.index('--places')
+        val = sys.argv[i + 1] if i + 1 < len(sys.argv) and not sys.argv[i + 1].startswith('--') else ''
+        only = [p for p in val.split(',') if p]
+        if not only:
+            sys.exit('--places needs the places, by their ids in places.js: --places gondola,officeback')
+        args = [a for a in args if a != val]
+    out = os.path.abspath(args[0] if args else os.path.join(REPO, 'test_out', 'look_places' if only else 'look'))
     page = os.path.abspath(os.environ.get('PAGE', os.path.join(REPO, 'test_page.html')))
     desk = '--no-desk' not in flags
     P = places()
+    if only:
+        ids = [s['id'] for s in P['SHOTS']]
+        bad = [p for p in only if p not in ids]
+        if bad:
+            sys.exit('no such place: %s (the places: %s)' % (', '.join(bad), ', '.join(ids)))
+    timing = not (only and '--no-cost' in flags)
     kept = json.load(open(os.path.join(HERE, 'kept.json')))
     klf = os.path.join(HERE, 'kept_lines.json')
     kept_lines = json.load(open(klf))
     t0 = time.time()
     # --analyse (since V99): the pictures and the timings the last review took are kept, and only read again and judged (for a change
     # to what reads them, hues.py, faults.py, lines.py or the kept lists, with the page and what takes the pictures as they were:
-    # test.py look decides)
-    analyse = '--analyse' in flags
+    # test.py look decides); --retime (since Nov 8) times the costs again too (a review that failed on its costs, or a change to
+    # costs.js alone)
+    retime = '--retime' in flags
+    analyse = '--analyse' in flags or retime
     if analyse and not all(os.path.exists(os.path.join(out, d, 'audit.json')) for d in ('phone', 'desk')):
         sys.exit('FAIL --analyse: no pictures in %s to read again' % out)
     if '--judge' not in flags:
@@ -246,27 +275,48 @@ def main():
         env = {'PAGE': page}
         ok = True
         if analyse:
-            print('look review of %s: the pictures in %s read again' % (os.path.relpath(page, REPO), out), flush=True)
+            print('look review of %s: the pictures in %s read again%s' % (os.path.relpath(page, REPO), out, ', the costs timed again' if retime else ''), flush=True)
         else:
-            print('look review of %s into %s' % (os.path.relpath(page, REPO), out), flush=True)
-            ok = run('the audit, 412x714 (alone)', ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'phone')] + [str(v) for v in PHONE],
+            print('look review of %s into %s%s' % (os.path.relpath(page, REPO), out, ': the places %s alone, never a pass' % ', '.join(only) if only else ''), flush=True)
+            if only:
+                # (a fresh folder: what another check of other places left there is not theirs)
+                for d in ('phone', 'desk', 'lines'):
+                    sub = os.path.join(out, d)
+                    if os.path.isdir(sub):
+                        for f in os.listdir(sub):
+                            os.remove(os.path.join(sub, f))
+            pick = [','.join(only)] if only else []
+            phone = ('the audit, 412x714' + ('' if only else ' (alone)'), ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'phone')] + [str(v) for v in PHONE] + pick,
                      os.path.join(out, 'phone.log'), env)
-            jobs = [('the line widths, 412x714', ['node', os.path.join(HERE, 'lines.js'), os.path.join(out, 'lines')] + [str(v) for v in PHONE],
+            jobs = [('the line widths, 412x714', ['node', os.path.join(HERE, 'lines.js'), os.path.join(out, 'lines')] + [str(v) for v in PHONE] + pick,
                      os.path.join(out, 'lines.log'), env)]
             if desk:
-                jobs.insert(0, ('the audit, 1280x800', ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'desk')] + [str(v) for v in DESK],
+                jobs.insert(0, ('the audit, 1280x800', ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'desk')] + [str(v) for v in DESK] + pick,
                                 os.path.join(out, 'desk.log'), dict(env, COSTN='2')))
-            ok = together(jobs) and ok
+            # (the whole review times the phone's frames alone, as its audit chooses the frames to time again by them; the places'
+            # check times all of its own, so its three shooting steps go together)
+            if only:
+                ok = together([phone] + jobs)
+            else:
+                ok = run(*phone)
+                ok = together(jobs) and ok
         ok = run('the line widths, read', [sys.executable, os.path.join(HERE, 'lines.py'), page, os.path.join(out, 'lines')],
                  os.path.join(out, 'lines_read.log')) and ok
         ok = run('the colours', [sys.executable, '-W', 'ignore', os.path.join(HERE, 'hues.py'), os.path.join(out, 'phone')], os.path.join(out, 'hues.log')) and ok
         ok = run('the picture faults', [sys.executable, os.path.join(HERE, 'faults.py'), os.path.join(out, 'phone')], os.path.join(out, 'faults.log')) and ok
-        # the frames to time again: near the fall's dearest frame or over it in the audit's run
+        # the frames to time again: near the fall's dearest frame or over it in the audit's run, and those kept for their cost (since
+        # Nov 8: a single timing in the audit wanders by a third, so a frame near the line came and went from the list, and its keep
+        # with it); the places' check, every frame of its places
         A = json.load(open(os.path.join(out, 'phone', 'audit.json')))
         line = max([s['ms'] for s in A['shots'] if s['id'] == 'fall' and not s.get('gone')] or [0])
-        sus = [frame_name(s) for s in A['shots'] if s['id'] != 'fall' and not s.get('gone') and line and s['ms'] >= SUSPECT * line]
+        K = kept.get('cost', {})
+        held = lambda s: any(k in K for k in (frame_name(s) + '@' + size_key(PHONE), frame_name(s), s['id']))
+        if only:
+            sus = [frame_name(s) for s in A['shots'] if s['id'] != 'fall' and not s.get('gone')] if timing else []
+        else:
+            sus = [frame_name(s) for s in A['shots'] if s['id'] != 'fall' and not s.get('gone') and line and (s['ms'] >= SUSPECT * line or held(s))]
         cf = os.path.join(out, 'costs.json')
-        if not analyse:
+        if not analyse or retime:
             if os.path.exists(cf):
                 os.remove(cf)
             if sus:
@@ -275,7 +325,7 @@ def main():
         if not ok:
             print('FAIL a step of the review did not finish: see its log in %s' % out)
             sys.exit(1)
-    R, frames, place, cost, lines, stale = judge(out, P, kept, kept_lines, desk)
+    R, frames, place, cost, lines, stale = judge(out, P, kept, kept_lines, desk, only)
     if keep_why:
         S = json.load(open(os.path.join(out, 'lines', 'sites.json')))
         have = {(k['file'], norm(k['src'])) for k in kept_lines}
@@ -287,21 +337,23 @@ def main():
                 add.append({'file': r['file'], 'src': key[1], 'med': r['med'], 'why': keep_why})
         json.dump(kept_lines + add, open(klf, 'w'), indent=0)
         print('kept %d more lines in %s' % (len(add), os.path.relpath(klf, REPO)))
-        R, frames, place, cost, lines, stale = judge(out, P, kept, kept_lines + add, desk)
+        R, frames, place, cost, lines, stale = judge(out, P, kept, kept_lines + add, desk, only)
     rules = ['black', 'outline', 'ground', 'cost', 'gold', 'rooms', 'words', 'flat', 'repeat', 'thin', 'errors']
     count = {r: sum(1 for v in R.fails if v['rule'] == r) for r in rules}
     kept_n = {r: sum(1 for (rule, n) in R.used if rule == r) for r in rules}
     res = {'when': time.strftime('%Y-%m-%d %H:%M'), 'page': os.path.relpath(page, REPO), 'sizes': [size_key(PHONE)] + ([size_key(DESK)] if desk else []),
-           'pass': not R.fails and desk, 'fails': R.fails, 'count': count, 'kept': kept_n, 'stale': stale, 'rooms': place,
-           'fall_ms': cost.get('fall', {}).get('ms'), 'lines': lines, 'frames': frames}
+           'pass': not R.fails and desk and not only, 'places': only, 'timed': bool(cost), 'fails': R.fails, 'count': count, 'kept': kept_n,
+           'stale': stale, 'rooms': place, 'fall_ms': cost.get('fall', {}).get('ms'), 'lines': lines, 'frames': frames}
     json.dump(res, open(os.path.join(out, 'review.json'), 'w'), indent=0)
     nf = len(frames)
-    print('look review: %d frames at %s, %d line assignments (%d meet the rule, %d faint, %d kept)%s' % (
-        nf, ' and '.join(res['sizes']), lines['assignments'], lines['meet'], lines['faint'], lines['kept'],
+    print('look review%s: %d frames at %s, %d line assignments (%d meet the rule, %d faint, %d kept)%s' % (
+        ' of %s alone' % ', '.join(only) if only else '', nf, ' and '.join(res['sizes']), lines['assignments'], lines['meet'], lines['faint'], lines['kept'],
         ', %.1f min' % ((time.time() - t0) / 60) if '--judge' not in flags else ''))
     if cost.get('fall'):
         print('  the fall\'s dearest frame costs %.1f ms; timed by turns against it: %s' % (cost['fall']['ms'], ', '.join(
             '%s %.1f' % (n, c['ms']) for n, c in sorted(cost['frames'].items(), key=lambda x: -x[1]['ms']))))
+    elif only and not timing:
+        print('  the costs: not timed (--no-cost)')
     print('  ' + '  '.join('%s %d%s' % (r, count[r], ' (%d kept)' % kept_n[r] if kept_n[r] else '') for r in rules))
     for v in R.fails:
         print('FAIL %-16s %-8s %-7s %s' % (v['frame'], v['size'], v['rule'], v['what']))
@@ -309,6 +361,10 @@ def main():
         print('  kept but no longer needed: %s (kept.json)' % s)
     if lines.get('stale'):
         print('  %d kept lines no longer drawn (kept_lines.json)' % lines['stale'])
+    if only:
+        # (the places' check: clean or not, never a pass; its line widths are only theirs, so a kept line drawn elsewhere is not named)
+        print('review: the places %s alone: %s' % (', '.join(only), 'clean (never a pass)' if not R.fails else 'FAIL (%d)' % len(R.fails)))
+        return 0 if not R.fails else 1
     if not desk:
         print('review: partial (no wide screen)')
     print('review: %s' % ('PASS' if res['pass'] else 'FAIL (%d)' % len(R.fails) if R.fails else 'not a full review'))

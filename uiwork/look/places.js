@@ -30,10 +30,12 @@ const chromiumPath=()=>process.env.SK_CHROMIUM||(require('fs').existsSync('/opt/
 // (in the page) the fake clock, the seeded dice, drawing on and off, and a frame's draw cost: the median of window.__costN draws.
 // The page's own clock (performance.now) follows the fake one, so what the drawing times by it (a struck man's flash, a layer
 // painted again once the zoom has held still, the shake) comes out the same however fast the machine runs the frames: the same
-// build gives the same pictures. The cost alone is timed by the real clock.
+// build gives the same pictures. The cost alone is timed by the real clock. The fake clock starts at the same reading each time (10 s,
+// past what the real one reads by then; since Nov 8): it started a second past the real clock's reading, so what the drawing swings by
+// its reading (the shake, sk_ui.js, a pulse, a hover) came out a little different in every run, the cradle's f3 a few pixels over.
 function pageSetup(){S.soundOn=false;let a=5;Math.random=()=>{a=(a*1103515245+12345)&0x7fffffff;return a/0x7fffffff;};S.rng=Math.random;
   const real=window.__realNow=window.__realNow||performance.now.bind(performance);
-  window.__now=real()+1000;performance.now=()=>window.__now;window.step=k=>{for(let i=0;i<k;i++){window.__now+=16.7;const f=window.__raf;window.__raf=null;if(f)f(window.__now);}};
+  window.__now=Math.max(10000,real()+1000);performance.now=()=>window.__now;window.step=k=>{for(let i=0;i<k;i++){window.__now+=16.7;const f=window.__raf;window.__raf=null;if(f)f(window.__now);}};
   window.R0=window.render;window.drawing=on=>{window.render=on?window.R0:()=>{};};window.__costN=window.__costN||6;
   window.cost=()=>{const n=window.__costN,T=[];for(let i=0;i<n;i++){ctx.getImageData(0,0,1,1);const s0=real();window.R0();ctx.getImageData(0,0,1,1);T.push(real()-s0);}T.sort((x,y)=>x-y);return+((T[(n-1)>>1]+T[n>>1])/2).toFixed(1);};}
 // (in the page) a lab ground fought free: two fighters a side on auto until an exchange has run two seconds, undrawn, then two

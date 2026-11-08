@@ -21,11 +21,13 @@ https://github.com/bfunkmcgee/Ilyas (since V63): work in a clone of it.
 | `python3 check.py` | build, then the static check: ESLint over the assembled script, the UI dice rule, CSS braces. Messages name the source file and line | 6 s |
 | `python3 test.py` | quick tier: the static check and the thirteen game-logic suites | 2 min |
 | `python3 test.py affected` | the static check, then the suites that cover what changed since the last full pass (game rules: everything; drawing or page: the page suites it touches) | varies |
-| `python3 test.py full` | every suite whose last pass no longer stands (since V99: what a pass rests on, below), two at a time, then the timing checks alone if theirs does not stand either; `--all` every suite. Run before every publish | 0 to 17 min (17 when the page changed) |
+| `python3 test.py github` | (since Nov 8) pushes the working tree, as it is, as a candidate to the branch try/candidate (nothing is committed here: a commit of its own, HEAD and the index untouched); GitHub's checks run every suite but the timing checks on it (below). `--wait` waits for that run and takes its passes. Push before every publish | seconds (12 to 18 min there) |
+| `python3 test.py full` | every suite whose last pass no longer stands (since V99: what a pass rests on, below), two at a time, then the timing checks alone if theirs does not stand either. First it takes the passes GitHub made on the last candidate where they rest on what is here (since Nov 8), waiting for that run while it goes on and the working tree is still the candidate's (documents aside); `--here` runs it all here; `--all` every suite, here. Run before every publish | 1 min after GitHub's run; 0 to 17 min here (17 when the page changed) |
 | `python3 test.py NAME ...` | named suites (`--list` shows them and what each covers) | |
 | `python3 test.py perf` | the timing checks alone; nothing else may load the machine | 50 s |
-| `python3 test.py look` | the look review alone (uiwork/look/review.py, since V88): every place the game draws, on a phone and a wide screen, against the style and drawing guides' measured rules; a frame that breaks one fails. Only what its last pass does not cover (since V99): nothing, its pictures read again and judged, or the whole review; `--all` the whole. Run before every publish, after the full run, with nothing beside it | 0, 1 or 16 min |
-| `python3 test.py --status` | builds, then says whether every suite's last pass and the look review's still stand, and for each that does not, why | seconds |
+| `python3 test.py look` | the look review alone (uiwork/look/review.py, since V88): every place the game draws, on a phone and a wide screen, against the style and drawing guides' measured rules; a frame that breaks one fails. Only what its last pass, or its last run that failed, does not cover (since V99 and Nov 8): nothing, its pictures read again and judged, its costs timed again and judged, or the whole review; `--all` the whole. Run before every publish, with nothing beside it | 0, 1, 7 or 25 min |
+| `python3 test.py places [ID ...]` | (since Nov 8) the places' check: the look review of the places named (their ids in uiwork/look/places.js), or with none named of the places with a frame the last review did not shoot, into test_out/look_places; never a pass. Run while a version's places are built, alone (it times them); `--no-cost` leaves the timing out and may run beside anything | 5 min (7 frames), 1 without the timing |
+| `python3 test.py --status` | builds, takes GitHub's passes on the last candidate if its run is done, then says whether every suite's last pass and the look review's still stand, and for each that does not, why | seconds |
 
 What a pass rests on (since V99). The checks are seeded and run on a fake clock, so a suite's verdict follows from what it reads,
 and a suite that passed need not run again while all of that is as it was. Each node suite runs with tools/test_reads.js, which
@@ -39,14 +41,25 @@ thirteen logic suites read only the rules' modules, so a change to the drawing, 
 suites, anything the page is built from); a voice or sound file, the suites that load it (soundpage); a suite's own file, that suite;
 a document, a comment, the spacing, the build's own code where the page comes out the same, or a tool no suite uses, nothing; a run
 cut short or failed carries on with what had not passed. The look review rests on the page, the song and its own files: the page or
-what takes its pictures (places.js, audit.js, lines.js, costs.js, review.py) changed, the whole review; only what reads them (hues.py,
-faults.py, lines.py, kept.json, kept_lines.json), its pictures read again and judged (`review.py --analyse`, about a minute). The
-machine matters to the review's costs: a different one can move the fall's dearest frame and the frames timed against it (V99).
+what takes its pictures (places.js, audit.js, lines.js, review.py) changed, the whole review; costs.js, its costs timed again and its
+pictures read again (`review.py --retime`, about seven minutes; since Nov 8); only what reads them (hues.py, faults.py, lines.py,
+kept.json, kept_lines.json), its pictures read again and judged (`review.py --analyse`, about a minute). A review that failed keeps
+its pictures (since Nov 8: `look_shot` in passes.json, once it has taken and judged them): the next one takes them again only when
+the page, the song or what takes them changed; when it failed on a cost it times the costs again, and otherwise it reads its
+pictures again and judges, so a fail put right by a keep or a cost that wandered over its line costs minutes, not a whole review.
+The machine matters to the review's costs: a different one can move the fall's dearest frame and the frames timed against it (V99).
 Each suite's output is in test_out/NAME.txt. uiwork/qa_build.py calls `build.py --qa`. Always run long things under `timeout`. The
-machine has two cores and about 7 GB. GitHub runs the quick tier on every push to main and every pull request, and once it passes
-the page suites in Playwright's Chromium (`python3 test.py full --no-timing`: every suite but the timing checks and the look review,
-whose limits are set for this machine; about fifteen minutes), keeping each suite's output with the run (.github/workflows/checks.yml;
-"Run workflow" on the Actions tab starts it by hand). The page there loads its Google fonts, which this machine's network refuses.
+machine has two cores and about 7 GB. GitHub runs the quick tier on every push to main, every candidate and every pull request, and
+once it passes every suite in Playwright's Chromium (`python3 test.py full --no-timing --here`: every suite but the timing checks and
+the look review, whose limits are set for this machine; 10 to 16 minutes on its runners, against 17 here), keeping each suite's
+output with the run (.github/workflows/checks.yml; "Run workflow" on the Actions tab starts it by hand). The page there loads its
+Google fonts, which this machine's network refuses. Its page job ends by packing its passes and their outputs into its log
+(`python3 test.py --export`), and `test.py full` and `--status` here read that log over GitHub's API (since Nov 8): each pass whose
+inputs here hold what they held there is taken as one made here (marked `by` in passes.json, its output written to test_out), when
+the runner had the same Playwright, the same Chromium build and node's major version. A candidate is the working tree pushed by
+`python3 test.py github` to the branch try/candidate, as a commit of its own on HEAD (test_out/github.json names the last); a newer
+push cancels a run still going on the one before. The workspace's network lets GitHub's API through, its job logs too, but not the
+storage its run artifacts download from: the log carries the passes for that reason.
 
 ## The folder
 Live sources (the only files to edit for the game):
@@ -1243,11 +1256,16 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   units where it lands on the screen (through the still layer, sprites and offscreen bitmaps), put down to the lineWidth assignment
   that set it (file, line and column): its median, least and most, colour and alpha, and whether it meets the drawing guide's rule 2
   (1.5 units; 1 for a highlight). `LWF=<file>` ({"line:col": k} for the page the run uses) previews a change to those assignments.
-- `python3 uiwork/look/review.py [out] [--judge] [--analyse] [--no-desk] [--keep-lines "why"]`: the look review (since V88; `python3
-  test.py look` runs it alone into test_out/look and keeps its pass in test_out/passes.json, which `--status` checks; `--analyse`,
-  since V99, reads the pictures already taken again and judges). It runs the
-  audit at 412x714 alone, then the audit at 1280x800 beside the line widths, the colours and the picture faults, and times again
-  by turns against the fall (`costs.js`) the phone's frames that cost 85% of the fall's dearest frame or more. Then it fails a frame
+- `python3 uiwork/look/review.py [out] [--judge] [--analyse] [--retime] [--no-desk] [--keep-lines "why"]`: the look review (since V88;
+  `python3 test.py look` runs it alone into test_out/look and keeps its pass in test_out/passes.json, which `--status` checks;
+  `--analyse`, since V99, reads the pictures already taken again and judges; `--retime`, since Nov 8, times the costs again too). It
+  runs the audit at 412x714 alone, then the audit at 1280x800 beside the line widths, the colours and the picture faults, and times
+  again by turns against the fall (`costs.js`) the phone's frames that cost 85% of the fall's dearest frame or more in the audit, and
+  those kept for their cost (since Nov 8: a single timing in the audit wanders by a third, so a frame near the line came and went
+  from the list, and its keep was named as no longer needed). `--places id,id` (since Nov 8, `python3 test.py places`) is the
+  places' check: the same steps and rules for those places alone, into test_out/look_places, its three shooting steps together and
+  every frame of theirs timed against the fall (`--no-cost` leaves the timing out), the rooms rule only over the rooms among them;
+  never a pass, and it names no kept entry of another place's as no longer needed. Then it fails a frame
   for each rule it breaks, on a line starting FAIL: black (the style guide's rule 1: 5% at most, in the action and the scenes),
   outline and ground (rule 8, as the audit judges them), cost (rule 6: no more than the fall's dearest frame timed by turns, 5%
   over being the timing's own wander), gold (rule 3: under 1% in each frame of Act I lit 2% or more), rooms (rule 3: across the
@@ -1268,12 +1286,29 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   the 13 mixed ones again at V90: judge a place again when it changes), into index.html and img/ (each frame's phone still at 618 by 1071, a small one, its wide
   one at 960 by 600; about 10 MB).
 - `node uiwork/look/costs.js <out.json> <frame,...> [w h dpr]`: frames held where the audit shoots them, each in a page of its own,
-  timed by turns against the fall as it plays drawn all the way (`ROUNDS`, default 3, of `COSTN` draws): the cost the review
-  judges. A single run of the audit wanders by a quarter; by turns, by about 5%.
+  timed by turns against the fall as it plays drawn all the way: at each of its four moments the held frames one after another,
+  the fall before them and after every `FALLEVERY` (3), round after round until `ROUNDS` (3) rounds and `SPAN` (20) seconds have gone
+  by, each timing the median of `COSTN` (6) draws. Since Nov 8 a cost is the least of its timings, a frame's over all four stops
+  and the fall's at its dearest moment: the cost the review judges. This machine runs everything a third to a half slower for
+  seconds at a time, sometimes for minutes, the frames held beside the fall as much as the fall: in four runs of the fall on Nov 8,
+  nine timings running at each moment, t24 read 35 to 69 ms in one and 47 to 52 all through t37 in another. The median of the
+  fall's three timings a moment, as it was, made its dearest frame read 34.8 to 51.9 ms in V105's and V106's reviews; the least of
+  timings spread over the stops read its t24 at 34.7 to 36.7 in those four runs, and the Lantern's x1.4 held beside it at 1.56 and
+  1.51 of its dearest. (A forced garbage collection before each timing changed nothing; the held pages idle cost the machine under
+  2% of a core; each has a renderer of its own.) A frame the review would fail on its cost (over the fall's by more than 5% and
+  past what kept.json keeps it to, `KEPT=<file>` for another list) has a second look: a held page can draw slow all through a run
+  (the line's o8 read 60.1 ms at the least of its twelve timings in one, where a page of its own read 43.5 to 44.6 and the runs
+  either side 46.1 and 47.1), so its page is made again and timed `TWICE` (12) times, the fall before each where the fall stopped,
+  that stop taken to the fall's dearest as the run read the two; the lower reading stands and both are kept (`first`, `again`).
+  The first three reviews so timed (Nov 8) read the fall's dearest frame at 34.6, 35.2 and 35.0 ms.
 - uiwork/look/places.js: the places and moments the audit, the line widths and the costs visit, Act I and the family's rooms, and
   the page's fake clock, dice and moments. In these tools the page's own clock (`performance.now`) follows the fake one (since
   V88), so what the drawing times by it (a struck man's flash, a layer painted again once the zoom holds still, the shake) comes
-  out the same however fast the machine runs; the cost alone is timed by the real clock.
+  out the same however fast the machine runs; the cost alone is timed by the real clock. The fake clock starts at the same reading
+  every time (10 s, since Nov 8): it started a second past the real clock's reading, and what the drawing swings by the clock's
+  reading itself (the shake's swing, `Math.cos(performance.now()*.05)` in sk_ui.js, a pulse, a hover) came out a little different
+  in every run: the cradle's f3, shot in a shake, a few pixels over each time. Every frame now comes out the same from run to run,
+  the three shooting steps of the places' check run together included.
 
 **The visual director (since Nov 2).** The look kept consistent by design rather than by memory, in four phases: (1) the audit,
 done: the Noir Gilt Audit (https://claude.ai/artifact/AmXd4JN8ZqZQ4SbNq6Ae9a) has every place's frames with a verdict (9 hold, 12
@@ -1361,12 +1396,19 @@ the fall's dearest; the avenue's bands are 22 ms of the chase's 45 there, the li
 29 lines at .7 of their width pushed in, and with their tiers the whip's 5 lines and the blade's 3 (the figure tier) and one
 reflection's width (the caller's). A kept cost holds up to its max, as a flat patch does (since V89): those two to 130%, and the
 deep station's f4 to 115%, at the line since V88 and 108% in one of V89's runs, when the fall's own dearest frame came in at 38.5 ms
-against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames). V90's places brought the old station into the line's f5 and so its lines into the review for the first time: brought to the drawing guide's widths, its platform's joints kept as fine texture. At f5's push-in the kitchen's course of green tiles repeats at the line (r .71 in one run), kept as machine-made. And the prologue's crowded fights cross the cost line and back from run to run, the fall's own dearest frame at 40 to 47 ms in V90's four timings: the chase's f8 110 to 139%, the dining room's f2 96 to 119% and f5 88 to 103%, the kitchen's f2 89 to 101%, the deep station's f4 up to 106%, none of them drawn differently (by turns against V89's build). They are kept to a max with those ranges: the chase's f8 to 145%, the dining room's f2 to 125%, the others to 115 or 120%. V93's levels change how the story's fights go (his health and his dice grow with him), and so what the frames hold, nothing drawn differently: the office's f4 on a phone has its coffered walnut ceiling in frame (a coffer every 124 units, kept as built, drawing rule 6), and 11 of the beasts' lines came into the phone's frames under their width (the goblins' ribs, the keys on their belts, their scars and hats, the bone and iron of the beasts' weapons), kept with the figure tier's reason. V101's Tower Road (two places' frames more: `highway` t4 on the ramp, f4 in the fight) draws the bikes and riders on its ramp smaller for their distance (`B.vk`), and their lines with them: 20 sites of the bike, the figure's rim, a weapon and a small blast's sparks came in under their widths there and are kept with that reason; the drop under its near parapet is the city far below, lit, so an upright phone's view past the parapet is not flat black (12% at the first try). In V105's and V106's reviews the fall's dearest frame read 34.8 to 51.9 ms from one run to the next, with nothing in it drawn differently, and each cheap reading put a few more of the frames near the line over it (the shaft's, the Lantern's, the line's, the cradle's duel): they are kept to a max that holds against the cheapest reading, each with its timings (kept.json); the black rows under the player's cards at the foot of two of V106's frames are kept too, as the player does not see them.
+against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames). V90's places brought the old station into the line's f5 and so its lines into the review for the first time: brought to the drawing guide's widths, its platform's joints kept as fine texture. At f5's push-in the kitchen's course of green tiles repeats at the line (r .71 in one run), kept as machine-made. And the prologue's crowded fights cross the cost line and back from run to run, the fall's own dearest frame at 40 to 47 ms in V90's four timings: the chase's f8 110 to 139%, the dining room's f2 96 to 119% and f5 88 to 103%, the kitchen's f2 89 to 101%, the deep station's f4 up to 106%, none of them drawn differently (by turns against V89's build). They are kept to a max with those ranges: the chase's f8 to 145%, the dining room's f2 to 125%, the others to 115 or 120%. V93's levels change how the story's fights go (his health and his dice grow with him), and so what the frames hold, nothing drawn differently: the office's f4 on a phone has its coffered walnut ceiling in frame (a coffer every 124 units, kept as built, drawing rule 6), and 11 of the beasts' lines came into the phone's frames under their width (the goblins' ribs, the keys on their belts, their scars and hats, the bone and iron of the beasts' weapons), kept with the figure tier's reason. V101's Tower Road (two places' frames more: `highway` t4 on the ramp, f4 in the fight) draws the bikes and riders on its ramp smaller for their distance (`B.vk`), and their lines with them: 20 sites of the bike, the figure's rim, a weapon and a small blast's sparks came in under their widths there and are kept with that reason; the drop under its near parapet is the city far below, lit, so an upright phone's view past the parapet is not flat black (12% at the first try). In V105's and V106's reviews the fall's dearest frame read 34.8 to 51.9 ms from one run to the next, with nothing in it drawn differently, and each cheap reading put a few more of the frames near the line over it (the shaft's, the Lantern's, the line's, the cradle's duel): they are kept to a max that holds against the cheapest reading, each with its timings (kept.json); the black rows under the player's cards at the foot of two of V106's frames are kept too, as the player does not see them. Since Nov 8 each cost is the least of its timings, with a second look at a frame over the line (costs.js, under Screenshots): the fall's dearest frame read 34.6, 35.2 and 35.0 ms in the first three reviews so timed, and 11 of the frames kept for their cost came in under the line in the first (89 to 104% of it: the chase's f8, the deep station's f4, the dining room's f2 and f5, the cradle's x1.2, the kitchen's f2 and f5, the Lantern's x3.2, the line's o14, the shaft's t2.2 and the fireball's x1.2). Their keeps stand for now, named as no longer needed in each review's notes, until more reviews read the same; the eight still over it (the Lantern's x1.4 at 1.61 to 1.69, the line's o8 1.33 to 1.35 but 1.71 once, the fireball's x2.6, the Tower Road's t4 and f4, the line's c3.7, the cradle's f3 and the shaft's t3) are held to their maxes as before.
 
 ## Publishing
-Run `python3 test.py full` first, then `python3 test.py look` (alone: it times the drawing), each running only what its last pass
-does not cover (since V99), and `python3 test.py --status` just before publishing (it names every suite whose pass no longer stands,
-and why). A version that changes the look republishes the
+While a version's places are built, check them with `python3 test.py places` (the places with a frame the last review did not
+shoot, or those named: since Nov 8), so that the look review finds nothing new at its end. Then, before publishing (since Nov 8):
+push the working tree as a candidate (`python3 test.py github`: GitHub's checks run every suite but the timing checks on it, about
+12 to 18 minutes), run `python3 test.py look` here meanwhile (alone: it times the drawing), then `python3 test.py full` (it takes
+GitHub's passes where they rest on what is here, waiting for its run if it goes on, and runs here what they do not cover and the
+timing checks alone), each running only what its last pass does not cover (since V99), and `python3 test.py --status` just before
+publishing (it names every suite whose pass no longer stands, and why). A change after the push is pushed again (documents aside:
+`full` waits for a run only while the working tree is the candidate's but for *.md and the workflows). Without GitHub (its API not
+answering, or its run failed), `python3 test.py full --here` runs every suite here first (17 minutes when the page changed).
+A version that changes the look republishes the
 lookbook too: `python3 uiwork/look/lookbook.py` after the look review, its verdicts brought up to date in lookbook.json, then
 test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/artifact/UGQyH4NAZm5wik41FkMVqs with the artifacts
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
