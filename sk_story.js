@@ -1307,8 +1307,8 @@ STAGES.push({key:'office',num:'X',title:'The Office',sub:'The top of Hallowell T
   introSkip(st){const K=hero();K.station=st.spawn[0][0];K.lane=K.dep=st.spawn[0][1];K.offstage=false;K.build();},
   // The helicopter is due on the roof, and the stair is back through the lobby. He goes the elf's way: across the room at a run, up
   // off the boards and through the glass behind the desk, out into the night over the city, and out like a lamp in the air: a line
-  // of light goes up the face of the tower.
-  *outro(st){const K=hero(),G0=OFFICE_GLASS,pane=glassPane(G0.x0+G0.pane*1.5),gx=(pane.x0+pane.x1)/2;letter(1);
+  // of light goes up the face of the tower. (A pane already gone, he goes out through that: the office again's, sk_gondola.js.)
+  *outro(st){const K=hero(),G0=OFFICE_GLASS,gone=S.story.glass,pane=gone?glassPane((gone.x0+gone.x1)/2):glassPane(G0.x0+G0.pane*1.5),gx=(pane.x0+pane.x1)/2;letter(1);
     officeRelease(K);camTo(clamp((K.station+gx)/2,360,560),800,1.1);
     yield* wait(.5);
     if(!K.stow){if(K.weaponKey==='elven'&&!K.arcRoll){yield* act(K,rollUpAction(K,S.t));}stowBlade(K);K.arcRoll=null;}

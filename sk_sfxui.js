@@ -33,7 +33,7 @@ const SFX_LOOP={amb_sundown_loop:-28,amb_field_loop:-28,amb_avenue_loop:-26,amb_
   amb_station_loop:-29,amb_lobby_loop:-31,amb_office_loop:-31,amb_roof_loop:-27,fire_loop:-29,fall_wind_loop:-25,bike_loop_low:-25,bike_loop_high:-24,
   bike_rival_loop:-27,apc_idle_loop:-30,train_idle_loop:-30,rail_loop:-27,freight_loop:-28,heli_loop:-24};
 const SFX_BED={sundown:'amb_sundown_loop',field:'amb_field_loop',chase:'amb_avenue_loop',highway:'amb_avenue_loop',roadblock:'amb_checkpoint_loop',vargo:'amb_street_loop',
-  dining:'amb_dining_loop',kitchen:'amb_kitchen_loop',lanternup:'amb_street_loop',platform:'amb_station_loop',deep:'amb_station_loop',lobby:'amb_lobby_loop',office:'amb_office_loop',
+  dining:'amb_dining_loop',kitchen:'amb_kitchen_loop',lanternup:'amb_street_loop',platform:'amb_station_loop',deep:'amb_station_loop',lobby:'amb_lobby_loop',office:'amb_office_loop',gondola:'amb_roof_loop',officeback:'amb_office_loop',
   roof:'amb_roof_loop'};
 // what each stage plays, loaded with it (and the next stage's, while this one plays); the fights' own are always kept
 const SFX_FIGHT=['swing_light','swing_mid','swing_heavy','hit_cut','hit_blunt','crit_cut','crit_blunt','finish_through','finish_neck','clang','clang_light',
@@ -64,7 +64,9 @@ const SFX_STAGE={
     'splat','cage_gate','freight_start','freight_loop','step_tile','step_goblin','bike_into_apc','pit_steel','pit_wood_break','boom_breach','debris_rattle','glass_large','fire_loop','vault'],
   lobby:['amb_lobby_loop','lift_bell','lift_doors','coat_sweep','coat_throw','shot_smg','bullet_metal','gun_dryfire','drop_gun','casing','charge_plant',
     'charge_beep','boom_breach','debris_rattle',...SFX_ROOMKIT,'step_marble'],
-  office:['amb_office_loop','chair_topple','desk_slam','over_desk','window_crash','wind_in',...SFX_ROOMKIT,'step_wood'],
+  office:['amb_office_loop','chair_topple','desk_slam','over_desk','window_crash','wind_in','swing_heavy','crit_blunt',...SFX_ROOMKIT,'step_wood'],
+  gondola:['amb_roof_loop','wind_in','thud_metal','swing_heavy','crit_blunt','step_iron','over_edge'],
+  officeback:['amb_office_loop','chair_topple','desk_slam','over_desk','window_crash','wind_in',...SFX_ROOMKIT,'step_wood'],
   roof:['amb_roof_loop','heli_approach','heli_loop','heli_door','hex_charge','hex_shot','hex_wound','aether_drain','over_edge','step_marble'],
   fall:['fall_wind_loop','pit_steel','pit_wood','pit_wood_break','pit_car','pit_pipe','pit_neon','pit_rock','gravel','spike_impale','arm_tear','sleeve_tear',
     'arm_rip','hay_land','birds_up','eye_light']};

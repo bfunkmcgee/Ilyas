@@ -390,6 +390,40 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   first scene played in a fight, a set piece's (`'c3'`), places.js and lines.js: the line's trolley, trestle and brakes (`line_c3.7`,
   `line_o8`, `line_o14`) and the crash (`deep_x4.6`). In the shaft (V104's) the fireball's light ahead of it goes on past the car's roof down the walls
   either side of the car, and the dark fire over it warms into its front: at V104's review each ended in a straight line.
+- The window cleaners' cradle (since V106, asked for: Kade kicks Ilyas through the office glass and both land on the window-cleaning
+  gondola outside the tower; they finish the duel there while a cable snaps and the platform hangs vertical; then Ilyas climbs back in
+  to deal with Hallowell): sk_gondola.js and sk_gondolaui.js. The office's fight has a set piece (`kick`, due soon: two turns in with
+  Kade hurt, or five turns in): Kade drives him back to the glass (`backTo`) and a front kick (`kickAction`: the anim's `kick` foot
+  target) puts him back through a pane (`KICK`, the office's first pane, `glassBreak`), his hand on Kade's lapel, so both go out
+  (`throwOut`: a carry with the depth going on out past the glass; seen only through it, `clipRect`), and the scene goes straight on to
+  the cradle's stage (`gondolaGo`: his strength as it is, `healAt`; Kade's, `flags.kadeHp`; the pane, `flags.officePane`). So that the
+  duel is the cradle's and comes at all, Kade's strength in the office before the kick goes no lower than `KADE_KEEP` of it, and on the
+  cradle before the rope parts no lower than a breath (`kadeFloor`: the blow is cut to it, one that would have killed puts him down,
+  with no finisher, as st.spare does in the Pit; a death with no exchange on the books, a scene's or a test's, goes through). The cradle
+  is a stage of the office's chapter with no card (`gondola`, `part:'office'`): its own place (`storyArena('gondola')`,
+  envx/env_gondola.js: the tower's curtain wall, a floor every `GOND.floor`, its glass giving back the city far below, `reflPic`, a
+  picture made once: the horizon at his eye, the sky dark over it, a carpet of lights under it running to it, the avenues in lines of
+  light, a few towers' tops; behind the glass a room lit here and there, its desk, lamp, chair and blind, and the bays the right rope
+  runs up past lit, `ROPE_BAY`; the work lamps' pools on the glass, `lampPools`, a picture made once with the rain running down the
+  glass in it (a smooth pool read as a flat patch, and rain laid over the whole face cost a phone some 20 ms a frame); the rain going
+  past; the street's light coming up the face; the night past its corner, its haze and stars; the cradle's deck, rails, stirrups,
+  hoists, work lamps and ropes, its near side among the people, `frontItem`), the ground off its ends far below and the stirrups holding
+  the bodies on it (`collide` wrapped). `S.gondola`: `dy` (it bucks as they come down on it), `tilt` (swung down on the right rope,
+  about its drum: `gondXf` turns every point of it, the painter's and the bodies' alike), `snap` (when the left rope went), `wy` (the
+  face going down past him as he climbs). Its set piece `snap` (three turns in, and Kade at a third of his strength or eight turns in;
+  on their feet or not, but in no clinch): the left rope parts and the cradle swings down until it hangs; the two of them are held by
+  the scene, each taken to a set depth (`GOND_HANG`) so that his hand meets the rail whatever lane the fight left him in (`f.pin`: a
+  pose in gobPose's terms set after the world's step, envPost wrapped; `f.hanging`: no ground under him; `hangPose`: a body hanging from
+  a hand, the other free), Ilyas by a hand on the back rail high up, Kade at the bottom stirrup, climbing at him and cutting at his
+  legs; a heel in his face and Kade falls away down the face (`sceneKill`). The climb is the stage's closing scene (`climbOut`: up the
+  rail to the drum, the blade away, hand over hand up the rope two floors while the face goes down past him, in at the gone pane). The
+  office again is `officeback`: the pane gone (`S.story.glass` at rest), in over the sill (`vaultIn`), and the game's last scene with
+  Hallowell begun by the opening itself (`beginFinale`; the stage has no enemy), its end the stage's; its closing scene is the office's
+  own, which goes out through a pane already gone if there is one (sk_story.js). The cradle and the office again give no XP of their own
+  (`noXP`, sk_growth.js: nor do their enemies count toward a later chapter's start); the office's own, which its clearing would have
+  given, comes when the cradle is cleared. The look tools shoot the kick (`kick_c0.9`, a place of its own so that the night through the
+  glass is not counted against the office's gold), the cradle (`gondola_x1.2`, `_f3`, the rope gone `_c1.8`, Kade climbing `_c4.4`, the
+  climb `_o3.2`) and the office again (`officeback_x1`, `_t8`).
 - The held sounds (sk_storyui.js, run from `V11UI.tick`): the bike's engine (`engineFrame`: the first bike in `S.veh` with `run`
   above 0 and near the picture; its level `ENG_LVL` x run, a quarter when far), the rails (`railFrame`) and the wind (`windFrame`).
   Each is one voice made once and set every frame. A held voice's modulation must work on a gain of its own ahead of the level,
@@ -1325,7 +1359,7 @@ the fall's dearest; the avenue's bands are 22 ms of the chase's 45 there, the li
 29 lines at .7 of their width pushed in, and with their tiers the whip's 5 lines and the blade's 3 (the figure tier) and one
 reflection's width (the caller's). A kept cost holds up to its max, as a flat patch does (since V89): those two to 130%, and the
 deep station's f4 to 115%, at the line since V88 and 108% in one of V89's runs, when the fall's own dearest frame came in at 38.5 ms
-against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames). V90's places brought the old station into the line's f5 and so its lines into the review for the first time: brought to the drawing guide's widths, its platform's joints kept as fine texture. At f5's push-in the kitchen's course of green tiles repeats at the line (r .71 in one run), kept as machine-made. And the prologue's crowded fights cross the cost line and back from run to run, the fall's own dearest frame at 40 to 47 ms in V90's four timings: the chase's f8 110 to 139%, the dining room's f2 96 to 119% and f5 88 to 103%, the kitchen's f2 89 to 101%, the deep station's f4 up to 106%, none of them drawn differently (by turns against V89's build). They are kept to a max with those ranges: the chase's f8 to 145%, the dining room's f2 to 125%, the others to 115 or 120%. V93's levels change how the story's fights go (his health and his dice grow with him), and so what the frames hold, nothing drawn differently: the office's f4 on a phone has its coffered walnut ceiling in frame (a coffer every 124 units, kept as built, drawing rule 6), and 11 of the beasts' lines came into the phone's frames under their width (the goblins' ribs, the keys on their belts, their scars and hats, the bone and iron of the beasts' weapons), kept with the figure tier's reason. V101's Tower Road (two places' frames more: `highway` t4 on the ramp, f4 in the fight) draws the bikes and riders on its ramp smaller for their distance (`B.vk`), and their lines with them: 20 sites of the bike, the figure's rim, a weapon and a small blast's sparks came in under their widths there and are kept with that reason; the drop under its near parapet is the city far below, lit, so an upright phone's view past the parapet is not flat black (12% at the first try).
+against 42.4 in the run before (three timings a moment: the reference wanders as much as the frames). V90's places brought the old station into the line's f5 and so its lines into the review for the first time: brought to the drawing guide's widths, its platform's joints kept as fine texture. At f5's push-in the kitchen's course of green tiles repeats at the line (r .71 in one run), kept as machine-made. And the prologue's crowded fights cross the cost line and back from run to run, the fall's own dearest frame at 40 to 47 ms in V90's four timings: the chase's f8 110 to 139%, the dining room's f2 96 to 119% and f5 88 to 103%, the kitchen's f2 89 to 101%, the deep station's f4 up to 106%, none of them drawn differently (by turns against V89's build). They are kept to a max with those ranges: the chase's f8 to 145%, the dining room's f2 to 125%, the others to 115 or 120%. V93's levels change how the story's fights go (his health and his dice grow with him), and so what the frames hold, nothing drawn differently: the office's f4 on a phone has its coffered walnut ceiling in frame (a coffer every 124 units, kept as built, drawing rule 6), and 11 of the beasts' lines came into the phone's frames under their width (the goblins' ribs, the keys on their belts, their scars and hats, the bone and iron of the beasts' weapons), kept with the figure tier's reason. V101's Tower Road (two places' frames more: `highway` t4 on the ramp, f4 in the fight) draws the bikes and riders on its ramp smaller for their distance (`B.vk`), and their lines with them: 20 sites of the bike, the figure's rim, a weapon and a small blast's sparks came in under their widths there and are kept with that reason; the drop under its near parapet is the city far below, lit, so an upright phone's view past the parapet is not flat black (12% at the first try). In V105's and V106's reviews the fall's dearest frame read 34.8 to 51.9 ms from one run to the next, with nothing in it drawn differently, and each cheap reading put a few more of the frames near the line over it (the shaft's, the Lantern's, the line's, the cradle's duel): they are kept to a max that holds against the cheapest reading, each with its timings (kept.json); the black rows under the player's cards at the foot of two of V106's frames are kept too, as the player does not see them.
 
 ## Publishing
 Run `python3 test.py full` first, then `python3 test.py look` (alone: it times the drawing), each running only what its last pass
@@ -1336,7 +1370,7 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V106 ..." (V105 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V107 ..." (V106 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

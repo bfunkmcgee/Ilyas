@@ -2068,5 +2068,41 @@
 "src": "x.globalAlpha=a*a*.6;ctx.strokeStyle='#fff6e0';ctx.lineWidth=1.2;ctx.stroke();}",
 "med": 0.805,
 "why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
+},
+{
+"file": "sk_armsui.js",
+"src": "c.globalAlpha=k;c.strokeStyle='#010304';c.lineWidth=2.11;c.stroke(Y.ful);",
+"med": 0.738,
+"why": "the figure tier: his own drawing's fine lines (the blade's fuller, the gilt and the runes on him, the hilt's gold), held to the fighters' drawing budgets (V84); first in the review's frames in V106, the kick and the office again"
+},
+{
+"file": "sk_lookui.js",
+"src": "ll(leaves);c.fill(runes);c.strokeStyle='#d9fffa';c.lineWidth=Math.max(.3,.5/k);c.globalAlpha=.7*G*wave(.8);c.stroke(curls);}",
+"med": 0.297,
+"why": "the figure tier: his own drawing's fine lines (the blade's fuller, the gilt and the runes on him, the hilt's gold), held to the fighters' drawing budgets (V84); first in the review's frames in V106, the kick and the office again"
+},
+{
+"file": "sk_lookui.js",
+"src": "();if(lod){c.strokeStyle='rgba(255,226,170,.45)';c.lineWidth=.4;c.beginPath();c.moveTo(gr.x,gr.y);c.lineTo(mix(gr,pm,.7).x,mix(gr,p",
+"med": 0.403,
+"why": "the figure tier: his own drawing's fine lines (the blade's fuller, the gilt and the runes on him, the hilt's gold), held to the fighters' drawing budgets (V84); first in the review's frames in V106, the kick and the office again"
+},
+{
+"file": "sk_lookui.js",
+"src": "ok,'gold',false,1)||'#9c7428';c.globalAlpha*=.55;c.lineWidth=Math.max(.3,.5/k);for(const q of PL)c.stroke(q.p);c.restore();}",
+"med": 0.297,
+"why": "the figure tier: his own drawing's fine lines (the blade's fuller, the gilt and the runes on him, the hilt's gold), held to the fighters' drawing budgets (V84); first in the review's frames in V106, the kick and the office again"
+},
+{
+"file": "sk_storyui.js",
+"src": "ctx.strokeStyle='rgba(236,250,255,.82)';ctx.lineWidth=.8;ctx.beginPath();for(let i=1;i<sd.length;i++){const a=sd[i-1],b=sd[i",
+"med": 0.805,
+"why": "the office's broken pane: what is left in its frame edged in light and its cracks, fine as cracks in glass are; first in the review's frames in V106, the office again with the pane gone"
+},
+{
+"file": "sk_storyui.js",
+"src": "ctx.strokeStyle='rgba(226,246,255,.5)';ctx.lineWidth=.55;ctx.beginPath();for(const c of cr){ctx.moveTo(c[0],c[1]);ctx.lineT",
+"med": 0.545,
+"why": "the office's broken pane: what is left in its frame edged in light and its cracks, fine as cracks in glass are; first in the review's frames in V106, the office again with the pane gone"
 }
 ]

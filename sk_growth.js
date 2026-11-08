@@ -108,8 +108,9 @@ V11.kill.push(D=>{if(!growthOn()||!D||D.team!==1||D.npc||S.warming)return;const 
   if(r===null&&growthOn()&&errandCount()>=ERRAND_LIST.length&&growthOnce('list'))xpGain(XP_GAIN.list,'Tamm’s list got');return r;};}
 V11.exchangeEnd.push(()=>{if(growthOn()&&S.story.flags.downedOne&&growthOnce('putDown'))xpGain(XP_GAIN.putDown,'a collector put down');});
 // a stage's end: a fight's (with each enemy in it), or a scene passed
-// (a scene that is a moment of another chapter's, with no card of its own, is that chapter's: the kitchen's way out, since V104)
-function growthStageXP(st){if(!st)return 0;if(st.part&&st.noFight)return 0;const n=(st.foes||[]).length;return n&&!st.noFight?XP_GAIN.fight+XP_GAIN.perFoe*n:XP_GAIN.scene;}
+// (a scene that is a moment of another chapter's, with no card of its own, is that chapter's: the kitchen's way out, since V104;
+// and a stage marked noXP, whose fight is another chapter's: the cradle and the office again, since V106, sk_gondola.js)
+function growthStageXP(st){if(!st)return 0;if(st.noXP||st.part&&st.noFight)return 0;const n=(st.foes||[]).length;return n&&!st.noFight?XP_GAIN.fight+XP_GAIN.perFoe*n:XP_GAIN.scene;}
 {const sc=storyCleared;storyCleared=function(){const SV=S.story,st=SV&&STAGES[SV.i];
   if(growthOn()&&st&&growthOnce('stage:'+st.key))xpGain(growthStageXP(st),st.title||'the scene');return sc.apply(this,arguments);};}
 
@@ -117,7 +118,7 @@ function growthStageXP(st){if(!st)return 0;if(st.part&&st.noFight)return 0;const
 // what the stages before a stage give a night that played them (each enemy that dies, each stage's end, the list, the collector,
 // the lessons' moves): a chapter starts with it, as it starts with their flags
 function growthPar(key){let xp=0,moves=0;const i=Math.max(0,stageIx(key));
-  for(const st of STAGES.slice(0,i)){if(!st.spare)for(const e of st.foes||[])xp+=xpFoe({skill:e.skill,maxHp:e.hp,hench:!!e.human,beast:e.beast,name:e.name,team:1});
+  for(const st of STAGES.slice(0,i)){if(!st.spare&&!st.noXP)for(const e of st.foes||[])xp+=xpFoe({skill:e.skill,maxHp:e.hp,hench:!!e.human,beast:e.beast,name:e.name,team:1});
     xp+=growthStageXP(st);if(st.key==='list')xp+=XP_GAIN.list;if(st.key==='toll')xp+=XP_GAIN.putDown;
     const sh=st.flagsOut&&st.flagsOut.short;if(sh){const n=Object.keys(sh).length;xp+=XP_GAIN.move*(n-moves);moves=n;}}
   return growthNew(xp,{shorthand:STYLE_XP_AT[STYLE_GROWTH.start.shorthand]+XP_GAIN.style.move*moves});}
