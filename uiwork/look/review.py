@@ -5,12 +5,14 @@ every frame (phase 4 of the visual director, since V88). `python3 test.py look` 
     python3 uiwork/look/review.py [out folder] [--judge] [--analyse] [--retime] [--no-desk] [--keep-lines "why"]
     python3 uiwork/look/review.py [out folder] --places id,id [--no-cost]
 
-It runs (about 20 minutes, and nothing else may load the machine: it times the drawing):
-  1. the look audit on a 412x714 phone held upright (audit.js), alone, for the costs
-  2. the same audit at 1280x800 (rules 1, 7 and 8 on a wide screen), beside the line widths (lines.js, then lines.py)
-  3. the colours and the picture faults of the phone's frames (hues.py, faults.py)
-  4. the phone's frames that cost near the fall's dearest frame or more, and those kept for their cost, timed again by turns
-     against the fall (costs.js: each cost the least of its timings, since Nov 8)
+It runs (about 21 minutes, and nothing else may load the machine: it times the drawing):
+  1. the look audit on a 412x714 phone held upright (audit.js), the same audit at 1280x800 (rules 1, 7 and 8 on a wide screen) and
+     the line widths (lines.js, then lines.py), the three together (since Nov 8: the pictures come out the same however busy the
+     machine is; the phone's audit ran alone while its own timings alone chose what step 3 times)
+  2. the colours and the picture faults of the phone's frames (hues.py, faults.py)
+  3. the phone's frames to time again by turns against the fall, alone (costs.js: each cost the least of its timings, since
+     Nov 8): those kept for their cost, those the last review timed at 85% of the fall's dearest frame or more, those it did not
+     shoot (a new place or moment), and those near the fall's dearest or over it in this audit's own timings
 and fails a frame for each rule it breaks:
   black    style rule 1: flat black (the audit's empty) 5% or less, in the action and in the scenes
   outline  style rule 8: two thirds of Ilyas's outline or more reads (the audit judges; a hidden or struck outline is not judged)
@@ -28,13 +30,13 @@ with its reason); a kept entry no frame needs any more is named, so the lists st
 numbers, pictures and verdicts: the lookbook reads it) and prints the fails, each on a line starting FAIL; exit status 1 on any.
 --judge judges what is already in the folder without running anything again; --analyse (since V99) reads the pictures already in
 it again (the line widths, the colours, the faults) and judges, keeping the timings; --retime (since Nov 8) does that and times the
-costs again (step 4 alone, about six minutes: the pictures stand while what takes them is as it was, and test.py look decides);
+costs again (step 3 alone, about six minutes: the pictures stand while what takes them is as it was, and test.py look decides);
 --no-desk leaves out the wide screen (not a full review); --keep-lines "why" adds the lines the run finds under the rule to
 kept_lines.json with that reason (once judged).
 --places id,id (since Nov 8) is the places' check: the same steps and rules for those places alone (their ids in places.js), into
-test_out/look_places unless a folder is named, every frame of theirs timed against the fall, the three shooting steps together (the
-audit's own timings choose nothing here); never a pass, and what is kept for other places is not named. --no-cost leaves the
-timing out (about three minutes then, and it may run beside other work: the pictures come out the same however busy the machine is).
+test_out/look_places unless a folder is named, every frame of theirs timed against the fall (the audit's own timings choose nothing
+here); never a pass, and what is kept for other places is not named. --no-cost leaves the timing out (about a minute for a place or
+two then, and it may run beside other work: the pictures come out the same however busy the machine is).
 """
 import json, os, re, subprocess, sys, time
 
@@ -286,36 +288,42 @@ def main():
                         for f in os.listdir(sub):
                             os.remove(os.path.join(sub, f))
             pick = [','.join(only)] if only else []
-            phone = ('the audit, 412x714' + ('' if only else ' (alone)'), ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'phone')] + [str(v) for v in PHONE] + pick,
+            phone = ('the audit, 412x714', ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'phone')] + [str(v) for v in PHONE] + pick,
                      os.path.join(out, 'phone.log'), env)
             jobs = [('the line widths, 412x714', ['node', os.path.join(HERE, 'lines.js'), os.path.join(out, 'lines')] + [str(v) for v in PHONE] + pick,
                      os.path.join(out, 'lines.log'), env)]
             if desk:
                 jobs.insert(0, ('the audit, 1280x800', ['node', os.path.join(HERE, 'audit.js'), os.path.join(out, 'desk')] + [str(v) for v in DESK] + pick,
                                 os.path.join(out, 'desk.log'), dict(env, COSTN='2')))
-            # (the whole review times the phone's frames alone, as its audit chooses the frames to time again by them; the places'
-            # check times all of its own, so its three shooting steps go together)
-            if only:
-                ok = together([phone] + jobs)
-            else:
-                ok = run(*phone)
-                ok = together(jobs) and ok
+            # (the three together, since Nov 8: the phone's audit ran alone while its own timings chose the frames to time again, and
+            # left one of the two cores idle for nine minutes; the pictures come out the same however busy the machine is)
+            ok = together([phone] + jobs)
         ok = run('the line widths, read', [sys.executable, os.path.join(HERE, 'lines.py'), page, os.path.join(out, 'lines')],
                  os.path.join(out, 'lines_read.log')) and ok
         ok = run('the colours', [sys.executable, '-W', 'ignore', os.path.join(HERE, 'hues.py'), os.path.join(out, 'phone')], os.path.join(out, 'hues.log')) and ok
         ok = run('the picture faults', [sys.executable, os.path.join(HERE, 'faults.py'), os.path.join(out, 'phone')], os.path.join(out, 'faults.log')) and ok
-        # the frames to time again: near the fall's dearest frame or over it in the audit's run, and those kept for their cost (since
-        # Nov 8: a single timing in the audit wanders by a third, so a frame near the line came and went from the list, and its keep
-        # with it); the places' check, every frame of its places
+        # the frames to time again (since Nov 8): those kept for their cost (a single timing in the audit wanders by a third, so a frame
+        # near the line came and went from the list, and its keep with it); those the last review timed at 85% of the fall's dearest or
+        # more, and those it did not shoot (the audit's own timings are taken beside the other two shooting steps now, so they no longer
+        # choose alone); and, as ever, those near the fall's dearest or over it in this audit's timings. The places' check: every frame
+        # of its places
         A = json.load(open(os.path.join(out, 'phone', 'audit.json')))
         line = max([s['ms'] for s in A['shots'] if s['id'] == 'fall' and not s.get('gone')] or [0])
         K = kept.get('cost', {})
         held = lambda s: any(k in K for k in (frame_name(s) + '@' + size_key(PHONE), frame_name(s), s['id']))
+        cf = os.path.join(out, 'costs.json')
+        try: was = json.load(open(cf)).get('frames') or {}
+        except Exception: was = {}
+        try: seen = set(json.load(open(os.path.join(out, 'review.json'))).get('frames') or {})
+        except Exception: seen = None
+        def want(s):
+            n = frame_name(s)
+            return (held(s) or ((was.get(n) or {}).get('of') or 0) >= SUSPECT or (seen is not None and n not in seen)
+                    or (line and s['ms'] >= SUSPECT * line))
         if only:
             sus = [frame_name(s) for s in A['shots'] if s['id'] != 'fall' and not s.get('gone')] if timing else []
         else:
-            sus = [frame_name(s) for s in A['shots'] if s['id'] != 'fall' and not s.get('gone') and line and (s['ms'] >= SUSPECT * line or held(s))]
-        cf = os.path.join(out, 'costs.json')
+            sus = [frame_name(s) for s in A['shots'] if s['id'] != 'fall' and not s.get('gone') and want(s)]
         if not analyse or retime:
             if os.path.exists(cf):
                 os.remove(cf)

@@ -25,7 +25,7 @@ https://github.com/bfunkmcgee/Ilyas (since V63): work in a clone of it.
 | `python3 test.py full` | every suite whose last pass no longer stands (since V99: what a pass rests on, below), two at a time, then the timing checks alone if theirs does not stand either. First it takes the passes GitHub made on the last candidate where they rest on what is here (since Nov 8), waiting for that run while it goes on and the working tree is still the candidate's (documents aside); `--here` runs it all here; `--all` every suite, here. Run before every publish | 1 min after GitHub's run; 0 to 17 min here (17 when the page changed) |
 | `python3 test.py NAME ...` | named suites (`--list` shows them and what each covers) | |
 | `python3 test.py perf` | the timing checks alone; nothing else may load the machine | 50 s |
-| `python3 test.py look` | the look review alone (uiwork/look/review.py, since V88): every place the game draws, on a phone and a wide screen, against the style and drawing guides' measured rules; a frame that breaks one fails. Only what its last pass, or its last run that failed, does not cover (since V99 and Nov 8): nothing, its pictures read again and judged, its costs timed again and judged, or the whole review; `--all` the whole. Run before every publish, with nothing beside it | 0, 1, 7 or 25 min |
+| `python3 test.py look` | the look review alone (uiwork/look/review.py, since V88): every place the game draws, on a phone and a wide screen, against the style and drawing guides' measured rules; a frame that breaks one fails. Only what its last pass, or its last run that failed, does not cover (since V99 and Nov 8): nothing, its pictures read again and judged, its costs timed again and judged, or the whole review; `--all` the whole. Run before every publish, with nothing beside it | 0, 1, 7 or 21 min |
 | `python3 test.py places [ID ...]` | (since Nov 8) the places' check: the look review of the places named (their ids in uiwork/look/places.js), or with none named of the places with a frame the last review did not shoot, into test_out/look_places; never a pass. Run while a version's places are built, alone (it times them); `--no-cost` leaves the timing out and may run beside anything | 5 min (7 frames), 1 without the timing |
 | `python3 test.py --status` | builds, takes GitHub's passes on the last candidate if its run is done, then says whether every suite's last pass and the look review's still stand, and for each that does not, why | seconds |
 
@@ -1259,10 +1259,17 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
 - `python3 uiwork/look/review.py [out] [--judge] [--analyse] [--retime] [--no-desk] [--keep-lines "why"]`: the look review (since V88;
   `python3 test.py look` runs it alone into test_out/look and keeps its pass in test_out/passes.json, which `--status` checks;
   `--analyse`, since V99, reads the pictures already taken again and judges; `--retime`, since Nov 8, times the costs again too). It
-  runs the audit at 412x714 alone, then the audit at 1280x800 beside the line widths, the colours and the picture faults, and times
-  again by turns against the fall (`costs.js`) the phone's frames that cost 85% of the fall's dearest frame or more in the audit, and
-  those kept for their cost (since Nov 8: a single timing in the audit wanders by a third, so a frame near the line came and went
-  from the list, and its keep was named as no longer needed). `--places id,id` (since Nov 8, `python3 test.py places`) is the
+  takes the audit at 412x714, the audit at 1280x800 and the line widths together (since Nov 8: the phone's audit ran alone while its
+  own timings alone chose the frames to time again, and left one of the two cores idle for nine minutes; the pictures come out the
+  same however busy the machine is), then the colours and the picture faults, and times again by turns against the fall
+  (`costs.js`), alone, the phone's frames: those kept for their cost, those the last review timed at 85% of the fall's dearest frame
+  or more, those it did not shoot (a new place or moment), and those at 85% or more in this audit's own timings (a single timing
+  there wanders by a third, and is taken beside the other two steps now: a frame near the line came and went from the list, and its
+  keep was named as no longer needed). Together the three took 13 minutes in the first review so run, against 9 and 10 one after
+  the other, and the review 20.6 minutes against 25; beside the other two the audit's own timings run up to twice their worth (the
+  fall's four 32.5 to 60.7 ms), so they flagged five frames more that came in at 72 to 86% of the line by turns, a minute's timing,
+  and a frame far under the line that a change makes dearer is caught by them less surely than before: the places' check times
+  every frame of the places it is given. `--places id,id` (since Nov 8, `python3 test.py places`) is the
   places' check: the same steps and rules for those places alone, into test_out/look_places, its three shooting steps together and
   every frame of theirs timed against the fall (`--no-cost` leaves the timing out), the rooms rule only over the rooms among them;
   never a pass, and it names no kept entry of another place's as no longer needed. Then it fails a frame

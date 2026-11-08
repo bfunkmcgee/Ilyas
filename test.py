@@ -13,7 +13,7 @@
                                committed here) for its checks to run the suites on it (12 to 18 minutes there); --wait waits for
                                that run and takes its passes
   python3 test.py perf         the timing checks alone (sk_perf_page.js): nothing else may load the machine while they run
-  python3 test.py look         the look review alone (uiwork/look/review.py, about 25 minutes): every place against the style and
+  python3 test.py look         the look review alone (uiwork/look/review.py, about 21 minutes): every place against the style and
                                drawing guides' measured rules; it times the drawing, so nothing else may run beside it. Only what
                                its last pass, or its last run that failed, does not cover: nothing, the judging alone (a minute),
                                the costs timed again and the judging (about seven minutes) or the whole review; --all: whole

@@ -82,7 +82,8 @@ def nums(d):
     if d['cost']:
         out.append(('Cost', '%.1f ms, %s of the fall' % (d['cost']['ms'], pct(d['cost']['of']))))
     elif d['ms'] is not None:
-        out.append(('Cost', '%.0f ms' % d['ms']))
+        # (a frame not timed by turns: the audit's one timing, taken beside its other shots since Nov 8)
+        out.append(('Cost', '%.0f ms in the audit, not timed by turns' % d['ms']))
     if d['gold'] is not None:
         out.append(('Gold', '%.1f%%' % d['gold']))
         out.append(('Sodium', '%.0f%%' % d['sodium']))
