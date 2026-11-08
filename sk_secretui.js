@@ -76,6 +76,8 @@ function drawSecretDoor(){
   // before the reveal only the faintest seam in the tiles shows, for a sharp eye
   if(!D){if(deepOn()){const g=secretGeom();ctx.fillStyle='rgba(6,10,10,.2)';ctx.fillRect(g.pl,g.ty0+1,.9,g.yB-g.ty0-3);ctx.fillRect(g.pr-.9,g.ty0+1,.9,g.yB-g.ty0-3);}return;}
   const g=secretGeom(),{yB,cx,ty0,pl,pr}=g,A=SECRET_ART,u=S.t-D.t0,st=secretStage(u),s=st.slide*(pr-pl)+st.jolt*1.2;
+  // (the doors closing again behind whoever went down in it: S.secret.shut)
+  if(D.shut!=null)st.open=Math.min(st.open,1-sstep((S.t-D.shut)/SECRET_T.shut));
   ctx.save();
   // the lift, once any of it shows
   if(st.slide>.001){

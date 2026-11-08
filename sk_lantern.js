@@ -117,7 +117,7 @@ setPiece({stage:'vargo',key:'lock',
     yield* all(stepTo(K,kx+s*8,160,120),stepTo(Q,clamp(kx+s*128,90,810),160,120));
     K.facing=s;Q.facing=-s;},
   skip(sv){const K=hero(),Q=S.F[1],s=Math.sign(Q.station-K.station)||1,lx=sv.lockLamp??lockLamp(K,Q,s);
-    if(lx!=null){S.lampCut=lx;S.lampFall={lx,s,t0:S.t-9,bite:S.t-10,hx:-s*.5,hd:-.866,down:true};}
+    if(lx!=null){S.lampCut=lx;S.lampFall={lx,s,t0:S.t-9,bite:S.t-10,hx:-s*.5,hd:-.866,down:true};if(S.story)S.story.flags.lamp={lx,s};}
     for(const f of [K,Q]){f.zMax=null;f.action=null;}
     const kx=lx!=null?lx+s*24:K.station;shiftTo(K,kx,160);shiftTo(Q,clamp(kx+s*120,90,810),160);K.facing=s;Q.facing=-s;}});
 // the lock: blade and axe crossed between their faces, each leaning in
@@ -138,8 +138,9 @@ function axeHand(Q,bite){const w=WEAPONS[Q.weaponKey]||WEAPONS.axe,L=w.len*.92,w
 // follow it
 V11.step.push(()=>{const F=S.lampFall,P=F&&F.pin,f=P&&S.F[P.i];if(!f||f.dead)return;const t=f.p[TIP],dd=P.d-f.dep,x=P.x+dd*PSX,y=P.y-dd*PSY;
   t.x=lerp(t.x,x,.75);t.y=lerp(t.y,y,.75);t.px=lerp(t.px,x,.75);t.py=lerp(t.py,y,.75);});
-// the post on the ground: the lantern bursts on the road, the dust of it along the flags, the light gone
-function lampDown(F){if(!F||F.down)return;F.down=true;F.downT=S.t;const T=lampTop(F);S.hooks.sound('thud',220,{s:'lamp_fall'});S.hooks.sound('glass',.9,{s:'glass_small',delay:.05});
+// the post on the ground: the lantern bursts on the road, the dust of it along the flags, the light gone (and the night keeps where it
+// lies, for the street's last look: S.story.flags.lamp)
+function lampDown(F){if(!F||F.down)return;F.down=true;F.downT=S.t;if(S.story)S.story.flags.lamp={lx:F.lx,s:F.s};const T=lampTop(F);S.hooks.sound('thud',220,{s:'lamp_fall'});S.hooks.sound('glass',.9,{s:'glass_small',delay:.05});
   S.shake=Math.max(S.shake,8);sparks({x:T.wx,y:T.y-4},18,'#ffd27a',T.d);flash({x:T.wx,y:T.y-6},34,'#ffe0a0',T.d);
   for(let i=0;i<=4;i++){const u=i/4,x=lerp(F.lx,T.wx,u),d=lerp(STREET_LAMP_D,T.d,u);dust(x,S.arena.ground(x,d),1.1,d);}}
 // where the lantern comes down: the post's top, lying along the way it fell (world x, depth, and the ground there)
@@ -288,4 +289,155 @@ function slipAction(f,z){const a=f.arm,leg=f.leg,x=f.station,z0=f.lane,fa=f.faci
   return{t0:S.t,end:1.1,body:[{t:0,v:()=>f.curBody||f.guardBody()},{t:.18,v:{px:x-fa*6,pz:lerp(z0,z,.5),crouch:.86,lean:-.32,stF:.36*leg,stB:-.2*leg,th:.4},e:eOut},
       {t:.5,v:{px:x-fa*10,pz:z,crouch:r<.5?.62:.78,lean:.3,stF:.38*leg,stB:-.42*leg,th:.4},e:sstep},{t:1.1,v:()=>({...f.guardBody(),px:x-fa*10,pz:z}),e:sstep}],
     arm:[{t:0,v:f.curArm||f.guardArm()},{t:.18,v:{hand:{sh:[.5*a,-.6*a]},wAng:-1.8,off:{sh:[-.5*a,-.5*a]},tilt:-.1},e:eOut},{t:.5,v:{hand:{sh:[.6*a,.1*a]},wAng:-.2,off:{sh:[-.4*a,.4*a]},tilt:.05},e:sstep},{t:1.1,v:()=>f.guardArm(),e:sstep}]};}
+// ---------- the way out of the kitchen: the gas line, the shaft, the Lantern going up (since V104) ----------
+// Asked for in V104: leaving the kitchen, Ilyas cuts the gas line; as the lift drops a spark from the arc-blade sets it off; the
+// Lantern goes up, and a fireball chases the lift down the shaft. The kitchen's closing scene (kitchenExit, below): the wall opens on the
+// lift, and on his way to it he stops at the range and cuts through the iron pipe that brings the gas down the wall to it (the burners
+// go out, and the gas hisses out into the room: S.gas), walks into the lift and turns in it, and the doors close on him with the blade
+// still out. Then three short scenes of the kitchen's (part:'kitchen', no card of their own), each a hard cut: the shaft (the car going
+// down, the gas come down after it; he rolls the blade up and at its last turn it arcs into the steel of the roof, and the sparks go
+// up through the roof's vent into the gas; it catches, and goes away up the shaft in a sheet of flame), the street (the Lantern goes
+// up: every window blown out and fire out of all of them, a fireball up through the roof), the shaft again (the fireball coming down
+// after the car, a pan off the range ahead of it; the car brakes at the foot with the fire a few feet over its roof). The platform's
+// own scene then begins with the doors opening at the foot, and he walks out as the fire comes out of the lift behind him.
+// The gas line: where it comes down the kitchen's back wall to the range (world x, the height of the cut, the wall's depth), and
+// where he stands to cut it
+const GAS={x:654,h:34,d:236,sx:598,sz:180};
+S.gas=null;V11.duelStart.push(()=>{S.gas=null;});
+// the cut, in a man's own depth: where the blade has to pass for it to go through the pipe on the wall
+function gasPoint(f){return fromDepth({x:GAS.x,y:GB-GAS.h,d:GAS.d},f);}
+// the cut: the blade up and back over his shoulder, then across and down through the pipe, and on
+function gasCut(K,P){const a=K.arm,fa=K.facing,L=(WEAPONS[K.weaponKey]||WEAPONS.elven).len,wA=.18,hand={x:P.x-fa*Math.cos(wA)*L*.8,y:P.y-Math.sin(wA)*L*.8},x=K.station,z=K.lane,leg=K.leg;
+  return{t0:S.t,end:.95,body:[{t:0,v:()=>K.curBody||K.guardBody()},{t:.28,v:{px:x-fa*4,pz:z,crouch:.88,lean:.04,stF:.28*leg,stB:-.36*leg,th:.3},e:eOut},
+      {t:.36,v:{px:x+fa*6,pz:z,crouch:.82,lean:.28,stF:.34*leg,stB:-.4*leg,th:.34},e:eIn},{t:.95,v:{px:x+fa*4,pz:z,crouch:.88,lean:.1,stF:.28*leg,stB:-.36*leg,th:.3},e:sstep}],
+    arm:[{t:0,v:K.curArm},{t:.28,v:{hand:{sh:[-.12*a,-.72*a]},wAng:-2.3,off:{sh:[.3*a,.22*a]},tilt:-.1},e:eOut},
+      {t:.36,v:{hand:{w:hand},wAng:wA,off:{sh:[-.2*a,.42*a]},tilt:.1},e:eIn},{t:.62,v:{hand:{sh:[.48*a,.52*a]},wAng:1.15,off:{sh:[-.2*a,.42*a]},tilt:.1},e:eOut},
+      {t:.95,v:{hand:{sh:[.36*a,.46*a]},wAng:.9,off:{sh:[-.1*a,.5*a]},tilt:.05},e:sstep}]};}
+// (the lift's doors close behind him in the time the page closes them: SECRET_T.shut, sk_secret.js; the lift's opening on the screen)
+function liftOpening(){const far=KITCHEN.far,A=SECRET_ART,cx=SECRET_DOOR.x+far*PSX,yB=GB-far*PSY;return{cx,hw:A.w/2,top:yB-A.h,yB};}
+function* kitchenExit(st){const K=hero();letter(1);K.guarding=false;K.counter=false;
+  // (the blade stays out: there is one more use for it)
+  // (the camera takes in him, the range and the wall the lift is in, up to the lift's head)
+  const at=x=>prjX(x,GAS.sz),O0=liftOpening(),band={top:O0.top-36,foot:GB+30},bandN={top:O0.top-60,foot:GB+50},kx0=Math.min(K.station,560);
+  camTo((at(kx0)+O0.cx)/2+20,Math.max(640,O0.cx-at(kx0)+260),1.3);Object.assign(S.camCut,{band,bandN,xn:at(660),wn:330});
+  yield* wait(.4);
+  // a click in the wall: the family's own way down (the reveal is the lab's back room's, which the story's kitchen does not count as
+  // on: it is let on for the moment it starts)
+  const bk=S.backroom;S.backroom=true;S.deep=true;const step=revealStart(null);S.backroom=bk;S.deep=false;
+  if(step)yield* until(()=>step(),5);
+  // on his way to it, the range: he stops where the gas comes down the wall to it and cuts the pipe through
+  K.zMax=GAS.sz+6;yield* stepTo(K,GAS.sx,GAS.sz,110);K.facing=1;K.station=GAS.sx;K.lane=GAS.sz;
+  K.action=gasCut(K,gasPoint(K));S.hooks.sound('swing',1.5,{s:'swing_mid',delay:.2});
+  yield* wait(.36);
+  S.gas={cut:S.t};S.hooks.sound('shing',.8,{s:'shing'});S.hooks.sound('hiss',1);
+  yield* wait(.6);
+  // the burners going out under the pans, the gas loose in the room; a look, and on
+  yield* wait(.7);
+  camTo(at(SECRET_DOOR.x)-20,560,1.4);Object.assign(S.camCut,{band,bandN,xn:prjX(SECRET_DOOR.x,200),wn:320});
+  yield* stepTo(K,SECRET_DOOR.x,SECRET_DOOR.slots[0][1],100);
+  // into the lift (once he is through its doorway he shows only inside it), and round to face the room, the blade still out and
+  // down at his side
+  const O=liftOpening(),a=K.arm,clipAll={x0:O.cx-O.hw,x1:O.cx+O.hw,y0:O.top,y1:O.yB+2};K.zMax=GAS.d+12;K.guardArm=()=>bladeDown(K);
+  let inside=false;yield* all((function*(){yield* stepTo(K,SECRET_DOOR.x,GAS.d+2,80);inside=true;})(),(function*(){while(!inside){if(K.dep>GAS.d-3)K.clipRect=clipAll;yield;}})());
+  // (just inside the doors, his head bowed a little under the car's low roof)
+  K.clipRect=clipAll;K.facing=-1;K.station=SECRET_DOOR.x;K.lane=GAS.d+2;K.guardBody=()=>({...easyBody(K),crouch:.9,lean:.1});void a;
+  yield* wait(.5);
+  // the doors close on him (he shows only in the gap left between them)
+  const sh=S.t;if(S.secret)S.secret.shut=sh;S.hooks.sound('lift_doors',1,{take:1});
+  yield* until(()=>{const o=1-sstep((S.t-sh)/SECRET_T.shut);K.clipRect={x0:O.cx-O.hw*o,x1:O.cx+O.hw*o,y0:O.top,y1:O.yB+2};return o<=0;},2);
+  K.hidden=true;K.clipRect=null;
+  yield* wait(.45);}
+// the arc-blade out and held down at his side, its point clear of the floor (in the lift, and in the car going down)
+function bladeDown(K){const a=K.arm;return{hand:{sh:[.18*a,.6*a]},wAng:1.45,off:{sh:[-.06*a,.94*a]},tilt:0};}
+function kitchenExitSkip(st){const K=hero();S.gas=S.gas||{cut:S.t-5};K.clipRect=null;K.hidden=true;K.zMax=null;}
+
+// ---------- the shaft ----------
+// envx/env_shaft.js draws it: the car's middle and the depth he stands at in it, the landings (their heights from the top), the run
+// from the kitchen to the line
+const SHAFT={cx:450,dep:68,lands:[0,230,460,1400],run:1400,vmax:240};
+storyArena('shaft',{label:'Shaft',name:'The lift shaft',ground:()=>GB,wall:null,far:152});
+// the run: y how far the car has come down, v and acc; the fireball's front over the roof (ball: from, to, over dur from t0)
+S.shaft=null;V11.duelStart.push(()=>{S.shaft=null;});
+function shaftNew(o){return Object.assign({y:0,v:0,acc:0,vmax:SHAFT.vmax,gas:0,spark:null,lit:null,ball:null,ballH:null,pan:null,brake:null,brakeDur:0},o);}
+V11.step.push(()=>{const s=S.shaft;if(!s)return;s.v=clamp(s.v+s.acc*DT,0,s.vmax);s.y=Math.min(SHAFT.run,s.y+s.v*DT);if(s.y>=SHAFT.run)s.v=0;
+  if(s.ball){const u=clamp((S.t-s.ball.t0)/s.ball.dur,0,1);s.ballH=S.t<s.ball.t0?null:lerp(s.ball.from,s.ball.to,1-Math.pow(1-u,1.7));}});
+// the scenes between the stages: he is where the last left him, his strength as it was (no rest between them: the platform's stage
+// gives him his breath back, as it did when it came straight after the kitchen)
+function sceneKeep(K){const SV=S.story;if(SV&&SV.hp!=null)K.hp=Math.min(K.maxHp,SV.hp);}
+// the camera in the shaft: the car and the shaft over it (an upright phone has height to spare: more of the shaft)
+function shaftCam(){const x=prjX(SHAFT.cx,SHAFT.dep)+2;camTo(x,712,0);Object.assign(S.camCut,{band:{top:GB-300,foot:GB+16},bandN:{top:GB-470,foot:GB+40},xn:x,wn:330});}
+// the blade brought up before him, upright, and rolled back into its hilt (the car is too narrow for the scene's own roll-up)
+function shaftRoll(K){const a=K.arm,up={hand:{sh:[.3*a,-.06*a]},wAng:-1.38,off:{sh:[.12*a,.34*a]},tilt:.02},low=easyArm(K),g=K.curArm||K.guardArm();
+  K.arcRev={t0:S.t+.32,dur:.5};
+  // (quiet: no trail, the blade's sweep would go out through the car's sides)
+  return{t0:S.t,end:1.4,quiet:true,body:[{t:0,v:()=>K.guardBody()}],arm:[{t:0,v:g},{t:.3,v:up,e:sstep},{t:.95,v:up},{t:1.35,v:low,e:sstep},{t:1.4,v:low}]};}
+// his head back, looking up the shaft
+function shaftLookUp(K,dur){const leg=K.leg,x=K.station,z=K.lane;
+  return{t0:S.t,end:dur,body:[{t:0,v:()=>K.curBody||K.guardBody()},{t:.35,v:{px:x,pz:z,crouch:.96,lean:-.14,stF:.16*leg,stB:-.2*leg,th:.2},e:sstep},{t:dur,v:{px:x,pz:z,crouch:.96,lean:-.14,stF:.16*leg,stB:-.2*leg,th:.2}}],
+    arm:[{t:0,v:()=>K.curArm||K.guardArm()},{t:dur,v:()=>K.guardArm()}]};}
+function shaftHero(K){sceneKeep(K);standEasy(K);if(!K.stow)K.guardArm=()=>bladeDown(K);K.facing=-1;K.station=SHAFT.cx;K.lane=K.dep=K.stepDep=SHAFT.dep;K.zMax=SHAFT.dep+2;K.offstage=true;K.build();}
+STAGES.splice(stageIx('kitchen')+1,0,
+  {key:'shaft',num:'',title:'',sub:'',part:'kitchen',arena:'shaft',next:'lanternup',noFight:true,cardDur:0,foes:[],spawn:[[SHAFT.cx,SHAFT.dep]],
+    setup(st){const K=hero();shaftHero(K);S.shaft=shaftNew({gas:1});},
+    *intro(st){const K=hero(),s=S.shaft;letter(1);shaftCam();
+      // the car at the kitchen's landing, the gas come in round its doors after it and hanging in the shaft over it
+      yield* wait(.5);
+      // it drops: a jolt, the motor, the shaft going up past the car faster and faster
+      s.acc=SHAFT.vmax/1.1;S.hooks.sound('lift',1);S.shake=Math.max(S.shake,3);
+      yield* wait(1);
+      // he brings the blade up before him and lets it roll back into its hilt
+      K.action=shaftRoll(K);
+      yield* wait(.78);
+      // at its last turn it arcs into the steel of the roof, and the sparks go up through the vent into the gas
+      s.spark=S.t;S.hooks.sound('crackle',1);flash({x:K.p[TIP].x,y:K.p[TIP].y},18,'#d8f6ff',K.dep);
+      yield* wait(.36);
+      // the gas over the car catches, and the flame goes away up the shaft
+      s.lit=S.t;s.gas=0;S.hooks.sound('whump',1);S.shake=Math.max(S.shake,7);S.freeze=Math.max(S.freeze,.05);
+      yield* wait(.3);stowBlade(K);K.guardArm=()=>easyArm(K);
+      K.action=shaftLookUp(K,2);
+      yield* wait(1.6);},
+    introSkip(st){stowBlade(hero());}},
+  {key:'lanternup',num:'',title:'',sub:'',part:'kitchen',arena:'street',next:'shaftfire',noFight:true,cardDur:0,foes:[],spawn:[[-420,120]],
+    setup(st){const K=hero();sceneKeep(K);standEasy(K);stowBlade(K);K.station=-420;K.lane=K.dep=120;K.hidden=true;K.offstage=true;K.build();
+      // the street as he left it: the bistro's front blown in, the lamp down across it if it went
+      const L=S.story.flags.lamp;if(L){S.lampCut=L.lx;S.lampFall={lx:L.lx,s:L.s,t0:S.t-9,bite:S.t-10,hx:-L.s*.5,hd:-.866,down:true};}
+      S.lanternUp=null;},
+    *intro(st){letter(1);const D=bistroDoor(),x=prjX(D.x,D.dep);camTo(x+48,820,0);Object.assign(S.camCut,{band:{top:-150,foot:220},bandN:{top:-260,foot:GB+24},xn:x+6,wn:420});
+      yield* wait(.5);
+      // a deep knock in the house, the windows brightening
+      S.hooks.sound('rumble',1);S.shake=Math.max(S.shake,2.5);S.lanternUp={t0:S.t+.42};
+      yield* wait(.42);
+      // and it goes up
+      lanternUp();
+      yield* wait(2.8);},
+    introSkip(st){}},
+  {key:'shaftfire',num:'',title:'',sub:'',part:'kitchen',arena:'shaft',next:'platform',noFight:true,cardDur:0,foes:[],spawn:[[SHAFT.cx,SHAFT.dep]],
+    setup(st){const K=hero();stowBlade(K);shaftHero(K);S.shaft=shaftNew({y:SHAFT.run-560});},
+    *intro(st){const K=hero(),s=S.shaft;letter(1);shaftCam();
+      // (going down at full speed from the cut, the fire on its way: set here, not in setup, which the bodies' settling runs past)
+      s.v=SHAFT.vmax;s.ball={t0:S.t+.2,from:560,to:12,dur:2.9};
+      // the shaft over the car lit from far up, and a roar coming down it
+      S.hooks.sound('roar',1);K.action=shaftLookUp(K,4);
+      yield* wait(.55);
+      // a pan off the range, come down ahead of the fire, onto the roof
+      s.pan=S.t;yield* wait(.75);S.hooks.sound('clang',.8,{s:'clang_light'});S.shake=Math.max(S.shake,2);
+      // the foot of the shaft: the brakes
+      yield* wait(.2);s.acc=-SHAFT.vmax/1.4;s.brake=S.t;s.brakeDur=1.5;S.hooks.sound('brake',1);
+      yield* until(()=>s.v<=0,2.2);
+      // (the cut comes as the fire reaches the roof)
+      yield* until(()=>s.ballH!=null&&s.ballH<24,1.2);},
+    introSkip(st){}});
+// the Lantern going up: the windows' light flaring, then every window and the door blown out with fire, a fireball up through the
+// roof (envx/env_street.js draws the front: S.lanternUp; the openings are its own); a blast down the street, glass and slates in it.
+function bistroOpenings(){const L=typeof EnvLook!=='undefined'&&EnvLook.S&&EnvLook.S.street;return L&&L.openings?L.openings():[{x:120,y:250,w:60,h:90,kind:'win'},{x:236,y:270,w:60,h:110,kind:'door'},{x:350,y:250,w:60,h:90,kind:'win'}];}
+function lanternUp(){const D=bistroDoor(),O=bistroOpenings(),t=S.t;S.lanternUp={t0:t,go:t};
+  // (the ground floor's blast is the street's painter's own, in the Lantern going up: S.lanternUp)
+  S.shake=Math.max(S.shake,22);S.freeze=Math.max(S.freeze,.08);if(!S.warming)S.punch={x:prjX(D.x,D.dep),t:0};
+  S.hooks.sound('boom',2,{kind:'fuel'});S.hooks.sound('glass',1.6,{s:'glass_large',delay:.08});S.hooks.sound('rattle',1,{delay:.3});
+  // the fireball out through the roof (the blast out of the door is the ground floor's, the street's painter's; a second fireball
+  // there, until V104's review, cost the phone's frame a quarter again and left a flat cloud over the door)
+  const R=O.find(o=>o.kind==='roof');if(R)S.booms.push({x:R.x,y:R.y,dep:R.dep,t0:t+.05,size:2.3,seed:4401,kind:'fuel'});
+  // and the fire left burning in the two windows and the doorway below (upstairs the rooms burn behind their empty frames: the street's
+  // painter's)
+  O.forEach((o,i)=>{if(o.kind==='roof'||o.kind==='up')return;S.fires.push({x:o.x,y:o.y,dep:o.dep,w:o.w,h:o.h,seed:31+i*7,k:o.kind==='door'?1:.85});});}
 // ===== THE LANTERN'S SET PIECES END =====

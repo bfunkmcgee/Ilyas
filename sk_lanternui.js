@@ -1,6 +1,7 @@
 // ===== THE LANTERN'S SET PIECES ON THE PAGE START (since V103) =====
-// What the set pieces of sk_lantern.js leave in the world, drawn: the felled lamp on Lamplight Street. Nothing here writes what the
-// game reads (the drawfree suite).
+// What the set pieces of sk_lantern.js leave in the world, drawn: the felled lamp on Lamplight Street, the cleaver, the flood; the
+// shaft's car face and the fire's light (since V104), and the scenes' own sounds. Nothing here writes what the game reads (the
+// drawfree suite).
 
 // ---------- the felled lamp ----------
 // The post from the axe's bite up is the street painter's own drawing of it (EnvLook.S.street.postSprite), laid down along the way it
@@ -116,4 +117,38 @@ function fishDraw(f){const g=S.arena.ground(f.x,f.d),q={x:f.x+f.d*PSX,y:g-f.h-f.
   ctx.beginPath();ctx.moveTo(-s*.8,0);ctx.lineTo(-s*1.6,-s*.55+wag*s);ctx.lineTo(-s*1.5,s*.55+wag*s);ctx.closePath();ctx.fill();
   ctx.fillStyle=f.col[1];ctx.beginPath();ctx.ellipse(s*.1,-s*.14,s*.45,s*.18,0,0,TAU);ctx.fill();
   ctx.fillStyle='rgba(255,255,255,.45)';ctx.fillRect(-s*.4,-s*.36,s*.9,.8);ctx.fillStyle='#120c08';ctx.beginPath();ctx.arc(s*.62,-s*.08,Math.max(.8,s*.1),0,TAU);ctx.fill();}
+// ---------- the shaft ----------
+// The car's face (its frame and the glass doors shut on him) goes in the draw list at its own depth, in front of him (the painter's
+// frontItem, envx/env_shaft.js); the fire lights him from above as it comes.
+function shaftOn(){return(S.arenaKey==='shaft')&&!!S.shaft&&!S.classicLook&&typeof envKey==='function'&&envKey()==='shaft';}
+{const ei=envItems;envItems=function(items){ei(items);if(!shaftOn())return;const L=EnvLook.S.shaft;if(L&&L.frontItem){const it=L.frontItem();items.push({d:it.d,shaftFront:it});}};}
+{const de=drawEnvItem;drawEnvItem=function(it){if(!it.shaftFront)return de(it);ctx.save();try{it.shaftFront.draw(ctx);}catch(e){}ctx.restore();return true;};}
+V11UI.init.push(()=>{if(typeof FXL==='undefined'||!FXL.lights)return;
+  FXL.lights.push(add=>{if(!shaftOn())return;const s=S.shaft,L=EnvLook.S.shaft.LAYOUT,cx=(L.CX0+L.CX1)/2;
+    // the sheet of flame going up, blue and then orange, from just over the roof
+    if(s.lit!=null){const u=S.t-s.lit;if(u>=0&&u<1.2)add(cx,L.ROOF-30,70,u<.12?'#bfe4ff':'#ff9a40',1.4*Math.exp(-u*2.4),360);}
+    if(s.spark!=null){const u=S.t-s.spark;if(u>=0&&u<.18)add(cx,L.ROOF+10,68,'#d8f6ff',1.2*(1-u/.18),160);}
+    // the fireball's front coming down on the roof
+    if(s.ballH!=null){const k=clamp(1-s.ballH/420,0,1);if(k>0)add(cx,L.ROOF-s.ballH,70,'#ff9a40',1.5*k*k*(.85+.15*Math.sin(S.t*23)),520);}});
+  // the Lantern going up lights the street (there is nobody in it, but its light is in the air and on the wet)
+  FXL.lights.push(add=>{const U=S.lanternUp;if(!U||S.arenaKey!=='street')return;const u=S.t-U.t0;if(u<0||u>2)return;const D=bistroDoor();add(D.x,D.y+D.dep*PSY-120,D.dep-4,u<.1?'#fff4dc':'#ffb060',1.6*Math.exp(-u*1.6),640);});});
+
+// ---------- their sounds ----------
+// the gas loose from the cut pipe; the arc off the blade; the gas catching in the shaft; the knock in the house before it goes; the fire
+// coming down the shaft (made on the page, as the hidden lift's latch and grind are: sk_secretui.js)
+V11UI.init.push(()=>{const snd=S.hooks.sound;
+  // a noise held as long as it is wanted (the shared noise is 0.6 s long: looped), through a filter that sweeps, swelling and dying
+  const held=(D,type,f0,f1,q,vol,att,rel)=>{const a=AC,t0=a.currentTime,s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();s.buffer=noiseBuf;s.loop=true;fl.type=type;fl.Q.value=q;
+    fl.frequency.setValueAtTime(f0,t0);fl.frequency.exponentialRampToValueAtTime(f1,t0+D);g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+D*att);
+    g.gain.setValueAtTime(vol,t0+D*(1-rel));g.gain.exponentialRampToValueAtTime(.0001,t0+D);s.connect(fl);fl.connect(g);g.connect(master);s.start(t0);s.stop(t0+D+.05);};
+  S.hooks.sound=(k,v,c)=>{
+    if(k!=='hiss'&&k!=='crackle'&&k!=='whump'&&k!=='rumble'&&k!=='roar'){snd(k,v,c);return;}
+    if(!S.soundOn||typeof AC==='undefined'||!AC||AC.state!=='running')return;
+    try{
+      if(k==='hiss'){held(3.4,'highpass',4200,3600,.7,.14,.06,.5);held(3.4,'bandpass',7000,6200,2.2,.06,.06,.5);}
+      else if(k==='crackle'){for(let i=0;i<9;i++)setTimeout(()=>{try{nz(.035,'highpass',5200,2600,1,.32);}catch(e){}},i*22+uiRand()*14);tone(.16,'square',2400,260,.05);}
+      else if(k==='whump'){nz(.6,'lowpass',700,60,.7,.95);tone(.55,'sine',74,30,.6);held(1.6,'bandpass',900,260,.8,.32,.08,.7);}
+      else if(k==='rumble'){tone(.9,'sine',44,30,.4);held(.9,'lowpass',220,120,.6,.42,.2,.6);}
+      else if(k==='roar'){held(3.2,'lowpass',260,1500,.6,.62,.75,.12);held(3.2,'bandpass',600,1800,.7,.2,.8,.1);}
+    }catch(e){}};});
 // ===== THE LANTERN'S SET PIECES ON THE PAGE END =====

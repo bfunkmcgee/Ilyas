@@ -7,10 +7,11 @@
 // sim step until it returns true; S.secret holds the door's state for drawing and is cleared on every new fight.
 const SECRET_DOOR={x:796,slots:[[796,168],[838,150]]};
 // the size of the lift in the wall (floor units): the opening, the frame round it and the header above it
-const SECRET_ART={w:55,h:138,fr:5,hd:9};
+const SECRET_ART={w:55,h:150,fr:5,hd:9};   // (h 138 until V104: a tall man went into it head first)
 // the reveal on a clock of seconds after the click: the heroes turn to look, the wall section slides aside, the line of light comes on,
-// the chime sounds as the doors part, and the walk to the lift starts at the end
-const SECRET_T={turn:.3,grind:.36,slide0:.4,slide1:1.4,line:1.2,chime:1.62,open0:1.65,open1:2.35,end:2.55};
+// the chime sounds as the doors part, and the walk to the lift starts at the end; shut: how long the doors take to close again behind
+// whoever goes down in it (S.secret.shut: when they start, since V104)
+const SECRET_T={turn:.3,grind:.36,slide0:.4,slide1:1.4,line:1.2,chime:1.62,open0:1.65,open1:2.35,end:2.55,shut:.75};
 S.secret=null;
 function revealStart(T){
   if(!deepOn())return null;

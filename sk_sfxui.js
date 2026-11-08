@@ -33,7 +33,7 @@ const SFX_LOOP={amb_sundown_loop:-28,amb_field_loop:-28,amb_avenue_loop:-26,amb_
   amb_station_loop:-29,amb_lobby_loop:-31,amb_office_loop:-31,amb_roof_loop:-27,fire_loop:-29,fall_wind_loop:-25,bike_loop_low:-25,bike_loop_high:-24,
   bike_rival_loop:-27,apc_idle_loop:-30,train_idle_loop:-30,rail_loop:-27,freight_loop:-28,heli_loop:-24};
 const SFX_BED={sundown:'amb_sundown_loop',field:'amb_field_loop',chase:'amb_avenue_loop',highway:'amb_avenue_loop',roadblock:'amb_checkpoint_loop',vargo:'amb_street_loop',
-  dining:'amb_dining_loop',kitchen:'amb_kitchen_loop',platform:'amb_station_loop',deep:'amb_station_loop',lobby:'amb_lobby_loop',office:'amb_office_loop',
+  dining:'amb_dining_loop',kitchen:'amb_kitchen_loop',lanternup:'amb_street_loop',platform:'amb_station_loop',deep:'amb_station_loop',lobby:'amb_lobby_loop',office:'amb_office_loop',
   roof:'amb_roof_loop'};
 // what each stage plays, loaded with it (and the next stage's, while this one plays); the fights' own are always kept
 const SFX_FIGHT=['swing_light','swing_mid','swing_heavy','hit_cut','hit_blunt','crit_cut','crit_blunt','finish_through','finish_neck','clang','clang_light',
@@ -54,7 +54,10 @@ const SFX_STAGE={
     'lamp_knock','lamp_fall','glass_small','thud_metal'],
   dining:['amb_dining_loop',...SFX_ROOMKIT,'step_wood'],
   kitchen:['amb_kitchen_loop','range_slam','sizzle',...SFX_ROOMKIT,'wall_latch','wall_slide','lift_bell','lift_doors','step_tile'],
-  platform:['amb_station_loop','lift_bell','lift_doors','train_idle_loop','train_depart','rail_loop','rail_clack','step_tile'],
+  shaft:['freight_start','freight_loop','thud_metal'],
+  lanternup:['amb_street_loop','boom_fuel','glass_large','debris_rattle','fire_loop'],
+  shaftfire:['freight_loop','brake','fire_loop','thud_metal'],
+  platform:['amb_station_loop','lift_bell','lift_doors','train_idle_loop','train_depart','rail_loop','rail_clack','step_tile','boom_fuel','fire_loop','debris_rattle'],
   line:['rail_loop','rail_clack','goblin_chitter','goblin_drop','goblin_squeal','goblin_snarl','goblin_death','splat','brake','thud_metal','step_iron','step_goblin'],
   deep:['amb_station_loop','brake','rail_loop','ixet_roar','ixet_hiss','tail_swing','tail_writhe','goblin_drop','goblin_squeal','goblin_snarl','goblin_death',
     'splat','cage_gate','freight_start','freight_loop','step_tile','step_goblin'],
@@ -240,8 +243,9 @@ function sfxHeld(){const SV=S.story,SK=SV&&SV.key,K=hero(),fadeK=1-.85*clamp(S.f
   const fires=SV&&S.fires&&S.fires.length?S.fires.length:0;sfxLoop('fire','fire_loop',fires?sfxLoopLv('fire_loop')*Math.min(1,.6+.25*fires)*fadeK:0,null,.6);
   // the engine of the family's train at the platform, waiting
   const T=S.veh.find(v=>v.kind==='train');sfxLoop('train','train_idle_loop',T&&SK==='platform'&&Math.abs(T.v||0)<1?sfxLoopLv('train_idle_loop')*(.35+.65*clamp(T.lamp||0,0,1))*fadeK:0,null,.4);
-  // the freight lift going up out of the deep
-  sfxLoop('freight','freight_loop',SK==='deep'&&K&&K.rideLift&&S.t-SFX.liftT>.5?sfxLoopLv('freight_loop')*fadeK:0,null,.3);
+  // the freight lift going up out of the deep; the family's lift going down its shaft from the kitchen (S.shaft: its speed)
+  const down=(SK==='shaft'||SK==='shaftfire')&&S.shaft?clamp(S.shaft.v/200,0,1):0;
+  sfxLoop('freight','freight_loop',SK==='deep'&&K&&K.rideLift&&S.t-SFX.liftT>.5?sfxLoopLv('freight_loop')*fadeK:down>0?sfxLoopLv('freight_loop')*down*fadeK:0,down>0?.9+.25*down:null,.3);
   // the helicopter in its hover over the pad (after its approach), or over the Tower Road while the man in white fires, fading as it goes
   const H=(SK==='roof'||SK==='highway')&&S.veh.find(v=>v.kind==='heli'),hk=H?clamp(1-(Math.max(0,-H.x-100,H.x-W-100))/600,0,1):0;
   sfxLoop('heli','heli_loop',H&&hk>0&&S.t-SFX.heliT>4.4?sfxLoopLv('heli_loop')*fadeK*hk:0,null,.6);

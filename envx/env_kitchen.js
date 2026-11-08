@@ -122,21 +122,45 @@ function paint(c){
   for(const [x,d,rr] of [[160,132,26],[334,160,18],[548,158,16]]){const q=pp(x,GB,d);c.fillStyle=rad(c,q.x,q.y,1,rr,[[0,rgba('#f0eadc',.28)],[1,rgba('#f0eadc',0)]]);c.beginPath();c.ellipse(q.x,q.y,rr,rr*.3,0,0,TAU);c.fill();}
   {const q=pp(450,GB,74);c.fillStyle='#0c0a08';c.beginPath();c.ellipse(q.x,q.y,15,4.5,0,0,TAU);c.fill();c.strokeStyle='#3a3430';c.lineWidth=1.5;c.beginPath();for(let i=-2;i<=2;i++){c.moveTo(q.x+i*5,q.y-3.4);c.lineTo(q.x+i*5,q.y+3.4);}c.stroke();}
   haze(c,X0,X1,T0,120,'#1a120c',.5,true);}
-// the flames, the ovens' glow, the steam: every frame
-function live(){const ox=OX(),yb=yB(),sx0=RANGE.x0+ox,sx1=RANGE.x1+ox,top=yb-74,t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';
-  for(const [u,w] of RANGE_POTS){const x=lerp(sx0,sx1,u);
-    for(let i=0;i<5;i++){const fx=x-w/2+3+i*(w-6)/4,fl=3.5+2.2*Math.sin(t*23+i*1.9+u*7)+1.4*Math.sin(t*41+i);
+// the gas line to the range (since V104): a black iron pipe down the wall from the beams to the range's right side, a brass cock on
+// it. Drawn with what moves (live), because Ilyas cuts it on his way out (S.gas, sk_lantern.js): the two ends apart, bright for a moment
+// where the blade went through, and the gas hissing out of the top one, the air shivering under it; the burners starve and go out.
+const GASL=typeof GAS!=='undefined'?GAS:{x:654,h:34,d:236};
+function gasK(t){const G=typeof S!=='undefined'&&S.gas;if(!G)return 1;const u=(t-G.cut)/.9;if(u>=1)return 0;return Math.pow(1-Math.max(0,u),1.4)*(.75+.25*Math.sin(t*41)*Math.sin(t*17.3));}
+function gasPipe(c,t){const ox=OX(),yb=yB(),x=GASL.x+ox,cut=yb-GASL.h,G=typeof S!=='undefined'&&S.gas,sx1=RANGE.x1+ox,yk=yb-22;
+  const pipe=(y0,y1)=>{c.fillStyle='#0e0f12';c.fillRect(x-1.8,y0,3.6,y1-y0);c.fillStyle=rgba(C.rim,.26);c.fillRect(x-1.8,y0,1,y1-y0);c.fillStyle=rgba('#000000',.5);c.fillRect(x+1.2,y0,.6,y1-y0);};
+  // down from the beams, round the elbow and into the range's side
+  if(G){pipe(10,cut-1.4);pipe(cut+1.4,yk);}else pipe(10,yk);
+  c.fillStyle='#0e0f12';c.fillRect(sx1,yk-1.8,x-sx1+1.8,3.6);c.fillStyle=rgba(C.rim,.22);c.fillRect(sx1,yk-1.8,x-sx1,1);
+  c.fillStyle='#16171b';c.beginPath();c.arc(x,yk,2.8,0,TAU);c.fill();
+  for(const y of [40,yb-110]){c.fillStyle='#1a1b20';c.fillRect(x-3,y,6,3);c.fillStyle=rgba(C.rim,.2);c.fillRect(x-3,y,6,.6);}
+  // the cock: a brass body on the pipe, its lever along the pipe (open)
+  {const y=yb-64;c.fillStyle=lin(c,x-3.4,0,x+3.4,0,[[0,C.goldD],[.4,C.goldL],[1,C.goldD]]);c.fillRect(x-3.4,y-3,6.8,6);c.fillStyle=C.gold;c.fillRect(x+3,y-1,7,2);c.fillStyle=rgba('#000000',.4);c.fillRect(x-3.4,y+2.4,6.8,.6);}
+  if(!G)return;const u=t-G.cut;
+  // the ends where the blade went through, bright for a moment
+  if(u<.7){const a=1-u/.7;c.fillStyle=rgba('#fff4dc',.9*a);c.fillRect(x-1.8,cut-2,3.6,1);c.fillRect(x-1.8,cut+1,3.6,1);c.save();c.globalCompositeOperation='lighter';glow(c,x,cut,8,'#ffe8c0',.5*a);c.restore();}
+  // the gas out of the top end: the air shivering in a cone down from it, and spreading low over the floor
+  c.save();c.lineWidth=1.5;for(let i=0;i<7;i++){const ph=((t*1.6+i/7)%1),L=10+ph*46,a=.16*Math.sin(ph*Math.PI)*Math.min(1,u*4);c.strokeStyle=rgba('#eef4dc',a);c.beginPath();
+    for(let k=0;k<=6;k++){const yy=cut+k*L/6,xx=x+(k*L/6)*.25*Math.sin(i*1.3)+Math.sin(t*14+k*1.7+i*2.1)*(1+k*.5);k?c.lineTo(xx,yy):c.moveTo(xx,yy);}c.stroke();}
+  const sp=clamp(u/4,0,1);if(sp>0){c.fillStyle=lin(c,0,yb-60,0,yb+40,[[0,rgba('#c8d8a0',0)],[1,rgba('#c8d8a0',.06*sp)]]);c.fillRect(-160,yb-60,W+400,140);}
+  c.restore();}
+// the flames, the ovens' glow, the steam: every frame (the burners as much of them as the gas still feeds: gasK)
+function live(){const ox=OX(),yb=yB(),sx0=RANGE.x0+ox,sx1=RANGE.x1+ox,top=yb-74,t=S.t,gk=gasK(t);ctx.save();ctx.globalCompositeOperation='lighter';
+  if(gk>.02)for(const [u,w] of RANGE_POTS){const x=lerp(sx0,sx1,u);
+    for(let i=0;i<5;i++){const fx=x-w/2+3+i*(w-6)/4,fl=(3.5+2.2*Math.sin(t*23+i*1.9+u*7)+1.4*Math.sin(t*41+i))*gk;
       ctx.fillStyle='rgba(120,170,255,.75)';ctx.beginPath();ctx.moveTo(fx-2.2,top);ctx.lineTo(fx,top-fl);ctx.lineTo(fx+2.2,top);ctx.closePath();ctx.fill();
       ctx.fillStyle='rgba(255,190,110,.5)';ctx.beginPath();ctx.moveTo(fx-1,top-fl*.55);ctx.lineTo(fx,top-fl-1.5);ctx.lineTo(fx+1,top-fl*.55);ctx.closePath();ctx.fill();}
-    glow(ctx,x,top-4,w*1.4,'#ff9a50',.18);}
-  const n=3,ow=(sx1-sx0-36)/n,k=.55+.25*Math.sin(t*2.3)+.12*Math.sin(t*9.1);
+    glow(ctx,x,top-4,w*1.4,'#ff9a50',.18*gk);}
+  const n=3,ow=(sx1-sx0-36)/n,k=(.55+.25*Math.sin(t*2.3)+.12*Math.sin(t*9.1))*(.3+.7*gk);
   for(let i=0;i<n;i++){const x=sx0+18+i*ow+ow/2;ctx.fillStyle=`rgba(255,120,40,${(.45*k).toFixed(3)})`;ctx.fillRect(x-16,top+31,32,13);glow(ctx,x,top+38,40,'#ff8a40',.25*k);}
   glow(ctx,(sx0+sx1)/2,top,200,'#ff9a50',.08*k,.5);
   ctx.restore();ctx.save();
-  for(const [u,w,h] of RANGE_POTS){if(h<16)continue;const x=lerp(sx0,sx1,u);
-    for(let i=0;i<4;i++){const ph=(t*.3+i/4+u)%1,y=top-h-6-ph*90,rr=5+ph*18;ctx.globalAlpha=.1*Math.sin(ph*Math.PI);ctx.fillStyle='#e8e4dc';
+  const sk=typeof S!=='undefined'&&S.gas?clamp(1-(t-S.gas.cut-.5)/2.5,0,1):1;
+  if(sk>0)for(const [u,w,h] of RANGE_POTS){if(h<16)continue;const x=lerp(sx0,sx1,u);
+    for(let i=0;i<4;i++){const ph=(t*.3+i/4+u)%1,y=top-h-6-ph*90,rr=5+ph*18;ctx.globalAlpha=.1*Math.sin(ph*Math.PI)*sk;ctx.fillStyle='#e8e4dc';
       ctx.beginPath();ctx.ellipse(x+Math.sin(t*1.3+i*2+u*9)*7*ph,y,rr,rr*.7,0,0,TAU);ctx.fill();}}
-  ctx.restore();}
+  ctx.restore();
+  gasPipe(ctx,t);}
 function light(f){const sx=(RANGE.x0+RANGE.x1)/2,px=f.p[PEL].x;return Math.abs(px-sx)<220?{light:{x:sx+OX()-f.dep*PSX,y:yB()-90+f.dep*PSY},col:'#ffb072'}:{dir:{x:.15,y:-1},col:'#ffe2b0'};}
 // ---------- the kitchen's furniture ----------
 const at=(q,d)=>P(q.x,q.y,d),seg=(a,b,w,col)=>{ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();},segP=(a,b,d,w,col)=>seg(at(a,d),at(b,d),w,col);

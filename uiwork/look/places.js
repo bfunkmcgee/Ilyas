@@ -1,11 +1,13 @@
 // The places the look tools visit, and what the review needs to know of them: shared by audit.js, lines.js and costs.js.
-// A shot is a story stage ('stage') at its moments ('at': seconds from the stage's start, 't8', or from its fight's first turn, 'f4'),
+// A shot is a story stage ('stage') at its moments ('at': seconds from the stage's start, 't8', or from its fight's first turn, 'f4', or
+// from the stage's start shot on its time, 'x1.4': toMoment below),
 // or one of the lab's grounds ('lab') fought free. The fall is drawn all the way (draw:'all': its sand and its pieces follow what was
 // drawn). Every story stage in order, then the lab's own grounds (the four the story does not use, and the street it does).
 const SHOTS=[
   {id:'sundown',stage:'sundown',at:['t6','t16']},{id:'field',stage:'field',at:['t2','f4']},{id:'chase',stage:'chase',at:['f3','f8']},{id:'highway',stage:'highway',at:['t4','f4']},
   {id:'roadblock',stage:'roadblock',at:['t2','f4']},{id:'vargo',stage:'vargo',at:['t3','f4']},{id:'dining',stage:'dining',at:['f2','f5']},
-  {id:'kitchen',stage:'kitchen',at:['f2','f5']},{id:'platform',stage:'platform',at:['t3','t8']},{id:'line',stage:'line',at:['f2','f5']},
+  {id:'kitchen',stage:'kitchen',at:['f2','f5']},{id:'shaft',stage:'shaft',at:['t2.2','t3']},{id:'lanternup',stage:'lanternup',at:['x1.4','x3.2']},
+  {id:'shaftfire',stage:'shaftfire',at:['x1.2','x2.6']},{id:'platform',stage:'platform',at:['t3','t5.8']},{id:'line',stage:'line',at:['f2','f5']},
   {id:'deep',stage:'deep',at:['t3','f4']},{id:'lobby',stage:'lobby',at:['t3','f4']},{id:'office',stage:'office',at:['t3','f4']},
   {id:'roof',stage:'roof',at:['t4','t10','t16','t22','t32.9','t33.9']},{id:'fall',stage:'fall',at:['t4','t24','t37','t46.5'],draw:'all'},
   {id:'roof1',stage:'roof1',at:['t3','t9']},{id:'kitchen1',stage:'kitchen1',at:['t3','t8']},{id:'backroom',stage:'backroom',at:['t4','t12']},
@@ -39,11 +41,14 @@ function labShot(g){S.arenaKey=g;S.backroom=false;S.deep=false;S.introOn=false;S
 // (in the page) a story stage from its start, on auto (drawn all the way when all is set)
 function stageStart([k,all]){storyGo(k);S.storyAuto=true;S.auto=true;step(2);window.__t0=S.t;window.__tf=null;window.__key=k;drawing(!!all);}
 // (in the page) on to a moment of the stage: the fast-forward undrawn, then the last two seconds drawn (or drawn all the way); gives
-// {gone:true} when the stage ended first
-function toMoment([m,all]){const fight=m[0]==='f',T=+m.slice(1),key=window.__key,still=()=>S.story&&S.story.key===key&&!S.story.ended;
+// {gone:true} when the stage ended first. A 't' or 'f' moment's shot is where 120 frames drawn from the fast-forward's stop, two
+// seconds short of it, take the game: about a third of a second past it (120 frames are about 2.35 s of the game's time), or later
+// still for a moment under two seconds or one too close after the one before. An 'x' moment (since V104) is seconds from the stage's
+// start, shot on its time: the frames drawn until it comes (a short stage's moments: the Lantern going up runs 4.4 s).
+function toMoment([m,all]){const fight=m[0]==='f',exact=m[0]==='x',T=+m.slice(1),key=window.__key,still=()=>S.story&&S.story.key===key&&!S.story.ended;
   const inFight=()=>S.story&&S.story.step==='fight'&&(S.game.phase==='input'||S.game.phase==='exchange');let n=0;
   const due=()=>{if(fight){if(window.__tf==null){if(inFight())window.__tf=S.t;else return false;}return S.t>=window.__tf+T-(all?0:2);}return S.t>=window.__t0+T-(all?0:2);};
   while(still()&&!due()&&n<12000){step(1);n++;}if(!still())return{gone:true};
-  if(!all){drawing(true);step(120);drawing(false);}return null;}
+  if(!all){drawing(true);if(exact){let i=0;while(still()&&S.t<window.__t0+T&&i<240){step(1);i++;}}else step(120);drawing(false);if(exact&&!still())return{gone:true};}return null;}
 
 module.exports={SHOTS,ACT1,ROOMS,frameName,chromiumPath,pageSetup,labShot,stageStart,toMoment};

@@ -1024,8 +1024,9 @@ STAGES.push({key:'dining',num:'V',title:'The Dining Room',sub:'The Lantern Bistr
 
 // ===== STAGE VI: THE KITCHEN =====
 // Orrin's kitchen: the head chef, his sous-chef and his quickest knife. When they are down, the tiled wall by the alley door slides
-// aside on the family's private lift, and it goes down.
-STAGES.push({key:'kitchen',num:'VI',title:'The Kitchen',sub:'Behind the swing door',arena:'restaurant',room:'kitchen',table:true,next:'platform',
+// aside on the family's private lift, and it goes down (since V104 the way out is sk_lantern.js's: he cuts the gas line on his way to
+// the lift, and the shaft, the Lantern going up and the shaft again come between the kitchen and the platform).
+STAGES.push({key:'kitchen',num:'VI',title:'The Kitchen',sub:'Behind the swing door',arena:'restaurant',room:'kitchen',table:true,next:'shaft',
   foes:[{name:'Orrin',seed:7201,weapon:'sword',skill:3,temper:'brute',hp:64},
         {name:'Hesk',seed:7233,weapon:'sword',skill:3,temper:'keeper',hp:56},
         {name:'Odile',seed:7261,weapon:'dagger',skill:3,temper:'rusher',hp:50}],
@@ -1041,38 +1042,36 @@ STAGES.push({key:'kitchen',num:'VI',title:'The Kitchen',sub:'Behind the swing do
     yield* speak('Odile','Chef. Eighty-six him.',{dur:1.8});
     yield* wait(.1);},
   introSkip(st){const K=hero();K.station=st.spawn[0][0];K.lane=K.dep=st.spawn[0][1];K.offstage=false;K.build();},
-  *outro(st){const K=hero();letter(1);camTo(560,820,1);
-    K.guarding=false;K.counter=false;
-    yield* act(K,rollUpAction(K,S.t));stowBlade(K);standEasy(K);
-    yield* wait(.4);
-    // a click in the wall: the family's own way down
-    S.deep=true;const step=revealStart(null);S.deep=false;
-    if(step)yield* until(()=>step(),5);
-    yield* goTo(K,SECRET_DOOR.x,SECRET_DOOR.slots[0][1],90);K.offstage=true;
-    yield* wait(.3);
-    yield* until(()=>{S.fade=Math.min(1,S.fade+DT*1.8);return S.fade>=1;},1);},
-  outroSkip(st){}});
+  *outro(st){yield* kitchenExit(st);},
+  outroSkip(st){kitchenExitSkip(st);}});
 
 // ===== THE PLATFORM =====
 // Behind the secret door the family's own lift goes down to the family's own railway: the stop under the bistro, where the train
-// waits with its one flatcar. He steps out of the lift, crosses to the flatcar, and the train pulls out for the tower.
+// waits with its one flatcar. Since V104 the shaft comes before it (sk_lantern.js): the scene opens on the lift's doors at the foot
+// with no fade, the fire a few feet over the car; he walks out, and the fire comes down onto the car and out of its doors behind him
+// (liftFire), and the car burns in its doorway. He crosses to the flatcar, and the train pulls out for the tower.
 const PLATFORM_NOSE=660;
+// the fire out of the lift's doors behind him: a blast, and the car left burning in its doorway
+S.liftBurn=null;V11.duelStart.push(()=>{S.liftBurn=null;});
+function liftFire(kl){const t=S.t;S.liftBurn=t;S.booms.push({x:kl.x,y:GB-62,dep:kl.dep+10,t0:t,size:1.2,seed:6101,kind:'fuel'});
+  S.fires.push({x:kl.x,y:GB-2,dep:kl.dep+16,w:44,h:92,seed:61,k:.9});
+  S.shake=Math.max(S.shake,14);S.freeze=Math.max(S.freeze,.05);S.hooks.sound('boom',1.2,{kind:'fuel'});S.hooks.sound('rattle',.8,{delay:.25});}
 STAGES.push({key:'platform',num:'',title:'',sub:'',arena:'station',next:'line',noFight:true,cardDur:0,foes:[],spawn:[[62,268]],
   setup(st){const K=hero(),SL=stationLook(),kl=kitLiftSpot(),LY=SL&&SL.LAYOUT||{};
-    S.stationEnd='lantern';S.kitLift=0;S.lift=0;S.liftY=0;S.fade=1;if(SL&&SL.liftFrontLater)SL.liftFrontLater(false);
+    S.stationEnd='lantern';S.kitLift=0;S.lift=0;S.liftY=0;S.fade=0;if(SL&&SL.liftFrontLater)SL.liftFrontLater(false);
     standEasy(K);stowBlade(K);K.zMax=290;K.station=kl.x;K.lane=K.dep=K.stepDep=kl.dep+4;K.facing=1;K.offstage=true;K.hidden=true;K.build();
     S.story.train=trainNew({x:PLATFORM_NOSE,gy:LY.trainGy??GB+TRAIN.deck,dep:LY.trainDep??236,fa:1,cars:1,lamp:.55});},
   *intro(st){const K=hero(),T=S.story.train,kl=kitLiftSpot();
     // (on an upright phone the picture comes in on him, the lift and the flatcar, 700 units of the station's height between the bars)
     letter(1);camTo(330,780,0);S.camCut.fitH=700;
-    yield* until(()=>{S.fade=Math.max(0,S.fade-DT*1.3);return S.fade<=0;},1.2);
-    yield* wait(.3);
-    // the chime, the doors, and out onto the platform
-    S.hooks.sound('ding',1);yield* wait(.45);S.hooks.sound('lift_doors',1,{take:0});
-    yield* until(()=>{S.kitLift=Math.min(1,S.kitLift+DT*1.3);return S.kitLift>=1;},1.2);
-    K.hidden=false;yield* goTo(K,kl.x+40,T.dep-8,70);K.offstage=false;
-    // the family's own railway, and the train with its lamp low, waiting; the lift's doors close behind him
-    lookAt(K,1,1.6);S.hooks.sound('lift_doors',1,{take:1});yield* all(wait(1.3),until(()=>{S.kitLift=Math.max(0,S.kitLift-DT*1.1);return S.kitLift<=0;},1.3));
+    // the chime, the doors, and out onto the platform, quickly
+    yield* wait(.12);S.hooks.sound('ding',1);S.hooks.sound('lift_doors',1,{take:0,delay:.08});
+    yield* until(()=>{S.kitLift=Math.min(1,S.kitLift+DT*2.4);return S.kitLift>=1;},.8);
+    K.hidden=false;
+    // the fire comes down onto the car behind him and out of its doors; he does not look round
+    yield* all(goTo(K,kl.x+72,T.dep-8,120),(function*(){yield* wait(.5);liftFire(kl);})());K.offstage=false;
+    // the family's own railway, and the train with its lamp low, waiting
+    lookAt(K,1,1.6);yield* wait(1.3);
     const D=trainDeck(T,0);
     yield* goTo(K,clamp(D.x0+170,D.x0+40,D.x1-40),T.dep-8,84);K.facing=1;T.riders.push(K);K.pitClip=T.dep;
     yield* wait(.35);

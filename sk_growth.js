@@ -108,7 +108,8 @@ V11.kill.push(D=>{if(!growthOn()||!D||D.team!==1||D.npc||S.warming)return;const 
   if(r===null&&growthOn()&&errandCount()>=ERRAND_LIST.length&&growthOnce('list'))xpGain(XP_GAIN.list,'Tamm’s list got');return r;};}
 V11.exchangeEnd.push(()=>{if(growthOn()&&S.story.flags.downedOne&&growthOnce('putDown'))xpGain(XP_GAIN.putDown,'a collector put down');});
 // a stage's end: a fight's (with each enemy in it), or a scene passed
-function growthStageXP(st){if(!st)return 0;const n=(st.foes||[]).length;return n&&!st.noFight?XP_GAIN.fight+XP_GAIN.perFoe*n:XP_GAIN.scene;}
+// (a scene that is a moment of another chapter's, with no card of its own, is that chapter's: the kitchen's way out, since V104)
+function growthStageXP(st){if(!st)return 0;if(st.part&&st.noFight)return 0;const n=(st.foes||[]).length;return n&&!st.noFight?XP_GAIN.fight+XP_GAIN.perFoe*n:XP_GAIN.scene;}
 {const sc=storyCleared;storyCleared=function(){const SV=S.story,st=SV&&STAGES[SV.i];
   if(growthOn()&&st&&growthOnce('stage:'+st.key))xpGain(growthStageXP(st),st.title||'the scene');return sc.apply(this,arguments);};}
 

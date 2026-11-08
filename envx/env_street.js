@@ -511,7 +511,7 @@ function bistroSteps(c){const g=BG,bl=blown();
     c.restore();
     line(c,[a,b],rgba(C.rim,bl?.18:.5),.9);c.fillStyle=rgba('#000000',.45);c.fillRect(a0.x,a0.y-.8,b0.x-a0.x,.8);
     if(bl){c.fillStyle=rgba('#050303',.55);poly(c,[a,b,e,f]);c.fill();c.fillStyle=rgba('#050303',.5);poly(c,[a0,b0,b,a]);c.fill();
-      c.strokeStyle=rgba('#000000',.9);c.lineWidth=.6;c.beginPath();const q=fp(g.dcx-8+i*13,d0+1,h),q2=fp(g.dcx-4+i*13,d1-1,h);c.moveTo(q.x,q.y);c.lineTo((q.x+q2.x)/2+3,(q.y+q2.y)/2);c.lineTo(q2.x,q2.y);c.stroke();}}}
+      c.strokeStyle=rgba('#000000',.9);c.lineWidth=1.5;c.beginPath();const q=fp(g.dcx-8+i*13,d0+1,h),q2=fp(g.dcx-4+i*13,d1-1,h);c.moveTo(q.x,q.y);c.lineTo((q.x+q2.x)/2+3,(q.y+q2.y)/2);c.lineTo(q2.x,q2.y);c.stroke();}}}
 // ---------- the bistro after the grenade (S.bistro==='blown') ----------
 // The doors are blown in: the left leaf hangs from its top hinge, the right lies on the floor inside; the frame is splintered and
 // scorched, the fanlight's bars are gone but two, the windows either side are smashed and their curtains torn and smouldering, the
@@ -525,7 +525,7 @@ function smokeRoom(c,x0,y0,w,h,seed,o){o=o||{};const r=rng(seed),y1=y0+h,cx=x0+w
   c.fillStyle=lin(c,0,y0,0,y1,[[0,'#090405'],[.38,'#220b07'],[.72,'#4e1909'],[1,'#7e2e0e']]);c.fillRect(x0-2,y0-2,w+4,h+4);
   // the far wall's damask just showing in the glow, and a lantern hanging on in the murk
   c.save();c.globalAlpha=.16;c.fillStyle=patAt(c,TX().damask({}),x0,y0,30/144*Math.min(k,1.6));c.fillRect(x0,y0+h*.3,w,h*.4);c.restore();
-  if(o.lantern!==false){const lx=cx+(r()-.5)*w*.4,ly=y0+h*.34;c.strokeStyle=rgba('#000000',.7);c.lineWidth=.4*k;c.beginPath();c.moveTo(lx-3*k,y0);c.lineTo(lx,ly-2*k);c.stroke();
+  if(o.lantern!==false){const lx=cx+(r()-.5)*w*.4,ly=y0+h*.34;c.strokeStyle=rgba('#000000',.7);c.lineWidth=Math.max(1.5,.4*k);c.beginPath();c.moveTo(lx-3*k,y0);c.lineTo(lx,ly-2*k);c.stroke();
     glow(c,lx,ly+k,14*k,'#ff9a50',.4);c.fillStyle='#2a1208';c.fillRect(lx-1.5*k,ly-2*k,3*k,k);c.fillStyle=lin(c,0,ly-k,0,ly+3*k,[[0,'#ffd8a0'],[1,'#ff8a3a']]);c.fillRect(lx-1.2*k,ly-k,2.4*k,3.4*k);}
   // the room's furniture thrown about, black against the fire: a table on its side, chairs with their legs in the air
   c.fillStyle='#0b0404';c.strokeStyle='#0b0404';c.lineCap='round';
@@ -548,14 +548,14 @@ function shards(c,pts,n,seed,o){o=o||{};const r=rng(seed),wk=o.wk||1;
   for(let i=0;i<n;i++){const k=Math.floor(r()*(pts.length-1)),u=r(),a=pts[k],b=pts[k+1],ex=lerp(a.x,b.x,u),ey=lerp(a.y,b.y,u),cx=o.cx,cy=o.cy;
     const ix=cx-ex,iy=cy-ey,il=Math.hypot(ix,iy)||1,dx=ix/il,dy=iy/il,L=1.4*wk+Math.pow(r(),1.6)*(o.len||6),wd=(.7+r()*1.8)*wk,tx=-dy,ty=dx,sk=(r()-.5)*1.6*wk;
     c.fillStyle=rgba(r()<.5?'#c8dce8':'#ffe2c4',.07+r()*.1);c.beginPath();c.moveTo(ex-tx*wd,ey-ty*wd);c.lineTo(ex+tx*wd*.7,ey+ty*wd*.7);c.lineTo(ex+dx*L+tx*sk,ey+dy*L+ty*sk);c.closePath();c.fill();
-    c.strokeStyle=rgba('#ffe8cc',.22+r()*.22);c.lineWidth=.25*wk;c.beginPath();c.moveTo(ex+tx*wd*.7,ey+ty*wd*.7);c.lineTo(ex+dx*L+tx*sk,ey+dy*L+ty*sk);c.stroke();
+    c.strokeStyle=rgba('#ffe8cc',.22+r()*.22);c.lineWidth=Math.max(1,.25*wk);c.beginPath();c.moveTo(ex+tx*wd*.7,ey+ty*wd*.7);c.lineTo(ex+dx*L+tx*sk,ey+dy*L+ty*sk);c.stroke();
     if(r()<.25){c.fillStyle=rgba('#fff6e0',.75);c.fillRect(ex+dx*L*.5,ey+dy*L*.5,.5*wk,.5*wk);}}}
 // raw wood standing out of a broken edge: pale splinters with dark sides
 function splinters(c,pts,n,seed,cx,cy,len,wk){const r=rng(seed);wk=wk||1;
   for(let i=0;i<n;i++){const k=Math.floor(r()*(pts.length-1)),u=r(),a=pts[k],b=pts[k+1],ex=lerp(a.x,b.x,u),ey=lerp(a.y,b.y,u);
     const ix=cx-ex,iy=cy-ey,an=Math.atan2(iy,ix)+(r()-.5)*.9,L=1.6*wk+r()*(len||5),wd=(.5+r()*1.1)*wk;
     c.fillStyle=r()<.6?'#8a5a34':'#6a4024';c.beginPath();c.moveTo(ex-Math.sin(an)*wd,ey+Math.cos(an)*wd);c.lineTo(ex+Math.sin(an)*wd,ey-Math.cos(an)*wd);c.lineTo(ex+Math.cos(an)*L,ey+Math.sin(an)*L);c.closePath();c.fill();
-    c.strokeStyle=rgba('#1a0a04',.7);c.lineWidth=.25*wk;c.stroke();}}
+    c.strokeStyle=rgba('#1a0a04',.7);c.lineWidth=Math.max(1.5,.25*wk);c.stroke();}}
 // soot laid over whatever is drawn under it: a dark fan from a point, thinning outward
 function soot(c,x,y,R,a,sq){c.save();c.translate(x,y);if(sq)c.scale(1,sq);c.fillStyle=rad(c,0,0,0,R,[[0,rgba('#050303',a)],[.45,rgba('#050303',a*.62)],[1,rgba('#050303',0)]]);c.beginPath();c.arc(0,0,R,0,TAU);c.fill();c.restore();}
 function frontSoot(c,cx,y0,base,gTop){const r=rng(71),k=BG.k;
@@ -568,10 +568,10 @@ function frontSoot(c,cx,y0,base,gTop){const r=rng(71),k=BG.k;
   // the fascia's glass over the door starred by the blast: cracks running out from a hole, a piece fallen out showing the board
   {const fy0=gTop,fh=BG.fh,hx=cx+6,hy=fy0+fh*.55;c.save();c.beginPath();c.rect(BG.x0+BG.P,fy0,BG.x1-BG.x0-2*BG.P,fh);c.clip();
     c.fillStyle='#030203';c.beginPath();c.moveTo(hx-9,hy-4);c.lineTo(hx-3,hy-8);c.lineTo(hx+7,hy-6);c.lineTo(hx+11,hy+1);c.lineTo(hx+4,hy+8);c.lineTo(hx-6,hy+6);c.closePath();c.fill();
-    c.strokeStyle=rgba('#e8dccc',.38);c.lineWidth=.4;c.beginPath();for(let i=0;i<11;i++){const a=r()*TAU,L=14+r()*40;let x=hx,y=hy;c.moveTo(x,y);for(let s=0;s<4;s++){x+=Math.cos(a+(r()-.5)*.5)*L/4;y+=Math.sin(a+(r()-.5)*.5)*L/4*.6;c.lineTo(x,y);}}c.stroke();
+    c.strokeStyle=rgba('#e8dccc',.38);c.lineWidth=1;c.beginPath();for(let i=0;i<11;i++){const a=r()*TAU,L=14+r()*40;let x=hx,y=hy;c.moveTo(x,y);for(let s=0;s<4;s++){x+=Math.cos(a+(r()-.5)*.5)*L/4;y+=Math.sin(a+(r()-.5)*.5)*L/4*.6;c.lineTo(x,y);}}c.stroke();
     c.strokeStyle=rgba('#e8dccc',.22);c.beginPath();for(const R of [12,22]){c.moveTo(hx+R,hy);for(let a=0;a<=TAU+.01;a+=TAU/9)c.lineTo(hx+Math.cos(a)*R*(.8+r()*.4),hy+Math.sin(a)*R*.55*(.8+r()*.4));}c.stroke();c.restore();
     // a shard of it hanging by a corner, catching the fire
-    c.fillStyle=rgba('#c8d0d8',.4);c.beginPath();c.moveTo(hx-2,fy0+fh);c.lineTo(hx+5,fy0+fh);c.lineTo(hx+1,fy0+fh+9);c.closePath();c.fill();c.strokeStyle=rgba('#ffc890',.6);c.lineWidth=.4;c.stroke();}}
+    c.fillStyle=rgba('#c8d0d8',.4);c.beginPath();c.moveTo(hx-2,fy0+fh);c.lineTo(hx+5,fy0+fh);c.lineTo(hx+1,fy0+fh+9);c.closePath();c.fill();c.strokeStyle=rgba('#ffc890',.6);c.lineWidth=1;c.stroke();}}
 function bistroDoorBlown(c,o,x0,y0,x1,base){const k=BG.k,w=x1-x0,ar=w/2,yc=y0+ar,cx=(x0+x1)/2,open=()=>archPath(c,x0,y0,x1,base,0);
   archPath(c,x0,y0,x1,base,3.4*k);c.fillStyle='#060203';c.fill();
   // through the hole, the dining room in smoke
@@ -579,14 +579,14 @@ function bistroDoorBlown(c,o,x0,y0,x1,base){const k=BG.k,w=x1-x0,ar=w/2,yc=y0+ar
   // the right leaf, down inside on the floor: seen end on, a dark slab, its kick plate catching the fire
   {const fy0=base-2*k;c.fillStyle='#120806';c.beginPath();c.moveTo(cx-4*k,fy0);c.lineTo(x1+6*k,fy0-3*k);c.lineTo(x1+12*k,fy0-15*k);c.lineTo(cx+5*k,fy0-12*k);c.closePath();c.fill();
     c.fillStyle=rgba('#ffb060',.55);c.beginPath();c.moveTo(cx-3*k,fy0-.6*k);c.lineTo(x1+6*k,fy0-3.6*k);c.lineTo(x1+6.6*k,fy0-4.8*k);c.lineTo(cx-2.4*k,fy0-1.8*k);c.closePath();c.fill();
-    c.strokeStyle=rgba('#ff9a50',.4);c.lineWidth=.5*k;c.beginPath();c.moveTo(cx+5*k,fy0-12*k);c.lineTo(x1+12*k,fy0-15*k);c.stroke();}
+    c.strokeStyle=rgba('#ff9a50',.4);c.lineWidth=Math.max(1,.5*k);c.beginPath();c.moveTo(cx+5*k,fy0-12*k);c.lineTo(x1+12*k,fy0-15*k);c.stroke();}
   // the left leaf: off its lower hinge, hanging from the top one, swung in and turned, its glass gone and its foot splintered
   {const lw=w/2,lh=base-yc-k,hx=x0+k,hy=yc+2*k,sq=.8,an=.21,gh=lh*.56,m=2.2*k;c.save();c.translate(hx,hy);c.rotate(an);c.scale(sq,1);
     const leaf=()=>{c.beginPath();c.moveTo(0,0);c.lineTo(lw,0);c.lineTo(lw,lh-6*k);for(let x=lw;x>=0;x-=2.5*k)c.lineTo(x,lh-6*k+(Math.floor(x*7.3)%5)*k);c.closePath();};
     leaf();c.fillStyle=patAt(c,TX().wood(o.woodSeed||11,256,128,o.wood),0,0,.25,90);c.fill();leaf();c.fillStyle=rgba('#000000',.38);c.fill();
     // the glass is gone from the upper part: the fire shows through the frame
     c.fillStyle=lin(c,0,2.5*k,0,gh+2.5*k,[[0,'#2a0c08'],[.6,'#7a2a0e'],[1,'#c8561c']]);c.fillRect(m,2.5*k,lw-2*m,gh);
-    c.strokeStyle=rgba('#ffb070',.35);c.lineWidth=.4*k;c.strokeRect(m,2.5*k,lw-2*m,gh);
+    c.strokeStyle=rgba('#ffb070',.35);c.lineWidth=Math.max(1.12,.4*k);c.strokeRect(m,2.5*k,lw-2*m,gh);
     shards(c,[{x:m,y:2.5*k},{x:lw-m,y:2.5*k},{x:lw-m,y:gh+2.5*k},{x:m,y:gh+2.5*k},{x:m,y:2.5*k}],12,77,{cx:lw/2,cy:gh/2,len:5*k,wk:k});
     panel(c,o,m,gh+4.9*k,lw-2*m,lh-gh-14*k);
     c.fillStyle=lin(c,0,gh*.36,0,gh*.36+7*k,[[0,C.goldL],[1,C.goldD]]);c.save();c.translate(lw-3.8*k,gh*.4);c.rotate(.25);c.fillRect(0,0,2.4*k,7*k);c.restore();
@@ -609,7 +609,7 @@ function bistroDoorBlown(c,o,x0,y0,x1,base){const k=BG.k,w=x1-x0,ar=w/2,yc=y0+ar
   {const q=[{x:x0+1.2*k,y:base}];q.push({x:x0+1.2*k,y:yc});for(let a=Math.PI;a<=TAU+.01;a+=Math.PI/12)q.push({x:cx+Math.cos(a)*(ar+1.2*k),y:yc+Math.sin(a)*(ar+1.2*k)});q.push({x:x1-1.2*k,y:base});
     splinters(c,q,34,93,cx,yc+20*k,6*k,k);}
   // the keystone cracked across
-  c.strokeStyle=rgba('#000000',.8);c.lineWidth=.6*k;c.beginPath();c.moveTo(cx-4*k,yc-ar-6*k);c.lineTo(cx-.5*k,yc-ar-3.4*k);c.lineTo(cx+.8*k,yc-ar-5*k);c.lineTo(cx+4.4*k,yc-ar-1.8*k);c.stroke();
+  c.strokeStyle=rgba('#000000',.8);c.lineWidth=Math.max(1.5,.6*k);c.beginPath();c.moveTo(cx-4*k,yc-ar-6*k);c.lineTo(cx-.5*k,yc-ar-3.4*k);c.lineTo(cx+.8*k,yc-ar-5*k);c.lineTo(cx+4.4*k,yc-ar-1.8*k);c.stroke();
   SPILL.push({x0,x1,a:.9,col:'#ff6a26'});}
 // a window of the dining room with its glass blown out: the room behind gone red with smoke, the curtain torn and smouldering, shards
 // left in the frame, two bars of the sash broken. side is the way to the door (+1 right): that side has it worst.
@@ -644,15 +644,15 @@ function tornCurtain(c,x0,x1,y0,y1,seed,side,k){k=k||1;const r=rng(seed*11+5),h=
   const ragPath=g=>{c.moveTo(g.a,y0);c.lineTo(g.b,y0);c.lineTo(g.b-(g.b-g.a)*.1,y0+g.len*.86);c.lineTo((g.a+g.b)/2+g.tip,y0+g.len);c.lineTo(g.a+(g.b-g.a)*.12,y0+g.len*.8);c.closePath();};
   c.save();c.beginPath();for(const g of rags)ragPath(g);c.clip();cafeCurtain(c,x0,x1,y0,y1,k);c.fillStyle=lin(c,0,y0,0,y1,[[0,rgba('#050303',.3)],[1,rgba('#050303',.72)]]);c.fillRect(x0,y0,x1-x0,h);c.restore();
   // the charred ends: black, and on some a thread of embers
-  for(const g of rags){const m=(g.a+g.b)/2+g.tip,yb=y0+g.len;c.strokeStyle=rgba('#0a0403',.9);c.lineWidth=.9*k;c.beginPath();c.moveTo(g.a+(g.b-g.a)*.12,y0+g.len*.8);c.lineTo(m,yb);c.lineTo(g.b-(g.b-g.a)*.1,y0+g.len*.86);c.stroke();
-    if(r()<.4){c.strokeStyle=rgba('#ff7a2a',.6);c.lineWidth=.35*k;c.beginPath();c.moveTo(g.a+(g.b-g.a)*.2,y0+g.len*.84);c.lineTo(m,yb-.5*k);c.stroke();glow(c,m,yb-.4*k,2.2*k,'#ff8a3a',.6);}}}
+  for(const g of rags){const m=(g.a+g.b)/2+g.tip,yb=y0+g.len;c.strokeStyle=rgba('#0a0403',.9);c.lineWidth=Math.max(1.5,.9*k);c.beginPath();c.moveTo(g.a+(g.b-g.a)*.12,y0+g.len*.8);c.lineTo(m,yb);c.lineTo(g.b-(g.b-g.a)*.1,y0+g.len*.86);c.stroke();
+    if(r()<.4){c.strokeStyle=rgba('#ff7a2a',.6);c.lineWidth=Math.max(1,.35*k);c.beginPath();c.moveTo(g.a+(g.b-g.a)*.2,y0+g.len*.84);c.lineTo(m,yb-.5*k);c.stroke();glow(c,m,yb-.4*k,2.2*k,'#ff8a3a',.6);}}}
 // a pier lantern the blast reached: its glass gone, hanging askew on its bracket, the flame out (live() lets one sputter)
 function pierLanternBroken(c,x,y,i,k){about(c,x,y,k||1,()=>{c.strokeStyle='#09080c';c.lineWidth=1.3;c.beginPath();c.moveTo(x,y-19);c.lineTo(x,y-11);c.stroke();c.fillStyle='#09080c';c.fillRect(x-2.4,y-21,4.8,3);
   scroll(c,x-2.6,y-15,2.4,-1,C.gold,.45,1.2);scroll(c,x+2.6,y-15,2.4,1,C.gold,.45,1.2);
   c.save();c.translate(x,y-11.5);c.rotate(i===1?.55:-.38);c.translate(-x,-(y-11.5));
   c.fillStyle='#09080c';c.beginPath();c.moveTo(x-4.5,y-8);c.lineTo(x,y-11.5);c.lineTo(x+4.5,y-8);c.closePath();c.fill();c.fillStyle=rgba(C.gold,.45);c.fillRect(x-4.3,y-8.2,8.6,.4);
   c.fillStyle='#120a08';c.beginPath();c.moveTo(x-4,y-8);c.lineTo(x+4,y-8);c.lineTo(x+3,y+2);c.lineTo(x-3,y+2);c.closePath();c.fill();
-  c.strokeStyle='#09080c';c.lineWidth=.55;c.beginPath();c.moveTo(x-4,y-8);c.lineTo(x-3,y+2);c.moveTo(x+4,y-8);c.lineTo(x+3,y+2);c.moveTo(x,y-8);c.lineTo(x,y+2);c.stroke();
+  c.strokeStyle='#09080c';c.lineWidth=1.5;c.beginPath();c.moveTo(x-4,y-8);c.lineTo(x-3,y+2);c.moveTo(x+4,y-8);c.lineTo(x+3,y+2);c.moveTo(x,y-8);c.lineTo(x,y+2);c.stroke();
   shards(c,[{x:x-4,y:y-8},{x:x+4,y:y-8},{x:x+3,y:y+2},{x:x-3,y:y+2},{x:x-4,y:y-8}],5,i*13,{cx:x,cy:y-3,len:2.4});
   c.fillStyle='#09080c';c.fillRect(x-3.4,y+2,6.8,1.6);c.restore();});}
 // out on the flags: the blast's scorch in front of the door, and what it threw out: splinters, glass, brass, rags of velvet, pieces of
@@ -682,9 +682,9 @@ function pavementBlown(c,g){const r=rng(1301),k=BG.k,dcx=BG.dcx-DF*PSX,S0=DF-BG.
   // big pieces: panels off a door leaf, a piece of the fanlight's frame and its brass kick plate
   for(const [x,d,a,len] of [[dcx-50,176,.4,24],[dcx+58,164,-.7,18],[dcx-14,150,1.2,14]]){const q=pp(x,g,d);c.save();c.translate(q.x,q.y);c.scale(1,.45);c.rotate(a);
     c.fillStyle=patAt(c,TX().wood(17,256,128,BISTRO.wood),0,0,.25);c.fillRect(-len/2,-5,len,10);c.fillStyle=rgba('#000000',.4);c.fillRect(-len/2,-5,len,10);
-    c.strokeStyle=rgba(C.gold,.5);c.lineWidth=.5;c.strokeRect(-len/2+1.6,-3.2,len-3.2,6.4);c.fillStyle=rgba(C.rim,.3);c.fillRect(-len/2,-5,len,.7);c.restore();}
+    c.strokeStyle=rgba(C.gold,.5);c.lineWidth=1.5;c.strokeRect(-len/2+1.6,-3.2,len-3.2,6.4);c.fillStyle=rgba(C.rim,.3);c.fillRect(-len/2,-5,len,.7);c.restore();}
   {const q=pp(dcx+24,g,190);c.save();c.translate(q.x,q.y);c.scale(1,.45);c.rotate(.2);c.fillStyle=lin(c,0,-3,0,3,[[0,C.goldL],[1,C.goldD]]);c.fillRect(-10,-2.4,20,4.8);c.restore();}
-  {const q=pp(dcx-36,g,186);c.save();c.translate(q.x,q.y);c.scale(1,.45);c.rotate(-.3);c.strokeStyle='#2e140b';c.lineWidth=3.2;c.beginPath();c.arc(0,10,14,Math.PI*1.1,Math.PI*1.7);c.stroke();c.strokeStyle=rgba(C.rim,.3);c.lineWidth=.6;c.stroke();c.restore();}}
+  {const q=pp(dcx-36,g,186);c.save();c.translate(q.x,q.y);c.scale(1,.45);c.rotate(-.3);c.strokeStyle='#2e140b';c.lineWidth=3.2;c.beginPath();c.arc(0,10,14,Math.PI*1.1,Math.PI*1.7);c.stroke();c.strokeStyle=rgba(C.rim,.3);c.lineWidth=1.5;c.stroke();c.restore();}}
 // the bay trees and the menu after the blast: the one nearer the door knocked over in its tub, the other scorched; the menu flat
 function bayTreeDown(c,x,d){const q=pp(x,g0(),d),r=rng((x*7)|0);
   c.fillStyle=rgba('#000000',.5);c.beginPath();c.ellipse(q.x-6,q.y,13,2,0,0,TAU);c.fill();
@@ -916,6 +916,7 @@ function live(){const t=S.t,bt=typeof S.bistroBlast==='number'?t-S.bistroBlast:-
     glow(ctx,x,y,22*LK,'#fff0cc',.9*f);glow(ctx,x,y,70*LK,'#ffb866',.3*f);beam(ctx,x,y+8*LK,10*LK,110*LK,190,'#ffcf86',.06*f);}
   if(blown())liveBlown(t);
   if(bt>=0)liveBlast(t);
+  if(typeof S!=='undefined'&&S.lanternUp)liveInferno(t);
   ctx.restore();
   // the fire in the bistro lights whoever is in the street: a light of the moment for the sprites (FXL is loaded after the painters)
   if(!LREG&&typeof FXL!=='undefined'&&FXL.lights){LREG=true;FXL.lights.push(add=>{if(S.arenaKey!=='street'||S.classicLook||!blown())return;
@@ -988,6 +989,76 @@ function liveBlast(t){const dt=t-S.bistroBlast;if(!(dt>=0&&dt<3.4))return;
   // the smoke pouring out of the arch after it, rising up the front, until the fire's own smoke (liveBlown) takes over
   {const R=rng(1021);for(let i=0;i<n(16);i++){const t0=.28+R()*.6,life=2.1+R()*1.1,sx=cx+(R()-.5)*ar,sy=yc-ar*.3+R()*20*k,dr=(R()-.5)*70*k,up=(130+R()*120)*k,r0=(12+R()*10)*k,ph=R()*6,u=(dt-t0)/life;if(u<0||u>=1)continue;
     const x=sx+dr*u+Math.sin(u*3+ph)*10*k,y=sy-up*(1-Math.pow(1-u,1.6)),rr=r0*(1+2.6*u),a=.58*Math.min(1,u*5)*(1-u),col=smokeCol(.3+u*.7);ctx.fillStyle=rad(ctx,x,y,0,rr,[[0,rgba(col,a)],[1,rgba(col,0)]]);ctx.beginPath();ctx.arc(x,y,rr,0,TAU);ctx.fill();}}}
+// ---------- the Lantern going up (S.lanternUp, since V104) ----------
+// The gas the kitchen filled with goes up (sk_lantern.js, lanternUp): a knock in the house and the windows brightening, then every
+// window blown out at once with the fire after the glass, the dormers too, and a fireball up through the roof (the game's own boom,
+// S.booms, which FxLook draws); glass and slates down over the street, and the house left burning in every window (the fires in the
+// two windows and the door below are the game's, S.fires, drawn by FxLook among the people: their places are these, openings();
+// upstairs the rooms burning behind their frames are drawn here). The ground floor's own blast is drawn here too, fire rolling out
+// of its windows and its door (until V104's review the grenade's blast drawn again).
+// the bistro's upper windows and its dormers where the house's own drawing puts them (facadeBody under big(): the same sums)
+const BIST={x0:88,x1:468,h:322,shopH:229,ww:19,whK:.7,rh:22,dorm:40};
+function bistroUpper(){const base=fy(DF),cx=(BIST.x0+BIST.x1)/2,x0=inX(BIST.x0,cx),x1=inX(BIST.x1,cx),w=x1-x0,top=inY(base-BIST.h),gTop=base-BIST.shopH/SK,
+    flH=gTop-7-top-6,cols=Math.max(2,Math.floor(w/34)),ww=Math.min(BIST.ww,w/cols*.46),wh=flH*BIST.whK,wy=top+6+flH*.15,O=x=>cx+(x-cx)*SK,OY=y=>base-(base-y)*SK,wins=[],dorms=[];
+  for(let j=0;j<cols;j++){const wx=x0+(j+.5)*w/cols-ww/2;wins.push({x0:O(wx),x1:O(wx+ww),y0:OY(wy),y1:OY(wy+wh)});}
+  for(let dx=x0+18;dx<x1-14;dx+=BIST.dorm)dorms.push({x0:O(dx-3.5),x1:O(dx+3.5),y0:OY(top-BIST.rh+9),y1:OY(top-BIST.rh+19)});
+  return{wins,dorms,roof:OY(top-BIST.rh),top:OY(top),cx};}
+let BUP=null;const bup=()=>BUP||(BUP=bistroUpper());
+// the openings the fire burns in, for the game (world x and y at the front's depth, how wide and how high its flames): the two windows
+// and the door below, the windows upstairs, and the roof's middle where the fireball goes up
+function openings(){const U=bup(),d=DF-1,W=(sx,sy,w,h,kind)=>({x:sx-d*PSX,y:sy+d*PSY,dep:d,w,h,kind}),g=BG,out=[];
+  for(const [a,b] of [g.W1,g.W2])out.push(W((a+b)/2,g.y1w-6,(b-a)*.86,150,'win'));
+  out.push(W(g.dcx,g.dBase-2,(g.DR[1]-g.DR[0])*.9,170,'door'));
+  for(const w of U.wins)out.push(W((w.x0+w.x1)/2,lerp(w.y0,w.y1,.62),(w.x1-w.x0)*1.05,62,'up'));
+  out.push(W(U.cx,U.roof+4,90,60,'roof'));return out;}
+// (the inferno's puffs of fire and smoke are made sprites, stamped: a gradient made and filled for each of a hundred puffs a frame
+// cost a phone's frame twice the fall's; since V104's review)
+const INF={};
+function infSpr(key,stops){if(INF[key])return INF[key];const n=64,cv=document.createElement('canvas');cv.width=cv.height=n;const c=cv.getContext('2d');
+  c.fillStyle=rad(c,n/2,n/2,0,n/2,stops);c.fillRect(0,0,n,n);return INF[key]=cv;}
+function infStamp(cv,x,y,r,a){if(a<=.004||r<=.3)return;ctx.globalAlpha=Math.min(1,a);ctx.drawImage(cv,x-r,y-r,2*r,2*r);}
+const infFire=hot=>hot>.55?infSpr('fh',[[0,rgba('#fff0c0',1)],[.55,rgba('#ff6a20',.51)],[1,rgba('#ff3a10',0)]]):infSpr('fw',[[0,rgba('#ffb050',1)],[.55,rgba('#ff6a20',.51)],[1,rgba('#ff3a10',0)]]);
+const infSmoke=u=>{const i=clamp(Math.round(u*5),1,5);return infSpr('s'+i,[[0,rgba(smokeCol(i/5),1)],[1,rgba(smokeCol(i/5),0)]]);};
+function liveInferno(t){const L=S.lanternUp;if(!L)return;const u=t-L.t0,U=bup(),k=BG.k,calm=typeof reduceMotion!=='undefined'&&reduceMotion,lite=typeof FXL!=='undefined'&&!FXL.full(),n=v=>lite?Math.ceil(v/2):v;
+  // the knock: light coming up in every window before they go
+  if(u<0){const a=clamp(1+u/.42,0,1);for(const w of U.wins)glow(ctx,(w.x0+w.x1)/2,(w.y0+w.y1)/2,34,'#ffb060',.6*a*a);for(const wx of BG.wcx)glow(ctx,wx,BG.yc+20*k,60,'#ffa050',.4*a*a);return;}
+  // upstairs: the rooms burning behind the empty frames (the flames in them are the game's fires)
+  ctx.save();for(const w of U.wins){const f=.8+.12*Math.sin(t*9.7+w.x0)*Math.sin(t*4.1+w.y0)+.08*Math.sin(t*23+w.x0),a=Math.min(1,u*10);
+    ctx.globalAlpha=a;ctx.fillStyle=lin(ctx,0,w.y0,0,w.y1,[[0,'#1a0605'],[.35,mix('#5a1608','#8a2a10',f)],[1,mix('#c8501c','#ff9a40',f)]]);ctx.fillRect(w.x0,w.y0,w.x1-w.x0,w.y1-w.y0);}
+  ctx.globalAlpha=1;for(const D of U.dorms){ctx.fillStyle=mix('#7a2a10','#ff8a3a',.5+.5*Math.sin(t*11+D.x0));ctx.fillRect(D.x0,D.y0,D.x1-D.x0,D.y1-D.y0);}ctx.restore();
+  // the soot already on the brick over each window, more as it goes
+  ctx.save();for(const w of U.wins){const a=clamp(u*.5,0,.55),cx=(w.x0+w.x1)/2;ctx.fillStyle=rad(ctx,cx,w.y0,0,40,[[0,rgba('#050303',a)],[1,rgba('#050303',0)]]);ctx.fillRect(cx-40,w.y0-46,80,50);}ctx.restore();
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  // the flash over the whole front, then the fire's colour on it
+  if(u<1.6){const a=u<.05?1:Math.exp(-(u-.05)*2),r=(320+u*120)*k*.75,cy=(U.roof+BG.base)/2,col=u<.14?'#fff4dc':'#ffb060';
+    ctx.globalAlpha=(calm?.3:.6)*a;ctx.drawImage(infSpr('g'+col,[[0,rgba(col,1)],[.25,rgba(col,.45)],[.6,rgba(col,.12)],[1,rgba(col,0)]]),U.cx-r,cy-r*.9,2*r,2*r*.9);ctx.globalAlpha=1;}
+  // fire rolling out of every window upstairs and the dormers in the first moment, up the front and over the cornice; out of the two
+  // windows and the door below, bigger, out over the street (the ground floor's blast: until V104's review the grenade's blast drawn
+  // again, which cost the phone's frame as much as all of this)
+  {const R=rng(1313),G=BG,gr=[[G.W1[0],G.W1[1],G.yTop+20,G.y1w],[G.DR[0],G.DR[1],G.yTop+16,G.dBase],[G.W2[0],G.W2[1],G.yTop+20,G.y1w]];
+    for(const [a0,a1,b0,b1] of gr)for(let i=0;i<n(7);i++){const t0=R()*.08,life=.55+R()*.8,sx=lerp(a0,a1,R()),sy=lerp(b0,b1,.25+R()*.6),out=(sx-(a0+a1)/2)*(.6+R())+(R()-.5)*30,dn=(R()-.3)*30*k,up=(30+R()*90)*k,sz=(11+R()*10)*k,uu=(u-t0)/life;
+      if(uu<0||uu>=1)continue;const e=1-Math.pow(1-uu,2),x=sx+out*e,y=sy+dn*e-up*e*uu,rr=sz*(.5+1.6*e),hot=1-uu;
+      infStamp(infFire(hot),x,y,rr,.75*hot);}ctx.globalAlpha=1;}
+  {const R=rng(1414);for(const w of [...U.wins,...U.dorms])for(let i=0;i<n(6);i++){const t0=R()*.12,life=.5+R()*.7,sx=lerp(w.x0,w.x1,R()),sy=lerp(w.y0,w.y1,.3+R()*.5),out=(sx-U.cx)*.25+(R()-.5)*20,up=(50+R()*80)*k,sz=(7+R()*7)*k,uu=(u-t0)/life;
+      if(uu<0||uu>=1)continue;const e=1-Math.pow(1-uu,2),x=sx+out*e,y=sy-up*e*(.4+uu),rr=sz*(.5+1.5*e),hot=1-uu;
+      infStamp(infFire(hot),x,y,rr,.7*hot);}ctx.globalAlpha=1;}
+  // a steady breath of fire out of the top of each window after
+  {const f=.75+.25*Math.sin(t*7.3);for(const w of U.wins){const cx=(w.x0+w.x1)/2;glow(ctx,cx,w.y0+4,26,'#ff8a3a',.35*f*Math.min(1,u*2),1.2);}}
+  // the orange on the flags and the road in front of the house
+  {const d=DF-4,g=g0(),a=Math.min(1,u*3)*(.8+.1*Math.sin(t*9.1));softSpill(ctx,U.cx-d*PSX,d,BG.x1-BG.x0,BG.x1-BG.x0+160,150,'#ff7a30',.32*a,g);}
+  ctx.restore();
+  // glass out of the windows upstairs and down onto the flags, and slates off the roof, turning, down into the street
+  {const R=rng(1515),Lg=dd=>dd<123?GB-dd*PSY:fy(dd);
+    for(const w of U.wins)for(let i=0;i<n(10);i++){const px=lerp(w.x0,w.x1,R()),py=lerp(w.y0,w.y1,R()),dl=150+R()*60,out=(px-U.cx)*(.1+R()*.4)+(R()-.5)*40,hgt=(10+R()*40)*k,T=.6+R()*.5,t0=R()*.06,rot=R()*TAU,spin=(R()-.5)*30,sz=(1+R()*2)*k,sh=R();
+      const uu=(u-t0)/T;if(uu<0)continue;const v=Math.min(1,uu),lx=px-(DF-dl)*PSX+out,ly=Lg(dl)-.6,x=lerp(px,lx,v),y=lerp(py,ly,v*v)-hgt*2*v*(1-v),an=rot+spin*Math.min(u-t0,T),fade=u<2.6?1:Math.max(0,1-(u-2.6)/.8);
+      const gl=Math.abs(Math.sin(an*1.7+sh*6));ctx.save();ctx.translate(x,y);ctx.scale(1,v<1?1:.42);ctx.rotate(an);ctx.fillStyle=rgba(sh<.5?'#d8e6f0':'#ffe8d0',(.35+.45*gl)*fade);
+      ctx.beginPath();ctx.moveTo(-sz,0);ctx.lineTo(sz*.6,-sz*.55);ctx.lineTo(sz*.9,sz*.4);ctx.closePath();ctx.fill();ctx.restore();}
+    for(let i=0;i<n(26);i++){const px=lerp(BG.x0,BG.x1,R()),py=U.roof+R()*(U.top-U.roof),dl=140+R()*80,out=(px-U.cx)*(.4+R()*.8)+(R()-.5)*60,hgt=(80+R()*120)*k,T=1+R()*.7,t0=.04+R()*.1,rot=R()*TAU,spin=(R()-.5)*16,sl=(3+R()*3)*k;
+      const uu=(u-t0)/T;if(uu<0)continue;const v=Math.min(1,uu),lx=px-(DF-dl)*PSX+out,ly=Lg(dl)-1,x=lerp(px,lx,v),y=lerp(py,ly,v*v)-hgt*2*v*(1-v),an=rot+spin*Math.min(u-t0,T);
+      ctx.save();ctx.translate(x,y);if(v>=1)ctx.scale(1,.4);ctx.rotate(an);ctx.fillStyle='#14161e';ctx.fillRect(-sl,-sl*.35,sl*2,sl*.7);ctx.fillStyle=rgba('#8a96b8',.3);ctx.fillRect(-sl,-sl*.35,sl*2,sl*.18);ctx.restore();}}
+  // smoke pouring up the front from every window, and up off the roof, red underneath
+  {const R=rng(1616);for(const w of U.wins)for(let i=0;i<n(3);i++){const P=3.2+R()*1.4,uu=((u-.4)/P+i/3)%1;if(u<.4)continue;const sx=(w.x0+w.x1)/2+(R()-.5)*8,x=sx+Math.sin(uu*3+i)*6*k,y=w.y0-uu*120*k,rr=(6+uu*30)*k,a=(uu<.15?uu/.15:1)*(1-uu)*.5;
+      infStamp(infSmoke(uu*.8+.2),x,y,rr,a);}ctx.globalAlpha=1;}}
 // the light that falls on a fighter: the nearest lamp
 function light(f){const px=f.p[PEL].x+f.dep*PSX;let best=null,bd=1e9;for(const lx of LAMPX){if(lx===cutLamp())continue;const x=lampAt(lx).x,dd=Math.abs(x-px);if(dd<bd){bd=dd;best=x;}}
   return{light:{x:best-f.dep*PSX,y:lampAt(LAMPX[0]).y+f.dep*PSY},col:'#ffc98a'};}
@@ -998,6 +1069,6 @@ function doorAt(){const g=BG,d=DF-2;return{x:g.dcx-d*PSX,dep:d,y:g.dBase,top:g.y
 // during a fight here, if it can (the bistro's fascia)
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the sodium lamps' light on the flags and the fronts behind the fight
 const SET={col:'#ffd6a7',soft:.8,y:[GB-360,GB-280,GB-60,GB+20]};
-E.S.street={set:SET,paint,live,light,key:()=>'street:'+(blown()?'blown':'intact')+(cutLamp()!=null?':lamp'+cutLamp():''),lamps:LAMPX,lampAt,postSprite,doorAt,lookUp:BG.gTop-10,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'town'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('town'):false};
+E.S.street={set:SET,paint,live,light,key:()=>'street:'+(blown()?'blown':'intact')+(cutLamp()!=null?':lamp'+cutLamp():''),lamps:LAMPX,lampAt,postSprite,doorAt,openings,lookUp:BG.gTop-10,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'town'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('town'):false};
 })();
 // ===== ENV STREET END =====

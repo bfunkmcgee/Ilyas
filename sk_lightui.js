@@ -340,7 +340,8 @@ function emberSources(){const out=[];
   return out;}
 // steam off the pans on the kitchen range (where the kitchen paints them)
 function steam(){
-  if(typeof RANGE==='undefined'||typeof RANGE_POTS==='undefined')return;const t=S.t,ox=236*PSX,yb=GB-236*PSY,S0=puff('#e6ded6');
+  // (none once the gas to the range is cut and the pans have gone off the boil: S.gas, sk_lantern.js)
+  if(typeof RANGE==='undefined'||typeof RANGE_POTS==='undefined'||(S.gas&&S.t-S.gas.cut>2))return;const t=S.t,ox=236*PSX,yb=GB-236*PSY,S0=puff('#e6ded6');
   ctx.save();
   for(let j=0;j<RANGE_POTS.length;j++){const [u0,w,h]=RANGE_POTS[j],sx=lerp(RANGE.x0,RANGE.x1,u0)+ox,sy=yb-74-h;
     for(let i=0;i<5;i++){const Pd=2.6+hs(j*7+i)*.9,u=((t/Pd+i/5+j*.13)%1+1)%1,x=sx+Math.sin(u*3.4+i+j)*6+u*12,y=sy-4-u*70,r=5+u*22+w*.14;

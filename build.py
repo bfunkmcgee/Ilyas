@@ -29,7 +29,7 @@ CSS = ['base', 'extra', 'crew', 'chain', 'insure', 'style', 'secret', 'lobby', '
 # the scene painters (envx/) that make sk_sceneui.js, with the glue that puts them in the game last
 SCENES = ['env_look', 'env_tex', 'env_props', 'tex_lobby', 'tex_office', 'tex_out_a', 'tex_out_b', 'env_street', 'env_dining', 'env_kitchen',
           'env_lobby', 'env_office', 'env_field', 'env_hill', 'env_ledge', 'env_wall', 'env_crops', 'env_outskirts', 'env_chase', 'env_highway', 'env_roadblock', 'env_roof',
-          'env_fall', 'veh_bike', 'veh_apc', 'veh_truck', 'env_station', 'env_tunnel', 'veh_heli', 'veh_train', 'fx_guns', 'beasts', 'fx_elven',
+          'env_fall', 'veh_bike', 'veh_apc', 'veh_truck', 'env_station', 'env_tunnel', 'env_shaft', 'veh_heli', 'veh_train', 'fx_guns', 'beasts', 'fx_elven',
           'env_sumproof', 'env_sumpkitchen', 'env_backroom', 'env_yard', 'env_stairs', 'env_shelf']
 SCENE_GLUE = 'sk_scene_glue.js'
 SCENE_HEAD = '''// ===== SCENE UI =====

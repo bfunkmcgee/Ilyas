@@ -53,10 +53,12 @@ function instrument(){if(window.__LW)return;const R=window.__LW={sites:{},edges:
     if(sh.lab){await p.evaluate(([g,nf])=>{S.arenaKey=g;S.backroom=false;S.deep=false;S.introOn=false;S.cfg.n=2;S.cfg.crew=false;S.cfg.ally.on=true;S.auto=true;S.allyAuto=true;S.F=[];rosterBuild();restart();
         drawing(false);let n=0,t0=null;while(n<9000){step(1);n++;if(S.game.phase==='exchange'&&S.game.ex){if(t0==null)t0=S.t;if(S.t>t0+2)break;}}drawing(true);step(nf);},[sh.lab,NF]);}
     else{await p.evaluate(([k,all])=>{storyGo(k);S.storyAuto=true;S.auto=true;step(2);window.__t0=S.t;window.__tf=null;window.__key=k;drawing(!!all);},[sh.stage,sh.draw==='all']);
-      for(const m of sh.at){await p.evaluate(([m,all,nf])=>{const fight=m[0]==='f',T=+m.slice(1),key=window.__key,still=()=>S.story&&S.story.key===key&&!S.story.ended;
+      // (an 'x' moment drawn until its time comes, as places.js shoots it)
+      for(const m of sh.at){await p.evaluate(([m,all,nf])=>{const fight=m[0]==='f',exact=m[0]==='x',T=+m.slice(1),key=window.__key,still=()=>S.story&&S.story.key===key&&!S.story.ended;
           const inFight=()=>S.story&&S.story.step==='fight'&&(S.game.phase==='input'||S.game.phase==='exchange');let n=0;
           const due=()=>{if(fight){if(window.__tf==null){if(inFight())window.__tf=S.t;else return false;}return S.t>=window.__tf+T-(all?0:.5);}return S.t>=window.__t0+T-(all?0:.5);};
-          while(still()&&!due()&&n<12000){step(1);n++;}if(!still())return;if(!all){drawing(true);step(nf);drawing(false);}},[m,sh.draw==='all',NF]);}}
+          while(still()&&!due()&&n<12000){step(1);n++;}if(!still())return;
+          if(!all){drawing(true);if(exact){let i=0;while(still()&&S.t<window.__t0+T&&i<240){step(1);i++;}}else step(nf);drawing(false);}},[m,sh.draw==='all',NF]);}}
     const R=await p.evaluate(()=>window.__LW);R.errs=errs.slice(0,3);fs.writeFileSync(path.join(OUT,sh.id+'.json'),JSON.stringify(R));
     console.log(sh.id,Object.keys(R.sites).length,'sites',((Date.now()-t0)/1000).toFixed(0)+'s',errs.slice(0,2).join(' | '));
     await p.context().close();}

@@ -323,7 +323,11 @@ function live(){const t=S.t;ctx.save();
     else if(fall<1.4){const k=(fall-.5)/.9;ctx.strokeStyle=rgba('#cfe8f0',.35*(1-k));ctx.lineWidth=1.01;ctx.beginPath();ctx.ellipse(pt.x,pt.y,2+k*12,(2+k*12)*.38,0,0,TAU);ctx.stroke();}}
   // the kitchen lift: its doors part and the steel car's light comes out across the floor
   const lan=END()==='lantern';
-  if(lan&&S.kitLift>0&&typeof liftFrame==='function'){const o=clamp(S.kitLift,0,1);ctx.save();faceT(ctx,WALL);liftFrame(ctx,KL.x,GB,KL.w,KL.h,KL.fr,KL.hd);liftCabin(ctx,KL.x,GB,KL.w,KL.h);liftDoors(ctx,KL.x,GB,KL.w,KL.h,o);liftLine(ctx,KL.x,GB,KL.w,KL.h,1-o*.4);ctx.restore();
+  if(lan&&S.kitLift>0&&typeof liftFrame==='function'){const o=clamp(S.kitLift,0,1);ctx.save();faceT(ctx,WALL);liftFrame(ctx,KL.x,GB,KL.w,KL.h,KL.fr,KL.hd);liftCabin(ctx,KL.x,GB,KL.w,KL.h);
+    // (since V104 the fire has come down onto the car: its light out, smoke in it, red from the fire low down: S.liftBurn)
+    if(S.liftBurn!=null){const u=clamp((S.t-S.liftBurn)/.4,0,1),f=.8+.15*Math.sin(t*12.7)*Math.sin(t*5.1);ctx.fillStyle=lin(ctx,0,GB-KL.h,0,GB,[[0,rgba('#060404',.94*u)],[.6,rgba('#2a0c06',.88*u)],[1,rgba('#7a2a10',.8*u)]]);ctx.fillRect(KL.x-KL.w/2,GB-KL.h,KL.w,KL.h);
+      glow(ctx,KL.x,GB-20,40,'#ff7a30',.5*u*f,.7);}
+    liftDoors(ctx,KL.x,GB,KL.w,KL.h,o);liftLine(ctx,KL.x,GB,KL.w,KL.h,(1-o*.4)*(S.liftBurn!=null?.3:1));ctx.restore();
     liftSpill(ctx,KL.x,WALL,KL.w,o,150);}
   if(!lan)cage(ctx);
   ctx.restore();}

@@ -110,7 +110,7 @@ const PAGE='file://'+process.cwd()+'/'+(process.env.PAGE||'test_page.html');
     const r=await ev(p,()=>{const recs=[],sh=S.hooks.story;S.hooks.story=(k,a)=>{sh(k,a);if(k==='stage'&&S.story&&S.story.at)recs.push({cp:JSON.parse(JSON.stringify(S.story.at)),st:state()});};
       const runUntil=(pred,max)=>{let n=0;while(!pred()&&n<max){step(1);n++;}return n;};
       S.storyAuto=true;S.auto=true;S.allyAuto=true;storyBegin(null,{auto:true});step(2);
-      for(let guard=0;guard<40;guard++){const SV=S.story;if(!SV||SV.step==='done')break;const key=SV.key;
+      for(let guard=0;guard<60;guard++){const SV=S.story;if(!SV||SV.step==='done')break;const key=SV.key;
         runUntil(()=>S.story.step==='fight'||S.story.step==='explore'||S.story.step==='done'||S.story.key!==key,6000);if(S.story.key!==key)continue;
         const st=STAGES[S.story.i];
         if(S.story.step==='explore')runUntil(()=>S.story.step!=='explore',9000);

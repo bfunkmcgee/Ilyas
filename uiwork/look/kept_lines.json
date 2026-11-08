@@ -1984,5 +1984,35 @@
 "src": "  if(noir&&lod>=1){c.strokeStyle='#22202a';c.lineWidth=7.25;c.stroke(H.brow);}",
 "med": 0.805,
 "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_armsui.js",
+"src": "  c.strokeStyle=P.gold;c.lineWidth=.55;c.stroke(pCirc(x,y,r+1.45));",
+"med": 0.545,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V104: the arc-blade rolled up and coming open, in the lift shaft"
+},
+{
+"file": "sk_armsui.js",
+"src": "  c.globalAlpha=k*.85;c.strokeStyle=P.bladeEdge;c.lineWidth=.42;c.stroke(sp);",
+"med": 0.42,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V104: the arc-blade rolled up and coming open, in the lift shaft"
+},
+{
+"file": "sk_armsui.js",
+"src": "lighter';c.globalAlpha=k*.7;c.strokeStyle=P.glow;c.lineWidth=.45;c.stroke(sm);",
+"med": 0.459,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V104: the arc-blade rolled up and coming open, in the lift shaft"
+},
+{
+"file": "sk_armsui.js",
+"src": ".globalAlpha=k*(mode==='rigid'||lockAt>1?.42:.9);c.lineWidth=mode==='rigid'||lockAt>1?.5:.8;c.stroke(J.lit);",
+"med": 0.805,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V104: the arc-blade rolled up and coming open, in the lift shaft"
+},
+{
+"file": "sk_armsui.js",
+"src": "    c.strokeStyle='#3a9f95';c.globalAlpha=k*.22;c.lineWidth=.5;c.stroke(J.dim);c.globalCompositeOperation='source-over';",
+"med": 0.5,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V104: the arc-blade rolled up and coming open, in the lift shaft"
 }
 ]

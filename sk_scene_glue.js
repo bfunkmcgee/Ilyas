@@ -151,7 +151,7 @@ function sceneRimK(f){const g=sceneGround(f);return g==null?1:1+.8*clamp((.2-g)/
 const SCENE_FINISH={city:{glow:.3,edges:.5,edgeCol:'#04030a'},rooms:{glow:.3,edges:.5,edgeCol:'#06030a'},under:{glow:.2,edges:.62,edgeCol:'#020308'},
   pit:{glow:.2,edges:.62,edgeCol:'#080604'},set:{glow:.42,streak:.24,streakCol:'#ffcf96',edges:.42,edgeCol:'#120804'}};
 const SCENE_WORLD={street:'city',chase:'city',highway:'city',roadblock:'city',roof:'city',field:'city',crops:'city',hill:'city',ledge:'city',wall:'city',
-  dining:'rooms',kitchen:'rooms',lobby:'rooms',office:'rooms',station:'under',tunnel:'under',
+  dining:'rooms',kitchen:'rooms',lobby:'rooms',office:'rooms',station:'under',tunnel:'under',shaft:'under',
   sumproof:'pit',sumpkitchen:'pit',backroom:'pit',yard:'pit',stairs:'pit',shelf:'pit',outskirts:'set'};
 let SCENE_FIN=null;
 // (does this frame's finish bloom? then the light module hands it the moment's big glows instead of drawing them over the frame)

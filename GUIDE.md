@@ -318,6 +318,44 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   spray, the lights standing in it, rings off every moving foot) and the fish among the feet (`fishDraw`, flopping on the drawing's
   dice). A man a scene itself puts down (`sceneKill`: the crew man through the glass) is no exchange's kill, whatever exchange is on
   the books, so no share of him goes to the style Ilyas fights in (the growth suite counts a blow's XP to the point).
+- The way out of the kitchen (since V104, asked for: leaving the kitchen Ilyas cuts the gas line, a spark from the arc-blade sets it
+  off as the lift drops, the Lantern goes up and a fireball chases the lift down the shaft): sk_lantern.js. The kitchen's closing
+  scene is `kitchenExit`: the wall opens on the lift (`revealStart`), and on his way to it he stops at the range and cuts the gas line
+  where it comes down the back wall to it (`GAS`: its x, the cut's height, the wall's depth; `gasCut`, the blade through `gasPoint`,
+  the cut in his own depth); `S.gas` is the cut (the kitchen painter draws the pipe with what moves, `gasPipe`, the two ends apart and
+  the gas shivering out of the top one, and starves the burners by `gasK`). He walks into the lift (his depth past the wall's, so he
+  shows only inside its opening: `K.clipRect`, `liftOpening`), turns, and the doors close on him with the blade still out
+  (`S.secret.shut`, `SECRET_T.shut`: the page closes the leaves and the clip closes with them; the lift is 150 high since V104, 138
+  before, and he stoops a little in it). The reveal is the lab's back room's (`revealStart` wants `deepOn()`), which the story's
+  stages switch off: the scene lets it on for the moment it starts (before V104 the story's kitchen never opened the wall at all).
+  The shaft's car has its roof over whoever stands in it (`carTop`, drawn with its front by depth). Three scenes follow, each a hard cut
+  and each a stage of the kitchen's chapter with no card of its own (`part:'kitchen'`, noFight, cardDur 0; spliced in after the
+  kitchen; they give no XP of their own, sk_growth.js, and keep his strength as it was: `sceneKeep`): `shaft` (the car going down
+  the shaft, the gas come down after it; he rolls the blade up standing upright before him, `shaftRoll`, and at its last turn it arcs
+  into the car's roof and the sparks go up through its vent; the gas catches and goes away up the shaft in a sheet of flame),
+  `lanternup` (Lamplight Street: a knock in the house, then every window blown out with the fire after the glass and a fireball up
+  through the roof, `lanternUp`; the fallen lamp lies where the axe felled it, `S.story.flags.lamp`) and `shaftfire` (the fireball
+  coming down after the car, a pan off the range ahead of it; the car brakes at the foot with the fire a few feet over its roof). The
+  platform's own scene now opens on the doors at the foot, without the fade: he walks out and the fire comes out of the lift behind
+  him (`liftFire`: a boom and the car left burning in its doorway; the doors stay open). The shaft is its own place (`storyArena
+  ('shaft')`, envx/env_shaft.js): the car stands where it is and the shaft goes up past it (`S.shaft`: y how far it has come down,
+  v and acc, the run `SHAFT.run`, its landings `SHAFT.lands`; the gas, the spark, the flame going up `lit`, the fireball's front over
+  the roof `ballH` from `ball`, the pan, the brakes), seen with its near wall cut away: the clay and the cut brickwork either side and
+  each landing's slab, the back wall's brick going by with a lamp and a brass plate at each landing, the car's rails on their brackets,
+  the hoist's sheave at the head, the counterweight passing the car half way, the car in brushed steel lit by its strip (its face and
+  the glass doors he shows through are in the draw list in front of him: `frontItem`, sk_lanternui.js), the fire over all of it
+  (`fore`). The street's painter draws the house going up (`liveInferno`, `S.lanternUp`, `openings`: the windows below and upstairs,
+  the door, and the roof the fireball goes up through; the game's fires burn in the two windows and the door below, and upstairs the
+  painter's own rooms burn behind their frames), the ground floor's blast with it (fire rolling out of its windows and its door). Its
+  puffs of fire and smoke are made sprites, stamped (`infSpr`, `infStamp`): at V104's first review the frame at the blast's height
+  cost a phone twice the fall's dearest, with a gradient made for each of a hundred puffs, the grenade's blast drawn again
+  (`S.bistroBlast`), a second fireball out of the door and a fire in every window upstairs; it is about one and a half times it now
+  (kept.json, `lanternup_x1.4`). The car's floor is a lit steel plate so his boots and legs read on it. The page makes their sounds
+  (the gas's hiss, the arc's crackle, the whump, the knock in the house, the fire's roar: sk_lanternui.js); the recorded lift, brakes,
+  boom, glass and fire are the stages' own (sk_sfxui.js). The look tools shoot these short stages on their times (`'x1.4'`: seconds
+  from the stage's start, the frames drawn until it comes, places.js and lines.js; a `'t'` moment's shot comes about a third of a
+  second past it, and a moment under two seconds or one too close after the one before lands later still: V104's first review shot
+  `lanternup_t2.6` and `shaftfire_t2.5` in the stages after them).
 - The held sounds (sk_storyui.js, run from `V11UI.tick`): the bike's engine (`engineFrame`: the first bike in `S.veh` with `run`
   above 0 and near the picture; its level `ENG_LVL` x run, a quarter when far), the rails (`railFrame`) and the wind (`windFrame`).
   Each is one voice made once and set every frame. A held voice's modulation must work on a gain of its own ahead of the level,
@@ -1264,7 +1302,7 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V104 ..." (V103 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V105 ..." (V104 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
