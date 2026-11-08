@@ -6,8 +6,10 @@
 // The set piece at the start: the ramp down from the interchange high on the right, bending toward the camera across the drop on its
 // piers and round into our lanes (where it runs is the game's, RAMP and hwyBez in sk_highway.js), and the parking garage beyond the
 // drop inside its bend, its top deck as high as the ramp's top, the rail the riders come through. Both are painted once and go away
-// to the right with the road once the riders are on the straight (S.scroll); the ramp's lanes stream toward the camera while he
-// comes down it. The bands (the skyline, the city below, the far parapet, the road, the near parapet, the drop) are each painted once
+// to the right with the road once the riders are on the straight (S.scroll). The ramp's markings lie still on it, as the road's do
+// (since V107, asked for: its lane line's dashes streamed down it at a pace of their own, and changed their pattern at the merge),
+// and its two lanes come down onto the highway's second and third, its lines onto the highway's lane lines, where the ramp's own
+// paint gives way to the road's. The bands (the skyline, the city below, the far parapet, the road, the near parapet, the drop) are each painted once
 // into a strip that repeats and is slid along by S.scroll at its own pace, as the avenue's are (env_chase.js).
 (()=>{const E=EnvLook,{C,lin,rad,rgba,mix,glow,haze,stars,moon,cloudBank,skyline,hallTower,rng,lerp,clamp,TAU}=E;
 // ---------- the deck ----------
@@ -24,7 +26,7 @@ const ORDER=['sky','city','far','road','near','drop'];
 // (the tower's needle and its glow stay under the layer's top row, which an upright phone's view draws on up over the sky)
 const MOON={x:300,y:-12,r:10},TOWER={x:120,base:176,top:-14,w:46};
 // ---------- the ramp's shape (the game's, else the same copied here) ----------
-const RP=()=>typeof RAMP!=='undefined'?RAMP:[[820,-40],[900,250],[880,390],[580,392]];
+const RP=()=>typeof RAMP!=='undefined'?RAMP:[[820,-40],[900,250],[880,390],[580,384.5]];
 function bez(s){if(typeof hwyBez==='function')return hwyBez(s);const u=1-s,a=u*u*u,b=3*u*u*s,c=3*u*s*s,d=s*s*s,P=RP();
   return{X:a*P[0][0]+b*P[1][0]+c*P[2][0]+d*P[3][0],Y:a*P[0][1]+b*P[1][1]+c*P[2][1]+d*P[3][1],
     tx:3*u*u*(P[1][0]-P[0][0])+6*u*s*(P[2][0]-P[1][0])+3*s*s*(P[3][0]-P[2][0]),ty:3*u*u*(P[1][1]-P[0][1])+6*u*s*(P[2][1]-P[1][1])+3*s*s*(P[3][1]-P[2][1])};}
@@ -32,7 +34,10 @@ const kOf=dep=>typeof hwyK==='function'?hwyK(dep):clamp(1-(dep-236)/540,.34,1);
 // a point of the ramp in the picture: s along it (below 0 it goes on straight up out of the picture), off across it
 function rampPt(s,off){let P;if(s<0){const P0=bez(0),L=Math.hypot(P0.tx,P0.ty)||1;P={X:P0.X+P0.tx/L*s*300,Y:P0.Y+P0.ty/L*s*300,tx:P0.tx,ty:P0.ty};}else P=bez(s);
   const L=Math.hypot(P.tx,P.ty)||1,nx=-P.ty/L,ny=P.tx/L,k=kOf((GB-P.Y)/PSY);return{x:P.X+nx*off*k,y:P.Y+ny*off*k*.62,k,nx,ny,P};}
-const RW=110,S_LO=-.04,S_HI=1.04,S_MERGE=.52;
+// the ramp's half width (its edge lines RW-12 out: at its foot on the highway's lane lines at depths 52 and 176, about its middle on
+// the line at 114; it was 110, its lines then in the middle of the lanes), where it runs (S_LO to S_HI), where it reaches the
+// highway's far parapet, and the stretch at its foot over which its own paint gives way to the road's (S_FADE to S_HI)
+const RW=87,S_LO=-.04,S_HI=1,S_MERGE=.52,S_FADE=.86;
 // the garage: its top deck's edge (the rail's foot) and its levels down to where the far parapet hides them, its two ends
 const GAR={x0:180,x1:766,top:70,lev:100,k:.45};
 // the set pieces' boxes in the world (what each canvas holds)
@@ -212,23 +217,35 @@ function paintRamp(c){const N=90,ss=[];for(let i=0;i<=N;i++)ss.push(lerp(S_LO,S_
   for(const s of [.06,.3,.54,.8]){const p=rampPt(s,-RW*.3);c.save();c.translate(p.x,p.y);c.scale(1.1,.7);c.fillStyle=rad(c,0,0,0,90*p.k,[[0,rgba('#ffcf86',.18)],[1,rgba('#ffcf86',0)]]);c.beginPath();c.arc(0,0,90*p.k,0,TAU);c.fill();c.restore();}
   // the edge lines, solid
   for(const off of [-RW+12,RW-12]){c.strokeStyle='#d8d2c0';c.beginPath();for(let i=0;i<=N;i++){const p=rampPt(ss[i],off);if(i)c.lineTo(p.x,p.y);else c.moveTo(p.x,p.y);}c.lineWidth=2.6;c.stroke();}
+  // the lane line down its middle, still on it as the road's are: a dash every 120 of the world and 54 long, as the highway's lane
+  // lines (shorter in the picture with the distance, as everything on the ramp is drawn, by its k), measured from its foot so that
+  // the dash there falls on the highway's own on the line at 114 (from 42.8 to 96.8 of the world back up from it, the road still)
+  {const M=360,pts=[];for(let i=0;i<=M;i++){const s=lerp(S_HI,S_LO,i/M),p=rampPt(s,0);pts.push({s,p,l:0});}
+    for(let i=1;i<=M;i++){const a=pts[i-1].p,b=pts[i].p;pts[i].l=pts[i-1].l+Math.hypot(b.x-a.x,b.y-a.y)/((a.k+b.k)/2);}
+    const sAt=l=>{let i=1;while(i<M&&pts[i].l<l)i++;const a=pts[i-1],b=pts[i],u=clamp((l-a.l)/((b.l-a.l)||1),0,1);return lerp(a.s,b.s,u);},w=1.7;
+    c.fillStyle='#d8d2c0';
+    for(let l0=42.8;l0<pts[M].l;l0+=120){const s0=sAt(l0),s1=sAt(Math.min(l0+54,pts[M].l)),n=8;c.beginPath();
+      for(let j=0;j<=n;j++){const p=rampPt(lerp(s0,s1,j/n),w);if(j)c.lineTo(p.x,p.y);else c.moveTo(p.x,p.y);}
+      for(let j=n;j>=0;j--){const p=rampPt(lerp(s0,s1,j/n),-w);c.lineTo(p.x,p.y);}c.closePath();c.fill();}}
   // the gore where it meets our lanes: chevrons between the ramp's near edge and the far parapet's line
   {const g0=rampPt(S_MERGE+.02,RW),g1=rampPt(.66,RW);c.fillStyle=rgba('#d8d2c0',.55);for(let i=0;i<5;i++){const u=i/5,x=lerp(g0.x,g1.x,u),y=lerp(g0.y,g1.y,u);c.beginPath();c.moveTo(x,y);c.lineTo(x+10,y-8);c.lineTo(x+16,y-8);c.lineTo(x+6,y);c.closePath();c.fill();}}
   c.restore();
-  // the parapets along both edges: their inner faces and lit copings, shrinking with the distance; the near one ends at the merge
-  for(const [E,side] of [[L,-1],[R,1]])for(let i=0;i<N;i++){const s=ss[i];if(side>0&&s>S_MERGE+.05)break;const a=E[i],b=E[i+1],h=26*a.k;
+  // at its foot its own paint gives way to the road's, over the stretch where its lanes run on as the highway's (its lines on the
+  // highway's lane lines there): the road under it shows through, the dashes falling on the road's own
+  {const xa=rampPt(S_FADE,0).x,xb=rampPt(S_HI,0).x,y0=yG(EL1)+6,y1=yG(EL0);c.save();c.globalCompositeOperation='destination-out';
+    c.fillStyle=lin(c,xa,0,xb,0,[[0,rgba('#000000',0)],[1,rgba('#000000',1)]]);c.fillRect(SP.front.x0,y0,xa-SP.front.x0,y1-y0);c.restore();}
+  // the parapets along both edges: their inner faces and lit copings, shrinking with the distance; each ends where its edge comes onto
+  // the highway's deck at the far parapet's line (since V107: the outer one ran on round the bend across the highway's lanes)
+  const yFP=yG(FP);
+  for(const [E,side] of [[L,-1],[R,1]])for(let i=0;i<N;i++){const s=ss[i];if(s>S_MERGE-.2&&E[i+1].y>=yFP)break;const a=E[i],b=E[i+1],h=26*a.k;
     c.fillStyle=lin(c,0,a.y-h,0,a.y,[[0,'#5a524a'],[.12,'#2a2724'],[1,'#151417']]);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(b.x,b.y-26*b.k);c.lineTo(a.x,a.y-h);c.closePath();c.fill();
     c.strokeStyle=rgba(C.rim,.42);c.lineWidth=Math.max(1.05,1.2*a.k);c.beginPath();c.moveTo(a.x,a.y-h);c.lineTo(b.x,b.y-26*b.k);c.stroke();}
   // its lamps on the outer parapet: a pole up from it, the arm out over the deck, the head
   for(const s of [.0,.24,.48]){const p=rampPt(s,RW),k=p.k,h=150*k,hx=p.x+p.nx*RW*.55*k;
     c.fillStyle='#121317';c.fillRect(p.x-1.6*k,p.y-26*k-h,3.2*k,h);c.strokeStyle='#121317';c.lineWidth=Math.max(1.6,2.2*k);c.beginPath();c.moveTo(p.x,p.y-26*k-h);c.quadraticCurveTo((p.x+hx)/2,p.y-26*k-h-10*k,hx,p.y-26*k-h+2*k);c.stroke();
     c.fillStyle='#fff0cc';c.beginPath();c.ellipse(hx,p.y-26*k-h+4*k,5*k,1.8*k,0,0,TAU);c.fill();}}
-// the moving parts of the ramp: its lane line's dashes streaming down it toward the camera at the road's pace, the lamps' heads
-function rampLive(c,ox,t,run){const N=120;c.save();c.translate(ox,0);
-  if(run){const ph=(t*1.6)%1;c.fillStyle='#d8d2c0';
-    for(let i=-1;i<26;i++){const s0=S_LO+(i+ph)/24*(S_HI-S_LO),s1=s0+.42/24*(S_HI-S_LO);if(s1<S_LO||s0>S_HI)continue;const a=rampPt(clamp(s0,S_LO,S_HI),0),b=rampPt(clamp(s1,S_LO,S_HI),0),w=1.6*a.k;
-      c.beginPath();c.moveTo(a.x-a.nx*w,a.y-a.ny*w);c.lineTo(b.x-b.nx*w,b.y-b.ny*w);c.lineTo(b.x+b.nx*w,b.y+b.ny*w);c.lineTo(a.x+a.nx*w,a.y+a.ny*w);c.closePath();c.fill();}}
-  else{c.strokeStyle='#d8d2c0';c.lineWidth=2.4;c.setLineDash([16,22]);c.beginPath();for(let i=0;i<=N;i++){const p=rampPt(lerp(S_LO,S_HI,i/N),0);if(i)c.lineTo(p.x,p.y);else c.moveTo(p.x,p.y);}c.stroke();c.setLineDash([]);}
+// what of the ramp burns live: its lamps' heads (its lane line lies still on it, painted with it: paintRamp)
+function rampLive(c,ox){c.save();c.translate(ox,0);
   for(const s of [.0,.24,.48]){const p=rampPt(s,RW),k=p.k,hx=p.x+p.nx*RW*.55*k,y=p.y-26*k-150*k+4*k;glow(c,hx,y,30*k,'#ffcf86',.55);glow(c,hx,y+40*k,70*k,'#ffb25e',.12,.5);}
   c.restore();}
 
@@ -299,7 +316,7 @@ const STK={};function streakSpr(col){let c0=STK[col];if(c0)return c0;c0=STK[col]
   gr.addColorStop(0,rgba(col,1));gr.addColorStop(.7,rgba(col,.25));gr.addColorStop(1,rgba(col,0));g.fillStyle=gr;g.fillRect(0,0,64,2);return c0;}
 function speedOf(){const v=typeof S!=='undefined'&&S?Math.abs(+S.scrollV||0):0;return isFinite(v)?clamp((v-120)/900,0,1):0;}
 function hw(){return typeof S!=='undefined'&&S&&S.hwy?S.hwy:null;}
-function live(){const T=strips(),t=(typeof S!=='undefined'&&S.t)||0,sp=speedOf(),H=hw(),m=ctx.getTransform(),L=-m.e/m.a,R=(ctx.canvas.width-m.e)/m.a;
+function live(){const T=strips(),sp=speedOf(),H=hw(),m=ctx.getTransform(),L=-m.e/m.a,R=(ctx.canvas.width-m.e)/m.a;
   const ox=pieceOff(),show=ox<1500&&(!H||H.phase!=='road'||ox<1500);
   // the sky and the city, only where the garage does not stand in front of them
   const G=show?{x0:GAR.x0+ox*FAR_F+3,x1:GAR.x1+ox*FAR_F-3,y:GAR.top+2}:null;behind(T.sky,G,HIDE.sky);behind(T.city,G,HIDE.city);
@@ -312,7 +329,7 @@ function live(){const T=strips(),t=(typeof S!=='undefined'&&S.t)||0,sp=speedOf()
   if(sp>0){const o=offOf(T.road),sw=streakSpr('#ffc98a'),sc=streakSpr('#cfe0ff');ctx.save();ctx.globalCompositeOperation='lighter';
     for(const q of RSTREAK){const y=yG(q.d)+1,len=q.len*sp;for(let n=-1;n<=1;n++){const x=q.x-o+n*T.road.P+q.d*PSX;if(x<L-len||x>R)continue;ctx.globalAlpha=q.a*sp;ctx.drawImage(q.warm?sw:sc,x,y-.5,len,1);}}
     ctx.restore();}
-  if(show){const p=pieces();blitPiece(p.front,ox);rampLive(ctx,ox,t,!!H&&H.phase==='ramp');blitPiece(p.fly,ox*FAR_F);}
+  if(show){const p=pieces();blitPiece(p.front,ox);rampLive(ctx,ox);blitPiece(p.fly,ox*FAR_F);}
   blit(T.drop);
   if(sp>.995)blit(T.nearFast);else{blit(T.near);if(sp>0){ctx.save();ctx.globalAlpha=.3*sp;ctx.translate(12*sp,0);blit(T.near);ctx.restore();}}}
 // the light that rims a rider: the lamps on the far parapet as they pass, the ramp's on the ramp, the moon when nothing nearer is lit

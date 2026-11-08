@@ -228,8 +228,8 @@ function hwyDrumDraw(x,y,dep,ang){const q=P(x,y,dep),r=DRUM.r,h=DRUM.h;ctx.save(
 // (H.gunAng: its heading in the picture) and kicks back at each round
 function hwyDoorGun(H){const G0=hwyGun(H),d=G0.dep,pv=P(G0.piv.x,G0.piv.y,d),D=heliDoor(H),sill=P(D.x,D.y,d),a=H.gunAng,kick=(H.recoil||0)*4;
   ctx.save();
-  // the pintle: up from the sill to the cradle
-  ctx.strokeStyle='#0c0d11';ctx.lineWidth=3.4;ctx.beginPath();ctx.moveTo(sill.x+6,sill.y);ctx.lineTo(pv.x,pv.y+4);ctx.stroke();ctx.strokeStyle='rgba(200,204,212,.25)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(sill.x+7,sill.y);ctx.lineTo(pv.x+1,pv.y+4);ctx.stroke();
+  // the pintle: straight up from the sill under the cradle, at the doorway's front edge (since V107)
+  ctx.strokeStyle='#0c0d11';ctx.lineWidth=3.4;ctx.beginPath();ctx.moveTo(pv.x,sill.y);ctx.lineTo(pv.x,pv.y+4);ctx.stroke();ctx.strokeStyle='rgba(200,204,212,.25)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(pv.x+1,sill.y);ctx.lineTo(pv.x+1,pv.y+4);ctx.stroke();
   ctx.translate(pv.x,pv.y);ctx.rotate(a);ctx.translate(-kick,0);
   const dk='#0b0c10',md='#1d2029',hi='#4a5060';
   // the spade grips back toward him, the receiver, the sights

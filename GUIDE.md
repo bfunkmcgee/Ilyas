@@ -277,9 +277,12 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   falls, bounces once, rolls back with the road and goes up `after` seconds after it lands, a blast that spares the riders), and the
   dice settle as it leaves his hands whether it goes up on Kael (12 to 20), close by (5 to 9) or clear. Once two riders are down
   (`sv.kills`, counted on `V11.kill`) the helicopter scene (`hwyHeli`): the family's helicopter in from behind over the road
-  (`HWY_HELI`), the man in white in its door on a machine gun on its pintle (`HWY_GUN`, `hwyGun`: its pivot, muzzle and grips in the
+  (`HWY_HELI`), the man in white in its door on a machine gun on its pintle (`HWY_GUN`: the pintle at the doorway's front edge,
+  the helicopter's x 46, and he behind it in the door's middle, its grips in front of him at his chest; since V107, asked for: it
+  stood where he stood, at x 10, and his arms went back to grips behind him; at rest it points forward and down, `rest`; `hwyGun`: its pivot, muzzle and grips in the
   world; `H.gunAng`, its heading as drawn, eased toward `gunAngT`; `hwyBurst` lays it on a point, round by round, with the gunfire's
-  own muzzles, tracers and strikes), a burst into each rider left (killed in the saddle, so the road throws him off), then along the
+  own muzzles, tracers and strikes); with the door open Kael says he knows the helicopter and not the man (since V107, asked for: "The
+  family’s helicopter. I don’t know the man in white.", not voiced), then a burst into each rider left (killed in the saddle, so the road throws him off), then along the
   truck into its drums: two blasts, the truck a burning wreck that slews off and falls behind (`T.ctl` 'wreck'), the drum man
   thrown. The scene ends where the turn would have started; with nobody left the stage's outro (if the last riders went down
   together, the outro brings the helicopter for the truck first). The two who are not in the fight keep their poses through it
@@ -291,7 +294,14 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   road has taken them (`pieces`, `drop`): the garage beyond the drop with the flyover's piers behind it and the ramp's deck (with
   the road), the flyover over both; the garage and the flyover go by at a little over half the road's pace. The garage's parapet
   and rail are drawn among the riders (`front`, an item at the deck's depth: in front of those still on the deck, behind those in
-  the air). The ramp's lane line streams down it toward the camera while he comes down it (`rampLive`).
+  the air). The ramp's markings lie still on it, as the road's do (since V107, asked for: its lane line's dashes streamed down it at a
+  pace of their own, `rampLive`, and took another pattern at the merge): down its middle a dash every 120 of the world and 54 long,
+  shorter with the distance by its k, measured from its foot so that the last one falls on the highway's own. Its two lanes come
+  down onto the highway's second and third: `RAMP`'s foot is on the lane line at depth 114 (it was at 104), the painter's half width
+  `RW` 87 puts its edge lines on the lines at 52 and 176 (at 110 they ran down the middle of the lanes, beside the lane lines), its
+  own paint gives way to the road's over its last stretch (`S_FADE` .86 to `S_HI` 1: the road under it shows through, so its solid
+  edge lines run into the highway's dashed ones), and each of its parapets ends where its edge comes onto the highway's deck at the
+  far parapet's line (the outer one, round the outside of the bend, ran on across the highway's lanes as a wall).
   Its cost (since V101's first look review, where the ramp's foot on a phone came in at 117% of the fall's dearest frame): what is
   hidden is not put down. The sky and the city stop where the band in front of them hides them (`HIDE`) and are put down only either
   side of the garage below its roof (`behind`); the far parapet's band is the parapet alone and each lamp a sprite of its own put
@@ -487,7 +497,8 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   time. A new sound: its recipe and its line in list.json, render all and install (the manifest installed is the whole of
   <out>/web/manifest.json), its level in `SFX_GAIN` or `SFX_LOOP`, the stage that loads it in `SFX_STAGE`, and the call that plays it.
 - Voices (since V98): the cast says its lines aloud, so far the opening's, the field's (V98), the Avenue's and the Checkpoint's (V99; the
-  Tower Road between them has none, so since V101 the Checkpoint's load with it, not with the Avenue),
+  Tower Road between them has one line, Kael's at the helicopter since V107, not voiced, so since V101 the Checkpoint's load with it,
+  not with the Avenue),
   Lamplight Street's and the dining room's (V100): Ilyas's eleven, Qadir's three, one each for the Driver, the Pack leader, the
   Sergeant, Brask and Iyla. The
   recordings are Suno speech, made through the author's Suno connector: one take a character for a scene or two, so a voice stays
@@ -1419,9 +1430,10 @@ A version that changes the look republishes the
 lookbook too: `python3 uiwork/look/lookbook.py` after the look review, its verdicts brought up to date in lookbook.json, then
 test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/artifact/UGQyH4NAZm5wik41FkMVqs with the artifacts
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
-goes in `remove`).
+goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
+the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V107 ..." (V106 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V108 ..." (V107 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

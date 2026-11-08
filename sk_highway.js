@@ -18,9 +18,10 @@
 storyArena('highway',{label:'Highway',name:'The Tower Road',ground:()=>GB,wall:null,far:236,scroll:true,minX:130,maxX:790});
 const HWY_V=1050;                 // the road's speed past the riders, units a second: the avenue's, heading west
 // The ramp's middle in the picture (x, and y as drawn on the floor's line): down from the interchange high on the right, toward the
-// camera, and round at its foot into the highway's middle lane heading west. A point of it is turned into the floor's x and depth
-// (hwyFloor), so whatever is on it is drawn where it is and sorted by its distance.
-const RAMP=[[820,-40],[900,250],[880,390],[580,392]];
+// camera, and round at its foot into the highway's lanes heading west. A point of it is turned into the floor's x and depth
+// (hwyFloor), so whatever is on it is drawn where it is and sorted by its distance. Its foot is on the highway's middle lane line
+// (depth 114, y 384.5: since V107, the painter's two lanes then run on as the highway's second and third; it ended at depth 104)
+const RAMP=[[820,-40],[900,250],[880,390],[580,384.5]];
 function hwyBez(s){const u=1-s,a=u*u*u,b=3*u*u*s,c=3*u*s*s,d=s*s*s,P=RAMP;
   return{X:a*P[0][0]+b*P[1][0]+c*P[2][0]+d*P[3][0],Y:a*P[0][1]+b*P[1][1]+c*P[2][1]+d*P[3][1],
     tx:3*u*u*(P[1][0]-P[0][0])+6*u*s*(P[2][0]-P[1][0])+3*s*s*(P[3][0]-P[2][0]),ty:3*u*u*(P[1][1]-P[0][1])+6*u*s*(P[2][1]-P[1][1])+3*s*s*(P[3][1]-P[2][1])};}
@@ -125,7 +126,10 @@ V11.step.push(()=>{if(S.arenaKey!=='highway')return;const dx=S.scrollV<0?-S.scro
 // The family's helicopter, its door open and a machine gun on a pintle in the doorway, the man in white on its grips. The gun turns on
 // its pivot in the picture (H.gunAng: its heading as drawn, 0 to the right, down positive), quickly but not at once, and kicks at
 // each round. hwyGun gives its pivot, muzzle and grips as points of the game's world at the gun's depth (a little nearer than him).
-const HWY_GUN={piv:[10,104],len:92,grip:30,dep:6};
+// The pintle stands at the doorway's front edge (the helicopter's x 46, the door's front at 56) and he behind it in the door's middle
+// (heliDoor, x 9), the gun laid forward and down at the road, so its grips come back to his hands in front of him at his chest
+// (since V107, asked for: the pintle stood where he stood, at x 10, and the grips came out behind him, his arms back behind his back)
+const HWY_GUN={piv:[46,104],len:92,grip:30,dep:6,rest:2.05};
 function hwyGun(H){const L=heliLook(),dz=H.dep-HWY_GUN.dep,pv=L&&L.at?L.at(H,HWY_GUN.piv[0],HWY_GUN.piv[1]):{x:H.x,y:H.gy-H.y-HWY_GUN.piv[1]};
   const a=H.gunAng??1.1,c=Math.cos(a),s=Math.sin(a),k=(H.recoil||0)*4;
   return{dep:dz,piv:pv,ang:a,muzzle:{x:pv.x+c*(HWY_GUN.len-k),y:pv.y+s*(HWY_GUN.len-k)},grip:{x:pv.x-c*(HWY_GUN.grip+k),y:pv.y-s*(HWY_GUN.grip+k)},
@@ -292,7 +296,7 @@ function* hwyDrum(){const sv=S.story,K=hero(),KB=K.mount,T=sv.truck,M=sv.drummer
 // already, and it comes for the truck alone.
 function* hwyHeli(last){const sv=S.story,K=hero(),T=sv.truck,M=sv.white,D0=sv.drummer;sv.heliDone=true;
   letter(1);hwyShot('heli',1.4);
-  const H=heliNew({x:W+760,y:200,xT:W+760,yT:200,dep:HWY_HELI.dep,fa:-1,lamp:1,spin:1,door:0});sv.heli=H;H.gunAng=1.25;H.gunAngT=1.25;
+  const H=heliNew({x:W+760,y:200,xT:W+760,yT:200,dep:HWY_HELI.dep,fa:-1,lamp:1,spin:1,door:0});sv.heli=H;H.gunAng=HWY_GUN.rest;H.gunAngT=HWY_GUN.rest;
   M.inHeli=H;M.station=heliDoor(H).x;M.lane=M.dep=M.stepDep=H.dep-2;M.build();M.heliAt=null;
   S.hooks.sound('heli',1);
   // in over them from behind, low; Kael looks back and up at it
@@ -303,7 +307,9 @@ function* hwyHeli(last){const sv=S.story,K=hero(),T=sv.truck,M=sv.white,D0=sv.dr
   M.hidden=false;H.gunOn=true;S.hooks.sound('heli_door',1);
   yield* until(()=>{H.door=Math.min(1,H.door+DT*1.8);return H.door>=1;},1);
   hwyShot('guns',1.6);
+  // Kael knows the helicopter, and not the man on its gun (since V107, asked for)
   yield* wait(.35);
+  yield* speak(HERO_NAME,'The family’s helicopter. I don’t know the man in white.',{dur:3});
   // the riders still up, a burst into each
   for(const f of S.F){if(f.team!==1||f.npc||f.dead||!f.mount)continue;
     yield* hwyBurst(H,()=>({x:f.p[CHE].x,y:f.p[CHE].y,dep:f.dep}),8,{kind:'flesh',spread:18,each:(i,to)=>{
@@ -323,7 +329,7 @@ function* hwyHeli(last){const sv=S.story,K=hero(),T=sv.truck,M=sv.white,D0=sv.dr
     S.shake=Math.max(S.shake,14);}
   yield* wait(1);
   // its work done, it lifts away ahead of them over the city
-  H.gunOn=false;H.gunAngT=1.3;H.xT=-760;H.yT=430;S.hooks.sound('heli',.6);
+  H.gunOn=false;H.gunAngT=HWY_GUN.rest;H.xT=-760;H.yT=430;S.hooks.sound('heli',.6);
   yield* wait(.8);
   if(!last)camFree();}
 // the helicopter gone from the picture: the man in its door with it
