@@ -108,6 +108,9 @@ const setXP=xp=>{S.story.growth.xp=xp;};
   const D=foe();expect('an enemy has none of his',heroStyle(D)===null);
   // a blow of his that lands, real, to its end; and what lands of his in the exchanges after it
   for(const f of S.F)if(f.team===1)f.hp=f.maxHp=9999;const g=growth(),s0=g.styles.sareth;let want=0;
+  // (no set piece of the stage's plays while the blows are counted: since V109 the dining room's tank plays in every fight, and it put
+  // the one crew man left here through the glass, which ended the fight, and the blows went on into the kitchen's)
+  for(const p of SET_PIECES)if(p.stage===S.story.key)(S.story.pieces||(S.story.pieces={}))[p.key]=true;
   // (counted at each blow's impact, as the game counts it since V94)
   let tallyOn=true;{const ap=applyImpact;applyImpact=function(ex,A,D,res){const r=ap.apply(this,arguments);
     if(tallyOn&&A===K&&heroStyle(K)==='sareth'&&res&&!res.weaponHit&&(res.out==='hit'||res.out==='crit'))want+=res.out==='crit'?XP_GAIN.style.crit:XP_GAIN.style.hit;return r;};}

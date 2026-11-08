@@ -1,6 +1,6 @@
 {
 "_": "The lookbook's judgments (uiwork/look/lookbook.py builds the page from these and a look review's folder): every place held to the frame of its kind, as the style guide's rule 2 and its place table set them. A verdict is ok (holds beside its target), mid (mixed) or bad (falls off); a target is the frame of its kind. Notes are [p, m or o, text]: what holds, what does not, what would bring it up. Judged by eye at V88 (Nov 4) on the review's phone frames, the 13 mixed ones again at V90 (Nov 5); judge again when a place changes.",
-"version": "V108",
+"version": "V109",
 "date": "November 8, 2026",
 "before": {"ok": 15, "mid": 13, "bad": 0, "views": 28, "version": "V88", "date": "November 4"},
 "audit": {"ok": 9, "mid": 12, "bad": 6, "views": 27, "version": "V73", "date": "November 2"},

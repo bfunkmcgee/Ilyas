@@ -334,9 +334,17 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   other hand pulling the cleaver out of the block, a line, and the chop the arm comes out from under (the front arm, the one the fall
   takes); `S.cleaver` is where the cleaver is (in the block where it bit, `deep`; or in his hand, drawn by `cleaverDraw` in front of
   him and the block). The dining room has its tank in the back wall between the kitchen door and the bar (envx/env_dining.js: `TANK`,
-  `tankPaint`, `liveTank`: deep green water lit from the lid, carp and koi, weed, a drowned temple; the bar moved along past it): by
-  the third turn, with a foe in front of it (a crew man first), Ilyas kicks him back into the glass, it stars (`S.tank.state`
-  'cracked', `hit`), the cracks run, and it bursts ('burst': the layer paints the empty tank and its teeth of glass). `S.flood`
+  `tankPaint`, `liveTank`: deep green water lit from the lid, carp and koi, weed, a drowned temple; the bar moved along past it). It
+  plays in every dining room fight (since V109, asked for: before, it waited for a foe to stand in front of the tank when a turn came,
+  and a fight in three went by without it): at the third turn, or once one foe is left, Ilyas picks his man (`tankVictim`: a crew man
+  first, then whoever stands nearest the tank, `tankGap`); one not in front of it is driven there first (`tankDrive`: Ilyas comes
+  round to the far side of him from the tank, the man gives ground with his guard up along a scene's walking path round the screens
+  and the table, `walkPath` and `backTo`, to `TANK_DRIVE`'s spot behind the glass partition's end, while Ilyas comes after him beating
+  on his guard, `beatAction`, `guardTake`; the desk's camera takes in the two of them and the tank and a phone's follows the two,
+  `tankCam`; the others turn to watch), then Ilyas kicks him back into the glass, it stars (`S.tank.state`
+  'cracked', `hit`), the cracks run, and it bursts ('burst': the layer paints the empty tank and its teeth of glass); the fight's
+  sides are taken again from where everyone stands (`resyncSides`), and a skip puts the two of them where the scene leaves them
+  (`sv.tankEnd`). `S.flood`
   (its start): the water's front comes across the floor at `FLOOD_V` and takes each man as it reaches his depth (`slipAction`); after
   it a foot put down slides on (`updateSteps` wrapped: the step's end a little further), and every strike costs a pip more (the rule
   `lantern.wet`, 'Wet floor'). The page draws the water over the boards with the room's own live parts (`floodDraw`: the crest and its
@@ -1433,7 +1441,7 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V109 ..." (V108 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V110 ..." (V109 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

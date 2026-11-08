@@ -219,13 +219,17 @@ function blockHold(K,bend,onBlock,dur){const a=K.arm;
   return{t0:S.t,end:dur,body:[{t:0,v:K.curBody},{t:.3,v:{...bend,lean:bend.lean+.04},e:sstep},{t:dur,v:bend,e:sstep}],
     arm:[{t:0,v:K.curArm},{t:.2,v:{hand:{fn:onBlock},wAng:0,off:{sh:[-.3*a,.5*a]},tilt:.3},e:sstep},{t:dur,v:{hand:{fn:onBlock},wAng:0,off:{sh:[-.3*a,.5*a]},tilt:.3}}]};}
 // ---------- the dining room: the tank ----------
-// The back wall has a floor-to-ceiling aquarium in it (envx/env_dining.js: TANK, between the kitchen door and the bar). By the third
-// turn, with one of them in front of it, Ilyas closes on him and kicks him back into the glass: it stars round where he hit, the cracks
-// run, the water starts through, and the front goes. The water comes out in one wall across the floor, everyone in the room is taken
-// off his feet by it or near enough, and the fish go everywhere. The floor stays awash for the rest of the stage (S.flood): feet slide
-// in it (a step comes down further than it was put), every strike costs a pip of balance more ('the wet floor'), and the fish flop
-// about among the feet (drawn: sk_lanternui.js). A crew man thrown into the glass does not get up from it; an elf takes the blow and is
-// washed back to his feet.
+// The back wall has a floor-to-ceiling aquarium in it (envx/env_dining.js: TANK, between the kitchen door and the bar). It is the
+// fight's scripted moment, in every dining room fight (since V109, asked for): at the third turn (or sooner, once only one of them is
+// left) Ilyas picks the one to put through it, a crew man first or else whoever stands nearest it, and closes on him; if the man is
+// not in front of the tank, Ilyas drives him back across the room to it, the blade beating on his guard all the way (round the
+// screens and the table: the path a scene's walk takes); then he kicks him back into the glass: it stars round where he hit, the
+// cracks run, the water starts through, and the front goes. The water comes out in one wall across the floor, everyone in the room is
+// taken off his feet by it or near enough, and the fish go everywhere. The floor stays awash for the rest of the stage (S.flood): feet
+// slide in it (a step comes down further than it was put), every strike costs a pip of balance more ('the wet floor'), and the fish
+// flop about among the feet (drawn: sk_lanternui.js). A crew man thrown into the glass does not get up from it; an elf takes the blow
+// and is washed back to his feet. (From V103 to V108 it waited for a man to be standing in front of the tank when a turn came, and a
+// fight in three went by without it.)
 const TANK_W={x0:556,x1:796,d:236};
 S.tank=null;S.flood=null;
 V11.duelStart.push(()=>{S.tank=null;S.flood=null;});
@@ -235,19 +239,62 @@ RULES.add({id:'lantern.wet',src:'Wet floor',on:'foot',label:'the wet floor',when
 // a foot put down on the wet boards goes on a little further than it was put
 {const us=updateSteps;updateSteps=function(f,pelTX,bp){us(f,pelTX,bp);if(!S.flood||!wetFloor(f)||f.mount)return;
   for(const st of f.steps)if(st.active&&st.t0===S.t&&!st.slid){st.slid=true;const dir=Math.sign(st.to.x-st.from.x);if(dir)st.to={x:footClamp(f,st.to.x+dir*(6+3*Math.abs(Math.sin(S.t*7.3+f.idx))))};}};}
-// the one to put through the glass: a foe in front of the tank, a crew man first
-function tankVictim(){const fs=foes().filter(f=>f.station>TANK_W.x0+20&&f.station<TANK_W.x1-20&&setPieceFree(f));fs.sort((a,b)=>(b.hench?1:0)-(a.hench?1:0));return fs[0]||null;}
+// how far a man stands from being in front of the tank (0 in front of it)
+function tankGap(f){return Math.abs(f.station-clamp(f.station,TANK_W.x0+20,TANK_W.x1-20));}
+// the one to put through the glass: a crew man first, then whoever stands nearest the tank
+function tankVictim(){const fs=foes().filter(f=>setPieceFree(f));fs.sort((a,b)=>(b.hench?1:0)-(a.hench?1:0)||tankGap(a)-tankGap(b));return fs[0]||null;}
+// where a man not in front of it is driven to: before the glass at the back of the floor (behind the glass partition's end, so it is
+// never between them), and the pace he is driven at
+const TANK_DRIVE={x0:TANK_W.x0+50,x1:TANK_W.x1-50,z:150,v:170};
+function tankSpot(V){return{x:clamp(V.station,TANK_DRIVE.x0,TANK_DRIVE.x1),z:TANK_DRIVE.z};}
+// the camera: the room from the front, the tank and the two of them (while he drives him to it, the desk's picture takes in the two
+// of them as well as the tank and a phone's keeps to the two of them)
+function tankCam(K,V,follow){camTo(prjX((TANK_W.x0+TANK_W.x1)/2,TANK_W.d)-30,820,1.6);Object.assign(S.camCut,{band:{top:20,foot:GB+10},bandN:{top:-20,foot:GB+30},wn:440});
+  if(!follow)return;const xs=[prjX(K.station,K.lane),prjX(V.station,V.lane)],lo=Math.min(...xs,prjX(TANK_W.x0,TANK_W.d))-80,hi=Math.max(...xs,prjX(TANK_W.x1,TANK_W.d))+40;
+  S.camCut.x=(lo+hi)/2;S.camCut.w=Math.max(820,hi-lo);S.camCut.xn=(xs[0]+xs[1])/2;}
+// where the blade meets his guard: on his weapon a little out from his hand (in his own depth)
+function guardOn(V){const h=V.p[HAF],t=V.p[TIP];return{x:lerp(h.x,t.x,.35),y:lerp(h.y,t.y,.35)};}
+// one beat of the blade on the man's guard, the walk going on under it: up and back (or down and back), then in at his guard
+function beatAction(K,V,hi){const a=K.arm,fa=K.facing,L=(WEAPONS[K.weaponKey]||WEAPONS.elven).len,wA=hi?.5:-.35;
+  const hand=()=>{const p=guardOn(V),dd=V.dep-K.dep,x=p.x+dd*PSX,y=p.y-dd*PSY;return{x:x-fa*Math.cos(wA)*L*.72,y:y-Math.sin(wA)*L*.72};},live=o=>()=>({...K.guardBody(),...o});
+  return{t0:S.t,end:.52,body:[{t:0,v:()=>K.curBody||K.guardBody()},{t:.14,v:live({lean:.02,crouch:.86}),e:eOut},{t:.22,v:live({lean:.28,crouch:.82}),e:eIn},{t:.52,v:()=>K.guardBody(),e:sstep}],
+    arm:[{t:0,v:K.curArm},{t:.14,v:hi?{hand:{sh:[-.12*a,-.72*a]},wAng:-2.3,off:{sh:[.3*a,.22*a]},tilt:-.1}:{hand:{sh:[-.2*a,.1*a]},wAng:2.4,off:{sh:[.3*a,.22*a]},tilt:-.06},e:eOut},
+      {t:.22,v:{hand:{fn:hand},wAng:wA,off:{sh:[-.2*a,.42*a]},tilt:.1},e:eIn},{t:.52,v:()=>K.guardArm(),e:sstep}]};}
+// a blow taken on the guard: the hands driven in a little, the weight back
+function guardTake(V){const b=V.arm,live=o=>()=>({...V.guardBody(),...o});
+  return{t0:S.t,end:.42,body:[{t:0,v:()=>V.curBody||V.guardBody()},{t:.08,v:live({lean:-.22,crouch:.84}),e:eOut},{t:.42,v:()=>V.guardBody(),e:sstep}],
+    arm:[{t:0,v:V.curArm},{t:.08,v:()=>{const g=V.guardArm(),sh=g.hand&&g.hand.sh;return sh?{...g,hand:{sh:[sh[0]-.1*b,sh[1]+.04*b]}}:g;},e:eOut},{t:.42,v:()=>V.guardArm(),e:sstep}]};}
+// driven back to the tank: he gives ground round whatever stands in the way (walkPath: the screens, the table), his face to Ilyas
+// and his guard up, and Ilyas comes on after him, the blade beating on his guard as they go
+function* tankDrive(K,V,T,s){const pts=walkPath(V,T.x,T.z);let going=true;
+  const back=(function*(){for(let i=1;i<pts.length;i++)yield* backTo(V,pts[i][0],pts[i][1],TANK_DRIVE.v,-s);going=false;})();
+  const after=(function*(){yield* wait(.12);yield* goTo(K,T.x-s*58,clamp(T.z-6,DEP_MIN,DEP_MAX),TANK_DRIVE.v+10);})();
+  const beats=(function*(){let n=0;yield* wait(.1);
+    while(going){K.action=beatAction(K,V,n%2===0);n++;S.hooks.sound('swing',1.1,{s:'swing_mid'});yield* wait(.22);if(!going)break;
+      V.action=guardTake(V);const p=guardOn(V);S.hooks.sound('clang',.8,{s:n%2?'clang':'shing'});sparks(p,10,'#ffe2a8',V.dep);flash(p,16,'#fff2d8',V.dep);S.shake=Math.max(S.shake,3);
+      yield* wait(.32);}})();
+  // (the camera with them; the others in the room turn to watch them go by, unless they are in the middle of something)
+  const cam=(function*(){while(going){tankCam(K,V,true);
+      for(const f of foes())if(f!==V&&!f.downed&&!f.action&&!f.clinch){const d=K.station-f.station;if(Math.abs(d)>30)f.facing=Math.sign(d);}yield;}})();
+  yield* all(back,after,beats,cam);K.facing=s;V.facing=-s;}
 setPiece({stage:'dining',key:'tank',
-  due(sv){sv.dturns=(sv.dturns||0)+1;const K=hero();return sv.dturns>=3&&setPieceFree(K)&&K.weaponKey==='elven'&&!!tankVictim();},
-  *run(sv){const K=hero(),V=tankVictim(),s=Math.sign(V.station-K.station)||1,a=K.arm;sv.tankBy=V.idx;
+  due(sv){sv.dturns=(sv.dturns||0)+1;const K=hero();return(sv.dturns>=3||foes().length<2)&&setPieceFree(K)&&K.weaponKey==='elven'&&!!tankVictim();},
+  *run(sv){const K=hero(),V=tankVictim(),a=K.arm,far=tankGap(V)>0,T=far?tankSpot(V):null,s=far?Math.sign(T.x-V.station)||1:Math.sign(V.station-K.station)||1;sv.tankBy=V.idx;
+    // (where it all ends, for a skip: the man where the water leaves him, Ilyas where the kick leaves him)
+    {const vx=far?T.x:V.station,vz=far?T.z:V.lane;sv.tankEnd={s,gx:clamp(vx+s*26,TANK_W.x0+34,TANK_W.x1-34),kx:vx-s*50,kz:clamp(vz-6,DEP_MIN,DEP_MAX)};}
     letter(1);for(const f of [K,V]){f.guarding=false;f.counter=false;}
-    // the room from the front: the tank, and the two of them in front of it
-    camTo(prjX((TANK_W.x0+TANK_W.x1)/2,TANK_W.d)-30,820,1.6);Object.assign(S.camCut,{band:{top:20,foot:GB+10},bandN:{top:-20,foot:GB+30},wn:440});
-    // he closes on him, low and quick
-    const kx=V.station-s*58,kz=clamp(V.lane-6,DEP_MIN,DEP_MAX);K.facing=s;V.facing=-s;
-    K.action={t0:S.t,end:.36,body:[{t:0,v:()=>K.curBody||K.guardBody()},{t:.36,v:{px:kx,pz:kz,crouch:.8,lean:.3,stF:.3*K.leg,stB:-.36*K.leg,th:.36},e:sstep}],
-      arm:[{t:0,v:K.curArm},{t:.36,v:{hand:{sh:[.2*a,.3*a]},wAng:-.6,off:{sh:[.36*a,.2*a]},tilt:.1},e:sstep}]};K.blur=S.t+.4;S.hooks.sound('swoosh',1.4,{s:'vault'});
-    yield* wait(.36);K.station=kx;K.lane=kz;
+    // the room from the front: the tank, and the two of them
+    tankCam(K,V,far);
+    // he closes on him, low and quick (round in front of him, or behind him at the front of the floor, when he would have to come
+    // through him to stand on the far side of him from the tank)
+    {const kx=V.station-s*58,kz=clamp(V.lane-6,DEP_MIN,DEP_MAX),round=far&&(K.station-V.station)*s>-20,run={crouch:.8,lean:.3,stF:.3*K.leg,stB:-.36*K.leg,th:.36};K.facing=s;V.facing=-s;
+      const mz=V.lane>70?V.lane-52:Math.min(DEP_MAX,V.lane+52);
+      K.action={t0:S.t,end:.36,body:[{t:0,v:()=>K.curBody||K.guardBody()},...(round?[{t:.2,v:{...run,px:V.station,pz:mz}}]:[]),{t:.36,v:{...run,px:kx,pz:kz},e:sstep}],
+        arm:[{t:0,v:K.curArm},{t:.36,v:{hand:{sh:[.2*a,.3*a]},wAng:-.6,off:{sh:[.36*a,.2*a]},tilt:.1},e:sstep}]};K.blur=S.t+.4;S.hooks.sound('swoosh',1.4,{s:'vault'});
+      yield* wait(.36);K.station=kx;K.lane=kz;}
+    // not in front of it: back across the room to it he goes
+    if(far){yield* tankDrive(K,V,T,s);tankCam(K,V,false);yield* wait(.1);}
+    const kx=K.station,kz=K.lane;
     // the kick: the heel into his chest, and back he goes, off his feet, up into the glass
     const chest=()=>{const c=V.p[CHE];return{x:c.x,y:c.y+6};};
     K.action={t0:S.t,end:.7,body:[{t:0,v:K.curBody},{t:.16,v:{px:kx,pz:kz,crouch:.88,lean:-.18,stF:.1*K.leg,stB:-.3*K.leg,th:.6,kick:{fn:chest},kw:.4},e:eOut},
@@ -281,9 +328,16 @@ setPiece({stage:'dining',key:'tank',
         f.action=slipAction(f,f===V?Math.max(DEP_MIN,f.lane-70):clamp(f.lane-14,DEP_MIN,DEP_MAX));if(f===V||f.lane>DEP_MAX)f.lane=clamp(f===V?f.lane-70:f.lane-14,DEP_MIN,DEP_MAX);
         dust(f.p[FTF].x,f.gr(f.p[FTF].x),1,f.dep,'rgba(200,232,214,.6)');}yield;}})();
     yield* all(wash,wait(1.9));
-    V.zMax=null;for(const f of S.F)if(!f.dead&&f.lane>DEP_MAX)f.lane=DEP_MAX-6;},
-  skip(sv){const V=S.F[sv.tankBy];S.tank={state:'burst',hit:null,crackT:S.t-5,burstT:S.t-5,seed:1};S.flood={t0:S.t-5};
-    if(V){V.zMax=null;if(V.hench&&!V.dead){V.hp=0;sceneKill(V,1);}}for(const f of S.F){f.action=null;if(!f.dead&&f.lane>DEP_MAX){f.lane=DEP_MAX-6;}}}});
+    V.zMax=null;for(const f of S.F)if(!f.dead&&f.lane>DEP_MAX)f.lane=DEP_MAX-6;
+    // (each of them on the side of him he now stands on: the fight keeps a man to his side of Ilyas, and the drive may have taken
+    // Ilyas round him)
+    resyncSides();},
+  skip(sv){const V=S.F[sv.tankBy],K=hero(),E=sv.tankEnd;S.tank={state:'burst',hit:null,crackT:S.t-5,burstT:S.t-5,seed:1};S.flood={t0:S.t-5};
+    // (no walk of the scene's left going: it may have been skipped half way across the room)
+    for(const f of S.F){f.action=null;f.cutWalk=false;f.walkV=null;f.walkEnd=null;}
+    // the two of them where it leaves them: the man in front of the broken tank, Ilyas where he kicked him from
+    if(E){if(V&&!V.dead)shiftTo(V,E.gx,DEP_MAX-14);if(K&&!K.dead)shiftTo(K,E.kx,clamp(E.kz-14,DEP_MIN,DEP_MAX));if(K)K.facing=E.s;if(V&&!V.dead)V.facing=-E.s;}
+    if(V){V.zMax=null;if(V.hench&&!V.dead){V.hp=0;sceneKill(V,E?E.s:1);}}for(const f of S.F){if(!f.dead&&f.lane>DEP_MAX){f.lane=DEP_MAX-6;}}resyncSides();}});
 // taken off his feet by the water, or near enough: back on his heels, arms flung out, sliding with it, and down onto a knee or up
 function slipAction(f,z){const a=f.arm,leg=f.leg,x=f.station,z0=f.lane,fa=f.facing,back=Math.sign(z-z0)||-1,r=S.rng();
   return{t0:S.t,end:1.1,body:[{t:0,v:()=>f.curBody||f.guardBody()},{t:.18,v:{px:x-fa*6,pz:lerp(z0,z,.5),crouch:.86,lean:-.32,stF:.36*leg,stB:-.2*leg,th:.4},e:eOut},
