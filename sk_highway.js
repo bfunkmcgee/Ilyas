@@ -307,9 +307,9 @@ function* hwyHeli(last){const sv=S.story,K=hero(),T=sv.truck,M=sv.white,D0=sv.dr
   M.hidden=false;H.gunOn=true;S.hooks.sound('heli_door',1);
   yield* until(()=>{H.door=Math.min(1,H.door+DT*1.8);return H.door>=1;},1);
   hwyShot('guns',1.6);
-  // Kael knows the helicopter, and not the man on its gun (since V107, asked for)
+  // Kael knows the helicopter, and not the man on its gun (since V107, asked for; its words since V108)
   yield* wait(.35);
-  yield* speak(HERO_NAME,'The family’s helicopter. I don’t know the man in white.',{dur:3});
+  yield* speak(HERO_NAME,'The family’s helicopter. I know every face they keep. Not his.',{dur:3.2});
   // the riders still up, a burst into each
   for(const f of S.F){if(f.team!==1||f.npc||f.dead||!f.mount)continue;
     yield* hwyBurst(H,()=>({x:f.p[CHE].x,y:f.p[CHE].y,dep:f.dep}),8,{kind:'flesh',spread:18,each:(i,to)=>{

@@ -281,8 +281,8 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   the helicopter's x 46, and he behind it in the door's middle, its grips in front of him at his chest; since V107, asked for: it
   stood where he stood, at x 10, and his arms went back to grips behind him; at rest it points forward and down, `rest`; `hwyGun`: its pivot, muzzle and grips in the
   world; `H.gunAng`, its heading as drawn, eased toward `gunAngT`; `hwyBurst` lays it on a point, round by round, with the gunfire's
-  own muzzles, tracers and strikes); with the door open Kael says he knows the helicopter and not the man (since V107, asked for: "The
-  family’s helicopter. I don’t know the man in white.", not voiced), then a burst into each rider left (killed in the saddle, so the road throws him off), then along the
+  own muzzles, tracers and strikes); with the door open Kael says he knows the helicopter and not the man (since V107, asked for; since
+  V108 in the words picked from four: "The family’s helicopter. I know every face they keep. Not his.", not voiced), then a burst into each rider left (killed in the saddle, so the road throws him off), then along the
   truck into its drums: two blasts, the truck a burning wreck that slews off and falls behind (`T.ctl` 'wreck'), the drum man
   thrown. The scene ends where the turn would have started; with nobody left the stage's outro (if the last riders went down
   together, the outro brings the helicopter for the truck first). The two who are not in the fight keep their poses through it
@@ -1433,7 +1433,7 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V108 ..." (V107 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V109 ..." (V108 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
