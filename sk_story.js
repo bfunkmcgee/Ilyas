@@ -1025,7 +1025,7 @@ STAGES.push({key:'dining',num:'V',title:'The Dining Room',sub:'The Lantern Bistr
 // ===== STAGE VI: THE KITCHEN =====
 // Orrin's kitchen: the head chef, his sous-chef and his quickest knife. When they are down, the tiled wall by the alley door slides
 // aside on the family's private lift, and it goes down.
-STAGES.push({key:'kitchen',num:'VI',title:'The Kitchen',sub:'Behind the swing door',arena:'restaurant',room:'kitchen',next:'platform',
+STAGES.push({key:'kitchen',num:'VI',title:'The Kitchen',sub:'Behind the swing door',arena:'restaurant',room:'kitchen',table:true,next:'platform',
   foes:[{name:'Orrin',seed:7201,weapon:'sword',skill:3,temper:'brute',hp:64},
         {name:'Hesk',seed:7233,weapon:'sword',skill:3,temper:'keeper',hp:56},
         {name:'Odile',seed:7261,weapon:'dagger',skill:3,temper:'rusher',hp:50}],

@@ -289,6 +289,35 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   part with a clip of its own); the side drawing laid straight down at its share, flat fills for the tail, seat and panels, the
   rims without a clip, the band moved out to .7 and the riders near a profile in their profile brought it to 2.2 ms (fifteen turns
   each against V101's build; the drums' frame, f4, the same to a few tenths).
+- The Lantern's set pieces (since V103, asked for: a blade-lock and a felled lamp on Lamplight Street, the cleaver on the butcher
+  block in the kitchen, a fish tank in the dining room that breaks and floods the floor): sk_lantern.js (the scenes and what they leave
+  in the world) and sk_lanternui.js (what only the page draws). A set piece plays between two turns of a fight (`setPiece({stage, key,
+  due, run, skip})`: startTurn is wrapped as the Tower Road's is; `due(sv)` is asked at each turn's start and each plays once a stage,
+  `sv.pieces`), and the turn then goes to whoever's it is; `setPieceFree` (on their feet, no clinch, not carried or held) and
+  `shiftTo` (a man put somewhere at once, his footing with him: the skips) are for them. A scene's poses are the fighters' own actions
+  with their `station` and `lane` set to where each pose ends, so the fight's stance takes over from there; a pose that must hold for a
+  line on the screen is given a long `end` (the line waits for the player). Lamplight Street: once Qadir is at half his health, the
+  lock (`lockPose`, `lockHold`: blade and haft crossed between their faces, a line each) by the lamp nearest them with room beyond it
+  (`lockLamp`; the street's lamps are `STREET_LAMPS` at depth `STREET_LAMP_D`, the painter's `LAMPX` and `LAMPD`), the shove, the
+  reap he goes up over, and the axe in the foot of the post: `S.lampCut` (its x: the painter draws the stump, `lampStump`, takes the
+  lamp out of its light and its streaks, and its key paints the layer again) and `S.lampFall` (the bite, when it falls and which way,
+  `pin`: the axe's point held in the iron while it is there, a step hook). The page lays the painter's own picture of the post
+  (`postSprite`) down along its fall in six lengths, each in the draw list at its own depth (`lampPoseAt`, `lampSegDraw`), its width
+  kept square to its length on the screen; the lantern burns as it goes over and flares on the road (`lampDown`). The kitchen now has
+  its prep table (`table:true`: the old lab's butcher block, drawn by the kitchen painter): before Orrin goes down (hurt, or by the
+  fourth turn) Ilyas is bent over the block's end with his sword arm pulled out across it, Orrin's sword hand on the wrist and his
+  other hand pulling the cleaver out of the block, a line, and the chop the arm comes out from under (the front arm, the one the fall
+  takes); `S.cleaver` is where the cleaver is (in the block where it bit, `deep`; or in his hand, drawn by `cleaverDraw` in front of
+  him and the block). The dining room has its tank in the back wall between the kitchen door and the bar (envx/env_dining.js: `TANK`,
+  `tankPaint`, `liveTank`: deep green water lit from the lid, carp and koi, weed, a drowned temple; the bar moved along past it): by
+  the third turn, with a foe in front of it (a crew man first), Ilyas kicks him back into the glass, it stars (`S.tank.state`
+  'cracked', `hit`), the cracks run, and it bursts ('burst': the layer paints the empty tank and its teeth of glass). `S.flood`
+  (its start): the water's front comes across the floor at `FLOOD_V` and takes each man as it reaches his depth (`slipAction`); after
+  it a foot put down slides on (`updateSteps` wrapped: the step's end a little further), and every strike costs a pip more (the rule
+  `lantern.wet`, 'Wet floor'). The page draws the water over the boards with the room's own live parts (`floodDraw`: the crest and its
+  spray, the lights standing in it, rings off every moving foot) and the fish among the feet (`fishDraw`, flopping on the drawing's
+  dice). A man a scene itself puts down (`sceneKill`: the crew man through the glass) is no exchange's kill, whatever exchange is on
+  the books, so no share of him goes to the style Ilyas fights in (the growth suite counts a blow's XP to the point).
 - The held sounds (sk_storyui.js, run from `V11UI.tick`): the bike's engine (`engineFrame`: the first bike in `S.veh` with `run`
   above 0 and near the picture; its level `ENG_LVL` x run, a quarter when far), the rails (`railFrame`) and the wind (`windFrame`).
   Each is one voice made once and set every frame. A held voice's modulation must work on a gain of its own ahead of the level,
@@ -1235,7 +1264,7 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V103 ..." (V102 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V104 ..." (V103 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

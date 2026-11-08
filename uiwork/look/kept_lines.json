@@ -1924,5 +1924,65 @@
 "src": "function seg(a,b,w,col){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()",
 "med": 0.771,
 "why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "sk_armsui.js",
+"src": "(Y.vine){c.globalAlpha=k*.9;c.strokeStyle=P.gold;c.lineWidth=.22;c.stroke(Y.vine);c.fillStyle=P.gold;c.fill(Y.leaf);}",
+"med": 0.115,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_castui.js",
+"src": "save();c.clip(P2(HR.cap));c.strokeStyle=C.hairHi;c.lineWidth=2;c.globalAlpha=elf?.55:.3;c.stroke(P2(HR.strands));c.restore();}}",
+"med": 0.261,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_castui.js",
+"src": "  if(HR.tie){c.strokeStyle=C.accent||C.hairLine;c.lineWidth=6.26;c.stroke(P2(HR.tie));}",
+"med": 0.958,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_castui.js",
+"src": "c.strokeStyle=C.earIn||(elf?'#2b2128':'#2c221d');c.lineWidth=4.4;c.stroke(P2(EAR.inner));}",
+"med": 0.569,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_castui.js",
+"src": "  if(HT.pleats&&lod>=1){c.strokeStyle=C.hatShade;c.lineWidth=2.4;c.stroke(P2(HT.pleats));}",
+"med": 0.285,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_castui.js",
+"src": "{c.strokeStyle=C.brow||(elf?'#22202a':'#2a201a');c.lineWidth=SK.browW||(elf?6:7.5);c.stroke(P2(SK.brow));}",
+"med": 0.771,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_lookui.js",
+"src": "yle=isCel(look)?look.line:'rgba(255,230,190,.3)';c.lineWidth=1.01;c.beginPath();c.moveTo(S.sole[0].x,S.sole[0].y);c.lineTo(S.sole[1",
+"med": 0.522,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_lookui.js",
+"src": "e();c.clip(hair.p);c.strokeStyle=look.col.hairHi;c.lineWidth=4.8;c.globalAlpha=noir?.8:.55;c.stroke(hair.ph);c.restore();}",
+"med": 0.545,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_lookui.js",
+"src": "ir?'#2b2128':cel?'#b8978a':'rgba(120,90,100,.7)';c.lineWidth=noir?7.19:6.32;c.stroke(new Path2D(HD.earIn));}",
+"med": 0.805,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
+},
+{
+"file": "sk_lookui.js",
+"src": "  if(noir&&lod>=1){c.strokeStyle='#22202a';c.lineWidth=7.25;c.stroke(H.brow);}",
+"med": 0.805,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
 }
 ]

@@ -109,6 +109,133 @@ function bottle(c,x,base,w,h,col,r){const neck=h*.32,sh=h*.12;c.fillStyle=lin(c,
   c.fillStyle=rgba('#ffffff',.45);c.fillRect(x+w*.22,base-h+neck+sh,.7,h-neck-sh-2);
   if(r()<.7){const ly=base-h*.52,lh=h*.26;c.fillStyle=r()<.5?'#e8dcc0':'#d8c8a0';c.fillRect(x+.4,ly,w-.8,lh);c.fillStyle=rgba('#3a2a1a',.6);c.fillRect(x+1,ly+lh*.35,w-2,.6);c.fillRect(x+1.4,ly+lh*.6,w-2.8,.5);if(r()<.5){c.fillStyle=rgba(C.gold,.8);c.fillRect(x+.4,ly,w-.8,.6);}}
   c.fillStyle=r()<.5?lin(c,x+w*.3,0,x+w*.7,0,[[0,C.goldD],[.5,C.goldL],[1,C.goldD]]):'#4a0c12';c.fillRect(x+w*.3,base-h-.5,w*.4,neck*.45);}
+// ---------- the tank (since V103, asked for) ----------
+// A floor-to-ceiling aquarium in the back wall between the kitchen door and the bar: deep bottle-green water lit warm from a lamp in
+// its lid, golden carp and pale koi turning in it, weed and stones on a bed of sand, in a gilt frame on a mahogany plinth. S.tank
+// (sk_lantern.js) says what has become of it: whole; cracked where a man went into it (hit: the point on the glass, crackT: when);
+// burst (burstT), its glass gone but for teeth round the frame, the water and the fish out across the floor (sk_lanternui.js draws the
+// flood and the fish on the boards).
+const TANK={wx0:556,wx1:796,y0:58,plinth:22};
+function tankG(){const yb=yB(),o=OX();return{x0:TANK.wx0+o,x1:TANK.wx1+o,y0:TANK.y0,y1:yb-TANK.plinth,yb};}
+function tankS(){return typeof S!=='undefined'&&S.tank?S.tank:null;}
+function tankState(){const T=tankS();return T?T.state:'whole';}
+// the fish in the tank: where each swims (its level, its span and pace), its kind
+const FISH=(()=>{const r=rng(2207),L=[];for(let i=0;i<11;i++){const k=r();L.push({lv:.14+r()*.66,sp:.06+r()*.09,ph:r()*TAU,sz:k<.25?7+r()*3:4+r()*3,
+  col:k<.35?['#e8a33a','#f2c060']:k<.6?['#f0e8d8','#e05a2a']:k<.8?['#d8562a','#f0b070']:['#c8c0a0','#5a4a3a'],far:r()<.4,bob:r()*TAU});}return L;})();
+function tankFrame(c,G){const {x0,x1,y0,y1,yb}=G,wd=TX().wood(71,512,128,MAHOG);
+  // the plinth: mahogany panels and a brass kick rail, the frame's foot
+  c.fillStyle=pat(c,wd,.16);c.fillRect(x0-10,y1,x1-x0+20,yb-y1);c.fillStyle=rgba('#000000',.3);c.fillRect(x0-10,y1,x1-x0+20,yb-y1);
+  for(let x=x0-4;x<x1;x+=48)woodPanel(c,x,y1+4,42,yb-y1-8,{seed:71+((x/48)|0)%3*2,inlay:true,bevel:2.4});
+  c.fillStyle=lin(c,0,yb-6,0,yb-2,[[0,C.goldL],[.4,C.gold],[1,C.goldDD]]);c.fillRect(x0-10,yb-6,x1-x0+20,3);
+  // the gilt frame: a broad moulding, lit along its top and its left side, a shell at the crown
+  const gf=(gx,gy,gw,gh,v)=>{c.fillStyle=lin(c,v?gx:0,v?0:gy,v?gx+gw:0,v?0:gy+gh,[[0,C.goldDD],[.3,C.gold],[.5,C.goldL],[.75,C.gold],[1,C.goldDD]]);c.fillRect(gx,gy,gw,gh);};
+  gf(x0-10,y0-10,x1-x0+20,10,false);gf(x0-10,y1-2,x1-x0+20,6,false);gf(x0-10,y0-10,10,y1-y0+12,true);gf(x1,y0-10,10,y1-y0+12,true);
+  c.strokeStyle=rgba('#3a2406',.7);c.lineWidth=1.5;c.strokeRect(x0-6.5,y0-6.5,x1-x0+13,y1-y0+11);c.strokeRect(x0-.5,y0-.5,x1-x0+1,y1-y0+1);
+  c.fillStyle=rgba('#fff2c0',.5);for(let x=x0-8;x<x1+8;x+=4.4){c.beginPath();c.arc(x,y0-8.4,.6,0,TAU);c.fill();}
+  {const cx=(x0+x1)/2;c.fillStyle=lin(c,cx-14,0,cx+14,0,[[0,C.goldD],[.5,C.goldL],[1,C.goldD]]);c.beginPath();c.moveTo(cx-16,y0-10);c.quadraticCurveTo(cx,y0-30,cx+16,y0-10);c.closePath();c.fill();
+    c.strokeStyle=rgba('#3a2406',.6);c.lineWidth=1.5;for(let k=-3;k<=3;k++){c.beginPath();c.moveTo(cx,y0-11);c.lineTo(cx+k*4.6,y0-24+Math.abs(k)*2.4);c.stroke();}}}
+// the water and what lies in it, still (the fish, the bubbles and the light's play are drawn live)
+function tankWater(c,G){const {x0,x1,y0,y1}=G,w=x1-x0,h=y1-y0,r=rng(904),TT=TX();
+  c.save();c.beginPath();c.rect(x0,y0,w,h);c.clip();
+  c.fillStyle=lin(c,0,y0,0,y1,[[0,'#6a8a3a'],[.06,'#2e6a4a'],[.3,'#174a3c'],[.7,'#0c2e28'],[1,'#071a16']]);c.fillRect(x0,y0,w,h);
+  // the lamp in the lid: its light coming down through the water in shafts, warm
+  c.save();c.globalCompositeOperation='lighter';for(let i=0;i<7;i++){const sx=x0+w*(.08+i*.14)+(r()-.5)*10,sw=8+r()*14;c.fillStyle=lin(c,0,y0,0,y0+h*.8,[[0,rgba('#ffd890',.16)],[1,rgba('#ffd890',0)]]);
+    c.beginPath();c.moveTo(sx,y0);c.lineTo(sx+sw,y0);c.lineTo(sx+sw+18,y0+h*.8);c.lineTo(sx+10,y0+h*.8);c.closePath();c.fill();}c.restore();
+  // the surface near the top, bright where the lamp is, the air over it
+  c.fillStyle=lin(c,0,y0,0,y0+9,[[0,rgba('#2a2418',.9)],[1,rgba('#2a2418',.2)]]);c.fillRect(x0,y0,w,9);c.fillStyle=rgba('#f8e8b0',.75);c.fillRect(x0,y0+9,w,1.1);
+  c.fillStyle=rgba('#fff6d8',.35);for(let x=x0+2;x<x1;x+=9+r()*7)c.fillRect(x,y0+9.6,3+r()*6,.7);
+  // the sand, the stones, the weed
+  c.fillStyle=lin(c,0,y1-26,0,y1,[[0,'#6a5a32'],[1,'#3a301a']]);c.beginPath();c.moveTo(x0,y1-16);for(let x=x0;x<=x1;x+=12)c.lineTo(x,y1-16-7*Math.sin(x*.05)-4*r());c.lineTo(x1,y1);c.lineTo(x0,y1);c.closePath();c.fill();
+  c.fillStyle=rgba('#e8d8a0',.25);for(let i=0;i<70;i++)c.fillRect(x0+r()*w,y1-14+r()*12,.8,.8);
+  for(let i=0;i<9;i++){const sx=x0+10+r()*(w-20),sr=5+r()*10;c.fillStyle=lin(c,sx-sr,0,sx+sr,0,[[0,'#1a1a16'],[.6,'#3a3a30'],[1,'#121210']]);c.beginPath();c.ellipse(sx,y1-12-sr*.3,sr,sr*.6,0,Math.PI,TAU);c.fill();
+    c.fillStyle=rgba('#fff0c0',.12);c.beginPath();c.ellipse(sx-sr*.2,y1-12-sr*.7,sr*.5,sr*.18,0,0,TAU);c.fill();}
+  for(let i=0;i<14;i++){const sx=x0+6+r()*(w-12),hh=40+r()*110,sw=(r()-.5)*24,col=r()<.5?'#2a5a24':'#3a6a2a';c.strokeStyle=col;c.lineWidth=2.2+r()*2;c.lineCap='round';
+    c.beginPath();c.moveTo(sx,y1-14);c.bezierCurveTo(sx+sw,y1-14-hh*.35,sx-sw,y1-14-hh*.7,sx+sw*.5,y1-14-hh);c.stroke();
+    c.strokeStyle=rgba('#a8c870',.3);c.lineWidth=1.2;c.stroke();}
+  // a little drowned temple at the back: two broken columns of white stone, in the elves' taste
+  {const tx=x0+w*.7,ty=y1-18;c.fillStyle=rgba('#c8c0a8',.55);c.fillRect(tx,ty-46,7,46);c.fillRect(tx+24,ty-30,7,30);c.fillRect(tx-3,ty-48,13,3);c.fillStyle=rgba('#0c2e28',.45);c.fillRect(tx,ty-46,7,46);c.fillRect(tx+24,ty-30,7,30);}
+  // the depth of the water, darker at the sides
+  c.fillStyle=lin(c,x0,0,x1,0,[[0,rgba('#020a08',.45)],[.15,rgba('#020a08',0)],[.85,rgba('#020a08',0)],[1,rgba('#020a08',.45)]]);c.fillRect(x0,y0,w,h);
+  c.restore();}
+// the glass over it: a sheen across it, the room's lamps standing in it
+function tankGlass(c,G){const {x0,x1,y0,y1}=G,w=x1-x0,h=y1-y0;c.save();c.beginPath();c.rect(x0,y0,w,h);c.clip();
+  c.fillStyle=lin(c,x0,y0,x1,y1,[[0,rgba('#ffffff',0)],[.28,rgba('#ffffff',.05)],[.31,rgba('#ffffff',.1)],[.36,rgba('#ffffff',0)],[.62,rgba('#ffffff',.04)],[.64,rgba('#ffffff',0)],[1,rgba('#ffffff',0)]]);c.fillRect(x0,y0,w,h);
+  for(const lx of [x0+w*.22,x0+w*.68]){c.fillStyle=rgba('#ffe0a8',.22);c.beginPath();c.ellipse(lx,y0+h*.45,2.2,4.4,0,0,TAU);c.fill();}
+  c.restore();}
+// burst: the glass gone but for teeth round the frame, the inside dark and running wet, the weed hanging, the sand half gone
+function tankEmpty(c,G){const {x0,x1,y0,y1}=G,w=x1-x0,h=y1-y0,r=rng(905);
+  c.save();c.beginPath();c.rect(x0,y0,w,h);c.clip();
+  c.fillStyle=lin(c,0,y0,0,y1,[[0,'#1a1a12'],[.5,'#0e1410'],[1,'#080c0a']]);c.fillRect(x0,y0,w,h);
+  // the tank's back, green with its old water line and the wet running down it
+  c.fillStyle=rgba('#2e4a2a',.35);c.fillRect(x0,y0+10,w,h-10);c.fillStyle=rgba('#a8b870',.35);c.fillRect(x0,y0+9,w,1);
+  c.save();c.globalCompositeOperation='lighter';for(let i=0;i<40;i++){const sx=x0+r()*w,sy=y0+12+r()*h*.3,ln=20+r()*120;c.fillStyle=rgba('#c8d8a0',.05+r()*.06);c.fillRect(sx,sy,.8,ln);}c.restore();
+  // the lamp in the lid, still lit, on nothing now
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,y0,0,y0+h*.7,[[0,rgba('#ffd890',.14)],[1,rgba('#ffd890',0)]]);c.fillRect(x0,y0,w,h*.7);c.restore();
+  // what is left on the bottom: the stones, a little sand, the weed lying over them
+  c.fillStyle='#3a301a';c.beginPath();c.moveTo(x0,y1-6);for(let x=x0;x<=x1;x+=16)c.lineTo(x,y1-6-3*r());c.lineTo(x1,y1);c.lineTo(x0,y1);c.closePath();c.fill();
+  for(let i=0;i<9;i++){const sx=x0+10+r()*(w-20),sr=5+r()*10;c.fillStyle=lin(c,sx-sr,0,sx+sr,0,[[0,'#121210'],[.6,'#2e2e26'],[1,'#0e0e0c']]);c.beginPath();c.ellipse(sx,y1-6-sr*.3,sr,sr*.6,0,Math.PI,TAU);c.fill();}
+  for(let i=0;i<10;i++){const sx=x0+6+r()*(w-12),ln=14+r()*30,dir=r()<.5?-1:1;c.strokeStyle=r()<.5?'#2a4a20':'#3a5a24';c.lineWidth=2;c.lineCap='round';
+    c.beginPath();c.moveTo(sx,y1-8);c.quadraticCurveTo(sx+dir*ln*.5,y1-14,sx+dir*ln,y1-7);c.stroke();}
+  {const tx=x0+w*.7,ty=y1-8;c.fillStyle=rgba('#a8a090',.6);c.fillRect(tx,ty-46,7,46);c.save();c.translate(tx+30,ty);c.rotate(1.3);c.fillRect(0,-7,30,7);c.restore();}
+  c.restore();
+  // teeth of glass left in the frame all round, catching the light
+  c.save();for(const [ax,ay,bx,by,n] of [[x0,y0,x1,y0,16],[x0,y1,x1,y1,14],[x0,y0,x0,y1,20],[x1,y0,x1,y1,20]]){const horiz=ay===by;
+    for(let i=0;i<n;i++){const u=(i+r()*.6)/n,px=lerp(ax,bx,u),py=lerp(ay,by,u),ln=4+r()*16,wd=3+r()*7,inward=horiz?(ay===y0?1:-1):(ax===x0?1:-1);
+      c.fillStyle=rgba(r()<.5?'#d8eee0':'#a8c8b8',.32+r()*.25);c.beginPath();
+      if(horiz){c.moveTo(px-wd/2,py);c.lineTo(px+wd/2,py);c.lineTo(px+(r()-.5)*3,py+inward*ln);}else{c.moveTo(px,py-wd/2);c.lineTo(px,py+wd/2);c.lineTo(px+inward*ln,py+(r()-.5)*3);}
+      c.closePath();c.fill();if(r()<.4){c.fillStyle=rgba('#ffffff',.6);c.fillRect(px-.4,py-.4,.9,.9);}}}c.restore();}
+function tankPaint(c){const G=tankG();tankFrame(c,G);if(tankState()==='burst')tankEmpty(c,G);else{tankWater(c,G);tankGlass(c,G);}
+  // the lamp in its lid throws a little of the water's light out onto the boards in front of it, or the wet floor's
+  const a=pp(TANK.wx0+10,GB,FAR-2),b=pp(TANK.wx1-10,GB,FAR-2),e=pp(TANK.wx1+20,GB,FAR-70),f=pp(TANK.wx0+20,GB,FAR-70);
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,a.y,0,e.y,[[0,rgba(tankState()==='burst'?'#ffd890':'#9ac870',.1)],[1,rgba('#9ac870',0)]]);poly(c,[a,b,e,f]);c.fill();c.restore();}
+// drawn every frame over the layer: the fish, the bubbles, the lamp's light playing through the water; a crack opening in the glass
+// and the water starting through it; the glass going and the water coming out of it in one wall
+function liveTank(t){const G=tankG(),{x0,x1,y0,y1}=G,w=x1-x0,h=y1-y0,T=tankS(),st=tankState(),calm=typeof reduceMotion!=='undefined'&&reduceMotion;
+  if(st!=='burst'){ctx.save();ctx.beginPath();ctx.rect(x0,y0+10,w,h-10);ctx.clip();
+    // the lamp's light playing in the water
+    ctx.save();ctx.globalCompositeOperation='lighter';for(let i=0;i<4;i++){const ph=t*(.3+i*.07)+i*1.7,cx=x0+w*(.5+.42*Math.sin(ph)),cy=y0+24+i*10;
+      ctx.fillStyle=rad(ctx,cx,cy,0,46,[[0,rgba('#ffe8a0',.08)],[1,rgba('#ffe8a0',0)]]);ctx.beginPath();ctx.ellipse(cx,cy,46,12,0,0,TAU);ctx.fill();}ctx.restore();
+    // the fish
+    for(const F of FISH){const u=Math.sin(t*F.sp+F.ph),dir=Math.cos(t*F.sp+F.ph)>0?1:-1,fx=x0+w*(.5+.44*u),fy=y0+16+(h-46)*F.lv+3*Math.sin(t*.7+F.bob),s=F.sz*(F.far?.7:1),wag=Math.sin(t*9+F.ph)*.3;
+      ctx.save();ctx.translate(fx,fy);ctx.scale(dir,1);ctx.globalAlpha=F.far?.55:.95;
+      ctx.fillStyle=F.col[0];ctx.beginPath();ctx.ellipse(0,0,s,s*.42,0,0,TAU);ctx.fill();
+      ctx.beginPath();ctx.moveTo(-s*.8,0);ctx.lineTo(-s*1.6,-s*.5+wag*s*.4);ctx.lineTo(-s*1.5,s*.5+wag*s*.4);ctx.closePath();ctx.fill();
+      ctx.fillStyle=F.col[1];ctx.beginPath();ctx.ellipse(s*.15,-s*.12,s*.4,s*.16,0,0,TAU);ctx.fill();ctx.fillStyle='#120c08';ctx.beginPath();ctx.arc(s*.62,-s*.08,Math.max(.6,s*.09),0,TAU);ctx.fill();ctx.restore();}
+    // the bubbles off the bed, in three threads
+    if(!calm)for(let k=0;k<3;k++){const bx=x0+w*(.18+k*.31);for(let i=0;i<5;i++){const u=((t*.35+i/5+k*.13)%1),by=y1-16-u*(h-30),wx=bx+3*Math.sin(u*14+k);
+      ctx.strokeStyle=rgba('#e8f8e0',.45*(1-u*.5));ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(wx,by,1+u*1.4,0,TAU);ctx.stroke();}}
+    ctx.restore();
+    // the crack: lines out from where he went in, longer as it gives, and the water starting through
+    if(st==='cracked'&&T&&T.hit){const ct=t-T.crackT,R=rng(T.seed||5),H=T.hit,grow=clamp(ct/.18,0,1),creep=clamp((ct-.3)/1.2,0,1);
+      ctx.save();ctx.beginPath();ctx.rect(x0,y0,w,h);ctx.clip();ctx.strokeStyle=rgba('#e8fff0',.75);ctx.lineCap='round';
+      for(let i=0;i<13;i++){const a=i/13*TAU+(R()-.5)*.4,L=(30+R()*60)*grow+(40+R()*90)*creep;let px=H.x,py=H.y;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(px,py);
+        for(let s=0;s<4;s++){const ang=a+(R()-.5)*.6;px+=Math.cos(ang)*L/4;py+=Math.sin(ang)*L/4;ctx.lineTo(px,py);}ctx.stroke();}
+      for(let k=1;k<=3;k++){const rr=(10+k*12)*grow+k*10*creep;ctx.lineWidth=1.5;ctx.beginPath();for(let i=0;i<=16;i++){const a=i/16*TAU,j=1+.18*Math.sin(i*2.7+k);i?ctx.lineTo(H.x+Math.cos(a)*rr*j,H.y+Math.sin(a)*rr*j*.9):ctx.moveTo(H.x+Math.cos(a)*rr*j,H.y+Math.sin(a)*rr*j*.9);}ctx.stroke();}
+      ctx.fillStyle=rgba('#ffffff',.25*grow);ctx.beginPath();ctx.arc(H.x,H.y,6,0,TAU);ctx.fill();ctx.restore();
+      // jets of water out through the cracks, falling to the boards
+      if(creep>0){ctx.save();ctx.strokeStyle=rgba('#cfe8c8',.55);ctx.lineCap='round';for(let k=0;k<4;k++){const sx=H.x+(k-1.5)*14,sy=H.y+(k%2?10:-6),vx=(k-1.5)*22;ctx.lineWidth=1.5+creep;
+        ctx.beginPath();ctx.moveTo(sx,sy);for(let u=0;u<=1.001;u+=.1){const xx=sx+vx*u*creep*1.4,yy=sy+u*u*(G.yb-sy);ctx.lineTo(xx,Math.min(yy,G.yb));}ctx.stroke();}ctx.restore();}}}
+  else if(T&&T.burstT!=null){const bt=t-T.burstT,yb=G.yb;
+    // the front goes: a flash in the glass and its pieces thrown out at us, glinting
+    if(bt<.5){const u=bt/.5,R=rng(T.seed||9);if(bt<.12)glow(ctx,(x0+x1)/2,(y0+y1)/2,180,'#e8fff0',.5*(1-bt/.12));
+      for(let i=0;i<46;i++){const sx=lerp(x0,x1,R()),sy=lerp(y0+20,y1,R()),vx=(sx-(x0+x1)/2)*(.6+R())+(R()-.5)*60,vy=-30-R()*80,T2=bt*(.8+R()*.6),x=sx+vx*T2,y=sy+vy*T2+260*T2*T2,sz=1.2+R()*2.6;
+        ctx.fillStyle=rgba(R()<.5?'#e8fff4':'#bfe0d0',.7*(1-u));ctx.save();ctx.translate(x,y);ctx.rotate(R()*TAU+bt*20);ctx.fillRect(-sz,-sz*.4,sz*2,sz*.8);ctx.restore();}}
+    // the water out of it all at once: its top dropping as it empties, its front bulging out and falling, white where it is torn and
+    // where it comes down on the boards; then a pour off the lip, and the drips
+    if(bt<1.5){const u=bt/1.5,top=lerp(y0+10,y1,Math.pow(clamp(bt/.95,0,1),1.25)),sp=40*Math.sqrt(clamp(bt/.6,0,1)),a=bt<.08?bt/.08:Math.pow(1-u,.8);
+      ctx.save();ctx.globalAlpha=a;
+      ctx.fillStyle=lin(ctx,0,top,0,yb+6,[[0,rgba('#5a8a6a',.85)],[.45,rgba('#3a6a50',.7)],[1,rgba('#d8f0e0',.75)]]);
+      ctx.beginPath();ctx.moveTo(x0,top);ctx.bezierCurveTo(x0+w*.3,top-6,x1-w*.3,top-6,x1,top);ctx.bezierCurveTo(x1+sp*.4,lerp(top,yb,.5),x1+sp,yb-6,x1+sp*1.2,yb+6);
+      ctx.lineTo(x0-sp*1.2,yb+6);ctx.bezierCurveTo(x0-sp,yb-6,x0-sp*.4,lerp(top,yb,.5),x0,top);ctx.closePath();ctx.fill();
+      // torn white in it, falling
+      ctx.strokeStyle=rgba('#f0fff6',.55);ctx.lineCap='round';for(let i=0;i<16;i++){const lx=lerp(x0+6,x1-6,(i+.5)/16),off=(t*260+i*37)%80,ln=18+(i%3)*10;ctx.lineWidth=1.5+(i%2);
+        const ya=Math.max(top+4,top+off),yb2=Math.min(yb,ya+ln);if(yb2>ya){ctx.beginPath();ctx.moveTo(lx+(i-8)*sp*.02,ya);ctx.lineTo(lx+(i-8)*sp*.05,yb2);ctx.stroke();}}
+      // where it comes down: a white roll of it along the foot of the plinth, thrown up
+      ctx.fillStyle=rgba('#f2fff8',.65);for(let i=0;i<24;i++){const fx=lerp(x0-sp,x1+sp,(i+.5)/24),fh=10+12*Math.abs(Math.sin(i*1.7+t*11));ctx.beginPath();ctx.ellipse(fx,yb-fh*.3,7,fh*.5,0,0,TAU);ctx.fill();}
+      ctx.restore();}
+    else if(bt<4){const k=1-(bt-1.5)/2.5;ctx.save();ctx.strokeStyle=rgba('#cfe8d0',.5*k);ctx.lineCap='round';
+      for(let i=0;i<7;i++){const lx=lerp(x0+12,x1-12,(i+.5)/7);ctx.lineWidth=2.4*k+.6;ctx.beginPath();ctx.moveTo(lx,y1);ctx.quadraticCurveTo(lx+4,lerp(y1,yb,.5),lx+6,yb);ctx.stroke();}ctx.restore();}
+    else{ctx.save();ctx.fillStyle=rgba('#cfe8d0',.55);for(let i=0;i<6;i++){const dx=lerp(x0+8,x1-8,(i+.5)/6),u=((t*.9+i*.37)%1);ctx.fillRect(dx,y1+u*(yb-y1),1.2,3);}ctx.restore();}}}
 // ---------- the room ----------
 function paint(c){
   const X0=-160,X1=W+240,T0=-110,yb=yB(),dX=DOORX(),T=TX();
@@ -168,8 +295,10 @@ function paint(c){
     c.fillStyle='#0a0607';c.beginPath();c.moveTo(sx-6,sy-30);c.lineTo(sx,sy-36);c.lineTo(sx+6,sy-30);c.fill();c.fillStyle=C.goldL;c.fillRect(sx-4,sy-30,8,9);c.fillStyle='#0a0607';c.fillRect(sx-5,sy-21,10,2);glow(c,sx,sy-26,18,'#ffc070',.6);
     for(const k of [-1,1]){const lx=sx+k*84,ly=sy-28;c.strokeStyle=C.goldD;c.lineWidth=1.51;c.beginPath();c.moveTo(lx,ly);c.lineTo(lx-k*10,ly+6);c.stroke();c.fillStyle=C.gold;c.beginPath();c.moveTo(lx-k*10-4,ly+6);c.lineTo(lx-k*10+4,ly+6);c.lineTo(lx-k*10,ly+10);c.fill();glow(c,lx-k*10,ly+12,26,'#ffcf86',.35);}
     c.fillStyle=lin(c,0,yb-142,0,yb-134,[[0,C.goldL],[1,C.goldD]]);c.fillRect(dX-14,yb-142,28,8);c.fillStyle='#1a0c0b';c.font='700 6px "Alegreya SC",Georgia,serif';c.textAlign='center';c.fillText('KITCHEN',dX,yb-136);}
+  // the tank, floor to ceiling, between the kitchen door and the bar
+  tankPaint(c);
   // the bar: a back bar of mahogany, glass shelves of bottles lit from below, an arched gilt mirror gone old, the counter and its brass
-  {const x0=dX+86,x1=X1,top=56,cy=yb-74,wd=T.wood(61,512,128,MAHOG),r=rng(77);
+  {const x0=TANK.wx1+OX()+26,x1=X1,top=56,cy=yb-74,wd=T.wood(61,512,128,MAHOG),r=rng(77);
     c.fillStyle=pat(c,wd,.16,90);c.fillRect(x0,top,x1-x0,cy-top);c.fillStyle=rgba('#000000',.5);c.fillRect(x0,top,x1-x0,cy-top);
     c.fillStyle=pat(c,wd,.16);c.fillRect(x0-4,top-8,x1-x0+8,12);moulding(c,x0-4,x1,top-8,[[1,rgba('#ffd8b0',.4)],[2,rgba('#000000',.2)],[4,rgba('#ffd8b0',.08)],[5,rgba('#000000',.45)]]);
     vine(c,[{x:x0,y:top-1},{x:x1,y:top-1}],{w:.6,amp:1.2,wave:10,leaf:1.6,every:2,seed:12,shadow:false});
@@ -258,6 +387,7 @@ function live(){const t=S.t,yb=yB(),dX=DOORX(),top=yb-132,o=typeof diningDoorOpe
     const kp=[q(0,.93),q(1,.93),q(1,.985),q(0,.985)];ctx.fillStyle=C.goldD;ctx.beginPath();ctx.moveTo(kp[0].x,kp[0].y);for(const p of kp.slice(1))ctx.lineTo(p.x,p.y);ctx.closePath();ctx.fill();
     ctx.fillStyle=rgba(C.rim,.35);ctx.fillRect(Math.min(hinge,free),top,Math.abs(free-hinge),.8);}
   const f=.95+.05*Math.sin(t*5.3);for(const x of blown()?[272,424]:[272,424,30])glow(ctx,x,144,24,'#ffd8a0',.25*f);
+  liveTank(t);
   if(blown())liveBlown(t);}
 // ---------- after the grenade (S.bistro==='blown') ----------
 // The street door, at the left end of the wall, is a hole: the doors blown in across the floor, the frame splintered, soot fanned up
@@ -515,6 +645,6 @@ function divFaceD(ctx,w,A,B,yt,g,h){const M=w.mat;
     ctx.fillStyle='#2a1610';ctx.fillRect(A,yt,B-A,8);ctx.fillStyle=rgba(C.rim,.5);ctx.fillRect(A,yt,B-A,.8);ctx.fillStyle=C.goldD;ctx.fillRect(A,yt+h*.44,B-A,1.6);}
 }
 // the layer depends on the bistro's state: the glue paints it again when this changes
-E.S.dining={paint,live,light,key:()=>'dining:'+(blown()?'blown':'intact'),prop,lamp,table,ware,div};
+E.S.dining={paint,live,light,key:()=>'dining:'+(blown()?'blown':'intact')+':'+(tankState()==='burst'?'tank-burst':'tank'),prop,lamp,table,ware,div,tank:TANK};
 })();
 // ===== ENV DINING END =====

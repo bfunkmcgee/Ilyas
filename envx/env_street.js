@@ -34,6 +34,8 @@ const BG=(()=>{const base=fy(DF),ST=typeof BISTRO_STEPS!=='undefined'?BISTRO_STE
 // a point on the front's face (screen x at the facade) brought out to depth d and lifted h: the steps, the tubs
 const fp=(X,d,h)=>({x:X-(DF-d)*PSX,y:fy(d)-(h||0)});
 // how much lamplight reaches a point on the facades (for rims and pools)
+// the lamp the story has felled (sk_lantern.js: S.lampCut, its x), or none
+const cutLamp=()=>typeof S!=='undefined'&&S.lampCut!=null?S.lampCut:null;
 const lampNear=x=>{let k=0;for(const lx of LAMPX){const q=lampAt(lx),dd=Math.abs(q.x-x);k=Math.max(k,clamp(1-dd/120,0,1));}return k;};
 // windows whose light falls out onto the flags, gathered as the shopfronts are drawn
 let SPILL=[];
@@ -721,6 +723,28 @@ function lampPost(c,lx){const x=fx(lx,LAMPD),base=fy(LAMPD),top=base-150;
   c.fillStyle=lin(c,0,ly+4,0,ly+14,[[0,'#fff6dc'],[1,'#ffc272']]);c.beginPath();c.moveTo(lx2-5,ly+4);c.lineTo(lx2+5,ly+4);c.lineTo(lx2+3.6,ly+14);c.lineTo(lx2-3.6,ly+14);c.closePath();c.fill();
   c.strokeStyle='#09080c';c.lineWidth=1.07;c.beginPath();c.moveTo(lx2,ly+4);c.lineTo(lx2,ly+14);c.stroke();c.fillStyle='#09080c';c.fillRect(lx2-4,ly+14,8,2);
   c.restore();}
+// what the axe left of a felled lamp: the plinth and a hand of the post, the iron bright where it parted, a strand of the vine
+function lampStump(c,lx){const x=fx(lx,LAMPD),base=fy(LAMPD),cut=typeof LAMP_FELL!=='undefined'?LAMP_FELL.cut:24,top=base-cut;
+  c.save();c.lineCap='round';
+  c.fillStyle=rgba('#000000',.45);c.beginPath();c.ellipse(x+1,base,8,1.6,0,0,TAU);c.fill();
+  c.fillStyle=lin(c,x-5.5,0,x+5.5,0,[[0,'#060509'],[.65,'#18161e'],[1,'#07060a']]);c.fillRect(x-4,base-12,8,12);c.fillRect(x-5.5,base-3,11,3);c.fillStyle=rgba(C.rim,.4);c.fillRect(x-4,base-12,8,.7);c.fillRect(x-5.5,base-3,11,.5);
+  c.fillStyle=lin(c,x-2.2,0,x+2.2,0,[[0,'#060609'],[.6,'#121017'],[1,'#08070a']]);c.beginPath();c.moveTo(x-2.2,base-12);c.lineTo(x-2.2,top+1.4);c.lineTo(x-1,top-.6);c.lineTo(x+.3,top+.9);
+  c.lineTo(x+1.3,top-1.2);c.lineTo(x+2.2,top+.4);c.lineTo(x+2.2,base-12);c.closePath();c.fill();
+  c.fillStyle=rgba(C.rim,.5);c.fillRect(x+1.4,top+2,.7,base-14-top);
+  // the bright iron of the cut, and the bite the blade left in it
+  c.strokeStyle=rgba('#d8d0c4',.85);c.lineWidth=.6;c.beginPath();c.moveTo(x-2.2,top+1.4);c.lineTo(x-1,top-.6);c.lineTo(x+.3,top+.9);c.lineTo(x+1.3,top-1.2);c.lineTo(x+2.2,top+.4);c.stroke();
+  c.strokeStyle=rgba('#000000',.7);c.lineWidth=.5;c.beginPath();c.moveTo(x-2.2,top+3.4);c.lineTo(x+.6,top+2.2);c.stroke();
+  vine(c,[{x,y:base-14},{x,y:top+3}],{w:.6,amp:1.6,wave:14,leaf:2,every:2,seed:lx,col:C.gold});
+  c.restore();}
+// the felled lamp's post from the cut up, in a picture of its own for the page to lay down as it falls (sk_lanternui.js): drawn as
+// the street draws it (at its scale LK), px pixels a world unit; in world units about the cut on the post's middle, the picture's
+// corner at (x0, y0), w by h, and the lantern's middle at (lanX, lanY)
+let POSTSP={};
+function postSprite(lx){const cut=typeof LAMP_FELL!=='undefined'?LAMP_FELL.cut:24,key=lx+':'+cut;if(POSTSP[key])return POSTSP[key];
+  const px=3,x=fx(lx,LAMPD),base=fy(LAMPD),u0=-10,u1=26,v0=-158,v1=-cut,cv=document.createElement('canvas');
+  cv.width=Math.ceil((u1-u0)*LK*px);cv.height=Math.ceil((v1-v0)*LK*px);const c=cv.getContext('2d');
+  c.setTransform(LK*px,0,0,LK*px,-LK*px*(x+u0),-LK*px*(base+v0));c.beginPath();c.rect(x+u0,base+v0,u1-u0,v1-v0);c.clip();lampPost(c,lx);
+  return POSTSP[key]={cv,px,x0:u0*LK,y0:(v0-v1)*LK,w:(u1-u0)*LK,h:(v1-v0)*LK,lanX:16*LK,lanY:(-141+cut)*LK};}
 // the bistro's lanterns, hung from gilt brackets
 function lantern(c,lx,ly){c.strokeStyle='#09080c';c.lineWidth=1.2;c.beginPath();c.moveTo(lx,ly-10);c.lineTo(lx+9,ly-10);c.stroke();scroll(c,lx+3,ly-6,3,1,C.gold,.6,1.2);
   c.fillStyle='#09080c';c.fillRect(lx-1,ly-12,2,4);c.fillStyle=rgba(C.rim,.3);c.fillRect(lx-1,ly-12,2,.4);
@@ -847,9 +871,9 @@ function paint(c){SPILL=[];
     // the windows' light lying out across the flags, in front of each window
     // (the shared soft piece laid on the flags: full at the facade, spreading a little as it comes, its sides feathered)
     for(const s of SPILL){const w=s.x1-s.x0;softSpill(c,(s.x0+s.x1)/2-DF*PSX,d1,w,w+24,54,s.col||'#ffb060',.21*s.a,g);}
-    const y1=fy(126);for(const lx of LAMPX){const q=lampAt(lx);wetStreak(c,q.x,base+2,y1,16,'#ffc477',.35,lx);}
+    const y1=fy(126);for(const lx of LAMPX){if(lx===cutLamp())continue;const q=lampAt(lx);wetStreak(c,q.x,base+2,y1,16,'#ffc477',.35,lx);}
     for(const [sx,a] of [[BG.wcx[0],.3],[BG.wcx[1],.3],[BG.dcx,.22],[600,.18],[40,.16],[790,.15],[1060,.16],[-80,.12]])wetStreak(c,sx,base+2,y1,30,'#ffb866',a,sx+3);
-    for(const lx of LAMPX){const q=pp(lx+16*LK,g,LAMPD-20);glow(c,q.x,q.y,80,'#ffb866',.16,.3);}
+    for(const lx of LAMPX){if(lx===cutLamp())continue;const q=pp(lx+16*LK,g,LAMPD-20);glow(c,q.x,q.y,80,'#ffb866',.16,.3);}
     coalHole(c,512,190);coalHole(c,640,192);
     bistroSteps(c);
     if(blown())pavementBlown(c,g);}
@@ -861,7 +885,7 @@ function paint(c){SPILL=[];
       if(r()<.4){const t=r(),cq=pp(x+4+t*20,g,126);c.fillStyle=rgba('#000000',.55);c.beginPath();c.moveTo(cq.x,cq.y);c.lineTo(cq.x+3,cq.y);c.lineTo(cq.x+1.4,cq.y+1.6);c.fill();}}
     c.restore();
     line(c,[a,b],rgba(C.rim,.55),1.1);
-    for(const lx of LAMPX){const q=pp(lx+16,g,126);c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,q.x-60,0,q.x+60,0,[[0,rgba('#ffb866',0)],[.5,rgba('#ffb866',.18)],[1,rgba('#ffb866',0)]]);c.fillRect(q.x-60,a.y,120,f.y-a.y);c.restore();}}
+    for(const lx of LAMPX){if(lx===cutLamp())continue;const q=pp(lx+16,g,126);c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,q.x-60,0,q.x+60,0,[[0,rgba('#ffb866',0)],[.5,rgba('#ffb866',.18)],[1,rgba('#ffb866',0)]]);c.fillRect(q.x-60,a.y,120,f.y-a.y);c.restore();}}
   // the road: granite setts wet from the rain, two pairs of grooved tram rails, a gutter by the kerb
   {const rv=[pp(X0,GB,120),pp(X1,GB,120),pp(X1+110,GB,E.NEAR),pp(X0,GB,E.NEAR)];
     c.save();poly(c,rv);c.clip();c.transform(1,0,PSX,-PSY,0,GB);const ps=c.createPattern(TX().setts(7,{c0:'#28222a',c1:'#423a40',farX:true}),'repeat');if(ps.setTransform)ps.setTransform(new DOMMatrix().rotate(90).scale(1/6));
@@ -871,12 +895,12 @@ function paint(c){SPILL=[];
     for(const gx of [176,560,940])grate(c,gx);
     for(const d of [30,40,74,84]){const q0=pp(X0,GB,d),q1=pp(X1,GB,d);c.fillStyle='#050407';c.fillRect(q0.x,q0.y-1.6,q1.x-q0.x,1.2);c.fillStyle='#0b0a0e';c.fillRect(q0.x,q0.y-.6,q1.x-q0.x,1.8);
       c.fillStyle=rgba('#d8c0a8',.38);c.fillRect(q0.x,q0.y-.6,q1.x-q0.x,.6);}
-    const y0=fy(120)+3;for(const lx of LAMPX){const q=lampAt(lx);wetStreak(c,q.x+4,y0,GB+70,26,'#ffc477',.42,lx*3);}
+    const y0=fy(120)+3;for(const lx of LAMPX){if(lx===cutLamp())continue;const q=lampAt(lx);wetStreak(c,q.x+4,y0,GB+70,26,'#ffc477',.42,lx*3);}
     for(const [sx,a] of [[230,.22],[320,.2]])wetStreak(c,sx,y0,GB+40,50,'#ff9a50',a,sx*7);
     const r=rng(33);for(let i=0;i<8;i++){const px=r()*W,pd=10+r()*96,q=pp(px,GB,pd),rw=14+r()*30;c.fillStyle=rgba('#07070d',.45);c.beginPath();c.ellipse(q.x,q.y,rw,rw*.16,0,0,TAU);c.fill();
       c.strokeStyle=rgba('#ffd8a0',.14);c.lineWidth=.6;c.beginPath();c.ellipse(q.x,q.y,rw,rw*.16,0,Math.PI*1.1,Math.PI*1.9);c.stroke();}}
   // the lamps along the far kerb, and in front of the bistro its bay trees and its menu
-  for(const lx of LAMPX)about(c,fx(lx,LAMPD),fy(LAMPD),LK,()=>lampPost(c,lx));
+  for(const lx of LAMPX)about(c,fx(lx,LAMPD),fy(LAMPD),LK,()=>lx===cutLamp()?lampStump(c,lx):lampPost(c,lx));
   {const at=(X,d,fn,k)=>{const x=X-d*PSX,q=pp(x,g0(),d);about(c,q.x,q.y,k||PK,()=>fn(c,x,d));};
     if(blown()){at(BG.DR[0]-24,205,bayTreeDown,1.7);at(BG.DR[1]+24,205,bayTreeScorched,1.7);at(152,202,chalkMenuDown,1.9);}
     else{at(BG.DR[0]-24,205,bayTree,1.7);at(BG.DR[1]+24,205,bayTree,1.7);at(152,202,chalkMenu,1.9);}}
@@ -888,7 +912,7 @@ let LREG=false;
 function live(){const t=S.t,bt=typeof S.bistroBlast==='number'?t-S.bistroBlast:-1,calm=typeof reduceMotion!=='undefined'&&reduceMotion;ctx.save();
   if(!blown())liveDining(t,calm);
   const dip=bt>=0&&bt<.7?(calm?.5:.5+.5*Math.sin(bt*60))*(1-bt/.7):0;
-  for(const lx of LAMPX){const q=lampAt(lx),x=q.x,y=q.y,f=(.93+.07*Math.sin(t*7+lx)*Math.sin(t*3.1+lx*.3))*(1-.6*dip);
+  for(const lx of LAMPX){if(lx===cutLamp())continue;const q=lampAt(lx),x=q.x,y=q.y,f=(.93+.07*Math.sin(t*7+lx)*Math.sin(t*3.1+lx*.3))*(1-.6*dip);
     glow(ctx,x,y,22*LK,'#fff0cc',.9*f);glow(ctx,x,y,70*LK,'#ffb866',.3*f);beam(ctx,x,y+8*LK,10*LK,110*LK,190,'#ffcf86',.06*f);}
   if(blown())liveBlown(t);
   if(bt>=0)liveBlast(t);
@@ -965,7 +989,7 @@ function liveBlast(t){const dt=t-S.bistroBlast;if(!(dt>=0&&dt<3.4))return;
   {const R=rng(1021);for(let i=0;i<n(16);i++){const t0=.28+R()*.6,life=2.1+R()*1.1,sx=cx+(R()-.5)*ar,sy=yc-ar*.3+R()*20*k,dr=(R()-.5)*70*k,up=(130+R()*120)*k,r0=(12+R()*10)*k,ph=R()*6,u=(dt-t0)/life;if(u<0||u>=1)continue;
     const x=sx+dr*u+Math.sin(u*3+ph)*10*k,y=sy-up*(1-Math.pow(1-u,1.6)),rr=r0*(1+2.6*u),a=.58*Math.min(1,u*5)*(1-u),col=smokeCol(.3+u*.7);ctx.fillStyle=rad(ctx,x,y,0,rr,[[0,rgba(col,a)],[1,rgba(col,0)]]);ctx.beginPath();ctx.arc(x,y,rr,0,TAU);ctx.fill();}}}
 // the light that falls on a fighter: the nearest lamp
-function light(f){const px=f.p[PEL].x+f.dep*PSX;let best=null,bd=1e9;for(const lx of LAMPX){const x=lampAt(lx).x,dd=Math.abs(x-px);if(dd<bd){bd=dd;best=x;}}
+function light(f){const px=f.p[PEL].x+f.dep*PSX;let best=null,bd=1e9;for(const lx of LAMPX){if(lx===cutLamp())continue;const x=lampAt(lx).x,dd=Math.abs(x-px);if(dd<bd){bd=dd;best=x;}}
   return{light:{x:best-f.dep*PSX,y:lampAt(LAMPX[0]).y+f.dep*PSY},col:'#ffc98a'};}
 // the doorway for the story: where it is on the street (x and depth as the game counts them), the sill on screen (y), the top of its
 // arch and of the fascia over it
@@ -974,6 +998,6 @@ function doorAt(){const g=BG,d=DF-2;return{x:g.dcx-d*PSX,dep:d,y:g.dBase,top:g.y
 // during a fight here, if it can (the bistro's fascia)
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the sodium lamps' light on the flags and the fronts behind the fight
 const SET={col:'#ffd6a7',soft:.8,y:[GB-360,GB-280,GB-60,GB+20]};
-E.S.street={set:SET,paint,live,light,key:()=>'street:'+(blown()?'blown':'intact'),lamps:LAMPX,doorAt,lookUp:BG.gTop-10,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'town'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('town'):false};
+E.S.street={set:SET,paint,live,light,key:()=>'street:'+(blown()?'blown':'intact')+(cutLamp()!=null?':lamp'+cutLamp():''),lamps:LAMPX,lampAt,postSprite,doorAt,lookUp:BG.gTop-10,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'town'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('town'):false};
 })();
 // ===== ENV STREET END =====

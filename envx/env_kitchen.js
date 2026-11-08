@@ -196,12 +196,18 @@ function table(){const T=S.table;if(!T||!T.on||T.state==='broken'||S.room!=='kit
   const a0=o(Q[0],-4,-2),a1=o(Q[1],4,-2),b0=o(Q[0],-4,9),b1=o(Q[1],4,9);
   quad([at(a0,bk),at(a1,bk),at(a1,fr),at(a0,fr)],'#8a6440');
   {const A=at(a0,bk),B=at(a1,bk),F=at(a1,fr),G=at(a0,fr);ctx.fillStyle=rad(ctx,(A.x+F.x)/2,(A.y+F.y)/2,2,Math.abs(B.x-A.x)/2,[[0,rgba('#000000',.2)],[1,rgba('#000000',0)]]);ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.lineTo(F.x,F.y);ctx.lineTo(G.x,G.y);ctx.closePath();ctx.fill();}
-  ctx.strokeStyle=rgba('#3a2412',.45);ctx.lineWidth=.7;ctx.beginPath();for(const u of [.2,.4,.6,.8]){const q1=at(lp(a0,a1,u),bk),q2=at(lp(a0,a1,u),fr);ctx.moveTo(q1.x,q1.y);ctx.lineTo(q2.x,q2.y);}ctx.stroke();
+  ctx.strokeStyle=rgba('#3a2412',.18);ctx.lineWidth=1.5;ctx.beginPath();for(const u of [.2,.4,.6,.8]){const q1=at(lp(a0,a1,u),bk),q2=at(lp(a0,a1,u),fr);ctx.moveTo(q1.x,q1.y);ctx.lineTo(q2.x,q2.y);}ctx.stroke();
   quad([at(a0,fr),at(a1,fr),at(b1,fr),at(b0,fr)],'#5a3a20');
-  ctx.strokeStyle=rgba('#2a160a',.6);ctx.lineWidth=.9;ctx.beginPath();for(let u=0;u<=1.001;u+=.1){const a=at(lp(a0,a1,u),fr),b=at(lp(b0,b1,u),fr);ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);}ctx.stroke();
+  ctx.strokeStyle=rgba('#2a160a',.42);ctx.lineWidth=1.5;ctx.beginPath();for(let u=0;u<=1.001;u+=.1){const a=at(lp(a0,a1,u),fr),b=at(lp(b0,b1,u),fr);ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);}ctx.stroke();
   {const t1=at(a0,fr),t2=at(a1,fr);seg(t1,t2,.8,rgba(C.rim,.5));}
-  const cq=at(lp(a0,a1,.62),T.dep-4),ang=Math.atan2(uy,ux);ctx.save();ctx.translate(cq.x,cq.y);ctx.rotate(ang);
-  ctx.fillStyle=lin(ctx,0,-11,0,2,[[0,'#c8d0d4'],[1,'#6a7276']]);ctx.beginPath();ctx.moveTo(-9,2);ctx.lineTo(7,2);ctx.lineTo(7,-9);ctx.lineTo(-9,-11);ctx.closePath();ctx.fill();ctx.fillStyle='#1a0e08';ctx.fillRect(7,-8,12,3.4);ctx.fillStyle=C.goldD;ctx.fillRect(9,-7.4,1,2.2);ctx.fillRect(15,-7.4,1,2.2);ctx.restore();
+  // the cleaver: where it was left, or where it bit (sk_lantern.js, S.cleaver: deeper in a fresh cut, and a scar of pale wood round
+  // it), or nowhere while it is in Orrin's hand
+  const CL=typeof S!=='undefined'?S.cleaver:null;
+  if(!(CL&&CL.state==='hand')){const u=CL&&CL.state==='block'?clamp((CL.x-a0.x)/((a1.x-a0.x)||1),.06,.94):.62,dp=CL&&CL.deep?3.4:0,cq=at(lp(a0,a1,u),T.dep-4),ang=Math.atan2(uy,ux);
+    ctx.save();ctx.translate(cq.x,cq.y);ctx.rotate(ang);
+    if(dp){ctx.fillStyle=rgba('#e8c89a',.55);ctx.beginPath();ctx.ellipse(-1,2,11.5,1.6,0,0,TAU);ctx.fill();ctx.fillStyle=rgba('#1a0c06',.75);ctx.fillRect(-10,1.2,18,1.2);}
+    ctx.translate(0,dp);ctx.beginPath();ctx.rect(-14,-16,40,18-dp*.2);ctx.clip();
+    ctx.fillStyle=lin(ctx,0,-11,0,2,[[0,'#c8d0d4'],[1,'#6a7276']]);ctx.beginPath();ctx.moveTo(-9,2);ctx.lineTo(7,2);ctx.lineTo(7,-9);ctx.lineTo(-9,-11);ctx.closePath();ctx.fill();ctx.fillStyle='#1a0e08';ctx.fillRect(7,-8,12,3.4);ctx.fillStyle=C.goldD;ctx.fillRect(9,-7.4,1,2.2);ctx.fillRect(15,-7.4,1,2.2);ctx.restore();}
   ctx.restore();return true;}
 // enamel lamps: dark green shades lined white, a warm bulb
 function lamp(L){if(L.kind!=='hood')return false;const p=L.p,a=P(L.x,L.ay,L.dep),q=P(p.x,p.y,L.dep),k=lampGlow(L);ctx.save();
