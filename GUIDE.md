@@ -356,6 +356,40 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   from the stage's start, the frames drawn until it comes, places.js and lines.js; a `'t'` moment's shot comes about a third of a
   second past it, and a moment under two seconds or one too close after the one before lands later still: V104's first review shot
   `lanternup_t2.6` and `shaftfire_t2.5` in the stages after them).
+- Under the city (since V105, asked for: goblins chasing the train on a pump trolley, Ilyas throwing one into its lever and the cart
+  flipping; the line crossing a flooded cistern on a chewed trestle that goes down a section at a time right behind the flatcar; the
+  goblins cutting the brakes, the train smashing through the buffer stop into Ixet's camp, Ilyas leaping clear at the last second):
+  sk_under.js and sk_underui.js. The flatcar's tail is in the line's picture now (`LINE_REAR`: the tunnel painter's deck ends there,
+  with the end beam's buffers, the coupling and a red tail lamp; behind it the line's bed at `LINE_RT` with its sleepers and the car's
+  own rails, `behind`, and the dark down the line laid over it and over the trolley a little way back, `lineDark`). A body off the back
+  of the car stands and lies on that bed (`f.offCar`, Fighter.gr; `f.offstage` too, so the world's edge at x 8 does not hold it) and is
+  left behind at the line's speed (`f.leftBehind`). A scene's camera can look past the stage's left edge (`S.camCut.x0`: how far left
+  the view's edge may go, sk_storyui.js; by default 130 left of 0). The trolley is the line's set piece (`trolley`, due once the fight
+  is five turns in and a goblin on the deck is free): `S.trolley` comes up out of the dark (`come`) and holds just off the tail
+  (`chase`, `trolleyHold`); its crew are drawn goblins, Fighter objects not in S.F, posed each step from the cart and its walking beam
+  (`gobPose`, the game's ik for knees and elbows; `trolleyBeam`) and drawn by the tunnel painter behind the car (`crew`, the car's deck
+  and side over them); the goblin he throws is the fight's own, by the game's carry, onto the beam's pivot, and then the cart goes over
+  its front axle (`trolleyXf`: every point of it and its crew through it), its crew thrown off (`crewFling`, `flingStep`: up and over,
+  down onto the bed, and away at the line's speed), and falls behind. The line's end is `lineEnd`: the brakes on for the trestle,
+  `S.cistern` (x0 to x1 along the line, the screen's x plus S.scroll) where the tunnel painter leaves its wall, vault, bed and the road
+  beside out (`cisSpan`, `cisPath`) and draws the flooded hall instead (`cisBack`: the water at `WY`, a row of piers with a lamp on one
+  here and there and its streak in the water, the street's light in gold shafts from the drains' gratings, `shafts`, mist, the hall's
+  near wall's face) and the trestle (`trestle`: a bent of three posts every `CIS.sec` with its braces, gnawed low, the stringers,
+  sleepers and rails); behind the tail each section goes down once the car is off it (`falls[k]`, the game's: when), and its timbers
+  float where it went in. Then the goblin at the brake hose at the near side's bogie (`S.brakeCut`, `BRAKE`, a drawn goblin; he goes
+  down on a knee at the edge to look over it, `edgeLook`; the tunnel painter draws the train pipe, the hose and its cylinder, cut,
+  whipping and blowing its air out, `brakeGear`), and the train running on into the dark. The deep station's opening is `deepCrash`:
+  the train's light growing in the left bore (`S.boreLight`, the station painter's `boreLight`), then the train out of it at `DEEP_RUN`
+  with him on the flatcar's front (`DEEP_FRONT`); in slow time he leaps off over the pit's edge onto the platform (`leapOff`, the
+  vault's poses) and the engine goes through the buffer stop (`BUF`) into the camp (`trainCrash`, `S.wreck`): it ploughs on `BUF.stop`
+  and rears up on its trailing wheel (`T.tilt`; the car off its rails, `T.carTilt` and `T.carDrop`: the train painter turns its parts by
+  them and steams, `wreckFx`), its lamp and core going in fits; Ixet comes out of the smoke and the goblins drop in. The station painter
+  draws the end of the line at the tower's end (`campLive`: the buffer stop, the barricade of junk, the hides on poles across the depot
+  bore's mouth, Ixet's seat of sleepers, the fire in its drum; thrown about once `S.wreck` is set) and the pieces thrown out in front of
+  the engine (`wreckItem`, by depth). The look tools can shoot a moment of a closing scene (`'o6'`: seconds from its start) and of the
+  first scene played in a fight, a set piece's (`'c3'`), places.js and lines.js: the line's trolley, trestle and brakes (`line_c3.7`,
+  `line_o8`, `line_o14`) and the crash (`deep_x4.6`). In the shaft (V104's) the fireball's light ahead of it goes on past the car's roof down the walls
+  either side of the car, and the dark fire over it warms into its front: at V104's review each ended in a straight line.
 - The held sounds (sk_storyui.js, run from `V11UI.tick`): the bike's engine (`engineFrame`: the first bike in `S.veh` with `run`
   above 0 and near the picture; its level `ENG_LVL` x run, a quarter when far), the rails (`railFrame`) and the wind (`windFrame`).
   Each is one voice made once and set every frame. A held voice's modulation must work on a gain of its own ahead of the level,
@@ -1302,7 +1336,7 @@ test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V105 ..." (V104 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V106 ..." (V105 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

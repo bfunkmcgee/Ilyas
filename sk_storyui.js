@@ -73,7 +73,9 @@ function storyQuiet(){return!!(S.story&&(S.game.phase==='cut'||S.story.step!=='f
 
 // ---------- the scene's camera ----------
 // a scene sets where the camera looks and how wide (and, if it wants, where and how wide on a narrow screen: C.xn, C.wn, which may
-// come as close as 200 units across, a close-up on an upright phone); it eases there at the scene's own rate.
+// come as close as 200 units across, a close-up on an upright phone); it eases there at the scene's own rate. The view's left edge
+// goes no further left than 130 units left of the stage's 0, unless the scene says how far (C.x0: since V105, the line behind the
+// flatcar's tail).
 // On an upright phone a scene that gives no narrow view or band of its own frames the way the push-in frames a fight (the style
 // guide's rule 1) in a place whose picture stops at its ceiling or its dark (EnvLook.S[k].close: the Sump's rooms and its roof),
 // where the view it asks for is taller between the bars than the place is painted (the layer's top to its bottom, the part that is
@@ -106,7 +108,7 @@ function camCutFit(C,wOld){
     else if(!C.k){if(reduceMotion){const h=cam.viewW/2;k=F.lo<=F.hi&&(F.lo<cam.x-h||F.hi>cam.x+h)||Math.abs(F.w-cam.viewW)>F.w*.2?1:0;if(k)cam.cut=true;}
       else k=Math.min(1,rdt*2.2);}
     w=F.w;tx=F.x;}
-  cam.viewW+=(w-cam.viewW)*k;const x=clamp(tx,cam.viewW/2-130,W-cam.viewW/2+200);cam.x+=(x-cam.x)*k;};}
+  cam.viewW+=(w-cam.viewW)*k;const x=clamp(tx,cam.viewW/2+(C.x0??-130),W-cam.viewW/2+200);cam.x+=(x-cam.x)*k;};}
 
 // on a moving road the camera keeps to the riders still in the fight (whole bikes, not just the men on them), never to the ones
 // the road has taken, nor to anyone the scene keeps out of its framing (f.camSkip: the man in the truck's bed) (and pushes in for

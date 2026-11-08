@@ -11,7 +11,8 @@
 //     OLD LINE (left) and TOWER (right).
 //   'tower', the deep station under the tower: at the left end a sealed iron service door where the lift would be; at the right end a
 //     caged freight lift goes up to the tower, an iron shaft with a counterweight and a brass call panel (its gate opens with S.lift,
-//     the cage climbs with S.liftY); the signs read LANTERN (left) and DEPOT (right).
+//     the cage climbs with S.liftY); the signs read LANTERN (left) and DEPOT (right). The main line ends here (since V105): a buffer
+//     stop in the pit, and Ixet's camp past it in the pit's end and across the depot bore's mouth (campLive).
 // Layout, world units (x along the platform, depth into the picture): the platform from depth 8 (its near edge) to 186 (its far edge
 // over the main line), and back to the wall (depth 286) at both ends, left of x 178 and right of x 706. The main line's pit between
 // them is 44 below the platform, its rails at depths 214 and 258. The siding's pit in front is 22 below, its near rail at depth -4.
@@ -281,6 +282,76 @@ function shaftFront(c){const {x0,x1,d0,h}=CAGE;
   const ang=Math.PI+clamp(S.liftY/400,0,1)*Math.PI;c.strokeStyle='#ff6a4a';c.lineWidth=.99;c.beginPath();c.moveTo(p.x,p.y-8);c.lineTo(p.x+Math.cos(ang)*4,p.y-8+Math.sin(ang)*4);c.stroke();
   for(const [dy,on] of [[2,lit&&S.liftY<1],[8,lit]]){c.fillStyle='#120e08';c.beginPath();c.arc(p.x,p.y+dy,2.2,0,TAU);c.fill();if(on){c.fillStyle=rgba('#ffb85a',.7+.3*bl);c.beginPath();c.arc(p.x,p.y+dy,1.5,0,TAU);c.fill();glow(c,p.x,p.y+dy,7,'#ffb85a',.5*bl);}}}
 
+// ---------- the end of the line, and Ixet's camp (since V105) ----------
+// At the tower's end the main line stops: a buffer stop across its rails in the pit (BUFX: two oak baulks on iron stanchions, a red
+// lamp on a post over them), and past it, in the pit's end and the mouth of the old depot's bore, Ixet has his camp: a barricade of the
+// tunnel's junk, hides hung on poles against the wall, his seat of stacked sleepers under a hide, a fire in an iron drum, skulls on
+// stakes. When the train has come through it (S.wreck, the game's) the stop is broken timber and bent iron, the camp is thrown about
+// round the engine's nose and its drum is over (the game's own fires burn on in the pit); a few of the pieces lie on the platform's
+// edge in front of the engine (wreckItem: drawn by depth, after it).
+const BUFX=typeof BUF!=='undefined'?BUF.x:600,CAMP={x0:BUFX+14,x1:MAIN.x1};
+// (in the pit a thing shows only above the platform's far edge: the pit's clip, at its own depth)
+function inPit(c,d,fn){c.save();pitClip(c,d);try{fn();}finally{c.restore();}}
+function campLive(c,t){if(END()!=='tower')return;const W=S.wreck,wu=W?t-W.t0:-1,rg=GB+PIT-3,r=rng(101);
+  // the hides on their poles against the wall by the bore's mouth: two poles leant on the tiles, a hide stretched between, another on
+  // a cord; torn down and hanging off one pole once the engine has been through
+  const hide=(xa,xb,d,yt,h,col,down)=>{const a=q(xa,yt,d),b=q(xb,yt+(down?28:4),d),e=q(xb-(down?10:4),yt+h+(down?40:0),d),f=q(xa+3,yt+h,d);
+    c.fillStyle=col;c.beginPath();c.moveTo(a.x,a.y);c.quadraticCurveTo((a.x+b.x)/2,a.y+6,b.x,b.y);c.lineTo(e.x,e.y);c.quadraticCurveTo((e.x+f.x)/2+6,(e.y+f.y)/2+8,f.x,f.y);c.closePath();c.fill();
+    c.fillStyle=rgba('#000000',.35);c.fill();c.strokeStyle=rgba('#d8b07a',.22);c.lineWidth=1.5;c.beginPath();c.moveTo(a.x,a.y);c.quadraticCurveTo((a.x+b.x)/2,a.y+6,b.x,b.y);c.stroke();
+    c.fillStyle=rgba('#120a06',.6);for(let k=0;k<4;k++){const u=.2+k*.2,p={x:lerp(a.x,e.x,u)+4,y:lerp(a.y,e.y,u)+3};c.beginPath();c.ellipse(p.x,p.y,4,2.4,.3,0,TAU);c.fill();}};
+  inPit(c,280,()=>{for(const [x,lean] of [[CAMP.x0+10,-.12],[CAMP.x1-6,.1]]){const f=q(x,rg,280),tp=q(x+lean*160,rg-170,282);line(c,[f,tp],'#1a120a',4);line(c,[{x:f.x+1.5,y:f.y},{x:tp.x+1.5,y:tp.y}],rgba('#a07a4a',.25),1.5);}
+    hide(CAMP.x0+14,CAMP.x1-14,280,rg-150,92,'#5a3a22',!!W);if(!W||wu<.2)hide(CAMP.x0+30,CAMP.x0+62,276,rg-108,58,'#6a4a2a',false);});
+  // his seat: sleepers stacked in a block against the wall, a hide thrown over it, a goblin's skull set on each corner
+  inPit(c,268,()=>{const x=CAMP.x1-40,d=262,y0=rg,h=W?26:44;if(!W||wu<.15){const A=q(x-22,y0-h,d-14),B=q(x+22,y0-h,d-14),Ct=q(x+22,y0-h,d+14),D=q(x-22,y0-h,d+14),Bb=q(x+22,y0,d-14),Ab=q(x-22,y0,d-14);
+      poly(c,[Ab,Bb,B,A],'#24180e');poly(c,[A,B,Ct,D],'#3a2616');for(let k=1;k<4;k++){const yy=y0-h*k/4,p=q(x-22,yy,d-14),p2=q(x+22,yy,d-14);line(c,[p,p2],rgba('#000000',.55),1.5);}
+      c.fillStyle='#6a4a2a';c.beginPath();c.moveTo(A.x+2,A.y);c.lineTo(B.x+4,B.y+2);c.lineTo(B.x+2,B.y+16);c.lineTo(A.x-2,A.y+12);c.closePath();c.fill();
+      for(const p of [A,B]){c.fillStyle='#cfc4a8';c.beginPath();c.ellipse(p.x,p.y-4,4.2,3.6,0,0,TAU);c.fill();c.fillStyle='#120c08';c.fillRect(p.x-2.4,p.y-5,1.6,1.6);c.fillRect(p.x+.8,p.y-5,1.6,1.6);}}});
+  // the barricade across the pit's end: sheet iron leant on stacked crates, a cart wheel, a bed's iron frame, rails bent up out of the
+  // bed; flattened and thrown about once the engine has gone into it
+  inPit(c,240,()=>{if(W&&wu>.1){for(let i=0;i<9;i++){const x=CAMP.x0+10+r()*(CAMP.x1-CAMP.x0-10),d=214+r()*60,h=6+r()*16,w=10+r()*22,p=q(x,rg-h,d);c.save();c.translate(p.x,p.y);c.rotate((r()-.5)*1.4);c.fillStyle=r()<.5?'#2a1c10':'#1a1a20';c.fillRect(-w/2,-3,w,6);c.restore();}return;}
+    const box=(x,d,w,dd,h,z,col)=>{const y0=rg-z,y1=y0-h,A=q(x,y0,d),B=q(x+w,y0,d),Bt=q(x+w,y1,d),At=q(x,y1,d),Ct=q(x+w,y1,d+dd),Dt=q(x,y1,d+dd),Cb=q(x+w,y0,d+dd);
+      poly(c,[A,B,Bt,At],col);poly(c,[At,Bt,Ct,Dt],mix(col,'#ffffff',.08));poly(c,[B,Cb,Ct,Bt],mix(col,'#000000',.3));line(c,[At,Bt],rgba('#d8b07a',.22),1.5);};
+    box(CAMP.x0+4,224,30,28,30,0,'#2e2014');box(CAMP.x0+36,230,26,24,24,0,'#281a10');box(CAMP.x0+14,232,24,20,20,30,'#34241a');
+    // the sheet iron
+    {const a=q(CAMP.x0+2,rg,216),b=q(CAMP.x0+46,rg,216),e=q(CAMP.x0+40,rg-62,232),f=q(CAMP.x0-2,rg-56,230);poly(c,[a,b,e,f],'#1a1c22');c.fillStyle=rgba('#5a2a14',.5);c.beginPath();c.ellipse((a.x+e.x)/2,(a.y+e.y)/2,9,5,.4,0,TAU);c.fill();line(c,[f,e],rgba('#8a94b0',.3),1.5);}
+    // the cart wheel and the bed frame
+    {const p=q(CAMP.x0+66,rg-26,226);c.strokeStyle='#20160c';c.lineWidth=3;c.beginPath();c.ellipse(p.x,p.y,10,24,.15,0,TAU);c.stroke();c.lineWidth=1.5;c.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;c.moveTo(p.x,p.y);c.lineTo(p.x+Math.cos(a)*9,p.y+Math.sin(a)*22);}c.stroke();}
+    {const a=q(CAMP.x1-30,rg-6,220),b=q(CAMP.x1-4,rg-50,226);c.strokeStyle='#14141a';c.lineWidth=2.4;c.strokeRect(Math.min(a.x,b.x),Math.min(a.y,b.y),Math.abs(b.x-a.x)+6,Math.abs(b.y-a.y));c.lineWidth=1.5;c.beginPath();for(let k=1;k<4;k++){const y=lerp(a.y,b.y,k/4);c.moveTo(Math.min(a.x,b.x),y);c.lineTo(Math.max(a.x,b.x)+6,y);}c.stroke();}
+    // a skull on a stake at its top
+    {const f=q(CAMP.x0+30,rg-50,236),tp=q(CAMP.x0+30,rg-92,236);line(c,[f,tp],'#1a120a',2.4);c.fillStyle='#cfc4a8';c.beginPath();c.ellipse(tp.x,tp.y-4,4.6,4,0,0,TAU);c.fill();c.fillStyle='#120c08';c.fillRect(tp.x-2.6,tp.y-5,1.8,1.8);c.fillRect(tp.x+.8,tp.y-5,1.8,1.8);}});
+  // the fire in its drum; over on its side when the engine has been through, its coals out (the game's fires)
+  inPit(c,256,()=>{const x=CAMP.x1-70,d=258;if(!W){const a=q(x-12,rg,d),b=q(x+12,rg,d),tp=q(x-12,rg-34,d),tp2=q(x+12,rg-34,d);poly(c,[a,b,tp2,tp],'#1a1612');line(c,[tp,tp2],rgba('#ff9a40',.5),1.5);
+      const f=.8+.2*Math.sin(t*9)*Math.sin(t*3.3),m=q(x,rg-38,d);c.save();c.globalCompositeOperation='lighter';glow(c,m.x,m.y-8,70,'#ff8a30',.35*f);
+      for(let k=0;k<4;k++){const ph=t*3.4+k*1.7,hh=18+8*Math.sin(ph),ww=7-k;c.fillStyle=rgba(k<2?'#ffb050':'#ffe0a0',.55*f);c.beginPath();c.moveTo(m.x-ww+k*2,m.y);c.quadraticCurveTo(m.x+Math.sin(ph)*5,m.y-hh,m.x+ww-k,m.y);c.closePath();c.fill();}c.restore();}
+    else{const a=q(x-4,rg-2,d-12),b=q(x+30,rg-2,d-4);c.save();c.translate((a.x+b.x)/2,(a.y+b.y)/2);c.rotate(.18);c.fillStyle='#1a1612';c.fillRect(-18,-10,36,20);c.fillStyle=rgba('#000000',.5);c.beginPath();c.ellipse(-18,0,4,10,0,0,TAU);c.fill();c.restore();}});
+  // the buffer stop: the rails' ends turned up, two iron stanchions, the oak baulks across them, the red lamp on its post; broken
+  inPit(c,236,()=>{const x=BUFX,top=rg-34;
+    if(!W||wu<0){for(const d of RAILS){const a=q(x+6,rg,d),b=q(x+10,top+6,d);line(c,[a,b],'#121216',4);line(c,[q(x-30,rg-2,d),q(x+6,rg-2,d)],rgba('#8a94a8',.35),1.5);}
+      const A=q(x+2,top,RAILS[0]-14),B=q(x+2,top,RAILS[1]+14),Bb=q(x+2,top+14,RAILS[1]+14),Ab=q(x+2,top+14,RAILS[0]-14),T2=q(x+14,top,RAILS[0]-14),T3=q(x+14,top,RAILS[1]+14);
+      poly(c,[A,B,T3,T2],'#3a2a1a');poly(c,[Ab,A,T2,q(x+14,top+14,RAILS[0]-14)],'#2a1c10');line(c,[A,B],rgba('#d8b07a',.3),1.5);
+      // its warning: bands of faded red and bone along the baulk's end toward us
+      for(let k=0;k<3;k++){const p=q(x+2+k*4,top+2,RAILS[0]-14);c.fillStyle=k%2?'#cfc4a8':'#7a1e16';c.fillRect(p.x,p.y,4,10);}
+      const lp=q(x+8,top-44,236),lb=q(x+8,top,236),f=.85+.15*Math.sin(t*3.1);line(c,[lb,lp],'#14141a',2.4);c.fillStyle='#0c0c10';c.fillRect(lp.x-4,lp.y-8,8,9);
+      c.fillStyle=rgba('#ff4030',.95*f);c.beginPath();c.arc(lp.x,lp.y-3.5,2.6,0,TAU);c.fill();glow(c,lp.x,lp.y-3.5,26,'#ff3a2a',.45*f);}
+    else{// matchwood: the baulks split and thrown up the pit, a stanchion bent over, the rails torn up
+      for(const d of RAILS){const a=q(x+6,rg,d),b=q(x+32,top+18,d+8);line(c,[a,b],'#121216',4);}
+      const pieces=[[x-12,top-6,206,.9,30],[x+40,top+10,262,-.5,26],[x+22,top-14,236,.3,18]];
+      for(const [px,py,d,rot,L] of pieces){const p=q(px,py,d);c.save();c.translate(p.x,p.y);c.rotate(rot);c.fillStyle='#3a2a1a';c.fillRect(-L/2,-4,L,8);c.fillStyle=rgba('#d8b07a',.3);c.fillRect(-L/2,-4,L,1.5);
+        c.fillStyle='#7a1e16';c.fillRect(L/2-6,-4,4,8);c.restore();}}});}
+// the line's bore at the lantern's end: the light of the train coming down it, growing in the arch's mouth (S.boreLight, the game's),
+// and gone as the engine comes out of it in its own light
+function boreLight(c){const k0=S.boreLight||0;if(!k0||END()!=='tower')return;const T=S.story&&S.story.train,P=PORT[0];
+  const k=k0*(T?clamp(1-(T.x-MAIN.x0)/160,0,1):1);if(k<=0)return;
+  const p=q(P.x+10,yW(40),WALL),m=q(P.x,GB+PIT-16,WALL-10);c.save();c.globalCompositeOperation='lighter';
+  glow(c,p.x,p.y-6,60+70*k,'#e8f8ff',.5*k);glow(c,p.x,p.y-6,18+22*k,'#ffffff',.85*k);glow(c,m.x+24,m.y,90+60*k,'#bfeaf0',.2*k);c.restore();}
+// the pieces of the stop and the camp thrown out onto the platform's edge, in front of the engine
+function wreckItem(){return{d:EDGE+4,draw:c=>wreckFront(c||ctx)};}
+function wreckFront(c){if(END()!=='tower'||!S.wreck)return;const t=S.t,u=t-S.wreck.t0;if(u<0)return;const r=rng(211),k=clamp(u/.35,0,1);
+  for(let i=0;i<7;i++){const x0=BUFX+(r()-.4)*60,x1=BUFX-60+r()*180,d=EDGE-4-r()*20,L=8+r()*20,rot=r()*3,col=r()<.6?'#3a2a1a':r()<.5?'#5a3a22':'#1a1a20';
+    const x=lerp(x0,x1,k),h=Math.sin(k*Math.PI)*40*(.5+r()),p=q(x,GB-h-2,d);c.save();c.translate(p.x,p.y);c.rotate(rot+k*r()*4);c.fillStyle=col;c.fillRect(-L/2,-2.5,L,5);if(col!=='#1a1a20'){c.fillStyle=rgba('#d8b07a',.25);c.fillRect(-L/2,-2.5,L,1.5);}c.restore();}
+  // a bone or two among them
+  for(let i=0;i<3;i++){const x=BUFX-30+r()*120,d=EDGE-8-r()*16,p=q(lerp(BUFX,x,k),GB-2,d);c.fillStyle='#cfc4a8';c.save();c.translate(p.x,p.y);c.rotate(r()*3);c.fillRect(-5,-1.5,10,3);c.beginPath();c.arc(-5,0,2.2,0,TAU);c.arc(5,0,2.2,0,TAU);c.fill();c.restore();}}
+
 // ---------- the scene ----------
 function paint(c){const X0=-160,X1=W+240,T0=-130;
   c.fillStyle='#050406';c.fillRect(X0,T0,X1-X0+120,E.FOOT-T0);
@@ -306,6 +377,8 @@ const DRIPS=[[248,52,1.7],[566,140,2.3],[690,62,3.1],[96,150,2.6],[420,30,4.1]];
 const MOTES=(()=>{const r=rng(66),a=[];for(let i=0;i<36;i++){const L=PEND[i%3];a.push({x:L.x+(r()-.5)*120,d:L.d+(r()-.5)*60,h:20+r()*200,ph:r()*TAU,sp:.2+r()*.5});}return a;})();
 function lampLight(L,t){if(L.dead)return Math.pow(Math.max(0,Math.sin(t*13+L.x)*Math.sin(t*3.1)),6)*.6;return .82+.12*Math.sin(t*2.1+L.x*.01)+.06*Math.sin(t*7.3+L.d);}
 function live(){const t=S.t;ctx.save();
+  // the end of the line at the tower, and the camp past it (since V105)
+  campLive(ctx,t);boreLight(ctx);
   // the lamps
   ctx.globalCompositeOperation='lighter';
   // (each crystal cyan in its gold cage, a white heart in it, its light cyan going out and the brass round it gold: since V82 the drawing
@@ -388,6 +461,6 @@ function light(f){let best=PEND[0],bd=1e9;for(const L of PEND){if(L.dead)continu
 // the light on the fight (the style guide's rule 8, sk_scene_glue.js): the lamps' light on the platform, the tiles and the bores
 // behind it, a pale gold-white
 const SET={col:'#f2f2ea',soft:1,gain:1.4,air:.05,y:[GB-380,GB-290,GB-60,GB+20]};
-E.S.station={key:END,end:END,paint,live,light,fore,set:SET,kitLiftAt,liftAt,liftFront,liftFrontLater,frontItem,pitClip,LAYOUT:{WALL,PIT,EDGE,NEAR,SID,MAIN,RAILS,KL,CAGE,PORT,NEST,trainGy:GB+PIT-3,trainDep:GAUGE_C}};
+E.S.station={key:END,end:END,paint,live,light,fore,set:SET,kitLiftAt,liftAt,liftFront,liftFrontLater,frontItem,wreckItem,pitClip,LAYOUT:{WALL,PIT,EDGE,NEAR,SID,MAIN,RAILS,KL,CAGE,PORT,NEST,trainGy:GB+PIT-3,trainDep:GAUGE_C}};
 })();
 // ===== ENV STATION END =====

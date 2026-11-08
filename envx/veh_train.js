@@ -173,7 +173,9 @@ function wheel(c,x,R,a,big,blur){c.save();c.translate(x,R);
   if(blur<.8){c.globalAlpha=1-blur;c.strokeStyle=big?K.goldD:'#2a2a34';c.lineWidth=big?1.91:1.48;c.beginPath();const n=big?10:6;for(let k=0;k<n;k++){const b=-a+k*TAU/n;c.moveTo(Math.cos(b)*3,Math.sin(b)*3);c.lineTo(Math.cos(b)*(R-3.6),Math.sin(b)*(R-3.6));}c.stroke();c.globalAlpha=1;}
   if(blur>0){c.fillStyle=rgba(big?K.goldD:'#2a2a34',.35*blur);c.beginPath();c.arc(0,0,R-3.6,0,TAU);c.fill();}
   c.fillStyle=big?K.goldL:K.goldD;c.beginPath();c.arc(0,0,big?4:2.6,0,TAU);c.fill();c.restore();}
-function running(c,T,ox,oy,n,wa,blur){
+function running(c,T,ox,oy,n,wa,blur,part){
+  // (part: 'loco' for the engine's, a car's number for its bogies, nothing for all of them)
+  if(part!=null&&part!=='loco'){const f=carFront(part);for(const bx of DIM.bogies)for(const s of [-1,1])wheel(c,f+bx+s*DIM.bogieAx,DIM.carWheel,wa*DIM.wheel/DIM.carWheel,0,blur);return;}
   // the engine's three drivers, the trailing wheel under the cab, the coupling rod over the crank pins
   const R=DIM.wheel,ax=DIM.axles,cr=8;
   for(const x of ax)wheel(c,x,R,wa,1,blur);
@@ -181,6 +183,7 @@ function running(c,T,ox,oy,n,wa,blur){
   const pin=x=>({x:x+Math.cos(-wa)*cr,y:R+Math.sin(-wa)*cr});const p0=pin(ax[0]),p2=pin(ax[2]);
   c.strokeStyle=lg(c,0,R-3,0,R+3,[[0,K.goldD],[.5,K.goldL],[1,K.goldD]]);c.lineWidth=3.4;c.lineCap='round';c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p2.x,p2.y);c.stroke();
   c.fillStyle=K.ink;for(const x of ax){const q=pin(x);c.beginPath();c.arc(q.x,q.y,1.6,0,TAU);c.fill();}
+  if(part==='loco')return;
   // the cars' bogies
   for(let i=0;i<n;i++){const f=carFront(i);for(const bx of DIM.bogies)for(const s of [-1,1])wheel(c,f+bx+s*DIM.bogieAx,DIM.carWheel,wa*R/DIM.carWheel,0,blur);}}
 
@@ -221,11 +224,22 @@ function draw(c,T,o){o=o||{};const fa=T.fa<0?-1:1,n=T.cars??2,hw=T.hw??DIM.hw,d0
   c.translate(T.x+d0*PX(),T.gy-d0*PY());c.scale(fa,-1);
   // the shadow under it on the track
   c.fillStyle='rgba(0,0,0,.4)';c.beginPath();c.moveTo(-span(T).len-6,-1);c.lineTo(8,-1);c.lineTo(8+ox,oy-1);c.lineTo(-span(T).len-6+ox,oy-1);c.closePath();c.fill();
-  // the cars, the last first so each nearer the engine overlaps the coupling behind it
-  for(let i=n-1;i>=0;i--){const f=carFront(i),e=layer('car'+i+'|'+fa+'|'+hw+'|'+kb+'|'+q8,kb,f-DIM.car-10+Math.min(0,ox),f+12+Math.max(0,ox),-2,DIM.deck+oy+26,g=>{g.translate(f,0);flatcar(g,ox,oy,Lq,i,fa);});stamp(c,e);}
+  // the cars, the last first so each nearer the engine overlaps the coupling behind it (a wreck's: off its rails, T.carTilt about its
+  // front and dropped T.carDrop; since V105)
+  const tipped=!!(T.tilt||T.carTilt||T.carDrop);
+  for(let i=n-1;i>=0;i--){const f=carFront(i),e=layer('car'+i+'|'+fa+'|'+hw+'|'+kb+'|'+q8,kb,f-DIM.car-10+Math.min(0,ox),f+12+Math.max(0,ox),-2,DIM.deck+oy+26,g=>{g.translate(f,0);flatcar(g,ox,oy,Lq,i,fa);});
+    c.save();if(tipped&&i===0){c.translate(f,-(T.carDrop||0));c.rotate(T.carTilt||0);c.translate(-f,0);}stamp(c,e);if(tipped)running(c,T,ox,oy,n,wa,blur,i);c.restore();}
+  // the engine: reared up on its trailing wheel (T.tilt) when it has gone through the end of the line
+  c.save();if(T.tilt){c.translate(DIM.trailer,0);c.rotate(T.tilt);c.translate(-DIM.trailer,0);}
   stamp(c,layer('loco|'+fa+'|'+hw+'|'+kb+'|'+q8,kb,-DIM.loco-14+Math.min(0,ox),12+Math.max(0,ox),-2,DIM.roof+oy+6,g=>loco(g,ox,oy,Lq,fa)));
-  running(c,T,ox,oy,n,wa,blur);
+  running(c,T,ox,oy,n,wa,blur,tipped?'loco':null);
   lights(c,T,o,ox,oy);
+  if(T.tilt)wreckFx(c,T,o,ox,oy);
+  c.restore();
+  c.restore();}
+// a wrecked engine's breath: steam out of her split hood in wisps that rise and go, and the core's light spitting through the louvres
+function wreckFx(c,T,o,ox,oy){const now=o.now||0,h0=-DIM.loco+84,h1=-14;c.save();
+  for(let i=0;i<7;i++){const ph=(now*.45+i/7)%1,x=lerp(h0+30,h1-10,(i*.37)%1)+ox*.5,y=118+oy*.5+ph*90,r=8+ph*26;c.fillStyle=rgba('#c8d0d8',.16*(1-ph)*(ph<.1?ph*10:1));c.beginPath();c.arc(x+Math.sin(now*1.3+i)*6*ph,y,r,0,TAU);c.fill();}
   c.restore();}
 return{draw,DIM,span,deckAt,trainPt,carFront};
 })();

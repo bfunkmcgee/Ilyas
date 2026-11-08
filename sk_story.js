@@ -1126,7 +1126,8 @@ for(const [k,w] of Object.entries(BEAST_ARMS)){const base=WEAPONS[w.kind];
 
 // ===== STAGE VII: THE LINE =====
 // Down the family's private railway on an open flatcar. Feral goblins live in the old line now; they drop onto the deck out of the
-// dark and keep coming, a few at a time, until there are none left.
+// dark and keep coming, a few at a time, until there are none left. Since V105 (sk_under.js) more of them come up behind on a pump
+// trolley in the fight, and the line's end is the old cistern's trestle going down behind the car and the brakes cut.
 storyArena('tunnel',{label:'Tunnel',name:'The line',ground:()=>GB,wall:null,far:200,scroll:true,minX:70,maxX:830});
 const LINE_V=900;
 // a goblin of the line: its own dice, its own weapon
@@ -1152,20 +1153,14 @@ STAGES.push({key:'line',num:'VII',title:'The Line',sub:'Under the city, the fami
     for(const f of gs){f.hidden=false;f.setup(f.seed,f.weaponKey,f.skill,f.station,f.lane);dropIn(f,280);f.walkIn=false;yield* wait(.35);}
     yield* wait(.9);S.story.eyes=null;},
   introSkip(st){S.story.eyes=null;for(const f of S.F)if(f.team===1&&f.hidden){f.hidden=false;f.offstage=false;f.setup(f.seed,f.weaponKey,f.skill,f.station,f.lane);f.action=null;}},
-  *outro(st){const K=hero();letter(1);camTo(450,900,1);
-    K.guarding=false;K.counter=false;
-    yield* wait(.4);
-    // brakes: the train slows for the deep station, and the dark takes it (it comes in under the tower at the speed it leaves here)
-    S.story.brake=S.t;S.hooks.sound('brake',1);
-    const slow=until(()=>{S.scrollV=Math.max(330,S.scrollV-DT*380);return S.scrollV<=330;},3);
-    const dark=(function*(){yield* wait(.7);const t0=S.t;while(S.t<t0+1){S.fade=S.t-t0;yield;}S.fade=1;})();
-    yield* all(slow,dark);},
-  outroSkip(st){}});
+  *outro(st){yield* lineEnd(st);},
+  outroSkip(st){lineEndSkip(st);}});
 {const sv=STAGES.find(s=>s.key==='line');void sv;}
 
 // ===== STAGE VIII: THE DEEP STATION =====
 // The end of the line, under the tower: the lizard-man who keeps the goblins, and his crew. After them the freight lift goes up to the
-// lobby.
+// lobby. Since V105 the train comes in with no brakes and goes through the buffer stop into Ixet's camp, Ilyas leaping clear
+// (sk_under.js: deepCrash), and the wreck lies there through the fight.
 storyArena('station',{label:'Station',name:'The deep station',ground:()=>GB,wall:null,far:230});
 function stationLook(){return typeof EnvLook!=='undefined'&&EnvLook.S&&EnvLook.S.station?EnvLook.S.station:null;}
 function liftSpot(){const L=stationLook();return L&&L.liftAt?L.liftAt():{x:774,dep:237};}
@@ -1173,35 +1168,29 @@ function kitLiftSpot(){const L=stationLook();return L&&L.kitLiftAt?L.kitLiftAt()
 // the freight lift raises whoever stands in it: their ground goes up with its floor
 S.liftY=0;S.lift=0;
 {const gr=Fighter.prototype.gr;Fighter.prototype.gr=function(x){return gr.call(this,x)-(this.rideLift?S.liftY:0);};}
-const DEEP_NOSE=660,DEEP_ROLL=380,DEEP_RIDE=-350;
+// where the engine's nose is when the picture comes up, in the left bore, and where he rides, at the flatcar's front (since V105: the
+// train came in slowing to a stop with its nose at x 660 until then)
+const DEEP_IN=96,DEEP_FRONT=-270;
 STAGES.push({key:'deep',num:'VIII',title:'The Deep Station',sub:'Under Hallowell Tower',arena:'station',next:'lobby',
   foes:[{name:'Ixet',beast:'lizard',seed:8501,weapon:'glaive',skill:3,temper:'brute',hp:170,color:'#c9a24e'},
         {name:'Goblin',beast:'goblin',seed:8533,weapon:'hook',skill:1,temper:'rusher',hp:16,color:'#9fd18a'},
         {name:'Goblin',beast:'goblin',seed:8561,weapon:'boneclub',skill:1,temper:'rusher',hp:16,color:'#b8c97a'}],
   spawn:[[300,96],[600,90,1],[520,40,1],[680,140,1]],
   setup(st){const K=hero(),SL=stationLook(),LY=SL&&SL.LAYOUT||{};S.stationEnd='tower';S.kitLift=0;S.lift=0;S.liftY=0;S.fade=1;if(SL&&SL.liftFrontLater)SL.liftFrontLater(false);
-    S.F.forEach((f,i)=>{if(f.team===1){f.beast=st.foes[i-1].beast;if(f.beast==='goblin')f.name='Goblin '+String.fromCharCode(64+i);f.build();f.facing=-1;}});
-    // the train comes in off the line with him standing on its flatcar, and stops at the platform
-    const T=trainNew({x:DEEP_NOSE-DEEP_ROLL,gy:LY.trainGy??GB+TRAIN.deck,dep:LY.trainDep??236,fa:1,cars:1,lamp:1});S.story.train=T;
-    standEasy(K);stowBlade(K);K.zMax=290;K.station=T.x+DEEP_RIDE;K.lane=K.dep=K.stepDep=T.dep-8;K.facing=1;K.offstage=true;K.build();
+    S.F.forEach((f,i)=>{if(f.team===1){f.beast=st.foes[i-1].beast;if(f.beast==='goblin')f.name='Goblin '+String.fromCharCode(64+i);f.facing=-1;
+      // (they are in the camp when the train comes: out of sight until it has been through, Ixet at its edge)
+      if(f.beast==='lizard'){f.station=718;f.lane=f.dep=f.stepDep=176;}f.build();f.hidden=true;f.offstage=true;}});
+    // the train comes in off the line with him on its flatcar's front, at speed, with no brakes (sk_under.js)
+    const T=trainNew({x:DEEP_IN,gy:LY.trainGy??GB+TRAIN.deck,dep:LY.trainDep??236,fa:1,cars:1,lamp:1});S.story.train=T;
+    standEasy(K);stowBlade(K);K.zMax=290;K.station=T.x+DEEP_FRONT;K.lane=K.dep=K.stepDep=T.dep-8;K.facing=1;K.offstage=true;K.build();
     T.riders.push(K);K.pitClip=T.dep;
     storyCrew({room:'deep',beast:'goblin',name:'Goblin',color:'#a7c98a',hp:16,queue:[0,1].map(i=>goblinCfg(8600,i)),arrive:f=>dropIn(f,200)});},
-  *intro(st){const K=hero(),V=S.F[1],T=S.story.train;
-    letter(1);camTo(450,900,0);S.fade=1;
-    // in off the line, slowing, the brakes at the last
-    const fade=(function*(){const t0=S.t;while(S.t<t0+1){S.fade=1-(S.t-t0);yield;}S.fade=0;})();
-    const brake=(function*(){yield* wait(2.1);S.hooks.sound('brake',1);})();
-    yield* all(trainTo(T,DEEP_NOSE,3.4,eOut),fade,brake);
-    T.riders.length=0;
-    yield* wait(.5);
-    // off the flatcar and onto the platform
-    K.pitClip=null;yield* goTo(K,st.spawn[0][0],st.spawn[0][1],84);K.zMax=null;K.offstage=false;
+  *intro(st){yield* deepCrash(st);
     yield* speak('Ixet','The old man told my little ones an elf would come down the line.',{dur:3.2});
     yield* speak(HERO_NAME,'So he sent you to meet me.',{dur:1.8});
     yield* speak('Ixet','He sent you to feed them.',{dur:1.8});
     yield* wait(.1);},
-  introSkip(st){const K=hero(),T=S.story.train;if(T){T.riders.length=0;T.v=0;T.x=DEEP_NOSE;}S.fade=0;K.pitClip=null;K.zMax=null;
-    K.station=st.spawn[0][0];K.lane=K.dep=st.spawn[0][1];K.offstage=false;K.build();},
+  introSkip(st){deepCrashSkip(st);},
   *outro(st){const K=hero(),L=liftSpot();letter(1);camTo(clamp(L.x-120,300,600),880,1);
     K.guarding=false;K.counter=false;
     yield* act(K,rollUpAction(K,S.t));stowBlade(K);standEasy(K);

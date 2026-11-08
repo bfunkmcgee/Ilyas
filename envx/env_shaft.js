@@ -231,11 +231,15 @@ function fore(c){c=c||ctx;const s=st();if(!s)return;const t=S.t;c.save();
       c.restore();
       if(u<.18){c.save();c.globalCompositeOperation='lighter';const v=q(L0.cx,ROOF,(CD0+CD1)/2);glow(c,v.x,v.y-10,120,'#a8d8ff',.9*(1-u/.18));c.restore();}}}
   // the fireball coming down after the car
-  if(s.ballH!=null&&s.ballH<2400){const front=ROOF-CD0*PSY-s.ballH,x0=SX0,x1=SX1+SB*PSX,R=rng(211);c.save();clip();
-    // its light down the shaft ahead of it
-    c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,front,0,front+260,[[0,rgba('#ff9a40',.5)],[1,rgba('#ff9a40',0)]]);c.fillRect(x0,front,x1-x0,260);c.restore();
-    // the shaft above it full of it: dark fire going to soot
-    {const y1=front-210;if(y1>YT){c.fillStyle=lin(c,0,YT,0,y1+40,[[0,'#120806'],[.7,'#3a1208'],[1,'#7a2a10']]);c.fillRect(x0,YT,x1-x0,y1+40-YT);}}
+  if(s.ballH!=null&&s.ballH<2400){const front=ROOF-CD0*PSY-s.ballH,x0=SX0,x1=SX1+SB*PSX,R=rng(211);
+    // its light down the shaft ahead of it, on past the car's roof down the walls either side of it, not over the car's face (clipped
+    // at the roof with the fire, at V104's review it stopped there in a straight line across the brick)
+    {const ry=ROOF-CD0*PSY,y2=front+260,cl=CX0+CD0*PSX-1,cr=CX1+CD1*PSX+1;c.save();c.beginPath();c.rect(x0,YT,x1-x0,y2-YT);if(y2>ry)c.rect(cl,ry,cr-cl,y2-ry);c.clip('evenodd');
+      c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,front,0,y2,[[0,rgba('#ff9a40',.5)],[1,rgba('#ff9a40',0)]]);c.fillRect(x0,front,x1-x0,260);c.restore();}
+    c.save();clip();
+    // the shaft above it full of it: dark fire going to soot, and warm into the boiling mass at its front (ending opaque under the puffs,
+    // it showed between them as another straight edge)
+    {const y1=front-20;if(y1>YT){c.fillStyle=lin(c,0,front-420,0,y1,[[0,'#120806'],[.45,'#3a1208'],[.75,rgba('#7a2a10',.85)],[1,rgba('#7a2a10',0)]]);c.fillRect(x0,YT,x1-x0,y1-YT);}}
     // the boiling mass above its front: puffs packed across the shaft, white-hot at the front, soot above
     // (each puff its own place and its own rise: in rows and columns that kept their places the fire read as a lattice, a pattern
     // that repeats, at V104's review)

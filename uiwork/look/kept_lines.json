@@ -2014,5 +2014,59 @@
 "src": "    c.strokeStyle='#3a9f95';c.globalAlpha=k*.22;c.lineWidth=.5;c.stroke(J.dim);c.globalCompositeOperation='source-over';",
 "med": 0.5,
 "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V104: the arc-blade rolled up and coming open, in the lift shaft"
+},
+{
+"file": "envx/beasts.js",
+"src": "e,mul(d,2.6*sz));c.strokeStyle=rgba(C.brass,.55);c.lineWidth=Math.max(.3,.5*sz);c.beginPath();c.moveTo(m.x+q.x*W(3.4),m.y+q.y*W(3.4",
+"med": 0.439,
+"why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
+},
+{
+"file": "envx/beasts.js",
+"src": "ve();c.clip(SU);c.strokeStyle=rgba('#000000',.5);c.lineWidth=Math.max(1.15,1.72*sz);c.beginPath();const t0=g.at(T*.4,-4),t1=g.at(T*",
+"med": 1.414,
+"why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
+},
+{
+"file": "envx/beasts.js",
+"src": ",8.4),bs=W(1.05);if(!bk.h){c.strokeStyle=C.brass;c.lineWidth=Math.max(.8,1.14*sz);c.beginPath();c.ellipse(bk.x,bk.y,bs,bs*1.25,Math",
+"med": 0.958,
+"why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
+},
+{
+"file": "envx/beasts.js",
+"src": "if(sp.earring&&lod>=1){c.strokeStyle=C.brass;c.lineWidth=2.48;c.beginPath();c.arc(-30,10,4.4,0,TAU);c.stroke();}",
+"med": 0.958,
+"why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
+},
+{
+"file": "envx/beasts.js",
+"src": "if(sp.hat==='tufts'){c.strokeStyle=C.mottle;c.lineWidth=3.2;c.lineJoin='round';c.stroke(P2('gtufts',()=>new Path2D(GOB_TUFTS))",
+"med": 0.958,
+"why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
+},
+{
+"file": "envx/beasts.js",
+"src": "Path2D(GOB_TUFTS)));c.strokeStyle=rgba(C.rim,.5);c.lineWidth=1;c.stroke(P2('gtufts',()=>new Path2D(GOB_TUFTS)));}",
+"med": 0.297,
+"why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
+},
+{
+"file": "envx/beasts.js",
+"src": "c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=1;c.beginPath();c.arc(lx,ly,lr*.62,3.5,4.4);c.stroke();}}",
+"med": 0.403,
+"why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
+},
+{
+"file": "envx/beasts.js",
+"src": "const rim=(pts,col)=>{c.strokeStyle=col;c.lineWidth=.97;c.globalAlpha=k*cl(.2+Math.abs(lit)*.7,0,.9);c.beginPath();c.moveT",
+"med": 0.958,
+"why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
+},
+{
+"file": "sk_ui.js",
+"src": "x.globalAlpha=a*a*.6;ctx.strokeStyle='#fff6e0';ctx.lineWidth=1.2;ctx.stroke();}",
+"med": 0.805,
+"why": "the figure tier: lines of the fighters' own drawing, held to their budgets (V84): the goblins' straps, tufts, earrings and brass, small on the trolley's crew and the goblin at the brakes, and a spin's swish; first in the review's frames in V105"
 }
 ]
