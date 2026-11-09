@@ -133,6 +133,40 @@ V11UI.init.push(()=>{if(typeof FXL==='undefined'||!FXL.lights)return;
   // the Lantern going up lights the street (there is nobody in it, but its light is in the air and on the wet)
   FXL.lights.push(add=>{const U=S.lanternUp;if(!U||S.arenaKey!=='street')return;const u=S.t-U.t0;if(u<0||u>2)return;const D=bistroDoor();add(D.x,D.y+D.dep*PSY-120,D.dep-4,u<.1?'#fff4dc':'#ffb060',1.6*Math.exp(-u*1.6),640);});});
 
+// ---------- the Lantern's roof, over its smoke (since V114) ----------
+// Once the fireball has gone up out of the roof, fire stands in the hole it left, over the foot of its smoke (the smoke is the game's
+// boom, drawn among the people, so the roof's fire goes over it here, in the world's pass: drawn by the street's painter under it, it
+// did not show), the smoke over it lit from under, and embers going up out of it into the rain.
+V11UI.world.push(()=>{const U=S.lanternUp;if(!U||S.arenaKey!=='street'||S.classicLook||typeof envKey!=='function'||envKey()!=='street')return;const u=S.t-U.t0;if(u<.8)return;
+  const L=EnvLook.S.street,R0=L&&L.openings&&L.openings().find(o=>o.kind==='roof'),K=typeof FxLook!=='undefined'&&FxLook.kit;if(!R0||!K)return;
+  const kf=clamp((u-.8)/.5,0,1),q={x:prjX(R0.x,R0.dep),y:prjY(R0.y,R0.dep)},lite=typeof FXL!=='undefined'&&!FXL.full(),t=S.t,R=mulberry32(2020),n=lite?4:7;ctx.save();
+  ctx.globalCompositeOperation='lighter';K.stamp(ctx,K.glowSpr('#ff7a30'),q.x,q.y-10,90,.22*kf*(.85+.15*Math.sin(t*6.1)));
+  // the flames: tongues standing behind the ridge (their feet hidden by it: the hole is on its far side), each on its own clock, and
+  // their bright cores over them
+  ctx.beginPath();ctx.rect(q.x-300,q.y-600,600,600);ctx.clip();
+  const T=[];for(let i=0;i<n;i++)T.push({x:q.x+(i/(n-1)-.5)*140+(R()-.5)*12,h:(64+R()*56)*kf,sp:6+R()*5,ph:R()*TAU,w:.42+R()*.16,v:i%3});
+  for(const pass of [0,1]){ctx.globalCompositeOperation=pass?'lighter':'source-over';
+    for(const f of T){const h=f.h*(.72+.28*Math.sin(t*f.sp+f.ph))*(pass?.55:1),w=h*f.w*(pass?.8:1);if(h<2)continue;ctx.globalAlpha=pass?.6:.92;ctx.drawImage(K.tongueSpr(f.v),f.x-w/2,q.y+18-h,w,h);}}
+  ctx.globalAlpha=1;
+  // embers going up out of it into the rain
+  ctx.globalCompositeOperation='lighter';for(let i=0;i<(lite?20:40);i++){const P=1.6+R()*1.4,w=((u-.8)/P+R())%1,x=q.x+(R()-.5)*110+Math.sin(w*5+i)*24*w,y=q.y-10-w*(240+R()*160),a=kf*(1-w)*(.6+.4*Math.sin(t*19+i));
+    ctx.fillStyle=`rgba(255,${i%3?176:122},${i%3?80:42},${a.toFixed(3)})`;ctx.fillRect(x,y,1.5,1.5);}
+  ctx.restore();});
+
+// ---------- the lift at the platform, burning (since V114) ----------
+// After the fire has come out of its doors (S.liftBurn, sk_story.js's liftFire), the car burns in its doorway: smoke pouring out of the
+// top of the doorway and rolling up the wall, lit from under by the fire in the car, a gout of flame out over the doorway's head in the
+// first moment, the fire's glow on the wall over it, and embers going up.
+V11UI.world.push(()=>{const t0=S.liftBurn;if(t0==null||S.arenaKey!=='station'||S.classicLook||typeof kitLiftSpot!=='function')return;const u=S.t-t0;if(u<.05)return;
+  const K=typeof FxLook!=='undefined'&&FxLook.kit;if(!K||!FxLook.smoke)return;const kl=kitLiftSpot(),d=kl.dep+12,top=GB-132,t=S.t,lite=typeof FXL!=='undefined'&&!FXL.full();ctx.save();
+  FxLook.smoke(ctx,{x:kl.x+6,y:top-4,dep:d,k:clamp((u-.05)/.8,0,1),lit:1,wind:16,rise:1.3,seed:6203},{now:t});
+  const k=clamp((u-.05)/.2,0,1)*clamp((1.1-u)/.6,0,1)*1.6,R=mulberry32(6211),n=lite?3:6,p0=P(kl.x,top,d);ctx.globalCompositeOperation='lighter';
+  K.stamp(ctx,K.glowSpr('#ff8a30'),p0.x,p0.y-10,80,.32*clamp((u-.05)/.3,0,1)*(.85+.15*Math.sin(t*9.3)));
+  for(let i=0;i<n;i++){const x=p0.x+(i/(n-1)-.5)*46+(R()-.5)*6,h=(16+R()*24)*k*(.7+.3*Math.sin(t*(8+R()*6)+i*2)),w=h*(.45+R()*.15);if(h<2)continue;ctx.globalAlpha=.85;ctx.drawImage(K.tongueSpr(i%3),x-w/2,p0.y+6-h,w,h);}
+  ctx.globalAlpha=1;for(let i=0;i<(lite?10:22);i++){const Pp=1.4+R()*1.2,w=((u/Pp)+R())%1,x=p0.x+(R()-.5)*40+Math.sin(w*6+i)*14*w,y=p0.y-w*(150+R()*100),a=Math.min(1,u*3)*(1-w)*(.6+.4*Math.sin(t*19+i));
+    ctx.fillStyle=`rgba(255,${i%3?176:122},${i%3?80:42},${a.toFixed(3)})`;ctx.fillRect(x,y,1.4,1.4);}
+  ctx.restore();});
+
 // ---------- their sounds ----------
 // the gas loose from the cut pipe; the arc off the blade; the gas catching in the shaft; the knock in the house before it goes; the fire
 // coming down the shaft (made on the page, as the hidden lift's latch and grind are: sk_secretui.js)

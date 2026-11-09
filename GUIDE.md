@@ -428,7 +428,7 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   (`fore`). The street's painter draws the house going up (`liveInferno`, `S.lanternUp`, `openings`: the windows below and upstairs,
   the door, and the roof the fireball goes up through; the game's fires burn in the two windows and the door below, and upstairs the
   painter's own rooms burn behind their frames), the ground floor's blast with it (fire rolling out of its windows and its door). Its
-  puffs of fire and smoke are made sprites, stamped (`infSpr`, `infStamp`): at V104's first review the frame at the blast's height
+  puffs of fire and smoke are made sprites (`infSpr`), stamped into soft layers since V114 (`infStamp` without the effects kit): at V104's first review the frame at the blast's height
   cost a phone twice the fall's dearest, with a gradient made for each of a hundred puffs, the grenade's blast drawn again
   (`S.bistroBlast`), a second fireball out of the door and a fire in every window upstairs; it is about one and a half times it now
   (kept.json, `lanternup_x1.4`). The car's floor is a lit steel plate so his boots and legs read on it. The page makes their sounds
@@ -493,6 +493,30 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   either still goes warm when the game offers an opening on him. Timed by turns against V111's beasts on this machine: the lizard the same,
   a goblin about a tenth dearer (more outline to rim). `node uiwork/beast_studio.js`, `uiwork/beast_shots.js` and
   `uiwork/beast_turns.js` shoot them (under Screenshots).
+- The way out of the kitchen in more detail (since V114, asked for: more detail and effects in the restaurant's explosion and the
+  lift). All of it is drawing (the scenes' times, the game's records and the dice are V104's): the effects library lends its sprites and
+  its soft layer to the painters (`FxLook.kit`: glowSpr, puffSpr, tongueSpr, heatOps, stamp, soft, SMOKE, SOOT, HEAT; envx/fx_guns.js).
+  The gas cut (env_kitchen.js `gasPipe`): sparks off the iron thrown on the way the blade went and bouncing on the floor, the ends
+  white and then red and cooling, the lower piece knocked aside at the elbow, a pale jet of gas roaring down out of the top end with a
+  burst of rust and dust off it, drifts of gas hanging in the room after; the burners go out pot by pot along the range, each flame
+  jumping once first (`gasKj`, `gasOut`), each leaving a wisp of smoke. The shaft (env_shaft.js): the gas pale wisps rolling over the
+  car (a soft layer); the arc forking on its way up to the roof, the spot it strikes white then red, its sparks some up through the vent
+  and the rest bouncing on the roof's plate and off its edges (`sparkStrokes`, one stroke a colour); the ignition a blue flash and a ring
+  of blue flame off the vent (`blueSpr`), the front a rolling band of flame with a blue edge eating into the gas, its light on down the
+  walls either side of the car, tongues left on the walls, the gas pooled on the roof burning on and guttering out (one `FxLook.fire`),
+  its smoke, soot and embers coming back down. The fireball down the shaft: a rolling mass of puffs born white-hot at its front that
+  roll back up through it as they cool to red and then soot (oldest first, the hottest last: a soft layer at a third of the screen's
+  resolution), its middle leading, its dark fire warm right down into its front and fading out there (two straight edges at the first
+  try), burning scraps and embers ahead of it, the fire spilling over the roof as it arrives; the pan strikes sparks as it lands; the
+  brakes' shoes glow and stream sparks. The Lantern (env_street.js `liveInferno`): the windows flicker and dust sifts off the cornices
+  in the knock; a shock ring over the flags and (not with reduced motion) one through the air; jets of flame out of every window upstairs
+  in the first moment, then flames licking out of their tops; the burning windows standing in the wet as trembling streaks down the
+  flags; frames and shutters thrown out turning, menus and bills coming down slowly, burning; the puffs of fire and smoke stamped into
+  soft layers (cheaper than the sprites stamped at full size). The roof's fire, its glow on the smoke and its embers are drawn over the
+  fireball's smoke in the world's pass (sk_lanternui.js: drawn by the street's painter they lay under the smoke and did not show), its
+  foot clipped behind the roof's top. At the platform the burning car pours smoke out of the top of its doorway (`FxLook.smoke`, lit),
+  with a gout of flame over the doorway's head in the first moment and embers (sk_lanternui.js). Costs by turns against V110's build (412x714):
+  the fireball's x2.6 about 45 ms (59.7 before), the Lantern's x1.4 a ms or two over, its x3.2 four to six over.
 - The window cleaners' cradle (since V106, asked for: Kade kicks Ilyas through the office glass and both land on the window-cleaning
   gondola outside the tower; they finish the duel there while a cable snaps and the platform hangs vertical; then Ilyas climbs back in
   to deal with Hallowell): sk_gondola.js and sk_gondolaui.js. The office's fight has a set piece (`kick`, due soon: two turns in with
@@ -1516,7 +1540,7 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V114 ..." (V113 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V115 ..." (V114 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

@@ -253,7 +253,9 @@ function prewarm(){const t0=typeof performance!=='undefined'?performance.now():0
   for(const k in SPR){const s=SPR[k];if(k[0]==='p')for(let q=1;q<4;q++)quarter(s,q);}
   for(const col of ['#ffb347','#ffd27a','#fff1c4','#ffffff','#fffbe8','#ffd9a0','#ff9a3a','#fff6e0','#7ff3e3','#b98cff','#ffcf86','#ffbf6a','#d9fffa'])glowSpr(col);
   for(let v=0;v<3;v++)tongueSpr(v);return typeof performance!=='undefined'?performance.now()-t0:0;}
-return{boom,boomLight,fire,smoke,muzzle,tracer,impact,casing,prewarm,BK,MZ,TR,glyph,ok:typeof Path2D==='function'};
+// (the sprites and the soft layer, for the set pieces' own fire and smoke: sk_lanternui.js and the painters, since V114)
+const kit={glowSpr,puffSpr,tongueSpr,heatOps,stamp,soft,SMOKE,SOOT,HEAT};
+return{boom,boomLight,fire,smoke,muzzle,tracer,impact,casing,prewarm,BK,MZ,TR,glyph,kit,ok:typeof Path2D==='function'};
 })();
 
 // ===== GUN LOOK =====

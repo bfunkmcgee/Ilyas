@@ -27,6 +27,22 @@ const Y=()=>{const s=st();return s?s.y:0;};
 // a height in the shaft (from the line's landing up) at the world y it is at now, the car standing where it is
 const wy=h=>GB-h+RUN-Y();
 const ROOF=GB-CH-4;
+// (since V114) the effects kit: FxLook's sprites and its soft layer (stamped at a fraction of the screen's resolution, laid on in one
+// draw), the Lite setting (half the pieces) and reduced motion (no flicker in the arc)
+const KIT=()=>typeof FxLook!=='undefined'&&FxLook.kit||null;
+const LITE=()=>typeof FXL!=='undefined'&&!FXL.full();
+const CALM=()=>typeof reduceMotion!=='undefined'&&reduceMotion;
+// a blue flame, made once: the gas burning clean where the flame front eats into it, before it goes gold
+let BLUE=null;
+function blueSpr(){if(BLUE)return BLUE;const cv=document.createElement('canvas'),w=32,h=72;cv.width=w;cv.height=h;const c=cv.getContext('2d');
+  c.beginPath();c.moveTo(4,h);c.bezierCurveTo(0,h*.55,12,h*.3,16,1);c.bezierCurveTo(20,h*.3,32,h*.55,28,h);c.closePath();
+  const g=c.createLinearGradient(0,h,0,0);g.addColorStop(0,'rgba(236,248,255,.95)');g.addColorStop(.3,'rgba(130,196,255,.85)');g.addColorStop(.7,'rgba(70,120,255,.45)');g.addColorStop(1,'rgba(60,90,220,0)');
+  c.fillStyle=g;c.fill();return BLUE=cv;}
+// a spark's streak by its age (0 new to 1 out): white, gold, then red; batched by colour, one stroke a colour
+const SPK=[['#fff6d8',.95],['#ffc861',.8],['#ff6a26',.6]];
+function sparkStrokes(c,B){c.lineCap='round';for(let j=0;j<3;j++){const L=B[j];if(!L.length)continue;c.strokeStyle=rgba(SPK[j][0],SPK[j][1]);c.lineWidth=j?1.3:1.7;c.beginPath();
+  for(const [a,b] of L){c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);}c.stroke();}}
+const spkBin=k=>k<.3?0:k<.65?1:2;
 // ---------- the textures ----------
 let BR=null,BRC=null,CLAY=null;
 function brick(){return BR||(BR=TX().brick(53,{cols:6,rows:10,bw:13,bh:4.6,sc:6,base:'#3a2620',alt:'#28180f',hot:'#462a1e',mortar:'#1e1a17'}));}
@@ -191,74 +207,128 @@ function fireNear(){const s=st(),t=typeof S!=='undefined'?S.t:0;if(!s)return 0;l
   if(s.ballH!=null)k=Math.max(k,clamp(1-s.ballH/260,0,1));
   if(s.lit!=null){const u=t-s.lit;if(u>=0&&u<1.4)k=Math.max(k,(u<.06?u/.06:Math.exp(-(u-.06)*2.6))*.8);}
   return k;}
-// the gas over the car before it catches: the air shivering, a faint sickly tint, threads of it coming down the shaft after the car
-function gas(c,t){const s=st();if(!s||!(s.gas>0))return;const a=s.gas,x0=SX0+4,x1=SX1+SB*PSX-4,top=ROOF-CD1*PSY-340,bot=ROOF-CD0*PSY+4;
-  c.save();c.fillStyle=lin(c,0,top,0,bot,[[0,rgba('#c8d8a0',0)],[.6,rgba('#c8d8a0',.045*a)],[1,rgba('#c8d8a0',.07*a)]]);c.fillRect(x0,top,x1-x0,bot-top);
-  c.lineWidth=1.5;for(let i=0;i<9;i++){const ph=((t*.22+i/9)%1),y=lerp(top,bot,ph),al=.11*a*Math.sin(ph*Math.PI);c.strokeStyle=rgba('#eef6d8',al);c.beginPath();
+// the gas over the car before it catches: a faint sickly tint, pale wisps of it rolling slowly in the shaft over the car (heavier low
+// down, where it has pooled on the roof), and the air shivering in it (since V114: the wisps; before, the shivering lines alone)
+function gas(c,t){const s=st();if(!s||!(s.gas>0))return;const a=s.gas,x0=SX0+4,x1=SX1+SB*PSX-4,top=ROOF-CD1*PSY-340,bot=ROOF-CD0*PSY+4,K=KIT();
+  c.save();c.fillStyle=lin(c,0,top,0,bot,[[0,rgba('#c8d8a0',0)],[.6,rgba('#c8d8a0',.05*a)],[1,rgba('#c8d8a0',.085*a)]]);c.fillRect(x0,top,x1-x0,bot-top);
+  if(K){const R=rng(611),ops=[],n=LITE()?8:14;for(let i=0;i<n;i++){const sp=.05+R()*.06,ph=R(),u=(t*sp+ph)%1,cx=lerp(x0+30,x1-30,R()),hy=Math.pow(R(),.55),
+      x=cx+Math.sin(t*.45+i*1.9)*26+(u-.5)*(R()-.5)*60,y=lerp(top+60,bot-14,hy)+Math.sin(t*.7+i)*10-u*34,r=(36+R()*44)*(.8+.4*u)*(.7+.5*hy),al=a*(.06+.06*R())*Math.sin(u*Math.PI)*(.6+.6*hy);
+    ops.push({s:K.puffSpr(i%4,'#eef2d6','#97a37a',1),x,y,r,a:al,rot:i});}K.soft(c,'gas',ops,4);}
+  c.lineWidth=1.2;for(let i=0;i<6;i++){const ph=((t*.22+i/6)%1),y=lerp(top,bot,ph),al=.09*a*Math.sin(ph*Math.PI);c.strokeStyle=rgba('#eef6d8',al);c.beginPath();
     for(let x=x0;x<=x1;x+=10){const yy=y+Math.sin(x*.045+t*2.2+i*1.7)*4+Math.sin(x*.11-t*3.1+i)*1.6;x===x0?c.moveTo(x,yy):c.lineTo(x,yy);}c.stroke();}
   c.restore();}
 
 // ---------- over everything ----------
 // the spark, the flame going up, the fireball coming down and its light, the pan, the brakes
-const FPUFF={};
-function fireSpr(i){if(FPUFF[i])return FPUFF[i];const cv=document.createElement('canvas'),n=96;cv.width=cv.height=n;const c=cv.getContext('2d'),R=rng(301+i*17),h=n/2;
-  const cols=[['#fffbe8','#ffd27a','#ff9a3a'],['#ffe0a0','#ffa040','#d8461a'],['#ffb050','#e0581c','#7a2410'],['#a8401a','#4a1a0e','#1a0c08']][i];
-  for(let k=0;k<9;k++){const a=R()*TAU,r=R()*h*.3,x=h+Math.cos(a)*r,y=h+Math.sin(a)*r,rr=h*(.3+R()*.22),g=c.createRadialGradient(x,y,0,x,y,rr);
-    g.addColorStop(0,cols[0]);g.addColorStop(.5,cols[1]);g.addColorStop(1,rgba(cols[2],0));c.fillStyle=g;c.globalAlpha=.85;c.beginPath();c.arc(x,y,rr,0,TAU);c.fill();}
-  return FPUFF[i]=cv;}
-function fore(c){c=c||ctx;const s=st();if(!s)return;const t=S.t;c.save();
-  const clip=()=>{c.beginPath();c.rect(SX0,YT,SX1-SX0,ROOF-CD0*PSY-YT);c.clip();};
-  // the spark: an arc off the blade's tip up into the steel of the roof, and the sparks out through the vent into the gas
-  if(s.spark!=null){const u=t-s.spark;const K=S.F[0];
-    if(u>=0&&u<.16&&K&&K.p){const p=K.p[TIP],a={x:p.x+K.dep*PSX,y:p.y-K.dep*PSY},v=q(L0.cx,ROOF+2,(CD0+CD1)/2),R=rng(((u*60)|0)+5);
-      c.save();c.globalCompositeOperation='lighter';for(const [w,al] of [[5,.25],[1.6,.95]]){c.strokeStyle=rgba('#d8f6ff',al);c.lineWidth=w;c.beginPath();c.moveTo(a.x,a.y);
-        for(let i=1;i<7;i++){const k=i/7;c.lineTo(lerp(a.x,v.x,k)+(R()-.5)*9,lerp(a.y,v.y,k)+(R()-.5)*5);}c.lineTo(v.x,v.y);c.stroke();}
-      glow(c,a.x,a.y,26,'#bfefff',.8*(1-u/.16));glow(c,v.x,v.y,30,'#ffffff',.9*(1-u/.16));c.restore();}
-    if(u>=0&&u<1.1){const v=q(L0.cx,ROOF,(CD0+CD1)/2),R=rng(41);c.save();c.globalCompositeOperation='lighter';c.lineCap='round';
-      for(let i=0;i<16;i++){const vx=(R()-.5)*160,vy=-(160+R()*260),L=.45+R()*.6,t0=R()*.12,w=u-t0;if(w<0||w>L)continue;
-        const x=v.x+(R()-.5)*20+vx*w,y=v.y+vy*w+260*w*w,x2=x-vx*.03,y2=y-(vy+520*w)*.03,k=1-w/L;c.strokeStyle=rgba(k>.5?'#fff6d8':'#ffc861',k);c.lineWidth=1.6;c.beginPath();c.moveTo(x2,y2);c.lineTo(x,y);c.stroke();}
-      c.restore();}}
-  // the gas catching: blue at the vent, then a sheet of flame going away up the shaft, burning out behind its front
-  if(s.lit!=null){const u=t-s.lit;if(u>=0&&u<2.6){const base=ROOF-CD0*PSY,front=base-1300*Math.pow(u,1.25),R=rng(97);c.save();clip();c.globalCompositeOperation='lighter';
-      // the hot air behind the front, cooling
-      const hot=Math.max(0,1-u/2.4);c.fillStyle=lin(c,0,front,0,base,[[0,rgba('#9ad0ff',.0)],[.02,rgba('#bfe4ff',.7*hot)],[.1,rgba('#ffd890',.6*hot)],[.45,rgba('#ff8a30',.45*hot)],[1,rgba('#ff6a20',.2*hot*hot)]]);
-      c.fillRect(SX0,Math.max(YT,front),SX1-SX0+SB*PSX,base-Math.max(YT,front));
-      // tongues licking up the walls behind it
-      for(let i=0;i<22;i++){const x=lerp(SX0+6,SX1+SB*PSX-6,R()),h0=R(),y=lerp(base,front,h0),L=20+R()*46,k=hot*(1-h0*.5)*(.5+.5*Math.sin(t*19+i*3.1));if(y<YT||k<.02)continue;
-        c.fillStyle=lin(c,0,y,0,y-L,[[0,rgba('#ffb050',.5*k)],[1,rgba('#ff5a1a',0)]]);c.beginPath();c.moveTo(x-5,y);c.quadraticCurveTo(x-2,y-L*.5,x+(R()-.5)*8,y-L);c.quadraticCurveTo(x+3,y-L*.5,x+5,y);c.closePath();c.fill();}
-      // the front: a bright ragged line going away
-      if(front>YT){c.strokeStyle=rgba('#e8f6ff',.7*hot);c.lineWidth=3;c.beginPath();for(let x=SX0;x<=SX1+SB*PSX;x+=8){const y=front+Math.sin(x*.09+u*30)*5+Math.sin(x*.23)*3;x===SX0?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();}
-      c.restore();
-      if(u<.18){c.save();c.globalCompositeOperation='lighter';const v=q(L0.cx,ROOF,(CD0+CD1)/2);glow(c,v.x,v.y-10,120,'#a8d8ff',.9*(1-u/.18));c.restore();}}}
-  // the fireball coming down after the car
-  if(s.ballH!=null&&s.ballH<2400){const front=ROOF-CD0*PSY-s.ballH,x0=SX0,x1=SX1+SB*PSX,R=rng(211);
-    // its light down the shaft ahead of it, on past the car's roof down the walls either side of it, not over the car's face (clipped
-    // at the roof with the fire, at V104's review it stopped there in a straight line across the brick)
-    {const ry=ROOF-CD0*PSY,y2=front+260,cl=CX0+CD0*PSX-1,cr=CX1+CD1*PSX+1;c.save();c.beginPath();c.rect(x0,YT,x1-x0,y2-YT);if(y2>ry)c.rect(cl,ry,cr-cl,y2-ry);c.clip('evenodd');
-      c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,front,0,y2,[[0,rgba('#ff9a40',.5)],[1,rgba('#ff9a40',0)]]);c.fillRect(x0,front,x1-x0,260);c.restore();}
+function fore(c){c=c||ctx;const s=st();if(!s)return;const t=S.t,K=KIT(),lt=LITE(),x0=SX0,x1=SX1+SB*PSX,base=ROOF-CD0*PSY;c.save();
+  const clip=()=>{c.beginPath();c.rect(SX0,YT,SX1-SX0+SB*PSX,base-YT);c.clip();};
+  // the spark: an arc off the blade's tip up into the steel of the roof, forking as it goes (a new path every sixtieth of a second, held
+  // still with reduced motion), the spot it struck gone white and then red, and the sparks: some up through the vent into the gas, the
+  // rest skittering over the roof's plate, bouncing, and off its edges (since V114: the forks, the spot, the bounce; before, one arc and
+  // sixteen streaks)
+  if(s.spark!=null){const u=t-s.spark,F0=S.F[0],v=q(L0.cx,ROOF+2,(CD0+CD1)/2);
+    if(u>=0&&u<.22&&F0&&F0.p){const p=F0.p[TIP],a={x:p.x+F0.dep*PSX,y:p.y-F0.dep*PSY},R=rng(CALM()?5:((u*60)|0)+5),f=u<.05?1:1-(u-.05)/.17,P=[a];
+      for(let i=1;i<8;i++){const k=i/8;P.push({x:lerp(a.x,v.x,k)+(R()-.5)*13,y:lerp(a.y,v.y,k)+(R()-.5)*7});}P.push(v);
+      const forks=[];for(let j=0;j<3;j++){const o=P[2+Math.floor(R()*5)],L=[o];let x=o.x,y=o.y;const dx=(R()-.5)*34,dy=-(4+R()*16);for(let k=1;k<4;k++){x+=dx/3+(R()-.5)*7;y+=dy/3+(R()-.5)*5;L.push({x,y});}forks.push(L);}
+      const path=L=>{c.beginPath();c.moveTo(L[0].x,L[0].y);for(let i=1;i<L.length;i++)c.lineTo(L[i].x,L[i].y);};
+      c.save();c.globalCompositeOperation='lighter';c.lineJoin='round';c.lineCap='round';
+      for(const [w,col,al] of [[7,'#5ab8ff',.24],[3,'#bfe8ff',.6],[1.2,'#ffffff',1]]){c.strokeStyle=rgba(col,al*f);c.lineWidth=w;path(P);c.stroke();c.lineWidth=w*.55;for(const L of forks){path(L);c.stroke();}}
+      if(K){const fl=CALM()?.45:1;K.stamp(c,K.glowSpr('#bfefff'),a.x,a.y,30,.9*f*fl);K.stamp(c,K.glowSpr('#ffffff'),v.x,v.y,40,f*fl);K.stamp(c,K.glowSpr('#7ac8ff'),v.x,v.y-6,100,.5*f*fl);}
+      c.restore();}
+    if(u>=0&&u<2.6&&K){const k=u<.1?1:Math.exp(-(u-.1)*1.4);c.save();c.globalCompositeOperation='lighter';K.stamp(c,K.glowSpr(u<.35?'#fff2d0':'#ff7a2a'),v.x,v.y,9+7*k,.95*k);
+      K.stamp(c,K.glowSpr('#ff9a3a'),v.x,v.y,26,.35*k);c.restore();}
+    if(u>=0&&u<1.5){const R=rng(41),N=lt?24:46,gy=v.y,B=[[],[],[]],heads=[];
+      for(let i=0;i<N;i++){const up=R()<.55,t0=R()*.2,L=(up?.45:.6)+R()*.6,vx=(R()-.5)*(up?130:330),vy=up?-(220+R()*420):-(50+R()*170),ox=(R()-.5)*(up?22:10),w=u-t0;if(w<0||w>L)continue;
+        const pos=tt=>{if(up){const e=(1-Math.exp(-1.6*tt))/1.6;return{x:v.x+ox+vx*e,y:v.y+vy*e+240*tt*tt};}
+          const x=v.x+ox+vx*tt,th=-vy/450;if(tt<th||Math.abs(vx*th+ox)>52)return{x,y:v.y+vy*tt+450*tt*tt};
+          const w2=tt-th,vy2=vy*.35;return{x:v.x+ox+vx*th+vx*.5*w2,y:Math.min(gy,gy+vy2*w2+450*w2*w2)};};
+        const k=w/L,b=pos(w),a=pos(Math.max(0,w-.03));B[spkBin(k)].push([a,b]);if(k<.3)heads.push(b);}
+      c.save();c.globalCompositeOperation='lighter';sparkStrokes(c,B);c.fillStyle=rgba('#ffffff',.95);for(const h of heads)c.fillRect(h.x-.9,h.y-.9,1.8,1.8);c.restore();}}
+  // the gas catching (since V114: the flash and a ring of blue flame off the vent, the front a rolling band of flame, blue where it eats
+  // into the gas and gold behind, tongues left on the walls, the pool on the roof burning and guttering out, soot and embers coming down
+  // after it; before, a gradient and a bright line)
+  if(s.lit!=null){const u=t-s.lit;if(u>=0&&u<3.2){const front=base-1300*Math.pow(u,1.25),hot=Math.max(0,1-u/2.4),R=rng(97),v=q(L0.cx,ROOF,(CD0+CD1)/2);
+      // the hot air behind the front, cooling, and its light on down the walls either side of the car (not over the car's face)
+      {const y2=base+140,cl=CX0+CD0*PSX-1,cr=CX1+CD1*PSX+1,y0=Math.max(YT,front);c.save();c.beginPath();c.rect(x0,y0,x1-x0,y2-y0);c.rect(cl,base,cr-cl,y2-base);c.clip('evenodd');
+        c.globalCompositeOperation='lighter';const h=y2-front,st2=v=>clamp(v/h,0,1);
+        c.fillStyle=lin(c,0,front,0,y2,[[0,rgba('#9ad0ff',0)],[st2(6),rgba('#bfe4ff',.42*hot)],[st2(40),rgba('#ffd890',.34*hot)],[st2((base-front)*.5),rgba('#ff8a30',.26*hot)],[st2(base-front),rgba('#ff6a20',.16*hot*hot)],[1,rgba('#ff6a20',0)]]);
+        c.fillRect(x0,y0,x1-x0,y2-y0);c.restore();}
+      c.save();clip();c.globalCompositeOperation='lighter';
+      // the front: a rolling band of flame, gold and orange behind its leading edge (a soft layer, laid on bright)
+      if(K&&front>YT-90){const ops=[],n=lt?9:14;for(let row=2;row>=0;row--)for(let i=0;i<n;i++){const x=lerp(x0+8,x1-8,(i+.5)/n)+(R()-.5)*18,lob=Math.sin(i*1.7+u*9)*15+Math.sin(i*.6-u*5)*9,
+          y=front+lob+row*(26+R()*16)+R()*8,r=(row===0?16:row===1?26:34)+R()*14,T=row===0?.9:row===1?.55:.25,gap=R()<.22;if(gap||y-r>base||y+r<YT)continue;
+          K.heatOps(ops,T,(i+row)%4,x,y,r,(row===0?.62:row===1?.42:.26)*hot*(.7+.3*R()),i*1.3+row);}
+        K.soft(c,'shl',ops,3,'lighter');
+        // its leading edge eating into the gas: blue tongues pointing up
+        const Bl=blueSpr(),nb=n+6;for(let i=0;i<nb;i++){const x=lerp(x0+4,x1-4,(i+.5+(R()-.5)*.8)/nb),y=front+Math.sin(i*14/nb*1.7/1.4+u*9)*12+6,h=(10+R()*16)*(.8+.3*Math.sin(t*23+i)),w=h*.5;
+          c.globalAlpha=.55*hot;c.drawImage(Bl,x-w/2,y-h,w,h);}c.globalAlpha=1;}
+      // tongues left licking up the walls and off the rail brackets behind it
+      if(K)for(let i=0;i<(lt?6:12);i++){const side=i%2,x=side?lerp(x1-26,x1-4,R()):lerp(x0+4,x0+26,R()),h0=R(),y=lerp(base,front,h0),L=24+R()*50,k=hot*clamp((1.1-u)/.6,0,1)*(1-h0*.6)*(.55+.45*Math.sin(t*19+i*3.1));
+        if(y<YT||y>base||k<.03)continue;c.globalAlpha=.8*k;c.drawImage(K.tongueSpr(i%3),x-L*.25,y-L,L*.5,L);}
+      c.globalAlpha=1;c.restore();
+      // the first instant: the gas over the roof going up all at once, a blue flash off the vent and a ring of blue flame across the roof
+      if(u<.24&&K){const e=u/.24,f=1-e,fl=CALM()?.4:1;c.save();c.globalCompositeOperation='lighter';K.stamp(c,K.glowSpr('#a8d8ff'),v.x,v.y-10,60+120*e,.9*f*fl);K.stamp(c,K.glowSpr('#ffffff'),v.x,v.y-4,20+30*e,f*fl);
+        const Bl=blueSpr();for(let i=0;i<12;i++){const a=i/12*TAU,rx=(14+70*e)*Math.cos(a),rz=(8+26*e)*Math.sin(a),p=q(L0.cx+rx,ROOF,clamp((CD0+CD1)/2+rz,CD0,CD1)),h=(16+10*Math.sin(i*2.1))*(1-e*.4),w=h*.5;
+          c.globalAlpha=.85*f;c.drawImage(Bl,p.x-w/2,p.y-h,w,h);}c.globalAlpha=1;c.restore();}
+      // the gas pooled on the roof burning on after it, along the plate's edges and round the crosshead, guttering out
+      if(K&&u>.05&&u<2.8){const k=clamp((2.8-u)/1.6,0,1)*(u<.25?(u-.05)/.2:1),R2=rng(131);c.save();c.globalCompositeOperation='lighter';
+        K.stamp(c,K.glowSpr('#ff9a3a'),v.x,v.y-14,90,.32*k);c.restore();void R2;
+        if(FxLook.fire)FxLook.fire(c,{x:(CX0+CX1)/2-4,y:ROOF,dep:CD0+14,w:CX1-CX0+2,h:34,k,seed:4713},{now:t});
+        // its smoke going up off the roof
+        const ops=[],R3=rng(171);for(let i=0;i<(lt?4:7);i++){const P=1.6+R3()*.8,w=((u-.2)/P+i/7)%1;if(u<.2)continue;const p=q(lerp(CX0,CX1,R3()),ROOF,lerp(CD0,CD1,R3()));
+          ops.push({s:K.puffSpr(i%4,K.SMOKE[0],K.SMOKE[1],1),x:p.x+Math.sin(w*4+i)*8,y:p.y-12-w*150,r:10+w*34,a:.5*Math.sin(w*Math.PI)*clamp((3-u)/1.2,0,1),rot:i});}
+        K.soft(c,'shs',ops,4);}
+      // soot shaken off the walls by the whump, and embers coming back down the shaft after the flame
+      if(u>.1){const R4=rng(151);c.save();for(let i=0;i<(lt?16:32);i++){const ember=i%3===0,t0=.1+R4()*.9,w=u-t0,vy=(ember?50:90)+R4()*80,x=lerp(x0+6,x1-6,R4())+Math.sin(w*3+i)*(ember?14:4),y=YT+60+R4()*240+vy*w+30*w*w;
+          if(w<0||y>base)continue;const al=Math.min(1,w*4)*clamp((3.2-u)/1,0,1);if(ember){c.fillStyle=rgba(i%2?'#ffb050':'#ff7a2a',.85*al*(.6+.4*Math.sin(t*21+i)));c.fillRect(x,y,1.5,1.5);}
+          else{c.fillStyle=rgba('#0a0606',.6*al);c.fillRect(x,y,1.6,2.2);}}c.restore();}}}
+  // the fireball coming down after the car (since V114: a rolling mass, its puffs born white-hot at its front and rolling back up
+  // through it as they cool to red and then to soot, the middle leading, burning scraps and embers coming down before it, the fire
+  // spilling over the roof as it arrives; before, a lattice of puffs stamped at full size over a bright straight line)
+  if(s.ballH!=null&&s.ballH<2400){const front=base-s.ballH,R=rng(211);
+    // its light down the shaft ahead of it, on past the car's roof down the walls either side of it, not over the car's face
+    {const ry=base,y2=front+260,cl=CX0+CD0*PSX-1,cr=CX1+CD1*PSX+1;c.save();c.beginPath();c.rect(x0,YT,x1-x0,y2-YT);if(y2>ry)c.rect(cl,ry,cr-cl,y2-ry);c.clip('evenodd');
+      c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,front-60,0,y2,[[0,rgba('#ff9a40',.5)],[.2,rgba('#ff9a40',.5)],[1,rgba('#ff9a40',0)]]);c.fillRect(x0,front-60,x1-x0,320);c.restore();}
     c.save();clip();
-    // the shaft above it full of it: dark fire going to soot, and warm into the boiling mass at its front (ending opaque under the puffs,
-    // it showed between them as another straight edge)
-    {const y1=front-20;if(y1>YT){c.fillStyle=lin(c,0,front-420,0,y1,[[0,'#120806'],[.45,'#3a1208'],[.75,rgba('#7a2a10',.85)],[1,rgba('#7a2a10',0)]]);c.fillRect(x0,YT,x1-x0,y1-YT);}}
-    // the boiling mass above its front: puffs packed across the shaft, white-hot at the front, soot above
-    // (each puff its own place and its own rise: in rows and columns that kept their places the fire read as a lattice, a pattern
-    // that repeats, at V104's review)
-    for(let i=0;i<48;i++){const row=Math.floor(i/8),col=i%8,ph=R()*TAU,sp=.6+R()*.8,rr=34+R()*30,x=lerp(x0+10,x1-10,(col+.5+(R()-.5)*1.3)/8)+Math.sin(t*sp*3+ph)*14,
-        y=front-8-(row+(R()-.5)*.9)*42-((t*(70+R()*50)*sp+R()*60)%42)+Math.sin(t*sp*4+ph)*9,heat=row<1?0:row<2?1:row<4?2:3;if(y-rr>ROOF||y+rr<YT)continue;
-      c.globalAlpha=row<4?.95:.85;c.drawImage(fireSpr(heat),x-rr,y-rr,rr*2,rr*2);}
-    c.globalAlpha=1;c.globalCompositeOperation='lighter';
-    c.fillStyle=lin(c,0,front-30,0,front+8,[[0,rgba('#ffe8b0',0)],[.7,rgba('#fff2d0',.55)],[1,rgba('#ffffff',0)]]);c.fillRect(x0,front-30,x1-x0,38);
-    // embers and bits coming down ahead of it
-    for(let i=0;i<30;i++){const vx=(R()-.5)*30,ph=R(),y=front+((t*240+ph*300)%300),x=lerp(x0,x1,R())+vx*Math.sin(t+i);if(y>ROOF)continue;c.fillStyle=rgba(R()<.6?'#ffb050':'#ff7a2a',.8*(1-(y-front)/300));c.fillRect(x,y,1.6,1.6);}
-    c.restore();}
+    // the shaft above it full of it: dark fire going to soot
+    // (warm right down into its front, so that nothing of the dark shaft shows between its puffs)
+    {const y1=front+12;if(y1>YT){const h=y1-(front-430),f=v=>clamp(1-v/h,0,1);c.fillStyle=lin(c,0,front-430,0,y1,[[0,'#120806'],[f(258),'#3a1208'],[f(110),'#7a2a10'],[f(56),'#b8481a'],[1,rgba('#c8521c',0)]]);c.fillRect(x0,YT,x1-x0,y1-YT);}}
+    const lead=col=>30*Math.exp(-((col-.5)**2)/.06)+14*Math.sin(col*9+t*2.6)+8*Math.sin(col*23-t*4.1);
+    if(K){const n=lt?30:56,P=[];
+      for(let i=0;i<n;i++){const col=(i+.5)/n+(R()-.5)*.06,rate=.55+R()*.5,a=(t*rate+R())%1,size=.85+R()*.5,back=130+R()*80,wob=R()*TAU;
+        const y=front+lead(col)-a*back+Math.sin(t*3+wob)*6,x=lerp(x0+4,x1-4,col)+Math.sin(t*1.7+wob)*12*a,r=(26+a*46)*size;if(y-r>base||y+r<YT)continue;P.push({a,x,y,r,i});}
+      // the oldest first, the hottest last: the front's white-hot puffs over the rest
+      P.sort((p,q2)=>q2.a-p.a);const ops=[];
+      for(const p of P){const al=Math.min(1,p.a*14+.25);K.heatOps(ops,1-p.a*1.15,p.i%4,p.x,p.y,p.r,.95*al,p.i);
+        if(p.a>.5)ops.push({s:K.puffSpr((p.i+1)%4,K.SOOT[0],K.SOOT[1],1),x:p.x+p.r*.1,y:p.y-p.r*.25,r:p.r*1.05,a:clamp((p.a-.5)*2,0,.82),rot:p.i*1.7});}
+      K.soft(c,'sfb',ops,3);
+      // the heat over its front, laid on bright, and the tongues reaching down out of it ahead of it
+      c.globalCompositeOperation='lighter';for(let i=0;i<9;i++){const col=(i+.5)/9;K.stamp(c,K.glowSpr('#ffd27a'),lerp(x0+8,x1-8,col),front+lead(col)-10,64,.45*(.85+.15*Math.sin(t*17+i*1.3)));}
+      c.globalAlpha=1;}
+    // embers, and scraps of the kitchen burning, coming down ahead of it
+    {const E=[];for(let i=0;i<(lt?18:36);i++){const ph=R(),y=front+30+((t*(220+R()*60)+ph*300)%300),x=lerp(x0,x1,R())+Math.sin(t*2+i)*8;if(y>base)continue;E.push([x,y,i]);}
+      c.fillStyle=rgba('#ffb050',.85);for(const [x,y,i] of E)if(i%3)c.fillRect(x,y,1.6,1.6);c.fillStyle=rgba('#ff6a26',.85);for(const [x,y,i] of E)if(!(i%3))c.fillRect(x,y,1.4,1.4);}
+    c.globalCompositeOperation='source-over';
+    for(let i=0;i<(lt?3:6);i++){const ph=R(),sp=180+R()*90,y=front+40+((t*sp+ph*360)%360),x=lerp(x0+20,x1-20,R())+Math.sin(t*3.1+i*2)*16,an=t*(4+R()*6)+i,sz=3+R()*4;if(y>base-6)continue;
+      c.save();c.translate(x,y);c.rotate(an);c.scale(1,.45+.55*Math.abs(Math.sin(t*5+i)));c.fillStyle=i%2?'#2a1a10':'#d8c8a8';c.fillRect(-sz,-sz*.7,sz*2,sz*1.4);c.restore();
+      if(K){c.globalCompositeOperation='lighter';K.stamp(c,K.glowSpr('#ff8a30'),x,y,sz*2.6,.75);c.globalCompositeOperation='source-over';}}
+    c.restore();
+    // arriving: the fire spilling over the roof's edges and round the crosshead, the plate lit under it
+    if(K&&s.ballH<110){const k=clamp(1-s.ballH/110,0,1);c.save();c.globalCompositeOperation='lighter';K.stamp(c,K.glowSpr('#ffb050'),(CX0+CX1)/2+RD*PSX,ROOF-RD*PSY,120,.5*k);c.restore();
+      if(FxLook.fire)FxLook.fire(c,{x:(CX0+CX1)/2,y:ROOF,dep:CD0+18,w:CX1-CX0+16,h:66,k,seed:4721},{now:t});}}
   // a copper pan off the range, coming down the shaft ahead of the fire and onto the roof
-  if(s.pan!=null){const u=t-s.pan,T=.75,v=q(L0.cx-24,ROOF,52);let x=v.x,y,an;if(u<T){const e=u/T;y=lerp(ROOF-CD0*PSY-420,v.y,e*e);an=u*14;x=v.x+Math.sin(u*5)*12;}else{const b=u-T;y=v.y-Math.max(0,22*Math.exp(-b*7)*Math.abs(Math.sin(b*16)));an=T*14+Math.min(b,.3)*6;}
+  if(s.pan!=null){const u=t-s.pan,T=.75,v=q(L0.cx-24,ROOF,52);let x=v.x,y,an;if(u<T){const e=u/T;y=lerp(base-420,v.y,e*e);an=u*14;x=v.x+Math.sin(u*5)*12;}else{const b=u-T;y=v.y-Math.max(0,22*Math.exp(-b*7)*Math.abs(Math.sin(b*16)));an=T*14+Math.min(b,.3)*6;}
     if(u>=0){c.save();c.translate(x,y-5);c.rotate(an);c.fillStyle=lin(c,-9,0,9,0,[[0,'#7a4524'],[.4,'#f0b27a'],[1,'#7a4524']]);c.beginPath();c.ellipse(0,0,9,4,0,0,TAU);c.fill();
-      c.fillStyle='#14161a';c.fillRect(8,-1,12,2);c.restore();}}
-  // the brakes: sparks off the shoes on the rails
-  if(s.brake!=null){const u=t-s.brake;if(u>=0&&u<s.brakeDur){const R=rng(((t*30)|0)+3);c.save();c.globalCompositeOperation='lighter';c.lineCap='round';
-      for(const x of RL)for(const y of [ROOF-6,GB+4]){const p=q(x,y,RD);for(let i=0;i<4;i++){const vx=(R()-.5)*70,vy=-60-R()*90;c.strokeStyle=rgba(R()<.5?'#fff2c0':'#ffb050',.85);c.lineWidth=1.5;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+vx*.12,p.y+vy*.12+R()*8);c.stroke();}
-        glow(c,p.x,p.y,10,'#ffd890',.6);}c.restore();}}
+      c.fillStyle='#14161a';c.fillRect(8,-1,12,2);c.restore();
+      // (it strikes sparks off the roof as it lands)
+      if(u>=T&&u<T+.5){const b=u-T,R=rng(257),B=[[],[],[]];for(let i=0;i<14;i++){const vx=(R()-.5)*220,vy=-(60+R()*160),L=.3+R()*.25;if(b>L)continue;const P2=tt=>({x:v.x+vx*tt,y:v.y-4+vy*tt+500*tt*tt});
+          B[spkBin(b/L)].push([P2(Math.max(0,b-.025)),P2(b)]);}c.save();c.globalCompositeOperation='lighter';sparkStrokes(c,B);c.restore();}}}
+  // the brakes: the shoes red on the rails, a stream of sparks off each, thrown out and falling
+  if(s.brake!=null){const u=t-s.brake;if(u>=0&&u<s.brakeDur){const f=clamp((s.brakeDur-u)/.5,0,1),B=[[],[],[]];c.save();c.globalCompositeOperation='lighter';
+      for(const x of RL)for(const y of [ROOF-6,GB+4]){const p=q(x,y,RD),out=x<L0.cx?-1:1,R=rng(x*7+y);if(K)K.stamp(c,K.glowSpr('#ffb050'),p.x,p.y,14,.75*f);
+        for(let i=0;i<(lt?5:10);i++){const L=.28+R()*.18,a=((u*(2.2+R())+R())%1)*L,vx=out*(40+R()*130),vy=-(60+R()*160),P2=tt=>({x:p.x+vx*tt,y:p.y+vy*tt+650*tt*tt});
+          B[spkBin(a/L)].push([P2(Math.max(0,a-.022)),P2(a)]);}}
+      c.globalAlpha=f;sparkStrokes(c,B);c.globalAlpha=1;c.restore();}}
   c.restore();}
 // the car's front among the people, by depth (he is behind it)
 function frontItem(){return{d:CD0-.5,draw:c=>carFront(c||ctx)};}

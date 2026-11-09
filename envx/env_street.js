@@ -1019,46 +1019,79 @@ function infSpr(key,stops){if(INF[key])return INF[key];const n=64,cv=document.cr
 function infStamp(cv,x,y,r,a){if(a<=.004||r<=.3)return;ctx.globalAlpha=Math.min(1,a);ctx.drawImage(cv,x-r,y-r,2*r,2*r);}
 const infFire=hot=>hot>.55?infSpr('fh',[[0,rgba('#fff0c0',1)],[.55,rgba('#ff6a20',.51)],[1,rgba('#ff3a10',0)]]):infSpr('fw',[[0,rgba('#ffb050',1)],[.55,rgba('#ff6a20',.51)],[1,rgba('#ff3a10',0)]]);
 const infSmoke=u=>{const i=clamp(Math.round(u*5),1,5);return infSpr('s'+i,[[0,rgba(smokeCol(i/5),1)],[1,rgba(smokeCol(i/5),0)]]);};
-function liveInferno(t){const L=S.lanternUp;if(!L)return;const u=t-L.t0,U=bup(),k=BG.k,calm=typeof reduceMotion!=='undefined'&&reduceMotion,lite=typeof FXL!=='undefined'&&!FXL.full(),n=v=>lite?Math.ceil(v/2):v;
-  // the knock: light coming up in every window before they go
-  if(u<0){const a=clamp(1+u/.42,0,1);for(const w of U.wins)glow(ctx,(w.x0+w.x1)/2,(w.y0+w.y1)/2,34,'#ffb060',.6*a*a);for(const wx of BG.wcx)glow(ctx,wx,BG.yc+20*k,60,'#ffa050',.4*a*a);return;}
+function liveInferno(t){const L=S.lanternUp;if(!L)return;const u=t-L.t0,U=bup(),k=BG.k,calm=typeof reduceMotion!=='undefined'&&reduceMotion,lite=typeof FXL!=='undefined'&&!FXL.full(),n=v=>lite?Math.ceil(v/2):v,
+    K=typeof FxLook!=='undefined'&&FxLook.kit||null,Lg=dd=>dd<123?GB-dd*PSY:fy(dd);
+  // the knock: light coming up in every window before they go, flickering, and the dust shaken off the cornices (since V114: the
+  // flicker and the dust)
+  if(u<0){const a=clamp(1+u/.42,0,1),f=calm?1:.7+.3*Math.abs(Math.sin(t*47)*Math.sin(t*13));for(const w of U.wins)glow(ctx,(w.x0+w.x1)/2,(w.y0+w.y1)/2,34,'#ffb060',.6*a*a*f);for(const wx of BG.wcx)glow(ctx,wx,BG.yc+20*k,60,'#ffa050',.4*a*a*f);
+    const R=rng(1717);ctx.fillStyle=rgba('#a89888',.3*a);for(let i=0;i<n(24);i++){const sx=lerp(BG.x0,BG.x1,R()),y0=R()<.5?U.top-2:BG.gTop,v=(40+R()*60),w=(a*.42+R()*.1)%.42;ctx.fillRect(sx,y0+v*w,.8*k,(4+R()*6)*k);}return;}
   // upstairs: the rooms burning behind the empty frames (the flames in them are the game's fires)
   ctx.save();for(const w of U.wins){const f=.8+.12*Math.sin(t*9.7+w.x0)*Math.sin(t*4.1+w.y0)+.08*Math.sin(t*23+w.x0),a=Math.min(1,u*10);
     ctx.globalAlpha=a;ctx.fillStyle=lin(ctx,0,w.y0,0,w.y1,[[0,'#1a0605'],[.35,mix('#5a1608','#8a2a10',f)],[1,mix('#c8501c','#ff9a40',f)]]);ctx.fillRect(w.x0,w.y0,w.x1-w.x0,w.y1-w.y0);}
   ctx.globalAlpha=1;for(const D of U.dorms){ctx.fillStyle=mix('#7a2a10','#ff8a3a',.5+.5*Math.sin(t*11+D.x0));ctx.fillRect(D.x0,D.y0,D.x1-D.x0,D.y1-D.y0);}ctx.restore();
   // the soot already on the brick over each window, more as it goes
   ctx.save();for(const w of U.wins){const a=clamp(u*.5,0,.55),cx=(w.x0+w.x1)/2;ctx.fillStyle=rad(ctx,cx,w.y0,0,40,[[0,rgba('#050303',a)],[1,rgba('#050303',0)]]);ctx.fillRect(cx-40,w.y0-46,80,50);}ctx.restore();
+  // the shock of it: a ring over the flags from the foot of the house, and (not for reduced motion) a ring through the air off it
+  if(u<1.1){const D=doorG(),S0=DF-BG.steps[0].d,dcx=D.cx-DF*PSX,g=g0();ctx.save();ctx.transform(1,0,PSX,-PSY,0,g);const R2=(20+u*360)*k,a=Math.max(0,1-u/1.1);
+    ctx.strokeStyle=rgba('#ffe2c0',.55*a);ctx.lineWidth=(2.6*a+.4)*k;ctx.beginPath();ctx.ellipse(dcx,S0,R2*1.3,R2*.72,0,Math.PI,TAU);ctx.stroke();ctx.restore();}
+  if(u<.34&&!calm){const e=1-Math.pow(1-u/.34,3),cy=(U.roof+BG.base)/2,R2=(60+620*e)*k*.7;ctx.strokeStyle=rgba('#fff0d8',.2*(1-u/.34));ctx.lineWidth=(5*(1-u/.34)+.8)*k;ctx.beginPath();ctx.arc(U.cx,cy,R2,0,TAU);ctx.stroke();
+    ctx.strokeStyle=rgba('#000000',.12*(1-u/.34));ctx.lineWidth=(8*(1-u/.34)+1)*k;ctx.beginPath();ctx.arc(U.cx,cy,R2*.93,0,TAU);ctx.stroke();}
   ctx.save();ctx.globalCompositeOperation='lighter';
   // the flash over the whole front, then the fire's colour on it
   if(u<1.6){const a=u<.05?1:Math.exp(-(u-.05)*2),r=(320+u*120)*k*.75,cy=(U.roof+BG.base)/2,col=u<.14?'#fff4dc':'#ffb060';
     ctx.globalAlpha=(calm?.3:.6)*a;ctx.drawImage(infSpr('g'+col,[[0,rgba(col,1)],[.25,rgba(col,.45)],[.6,rgba(col,.12)],[1,rgba(col,0)]]),U.cx-r,cy-r*.9,2*r,2*r*.9);ctx.globalAlpha=1;}
   // fire rolling out of every window upstairs and the dormers in the first moment, up the front and over the cornice; out of the two
-  // windows and the door below, bigger, out over the street (the ground floor's blast: until V104's review the grenade's blast drawn
-  // again, which cost the phone's frame as much as all of this)
+  // windows and the door below, bigger, out over the street. Stamped into a soft layer at a third of the screen's resolution and laid on
+  // in one draw (since V114; before, each stamped at full size)
+  {const FI=[];const put=(cv,x,y,r,a)=>{if(a>.004&&r>.3)FI.push({s:cv,x,y,r,a:Math.min(1,a),comp:'lighter'});};
   {const R=rng(1313),G=BG,gr=[[G.W1[0],G.W1[1],G.yTop+20,G.y1w],[G.DR[0],G.DR[1],G.yTop+16,G.dBase],[G.W2[0],G.W2[1],G.yTop+20,G.y1w]];
     for(const [a0,a1,b0,b1] of gr)for(let i=0;i<n(7);i++){const t0=R()*.08,life=.55+R()*.8,sx=lerp(a0,a1,R()),sy=lerp(b0,b1,.25+R()*.6),out=(sx-(a0+a1)/2)*(.6+R())+(R()-.5)*30,dn=(R()-.3)*30*k,up=(30+R()*90)*k,sz=(11+R()*10)*k,uu=(u-t0)/life;
-      if(uu<0||uu>=1)continue;const e=1-Math.pow(1-uu,2),x=sx+out*e,y=sy+dn*e-up*e*uu,rr=sz*(.5+1.6*e),hot=1-uu;
-      infStamp(infFire(hot),x,y,rr,.75*hot);}ctx.globalAlpha=1;}
+      if(uu<0||uu>=1)continue;const e=1-Math.pow(1-uu,2),x=sx+out*e,y=sy+dn*e-up*e*uu,rr=sz*(.5+1.6*e),hot=1-uu;put(infFire(hot),x,y,rr,.75*hot);}}
   {const R=rng(1414);for(const w of [...U.wins,...U.dorms])for(let i=0;i<n(6);i++){const t0=R()*.12,life=.5+R()*.7,sx=lerp(w.x0,w.x1,R()),sy=lerp(w.y0,w.y1,.3+R()*.5),out=(sx-U.cx)*.25+(R()-.5)*20,up=(50+R()*80)*k,sz=(7+R()*7)*k,uu=(u-t0)/life;
-      if(uu<0||uu>=1)continue;const e=1-Math.pow(1-uu,2),x=sx+out*e,y=sy-up*e*(.4+uu),rr=sz*(.5+1.5*e),hot=1-uu;
-      infStamp(infFire(hot),x,y,rr,.7*hot);}ctx.globalAlpha=1;}
+      if(uu<0||uu>=1)continue;const e=1-Math.pow(1-uu,2),x=sx+out*e,y=sy-up*e*(.4+uu),rr=sz*(.5+1.5*e),hot=1-uu;put(infFire(hot),x,y,rr,.7*hot);}}
+  if(K&&FI.length)K.soft(ctx,'infF',FI,3,'lighter');else for(const o of FI)infStamp(o.s,o.x,o.y,o.r,o.a);ctx.globalAlpha=1;}
+  // jets of flame out of every window upstairs in the first moment, flung out and up off the frames (since V114)
+  if(K&&u<.7){const R=rng(1818),env=u<.05?u/.05:Math.pow(1-(u-.05)/.65,1.4);for(const w of U.wins){const cx=(w.x0+w.x1)/2,cy=lerp(w.y0,w.y1,.8),ww=w.x1-w.x0;
+      K.stamp(ctx,K.glowSpr('#ffb050'),cx,cy-ww*.6,ww*1.6,.55*env);
+      for(let i=0;i<(lite?1:2);i++){const h=(40+R()*44)*k*env*(.8+.2*Math.sin(t*31+i*2+w.x0)),wd=ww*(1.3+R()*.5)*(.6+.4*env),x=cx+(i-.5)*ww*.3;if(h<2)continue;
+        ctx.globalAlpha=.9;ctx.drawImage(K.tongueSpr((i+Math.round(w.x0))%3),x-wd/2,cy-h,wd,h);}}ctx.globalAlpha=1;}
   // a steady breath of fire out of the top of each window after
-  {const f=.75+.25*Math.sin(t*7.3);for(const w of U.wins){const cx=(w.x0+w.x1)/2;glow(ctx,cx,w.y0+4,26,'#ff8a3a',.35*f*Math.min(1,u*2),1.2);}}
-  // the orange on the flags and the road in front of the house
-  {const d=DF-4,g=g0(),a=Math.min(1,u*3)*(.8+.1*Math.sin(t*9.1));softSpill(ctx,U.cx-d*PSX,d,BG.x1-BG.x0,BG.x1-BG.x0+160,150,'#ff7a30',.32*a,g);}
+  // (and, since V114, flames licking out of the top of each and up the brick, each on its own clock)
+  {const f=.75+.25*Math.sin(t*7.3);for(const w of U.wins){const cx=(w.x0+w.x1)/2;glow(ctx,cx,w.y0+4,26,'#ff8a3a',.35*f*Math.min(1,u*2),1.2);}
+    if(K&&u>.45){const kf=Math.min(1,(u-.45)*2.5),R=rng(2323),ww=U.wins[0].x1-U.wins[0].x0;for(const w of U.wins)for(let i=0;i<(lite?1:2);i++){const sp=7+R()*6,ph=R()*TAU,x=lerp(w.x0,w.x1,.3+i*.4+(R()-.5)*.1),
+        h=(14+R()*14)*k*kf*(.65+.35*Math.sin(t*sp+ph)),wd=ww*(.55+R()*.2);if(h<2)continue;ctx.globalAlpha=.85;ctx.drawImage(K.tongueSpr((i+Math.round(w.x0))%3),x-wd/2,w.y0+6-h,wd,h);}ctx.globalAlpha=1;}}
+  // the orange on the flags and the road in front of the house, and the burning windows standing in the wet: streaks of their light
+  // down the flags toward us, trembling in the rain (since V114: the streaks)
+  {const d=DF-4,g=g0(),a=Math.min(1,u*3)*(.8+.1*Math.sin(t*9.1));softSpill(ctx,U.cx-d*PSX,d,BG.x1-BG.x0,BG.x1-BG.x0+160,150,'#ff7a30',.32*a,g);
+    const src=[[BG.wcx[0],.5,44],[BG.dcx,.6,40],[BG.wcx[1],.5,44],...U.wins.map(w=>[(w.x0+w.x1)/2,.22,14])],R=rng(1919);ctx.fillStyle='#ff8a3a';
+    for(const [sx,al,ww] of src){const ph=R()*9;for(let j=0;j<n(12);j++){const dd=DF-8-j*12;if(dd<14)break;const y=Lg(dd),x=sx-(DF-dd)*PSX+Math.sin(t*5.3+j*1.9+ph)*2.4*k,wv=ww*(.45+.35*Math.abs(Math.sin(j*2.7+ph)))*(1+j*.04),
+        f=a*al*(1-j/12)*(.55+.45*Math.sin(t*7.1+j*1.3+ph));if(f<.01)continue;ctx.globalAlpha=Math.min(1,f*.5);ctx.fillRect(x-wv/2,y-.8,wv,1.6+j*.08);}}ctx.globalAlpha=1;}
   ctx.restore();
-  // glass out of the windows upstairs and down onto the flags, and slates off the roof, turning, down into the street
-  {const R=rng(1515),Lg=dd=>dd<123?GB-dd*PSY:fy(dd);
-    for(const w of U.wins)for(let i=0;i<n(10);i++){const px=lerp(w.x0,w.x1,R()),py=lerp(w.y0,w.y1,R()),dl=150+R()*60,out=(px-U.cx)*(.1+R()*.4)+(R()-.5)*40,hgt=(10+R()*40)*k,T=.6+R()*.5,t0=R()*.06,rot=R()*TAU,spin=(R()-.5)*30,sz=(1+R()*2)*k,sh=R();
+  // glass out of the windows upstairs and down onto the flags, glinting in the fire; slates off the roof; the windows' frames and
+  // shutters thrown out turning over and coming down in the street; the menus and the bills off the tables upstairs coming down slowly,
+  // burning, in the rain (since V114: the frames, the papers, the glints)
+  {const R=rng(1515);
+    for(const w of U.wins)for(let i=0;i<n(12);i++){const px=lerp(w.x0,w.x1,R()),py=lerp(w.y0,w.y1,R()),dl=150+R()*60,out=(px-U.cx)*(.1+R()*.4)+(R()-.5)*40,hgt=(10+R()*40)*k,T=.6+R()*.5,t0=R()*.06,rot=R()*TAU,spin=(R()-.5)*30,sz=(1+R()*2.2)*k,sh=R();
       const uu=(u-t0)/T;if(uu<0)continue;const v=Math.min(1,uu),lx=px-(DF-dl)*PSX+out,ly=Lg(dl)-.6,x=lerp(px,lx,v),y=lerp(py,ly,v*v)-hgt*2*v*(1-v),an=rot+spin*Math.min(u-t0,T),fade=u<2.6?1:Math.max(0,1-(u-2.6)/.8);
-      const gl=Math.abs(Math.sin(an*1.7+sh*6));ctx.save();ctx.translate(x,y);ctx.scale(1,v<1?1:.42);ctx.rotate(an);ctx.fillStyle=rgba(sh<.5?'#d8e6f0':'#ffe8d0',(.35+.45*gl)*fade);
-      ctx.beginPath();ctx.moveTo(-sz,0);ctx.lineTo(sz*.6,-sz*.55);ctx.lineTo(sz*.9,sz*.4);ctx.closePath();ctx.fill();ctx.restore();}
+      const gl=Math.abs(Math.sin(an*1.7+sh*6));ctx.save();ctx.translate(x,y);ctx.scale(1,v<1?1:.42);ctx.rotate(an);ctx.fillStyle=rgba(sh<.5?'#d8e6f0':'#ffe0b8',(.35+.5*gl)*fade);
+      ctx.beginPath();ctx.moveTo(-sz,0);ctx.lineTo(sz*.6,-sz*.55);ctx.lineTo(sz*.9,sz*.4);ctx.closePath();ctx.fill();if(gl>.88){ctx.fillStyle=rgba('#ffffff',.9*fade);ctx.fillRect(-.5,-.5,1,1);}ctx.restore();}
     for(let i=0;i<n(26);i++){const px=lerp(BG.x0,BG.x1,R()),py=U.roof+R()*(U.top-U.roof),dl=140+R()*80,out=(px-U.cx)*(.4+R()*.8)+(R()-.5)*60,hgt=(80+R()*120)*k,T=1+R()*.7,t0=.04+R()*.1,rot=R()*TAU,spin=(R()-.5)*16,sl=(3+R()*3)*k;
       const uu=(u-t0)/T;if(uu<0)continue;const v=Math.min(1,uu),lx=px-(DF-dl)*PSX+out,ly=Lg(dl)-1,x=lerp(px,lx,v),y=lerp(py,ly,v*v)-hgt*2*v*(1-v),an=rot+spin*Math.min(u-t0,T);
-      ctx.save();ctx.translate(x,y);if(v>=1)ctx.scale(1,.4);ctx.rotate(an);ctx.fillStyle='#14161e';ctx.fillRect(-sl,-sl*.35,sl*2,sl*.7);ctx.fillStyle=rgba('#8a96b8',.3);ctx.fillRect(-sl,-sl*.35,sl*2,sl*.18);ctx.restore();}}
+      ctx.save();ctx.translate(x,y);if(v>=1)ctx.scale(1,.4);ctx.rotate(an);ctx.fillStyle='#14161e';ctx.fillRect(-sl,-sl*.35,sl*2,sl*.7);ctx.fillStyle=rgba('#8a96b8',.3);ctx.fillRect(-sl,-sl*.35,sl*2,sl*.18);ctx.restore();}
+    const R3=rng(2121);for(const w of U.wins){if(R3()<.35)continue;const px=(w.x0+w.x1)/2,py=(w.y0+w.y1)/2,dl=130+R3()*80,out=(px-U.cx)*(.5+R3()*.7)+(R3()-.5)*50,hgt=(50+R3()*70)*k,T=.9+R3()*.5,t0=.02+R3()*.06,spin=(R3()-.5)*12,fw=(w.x1-w.x0)*.5,fh=(w.y1-w.y0)*.5,burn=R3()<.6;
+      const uu=(u-t0)/T;if(uu<0)continue;const v=Math.min(1,uu),lx=px-(DF-dl)*PSX+out,ly=Lg(dl)-1,x=lerp(px,lx,v),y=lerp(py,ly,v*v)-hgt*2*v*(1-v),an=spin*Math.min(u-t0,T);
+      // (lying on the flags it is drawn flat, not squashed: a squashed stroke came out under the drawing guide's widths)
+      ctx.save();ctx.translate(x,y);const flat=v>=1;ctx.rotate(flat?Math.round(an/Math.PI)*Math.PI+.12*Math.sin(an):an);const fh2=flat?fh*.4:fh;
+      ctx.strokeStyle='#1c0d08';ctx.lineWidth=1.6*k;ctx.strokeRect(-fw/2,-fh2/2,fw,fh2);ctx.beginPath();ctx.moveTo(0,-fh2/2);ctx.lineTo(0,fh2/2);ctx.moveTo(-fw/2,0);ctx.lineTo(fw/2,0);ctx.stroke();
+      ctx.strokeStyle=rgba(C.rim,.3);ctx.lineWidth=.8*k;ctx.beginPath();ctx.moveTo(-fw/2,-fh2/2);ctx.lineTo(fw/2,-fh2/2);ctx.stroke();ctx.restore();if(burn&&K){ctx.save();ctx.globalCompositeOperation='lighter';K.stamp(ctx,K.glowSpr('#ff8a30'),x,y,7*k,.7*(v<1?1:Math.max(0,1-(u-t0-T)/1.5)));ctx.restore();}}
+    const R4=rng(2222);for(let i=0;i<n(16);i++){const w=U.wins[i%U.wins.length],sx=lerp(w.x0,w.x1,R4()),sy=lerp(w.y0,w.y1,.5),t0=.05+R4()*.4,uu=u-t0,vx=(R4()-.5)*60*k+(sx-U.cx)*.15,vy=(34+R4()*30)*k,up=(10+R4()*24)*k,ph=R4()*9,life=2.6+R4()*1.4;
+      if(uu<0||uu>life)continue;const x=sx+vx*Math.min(uu,1.2)+Math.sin(uu*3.1+ph)*10*k,y=sy-up*(1-Math.exp(-uu*3))+vy*uu,an=Math.sin(uu*2.3+ph)*1.1,sz=(1.6+R4()*1.4)*k,burnt=clamp(uu/life,0,1);
+      ctx.save();ctx.translate(x,y);ctx.rotate(an);ctx.scale(1,.4+.6*Math.abs(Math.sin(uu*4+ph)));ctx.fillStyle=mix('#e8dcc0','#2a1a10',burnt);ctx.fillRect(-sz,-sz*.7,sz*2,sz*1.4);ctx.restore();
+      if(K&&burnt<.9){ctx.save();ctx.globalCompositeOperation='lighter';K.stamp(ctx,K.glowSpr('#ff9a3a'),x,y,sz*2.4,.8*(1-burnt));ctx.restore();}}}
   // smoke pouring up the front from every window, and up off the roof, red underneath
-  {const R=rng(1616);for(const w of U.wins)for(let i=0;i<n(3);i++){const P=3.2+R()*1.4,uu=((u-.4)/P+i/3)%1;if(u<.4)continue;const sx=(w.x0+w.x1)/2+(R()-.5)*8,x=sx+Math.sin(uu*3+i)*6*k,y=w.y0-uu*120*k,rr=(6+uu*30)*k,a=(uu<.15?uu/.15:1)*(1-uu)*.5;
-      infStamp(infSmoke(uu*.8+.2),x,y,rr,a);}ctx.globalAlpha=1;}}
+  {const R=rng(1616),SM=[];for(const w of U.wins)for(let i=0;i<n(3);i++){const P=3.2+R()*1.4,uu=((u-.4)/P+i/3)%1;if(u<.4)continue;const sx=(w.x0+w.x1)/2+(R()-.5)*8,x=sx+Math.sin(uu*3+i)*6*k,y=w.y0-uu*120*k,rr=(6+uu*30)*k,a=(uu<.15?uu/.15:1)*(1-uu)*.5;
+      if(a>.004&&rr>.3)SM.push({s:infSmoke(uu*.8+.2),x,y,r:rr,a});}
+    if(K&&SM.length)K.soft(ctx,'infS',SM,4);else for(const o of SM)infStamp(o.s,o.x,o.y,o.r,o.a);ctx.globalAlpha=1;}}
 // the light that falls on a fighter: the nearest lamp
 function light(f){const px=f.p[PEL].x+f.dep*PSX;let best=null,bd=1e9;for(const lx of LAMPX){if(lx===cutLamp())continue;const x=lampAt(lx).x,dd=Math.abs(x-px);if(dd<bd){bd=dd;best=x;}}
   return{light:{x:best-f.dep*PSX,y:lampAt(LAMPX[0]).y+f.dep*PSY},col:'#ffc98a'};}

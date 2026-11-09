@@ -127,30 +127,53 @@ function paint(c){
 // where the blade went through, and the gas hissing out of the top one, the air shivering under it; the burners starve and go out.
 const GASL=typeof GAS!=='undefined'?GAS:{x:654,h:34,d:236};
 function gasK(t){const G=typeof S!=='undefined'&&S.gas;if(!G)return 1;const u=(t-G.cut)/.9;if(u>=1)return 0;return Math.pow(1-Math.max(0,u),1.4)*(.75+.25*Math.sin(t*41)*Math.sin(t*17.3));}
-function gasPipe(c,t){const ox=OX(),yb=yB(),x=GASL.x+ox,cut=yb-GASL.h,G=typeof S!=='undefined'&&S.gas,sx1=RANGE.x1+ox,yk=yb-22;
+// (since V114) each burner as the gas still feeds it: the pots go out one after another along the range, each flame jumping once as the
+// last of the pressure gulps through it, then starving
+function gasKj(t,j){const G=typeof S!=='undefined'&&S.gas;if(!G)return 1;const u=(t-G.cut-.15-j*.22)/.7;if(u<0)return 1;if(u>=1)return 0;
+  return(u<.15?1+u/.15*.6:1.6*Math.pow(1-(u-.15)/.85,1.6))*(.75+.25*Math.sin(t*41+j)*Math.sin(t*17.3));}
+// when a burner went out (seconds after the cut), for the wisp of smoke it leaves
+const gasOut=j=>.15+j*.22+.7;
+const KIT=()=>typeof FxLook!=='undefined'&&FxLook.kit||null;
+function gasPipe(c,t){const ox=OX(),yb=yB(),x=GASL.x+ox,cut=yb-GASL.h,G=typeof S!=='undefined'&&S.gas,sx1=RANGE.x1+ox,yk=yb-22,K=KIT();
   const pipe=(y0,y1)=>{c.fillStyle='#0e0f12';c.fillRect(x-1.8,y0,3.6,y1-y0);c.fillStyle=rgba(C.rim,.26);c.fillRect(x-1.8,y0,1,y1-y0);c.fillStyle=rgba('#000000',.5);c.fillRect(x+1.2,y0,.6,y1-y0);};
-  // down from the beams, round the elbow and into the range's side
-  if(G){pipe(10,cut-1.4);pipe(cut+1.4,yk);}else pipe(10,yk);
+  // down from the beams, round the elbow and into the range's side (once it is cut, the lower piece knocked aside by the blow, bent
+  // at the elbow: since V114)
+  if(G){pipe(10,cut-1.4);const u=t-G.cut,bend=.07*(1-Math.exp(-u*30))*(1+.25*Math.exp(-u*6)*Math.sin(u*40));c.save();c.translate(x,yk);c.rotate(-bend);c.translate(-x,-yk);pipe(cut+1.4,yk);c.restore();}else pipe(10,yk);
   c.fillStyle='#0e0f12';c.fillRect(sx1,yk-1.8,x-sx1+1.8,3.6);c.fillStyle=rgba(C.rim,.22);c.fillRect(sx1,yk-1.8,x-sx1,1);
   c.fillStyle='#16171b';c.beginPath();c.arc(x,yk,2.8,0,TAU);c.fill();
   for(const y of [40,yb-110]){c.fillStyle='#1a1b20';c.fillRect(x-3,y,6,3);c.fillStyle=rgba(C.rim,.2);c.fillRect(x-3,y,6,.6);}
   // the cock: a brass body on the pipe, its lever along the pipe (open)
   {const y=yb-64;c.fillStyle=lin(c,x-3.4,0,x+3.4,0,[[0,C.goldD],[.4,C.goldL],[1,C.goldD]]);c.fillRect(x-3.4,y-3,6.8,6);c.fillStyle=C.gold;c.fillRect(x+3,y-1,7,2);c.fillStyle=rgba('#000000',.4);c.fillRect(x-3.4,y+2.4,6.8,.6);}
   if(!G)return;const u=t-G.cut;
-  // the ends where the blade went through, bright for a moment
-  if(u<.7){const a=1-u/.7;c.fillStyle=rgba('#fff4dc',.9*a);c.fillRect(x-1.8,cut-2,3.6,1);c.fillRect(x-1.8,cut+1,3.6,1);c.save();c.globalCompositeOperation='lighter';glow(c,x,cut,8,'#ffe8c0',.5*a);c.restore();}
-  // the gas out of the top end: the air shivering in a cone down from it, and spreading low over the floor
+  // the ends where the blade went through: white for an instant, then the iron red there, cooling (since V114: the red)
+  if(u<1.6){const a=u<.12?1:Math.exp(-(u-.12)*2.2),col=u<.25?'#fff4dc':mix('#ff8a3a','#7a2010',clamp((u-.25)/1.2,0,1));c.fillStyle=rgba(col,.95*a);c.fillRect(x-1.8,cut-2.2,3.6,1.2);c.fillRect(x-1.2,cut+1,3.6,1.2);
+    c.save();c.globalCompositeOperation='lighter';if(K){K.stamp(c,K.glowSpr(u<.25?'#ffe8c0':'#ff7a30'),x,cut,u<.1?26:10,(u<.1?.9:.5)*a*(typeof reduceMotion!=='undefined'&&reduceMotion?.5:1));}else glow(c,x,cut,8,'#ffe8c0',.5*a);c.restore();}
+  // sparks off the iron where the blade went through, thrown on the way it went and down onto the floor (since V114)
+  if(u<.7){const R=rng(91),B=[[],[],[]],fl=yb+2;for(let i=0;i<22;i++){const vx=(20+R()*200)*(R()<.8?1:-1),vy=-(R()*150)+40,L=.3+R()*.4;if(u>L)continue;
+      const P=w=>{const y=cut+vy*w+600*w*w;if(y<fl)return{x:x+vx*w,y};const th=(-vy+Math.sqrt(vy*vy+2400*(fl-cut)))/1200,w2=w-th;return{x:x+vx*th+vx*.4*w2,y:Math.min(fl,fl-(vy+1200*th)*.3*w2+600*w2*w2)};};
+      const k=u/L;B[k<.3?0:k<.65?1:2].push([P(Math.max(0,u-.025)),P(u)]);}
+    c.save();c.globalCompositeOperation='lighter';c.lineCap='round';[['#fff6d8',.95],['#ffc861',.8],['#ff6a26',.6]].forEach(([col,al],j)=>{if(!B[j].length)return;c.strokeStyle=rgba(col,al);c.lineWidth=j?1.1:1.4;c.beginPath();for(const [a,b] of B[j]){c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);}c.stroke();});c.restore();}
+  // the gas out of the top end: a pale jet of it roaring down out of the pipe and billowing out (a burst of rust and dust off the iron
+  // with the first of it), the air shivering in it, and the room filling: it spreads low over the floor and hangs in drifts (since V114:
+  // the jet, the burst and the drifts; before, the shivering lines alone)
+  if(K){const ops=[],R=rng(193),j0=Math.min(1,u*5);
+    for(let i=0;i<16;i++){const sp=1.1+R()*.6,ph=R(),w=(t*sp+ph)%1,L=40+R()*60,dx=(R()-.5)*.6,x2=x+dx*L*w+Math.sin(t*7+i)*2*w,y2=cut+2+L*w,r=3+w*(20+R()*14),al=.16*j0*Math.sin(w*Math.PI)*(.6+.4*R());
+      ops.push({s:K.puffSpr(i%4,'#eef2e0','#a8b498',1),x:x2,y:y2,r,a:al,rot:i});}
+    if(u<.5){const b=u/.5;for(let i=0;i<8;i++){const a2=R()*Math.PI,v=30+R()*40;ops.push({s:K.puffSpr(i%4,'#7a6a5a','#4a3e34',1),x:x+Math.cos(a2)*v*b*(R()<.5?-1:1),y:cut+Math.sin(a2)*v*b*.6,r:4+16*b,a:.4*(1-b),rot:i});}}
+    if(u>.8){const k2=clamp((u-.8)/2.5,0,1);for(let i=0;i<10;i++){const sp=.03+R()*.04,ph=R(),w=(t*sp+ph)%1,px=lerp(-60,W+120,R())+Math.sin(t*.3+i)*30,py=lerp(yb-120,yb+30,R())+Math.sin(t*.5+i*2)*8;
+      ops.push({s:K.puffSpr(i%4,'#e4ead2','#9aa47e',1),x:px+(w-.5)*60,y:py,r:50+R()*60,a:.05*k2*Math.sin(w*Math.PI),rot:i});}}
+    K.soft(c,'kgas',ops,4);}
   c.save();c.lineWidth=1.5;for(let i=0;i<7;i++){const ph=((t*1.6+i/7)%1),L=10+ph*46,a=.16*Math.sin(ph*Math.PI)*Math.min(1,u*4);c.strokeStyle=rgba('#eef4dc',a);c.beginPath();
     for(let k=0;k<=6;k++){const yy=cut+k*L/6,xx=x+(k*L/6)*.25*Math.sin(i*1.3)+Math.sin(t*14+k*1.7+i*2.1)*(1+k*.5);k?c.lineTo(xx,yy):c.moveTo(xx,yy);}c.stroke();}
   const sp=clamp(u/4,0,1);if(sp>0){c.fillStyle=lin(c,0,yb-60,0,yb+40,[[0,rgba('#c8d8a0',0)],[1,rgba('#c8d8a0',.06*sp)]]);c.fillRect(-160,yb-60,W+400,140);}
   c.restore();}
 // the flames, the ovens' glow, the steam: every frame (the burners as much of them as the gas still feeds: gasK)
 function live(){const ox=OX(),yb=yB(),sx0=RANGE.x0+ox,sx1=RANGE.x1+ox,top=yb-74,t=S.t,gk=gasK(t);ctx.save();ctx.globalCompositeOperation='lighter';
-  if(gk>.02)for(const [u,w] of RANGE_POTS){const x=lerp(sx0,sx1,u);
-    for(let i=0;i<5;i++){const fx=x-w/2+3+i*(w-6)/4,fl=(3.5+2.2*Math.sin(t*23+i*1.9+u*7)+1.4*Math.sin(t*41+i))*gk;
+  RANGE_POTS.forEach(([u,w],j)=>{const gj=gasKj(t,j);if(gj<=.02)return;const x=lerp(sx0,sx1,u);
+    for(let i=0;i<5;i++){const fx=x-w/2+3+i*(w-6)/4,fl=(3.5+2.2*Math.sin(t*23+i*1.9+u*7)+1.4*Math.sin(t*41+i))*gj;
       ctx.fillStyle='rgba(120,170,255,.75)';ctx.beginPath();ctx.moveTo(fx-2.2,top);ctx.lineTo(fx,top-fl);ctx.lineTo(fx+2.2,top);ctx.closePath();ctx.fill();
       ctx.fillStyle='rgba(255,190,110,.5)';ctx.beginPath();ctx.moveTo(fx-1,top-fl*.55);ctx.lineTo(fx,top-fl-1.5);ctx.lineTo(fx+1,top-fl*.55);ctx.closePath();ctx.fill();}
-    glow(ctx,x,top-4,w*1.4,'#ff9a50',.18*gk);}
+    glow(ctx,x,top-4,w*1.4,'#ff9a50',.18*Math.min(1,gj));});
   const n=3,ow=(sx1-sx0-36)/n,k=(.55+.25*Math.sin(t*2.3)+.12*Math.sin(t*9.1))*(.3+.7*gk);
   for(let i=0;i<n;i++){const x=sx0+18+i*ow+ow/2;ctx.fillStyle=`rgba(255,120,40,${(.45*k).toFixed(3)})`;ctx.fillRect(x-16,top+31,32,13);glow(ctx,x,top+38,40,'#ff8a40',.25*k);}
   glow(ctx,(sx0+sx1)/2,top,200,'#ff9a50',.08*k,.5);
@@ -160,6 +183,9 @@ function live(){const ox=OX(),yb=yB(),sx0=RANGE.x0+ox,sx1=RANGE.x1+ox,top=yb-74,
     for(let i=0;i<4;i++){const ph=(t*.3+i/4+u)%1,y=top-h-6-ph*90,rr=5+ph*18;ctx.globalAlpha=.1*Math.sin(ph*Math.PI)*sk;ctx.fillStyle='#e8e4dc';
       ctx.beginPath();ctx.ellipse(x+Math.sin(t*1.3+i*2+u*9)*7*ph,y,rr,rr*.7,0,0,TAU);ctx.fill();}}
   ctx.restore();
+  if(typeof S!=='undefined'&&S.gas){const u0=t-S.gas.cut;ctx.save();RANGE_POTS.forEach(([u,w],j)=>{const v=u0-gasOut(j);if(v<0||v>1.6)return;const x=lerp(sx0,sx1,u);
+      for(let i=0;i<3;i++){const ph=clamp(v/1.6-i*.12,0,1);if(ph<=0)continue;const y=top-2-ph*50,rr=3+ph*12;ctx.globalAlpha=.16*Math.sin(ph*Math.PI);ctx.fillStyle='#d8d4cc';
+        ctx.beginPath();ctx.ellipse(x+Math.sin(t*2+i*2+j)*5*ph,y,rr,rr*.7,0,0,TAU);ctx.fill();}});ctx.restore();}
   gasPipe(ctx,t);}
 function light(f){const sx=(RANGE.x0+RANGE.x1)/2,px=f.p[PEL].x;return Math.abs(px-sx)<220?{light:{x:sx+OX()-f.dep*PSX,y:yB()-90+f.dep*PSY},col:'#ffb072'}:{dir:{x:.15,y:-1},col:'#ffe2b0'};}
 // ---------- the kitchen's furniture ----------
