@@ -200,9 +200,15 @@ function garageFront(c,ox,broke){const {x0,x1,top}=GAR,y=top-15;c.save();c.trans
   // the torn ends bent out over the drop
   c.strokeStyle='#1a1a20';c.lineWidth=1.6;for(const [a,b] of gaps){c.beginPath();c.moveTo(a,y);c.lineTo(a+6,y-5);c.moveTo(b,y);c.lineTo(b-5,y+4);c.stroke();}
   c.fillStyle=rgba('#c8ccd4',.25);c.fillRect(x0,y-.6,x1-x0-30,.5);c.restore();}
-// The flyover across the top of the picture: the interchange's upper road, which the ramp comes down from. Its deck's fascia in
+// The flyover across the top of the picture: the interchange's upper road, the ramp's top running under it. Its deck's fascia in
 // concrete with the shadow under it, its parapet's coping lit, small lamps along it; its piers go down behind the garage (paintGarage).
-const FLY={y0:-82,y1:-40,piers:[260,520,1020]};
+const FLY={y0:-82,y1:-40,piers:[260,520,1020],clear:40};
+// Over the ramp's top the flyover is put down among the riders while the stage runs (sk_highwayui.js, at FLY_D): in front of a rider
+// still under it, so that he comes out from under it (since V111, asked for: it was part of the place's own layer, behind every rider,
+// and Kael at the ramp's top was drawn across its face as though he rode over it). Its underside clears the ramp by about a rider's
+// height where the ramp goes under it (clear), so a rider comes out from under its fascia from his wheels up, never at once.
+const FLY_D=(GB-FLY.y1-FLY.clear)/PSY;
+function flyFront(){const ox=pieceOff();if(ox>=1500)return;blitPiece(pieces().fly,ox*FAR_F);}
 function paintFly(c){const {y0,y1}=FLY,X0=SP.fly.x0,X1=SP.fly.x1,r=rng(171);
   c.fillStyle='#0c0b0f';c.fillRect(X0,y0+10,X1-X0,y1-y0-10);
   c.save();c.beginPath();c.rect(X0,y0+14,X1-X0,18);c.clip();wallFace(c,X0,y0+14,X1,y0+32,{dark:.55,u:.3});c.restore();
@@ -428,7 +434,8 @@ function live(){const T=strips(),sp=speedOf(),H=hw(),m=ctx.getTransform(),L=-m.e
   if(sp>0){const o=offOf(T.road),sw=streakSpr('#ffc98a'),sc=streakSpr('#cfe0ff');ctx.save();ctx.globalCompositeOperation='lighter';
     for(const q of RSTREAK){const y=yG(q.d)+1,len=q.len*sp;for(let n=-1;n<=1;n++){const x=q.x-o+n*T.road.P+q.d*PSX;if(x<L-len||x>R)continue;ctx.globalAlpha=q.a*sp;ctx.drawImage(q.warm?sw:sc,x,y-.5,len,1);}}
     ctx.restore();}
-  if(show){const p=pieces();blitPiece(p.front,ox);rampLive(ctx,ox);blitPiece(p.fly,ox*FAR_F);}
+  // (the flyover, while the stage runs, among the riders instead: flyFront)
+  if(show){const p=pieces();blitPiece(p.front,ox);rampLive(ctx,ox);if(!H)blitPiece(p.fly,ox*FAR_F);}
   blit(T.drop);
   if(sp>.995)blit(T.nearFast);else{blit(T.near);if(sp>0){ctx.save();ctx.globalAlpha=.3*sp;ctx.translate(12*sp,0);blit(T.near);ctx.restore();}}}
 // the light that rims a rider: the lamps on the far parapet as they pass, the ramp's on the ramp, the moon when nothing nearer is lit
@@ -449,6 +456,6 @@ const FRONT={x0:GAR.x0-10,x1:GAR.x1+10,y0:GAR.top-28,y1:GAR.top+3};let FRS=null;
 function front(c){const ox=pieceOff();if(ox>=1500)return;const H=hw(),br=(H&&H.broke)||[],key=br.join(','),sc=wantScale();
   if(!FRS||FRS.key!==key||Math.abs(sc/FRS.sc-1)>=.15){if(FRS)FRS.cv.width=FRS.cv.height=0;FRS=makePiece(FRONT,sc,g=>garageFront(g,0,br));FRS.key=key;}
   c.drawImage(FRS.cv,FRONT.x0+ox*FAR_F,FRONT.y0,FRS.cv.width/FRS.sc,FRS.cv.height/FRS.sc);}
-E.S.highway={set:SET,setLive:true,ground:.28,paint,live,light,warm:strips,table:()=>false,div:()=>false,below,front,frontOn:()=>pieceOff()<1500};
+E.S.highway={set:SET,setLive:true,ground:.28,paint,live,light,warm:strips,table:()=>false,div:()=>false,below,front,frontOn:()=>pieceOff()<1500,fly:flyFront,flyD:FLY_D};
 })();
 // ===== ENV HIGHWAY END =====

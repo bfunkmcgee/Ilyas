@@ -100,7 +100,11 @@ function camCutFit(C,wOld){
   const w=clamp(Math.max(wFill,lo<=hi?hi-lo:0,300),Math.min(300,wOld),wOld);
   let x=tx;if(lo<=hi){const a=hi-w/2,b=lo+w/2;x=a<=b?clamp(x,a,b):(a+b)/2;}
   return{w,x:clamp(x,x0+w/2,x1-w/2),lo,hi,band,mid:lo<=hi?(yt-30+yf+24)/2:null};}
+// (a scene's shot that asks to be cut to, C.snap, lands at once with its band, once for each shot: since V111, the Tower Road's first
+// shot out of the Avenue's whip)
+let camSnapped=null;
 {const uc=updateCamera;updateCamera=function(rdt){const C=S.camCut;if(!C){uc(rdt);return;}
+  if(C.snap&&camSnapped!==C){camSnapped=C;cam.cut=true;}
   const narrow=cssW<640,wOld=clamp(narrow&&C.wn?C.wn:C.w*(narrow?Math.min(1,700/C.w):1),narrow&&C.wn?200:300,W),F=C.fit=camCutFit(C,wOld);
   let w=wOld,tx=narrow&&C.xn!=null?C.xn:C.x,k=C.k?Math.min(1,rdt*C.k):1;
   // (a cut, k 0, lands at once and then follows; a scene's own glide goes on at its own rate)
@@ -121,8 +125,26 @@ function camCutFit(C,wOld){
 
 // ---------- drawing over the stage: letterbox, the stage card, the fade ----------
 let ST_LB=0;
+// ---------- a whip between two places (S.whip, since V111) ----------
+// The camera whipping round as one place gives way to the next: the picture smeared along the way it turns as far as S.whip.amt says
+// (0 to 1: at 1 squeezed to a 2^WHIP_HALF-th of its width and stretched back, a smear about a sixth of the screen long), and over the
+// new place's first moments the old place's last smeared picture laid over it as S.whip.mix says, so that the cut between the two falls
+// inside the smear. The old picture is kept at a quarter of the screen's size (smeared, it loses nothing by it). With reduced motion
+// there is no smear, the old picture only fading.
+const WHIP_HALF=7.5,WHIP_LV=[];let WHIP_SNAP=null;
+function whipSmear(a){const w=cv.width,h=cv.height,tw=Math.max(4,w/Math.pow(2,a*WHIP_HALF));if(tw>w-2)return;let src=cv,sw=w,i=0;
+  while(sw>tw+.5){const iw=Math.max(1,Math.round(Math.max(tw,sw/2))),c=WHIP_LV[i]||(WHIP_LV[i]=document.createElement('canvas'));
+    if(c.width!==iw||c.height!==h){c.width=iw;c.height=h;}const g=c.getContext('2d');g.globalCompositeOperation='copy';g.imageSmoothingEnabled=true;g.drawImage(src,0,0,sw,h,0,0,iw,h);src=c;sw=iw;i++;}
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='copy';ctx.imageSmoothingEnabled=true;ctx.drawImage(src,0,0,sw,h,0,0,w,h);ctx.restore();}
+function drawWhip(){const Wp=S.whip;if(!Wp){WHIP_SNAP=null;return;}const w=cv.width,h=cv.height,here=S.story&&S.story.key;
+  if(!reduceMotion&&Wp.amt>0)whipSmear(Wp.amt);
+  if(here===Wp.from){const sw=Math.max(2,Math.round(w/4)),sh=Math.max(2,Math.round(h/4));if(!WHIP_SNAP)WHIP_SNAP=document.createElement('canvas');
+    if(WHIP_SNAP.width!==sw||WHIP_SNAP.height!==sh){WHIP_SNAP.width=sw;WHIP_SNAP.height=sh;}
+    const g=WHIP_SNAP.getContext('2d');g.globalCompositeOperation='copy';g.imageSmoothingEnabled=true;g.drawImage(cv,0,0,w,h,0,0,sw,sh);}
+  else if(WHIP_SNAP&&Wp.mix>0){ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=clamp(Wp.mix,0,1);ctx.imageSmoothingEnabled=true;ctx.drawImage(WHIP_SNAP,0,0,w,h);ctx.restore();}}
 function drawStoryScreen(){
   const w=cv.width,h=cv.height,s=w/900;
+  drawWhip();
   ST_LB+=((S.letter?1:0)-ST_LB)*.08;
   if(ST_LB>.002){const bh=h*.105*ST_LB;ctx.fillStyle='#000';ctx.fillRect(0,0,w,bh);ctx.fillRect(0,h-bh,w,bh);}
   // the black of a cut between scenes, under the stage's card so a chapter's title shows on it

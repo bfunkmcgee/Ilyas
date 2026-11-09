@@ -231,6 +231,16 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   lit, a hatter, the Royal, a grocer shut, the Maison and a tobacconist. `light(f)` and the lamps' flames follow the blocks. Our own
   kerb is three times as long (3510) and laid out from its seed: bollards in twos and threes, pillar boxes, the pavement's lamps,
   benches and fire points. The strips take about twice as long to make when the stage starts (about half a second here).
+- The whip from the Avenue into the Tower Road (since V111, asked for: Ilyas rode out of the picture and it went to black before the
+  ramp faded in): as he opens it up and goes out of the picture, the camera whips round after him (the Avenue's outro, `CHASE_WHIP`
+  .4 s: its x to the right, the road going by six times as fast, `S.whip.amt` up to 1), and the Tower Road starts inside the smear,
+  with no black (its setup leaves `S.fade` at 0 when `S.whip` is there): `hwyWhipIn` cuts to the top shot with its band at once
+  (`S.camCut.snap`, sk_storyui.js), comes round onto it from the left (`HWY_WHIP`), lets the smear go and fades the Avenue's last
+  picture laid over the first ones (`S.whip.mix`). The page draws it (`drawWhip`, sk_storyui.js): the picture squeezed and
+  stretched back along the way it turns (`whipSmear`, halvings of `WHIP_HALF`), and the old place's last picture kept at a quarter
+  size until the new place's are drawn. `S.whip` lasts only into the stage it whips toward (`storyDuel`), and a skip, a retry or a
+  chapter started at the Tower Road come in from black as before. With reduced motion there is no smear, the old picture only
+  fading. The ambient bed is the Avenue's in both, so the sound runs on.
 - The Tower Road, `highway` (since V101, asked for: after the avenue's riders, a highway that curves toward the camera, more riders
   jumping their bikes off a parking garage onto it, a straight where he rides west with a truck ahead and a man throwing exploding
   drums off it, and after two riders down the man in white's helicopter taking out the truck and the rest with a machine gun):
@@ -325,7 +335,11 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   it; the outer one
   from the gore's nose (`S_NOSE`, where its edge has come `GAP` 26 clear of the lane line at 114) up. East of its foot the highway is
   its two near lanes behind a barrier at depth `HB` 118 (its face as the far parapet's), the drop beyond it, the gore between it
-  and the ramp paved and chevroned.
+  and the ramp paved and chevroned. The ramp's top runs under the flyover, and while the stage runs the flyover is put down among
+  the riders (`flyFront`, sk_highwayui.js's `envItems`, at `FLY_D`; the place leaves it out of its own layer then) so that it
+  hides a rider still under it (since V111, asked for: drawn behind every rider, Kael at the ramp's top crossed its face as though
+  riding over it). Its underside clears the ramp by about a rider's height there (`FLY.clear` 40), so he comes out from under its
+  fascia wheels first, never all at once; he starts just short of the ramp's top (`HWY_S0`), hidden.
   Its cost (since V101's first look review, where the ramp's foot on a phone came in at 117% of the fall's dearest frame): what is
   hidden is not put down. The sky and the city stop where the band in front of them hides them (`HIDE`) and are put down only either
   side of the garage below its roof (`behind`); the far parapet's band is the parapet alone and each lamp a sprite of its own put
@@ -1465,7 +1479,7 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V111 ..." (V110 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V112 ..." (V111 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",

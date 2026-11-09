@@ -216,11 +216,12 @@ function hwyDrumDraw(x,y,dep,ang){const q=P(x,y,dep),r=DRUM.r,h=DRUM.h;ctx.save(
   for(const o of S.drums||[])items.push({d:o.dep-.02,hwyDrum:o});
   for(const f of S.F)if(f.hold==='drum'&&!f.dead&&!f.hidden)items.push({d:f.dep-1,hwyHeld:f});
   for(const H of S.veh)if(H.kind==='heli'&&H.gunAng!=null&&(H.door||0)>.3)items.push({d:H.dep-HWY_GUN.dep,hwyGun:H});
-  // the garage's parapet: in front of the riders still on its top deck, behind those in the air
-  const X=envKey()==='highway'&&EnvLook.S.highway;if(X&&X.frontOn&&X.frontOn())items.push({d:GARAGE.dep-.4,hwyGarage:X});};}
+  // the garage's parapet: in front of the riders still on its top deck, behind those in the air; and the flyover over the ramp's top,
+  // in front of a rider still under it (since V111: X.fly, while the stage runs; the place leaves it out of its own layer then)
+  const X=envKey()==='highway'&&EnvLook.S.highway;if(X&&X.frontOn&&X.frontOn()){items.push({d:GARAGE.dep-.4,hwyGarage:X});if(S.hwy&&X.fly)items.push({d:X.flyD,hwyFly:X});}};}
 {const de=drawEnvItem;drawEnvItem=function(it){if(it.hwyDrum){const o=it.hwyDrum;hwyDrumDraw(o.x,o.y,o.dep,o.ang);return true;}
   if(it.hwyHeld){const f=it.hwyHeld,a=f.p[HAF],b=f.p[HAB];hwyDrumDraw((a.x+b.x)/2,(a.y+b.y)/2-6,f.dep,Math.atan2(b.y-a.y,b.x-a.x));return true;}
-  if(it.hwyGun){hwyDoorGun(it.hwyGun);return true;}if(it.hwyGarage){it.hwyGarage.front(ctx);return true;}return de(it);};}
+  if(it.hwyGun){hwyDoorGun(it.hwyGun);return true;}if(it.hwyGarage){it.hwyGarage.front(ctx);return true;}if(it.hwyFly){it.hwyFly.fly();return true;}return de(it);};}
 
 // ---------- the door gun ----------
 // A machine gun on a pintle in the helicopter's door: the post up from the sill, the cradle, the receiver with its feed and the belt

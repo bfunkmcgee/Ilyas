@@ -4,7 +4,7 @@
 // scene is a script: a generator function the sim runs one step at a time (S.cut), so a scene is as repeatable as a fight. The
 // scripts move fighters, vehicles and the camera, play poses and put lines of dialogue on screen; the page only draws them.
 // The skirmish lab runs exactly as before whenever S.story is null.
-S.story=null;S.cut=null;S.veh=[];S.say=null;S.camCut=null;S.letter=0;S.card=null;S.fade=0;S.booms=[];
+S.story=null;S.cut=null;S.veh=[];S.say=null;S.camCut=null;S.letter=0;S.card=null;S.fade=0;S.booms=[];S.whip=null;
 S.hooks.story=()=>{};
 function storyOn(){return!!S.story;}
 
@@ -380,6 +380,8 @@ function storyRoster(st){
 function storyDuel(st){
   const SV=S.story;S.arenaKey=st.arena;S.room=st.room||'dining';S.arena=st.room&&st.arena==='restaurant'?roomArena(st.room):ARENAS[st.arena];
   S.opening=null;S.rubble=[];S.debris=[];S.items=[];S.blood=[];S.stains=[];S.clinches=[];S.veh=[];S.booms=[];S.say=null;S.camCut=null;S.scroll=0;S.scrollV=st.scrollV||0;S.fade=0;S.thought=null;
+  // (a whip between two places, S.whip, goes on only into the stage it was whipping toward)
+  if(S.whip&&S.whip.to!==st.key)S.whip=null;
   S.wall=S.arena.wall?{hp:3,state:'standing',breakBy:0,breakFrom:null,dir:1}:null;
   S.stage={phase:1,tr:null};S.finaleDone=false;S.endText=null;S.cfg.n=st.foes.length;S.cfg.crew=false;S.cfg.ally.on=false;
   S.tableOn=!!st.table;S.divOn=!!st.divs;S.backroom=false;S.deep=false;S.bistro=S.story.flags.blown?'blown':'intact';S.bistroBlast=null;
@@ -438,7 +440,7 @@ function storyRetry(){const SV=S.story;if(!SV)return;SV.flags=JSON.parse(SV.flag
 function storyEnd(done){const SV=S.story;if(!SV)return;SV.step='done';S.hooks.story('end',done);}
 // leaving the story puts the bench back the way the player had it
 function labSave(){return{arenaKey:S.arenaKey,n:S.cfg.n,crew:S.cfg.crew,ally:S.cfg.ally.on,tableOn:S.tableOn,divOn:S.divOn,backroom:S.backroom,deep:S.deep};}
-function storyQuit(){const SV=S.story;if(!SV)return;const L=SV.lab;S.story=null;S.storyAuto=false;S.cut=null;S.say=null;S.camCut=null;S.letter=0;S.card=null;S.veh=[];S.fires=[];S.booms=[];S.scroll=0;S.scrollV=0;S.fade=0;S.thought=null;
+function storyQuit(){const SV=S.story;if(!SV)return;const L=SV.lab;S.story=null;S.storyAuto=false;S.cut=null;S.say=null;S.camCut=null;S.letter=0;S.card=null;S.veh=[];S.fires=[];S.booms=[];S.scroll=0;S.scrollV=0;S.fade=0;S.thought=null;S.whip=null;
   S.arenaKey=L.arenaKey;S.cfg.n=L.n;S.cfg.crew=L.crew;S.cfg.ally.on=L.ally;S.tableOn=L.tableOn;S.divOn=L.divOn;S.backroom=L.backroom;S.deep=L.deep;S.hooks.story('quit');}
 
 // When a fight of the story ends the game would put up its own result: here every enemy down hands over to the stage's closing
@@ -616,11 +618,20 @@ STAGES.push({key:'chase',num:'II',title:'The Avenue',sub:'Into the city, a quart
     // the blade rolls back up into its hilt, his free hand on the bars
     yield* act(K,rollUpAction(K,S.t));stowBlade(K);
     yield* wait(.35);
-    // then he opens it up: the front lifts, and he is away up the avenue toward the tower
+    // then he opens it up: the front lifts, and he is away up the avenue toward the tower, and the camera whips round after him as he
+    // goes out of the picture and on into the Tower Road (since V111, asked for: he rode out of the picture and it went to black):
+    // it turns after him, the road going by ever faster as it does, the picture smeared along the way it turns (S.whip.amt, drawn by
+    // the page), and the Tower Road takes the whip on from inside the smear (S.whip.mix: the Avenue's last picture laid over its first
+    // ones, going; sk_highway.js)
     S.hooks.sound('rev',1);B.pitchT=.16;K.offstage=true;
-    yield* rideTo(B,1180,B.dep,1.5,eIn);B.pitchT=0;
-    yield* wait(.25);},
+    yield* all(rideTo(B,1180,B.dep,1.5,eIn),(function*(){yield* wait(1.05);const C=S.camCut,x0=C?C.x:450,v0=S.scrollV,t0=S.t;S.whip={to:st.next,from:st.key,amt:0,mix:0};
+      if(C)C.k=0;
+      yield* until(()=>{const u=clamp((S.t+DT-t0)/CHASE_WHIP,0,1),e=u*u;S.whip.amt=e;S.scrollV=v0*(1+5*e);if(C)C.x=lerp(x0,650,e);return u>=1;},2);})());
+    // (one picture more at the height of the smear, the one the next place starts under)
+    B.pitchT=0;S.whip.mix=1;yield;},
   outroSkip(st){}});
+// how long the camera takes to whip round after him at the Avenue's end, to the height of its smear
+const CHASE_WHIP=.4;
 
 // ===== STAGE III: THE CHECKPOINT =====
 // Where the avenue meets the tower district the police have closed the road: barricades, floodlights, an armoured carrier with a

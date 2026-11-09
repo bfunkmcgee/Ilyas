@@ -24,6 +24,9 @@ const HWY_V=1050;                 // the road's speed past the riders, units a s
 // highway east of it two lanes behind a barrier with the drop beyond, envx/env_highway.js; from V107 its foot was on the lane line
 // at 114 and its lanes the second and third, so its outer edge swept on across the highway's lanes east of it; before that 104)
 const RAMP=[[820,-40],[905,220],[905,341.75],[610,341.75]];
+// where on it Kael starts: just short of its top, under the flyover (its fascia hides him; since V111, asked for: he started on the
+// ramp's top in front of the flyover and was drawn across its face, as though riding over it)
+const HWY_S0=-.004;
 function hwyBez(s){const u=1-s,a=u*u*u,b=3*u*u*s,c=3*u*s*s,d=s*s*s,P=RAMP;
   return{X:a*P[0][0]+b*P[1][0]+c*P[2][0]+d*P[3][0],Y:a*P[0][1]+b*P[1][1]+c*P[2][1]+d*P[3][1],
     tx:3*u*u*(P[1][0]-P[0][0])+6*u*s*(P[2][0]-P[1][0])+3*s*s*(P[3][0]-P[2][0]),ty:3*u*u*(P[1][1]-P[0][1])+6*u*s*(P[2][1]-P[1][1])+3*s*s*(P[3][1]-P[2][1])};}
@@ -170,12 +173,12 @@ STAGES.splice(stageIx('chase')+1,0,{key:'highway',num:'',title:'',part:'chase',s
         {name:'Spoke',human:true,ward:'bikers',arms:'street',seed:5431,weapon:'club',skill:1,temper:'rusher',hp:36,color:'#9fb86a'}],
   // heading west: two come up behind him on the right, two go by him on the far side and the near
   spawn:[[470,96],[668,58,1],[704,140,1],[300,134,-1],[236,60,-1]],
-  setup(st){const K=hero(),sv=S.story;S.hwy={persp:true,phase:'ramp'};S.fade=1;
+  setup(st){const K=hero(),sv=S.story;S.hwy={persp:true,phase:'ramp'};S.fade=S.whip?0:1;
     sv.kills=0;sv.heliDone=false;sv.heli=null;sv.turnN=0;sv.drumAt=2;sv.drumN=0;
-    // Kael at the top of the ramp, small in the distance
+    // Kael at the top of the ramp, small in the distance, still under the flyover (HWY_S0)
     const KB=bikeNew({x:600,dep:300,fa:-1,holster:'rifle',light:1,run:1});sv.bike=KB;
     K.station=KB.x-SEAT_DX;K.lane=K.dep=K.stepDep=KB.dep;K.facing=-1;K.build();mount(K,KB,0);stowBlade(K);
-    {const F=hwyFloor(0,-6);bikePlace(KB,F.x,F.dep);KB.vk=F.k;KB.vyaw=F.yaw;}
+    {const F=hwyFloor(HWY_S0,-6);bikePlace(KB,F.x,F.dep);KB.vk=F.k;KB.vyaw=F.yaw;}
     // the four still up on the garage's top deck, behind its rail
     for(const f of S.F)if(f.team===1){const J=hwyJump(f),sp=st.spawn[f.idx];f.homeX=sp[0];f.homeZ=sp[1];
       const B=bikeNew({x:J[0]-GARAGE.dep*PSX-26,dep:GARAGE.dep+GARAGE.back,fa:-1,style:'street',paint:f.idx%2?'red':'black',light:1,run:1,hide:true});
@@ -190,10 +193,13 @@ STAGES.splice(stageIx('chase')+1,0,{key:'highway',num:'',title:'',part:'chase',s
     sv.white=Wm;hwyHands();},
   *intro(st){const K=hero(),KB=K.mount,fs=S.F.filter(f=>f.team===1&&!f.npc);
     letter(1);hwyShot('top',0);
-    yield* until(()=>{S.fade=Math.max(0,S.fade-DT*2.2);return S.fade<=0;},.6);
+    // in from the Avenue's whip (S.whip, since V111): the camera still coming round to the ramp, onto its first shot as the smear goes;
+    // in from black when the chapter starts here
+    const whip=S.whip?hwyWhipIn(S.whip):null;
+    if(!whip)yield* until(()=>{S.fade=Math.max(0,S.fade-DT*2.2);return S.fade<=0;},.6);
     S.hooks.sound('rev',.8);
-    // down the ramp toward the camera, the lanes streaming under him; the picture comes down with him
-    const ride=hwyRide(KB,0,1,4.4,u=>-6+4*u,u=>u*u*(1.55-.55*u));
+    // down the ramp toward the camera, out from under the flyover, the lanes streaming under him; the picture comes down with him
+    const ride=hwyRide(KB,HWY_S0,1,4.4,u=>-6+4*u,u=>u*u*(1.55-.55*u));
     const cam=(function*(){const T=HWY_SHOTS.top,M=HWY_SHOTS.mid;yield* wait(1.8);
       yield* hwyGlide('mid',0,1.3,{x:e=>lerp(T.x,hwyRideX(M.x,0),e),xn:e=>lerp(T.n.x,hwyRideX(M.n.x,1),e)});
       yield* hwyGlide('foot',0,1.3,{x:()=>hwyRideX(M.x,0),xn:()=>hwyRideX(M.n.x,1)});})();
@@ -202,14 +208,14 @@ STAGES.splice(stageIx('chase')+1,0,{key:'highway',num:'',title:'',part:'chase',s
     const jumps=fs.map(f=>(function*(){const j=JUMP_OF[f.idx-1],J=GARAGE.jump[j];yield* wait(J[1]-GARAGE.run);
       yield* hwyLeap(f.mount,J);
       yield* hwyRide(f.mount,J[2],J[4],4.4-J[1]-.95,u=>lerp(J[3],[18,-14,22,-10][j],u),lin);})());
-    yield* all(ride,cam,...jumps);
+    yield* all(ride,cam,...jumps,...(whip?[whip]:[]));
     // the ramp's foot: onto the highway's far lanes, the camera taking up the road's pace with them and gliding to the road's framing
     // as it does (all of it one move since V110)
     yield* hwyMerge(st,fs);
     // ahead of them all, the truck: they close on it, and Kael looks up the road at it
     yield* all(truckTo(S.story.truck,TRUCK.x,2.2,eOut),(function*(){yield* wait(.6);lookAt(K,-1,1.6);})());
     yield* wait(.3);},
-  introSkip(st){hwyRoad(st);S.scroll=Math.min(S.scroll,-3000);const T=S.story.truck;if(T){truckShift(T,TRUCK.x-T.x);T.vx=0;}S.fade=0;},
+  introSkip(st){hwyRoad(st);S.scroll=Math.min(S.scroll,-3000);const T=S.story.truck;if(T){truckShift(T,TRUCK.x-T.x);T.vx=0;}S.fade=0;S.whip=null;},
   *outro(st){const K=hero(),B=K.mount;
     // the helicopter has not come yet (the last of them went down together): it comes now, for the truck
     if(!S.story.heliDone)yield* hwyHeli(true);
@@ -260,6 +266,16 @@ function* hwyGlide(k,rate,dur,o){const Cf=S.camCut?{...S.camCut}:null;hwyShot(k,
   while(S.camCut===Cm){const u=clamp((S.t+DT-t0)/dur,0,1),e=sstep(u);
     Cm.x=o&&o.x?o.x(e,u):lerp(Cf.x,T.x,e);Cm.xn=o&&o.xn?o.xn(e,u):lerp(Cf.xn??Cf.x,T.xn,e);Cm.w=lerp(Cf.w,T.w,e);Cm.wn=lerp(Cf.wn??Cf.w,T.wn,e);
     Cm.k=k0&&rate?lerp(k0,rate,e):rate;Cm.blend=e;if(u>=1){delete Cm.from;delete Cm.blend;return;}yield;}}
+// The whip in from the Avenue (since V111; its start is the Avenue's outro, sk_story.js): the top shot cut to with its band at once
+// (C.snap), the camera still coming round to it from the left and slowing onto it (a snap to the way it goes, eased out over dur, from
+// dx left of it, dxn on a narrow screen), the smear going (S.whip.amt, over smear) and the Avenue's last picture over it fading
+// (S.whip.mix, over mix).
+const HWY_WHIP={dur:.9,dx:300,dxn:200,smear:.6,mix:.3};
+function* hwyWhipIn(W){const C=S.camCut,T=HWY_SHOTS.top,t0=S.t,a0=W.amt,m0=W.mix;if(C)C.snap=true;
+  while(true){const t=S.t+DT-t0,u=clamp(t/HWY_WHIP.dur,0,1),e=1-(1-u)*(1-u);
+    if(C&&S.camCut===C){C.x=T.x-HWY_WHIP.dx*(1-e);C.xn=T.n.x-HWY_WHIP.dxn*(1-e);}
+    W.amt=a0*Math.pow(1-clamp(t/HWY_WHIP.smear,0,1),2);W.mix=m0*(1-clamp(t/HWY_WHIP.mix,0,1));
+    if(u>=1&&W.amt<=0&&W.mix<=0){if(S.whip===W)S.whip=null;return;}yield;}}
 
 // ---------- the ramp's foot ----------
 // One move off the ramp onto the road (since V110, asked for: the bikes came almost to a stop at its foot before the road took up its
