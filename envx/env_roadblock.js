@@ -187,31 +187,168 @@ function msgBoard(c){const d=BOARD.d,q=(x,y)=>pp(x,GB-y,d),b=q(BOARD.x,0),p0=q(B
   c.fillStyle='#0a0a0e';c.fillRect(b.x-24,b.y-16,48,10);c.fillStyle='#050508';for(const xx of [b.x-14,b.x+14]){c.beginPath();c.arc(xx,b.y-5,4.6,0,TAU);c.fill();}
   c.fillStyle='#050507';c.fillRect(p0.x,p0.y,p1.x-p0.x,p1.y-p0.y);c.strokeStyle='#1a1a22';c.lineWidth=1.48;c.strokeRect(p0.x,p0.y,p1.x-p0.x,p1.y-p0.y);
   c.fillStyle=rgba('#ffb030',.14);for(let y=p0.y+3;y<p1.y-2;y+=2.2)for(let x=p0.x+3;x<p1.x-2;x+=2.2)c.fillRect(x,y,1,1);}
-// the cruiser at the back: long and low, dark blue with white doors, a gold badge on the door, the lightbar on its roof
-function cruiser(c){const d=CRUISER.d,L=CRUISER.len,x0=CRUISER.x-L/2,q=(x,y)=>pp(x0+x,GB-y,d);
-  const body=[[0,22],[6,40],[44,46],[78,50],[104,74],[192,76],[222,52],[284,46],[298,36],[300,22],[292,14],[0,14]];
-  c.fillStyle='rgba(0,0,0,.5)';{const a=q(-10,0),b=q(L+10,0);c.beginPath();c.ellipse((a.x+b.x)/2,a.y,(b.x-a.x)/2,5,0,0,TAU);c.fill();}
-  c.beginPath();body.forEach((p,i)=>{const s=q(p[0],p[1]);i?c.lineTo(s.x,s.y):c.moveTo(s.x,s.y);});c.closePath();
-  c.fillStyle=lin(c,0,q(0,76).y,0,q(0,14).y,[[0,'#1d2436'],[.45,'#121726'],[1,'#07080d']]);c.fill();
-  // the white doors, the windows dark with the street's light in them
-  {const d0=q(108,22),d1=q(200,58);c.fillStyle=lin(c,0,d1.y,0,d0.y,[[0,'#c8ccd6'],[1,'#7a808e']]);c.fillRect(d0.x,d1.y,d1.x-d0.x,d0.y-d1.y);
-    c.strokeStyle='#05060a';c.lineWidth=1.51;c.beginPath();const mid=q(154,22),mt=q(154,58);c.moveTo(mid.x,mid.y);c.lineTo(mt.x,mt.y);c.stroke();
-    c.save();c.translate((d0.x+mid.x)/2,(d0.y+d1.y)/2+2);c.fillStyle=rad(c,0,0,0,7,[[0,C.goldL],[.6,C.gold],[1,C.goldD]]);c.beginPath();c.moveTo(0,-7);c.lineTo(5.6,-4);c.lineTo(4.4,4);c.lineTo(0,7.4);c.lineTo(-4.4,4);c.lineTo(-5.6,-4);c.closePath();c.fill();
-      c.fillStyle='#3a2a10';c.fillRect(-2.4,-3.6,1,7);c.fillRect(1.4,-3.6,1,7);c.fillRect(-2.4,-.4,4.8,.9);c.restore();
-    c.save();c.font='700 5px "Alegreya SC", Georgia, serif';c.textAlign='center';c.fillStyle='#0b1022';c.fillText('POLICE',(mid.x+d1.x)/2,(d0.y+d1.y)/2+2);c.restore();}
-  {const w0=q(108,60),w1=q(192,73),wb=q(196,60);c.fillStyle=lin(c,0,w1.y,0,w0.y,[[0,'#2a3448'],[1,'#080a12']]);c.beginPath();c.moveTo(w0.x,w0.y);c.lineTo(q(110,72).x,w1.y);c.lineTo(w1.x,w1.y);c.lineTo(wb.x+8,wb.y);c.closePath();c.fill();
-    c.strokeStyle='#05060a';c.lineWidth=1.48;const pm=q(156,60),pt=q(156,73);c.beginPath();c.moveTo(pm.x,pm.y);c.lineTo(pt.x,pt.y);c.stroke();
-    c.save();c.globalCompositeOperation='lighter';c.fillStyle=rgba('#cfe0ff',.12);c.beginPath();c.moveTo(pt.x-20,pt.y);c.lineTo(pt.x-12,pt.y);c.lineTo(pm.x-22,pm.y);c.lineTo(pm.x-30,pm.y);c.closePath();c.fill();c.restore();}
-  // wheels under the arches, the chrome bumper, the lamps
-  for(const wx of [52,238]){const w=q(wx,14);c.fillStyle='#030305';c.beginPath();c.arc(w.x,w.y,15,0,TAU);c.fill();c.fillStyle=lin(c,w.x-8,w.y-8,w.x+8,w.y+8,[[0,'#3a3e48'],[.5,'#9aa2b2'],[1,'#2a2e36']]);c.beginPath();c.arc(w.x,w.y,7,0,TAU);c.fill();
-    c.fillStyle='#0a0b10';c.beginPath();c.arc(w.x,w.y,2.4,0,TAU);c.fill();}
-  {const a=q(286,26),b=q(302,30);c.fillStyle=lin(c,0,b.y,0,a.y,[[0,'#e8ecf2'],[1,'#5a606c']]);c.fillRect(a.x-2,b.y,b.x-a.x+4,4);
-    c.fillStyle='#fff6e0';c.fillRect(q(294,38).x-2,q(294,38).y-2,4,3.4);glow(c,q(296,37).x,q(296,37).y,24,'#fff0cc',.5);
-    c.fillStyle='#a8282c';c.fillRect(q(2,34).x-1,q(2,34).y-2,3,3);}
-  // the lightbar's housing; its lamps turn in live()
-  {const l0=q(130,76),l1=q(170,82);c.fillStyle='#0c0d12';c.fillRect(l0.x,l1.y,l1.x-l0.x,l0.y-l1.y);}
-  // the floods catch its roof and its back
-  c.strokeStyle=rgba('#cfe0ff',.35);c.lineWidth=.99;c.beginPath();[[104,74],[192,76],[222,52],[284,46],[298,36]].forEach((p,i)=>{const s=q(p[0],p[1]);i?c.lineTo(s.x,s.y):c.moveTo(s.x,s.y);});c.stroke();}
+// the cruiser at the back, facing the checkpoint (since V112, asked for: drawn in detail, by the drawing guide's eight steps). A
+// full-size police sedan, long in the hood and the deck, in the city police's black-navy (the carrier's) with white doors and POLICE
+// across them, Hallowell's gold H on the rear quarter and a gold line along the crease. It is drawn in its own frame: x from the tail
+// (0) to the nose (300), y up from the road. Its lacquer takes the light as the guide's polished things do: the street mirrored soft in
+// the flank, dark under the shoulder's crease and lighter over it, the tripod's flood bright along its top toward the nose, the sodium
+// lamp overhead warm on the roof. The glass is dark and holds the street; through it the headrests, the cage and the terminal's screen.
+// It stands on its tyres in their wells with a contact shadow, wet: beads along its top, runs down the doors, spray behind the wheels,
+// its lamps mirrored in the road. The lightbar's lamps, the push bar's, the exhaust and the fire's light on its nose are live.
+const CR={RW:58,FW:246,WR:15,AR:19.5,belt:54.2};
+const crP=(x,y)=>pp(CRUISER.x-CRUISER.len/2+x,GB-y,CRUISER.d);
+// the top line, tail to nose: the trunk's edge, the deck, the rear glass, the roof, the windshield, the hood
+function crTop(c){c.lineTo(9.5,46.2);c.quadraticCurveTo(50,49.6,88,50.6);c.quadraticCurveTo(99,61,111.5,72.6);c.quadraticCurveTo(116,76.6,127,77);
+  c.quadraticCurveTo(160,78.3,190,76.7);c.quadraticCurveTo(196.5,76.2,199.5,73.6);c.lineTo(226.5,54.6);c.quadraticCurveTo(229.5,52.9,237,52.7);
+  c.quadraticCurveTo(270,51.9,290,47.9);c.quadraticCurveTo(297,46.1,298.6,42);}
+const crTopY=x=>x<88?46.2+(x-9.5)/78.5*4.4:x<127?50.6+(x-88)/39*26.4:x<190?77.6:x<237?76.7-(x-190)/47*24:52.7-(x-237)/53*4.8;
+// the body's outline, the wheel arches cut out of it
+function crBody(c){const {RW,FW,AR}=CR,a=.05;c.beginPath();c.moveTo(2,16);c.lineTo(0,20);c.lineTo(0,32);c.quadraticCurveTo(0,35.5,2.2,36.4);c.lineTo(4.2,40.5);
+  c.quadraticCurveTo(5.2,45.4,9.5,46.2);crTop(c);c.lineTo(300.6,36.2);c.lineTo(302,33.4);c.lineTo(302.6,22.4);c.quadraticCurveTo(302.6,17.2,298,16);
+  c.lineTo(FW+AR,16);c.arc(FW,15,AR,a,Math.PI-a);c.lineTo(FW-AR-1.5,13.6);c.lineTo(RW+AR+1.5,13.6);c.lineTo(RW+AR,16);c.arc(RW,15,AR,a,Math.PI-a);c.closePath();}
+// the side glass inside its pillars
+function crGlass(c){c.beginPath();c.moveTo(104,54.2);c.lineTo(114,68.6);c.quadraticCurveTo(117.6,73.4,127,73.7);c.lineTo(189.5,73.5);c.quadraticCurveTo(194,73.3,195.6,71.6);c.lineTo(220.2,54.2);c.closePath();}
+// the white doors: the rear door's shut line leans back, the front door's runs down behind the front wheel
+function crDoors(c){c.beginPath();c.moveTo(121.2,18);c.lineTo(126.2,40);c.lineTo(128.6,54.2);c.lineTo(221.8,54.2);c.lineTo(223.6,46);c.lineTo(223.4,18);c.closePath();}
+function crWheel(c,wx){const R=CR.WR,cy=15;
+  c.fillStyle='#07080b';c.beginPath();c.arc(wx,cy,R,0,TAU);c.fill();
+  // the sidewall, a shade lighter than the tread, and the light along its top toward the floods
+  c.strokeStyle='#15171e';c.lineWidth=3;c.beginPath();c.arc(wx,cy,R-3.6,0,TAU);c.stroke();
+  c.strokeStyle=rgba('#cfe0ff',.24);c.lineWidth=1;c.beginPath();c.arc(wx,cy,R-.8,.2,1.3);c.stroke();
+  // the black steel wheel, its vent holes and nuts, the chrome cap
+  c.fillStyle=rad(c,wx-2,cy+2,1,10.4,[[0,'#2c313c'],[.6,'#171b24'],[1,'#0c0e14']]);c.beginPath();c.arc(wx,cy,10.4,0,TAU);c.fill();
+  c.strokeStyle='#05060a';c.lineWidth=1.5;c.beginPath();c.arc(wx,cy,10.4,0,TAU);c.stroke();
+  c.fillStyle='#040508';for(let i=0;i<8;i++){const a=i/8*TAU+.2;c.beginPath();c.arc(wx+Math.cos(a)*7.3,cy+Math.sin(a)*7.3,1.7,0,TAU);c.fill();}
+  c.fillStyle='#3a404c';for(let i=0;i<5;i++){const a=i/5*TAU+.6;c.beginPath();c.arc(wx+Math.cos(a)*5,cy+Math.sin(a)*5,.95,0,TAU);c.fill();}
+  c.fillStyle=lin(c,wx-3.6,cy-3.6,wx+3.6,cy+3.6,[[0,'#3a4050'],[.55,'#a8b0c0'],[1,'#e8eef8']]);c.beginPath();c.arc(wx,cy,3.6,0,TAU);c.fill();
+  c.strokeStyle=rgba('#f4f8ff',.7);c.lineWidth=1;c.beginPath();c.arc(wx,cy,3.1,.3,1.3);c.stroke();
+  // the top of the tyre in the arch's shadow
+  c.save();c.beginPath();c.arc(wx,cy,R+.5,0,TAU);c.clip();c.fillStyle=lin(c,0,cy+R,0,cy+3,[[0,'rgba(0,0,0,.55)'],[1,'rgba(0,0,0,0)']]);c.fillRect(wx-R-1,cy,2*R+2,R+1);c.restore();}
+function cruiser(c){const d=CRUISER.d,o=crP(0,0),{RW,FW,AR}=CR,r=rng(191);
+  // its lamps in the wet road below it: the headlamp longest, the tail lamp, the white doors faint
+  {const b=o.y+1;wetStreak(c,crP(297,0).x,b,b+46,14,'#fff0cc',.26,31);wetStreak(c,crP(3,0).x,b,b+30,10,'#ff3a2a',.2,33);wetStreak(c,crP(172,0).x,b,b+22,80,'#c8cedb',.05,35);}
+  c.save();c.translate(o.x,o.y);c.scale(1,-1);
+  // the contact shadow, darkest under the tyres; the dark under the sills, and what hangs there: the exhaust run back to the tail
+  c.fillStyle='rgba(0,0,0,.5)';c.beginPath();c.ellipse(151,0,168,5,0,0,TAU);c.fill();
+  c.fillStyle=lin(c,0,14.5,0,0,[[0,'rgba(3,3,6,.92)'],[1,'rgba(3,3,6,.5)']]);c.fillRect(4,.5,296,14);
+  c.fillStyle='#101218';c.fillRect(96,6.6,34,4.4);c.strokeStyle='#14161c';c.lineWidth=2;c.beginPath();c.moveTo(-1,10.6);c.lineTo(30,10.2);c.lineTo(96,8.8);c.moveTo(130,8.8);c.lineTo(214,9.4);c.stroke();
+  c.fillStyle='#0b0c11';c.fillRect(-2.8,9,4.2,3.2);c.strokeStyle=rgba('#cfe0ff',.22);c.lineWidth=1;c.beginPath();c.moveTo(-2.6,12.6);c.lineTo(1.2,12.6);c.stroke();
+  for(const wx of [RW,FW]){c.fillStyle='rgba(0,0,0,.75)';c.beginPath();c.ellipse(wx,0,15,2.6,0,0,TAU);c.fill();}
+  // the wheel wells, the tyres in them
+  for(const wx of [RW,FW]){c.fillStyle='#030407';c.beginPath();c.arc(wx,15,AR,0,Math.PI);c.lineTo(wx-AR,12);c.lineTo(wx+AR,12);c.closePath();c.fill();
+    c.strokeStyle='#0c0e14';c.lineWidth=1.5;c.beginPath();c.arc(wx,15,AR-2,.15,Math.PI-.15);c.stroke();crWheel(c,wx);}
+  // 1-2: the silhouette in the lacquer's own light: the street mirrored in the flank, a hard horizon at the crease, the roof rail lit
+  crBody(c);c.fillStyle=lin(c,0,13.6,0,78,[[0,'#090c13'],[.07,'#141a27'],[.26,'#0b0f19'],[.45,'#0e1320'],[.47,'#20283f'],[.6,'#1b2236'],[.72,'#161c2d'],[1,'#253049']]);c.fill();
+  c.save();crBody(c);c.clip();
+  c.fillStyle=rgba('#05070c',.55);c.fillRect(0,13,304,5);
+  // the near lane's lamps and flashers mirrored soft in the flank below the crease
+  c.globalCompositeOperation='lighter';
+  for(const [x,col,a,w] of [[40,'#ffb060',.07,13],[96,'#ffb030',.05,9],[262,'#cfe0ff',.08,15],[284,'#5a8cff',.05,8]]){c.save();c.translate(x,30);c.scale(w/12,1.15);c.fillStyle=rad(c,0,0,0,12,[[0,rgba(col,a)],[1,rgba(col,0)]]);c.fillRect(-12,-12,24,24);c.restore();}
+  c.fillStyle=lin(c,0,14,0,21,[[0,rgba('#9fb4d8',.07)],[1,rgba('#9fb4d8',0)]]);c.fillRect(0,14,304,7);
+  c.globalCompositeOperation='source-over';
+  // the white doors: the same horizon in a lighter paint, grime at their foot, rain run down from the glass
+  c.save();crDoors(c);c.fillStyle=lin(c,0,18,0,54.2,[[0,'#5c6370'],[.22,'#7d8491'],[.7,'#a0a6b3'],[.72,'#bdc2cc'],[1,'#cbd0d9']]);c.fill();c.clip();
+  c.fillStyle=lin(c,0,18,0,29,[[0,rgba('#2a241e',.42)],[1,rgba('#2a241e',0)]]);c.fillRect(118,18,108,11);
+  c.strokeStyle=rgba('#3c4352',.13);c.lineWidth=1.5;c.beginPath();for(let i=0;i<14;i++){const x=124+r()*96,l=5+r()*16;c.moveTo(x,54);c.lineTo(x+(r()-.5)*.8,54-l);}c.stroke();
+  c.fillStyle=rgba('#0d1326',.92);c.fillRect(128,23.4,92,1.6);
+  c.save();c.translate(172.5,27.4);c.scale(1,-1);c.font='700 17px "Alegreya SC", Georgia, serif';c.textAlign='center';c.fillStyle='#0d1326';c.fillText('POLICE',0,0);c.restore();
+  c.restore();
+  // the light over the crease: the floods cold toward the nose, the sodium lamp overhead warm on the roof, a soft band under the top line
+  c.globalCompositeOperation='lighter';
+  c.fillStyle=lin(c,60,0,302,0,[[0,rgba('#cfe0ff',0)],[1,rgba('#cfe0ff',.11)]]);c.fillRect(0,43.8,304,36);
+  c.save();c.translate(150,92);c.scale(1.4,1);c.fillStyle=rad(c,0,0,0,62,[[0,rgba('#ffb060',.12)],[1,rgba('#ffb060',0)]]);c.fillRect(-62,-62,124,124);c.restore();
+  c.strokeStyle=lin(c,0,0,300,0,[[0,rgba('#d6e4ff',.03)],[.6,rgba('#d6e4ff',.07)],[1,rgba('#d6e4ff',.12)]]);c.lineWidth=6;c.beginPath();c.moveTo(9.5,46.2);crTop(c);c.stroke();
+  for(const [x,y,w,col,a] of [[262,47.4,30,'#e6eeff',.2],[278,46.6,12,'#ffffff',.18],[58,47.4,30,'#ffc890',.09],[150,47.6,40,'#e6eeff',.06]]){c.save();c.translate(x,y);c.scale(w/10,.3);c.fillStyle=rad(c,0,0,0,10,[[0,rgba(col,a)],[1,rgba(col,0)]]);c.fillRect(-10,-10,20,20);c.restore();}
+  c.globalCompositeOperation='source-over';
+  // road spray thrown up behind each wheel
+  for(const wx of [RW,FW]){c.save();c.translate(wx-AR-7,19);c.scale(1.5,.8);c.fillStyle=rad(c,0,0,0,15,[[0,rgba('#2a241e',.5)],[1,rgba('#2a241e',0)]]);c.fillRect(-15,-15,30,30);c.restore();}
+  c.restore();
+  // 3-4: the glass, dark, and through it the cabin: the headrests, the cage behind the front seats, the wheel and the terminal's screen
+  c.save();crGlass(c);c.fillStyle=lin(c,0,54.2,0,73.7,[[0,'#05070c'],[.75,'#0e1422'],[1,'#18203a']]);c.fill();c.clip();
+  c.fillStyle='#121826';for(const [x,y,w,h] of [[182.6,60.6,9,9.4],[137.6,60,8.6,8.8]]){c.beginPath();c.moveTo(x+2,y);c.lineTo(x+w-2,y);c.quadraticCurveTo(x+w,y,x+w,y+2.4);c.lineTo(x+w,y+h-2.4);c.quadraticCurveTo(x+w,y+h,x+w-2,y+h);c.lineTo(x+2,y+h);c.quadraticCurveTo(x,y+h,x,y+h-2.4);c.lineTo(x,y+2.4);c.quadraticCurveTo(x,y,x+2,y);c.fill();}
+  c.strokeStyle='#05060a';c.lineWidth=1.6;c.beginPath();c.moveTo(177.4,54.2);c.lineTo(178.6,73.6);c.stroke();
+  c.strokeStyle=rgba('#2a3448',.16);c.lineWidth=1.5;c.beginPath();for(let x=170.6;x<177;x+=3.2){c.moveTo(x,54.2);c.lineTo(x+1,73.6);}c.stroke();
+  c.strokeStyle='#0a0d14';c.lineWidth=1.8;c.beginPath();c.arc(209,60.4,6.2,.5,2.7);c.stroke();
+  c.fillStyle=rgba('#8fb6dc',.3);c.beginPath();c.moveTo(198.8,57.6);c.lineTo(205.4,58.4);c.lineTo(204.9,62.8);c.lineTo(198.4,62);c.closePath();c.fill();glow(c,202,60.2,13,'#8fb6dc',.12);
+  c.globalCompositeOperation='lighter';
+  c.fillStyle=rgba('#cfe0ff',.07);c.beginPath();c.moveTo(171,54.2);c.lineTo(179.6,54.2);c.lineTo(196.2,73.6);c.lineTo(187.6,73.6);c.closePath();c.fill();
+  c.fillStyle=rgba('#cfe0ff',.1);c.beginPath();c.moveTo(183,54.2);c.lineTo(185.6,54.2);c.lineTo(202,73.6);c.lineTo(199.4,73.6);c.closePath();c.fill();
+  c.save();c.translate(140,70.6);c.scale(1.6,1);c.fillStyle=rad(c,0,0,0,12,[[0,rgba('#ffb060',.1)],[1,rgba('#ffb060',0)]]);c.fillRect(-12,-12,24,24);c.restore();
+  c.fillStyle=rgba('#ffd9a0',.13);for(let i=0;i<8;i++)c.fillRect(110+r()*104,64+r()*8.6,1.5,1.5);
+  c.strokeStyle=rgba('#9fb4d8',.07);c.lineWidth=1.5;c.beginPath();for(let i=0;i<9;i++){const x=110+r()*104,y=56+r()*16;c.moveTo(x,y);c.lineTo(x+.3,y-3-r()*6);}c.stroke();
+  c.globalCompositeOperation='source-over';c.restore();
+  // the black trim round the glass, the posts, the belt line lit along its top
+  c.strokeStyle='#05060a';c.lineWidth=2;crGlass(c);c.stroke();
+  c.fillStyle='#0a0c12';c.fillRect(164.4,54.2,5.6,19.4);c.fillRect(126.6,54.2,2.8,19.5);
+  c.fillStyle='#05060a';c.fillRect(104,53.4,117.4,2);
+  c.strokeStyle=rgba('#cfe0ff',.32);c.lineWidth=1;c.beginPath();c.moveTo(169.6,55.4);c.lineTo(169.6,73);c.moveTo(129,55.4);c.lineTo(129,73.2);c.stroke();
+  c.strokeStyle=rgba('#d6e4ff',.42);c.beginPath();c.moveTo(105,55.8);c.lineTo(219.6,55.8);c.stroke();
+  // the shut lines, dark: the doors, their foot, the deck lid, the bumper covers
+  c.strokeStyle=rgba('#03050a',.85);c.lineWidth=1.5;c.beginPath();
+  c.moveTo(167.2,54.2);c.lineTo(167.2,18.4);c.moveTo(128.6,54.2);c.lineTo(126.2,40);c.lineTo(121.2,18.4);c.moveTo(221.8,54.2);c.lineTo(223.6,46);c.lineTo(223.4,18.4);
+  c.moveTo(121.2,18.2);c.lineTo(223.4,18.2);c.moveTo(87,49.2);c.quadraticCurveTo(48,47.9,10.5,44.4);c.moveTo(289.5,17);c.lineTo(290.8,36);c.moveTo(7.6,17);c.lineTo(6.8,36);c.stroke();
+  // the crease: its shadow, the gold line along it and the light on the gold
+  c.strokeStyle=rgba('#070a12',.45);c.lineWidth=1.5;c.beginPath();c.moveTo(6,43);c.lineTo(294,43);c.stroke();
+  c.strokeStyle=rgba('#8a6a2e',.85);c.beginPath();c.moveTo(7,44.2);c.lineTo(293,44.2);c.stroke();
+  c.strokeStyle=rgba('#e2b65a',.5);c.lineWidth=1;c.beginPath();c.moveTo(7,45);c.lineTo(293,45);c.stroke();
+  // the door handles, the mirror, the spotlight on the pillar
+  for(const x of [131,172.6]){c.fillStyle=rgba('#000000',.25);c.fillRect(x-.6,43.6,9.6,1.6);c.fillStyle='#0a0c12';c.fillRect(x,45.2,8.4,2.6);
+    c.strokeStyle=rgba('#d6e4ff',.5);c.lineWidth=1;c.beginPath();c.moveTo(x+.3,48);c.lineTo(x+8.1,48);c.stroke();}
+  c.fillStyle='#05060a';c.beginPath();c.moveTo(217.6,54.2);c.lineTo(222.6,54.2);c.lineTo(220,56.6);c.closePath();c.fill();
+  c.fillStyle=lin(c,0,55.6,0,63.6,[[0,'#0b0f1a'],[.7,'#1c2438'],[1,'#2c3854']]);c.beginPath();c.moveTo(213.4,56.6);c.lineTo(214,61.8);c.quadraticCurveTo(214.4,63.6,216.6,63.6);c.lineTo(222.6,63);c.quadraticCurveTo(225.2,62.4,225,59.4);c.lineTo(224.2,56.6);c.quadraticCurveTo(223.8,55.6,222.4,55.6);c.closePath();c.fill();
+  c.strokeStyle=rgba('#d6e4ff',.4);c.lineWidth=1;c.beginPath();c.moveTo(215.4,63.9);c.lineTo(222.6,63.3);c.quadraticCurveTo(225.4,62.6,225.3,59.6);c.stroke();
+  c.save();c.translate(202.6,64.6);c.strokeStyle='#07080c';c.lineWidth=1.6;c.beginPath();c.moveTo(-4,0);c.lineTo(-9,-1.8);c.stroke();
+    c.fillStyle=lin(c,0,-2.4,0,2.4,[[0,'#0c0e14'],[.7,'#1e2430'],[1,'#3a4252']]);c.fillRect(-4.6,-2.4,8.2,4.8);
+    c.fillStyle=lin(c,0,-2.8,0,2.8,[[0,'#2a303c'],[.6,'#6a7282'],[1,'#b8c0cc']]);c.fillRect(3.6,-2.8,1.6,5.6);
+    c.strokeStyle=rgba('#e6eeff',.45);c.lineWidth=1;c.beginPath();c.moveTo(-4.2,2.1);c.lineTo(5,2.1);c.stroke();c.restore();
+  // Hallowell's gold H on the rear quarter: the shield, its dark edge, the H, the light on its edge toward the key
+  {c.save();c.translate(101,32.6);const sh=()=>{c.beginPath();c.moveTo(0,8.4);c.lineTo(6.6,6.4);c.lineTo(5.6,-3.2);c.lineTo(0,-8.6);c.lineTo(-5.6,-3.2);c.lineTo(-6.6,6.4);c.closePath();};
+    sh();c.fillStyle=rad(c,1.5,2.5,0,10,[[0,C.goldL],[.55,C.gold],[1,C.goldD]]);c.fill();c.strokeStyle='#4a3814';c.lineWidth=1.5;c.stroke();
+    c.fillStyle='#3a2a10';c.fillRect(-3.4,-4.4,1.7,8.8);c.fillRect(1.7,-4.4,1.7,8.8);c.fillRect(-3.4,-.8,6.8,1.6);
+    c.strokeStyle=rgba('#ffe2a3',.85);c.lineWidth=1;c.beginPath();c.moveTo(.4,8);c.lineTo(6.1,6.2);c.lineTo(5.2,-3);c.stroke();c.restore();}
+  // the unit's number on the front wing, small
+  c.save();c.translate(279,26);c.scale(1,-1);c.font='700 8px "Alegreya SC", Georgia, serif';c.textAlign='center';c.fillStyle=rgba('#d8dce6',.7);c.fillText('214',0,0);c.restore();
+  // the bumpers' rub strips, the push bar on the nose, its two lamps dark till they flash
+  c.fillStyle='#07080c';c.fillRect(290.6,22,12.2,4.4);c.fillRect(-.3,22,8.2,4.4);
+  c.strokeStyle=rgba('#cfe0ff',.3);c.lineWidth=1;c.beginPath();c.moveTo(291,26.9);c.lineTo(302.2,26.9);c.moveTo(0,26.9);c.lineTo(7.6,26.9);c.stroke();
+  c.fillStyle='#0b0d12';c.beginPath();c.moveTo(300.6,14.6);c.lineTo(304.6,15.4);c.lineTo(307.6,17.4);c.lineTo(308.2,40.4);c.quadraticCurveTo(308.2,45,303.8,45.2);c.lineTo(297.4,45.4);
+  c.lineTo(297.8,42.6);c.lineTo(303.4,42.4);c.quadraticCurveTo(304.6,42.2,304.6,40.6);c.lineTo(304.2,19.8);c.lineTo(300.4,18.4);c.closePath();c.fill();
+  c.fillRect(301.8,29.6,3,2.4);
+  c.strokeStyle=rgba('#cfe0ff',.42);c.lineWidth=1;c.beginPath();c.moveTo(308.6,18.4);c.lineTo(309.1,40.4);c.quadraticCurveTo(309.1,45.9,303.8,46.1);c.lineTo(298,46.3);c.stroke();
+  c.fillStyle='#5a3a10';c.fillRect(304.9,34.4,2.8,3.4);c.fillStyle='#16285a';c.fillRect(304.9,24.4,2.8,3.4);
+  // the antennas: two whips off the deck, a fin on the roof
+  c.fillStyle='#07080c';c.fillRect(25.6,47.4,5,2.4);c.fillRect(43.6,48.2,4.6,2.4);c.beginPath();c.moveTo(113.6,76.4);c.lineTo(117.6,83.6);c.lineTo(121.6,77);c.closePath();c.fill();
+  c.strokeStyle='#161a24';c.lineWidth=1.5;c.beginPath();c.moveTo(28,49);c.quadraticCurveTo(26.6,70,21.4,90);c.stroke();
+  c.strokeStyle=rgba('#cfe0ff',.38);c.lineWidth=1;c.beginPath();c.moveTo(28.9,50);c.quadraticCurveTo(27.5,70,22.3,89.4);c.stroke();
+  c.fillStyle='#161a24';c.fillRect(45,50,1.8,9.6);c.fillRect(44.3,53.4,3.2,2.6);c.fillStyle=rgba('#cfe0ff',.3);c.fillRect(46.3,50.4,1,9);
+  // the lightbar on its two feet: chrome caps, an amber lens and a blue one, the reflectors behind them; its lamps turn in live()
+  c.fillStyle='#07080c';c.fillRect(135,77.4,3,2.6);c.fillRect(170,77.6,3,2.4);c.fillStyle='#0c0e14';c.fillRect(131.4,79,45.2,2);
+  {const lens=()=>{c.beginPath();c.moveTo(134,80.8);c.lineTo(174,80.8);c.quadraticCurveTo(176,80.8,176,83);c.quadraticCurveTo(176,86.2,173.6,86.2);c.lineTo(134.4,86.2);c.quadraticCurveTo(132,86.2,132,83);c.quadraticCurveTo(132,80.8,134,80.8);};
+    c.save();lens();c.clip();c.fillStyle=lin(c,0,80.8,0,86.2,[[0,'#2e1c08'],[1,'#5e3e14']]);c.fillRect(131,80,23,7);c.fillStyle=lin(c,0,80.8,0,86.2,[[0,'#0a142e'],[1,'#20305e']]);c.fillRect(154,80,23,7);
+      c.strokeStyle=rgba('#05060a',.55);c.lineWidth=1.5;c.beginPath();for(const x of [137.5,143,148.5,159.5,165,170.5]){c.moveTo(x,80.8);c.lineTo(x,86.2);}c.stroke();
+      c.fillStyle='#05060a';c.fillRect(153.2,80.8,1.8,5.4);c.restore();
+    c.strokeStyle=rgba('#e6eeff',.5);c.lineWidth=1;c.beginPath();c.moveTo(134.2,85.7);c.lineTo(173.8,85.7);c.stroke();
+    for(const x of [130.6,175.6]){c.fillStyle=lin(c,0,80.6,0,86.4,[[0,'#3a404c'],[.6,'#9aa2b2'],[1,'#dfe6f2']]);c.fillRect(x,80.6,2,5.8);}}
+  // 6: beads of rain along the top, catching the floods the more toward the nose
+  c.globalCompositeOperation='lighter';
+  for(let i=0;i<46;i++){const x=12+r()*280;if(x>196&&x<232)continue;const y=crTopY(x)-.9-r()*2.4,k=.25+.6*x/300;c.fillStyle=rgba('#e6eeff',k*(.3+.5*r()));c.fillRect(x,y,1.5,1.5);}
+  c.globalCompositeOperation='source-over';
+  // the scuffs on the tail's corner
+  c.strokeStyle=rgba('#9aa2b2',.16);c.lineWidth=1.5;c.beginPath();c.moveTo(1.4,29.6);c.lineTo(5.6,28.4);c.moveTo(1.2,27);c.lineTo(4.4,26.4);c.moveTo(2.2,31.4);c.lineTo(6.6,30.2);c.stroke();
+  // 7: the light catch: the top line lit, brightest toward the flood at the nose; the arches' lips dark with a light along their tops
+  c.globalCompositeOperation='lighter';c.strokeStyle=lin(c,0,0,300,0,[[0,rgba('#d6e4ff',.12)],[.55,rgba('#d6e4ff',.3)],[1,rgba('#e6eeff',.56)]]);c.lineWidth=1;c.beginPath();c.moveTo(9.5,46.2);crTop(c);c.lineTo(300.6,36.2);c.stroke();c.globalCompositeOperation='source-over';
+  for(const wx of [RW,FW]){c.strokeStyle='#04060b';c.lineWidth=1.6;c.beginPath();c.arc(wx,15,AR+.2,.05,Math.PI-.05);c.stroke();
+    c.strokeStyle=rgba('#cfe0ff',.3);c.lineWidth=1;c.beginPath();c.arc(wx,15,AR+1.1,.35,1.3);c.stroke();}
+  // 8: into the air: the street's haze over it, before its lamps
+  c.fillStyle=rgba('#2a2c40',.07);crBody(c);c.fill();
+  // the lamps: the headlamp lit, the parking lamp and the side markers, the tail lamp
+  c.fillStyle='#fff4dc';c.beginPath();c.moveTo(293.2,41.8);c.lineTo(298.5,42);c.lineTo(300.5,36.3);c.lineTo(294,35.6);c.closePath();c.fill();
+  c.strokeStyle='#05060a';c.lineWidth=1.5;c.beginPath();c.moveTo(294,35);c.lineTo(301,35);c.stroke();
+  glow(c,297.4,38.8,26,'#fff0cc',.5);glow(c,297.4,38.8,7,'#ffffff',.7);
+  c.fillStyle='#ffb030';c.fillRect(291.8,29.2,4.2,2.4);glow(c,294,30.4,7,'#ffb030',.35);c.fillStyle=rgba('#ffb030',.85);c.fillRect(285.6,39.4,3,1.8);
+  c.fillStyle=lin(c,0,33.4,0,41.6,[[0,'#5a1012'],[1,'#9a2024']]);c.beginPath();c.moveTo(.8,41.2);c.lineTo(5.2,41.6);c.lineTo(4.4,33.6);c.lineTo(.2,33.4);c.closePath();c.fill();
+  c.fillStyle=rgba('#ff4a3a',.9);c.fillRect(1.4,35.6,2.6,4);glow(c,2.6,37.6,14,'#ff3a2a',.35);c.fillStyle=rgba('#c42a28',.9);c.fillRect(8.6,38.8,3.4,1.8);
+  c.restore();void d;}
 // ---------- the floor ----------
 function road(c,X0,X1){
   const rv=[gq(X0,196),gq(X1,196),gq(X1+110,E.NEAR),gq(X0,E.NEAR)];
@@ -328,6 +465,7 @@ function paint(c){
   E.fallKeep(c,X0,X1+120,GB-20,[[GB-20,0],[GB+110,.42]],null,.05);}
 // ---------- what moves: the searchlights, the flashers and the lightbar, the board, the steam, the drizzle ----------
 const STEAM=(()=>{const r=rng(5),a=[];for(let i=0;i<14;i++)a.push({ph:r(),dx:(r()-.5)*8,sp:.18+r()*.14,w:5+r()*6});return a;})();
+const EXH=(()=>{const r=rng(17),a=[];for(let i=0;i<7;i++)a.push({ph:r(),sp:.35+r()*.2,dy:r()*6});return a;})();
 const RAIN=(()=>{const r=rng(8),a=[];for(let i=0;i<70;i++)a.push({x:r()*1100-100,y:r()*560-40,sp:280+r()*160,l:5+r()*5,a:.06+r()*.1});return a;})();
 // the message board's two faces: a grid of lamps 1.75 units apart, the message's lamps lit (five by seven to a letter, a column
 // between letters), the rest dark; painted once each at four pixels a unit and stamped
@@ -351,11 +489,22 @@ function live(){const t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';
   // the flashers on the sawhorses, amber and blue by turns
   for(let i=0;i<BARR.length;i++){const s=BARR[i],d=s.d,h=38,L=s.w/2,q=pp(s.x+L*.55,GB-h,d),blue=i%2===1,on=Math.pow(Math.max(0,Math.sin(t*(blue?5.2:4.6)+i*1.7)),6);
     if(on<.02)continue;const col=blue?'#5a8cff':'#ffb030',y=q.y-(d<0?9:7)-2.2;glow(ctx,q.x,y,d<0?30:22,col,.75*on);ctx.fillStyle=rgba('#ffffff',.85*on);ctx.fillRect(q.x-1.6,y-1,3.2,2);}
-  // the cruiser's lightbar turning, its colour washing the road and the shutters behind it
-  {const d=CRUISER.d,x0=CRUISER.x-CRUISER.len/2,a=pp(x0+136,GB-80,d),b=pp(x0+164,GB-80,d),ph=t*7;
-    const on1=Math.max(0,Math.sin(ph)),on2=Math.max(0,Math.sin(ph+Math.PI));glow(ctx,a.x,a.y,26,'#ffb030',.8*on1);glow(ctx,b.x,b.y,26,'#5a8cff',.9*on2);
-    ctx.fillStyle=rgba('#fff2d0',on1);ctx.fillRect(a.x-4,a.y-1.6,8,2.6);ctx.fillStyle=rgba('#dfe8ff',on2);ctx.fillRect(b.x-4,b.y-1.6,8,2.6);
-    glow(ctx,(a.x+b.x)/2,a.y-10,180,on1>on2?'#ffb030':'#5a8cff',.05*Math.max(on1,on2),.6);}
+  // the cruiser's lightbar turning (since V112: lamp by lamp behind its lenses, each side flashing twice in its half turn), its colour
+  // on the roof under it and washing the road and the shutters behind; the push bar's two lamps wig-wag against it
+  {const ph=t*7,on1=Math.max(0,Math.sin(ph)),on2=Math.max(0,Math.sin(ph+Math.PI)),st=Math.sin(t*41)>0?1:.5,
+    seg=[[132.6,137.2],[137.8,142.7],[143.3,148.2],[148.8,153.2],[155,159.2],[159.8,164.7],[165.3,170.2],[170.8,175.4]];
+    for(let i=0;i<8;i++){const amber=i<4,on=(amber?on1:on2)*(i%2?st:1.5-st);if(on<.05)continue;const a=crP(seg[i][0],85.6),b=crP(seg[i][1],81.4);
+      ctx.fillStyle=amber?rgba('#ffd890',on):rgba('#cfdcff',on);ctx.fillRect(a.x,a.y,b.x-a.x,b.y-a.y);if(on>.6){ctx.fillStyle=rgba('#ffffff',on-.5);ctx.fillRect(a.x+1,a.y+1.2,b.x-a.x-2,b.y-a.y-2.4);}}
+    const a=crP(143,83.5),b=crP(165,83.5),m=Math.max(on1,on2),col=on1>on2?'#ffb030':'#5a8cff';
+    glow(ctx,a.x,a.y,30,'#ffb030',.85*on1);glow(ctx,b.x,b.y,30,'#5a8cff',.95*on2);
+    const rf=crP(154,77.6);glow(ctx,rf.x,rf.y,46,col,.24*m,.22);glow(ctx,(a.x+b.x)/2,a.y-10,180,col,.05*m,.6);
+    const wa=Math.max(0,Math.sin(t*9.4)),wb=Math.max(0,Math.sin(t*9.4+Math.PI)),pa=crP(306.3,36.1),pb=crP(306.3,26.1);
+    if(wa>.05){ctx.fillStyle=rgba('#ffe0a0',wa);ctx.fillRect(pa.x-1.4,pa.y-1.7,2.8,3.4);glow(ctx,pa.x,pa.y,13,'#ffb030',.6*wa);}
+    if(wb>.05){ctx.fillStyle=rgba('#dfe8ff',wb);ctx.fillRect(pb.x-1.4,pb.y-1.7,2.8,3.4);glow(ctx,pb.x,pb.y,13,'#5a8cff',.7*wb);}
+    // the burning carrier's light on its nose and its windshield, flickering, the nearer the fire the more
+    const F0=(typeof S!=='undefined'&&S.fires)||[];if(F0.length){const n=crP(292,44);let k=0;
+      for(const F of F0){const fx=F.x+(F.dep||0)*PSX,fy=F.y-(F.h||60)*.45-(F.dep||0)*PSY;k=Math.max(k,clamp(1-Math.hypot(fx-n.x,fy-n.y)/460,0,1)*Math.min(1,F.k||1));}
+      if(k>.02){const fl=.78+.22*Math.sin(t*13.7)*Math.sin(t*7.3+1),w=crP(214,63);glow(ctx,n.x,n.y,64,'#ff9a4a',.15*k*fl,.55);glow(ctx,w.x,w.y,20,'#ffb070',.12*k*fl);}}}
   // the message board: CHECK POINT in its amber lamps, then STOP and arrows, by turns (boardFace: the letters hand-drawn on the
   // board's own grid of lamps, five by seven each and twelve units tall, the drawing guide's least for a sign meant to be read)
   {const d=BOARD.d,p0=pp(BOARD.x-30,GB-112,d),p1=pp(BOARD.x+30,GB-78,d),ph=Math.floor(t/1.6)%2,w=p1.x-p0.x,h=p1.y-p0.y;
@@ -364,6 +513,9 @@ function live(){const t=S.t;ctx.save();ctx.globalCompositeOperation='lighter';
   // steam out of the manhole, rising and leaning with the air
   {const q=gq(HOLE.x,HOLE.d);for(const s of STEAM){const u=(t*s.sp+s.ph)%1,y=q.y-u*90,x=q.x+s.dx+Math.sin(t*.9+s.ph*6)*6*u+u*18,r=s.w*(1+u*2.4),a=.11*(1-u)*Math.min(1,u*6);
     ctx.fillStyle=rad(ctx,x,y,0,r,[[0,rgba('#c8d0e0',a)],[1,rgba('#c8d0e0',0)]]);ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();}}
+  // the cruiser idling: its exhaust breathing out under the tail into the cold
+  {const q=crP(-2.6,10.6);for(const s of EXH){const u=(t*s.sp+s.ph)%1,x=q.x-u*30+Math.sin(t*1.3+s.ph*5)*2*u,y=q.y-u*(18+s.dy),rr=2.2+u*8,a=.09*(1-u)*Math.min(1,u*8);
+    ctx.fillStyle=rad(ctx,x,y,0,rr,[[0,rgba('#c8d0e0',a)],[1,rgba('#c8d0e0',0)]]);ctx.beginPath();ctx.arc(x,y,rr,0,TAU);ctx.fill();}}
   // the drizzle, catching the floods
   {ctx.strokeStyle='#dfe8ff';ctx.lineWidth=.5;ctx.beginPath();for(const p of RAIN){const y=((p.y+t*p.sp)%560+560)%560-40,x=p.x-y*.06;ctx.moveTo(x,y);ctx.lineTo(x-p.l*.12,y+p.l);}ctx.globalAlpha=.16;ctx.stroke();ctx.globalAlpha=1;}
   // the red light on the tower's needle

@@ -165,6 +165,16 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
 - The checkpoint's carrier is a wall (since V85, asked for: an officer could step along its flank and behind it): along its length
   (from 50 short of its nose) nobody stands deeper than `APC_NEAR` (24) short of its depth (`apcLaneMax`): `laneOK` refuses such a
   lane, `clampSt` keeps a man at such a depth short of it, and a step moves anyone the blast threw there back out.
+- The checkpoint's cruiser (since V112, asked for: more detail) is drawn by the drawing guide's eight steps in its own frame (x from
+  the tail, 0, to the nose, 300; y up from the road; `crP`, `crBody`, `crGlass`, `crDoors` in env_roadblock.js): a full-size sedan
+  on its tyres in their wells (black steel wheels, chrome caps, a contact shadow under each), the carrier's black-navy lacquer with a
+  hard horizon at the crease (the street mirrored darker below it), the tripod's flood bright along its top toward the nose and the
+  sodium lamp warm on the roof, white doors with POLICE across them at 12 units, Hallowell's gold H on the rear quarter and a gold
+  line along the crease, shut lines, handles, the mirror and a pillar spotlight, dark glass with the cabin in it (headrests, the
+  cage, the wheel, a terminal's screen), a push bar, two antennas, beads of rain along the top, runs down the doors, spray behind the
+  wheels, and its lamps in the wet road. live() flashes the lightbar lamp by lamp (each side twice in its half turn) with its colour
+  on the roof, wig-wags the push bar's lamps against it, breathes the exhaust out under the tail, and puts the burning carrier's
+  light on its nose and windshield, flickering, the nearer the fire the more.
 - A rifleman's stance (since V85, asked for: the ready hung the rifle across him, and at the concrete its muzzle went into the
   barrier and pushed the stock up behind his head): the rifle is in his shoulder in every stance, its butt nested into the pocket
   at the front of the shoulder (asked for again in V86 and V87: in V85 it lay over the top and out behind him, in V86 his head
@@ -1479,7 +1489,7 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V112 ..." (V111 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V113 ..." (V112 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
