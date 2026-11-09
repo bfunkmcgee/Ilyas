@@ -471,6 +471,28 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   first scene played in a fight, a set piece's (`'c3'`), places.js and lines.js: the line's trolley, trestle and brakes (`line_c3.7`,
   `line_o8`, `line_o14`) and the crash (`deep_x4.6`). In the shaft (V104's) the fireball's light ahead of it goes on past the car's roof down the walls
   either side of the car, and the dark fire over it warms into its front: at V104's review each ended in a straight line.
+- The beasts' look (envx/beasts.js; since V113, asked for: the goblins and the lizard-man looked cheesy beside the other characters,
+  their joints off; make them more creature-like and stylized). Both are drawn as creatures, not men in costume. Each limb is one
+  silhouette with its muscle in it: the figure kit's tube with an outline of its own down each segment (`MUS.gob`, `MUS.liz`: [t,
+  front, back] as shares of the half-width; `orient` puts them on the tube's sides, `bendA` says which side is the inside of a bend),
+  as Ilyas's bare arm has. The joints are bone, never a ball stuck on: a point at the elbow out of the back of the bend (`spur`), a
+  knobbed knee on the goblin and a horny scute on the lizard's. Both stand on their toes: the drawing parts the game's shin at a hock
+  (`hockOf`: up the shank from the foot and out behind it, on the side the knee does not bend to, in the leg's own frame so a leg
+  kicked up or lying flat keeps its shape; the goblin's .3 and .16 of the knee-to-foot length, the lizard's .4 and .25), the leg one
+  tube from the hip through the knee and the hock to the ball of the foot (the game's foot point), a heel of bone at the hock, and
+  long clawed toes forward from the ball (`toes`: along the floor when the foot is down, on from the shank off it; two joints to a toe
+  only in a close view). The game's bodies, joints and tail are as they were: only the drawing changed. The goblin: thicker limbs
+  (forearms thick under the elbow, wrists like sticks), long swept-back ears, a scowling brow of bone (`GOB_BROW`), five big crooked
+  teeth, a smaller eye with a smaller glow; fingers of two joints in a close view. The lizard: a barrel of a chest under a hump of
+  shoulder (`TORSO`, `BACK`, `WIDE`), one row of hooked spines from the back of his skull down his neck, back and tail (`ridge`: dark
+  horn, the edge toward the light caught in it; turned, each seen as a fin), horns swept back off the skull for the old fan of spines
+  (`LIZ_HORN`, `hornPath`, lit as main forms; in the round a pair of each), a hooded brow over a smaller slit eye, a crocodile's uneven
+  teeth (`LIZ_TOP`, `LIZ_LOW`), a leather harness with an iron ring for the riveted chest plate and the chain, a smaller darker
+  pauldron, kilt strips cut to points, a goblin's skull with its long snout and a string of fangs for the two round skulls, no ochre
+  bars on the face; the bony bumps down his back are gone (they read as studs in a close view; `DBG.osteo` draws them). The eye of
+  either still goes warm when the game offers an opening on him. Timed by turns against V111's beasts on this machine: the lizard the same,
+  a goblin about a tenth dearer (more outline to rim). `node uiwork/beast_studio.js`, `uiwork/beast_shots.js` and
+  `uiwork/beast_turns.js` shoot them (under Screenshots).
 - The window cleaners' cradle (since V106, asked for: Kade kicks Ilyas through the office glass and both land on the window-cleaning
   gondola outside the tower; they finish the duel there while a cable snaps and the platform hangs vertical; then Ilyas climbs back in
   to deal with Hallowell): sk_gondola.js and sk_gondolaui.js. The office's fight has a set piece (`kick`, due soon: two turns in with
@@ -1296,6 +1318,11 @@ Build a copy first (`python3 build.py --qa`) and point the tools at it with `PAG
 - `node uiwork/stage_shot.js <out> <stage> [frames per still] [stills]`: one stage stepped.
 - `node uiwork/hud_shots.js <out> [states] [land,port,desk,tab] [arena]`: the HUD as a player sees it.
 - `node uiwork/focus_shots.js <out> [sizes]`: the top bar with a crowd. `node uiwork/fx_shots.js <out> <arena> ...`: hits and magic.
+- `node uiwork/beast_studio.js <out> [K] [stage] [frames per still] [stills] [moment]` (since V113): a stage's fight stepped, and at
+  each still every goblin, the lizard and Ilyas drawn again by their own painters on a plain card at K pixels a unit (under 3.4 the
+  game's own detail, 3.4 and over a close view's), one file each and strips.json listing them. `node uiwork/beast_shots.js <out> [w h
+  dpr] [stage] [frames per still] [stills] [moment]`: the same stills as the player sees them, the frame and a crop round each beast.
+  `node uiwork/beast_turns.js <out.png> [K] [stage] [moment] [yaws]`: each beast drawn turned at several yaws, side by side.
 - `node uiwork/pose_light.js <out.png> <ground> kx kz ex ez`: two fighters placed by hand. `node envx/game_shot.js <script.json>`:
   scripted steps on the game's own canvas. `node uiwork/shots.js <prefix> w h dpr [mobile] [load|fight|story]`: the real page.
 Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well as desktop.
@@ -1489,7 +1516,7 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V113 ..." (V112 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V114 ..." (V113 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
@@ -1550,7 +1577,9 @@ was checked, and anything that did not work, plainly.
   and V93 builds, whose lab layout, canvas and camera are the same, each missed one or the other in some runs (a full run, or the
   suite alone) and passed in others: rerun, and compare against the build before the change before suspecting it. At V94 the eye's
   count missed in two full runs of four (by a hair, then by a fifth) and passed alone on V94 and V93 alike; V94 was published on the
-  look review, the other suites of those runs, and that suite and the timing checks passing alone.
+  look review, the other suites of those runs, and that suite and the timing checks passing alone. At V113 (the beasts, which that
+  check never draws) the eye's count missed by a hair in three runs of five, here and on GitHub's runner ({"lit":3571,"dark":2226,
+  "back":2393}: back over dark 167 against 202 wanted), and passed in the others, V111's build passing beside it in the same hour.
 - The node checks have no Path2D or DOMMatrix: FXL and the scene painters stand down there (`SCENE_OK`).
 - A scene's still layer (sceneLayer) covers RC: y -90 to 870 since V74 (the part below 610 kept only on an upright screen,
   `sceneLayerH`), painted for the push-in's closest view (`camCloseW`: 2.4 pixels a unit at the most, about twice V73's paint time

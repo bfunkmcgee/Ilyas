@@ -1,6 +1,6 @@
 {
 "_": "The lookbook's judgments (uiwork/look/lookbook.py builds the page from these and a look review's folder): every place held to the frame of its kind, as the style guide's rule 2 and its place table set them. A verdict is ok (holds beside its target), mid (mixed) or bad (falls off); a target is the frame of its kind. Notes are [p, m or o, text]: what holds, what does not, what would bring it up. Judged by eye at V88 (Nov 4) on the review's phone frames, the 13 mixed ones again at V90 (Nov 5); judge again when a place changes.",
-"version": "V112",
+"version": "V113",
 "date": "November 8, 2026",
 "before": {"ok": 15, "mid": 13, "bad": 0, "views": 28, "version": "V88", "date": "November 4"},
 "audit": {"ok": 9, "mid": 12, "bad": 6, "views": 27, "version": "V73", "date": "November 2"},
@@ -71,7 +71,8 @@
   {"id": "deep", "kind": "rooms", "title": "VIII. The Deep Station", "sub": "Under Hallowell Tower", "verdict": "ok",
    "frames": ["deep_f4", "deep_t3"],
    "notes": [["p", "Crystals, brass and the train's light coming down the line's bore (t3); in the fight the engine lies reared up in Ixet's camp at the end of the line, where it went through the buffer stop (since V105): the station's richest frame."],
-             ["m", "Its crowded fight costs as much to draw as the fall's dearest frame (101% timed by turns); the lizard alone is about 9 ms of it."]]},
+             ["p", "Since V113 Ixet and the goblins are drawn as creatures, not men in costume: limbs muscled and bony at the joints, legs bent back at a hock over long clawed toes; Ixet horned, one row of spines from his skull to his tail's tip, a harness and a goblin's skull on his belt."],
+             ["m", "Its crowded fight costs 97% of the fall's dearest frame (timed by turns at V113); the lizard alone is about 9 ms of it."]]},
   {"id": "crash", "kind": "set", "title": "The end of the line", "sub": "Into Ixet's camp (since V105)", "verdict": "ok",
    "frames": ["deep_x4.6"],
    "notes": [["p", "No brakes: the engine through the buffer stop and into the camp, reared up on its trailing wheel in the smoke, the flatcar off its rails; Ilyas off it onto the platform at the last moment."]]},
