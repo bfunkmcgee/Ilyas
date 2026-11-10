@@ -729,6 +729,10 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   a rank's own, Ilyas's motion by his style's level. Suite: `flowpage` (sk_flow_page.js, 17 checks: off in the game's page; the
   test's page, each part, the panel, the three fights). If it is approved, the parts become the game's by their flags, and the
   timing of `build` moves every seeded fight (the look review's frames with it: Pitfalls).
+  Since Nov 10 the published flow test also carries the Phaser look test (asked for: to feel those changes in the flow test): the
+  page shown through a Phaser scene, glow and a grade over it, and Ilyas drawn from art pieces on the ragdoll, each a switch in the
+  Test panel. It is added after the build by `spike/phaser/build_spike.py flow-test.html flow-phaser` and touches no file of the
+  game or of the flow test: `spike/phaser/README.md`.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,
