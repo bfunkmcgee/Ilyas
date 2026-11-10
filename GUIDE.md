@@ -1600,7 +1600,10 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V115 ..." (V114 was the last published; count on from it). Where the Artifact tool is not offered, the artifacts
+short label "V115 ..." (V114 was the last published; count on from it). Since Nov 10 main holds work that no version has published: the cast's
+stands, builds and shapes, the crews' sizes and types and the goblins' kinds (three commits and their merge, put on main at the
+user's word after a full run here; the timing checks and the look review were not run on them). V115 publishes them with whatever
+else it holds and runs both first; until then the published page is V114's and main is ahead of it. Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
