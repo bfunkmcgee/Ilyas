@@ -648,6 +648,16 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   the dining room's with it, and they play, step
   the song back, stop, go silent with the switch and hold with the game).
 - sk_lookui.js (Kael), sk_castui.js (everyone else), sk_figui.js (FigKit: the shared shaping and light). drawFighterItem in sk_ui.js.
+- How each of them stands (since Nov 9): sk_cast.js `STANDS` (the named, keyed by the shown name; the hero's entry is `Kael`),
+  `STAND_CREW` (the crews, by wardrobe: `f.ward`, or the restaurant's room in the lab) and `standOf(f)`. Standing easy in a scene
+  (`easyBody` and `easyArm`, sk_story.js) reads it: how high the hips ride, the lean, the feet and how near their marks they must
+  be, the chin, both hands, and whether he keeps still. An elf stands tall and still, each named one in a way of his own; a crew
+  member slouches and shifts, his slouch, his width of stance and what his free hand does from his seed. `STAND0` is the old
+  stand: the Pit's people, the beasts and Kael with an arm gone keep it, and every walk has it under the gait. A body pose may
+  say `top`, how high the hips may ride (`pelvisY`: .96 of the leg unless it does, which keeps the knees bent); the stands ask up
+  to 1.03, and that is what straightens a leg. Hip and feet together must leave the back leg short of straight (about hip less
+  .04 from hip to foot, more as the feet part). A weapon longer than the hand is high is raised until its point clears the floor.
+  `node uiwork/look/lineup.js` shows everyone side by side; the fighting guard is not part of this yet.
 - sk_lightui.js (FXL): effects Full/Lite/Off (localStorage sk_fx; auto-drops to Lite on a slow device, never under SK_TEST). Full
   draws each fighter into a sprite (ctx swapped) reused for cast shadows and reflections; the fx are restyled as light; the vignette
   is CSS (data-fx on #wrap). With Off the picture is the old one.
@@ -659,7 +669,7 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,
-lean, stF, stB, th, lift, kick, kw) and arm poses (hand, wAng, off, tilt), sampled by `sample` in controlAndForces and driven into the
+lean, stF, stB, th, top, lift, kick, kw) and arm poses (hand, wAng, off, tilt), sampled by `sample` in controlAndForces and driven into the
 ragdoll by its motors. sk_anim.js names the poses (`POSE.body`, `POSE.arm`) in the body's own units, as GUARD writes the guard: crouch
 and lean, the feet `sf`/`sb` in leg lengths, the hand `hx`/`hy` and the free hand `off` in arm lengths, the blade's angle `w` (or `wg`,
 the weapon's guard angle plus it), the head's `tilt`; `two` is what changes with the weapon in both hands, `free` keeps the free hand
@@ -883,7 +893,7 @@ fight; `node uiwork/wind/drainshots.js <outdir> w h dpr` photographs the drain o
 screen, Vargo Qadir, Vosk Ixet, Mara Amri, the lobby's Varn Doran, Halloran Hallowell (the executive is `'Mr. Hallowell'`, the tower
 Hallowell Tower). The code keeps Kael as its own word for the hero (`hero()`, KaelLook, STORY_KAEL, the design keys `sig:Kael` and
 `house:Kael:`, and Kael in HOUSE and SIGKEY), so comments still say Kael. Whatever is shown, or compared with a fighter's name, uses
-`HERO_NAME` (sk_core.js), FOE_NAMES, FOE3_NAMES, ALLY_NAME, EXEC.name. Tables keyed by the shown name: sk_cast.js's bodies,
+`HERO_NAME` (sk_core.js), FOE_NAMES, FOE3_NAMES, ALLY_NAME, EXEC.name. Tables keyed by the shown name: sk_cast.js's bodies and stands (STANDS, where the hero's entry is `Kael`),
 ARMS.sig (sk_arms.js), CAST (sk_castui.js), HOUSE and SIGKEY (sk_armsui.js). The guns carry Veil makes: the Veskar VS-8 Scour, the
 Hallowell Guardian Nine, the Hallowell Skyline PDX, and the Maben Register pistol on the roof. The lines are the `speak()` calls in
 sk_story.js and FIN_LINES in sk_finale.js, and the fall's thoughts are FALL_LINES (the synopsis's twelve, since V48; the bar he lands
@@ -1347,6 +1357,11 @@ Build a copy first (`python3 build.py --qa`) and point the tools at it with `PAG
   game's own detail, 3.4 and over a close view's), one file each and strips.json listing them. `node uiwork/beast_shots.js <out> [w h
   dpr] [stage] [frames per still] [stills] [moment]`: the same stills as the player sees them, the frame and a crop round each beast.
   `node uiwork/beast_turns.js <out.png> [K] [stage] [moment] [yaws]`: each beast drawn turned at several yaws, side by side.
+- `node uiwork/look/lineup.js <out> [K] [arms]` (since Nov 9): the cast's line-up. Everyone the prologue fields (every named elf, three
+  of each crew), the named elves it does not, and Amri, stood easy on the lab's field and drawn each on a card: filled black at K
+  pixels a unit, black again at the two sizes an upright phone draws them, and as the game draws them, named (lineup.png, the
+  cards, lineup.json). It prints how alike each two named figures are at the push-in's size (the share of their two outlines
+  they have in common, feet together) and the closest pairs. `arms` 1 leaves the weapons in their hands. About a minute.
 - `node uiwork/pose_light.js <out.png> <ground> kx kz ex ez`: two fighters placed by hand. `node envx/game_shot.js <script.json>`:
   scripted steps on the game's own canvas. `node uiwork/shots.js <prefix> w h dpr [mobile] [load|fight|story]`: the real page.
 Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well as desktop.
@@ -1480,6 +1495,10 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 8. Darkness: the figures' rim (FigKit) takes each place's key light, its direction and colour, and brightens on ground under .2; the
    ground behind the fight band never measures under .2 and aims for .28; the audit fails any frame where under two thirds of
    Ilyas's outline reads, measured with the footing rings and head bars hidden.
+9. (Proposed Nov 9, not yet approved or measured by the review.) Told apart in black: every named figure can be named from his
+   outline alone, filled black, at the sizes an upright phone draws him. `node uiwork/look/lineup.js` makes the sheet and says how
+   alike each two are. Judged by eye, the numbers a guide: on Nov 9, a stand of his own for each brought the named pairs' mean
+   from .68 to .53 and the closest pair from .87 to .82. Their builds and their fighting guards are still one shape.
 
 **The drawing's rules (the drawing guide, approved Nov 2).** How things are drawn; the guide has the tables and the examples.
 1. Detail follows depth in five tiers: far (shapes and lit specks, within .15 of the sky behind), the set (the most detail, above
@@ -1816,3 +1835,13 @@ was checked, and anything that did not work, plainly.
   300 ms before the shot (V95's lobby stills).
 - In a log line (`.lg-l`, a flex row with a gap), a list of names joined with ", " and " and " opens a gap before each comma: put
   the whole list in one span (V95's "Guard A, Guard B and Guard C fight in the Order drill").
+- A weapon's point under the floor lifts the man who holds it: the floor pushes the point up and the point pushes him. Standing
+  easy with the weapon hanging at 1.25 rad, a spear (92 units, from a hand about 70 up) rode Brask's and Amri's hips some 8% of
+  a leg too high, and an axe did it to a field hand; nobody noticed while everyone stood on bent knees. A stand now raises a long
+  weapon until its point clears the floor (`easyArm`, Nov 9). A pose that hangs a weapon from a hand should check its length
+  against the hand's height. And in a row of figures, a weapon reaches the next one: the line-up stands them 190 units apart.
+- The look suite's tattoo check ("with the coat off his tattoos glow") counts the cyan left in a box round him once he is drained
+  and asks for under 15% of the lit count (11.5 of 77). The count is not the same from run to run with the same build and the
+  same simulation: on Nov 9 it read 9 on V114 alone, 7 on the stands' branch alone, and 12 on that branch inside a full run with
+  another suite beside it, which failed. Run alone again it passed. If it fails, run `node sk_look_page.js` alone before looking
+  for a cause in the change.

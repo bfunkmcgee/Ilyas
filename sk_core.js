@@ -604,10 +604,12 @@ class Fighter{
     return brawlArm(this,{hand:{sh:[(g.hx+(cm?.14:0)-(cg?.14:0))*a,(g.hy-(gd?.18:0)-(cg?.3:0)+(us?.1:0))*a+br*.8]},wAng:cg?-1.85+br*.025:g.w+(gd?g.gw:0)+(us?.35:cm?.18:0)+br*.025,
       off:g.off?{sh:us?[.45*a,.15*a]:[g.off[0]*a,(g.off[1]-(gd?.22:0))*a]}:'grip',tilt:0});}
   resolve(s){if(s.sh){const c=this.p[CHE];return{x:c.x+this.facing*s.sh[0],y:c.y+s.sh[1]};}if(s.w)return s.w;if(s.fn)return s.fn();return s;}
-  pelvisY(pelX,crouch){const s0=this.steps[0],s1=this.steps[1];
+  // top: how high the hips may ride over the higher foot, in leg lengths. A fighting pose leaves it at .96, which keeps the knees
+  // bent; a pose that stands a man up straight asks for more (standing easy, since Nov 9: sk_cast.js STANDS)
+  pelvisY(pelX,crouch,top=.96){const s0=this.steps[0],s1=this.steps[1];
     const g0=this.gr(s0.active?s0.to.x:s0.plant.x),g1=this.gr(s1.active?s1.to.x:s1.plant.x),gp=this.gr(pelX),leg=this.leg;
     const dip=this.wounds&&this.wounds.leg&&s0.active?this.wounds.leg*2.6:0;
-    return Math.max((g0+g1+gp*2)/4-leg*crouch,Math.max(g0,g1)-leg*.96)+dip;}
+    return Math.max((g0+g1+gp*2)/4-leg*crouch,Math.max(g0,g1)-leg*top)+dip;}
 }
 
 // ---------- physics ----------
@@ -639,7 +641,7 @@ function sample(kfs,t,blend){
 }
 function kickPoint(f,s){if(s.pl){const p=f.p[PEL];return{x:p.x+f.facing*s.pl[0],y:p.y+s.pl[1]};}if(s.w)return s.w;return s.fn();}
 function blendBody(f,a,b,u){
-  const o={px:lerp(a.px,b.px,u),pz:lerp(a.pz??f.lane,b.pz??f.lane,u),crouch:lerp(a.crouch,b.crouch,u),lean:lerp(a.lean,b.lean,u),stF:lerp(a.stF,b.stF,u),stB:lerp(a.stB,b.stB,u),th:lerp(a.th??.2,b.th??.2,u),lift:lerp(a.lift||0,b.lift||0,u),kw:lerp(a.kw||0,b.kw||0,u)};
+  const o={px:lerp(a.px,b.px,u),pz:lerp(a.pz??f.lane,b.pz??f.lane,u),crouch:lerp(a.crouch,b.crouch,u),lean:lerp(a.lean,b.lean,u),stF:lerp(a.stF,b.stF,u),stB:lerp(a.stB,b.stB,u),th:lerp(a.th??.2,b.th??.2,u),top:lerp(a.top??.96,b.top??.96,u),lift:lerp(a.lift||0,b.lift||0,u),kw:lerp(a.kw||0,b.kw||0,u)};
   if(a.kick&&b.kick){const ka=kickPoint(f,a.kick),kb=kickPoint(f,b.kick);o.kick={w:{x:lerp(ka.x,kb.x,u),y:lerp(ka.y,kb.y,u)}};}else o.kick=b.kick||a.kick||null;
   return o;
 }
@@ -701,7 +703,7 @@ function controlAndForces(f){
       f.steps[0]={active:false,plant:{x:p[FTF].x,y:Math.min(p[FTF].y,f.gr(p[FTF].x)-3)}};f.steps[1]={active:false,plant:{x:p[FTB].x,y:Math.min(p[FTB].y,f.gr(p[FTB].x)-3)}};}
     updateSteps(f,pelTX,bp);
   }
-  const pelTY=f.pelvisY(pelTX,bp.crouch)-lift;
+  const pelTY=f.pelvisY(pelTX,bp.crouch,bp.top)-lift;
   for(const q of p){q.fx=0;q.fy=0;}
   const d=f.dbg;
   d.pel={x:pelTX,y:pelTY};spring(p[PEL],d.pel,3*b.mass,wB,zB,Math.pow(m,.8),null,0);
@@ -742,7 +744,7 @@ function controlAndForces(f){
     spring(p[ft],fT,.9*b.mass,w*1.3,.9,m,p[PEL],.15);
     if(k){d.ftB=fT;d.knB=knT;}else{d.ftF=fT;d.knF=knT;}
   }
-  f.curBody={px:pelTX,pz:tz,crouch:bp.crouch,lean:bp.lean,stF:bp.stF,stB:bp.stB,th:bp.th??.2,lift:0,kw:0};
+  f.curBody={px:pelTX,pz:tz,crouch:bp.crouch,lean:bp.lean,stF:bp.stF,stB:bp.stB,th:bp.th??.2,top:bp.top??.96,lift:0,kw:0};
   f.curArm={hand:{w:{x:hand.x,y:hand.y}},wAng:ap.wAng,off:ap.off==='grip'?'grip':{w:{x:off.x,y:off.y}},tilt:ap.tilt||0};
 }
 function integrate(f){
