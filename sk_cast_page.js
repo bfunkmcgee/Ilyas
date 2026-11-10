@@ -50,7 +50,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   expect('the dining room\'s, kitchen\'s and lobby\'s elves, Kade and Mr. Hallowell are all drawn as the cast',
     rooms.dining.drawn==='Brask,Iyla,Qadir'&&rooms.kitchen.drawn==='Hesk,Odile,Orrin'&&rooms.lobby.drawn==='Doran,Kessa,Sable'&&/Kade/.test(rooms.office.drawn)&&/Hallowell/.test(rooms.office.drawn),
     JSON.stringify(['dining','kitchen','lobby','office'].map(r=>rooms[r].drawn)));
-  const want={Qadir:192,Brask:194,Iyla:180,Orrin:196,Hesk:195,Odile:178,Sable:196,Doran:193,Kessa:186,Kade:198,'Mr. Hallowell':185};
+  const want={Qadir:192,Brask:194,Iyla:180,Orrin:204,Hesk:195,Odile:178,Sable:196,Doran:190,Kessa:182,Kade:208,'Mr. Hallowell':185};
   const got=Object.assign({},rooms.dining.cm,rooms.kitchen.cm,rooms.lobby.cm,rooms.office.cm);
   expect('each elf stands at his or her designed height',Object.keys(want).every(n=>Math.abs(got[n]-want[n])<=1),JSON.stringify(got));
   const ex=rooms.office.exec;
@@ -93,7 +93,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   const help=await ev(()=>{const how=[...document.querySelectorAll('.how li')].map(x=>x.textContent),txt=document.body.textContent;
     return{eh:how.find(x=>/^Elves and humans/.test(x))||'',grey:/grey suits/.test(txt),kitchen:/Hesk, a Trained keeper/.test(txt)&&/Odile, a Trained rusher/.test(txt)};});
   expect('the help says who is an elf and who a human, gives the floors and the heights, and has the kitchen\'s ranks as they are now',
-    /every henchman a human/.test(help.eh)&&/below Trained/.test(help.eh)&&/Veteran or better/.test(help.eh)&&/178 to 198 cm/.test(help.eh)&&/160 to 176/.test(help.eh)&&!help.grey&&help.kitchen,help.eh.slice(0,140));
+    /every henchman a human/.test(help.eh)&&/below Trained/.test(help.eh)&&/Veteran or better/.test(help.eh)&&/178 to 208 cm/.test(help.eh)&&/160 to 176/.test(help.eh)&&!help.grey&&help.kitchen,help.eh.slice(0,140));
 
   // ---- the open arenas ----
   const outdoors=await ev(()=>{const out={};for(const a of ['street','field','ledge','hill','wall']){fight({arena:a,n:3});reset();step(30);out[a]=Object.keys(DRAWN.cast).sort().join(',');}return out;});

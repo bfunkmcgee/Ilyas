@@ -658,6 +658,18 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   to 1.03, and that is what straightens a leg. Hip and feet together must leave the back leg short of straight (about hip less
   .04 from hip to foot, more as the feet part). A weapon longer than the hand is high is raised until its point clears the floor.
   `node uiwork/look/lineup.js` shows everyone side by side; the fighting guard is not part of this yet.
+- A figure's build and shape in the drawing (since Nov 9, sk_castui.js). `heft` is how much of a body's bulk shows in the outline,
+  [the torso, the limbs]: `CastLook.HEFT` (.8 and .7) for the named elves and the crews, whose wardrobes say `heft:1`; a look that
+  does not say keeps the old .3 and .4 (`HEFT0`), which the Pit's people were drawn to. A named figure's `shape`
+  (`CastLook.shapeOf`) is his own beside that: chest, waist, hips (how deep he is there, both sides), belly (the front, at the
+  waist), back (behind, at the shoulder blades), neck, shoulder (the top of the arm), arms, legs, hands; his head's size is
+  `head.scale`. 1 leaves a thing as it was, and a look with neither is drawn exactly as before. `draw()` applies the shape where
+  it places things across the torso (`at`) and in the limbs' widths (`WA`, `WL`). Turned, the torso's sections carry the shape
+  themselves, so what is placed from a section goes by `at0`, the unshaped place, and the turned maps are wrapped to shape what
+  is placed on them. All of it is drawn only. The heights are the game's (sk_cast.js `ELVES`): 178 to 208 cm since Nov 9, Orrin
+  and Kade taller and Doran and Kessa a little shorter; CAST's `build`, the Help and sk_cast_page.js repeat them. The man in
+  white is drawn as he was, with no shape or heft: the roof's colour script read under its limit once with a shape on him, in a
+  full run where that suite's readings wander (Pitfalls), and he was put back sooner than find out which it was.
 - sk_lightui.js (FXL): effects Full/Lite/Off (localStorage sk_fx; auto-drops to Lite on a slow device, never under SK_TEST). Full
   draws each fighter into a sprite (ctx swapped) reused for cast shadows and reflections; the fx are restyled as light; the vignette
   is CSS (data-fx on #wrap). With Off the picture is the old one.
@@ -1498,7 +1510,8 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
 9. (Proposed Nov 9, not yet approved or measured by the review.) Told apart in black: every named figure can be named from his
    outline alone, filled black, at the sizes an upright phone draws him. `node uiwork/look/lineup.js` makes the sheet and says how
    alike each two are. Judged by eye, the numbers a guide: on Nov 9, a stand of his own for each brought the named pairs' mean
-   from .68 to .53 and the closest pair from .87 to .82. Their builds and their fighting guards are still one shape.
+   from .68 to .53 and the closest pair from .87 to .82; their builds showing and a shape of his own for each, to .51 and .78.
+   Their fighting guards are still one shape, and the crews' bodies differ in size only.
 
 **The drawing's rules (the drawing guide, approved Nov 2).** How things are drawn; the guide has the tables and the examples.
 1. Detail follows depth in five tiers: far (shapes and lit specks, within .15 of the sky behind), the set (the most detail, above
@@ -1840,8 +1853,9 @@ was checked, and anything that did not work, plainly.
   a leg too high, and an axe did it to a field hand; nobody noticed while everyone stood on bent knees. A stand now raises a long
   weapon until its point clears the floor (`easyArm`, Nov 9). A pose that hangs a weapon from a hand should check its length
   against the hand's height. And in a row of figures, a weapon reaches the next one: the line-up stands them 190 units apart.
-- The look suite's tattoo check ("with the coat off his tattoos glow") counts the cyan left in a box round him once he is drained
-  and asks for under 15% of the lit count (11.5 of 77). The count is not the same from run to run with the same build and the
-  same simulation: on Nov 9 it read 9 on V114 alone, 7 on the stands' branch alone, and 12 on that branch inside a full run with
-  another suite beside it, which failed. Run alone again it passed. If it fails, run `node sk_look_page.js` alone before looking
-  for a cause in the change.
+- The look suite (`sk_look_page.js`) does not read the same from run to run with the same build, and inside a full run, with
+  another suite beside it, one of its measured checks has landed past its limit each time, a different one each time: on Nov 9
+  the tattoos' cyan once he is drained (12 against 11.5; 7 and 9 alone), the roof's gold before the round (.0136 against .015,
+  that time with a shape on the man in white; .0197 alone without one) and the light in his eye at the end of the fall. Run alone it passed every time, on V114 and on the branch. If it
+  fails in a full run, run `node sk_look_page.js` alone before looking for a cause in the change; the cause of the wandering
+  itself has not been looked for.

@@ -38,7 +38,7 @@ function lineupStand([per,settle]){
   return window.__lineup.map(o=>({id:o.id,label:o.label,named:o.named,ward:o.ward,cm:Math.round(bodyHeight(o.f.body)),bulk:+o.f.body.bulk.toFixed(2),weapon:o.f.weaponKey}));}
 // (in the page) each of them drawn on a clear card at K pixels a unit, the sheet made of the cards, and how alike the named are
 function lineupSheet([K,arms]){
-  const L=window.__lineup,keep=ctx,dw=drawWeapon,CW=Math.round(118*K),CH=Math.round(178*K),errs=[];
+  const L=window.__lineup,keep=ctx,dw=drawWeapon,CW=Math.round(118*K),CH=Math.round(200*K),errs=[];
   drawing(true);window.R0();if(!arms)drawWeapon=function(){};
   try{for(const o of L){const f=o.f,c=document.createElement('canvas');c.width=CW;c.height=CH;const x=c.getContext('2d');
     const gy=Math.max(...f.p.map(q=>q.y)),cx=(f.p[FTF].x+f.p[FTB].x)/2;x.setTransform(K,0,0,K,CW/2-cx*K,CH-8*K-gy*K);ctx=x;
@@ -57,14 +57,17 @@ function lineupSheet([K,arms]){
   pairs.sort((a,b)=>b.alike-a.alike);
   // the sheet
   const cols=Math.min(L.length,Math.ceil(L.length/3)),rows=Math.ceil(L.length/cols),pad=28,head=58,cw=CW*.62,Wd=Math.round(pad*2+cols*cw),sc=cw/CW,ch=CH*sc,lab=46;
-  const Hh=Math.round(pad+(head+rows*(ch+8))+(head+P1[0].height+16)+(head+P2[0].height+16)+(head+rows*(ch+lab))+pad),S0=document.createElement('canvas');S0.width=Wd;S0.height=Hh;
+  const share=.62,per=P=>{const most=Math.max(1,Math.min(L.length,Math.floor((Wd-2*pad)/(P[0].width*share))));return Math.ceil(L.length/Math.ceil(L.length/most));},bandH=P=>Math.ceil(L.length/per(P))*(P[0].height+8)+8;
+  const Hh=Math.round(pad+(head+rows*(ch+8))+(head+bandH(P1))+(head+bandH(P2))+(head+rows*(ch+lab))+pad),S0=document.createElement('canvas');S0.width=Wd;S0.height=Hh;
   const x=S0.getContext('2d');x.fillStyle='#0c0b10';x.fillRect(0,0,Wd,Hh);let y=pad;
   const title=t=>{x.fillStyle='#f3ead6';x.font='600 26px sans-serif';x.textBaseline='top';x.fillText(t,pad,y+10);y+=head;};
   title('Black fill, standing easy'+(arms?'':', weapons hidden')+'. Who is who?');
   for(let r=0;r<rows;r++){x.fillStyle='#96928a';x.fillRect(pad,y,Wd-2*pad,ch+4);
     for(let i=r*cols;i<Math.min(L.length,(r+1)*cols);i++){x.drawImage(B[i],pad+(i-r*cols)*cw,y,cw,ch);x.fillStyle='#2a2826';x.font='700 20px sans-serif';x.fillText(String(i+1),pad+(i-r*cols)*cw+8,y+6);}y+=ch+8;}
-  const strip=(P,t)=>{title(t);x.fillStyle='#96928a';x.fillRect(pad,y,Wd-2*pad,P[0].height+8);const step=Math.min((Wd-2*pad-16-P[0].width)/Math.max(1,L.length-1),P[0].width*1.1);
-    P.forEach((b,i)=>x.drawImage(b,pad+8+i*step,y+4));y+=P[0].height+16;};
+  // (a band at a phone's size: each card's middle, as many to a row as fit, so no one stands on his neighbour)
+  const strip=(P,t)=>{title(t);const n=per(P),cell=(Wd-2*pad)/n,sw=Math.round(P[0].width*share),sx=Math.round((P[0].width-sw)/2),h=P[0].height;
+    x.fillStyle='#96928a';x.fillRect(pad,y,Wd-2*pad,bandH(P)-8);
+    P.forEach((b,i)=>x.drawImage(b,sx,0,sw,h,Math.round(pad+(i%n)*cell+(cell-sw)/2),y+4+Math.floor(i/n)*(h+8),sw,h));y+=bandH(P);};
   strip(P1,'At a phone’s push-in (about 1 pixel a unit, on a 2x screen)');
   strip(P2,'On the player’s turn (about half a pixel a unit, on a 2x screen)');
   title('As the game draws them');

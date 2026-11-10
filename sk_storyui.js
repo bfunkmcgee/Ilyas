@@ -396,14 +396,14 @@ function drawStowedHilt(f){const P0=f.p[PEL],C0=f.p[CHE],fa=f.facing,dx=C0.x-P0.
 Object.assign(CastLook.CREWS,{
   field:{name:'Field crew',note:'Hallowell’s hired men out of town: waxed jackets and work coats, knit caps and flat caps, boots',
     col:{suit:'#26231a',suitFar:'#36321f',lapel:'#2c281e',vest:'#1c1912',vestFar:'#2e291e',shirt:'#57513f',shirtFar:'#3f3a2e',sleeve:'#57513f',sleeveFar:'#3f3a2e',trouser:'#1d1a14',trouserFar:'#2d2920',braces:'#17140f',hat:'#2a2a24',hatShade:'#1a1a16',tie:'#0e0c0a'},
-    tops:[['suit',3],['waistcoat',1],['shirt',1]],sleeves:[['rolled',1],['shirt',2]],hats:[['beanie',3],['flatcap',2],[null,1]],aprons:[[null,1]],ties:[[null,1]],braces:.5,boots:1}});
+    tops:[['suit',3],['waistcoat',1],['shirt',1]],sleeves:[['rolled',1],['shirt',2]],hats:[['beanie',3],['flatcap',2],[null,1]],aprons:[[null,1]],ties:[[null,1]],braces:.5,boots:1,heft:1}});
 {const cr=castRoom;castRoom=f=>f.ward||cr(f);}
 // the riders on the avenue: black leather, denim, open helmets with goggle straps, boots
 Object.assign(CastLook.CREWS,{
   bikers:{name:'Road crew',note:'Hallowell’s outriders: black leather jackets, denim, open-face helmets and goggles, boots',
     col:{suit:'#1b1918',suitFar:'#2c2826',lapel:'#24201e',vest:'#161413',vestFar:'#262220',shirt:'#4e4a46',shirtFar:'#3a3734',sleeve:'#1b1918',sleeveFar:'#2c2826',
       trouser:'#222a38',trouserFar:'#323b4c',braces:'#141210',hat:'#121214',hatShade:'#060608',badge:'#d8a64e',tie:'#0e0c0a'},
-    tops:[['suit',3],['waistcoat',1]],sleeves:[['jacket',1]],hats:[['helmet',4],['bandana',1]],aprons:[[null,1]],ties:[[null,1]],braces:0,boots:1}});
+    tops:[['suit',3],['waistcoat',1]],sleeves:[['jacket',1]],hats:[['helmet',4],['bandana',1]],aprons:[[null,1]],ties:[[null,1]],braces:0,boots:1,heft:1}});
 // the man in white: he speaks for the family, and never fights
 Object.assign(CastLook.CAST,{'The man in white':{race:'elf',room:'office',role:'Speaks for the family. Never fights',temper:null,
   col:CastLook.elfCol('#e2b65a',{suit:'#d9d2c2',suitFar:'#b9b2a2',trouser:'#d9d2c2',trouserFar:'#b9b2a2',vest:'#e6dfcf',vestFar:'#c4bdad',lapel:'#ece6d8',sleeve:'#d9d2c2',coat:'#d9d2c2',
@@ -416,7 +416,7 @@ Object.assign(CastLook.CREWS,{
   police:{name:'City police',note:'The tower district’s police: navy tunics and trousers, peaked caps with a gold badge, black boots',
     col:{suit:'#1c2335',suitFar:'#2a3249',lapel:'#232b40',vest:'#161b29',vestFar:'#232a3c',shirt:'#3a4256',shirtFar:'#2c3242',sleeve:'#1c2335',sleeveFar:'#2a3249',
       trouser:'#161b29',trouserFar:'#242b3d',braces:'#10131c',hat:'#121725',hatShade:'#0a0d16',badge:'#d8b35a',lanyard:'#b9a06a',tie:'#0b0d14'},
-    tops:[['blazer',3],['suit',1]],sleeves:[['jacket',1]],hats:[['seccap',4],[null,1]],aprons:[[null,1]],ties:[['tie',2],[null,1]],braces:0,boots:1}});
+    tops:[['blazer',3],['suit',1]],sleeves:[['jacket',1]],hats:[['seccap',4],[null,1]],aprons:[[null,1]],ties:[['tie',2],[null,1]],braces:0,boots:1,heft:1}});
 // an open-face helmet: the shell down over the ears, the goggle strap round it and the lens catching the light at the brow
 CastLook.HATS.helmet={crown:'M38,-9 C41,-28 31,-49 6,-55 C-17,-59 -41,-47 -48,-24 C-51,-9 -49,7 -42,15 L-31,11 C-26,-1 -9,-9 12,-11 Z',
   band:'M41,-13 L41,-23 C12,-30 -20,-28 -48,-19 L-49,-9 C-21,-17 12,-20 41,-13 Z',badge:[33,-18],mat:'hat'};
