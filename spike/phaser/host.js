@@ -4,12 +4,16 @@
 // see-through (it still takes every touch) and a Phaser scene under it shows the same picture as a GPU texture, sent up again
 // each frame. The third mode puts Phaser's filters over it. A small meter says what each mode costs.
 //
-// Modes (tap the meter to change): Direct (the game as published), Phaser (hosted, no effects), Phaser + effects.
+// Modes (tap the View button to change): Direct (the game as published), Phaser (hosted, no effects), Phaser + effects.
+// The second button switches Ilyas between the game's painted figure and the one drawn from pieces (skin.js).
 (function () {
   'use strict';
   if (typeof Phaser === 'undefined' || typeof cv === 'undefined') { return; }
 
   const MODES = ['Direct', 'Phaser', 'Phaser + effects'];
+  // (the skinned figure, where its script is on the page: skin.js, with its pieces in skin_ilyas.js)
+  const HAS_SKIN = typeof Skin !== 'undefined' && typeof SkinIlyas !== 'undefined';
+  if (HAS_SKIN) { Skin.install(); Skin.load(SkinIlyas); }
   const q = new URLSearchParams(location.search);
   const state = { mode: Math.max(0, Math.min(2, +(q.get('host') || 1))), hostMs: 0, err: null, frames: 0 };
   window.PHOST = state;
@@ -99,29 +103,30 @@
     draw();
   }
 
-  // ---------- the meter ----------
+  // ---------- the bar: the two switches and the meter ----------
   const N = 120, dts = new Float32Array(N);
   let k = 0, filled = 0, lastT = 0;
-  const pill = document.createElement('button');
-  pill.type = 'button'; pill.id = 'phostMeter';
-  pill.style.cssText = 'position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 4px);transform:translateX(-50%);z-index:99999;' +
-    'font:500 11px/1.25 "IBM Plex Mono",ui-monospace,monospace;color:#f3e3b3;background:rgba(10,9,8,.82);border:1px solid #6d5a2b;' +
-    'border-radius:9px;padding:4px 9px;text-align:center;white-space:pre;touch-action:manipulation';
-  document.body.appendChild(pill);
-  pill.addEventListener('click', e => {
-    e.stopPropagation();
-    state.set(state.mode + 1);
-  });
+  const bar = document.createElement('div');
+  bar.id = 'phostBar';
+  bar.style.cssText = 'position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 3px);transform:translateX(-50%);z-index:99999;display:flex;gap:5px;align-items:stretch;' +
+    'font:500 10.5px/1.2 "IBM Plex Mono",ui-monospace,monospace;white-space:nowrap';
+  const mkBtn = id => { const b = document.createElement('button'); b.type = 'button'; b.id = id;
+    b.style.cssText = 'font:inherit;color:#f3e3b3;background:rgba(10,9,8,.84);border:1px solid #6d5a2b;border-radius:8px;padding:3px 8px;text-align:center;white-space:pre;touch-action:manipulation';
+    bar.appendChild(b); return b; };
+  const pill = mkBtn('phostMeter'), figBtn = HAS_SKIN ? mkBtn('phostFig') : null;
+  document.body.appendChild(bar);
+  pill.addEventListener('click', e => { e.stopPropagation(); state.set(state.mode + 1); });
   state.set = m => { state.mode = m % (game && !state.err ? 3 : 1); filled = 0; k = 0; apply(); };
+  if (figBtn) figBtn.addEventListener('click', e => { e.stopPropagation(); Skin.state.on = !Skin.state.on; filled = 0; k = 0; draw(); });
 
   function draw() {
     let sum = 0, worst = 0, slow = 0;
     for (let i = 0; i < filled; i++) { const d = dts[i]; sum += d; if (d > worst) { worst = d; } if (d > 20) { slow++; } }
     const avg = filled ? sum / filled : 0;
-    const l1 = MODES[state.mode] + '  (tap to change)';
-    const l2 = filled < 30 ? 'measuring' : 'frame ' + avg.toFixed(1) + ' ms   worst ' + worst.toFixed(0) + '   slow ' + Math.round(100 * slow / filled) + '%';
-    const l3 = state.err ? 'Phaser did not start: ' + state.err : state.mode > 0 ? 'Phaser\'s share ' + state.hostMs.toFixed(2) + ' ms' : 'Phaser asleep';
-    pill.textContent = l1 + '\n' + l2 + '\n' + l3;
+    const l1 = 'View: ' + MODES[state.mode];
+    const l2 = state.err ? 'Phaser did not start' : filled < 30 ? 'measuring' : avg.toFixed(1) + ' ms  worst ' + worst.toFixed(0) + (state.mode > 0 ? '  Phaser ' + state.hostMs.toFixed(1) : '');
+    pill.textContent = l1 + '\n' + l2;
+    if (figBtn) { const K = Skin.state; figBtn.textContent = 'Ilyas: ' + (K.err ? 'painted' : K.on ? (K.ready ? 'drawn pieces' : 'loading') : 'painted') + '\n' + (K.err ? 'pieces failed' : 'tap to switch'); }
     state.avg = avg; state.worst = worst; state.slow = filled ? slow / filled : 0;
   }
   function tick(now) {

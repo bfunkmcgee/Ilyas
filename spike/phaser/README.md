@@ -15,7 +15,7 @@ python3 spike/phaser/build_spike.py
 ```
 
 That writes `spike/phaser/out/phaser-spike.html` (and `out/index.html`, wrapped for publishing). Open it with `?host=0`, `1` or
-`2` to start in a mode; tap the meter at the top to change it.
+`2` to start in a mode; tap the View button at the top to change it.
 
 | Mode | What draws the screen |
 |---|---|
@@ -25,6 +25,24 @@ That writes `spike/phaser/out/phaser-spike.html` (and `out/index.html`, wrapped 
 
 The meter shows the time between frames (average, worst, share over 20 ms) and, in the Phaser modes, the main-thread time
 Phaser's own frame takes.
+
+## The skinned figure
+
+The second button switches Ilyas between the game's painted figure and one drawn from art pieces fitted to the same ragdoll
+(`skin.js`; the pieces are SVG drawings in `skin_ilyas.js`). The ragdoll, the poses, the coat's springs and the blade are the
+game's own. Limbs are single drawings bent at the joint, the torso, head, hands and shoes are stiff pieces, and the coat's skirt
+is a drawing stretched over a grid hung from the hips to the hem corners.
+
+It covers the Ilyas of the fights: in profile, two arms, the long coat. Anything else (Act I's clothes, one arm, a portrait)
+falls back to the painted figure. It does not have the painted figure's turning body, its light that follows the scene's
+lamps, the tears a blade leaves in the suit, or the wind in the coat.
+
+The pieces are drawn by the 2D canvas inside the game's own figure slot, not by Phaser. Drawn there, the scene's layers and
+shadows treat the figure as they treat the painted one. Phaser could draw the same pieces, but only once the scene is handed
+to it in layers (behind the figures, the figures, in front of them); today it gets one flat picture.
+
+For the blade, the build lets `blade` out of the look module of the built page (one name added to its `return{...}`); the
+game's source is not changed.
 
 ## Checks
 
