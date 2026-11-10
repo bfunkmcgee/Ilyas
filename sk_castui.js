@@ -204,18 +204,31 @@ function torsoSecs(Jl,wide,body){let a0=1e9,a1=-1e9;for(const q of Jl){a0=Math.m
 // the body's own sections where no garment's outline says otherwise: [a, s at the back, s at the front]
 function torsoBody(T,D){return[[-.25*T,-6.6,4.2],[-.17*T,-8.4,5.8],[-.1*T,-8.8*D,6.6*D],[0,-9.3*D,7.7*D],[.2*T,-7.6*D,7.7*D],[.4*T,-6.5*D,8.2*D],[.55*T,-7.3*D,9*D],
   [.72*T,-8.9*D,10*D],[.86*T,-8.8*D,9.2*D],[.97*T,-6.2,7.8*D],[T+.4,-4.4,5.2],[T+1.4,-3.3,3],[T+2.6,-2.6,1]];}
+// How much of a body's bulk shows in the outline ([the torso, the limbs]: the share of the width that follows body.bulk). HEFT0 is
+// what everyone was drawn to before Nov 9 and what a look that does not say still gets (the Pit's people were drawn to it): a build
+// of 1.38 beside one of .86 came out an eighth wider. HEFT is the named elves' and the crews' since: nearly all of it shows.
+const HEFT0=[.3,.4],HEFT=[.8,.7];
+// A figure's own shape (spec.shape, since Nov 9), beside what his cut and his bulk give him: how deep he is through the chest, the
+// waist and the hips (both sides of him), a belly (the front, at the waist) and a round back (behind, at the shoulder blades), and
+// how thick his neck, the tops of his arms (shoulder), his arms, his legs and his hands are. 1 leaves a thing as it was. The head's
+// size is the head's own (head.scale). Drawn only: the body the game fights with is sk_cast.js's.
+function shapeOf(o){return Object.assign({chest:1,waist:1,hips:1,belly:1,back:1,neck:1,shoulder:1,arms:1,legs:1,hands:1},o);}
 function draw(c,F,spec,o={}){FigKit.useKey(o);
   const C=spec.col,out=spec.outfit,hd=spec.head,elf=spec.race==='elf',now=o.now??(F.t||0);
   const p0=F.p,fa=F.facing,b=F.body,tr=c.getTransform?c.getTransform():null,k=tr&&tr.a!=null?Math.hypot(tr.a,tr.b)||1:2;
-  const P0=p0[PEL],C0=p0[CHE],u0=nrm(sub(C0,P0)),n0=mul(perp(u0),fa),T=len(sub(C0,P0)),sz=b.h*(.93+.07*b.bulk),wf=(.7+.3*b.bulk)*(elf?.96:1.04);
-  const at=(a,s)=>add(add(P0,mul(u0,a)),mul(n0,s*sz*wf));
+  const P0=p0[PEL],C0=p0[CHE],u0=nrm(sub(C0,P0)),n0=mul(perp(u0),fa),T=len(sub(C0,P0)),sz=b.h*(.93+.07*b.bulk),HF=spec.heft||HEFT0,wf=(1-HF[0]+HF[0]*b.bulk)*(elf?.96:1.04);
+  // (shf: what his own shape does to a place s across him at a up him: the hips' share below, the waist's at .4 of the torso, the
+  // chest's from .8, the neck's above the shoulders, a belly in front and a round back behind)
+  const BS=spec.shape||null,shf=BS?(a,s)=>{const t=a/T;let f=t<=.05?BS.hips:t<.4?BS.hips+(BS.waist-BS.hips)*(t-.05)/.35:t<.8?BS.waist+(BS.chest-BS.waist)*(t-.4)/.4:a<T?BS.chest:BS.chest+(BS.neck-BS.chest)*cl((a-T)/1.6,0,1);
+    if(s>0){if(BS.belly!==1)f*=1+(BS.belly-1)*Math.max(0,1-Math.abs(t-.3)/.32);}else if(BS.back!==1)f*=1+(BS.back-1)*Math.max(0,1-Math.abs(t-.78)/.3);return f;}:null;
+  const at0=(a,s)=>add(add(P0,mul(u0,a)),mul(n0,s*sz*wf)),at=shf?(a,s)=>at0(a,s*shf(a,s)):at0;
   const Ld=o.dir?nrm(o.dir):o.light?nrm(sub(o.light,mix(P0,C0,.5))):nrm(V(.5,-1));
   const env={k,fa,L:Ld,far:false,col:C,rw:Math.max(.9,1.25/k)*1.05,ow:Math.max(.55,1.05/k),planeMax:5.4*sz,litMin:3.1*sz};
   // (the detail by the scale drawn at, or o.lod: a figure drawn into a picture that is set down smaller says how small it shows)
   const lod=o.lod??(k<2.4?0:k<5?1:2);
   const gy=typeof F.gr==='function'?(x=>F.gr(x)):(x=>F.ground??(Math.max(p0[FTF].y,p0[FTB].y)+3));
   const pt=(ps,mat,far=false)=>{env.far=far;paint(c,ps,mat,env);env.far=false;};
-  const lw=(.6+.4*b.bulk)*(elf?.96:1.04),W=w=>w*sz*lw;
+  const lw=(1-HF[1]+HF[1]*b.bulk)*(elf?.96:1.04),W=w=>w*sz*lw,bsA=BS?BS.arms:1,bsL=BS?BS.legs:1,WA=w=>w*sz*lw*bsA,WL=w=>w*sz*lw*bsL;
   // ----- turned (a spin): as KaelLook's. Each joint has a place across the body, p is where each is seen, fv the way the figure
   // seems to face, dp how far toward the viewer a place is -----
   const yaw=+(o.yaw??F.yaw??0)||0,TN=Math.abs(Math.sin(yaw))>.015||Math.cos(yaw)<0;
@@ -224,7 +237,7 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   // far out from his middle his hands, elbows, knees and feet are drawn as a share of where they would be, as KaelLook's: a rider
   // turned to the viewer, his hands out on the grips and his knees round the tank, since V102)
   const tipDir0=nrm(sub(p0[TIP],p0[HAF])),offOnGrip=!o.apart&&onGrip(p0,tipDir0);
-  const pxs=(P0.x+C0.x)/2,VW=TN?FigKit.view(pxs,fa,yaw):null,LS=12*sz*wf,LH=5.6*sz*wf,fwd=q=>cl((q.x-pxs)*fa/(.55*T),0,1);
+  const pxs=(P0.x+C0.x)/2,VW=TN?FigKit.view(pxs,fa,yaw):null,LS=12*sz*wf*(BS?BS.chest:1),LH=5.6*sz*wf*(BS?BS.hips:1),fwd=q=>cl((q.x-pxs)*fa/(.55*T),0,1);
   const kA=o.latArm??1,kE=o.latElbow??(.3+.7*kA),LK=LH*(o.latKnee??1),LF=LH*(o.latFoot??1);
   const lHF=LS*(1-.5*fwd(p0[HAF]))*kA,lEF=LS*(1-.15*fwd(p0[ELF]))*kE,lHB=offOnGrip?lHF:-LS*(1-.5*fwd(p0[HAB]))*kA,lEB=offOnGrip?0:-LS*(1-.15*fwd(p0[ELB]))*kE;
   const LAT=[0,0,0,lEF,lHF,lEB,lHB,LK,LF,-LK,-LF,lHF];
@@ -233,6 +246,9 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   const across=(l,fn)=>{if(!TN){fn();return;}const cc=Math.abs(VW.c)<.07?(VW.c<0?-.07:.07):VW.c;c.save();c.translate(VW.px+fa*l*VW.s,0);c.scale(cc,1);c.translate(-VW.px,0);fn();c.restore();};
   const sh0=at(T-2.8,-.6),SH=TN?[VW.at(sh0,LS),VW.at(sh0,-LS)]:[sh0,sh0],HIP=TN?[VW.at(P0,LH),VW.at(P0,-LH)]:[P0,P0];
   const D=out.coat?1.07:1,base=torsoBase(spec,T,D),TAB=TN?torsoSecs(base.Q,torsoWide(T,D),torsoBody(T,D)):null,secAt=a=>tabAt(TAB,a);
+  // (turned, his shape is in the sections themselves: what is placed from a section goes by at0, what is placed on the torso by a
+  // map that shapes it the same way)
+  if(TAB&&shf)for(const R of TAB){const fb=shf(R[0],-1),ff=shf(R[0],1);R[1]*=fb;R[2]*=ff;R[3]*=(fb+ff)/2;}
   c.save();c.lineCap='round';c.lineJoin='round';
 
   // the scarf in his or her colour, or a braid, trails from the back of the neck behind everything
@@ -244,12 +260,12 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   // with a raised arm); the elbow gathers the sleeve inside and is pulled round outside
   const shoulderFor=(E,S)=>{const d=nrm(sub(E,S)),up=dot(d,u);return add(S,add(mul(u,cl(up,0,1)*1.5*sz),mul(d,.6*sz)));};
   // (out.forearm: a heavy forearm, thick at the elbow and swelling below it, for a rolled sleeve on someone who works with her hands)
-  const FW=out.forearm||0,armW=FW?[W(4.25),W(3.2*(1+FW*.7)),W(2.55*(1+FW*.45))]:[W(4.25),W(3.2),W(2.55)],armB=FW?[.1,.05+FW*.9]:[.1,.05];
+  const FW=out.forearm||0,bsS=BS?BS.shoulder:1,armW=FW?[WA(4.25)*bsS,WA(3.2*(1+FW*.7)),WA(2.55*(1+FW*.45))]:[WA(4.25)*bsS,WA(3.2),WA(2.55)],armB=FW?[.1,.05+FW*.9]:[.1,.05];
   const armParts=(E,H,S)=>{const fd=nrm(sub(H,E)),Wr=sub(H,mul(fd,3.6*sz)),S0=shoulderFor(E,S);
     const tb=FigKit.tube([S0,E,sub(Wr,mul(fd,.2*sz))],armW,{cap0:1.16,bulge:armB,gather:.34,stretch:.14,lite:lod===0});tb.pf=.55;
     // (the upper sleeve on its own, for a rolled sleeve, and the cuff are made when they are asked for)
-    let up=null,cuff=null;return{tb,get up(){return up||(up=FigKit.tube([S0,E],[W(4.35),W(3.35)],{cap0:1.16,bulge:[.08],lite:lod===0}));},lo:tb,
-      get cuff(){return cuff||(cuff=capsule(sub(Wr,mul(fd,.4*sz)),add(Wr,mul(fd,1*sz)),W(4.9),W(4.6)));},Wr,fd,H,E,S:S0};};
+    let up=null,cuff=null;return{tb,get up(){return up||(up=FigKit.tube([S0,E],[WA(4.35)*bsS,WA(3.35)],{cap0:1.16,bulge:[.08],lite:lod===0}));},lo:tb,
+      get cuff(){return cuff||(cuff=capsule(sub(Wr,mul(fd,.4*sz)),add(Wr,mul(fd,1*sz)),WA(4.9),WA(4.6)));},Wr,fd,H,E,S:S0};};
   const tipV=sub(p[TIP],p[HAF]),tipDir=!TN||len(tipV)>6?nrm(tipV):nrm(sub(p[HAF],p[ELF])),armed=F.wp?!F.wp.unarmed:!!(F.weaponKey&&F.weaponKey!=='unarmed');
   // a hand with weight to it: a full fist, the thumb's knuckle along the top of the grip
   const fist=(H,g,s)=>{const q=perp(g),kk=1.22,ptq=(a,bb)=>add(H,add(mul(g,a*s*kk),mul(q,bb*s*kk)));
@@ -257,46 +273,46 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   const foldCol={lit:rgba(FigKit.rimCol(C.rim||'#ffcf86'),.24),dark:'rgba(0,0,0,.5)'},foldFar={lit:rgba(FigKit.rimCol(C.rim||'#ffcf86'),.1),dark:'rgba(0,0,0,.28)',far:true};
   // (near: the arm on the near side, which holds the weapon; far: painted as the far side of him)
   const arm=(A,far,near)=>{
-    if(out.sleeves==='bare'){pt([A.tb],'skin',far);pt([capsule(sub(A.Wr,mul(A.fd,2.2*sz)),add(A.Wr,mul(A.fd,.6*sz)),W(5.2),W(4.8))],'wrap',far);}
-    else if(out.sleeves==='rolled'){const roll=capsule(mix(A.E,A.S,.12),mix(A.E,A.H,.12),W(7),W(6.6));
-      pt([A.tb,capsule(sub(A.Wr,mul(A.fd,.4*sz)),add(A.Wr,mul(A.fd,1*sz)),W(4.6),W(4.4))],'skin',far);pt([A.up],'sleeve',far);pt([roll],'sleeve',far);}
+    if(out.sleeves==='bare'){pt([A.tb],'skin',far);pt([capsule(sub(A.Wr,mul(A.fd,2.2*sz)),add(A.Wr,mul(A.fd,.6*sz)),WA(5.2),WA(4.8))],'wrap',far);}
+    else if(out.sleeves==='rolled'){const roll=capsule(mix(A.E,A.S,.12),mix(A.E,A.H,.12),WA(7),WA(6.6));
+      pt([A.tb,capsule(sub(A.Wr,mul(A.fd,.4*sz)),add(A.Wr,mul(A.fd,1*sz)),WA(4.6),WA(4.4))],'skin',far);pt([A.up],'sleeve',far);pt([roll],'sleeve',far);}
     else{pt([A.tb],sleeveMat,far);FigKit.folds(c,A.tb,env,far?foldFar:foldCol);if(out.cuffs!==false)pt([A.cuff],out.gloves?'glove':'shirt',far);}
     // a rag tied round the upper arm (out.armband; C.band its colour): the band, and the knot behind the arm with its two ends
-    if(out.armband&&near){const d=nrm(sub(A.E,A.S)),m0=mix(A.S,A.E,.44),m1=mix(A.S,A.E,.6),w=W(4.3);let q=perp(d);if(dot(q,V(-fv,0))<0)q=mul(q,-1);
+    if(out.armband&&near){const d=nrm(sub(A.E,A.S)),m0=mix(A.S,A.E,.44),m1=mix(A.S,A.E,.6),w=WA(4.3);let q=perp(d);if(dot(q,V(-fv,0))<0)q=mul(q,-1);
       const kn=add(mix(m0,m1,.5),mul(q,w*.92));
       pt([piece([add(m0,mul(q,w)),add(mix(m0,m1,.5),mul(q,w*1.06)),add(m1,mul(q,w)),add(m1,mul(q,-w)),add(mix(m0,m1,.5),mul(q,-w*1.06)),add(m0,mul(q,-w))],.3),
         piece([add(kn,mul(d,-1.3*sz)),add(kn,mul(q,1.5*sz)),add(kn,mul(d,1.4*sz)),add(kn,mul(q,-.8*sz))],.5)],'band',far);
       if(lod>=1)pt([piece([kn,add(kn,V(-fv*1.6*sz,1.2*sz)),add(kn,V(-fv*2.8*sz,5.4*sz)),add(kn,V(-fv*1.4*sz,5*sz))],.4),piece([kn,add(kn,V(-fv*.4*sz,1.6*sz)),add(kn,V(fv*.4*sz,6.2*sz)),add(kn,V(fv*1.4*sz,5.6*sz))],.4)],'band',far);}
-    const g=armed&&near?tipDir:(!near&&offOnGrip?tipDir:A.fd),s=sz*(near?1:.95);
+    const g=armed&&near?tipDir:(!near&&offOnGrip?tipDir:A.fd),s=sz*(near?1:.95)*(BS?BS.hands:1);
     if(out.gloves&&C.glove)pt([fist(A.H,g,s)],'glove',far);else pt([fist(A.H,g,s)],'skin',far);};
   const farArm=far=>{arm(armParts(p[ELB],p[HAB],SH[1]),far,false);if(o.afterFarArm)across(LAT[HAB],()=>o.afterFarArm(F));};
   const nearArm=far=>{if(armed&&o.drawOther)across(LAT[HAF],()=>o.drawOther(F));
     const AF=armParts(p[ELF],p[HAF],SH[0]);arm(AF,far,true);
-    if(elf&&lod>=1&&out.sleeves!=='rolled'&&C.trim){const q=perp(AF.fd),Wr=AF.Wr,e=sub(Wr,mul(AF.fd,1.3*sz));line(c,[add(Wr,mul(q,W(2.55))),add(e,mul(q,W(2.65))),sub(e,mul(q,W(2.65))),sub(Wr,mul(q,W(2.55)))],C.trim,Math.max(.45,.6/k));}};
+    if(elf&&lod>=1&&out.sleeves!=='rolled'&&C.trim){const q=perp(AF.fd),Wr=AF.Wr,e=sub(Wr,mul(AF.fd,1.3*sz));line(c,[add(Wr,mul(q,WA(2.55))),add(e,mul(q,WA(2.65))),sub(e,mul(q,WA(2.65))),sub(Wr,mul(q,WA(2.55)))],C.trim,Math.max(.45,.6/k));}};
 
   // ----- the legs -----
   // a leg is one shape from the hip to the ankle: the knee gathers the trouser behind it and pulls it round in front, the calf swells
-  const legParts=(K,A,hip)=>{const sd=nrm(sub(A,K)),calf=dot(perp(sd),V(-fv,0))>0?1:-1,tb=FigKit.tube([hip,K,A],[W(6.1),W(4.2),W(3.4)],{gather:.3,stretch:.12,bulge:[.06,.16],bulgeSide:[0,calf],lite:lod===0});
+  const legParts=(K,A,hip)=>{const sd=nrm(sub(A,K)),calf=dot(perp(sd),V(-fv,0))>0?1:-1,tb=FigKit.tube([hip,K,A],[WL(6.1),WL(4.2),WL(3.4)],{gather:.3,stretch:.12,bulge:[.06,.16],bulgeSide:[0,calf],lite:lod===0});
     return{tb,th:tb,sh:tb};};
   const big=out.boots?1.12:1;
   const shoeOf=(K,A)=>{const sd=nrm(sub(A,K)),g=gy(A.x);let d;const planted=A.y>g-6&&Math.abs(Math.atan2(sd.x,sd.y))<.95;
     if(planted)d=V(fa,0);else{d=perp(sd);if(dot(d,n0)<0)d=mul(d,-1);}
     let w=perp(d);if(dot(w,sub(K,A))<0)w=mul(w,-1);const q=(a,bb)=>add(A,add(mul(d,a*sz),mul(w,bb*sz)));
     const Q=[q(-3.4*big,-3),q(-3.6*big,0),q(-1.6,2.2),q(2.4,1.4),q(6.4*big,-.4),q(9.6*big,-1.4),q(11.8*big,-2.5),q(11*big,-3.2),q(3,-3.3)];
-    return{pc:piece(Q,.45,k>=2.4),Q,w,boot:out.boots?capsule(mix(K,A,.62),add(A,mul(w,1.2*sz)),W(8.6),W(7.8)):null,toe:q(9*big,-1.6),d};};
+    return{pc:piece(Q,.45,k>=2.4),Q,w,boot:out.boots?capsule(mix(K,A,.62),add(A,mul(w,1.2*sz)),WL(8.6),WL(7.8)):null,toe:q(9*big,-1.6),d};};
   // turned: the outline round the shoe's profile set out either side of the foot; a boot's shaft round the shin as it is seen
   const shoeAt=(kn,ft,l)=>{const S0=shoeOf(p0[kn],p0[ft]);if(!TN)return S0;const pts=[];for(const q of S0.Q)for(const w of [-2.4*sz,2.4*sz])pts.push(VW.at(q,l+w));
-    const K=p[kn],A=p[ft];return{pc:piece(FigKit.hull(pts),.4,k>=2.4),boot:out.boots?capsule(mix(K,A,.62),add(A,V(0,-1.2*sz)),W(8.6),W(7.8)):null};};
+    const K=p[kn],A=p[ft];return{pc:piece(FigKit.hull(pts),.4,k>=2.4),boot:out.boots?capsule(mix(K,A,.62),add(A,V(0,-1.2*sz)),WL(8.6),WL(7.8)):null};};
   const leg=(kn,ft,side,far)=>{const L=legParts(p[kn],p[ft],HIP[side>0?0:1]),S=shoeAt(kn,ft,side*LH);
     pt([S.pc],'shoe',far);pt([L.tb],'trouser',far);FigKit.folds(c,L.tb,env,far?foldFar:foldCol);if(S.boot)pt([S.boot],'shoe',far);
     // a patch sewn over the knee (out.kneePatch; C.patch), on the front of it
-    if(out.kneePatch&&lod>=1){const K=p[kn],d=nrm(sub(p[ft],HIP[side>0?0:1]));let n=perp(d);if(dot(n,V(fv,0))<0)n=mul(n,-1);const m=add(K,mul(n,W(1.1))),a=mul(d,W(3.3)),b=mul(n,W(2.7));
+    if(out.kneePatch&&lod>=1){const K=p[kn],d=nrm(sub(p[ft],HIP[side>0?0:1]));let n=perp(d);if(dot(n,V(fv,0))<0)n=mul(n,-1);const m=add(K,mul(n,WL(1.1))),a=mul(d,WL(3.3)),b=mul(n,WL(2.7));
       const Q=[add(m,add(a,b)),add(m,sub(b,a)),sub(m,add(a,b)),add(m,sub(a,b))];c.fillStyle=far?mid(C.patch||C.trouser,'#2a2433',.3):C.patch||mid(C.trouser,'#8a7a62',.25);c.fill(piece(Q,.25).p);
       if(lod>=2&&!far){c.setLineDash([1.1*sz,1*sz]);line(c,[...Q,Q[0]],rgba('#d8c8a8',.45),Math.max(.4,.35*sz));c.setLineDash([]);}}};
   // the seat of the trousers: the weight of the hips, both thighs going into it
   const seat=()=>{const dn=nrm(add(sub(p0[KNF],P0),sub(p0[KNB],P0))),crotch=add(P0,mul(dn,5.4*sz));
     if(!TN){pt([piece([at(T*.06,-8.2),at(-T*.1,-9.4),add(at(-T*.2,-7.6),mul(dn,1.6*sz)),crotch,add(at(-T*.2,6.8),mul(dn,1.6*sz)),at(-T*.08,8.3),at(T*.06,7.9)],.45,k>=2.4)],'trouser');return;}
-    const pts=[VW.at(crotch,0)];for(const a of [T*.04,-T*.12]){const R=secAt(a),sc=(R[0]+R[1])/2,Dd=(R[1]-R[0])/2;for(let i=0;i<12;i++){const t=i/12*TAU;pts.push(VW.at(at(a,sc+Dd*Math.cos(t)),R[2]*Math.sin(t)*sz*wf));}}
+    const pts=[VW.at(crotch,0)];for(const a of [T*.04,-T*.12]){const R=secAt(a),sc=(R[0]+R[1])/2,Dd=(R[1]-R[0])/2;for(let i=0;i<12;i++){const t=i/12*TAU;pts.push(VW.at(at0(a,sc+Dd*Math.cos(t)),R[2]*Math.sin(t)*sz*wf));}}
     for(const hp of HIP)pts.push(add(hp,V(0,4*sz)));
     pt([piece(FigKit.hull(pts),.4,k>=2.4)],'trouser');};
 
@@ -306,7 +322,7 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   if(out.coat){const L0=out.coat.len||46,farPts=[mix(P0,p0[KNB],.5),p0[KNB],mix(p0[KNB],p0[FTB],.45)],allPts=[...farPts,mix(P0,p0[KNF],.5),p0[KNF],mix(p0[KNF],p0[FTF],.45)];
     const an=[{p:at(-T*.06,7.4),len:L0*sz,pts:shut?allPts:farPts,clear:4.2*sz},{p:at(-T*.08,-8.6),len:(L0+1)*sz,pts:allPts,clear:4.8*sz}];
     const Qc=coatStep(F,'_castCoat',an,fa,gy,now);let fr=V(Qc[0].x,Qc[0].y),bk=V(Qc[1].x,Qc[1].y);if(fr.x*fa<bk.x*fa){const t=fr;fr=bk;bk=t;}
-    if(TN){const R0=secAt(-T*.06),top={F:at(-T*.06,R0[1]),B:at(-T*.06,R0[0]),w:R0[2]*sz*wf},fl=o.spin!=null?Math.sin(Math.PI*cl(o.spin,0,1)):0;
+    if(TN){const R0=secAt(-T*.06),top={F:at0(-T*.06,R0[1]),B:at0(-T*.06,R0[0]),w:R0[2]*sz*wf},fl=o.spin!=null?Math.sin(Math.PI*cl(o.spin,0,1)):0;
       SK=FigKit.cone(VW,top,{F:fr,B:bk,w:Math.max(R0[2]*sz*wf*1.12,len(sub(fr,bk))*.42)+fl*9*sz,lift:fl*7*sz},{open:shut?[0,0]:[.14,.5+.45*fl],gy});}
     else skirtDraw=()=>{
     const WF=at(T*.33,7.4),HF=at(T*.05,8.8),HB=at(-T*.06,-9.2),WB=at(T*.3,-7),base=t=>add(mix(fr,bk,t),V(0,2.2*sz*4*t*(1-t)));
@@ -331,7 +347,7 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
     const kneeF=p0[KNF].x*fa>p0[KNB].x*fa?p0[KNF]:p0[KNB];
     let bf=add(top,mul(dn,ln));const lead=(kneeF.x+fa*5*sz)*fa;if(bf.x*fa<lead)bf=V(lead*fa,bf.y);bf=V(bf.x,Math.min(bf.y,gy(bf.x)-1.5));
     let bb=add(back,mul(dn,ln*.97));bb=V(bb.x,Math.min(bb.y,gy(bb.x)-1.5));
-    if(TN){const R0=secAt(-T*.02),wd=R0[2]*sz*wf,AP=FigKit.cone(VW,{F:at(-T*.02,R0[1]),B:at(-T*.02,R0[0]),w:wd},{F:bf,B:add(at(-T*.02,R0[0]),mul(dn,ln*.97)),w:wd*1.06},{span:1.55,gy});
+    if(TN){const R0=secAt(-T*.02),wd=R0[2]*sz*wf,AP=FigKit.cone(VW,{F:at0(-T*.02,R0[1]),B:at0(-T*.02,R0[0]),w:wd},{F:bf,B:add(at0(-T*.02,R0[0]),mul(dn,ln*.97)),w:wd*1.06},{span:1.55,gy});
       for(const Pn of AP.panels){let cx=0,cy=0;for(const q of Pn.pts){cx+=q.x;cy+=q.y;}pt([FigKit.outlined(FigKit.pathOf(Pn.pts),Pn.pts,V(cx/Pn.pts.length,cy/Pn.pts.length),Math.max(4,ln*.3))],'apron');}return;}
     const ap=piece([top,add(mix(top,bf,.5),mul(fw,1.2*sz)),bf,add(mix(bf,bb,.5),V(0,1.2*sz)),bb,mix(back,bb,.5),back],.32,true);pt([ap],'apron');
     if(lod>=1&&A0.ties){line(c,[back,add(back,mul(fw,-6*sz)),add(add(back,mul(fw,-8*sz)),V(0,7*sz))],C.apronTie||mid(C.apron,'#ffffff',.12),Math.max(.6,1.1*sz));}
@@ -373,10 +389,11 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   // ----- the torso -----
   // In profile, drawn once with at(). Turned, as its two halves (FigKit.torsoMap): the main shape of the two together carries the
   // light, and what is on it is drawn flat on each half, the far one first.
-  const copies=TN?(()=>{const L=[],aN=FigKit.torsoMap(VW,P0,u0,n0,sz*wf,TAB,1),aF=FigKit.torsoMap(VW,P0,u0,n0,sz*wf,TAB,-1);if(aF.vis>.04)L.push([aF,-1]);if(aN.vis>.04)L.push([aN,1]);return L;})():[[at,0]];
+  const shaped=A=>shf?Object.assign((a,s)=>A(a,s*shf(a,s)),A):A;
+  const copies=TN?(()=>{const L=[],aN=shaped(FigKit.torsoMap(VW,P0,u0,n0,sz*wf,TAB,1)),aF=shaped(FigKit.torsoMap(VW,P0,u0,n0,sz*wf,TAB,-1));if(aF.vis>.04)L.push([aF,-1]);if(aN.vis>.04)L.push([aN,1]);return L;})():[[at,0]];
   const onCopies=fn=>{if(TN)env.flat=true;for(const [AT,side] of copies)fn(AT,side);env.flat=false;};
   const neck=()=>{
-    if(!F.severed)pt([capsule(add(p[CHE],mul(u,-1.5)),mix(p[CHE],p[HEAD],.7),W(6.9)*(elf?.92:1.08),W(6.1)*(elf?.92:1.08))],'skin');
+    if(!F.severed)pt([capsule(add(p[CHE],mul(u,-1.5)),mix(p[CHE],p[HEAD],.7),W(6.9)*(elf?.92:1.08)*(BS?BS.neck:1),W(6.1)*(elf?.92:1.08)*(BS?BS.neck:1))],'skin');
     onCopies(AT=>{if(out.neck==='turtle')pt([piece([AT(T-2,-4.2),AT(T+5.6,-3.6),AT(T+6.4,0),AT(T+5.6,3.8),AT(T-1.6,4.6),AT(T-3,0)],.45)],'shirt');
       else if(out.neck==='mandarin')pt([piece([AT(T-.4,-4),AT(T+4.2,-3.6),AT(T+4.4,-.4),AT(T+3.6,3.6),AT(T-.2,5.2),AT(T-1.4,1.5)],.45)],out.top==='chef'?'chef':'shirt');
       else pt([piece([AT(T+.4,-3.7),AT(T+4.3,-3.3),AT(T+4.5,-.4),AT(T+3.1,3.1),AT(T+.6,5.0),AT(T-1,1.5)],.45)],'shirt');});};
@@ -629,87 +646,127 @@ function headRound(c,F,spec,env,lod,o,s,h,thw,fa,hy){
 const CAST={
   Qadir:{race:'elf',room:'dining',role:'Runs the Lantern Bistro floor',temper:'brute',
     col:elfCol('#ff6b5b',{hair:'#7a2a20',hairShade:'#3a120d',hairHi:'#e07a62',dark:'#100c0d'}),
-    head:{skull:'hawk',ear:'notched',hair:'topknot',earring:[[-20,14,2.6],[-24,6,2.2]],scar:'M30,-14 Q34,-2 36,12'},
+    head:{skull:'hawk',ear:'notched',hair:'topknot',scale:.98,earring:[[-20,14,2.6],[-24,6,2.2]],scar:'M30,-14 Q34,-2 36,12'},
     outfit:{top:'double',sleeves:'jacket',neck:'collar',tie:'tie',piping:1,square:1},trail:{kind:'scarf',w:4.6},
-    build:{cm:192,bulk:1.26}},
+    build:{cm:192,bulk:1.26},
+    // a barrel: deep through the chest and the middle, a bull's neck, heavy shoulders
+    shape:shapeOf({chest:1.16,waist:1.12,belly:1.1,neck:1.2,shoulder:1.2,arms:1.12,hands:1.15}),heft:HEFT},
   Brask:{race:'elf',room:'dining',role:'Qadir\u2019s second. Keeps his distance and his reach',temper:'keeper',
     col:elfCol('#b591ff',{hair:'#d9dce6',hairShade:'#8d90a3',hairHi:'#ffffff',dark:'#0e0c16'}),
-    head:{skull:'long',ear:'swept',hair:'longfall'},
+    head:{skull:'long',ear:'swept',hair:'longfall',scale:.94},
     outfit:{top:'coat',sleeves:'jacket',neck:'collar',tie:'cravat',coat:{len:40},piping:1},trail:null,
-    build:{cm:194,bulk:0.95}},
+    build:{cm:194,bulk:0.95},
+    // a narrow column: nothing wide on him, a long thin neck
+    shape:shapeOf({chest:.92,waist:.88,hips:.92,neck:.86,shoulder:.9,arms:.9,legs:.92}),heft:HEFT},
   Iyla:{race:'elf',room:'dining',role:'Gets inside a guard and grabs',temper:'rusher',
     col:elfCol('#ff7eb6',{hair:'#f6dbe8',hairShade:'#b08ea0',hairHi:'#ffffff',dark:'#120c11'}),
-    head:{skull:'soft',ear:'short',hair:'pixie'},
+    head:{skull:'soft',ear:'short',hair:'pixie',scale:1.08},
     outfit:{top:'vestTop',sleeves:'bare',neck:'collar',piping:1,sash:1},trail:{kind:'scarf',w:3.8},
-    build:{cm:180,bulk:0.92}},
+    build:{cm:180,bulk:0.92},
+    // small and wound tight: a narrow waist between shoulders and legs with work in them
+    shape:shapeOf({waist:.86,hips:1.02,shoulder:1.1,arms:1.08,legs:1.06}),heft:HEFT},
   Orrin:{race:'elf',room:'kitchen',role:'Head chef. Runs the kitchen crew',temper:'brute',
     col:elfCol('#ff9a3c',{hair:'#b8692e',hairShade:'#6e3a18',hairHi:'#ffc08a',dark:'#0f0d0d',beard:'#a35a26',apron:'#1a1512',apronFar:'#2c2420',chef:'#14110f',chefPanel:'#1b1714'}),
     head:{skull:'brute',ear:'short',hair:'crop',hat:'toque',beard:'short'},
     outfit:{top:'chef',sleeves:'jacket',neck:'mandarin',piping:1,apron:{len:34,ties:1}},trail:{kind:'scarf',w:4.8,n:3},
-    build:{cm:196,bulk:1.36}},
+    build:{cm:204,bulk:1.36},
+    // the biggest thing in the kitchen: a gut behind the apron, a butcher's arms and hands
+    shape:shapeOf({chest:1.14,waist:1.18,belly:1.28,hips:1.08,back:1.08,neck:1.25,shoulder:1.25,arms:1.2,legs:1.05,hands:1.2}),heft:HEFT},
   Hesk:{race:'elf',room:'kitchen',role:'Sous-chef. Cold and exact',temper:'keeper',
     col:elfCol('#62b6ff',{hair:'#26304a',hairShade:'#11172a',hairHi:'#7d9ad0',dark:'#0b0d12',apron:'#aeb7c6',apronFar:'#6e7686',apronTie:'#62b6ff'}),
-    head:{skull:'long',ear:'long',hair:'lowtail'},
+    head:{skull:'long',ear:'long',hair:'lowtail',scale:.95},
     outfit:{top:'waistcoat',sleeves:'rolled',neck:'collar',tie:'tie',piping:1,apron:{len:48,ties:1}},trail:null,
-    build:{cm:195,bulk:0.86}},
+    build:{cm:195,bulk:0.86},
+    // a needle: the thinnest of them at every height
+    shape:shapeOf({chest:.88,waist:.84,hips:.86,neck:.85,shoulder:.86,arms:.85,legs:.86}),heft:HEFT},
   Odile:{race:'elf',room:'kitchen',role:'Line cook. Quick with a knife',temper:'rusher',
     col:elfCol('#ffe066',{hair:'#3a2a1c',hairShade:'#1f150d',hairHi:'#7a5a3a',dark:'#0f0d0b',hat:'#ffe066',hatShade:'#b99a2c',apron:'#1c1814',shirt:'#15120f',sleeve:'#15120f',shirtFar:'#2a2420',sleeveFar:'#2a2420'}),
-    head:{skull:'soft',ear:'swept',hair:'crop',hat:'bandana'},
+    head:{skull:'soft',ear:'swept',hair:'crop',hat:'bandana',scale:1.06},
     outfit:{top:'shirt',sleeves:'rolled',neck:'collar',apron:{len:30}},trail:{kind:'scarf',w:3,n:3},
-    build:{cm:178,bulk:0.88}},
+    build:{cm:178,bulk:0.88},
+    // low and quick: her weight in her hips and legs
+    shape:shapeOf({chest:.92,waist:.9,hips:1.1,shoulder:.92,arms:.95,legs:1.08}),heft:HEFT},
   Sable:{race:'elf',room:'lobby',role:'Heads the lobby\u2019s security detail',temper:'keeper',
     col:elfCol('#e3e6f2',{hair:'#f1f2f7',hairShade:'#a9adbd',hairHi:'#ffffff',dark:'#0d0d12',accentShade:'#8f94a6',coat:'#bfc3cf',coatFar:'#7b7f8c',coatLining:'#2a2d36'}),
     head:{skull:'soft',ear:'long',hair:'platinum'},
     outfit:{top:'coat',sleeves:'jacket',neck:'turtle',coat:{len:46},piping:1,gloves:1},trail:null,
-    build:{cm:196,bulk:1.0}},
+    build:{cm:196,bulk:1.0},
+    // an athlete under the coat: shoulders over a narrow waist
+    shape:shapeOf({chest:1.1,waist:.88,hips:.94,shoulder:1.15}),heft:HEFT},
   Doran:{race:'elf',room:'lobby',role:'Security. The heavy',temper:'brute',
     col:elfCol('#e0464f',{hair:'#8a242b',hairShade:'#40101a',hairHi:'#e06872',dark:'#0e0c0f'}),
-    head:{skull:'brute',ear:'notched',hair:'crest'},
+    head:{skull:'brute',ear:'notched',hair:'crest',scale:.94},
     outfit:{top:'blazer',sleeves:'jacket',neck:'turtle',piping:1,boots:1},trail:{kind:'scarf',w:4.8,knot:false},
-    build:{cm:193,bulk:1.38}},
+    build:{cm:190,bulk:1.38},
+    // the wall: as deep as he is tall is wide, no neck to speak of
+    shape:shapeOf({chest:1.18,waist:1.18,belly:1.1,hips:1.1,back:1.12,neck:1.35,shoulder:1.3,arms:1.22,legs:1.14,hands:1.25}),heft:HEFT},
   Kessa:{race:'elf',room:'lobby',role:'Security. Close work with a knife',temper:'rusher',
     col:elfCol('#ff5fc0',{hair:'#17121a',hairShade:'#0b080d',hairHi:'#ff5fc0',dark:'#0f0b10'}),
     head:{skull:'soft',ear:'swept',hair:'quiff'},
     outfit:{top:'blazer',sleeves:'jacket',neck:'turtle',piping:1},trail:{kind:'scarf',w:3.8,knot:false},
-    build:{cm:186,bulk:0.92}},
+    build:{cm:182,bulk:0.92},
+    // a whippet: narrow all the way down
+    shape:shapeOf({chest:.9,waist:.82,hips:.95,shoulder:.95,arms:.9,legs:.95}),heft:HEFT},
   Kade:{race:'elf',room:'office',role:'Mr. Hallowell\u2019s head of security',temper:'keeper',
     col:elfCol('#ff4d6d',{hair:'#141018',hairShade:'#0a080c',hairHi:'#5a4a60',dark:'#0b0a0e',glove:'#141118',gloveFar:'#26202c'}),
-    head:{skull:'hawk',ear:'long',hair:'slick',scar:'M2,30 Q14,36 24,48'},
+    head:{skull:'hawk',ear:'long',hair:'slick',scar:'M2,30 Q14,36 24,48',scale:.95},
     outfit:{top:'coat',sleeves:'jacket',neck:'turtle',coat:{len:50},piping:1,gloves:1,highCollar:1},trail:{kind:'braid',n:6},
-    build:{cm:198,bulk:1.18}},
+    build:{cm:208,bulk:1.18},
+    // the tallest, and built to look it: the coat hangs from the shoulders
+    shape:shapeOf({chest:1.16,waist:.95,back:1.06,neck:1.05,shoulder:1.22,arms:1.05}),heft:HEFT},
   Hallowell:{race:'elf',room:'office',role:'The executive. Never fights',temper:null,
     col:elfCol('#d8cfa8',{hair:'#d4d7dc',hairShade:'#8b8f96',hairHi:'#ffffff',dark:'#0d0c10',accentShade:'#8f876a',vest:'#8f866a',vestFar:'#5e5846',button:'#e2b65a'}),
-    head:{skull:'old',ear:'short',hair:'silver'},
+    head:{skull:'old',ear:'short',hair:'silver',scale:1.04},
     outfit:{top:'suit',sleeves:'jacket',neck:'collar',tie:'tie',piping:0,square:1,watch:1,three:1},trail:null,
-    build:{cm:185,bulk:1.08}},
+    build:{cm:185,bulk:1.08},
+    // old money gone soft: a paunch, a rounded back, thin arms and legs
+    shape:shapeOf({chest:.95,waist:1.1,belly:1.25,hips:1.05,back:1.15,neck:.9,shoulder:.88,arms:.85,legs:.88}),heft:HEFT},
   // Kael's partner in the free fights, not one of the restaurant's people: an elf in a short coat and boots, her hair tied back,
   // the green she has always fought in at the trim of her coat and in her eyes
   Amri:{race:'elf',room:null,role:'Ilyas\u2019s partner. Fights at his side',temper:null,
     col:elfCol('#8bdc6a',{hair:'#2a1f1a',hairShade:'#140e0b',hairHi:'#8a6a52',dark:'#0c0f0d'}),
     head:{skull:'soft',ear:'swept',hair:'lowtail'},
     outfit:{top:'coat',sleeves:'jacket',neck:'turtle',coat:{len:36},piping:1,gloves:1,boots:1},trail:null,
-    build:null}};
-// the crews: what a human of each room wears, drawn by his seed from the room's wardrobe
+    build:null,
+    // an athlete in a short coat: a narrow waist, strong legs
+    shape:shapeOf({waist:.88,hips:1.02,shoulder:1.05,legs:1.05}),heft:HEFT}};
+// the crews: what a human of each room wears, drawn by his seed from the room's wardrobe (heft: his bulk shows, HEFT above)
 const CREWS={
   dining:{name:'Dining room crew',note:'Waiters and floor muscle: black waistcoats over white shirts, long aprons, bow ties, flat caps',
     col:{vest:'#121010',vestFar:'#262020',shirt:'#8b8274',shirtFar:'#5c564c',sleeve:'#8b8274',sleeveFar:'#5c564c',apron:'#151311',apronFar:'#2a2622',tie:'#0c0b0a',braces:'#1c1714',hat:'#2c2620',hatShade:'#1c1814'},
-    tops:[['waistcoat',4],['shirt',2]],sleeves:[['rolled',3],['shirt',2]],hats:[[null,3],['flatcap',2]],aprons:[[null,2],[{len:46,ties:1},3]],ties:[['bow',3],[null,2]],braces:.6},
+    tops:[['waistcoat',4],['shirt',2]],sleeves:[['rolled',3],['shirt',2]],hats:[[null,3],['flatcap',2]],aprons:[[null,2],[{len:46,ties:1},3]],ties:[['bow',3],[null,2]],braces:.6,heft:1},
   kitchen:{name:'Kitchen crew',note:'Cooks and porters: whites gone grey, darker aprons, caps and bandanas',
     col:{chef:'#8a8478',chefFar:'#5c584f',chefPanel:'#958f82',shirt:'#8a8478',shirtFar:'#5c584f',sleeve:'#8a8478',sleeveFar:'#5c584f',apron:'#3e3a34',apronFar:'#4f4a43',hat:'#9a9486',hatShade:'#6c675e'},
-    tops:[['chef',3],['shirt',2]],sleeves:[['rolled',3],['jacket',1]],hats:[['skullcap',2],['bandana',2],[null,1]],aprons:[[{len:32},3],[{len:42},1]],ties:[[null,1]],braces:0},
+    tops:[['chef',3],['shirt',2]],sleeves:[['rolled',3],['jacket',1]],hats:[['skullcap',2],['bandana',2],[null,1]],aprons:[[{len:32},3],[{len:42},1]],ties:[[null,1]],braces:0,heft:1},
   street:{name:'Street crew',note:'Qadir\u2019s people off the bistro floor: work jackets and waistcoats in browns and greys, braces, flat caps, boots',
     col:{suit:'#2a221b',suitFar:'#3a3027',lapel:'#30271f',vest:'#1a1612',vestFar:'#2c251f',shirt:'#6f6656',shirtFar:'#4c463c',sleeve:'#6f6656',sleeveFar:'#4c463c',trouser:'#1f1b17',trouserFar:'#2f2924',braces:'#17130f',hat:'#2c2620',hatShade:'#1c1814',tie:'#0e0c0a'},
-    tops:[['suit',2],['waistcoat',2],['shirt',1]],sleeves:[['rolled',2],['shirt',2]],hats:[['flatcap',3],[null,2]],aprons:[[null,1]],ties:[[null,3],['tie',1]],braces:.6,boots:1},
+    tops:[['suit',2],['waistcoat',2],['shirt',1]],sleeves:[['rolled',2],['shirt',2]],hats:[['flatcap',3],[null,2]],aprons:[[null,1]],ties:[[null,3],['tie',1]],braces:.6,boots:1,heft:1},
   lobby:{name:'Lobby security',note:'Contract guards: slate blazers, caps, lanyards, boots',
     col:{suit:'#2b313c',suitFar:'#3a404c',lapel:'#323946',shirt:'#4a525f',hat:'#1d222b',hatShade:'#141820',lanyard:'#9aa3b3',badge:'#c9d0dc',trouser:'#1d2129',trouserFar:'#2c313b'},
-    tops:[['blazer',3],['suit',1]],sleeves:[['jacket',1]],hats:[['seccap',2],[null,2]],aprons:[[null,1]],ties:[[null,2],['tie',1]],braces:0,lanyard:1,boots:1}};
+    tops:[['blazer',3],['suit',1]],sleeves:[['jacket',1]],hats:[['seccap',2],[null,2]],aprons:[[null,1]],ties:[[null,2],['tie',1]],braces:0,lanyard:1,boots:1,heft:1}};
 const HUMAN_HEADS={skull:[['human',3],['flat',2],['round',2],['gaunt',2]],hair:[['crop',3],['sidepart',2],['curly',1],['bald',1]],
   beard:[[null,4],['full',1],['short',2],['goatee',1],['chops',1]],moustache:.25,
   hairCol:[['#2a211b',3],['#3a2c22',2],['#1a1716',2],['#5a4a3a',1],['#6b6560',1]]};
 function pick(R,list){let t=R()*list.reduce((s,e)=>s+e[1],0);for(const e of list){t-=e[1];if(t<0)return e[0];}return list[0][0];}
 function rng(a){return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+// A crew member's body type (since Nov 10): his shape beside his clothes, so that men in one uniform are not one man. Drawn from
+// his seed by dice of its own (what his seed gave him before, it still gives him), from the lean ones for a light build, the
+// heavy ones for a heavy one and any of the middle ones between; bulk is his body's (sk_cast.js HUMAN_BUILD), the middle one where
+// a caller has no body to give. plain is no shape at all. His head has a size of its own with it.
+const CREW_TYPES={plain:null,
+  lanky:{chest:.9,waist:.86,hips:.9,neck:.86,shoulder:.9,arms:.86,legs:.88},
+  wiry:{chest:.96,waist:.84,hips:.92,shoulder:1.04,arms:.94,legs:.94},
+  slope:{chest:.94,hips:1.06,back:1.16,neck:.92,shoulder:.84,arms:.92},
+  top:{chest:1.16,waist:.92,hips:.94,neck:1.12,shoulder:1.22,arms:1.14,legs:.96},
+  stocky:{chest:1.1,waist:1.12,hips:1.06,neck:1.22,shoulder:1.15,arms:1.14,legs:1.12,hands:1.1},
+  paunch:{waist:1.14,belly:1.34,hips:1.08,back:1.06,neck:1.1},
+  pear:{chest:.92,waist:1.04,belly:1.12,hips:1.16,shoulder:.9,legs:1.1}};
+const CREW_PICK=[[['lanky',3],['wiry',2],['slope',2],['plain',1]],[['plain',2],['top',2],['slope',1],['pear',1],['wiry',1],['paunch',1]],[['stocky',3],['paunch',3],['top',2],['pear',1]]];
+const CREW_SHAPES={};for(const k in CREW_TYPES)CREW_SHAPES[k]=CREW_TYPES[k]&&shapeOf(CREW_TYPES[k]);
+function crewType(room,seed,bulk){const HB=typeof HUMAN_BUILD!=='undefined'?HUMAN_BUILD.bulk:[1.04,1.34],t=bulk==null?.5:cl((bulk-HB[0])/((HB[1]-HB[0])||1),0,1),R=rng(seed*2713+room.length*17+5);
+  return{type:pick(R,CREW_PICK[t<.34?0:t<.67?1:2]),head:.93+.15*R()};}
 // one human of a room's crew, the same every time for the same seed
-function crewSpec(room,seed){
+function crewSpec(room,seed,bulk){
   const W=CREWS[room]||CREWS.dining,R=rng(seed*977+room.length*131),top=pick(R,W.tops),hat=pick(R,W.hats),hc=pick(R,HUMAN_HEADS.hairCol);
   const sleeves=top==='chef'&&pick(R,W.sleeves)==='jacket'?'jacket':top==='blazer'||top==='suit'?'jacket':pick(R,W.sleeves);
   const col=humanCol(Object.assign({},W.col,{hair:hc,hairShade:mid(hc,'#000000',.4),beard:mid(hc,'#000000',.15)}));
@@ -718,10 +775,11 @@ function crewSpec(room,seed){
   const out={top,sleeves,neck:top==='chef'?'mandarin':top==='blazer'&&R()<.6?'turtle':'collar',tie:top==='chef'?null:pick(R,W.ties),apron:pick(R,W.aprons),braces:top==='shirt'&&R()<(W.braces||0),
     lanyard:W.lanyard&&(top==='blazer'||top==='suit'),boots:!!W.boots};
   out.belt=top==='shirt'&&!out.apron;
-  return{race:'human',room,col,head,outfit:out,trail:null};}
+  let type='plain';if(W.heft){const ct=crewType(room,seed,bulk);type=ct.type;head.scale=ct.head;}
+  return{race:'human',room,col,head,outfit:out,trail:null,heft:W.heft?HEFT:null,type,shape:CREW_SHAPES[type]||null};}
 // (the tables a later file adds its people's parts to: the profile's SKULLS, EARS, HAIR, HATS, BEARDS, and for a head turned in the
 // round EAR3, HAIR3, HAT3, BEARD3, WIDE3, LINE3; shapes: how the hair and hats here are made, and the colour mix)
-return{draw,CAST,CREWS,crewSpec,SKULLS,EARS,HAIR,HATS,BEARDS,EAR3,HAIR3,HAT3,BEARD3,WIDE3,LINE3,elfCol,humanCol,
+return{draw,CAST,CREWS,crewSpec,CREW_TYPES,HEFT,shapeOf,SKULLS,EARS,HAIR,HATS,BEARDS,EAR3,HAIR3,HAT3,BEARD3,WIDE3,LINE3,elfCol,humanCol,
   shapes:{smoothD,hairPath,spikyPath,SLICK,HP,mid},ok:typeof Path2D==='function'};
 })();
 // ---------- in the game ----------
@@ -733,7 +791,7 @@ function castOn(f){return CastLook.ok&&!S.classicLook&&(isElf(f)||isHuman(f)||is
 // a crew member dresses for the room he comes into: the dining room, the kitchen, the lobby, or the street outside the restaurant
 function castRoom(f){return f.p2?'kitchen':f.p3?'lobby':S.arenaKey==='restaurant'?'dining':'street';}
 function castSpec(f){
-  if(isHuman(f)){const room=castRoom(f),seed=f.seed||f.idx,c=f._cspec;if(c&&c.seed===seed&&c.room===room)return c.spec;f._cspec={seed,room,spec:CastLook.crewSpec(room,seed)};return f._cspec.spec;}
+  if(isHuman(f)){const room=castRoom(f),seed=f.seed||f.idx,c=f._cspec;if(c&&c.seed===seed&&c.room===room)return c.spec;f._cspec={seed,room,spec:CastLook.crewSpec(room,seed,f.body&&f.body.bulk)};return f._cspec.spec;}
   if(isAlly(f))return CastLook.CAST.Amri;
   return CastLook.CAST[f.name==='Mr. Hallowell'?'Hallowell':f.name];}
 function drawCast(f){

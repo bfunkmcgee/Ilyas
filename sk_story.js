@@ -74,13 +74,20 @@ function cutSkip(){if(S.cut&&S.cut.skip)S.cut.skipNow=true;}
 V11.step.push(cutStep);
 
 // ---------- poses for the scenes ----------
-// standing easy: upright, weight on the back foot, arms down; a fighter in a scene stands like this until he squares up
-function easyBody(f){const leg=f.leg,G=gaitOf(f);let crouch=.97,lean=.02+f.body.posture*.5;
+// standing easy: a fighter in a scene stands like this until he squares up. How he stands is his own (standOf, sk_cast.js, since
+// Nov 9): how high his hips ride, his lean, where his feet go and how near their marks they must be, how he carries his head and his
+// hands, and whether he keeps still. Walking is as it was for everyone (STAND0's body under the gait).
+function easyBody(f){const leg=f.leg,G=gaitOf(f),P=G?STAND0:standOf(f),b=f.body,w=P.wide?b.stance:1;let crouch=P.hip,lean=P.lean+b.posture*P.seed;
   // walking: the hips ride up over the planted foot and settle as the next one lands, and he leans a little into the walk
   if(G){const u=clamp((S.t-G.t0)/G.beat,0,1);crouch=GAIT.low+GAIT.bob*Math.sin(Math.PI*Math.min(1,u/GAIT.swing));lean+=GAIT.lean*G.along;}
-  return{px:f.station,pz:f.lane,crouch,lean,stF:.12*leg,stB:-.14*leg,th:.25};}
+  // standing: one who is never quite still breathes and shifts his weight, each to his own time
+  else if(P.sway){const br=Math.sin(S.t*1.7+f.idx*1.9),sh=Math.sin(S.t*.43+f.idx*2.3);crouch+=br*.004*P.sway;lean+=(br*.008+sh*.02)*P.sway;}
+  return{px:f.station,pz:f.lane,crouch,lean,stF:P.feet[0]*w*leg,stB:P.feet[1]*w*leg,th:P.settle,top:P.top};}
 function easyArm(f){const a=f.arm,G=gaitOf(f);
-  if(!G)return{hand:{sh:[.1*a,.92*a]},wAng:1.25,off:{sh:[-.06*a,.94*a]},tilt:0};
+  if(!G){const P=standOf(f),o=P.offs?P.offs[(f.seed||f.idx||0)%P.offs.length]:P.off;let wa=P.blade;
+    // a weapon longer than his hand is high would stand him on its point: it is raised until the point clears the floor
+    if(P!==STAND0){const up=f.leg*Math.min(P.hip,P.top)+f.body.torso-P.hand[1]*a-8,wl=f.wp.len;if(wl*Math.sin(wa)>up)wa=Math.asin(clamp(up/wl,-1,1));}
+    return{hand:{sh:[P.hand[0]*a,P.hand[1]*a]},wAng:wa,off:{sh:[o[0]*a,o[1]*a]},tilt:P.chin};}
   // walking: each arm swings against the leg on its side, a pendulum from the shoulder, the elbow giving a little on the way forward
   const u=clamp((S.t-G.t0)/G.beat,0,1),A=GAIT.arm*a*(.55+.45*G.along),sw=(G.cur===0?1:-1)*Math.cos(Math.PI*u)*A,hang=(x,b)=>{const r=.95*a;return[b+x,Math.sqrt(Math.max(0,r*r-x*x))-(x>0?x*.18:0)];};
   return{hand:{sh:hang(sw,.05*a)},wAng:1.25+sw/a*.6,off:{sh:hang(-sw,-.03*a)},tilt:0};}
@@ -1133,7 +1140,7 @@ for(const [k,w] of Object.entries(BEAST_ARMS)){const base=WEAPONS[w.kind];
   T.why=sw(T.why);if(T.name)T.name=T.name.replace(re(B.short),w.short);
   return T;};}
 // a beast's body is its own (the beasts' painter shapes it when it is on the page)
-{const bh=S.hooks.body;S.hooks.body=(f,b)=>f&&f.beast&&typeof BeastLook!=='undefined'&&BeastLook.body?BeastLook.body(f.beast,b,f.seed):bh?bh(f,b):b;}
+{const bh=S.hooks.body;S.hooks.body=(f,b)=>f&&f.beast&&typeof BeastLook!=='undefined'&&BeastLook.body?BeastLook.body(f.beast,b,f.seed,f.temper):bh?bh(f,b):b;}
 
 // ===== STAGE VII: THE LINE =====
 // Down the family's private railway on an open flatcar. Feral goblins live in the old line now; they drop onto the deck out of the

@@ -50,7 +50,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   expect('the dining room\'s, kitchen\'s and lobby\'s elves, Kade and Mr. Hallowell are all drawn as the cast',
     rooms.dining.drawn==='Brask,Iyla,Qadir'&&rooms.kitchen.drawn==='Hesk,Odile,Orrin'&&rooms.lobby.drawn==='Doran,Kessa,Sable'&&/Kade/.test(rooms.office.drawn)&&/Hallowell/.test(rooms.office.drawn),
     JSON.stringify(['dining','kitchen','lobby','office'].map(r=>rooms[r].drawn)));
-  const want={Qadir:192,Brask:194,Iyla:180,Orrin:196,Hesk:195,Odile:178,Sable:196,Doran:193,Kessa:186,Kade:198,'Mr. Hallowell':185};
+  const want={Qadir:192,Brask:194,Iyla:180,Orrin:204,Hesk:195,Odile:178,Sable:196,Doran:190,Kessa:182,Kade:208,'Mr. Hallowell':185};
   const got=Object.assign({},rooms.dining.cm,rooms.kitchen.cm,rooms.lobby.cm,rooms.office.cm);
   expect('each elf stands at his or her designed height',Object.keys(want).every(n=>Math.abs(got[n]-want[n])<=1),JSON.stringify(got));
   const ex=rooms.office.exec;
@@ -62,9 +62,23 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     grab('dining');for(const r of ['kitchen','lobby']){clearNow();inRoom(r);grab(r);}
     fight({arena:'street',crew:true});grab('street');
     out.kael=cm(S.F[0]);return out;});
-  expect('every crew member is a human between 160 and 176 cm, dressed for his room, and the open-air crew for the street',
-    crews.h.length>=8&&crews.h.every(h=>h>=159&&h<=177)&&crews.rooms.dining>=2&&crews.rooms.kitchen>=2&&crews.rooms.lobby>=2&&crews.rooms.street>=2,JSON.stringify(crews));
+  expect('every crew member is a human between 154 and 176 cm, dressed for his room, and the open-air crew for the street',
+    crews.h.length>=8&&crews.h.every(h=>h>=153&&h<=177)&&crews.rooms.dining>=2&&crews.rooms.kitchen>=2&&crews.rooms.lobby>=2&&crews.rooms.street>=2,JSON.stringify(crews));
   expect('Kael keeps his own body',crews.kael===183,crews.kael);
+  // their types (since Nov 10): a shape picked for each by his seed from the list for his build
+  const types=await ev(()=>{const HB=HUMAN_BUILD.bulk,T=CastLook.CREW_TYPES,out={names:Object.keys(T),n:{},bad:[],heads:[9,0],slight:{},heavy:{},same:true};
+    for(let s=1;s<=600;s++){const bulk=lerp(HB[0],HB[1],(s%50)/49),sp=CastLook.crewSpec('lobby',s,bulk),t=sp.type;out.n[t]=(out.n[t]||0)+1;
+      if(!(t in T)||(t==='plain'?sp.shape!==null:!sp.shape)||sp.heft!==CastLook.HEFT)out.bad.push([s,t]);
+      out.heads=[Math.min(out.heads[0],sp.head.scale),Math.max(out.heads[1],sp.head.scale)];
+      if(bulk<HB[0]+.1)out.slight[t]=1;if(bulk>HB[1]-.1)out.heavy[t]=1;
+      const again=CastLook.crewSpec('lobby',s,bulk);if(again.type!==t||again.head.scale!==sp.head.scale)out.same=false;}
+    out.nobulk=CastLook.crewSpec('lobby',7).type in T;
+    fight({back:true,deep:true,crew:true,ally:false});reset();step(30);out.live=S.F.filter(isHuman).map(f=>{const sp=castSpec(f);return sp.type===CastLook.crewSpec(castRoom(f),f.seed||f.idx,f.body.bulk).type&&sp.type in T;});
+    out.slight=Object.keys(out.slight);out.heavy=Object.keys(out.heavy);return out;});
+  expect('eight types of crew man, each a shape of its own but the plain one, every one used, the same man the same type each time',
+    types.names.length===8&&types.bad.length===0&&types.names.every(k=>types.n[k]>=15)&&types.same&&types.nobulk&&types.heads[0]>=.93&&types.heads[1]<=1.08&&types.heads[1]-types.heads[0]>.1,JSON.stringify(types));
+  expect('a slight man is never stocky or a paunch, a heavy one never lanky or wiry; the men in a fight are drawn in the type of their build',
+    !types.slight.some(k=>k==='stocky'||k==='paunch'||k==='top'||k==='pear')&&!types.heavy.some(k=>k==='lanky'||k==='wiry'||k==='slope'||k==='plain')&&types.live.length>=2&&types.live.every(Boolean),JSON.stringify([types.slight,types.heavy,types.live]));
 
   // ---- the ranks ----
   const ranks=await ev(()=>{const save=JSON.stringify([S.cfg.foes,S.cfg.foes2,S.cfg.foes3,S.cfg.boss]);
@@ -93,7 +107,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   const help=await ev(()=>{const how=[...document.querySelectorAll('.how li')].map(x=>x.textContent),txt=document.body.textContent;
     return{eh:how.find(x=>/^Elves and humans/.test(x))||'',grey:/grey suits/.test(txt),kitchen:/Hesk, a Trained keeper/.test(txt)&&/Odile, a Trained rusher/.test(txt)};});
   expect('the help says who is an elf and who a human, gives the floors and the heights, and has the kitchen\'s ranks as they are now',
-    /every henchman a human/.test(help.eh)&&/below Trained/.test(help.eh)&&/Veteran or better/.test(help.eh)&&/178 to 198 cm/.test(help.eh)&&/160 to 176/.test(help.eh)&&!help.grey&&help.kitchen,help.eh.slice(0,140));
+    /every henchman a human/.test(help.eh)&&/below Trained/.test(help.eh)&&/Veteran or better/.test(help.eh)&&/178 to 208 cm/.test(help.eh)&&/154 to 176/.test(help.eh)&&!help.grey&&help.kitchen,help.eh.slice(0,140));
 
   // ---- the open arenas ----
   const outdoors=await ev(()=>{const out={};for(const a of ['street','field','ledge','hill','wall']){fight({arena:a,n:3});reset();step(30);out[a]=Object.keys(DRAWN.cast).sort().join(',');}return out;});
