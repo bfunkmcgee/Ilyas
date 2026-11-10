@@ -96,6 +96,7 @@ SUITES = {
     'savepage':   (['node', 'sk_save_page.js'], 'page', 'the saves: the night kept at each stage, Continue on the title as the night was, a chapter as a replay, Begin\'s question, the end of what is built, a broken record or storage refused, the settings kept'),
     'stnmotion':  (['node', 'sk_stnmotion_page.js'], 'page', 'the stances\' motion: the whip\'s and Close\'s variants and combos, the leads on the parry, each answer acted out, no game dice'),
     'beastpage':  (['node', 'sk_beast_page.js'], 'page', 'the goblins\' three kinds, and the toss and the cut in half on the smallest and the biggest of them'),
+    'flowpage':   (['node', 'sk_flow_page.js'], 'page', 'the flow test (a trial, off in the game\'s own page): the page built as the test, its fight, the smaller HUD, the quick answers and follow-ups, the full card kept for the big ones, motion by build, the panel'),
     'live':       (['node', 'figwork/livecheck.js'], 'live', 'the published page runs its own loop without errors'),
     'perf':       (['node', 'sk_perf_page.js'], 'perf', 'what drawing costs a frame (timing: run alone)'),
     'look':       (['python3', 'uiwork/look/review.py', 'test_out/look'], 'look', 'the look review: every place the game draws against the guides\' measured rules (alone, about 20 minutes)'),
@@ -106,7 +107,7 @@ PAGES = [n for n, s in SUITES.items() if s[1] == 'page']
 # (seconds each in a full run, the other lane busy: drawfree 205, arms 195, look 185, cast 185, dom 180, light 150, finale 130,
 # sktest 50, hud 35, v12 30, v12finale 20, brawl 10, team 10, arc 10, live 5, env 5)
 ORDER = ['drawfree', 'stnmotion', 'armspage', 'lookpage', 'castpage', 'dom', 'stances', 'lightpage', 'finalepage', 'sktest', 'act1page', 'hudpage', 'v12',
-         'v12finale', 'anim', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'savepage', 'growthpage', 'stylespage', 'beastpage', 'arcpage', 'live', 'env', 'rules', 'growth', 'styles']
+         'v12finale', 'anim', 'brawl', 'team', 'react', 'room', 'short', 'soundpage', 'savepage', 'growthpage', 'stylespage', 'beastpage', 'flowpage', 'arcpage', 'live', 'env', 'rules', 'growth', 'styles']
 
 # ---------- what covers what ----------
 GAME = r'^sk_(core|rules|anim|brawl|fin|team|env|phase|arc|crew|chain|insure|style|secret|lobby|breach|office|finale|ctxmoves|cast|arms|guns|story|beast|elf|react|room|rise|stances|spells|stnmotion|explore|pit|pit2|gear|pit5|short|pit6|pit7|pit8|pit9|pitmenu|save|growth|styles|wire|order|vo)\.js$'
@@ -122,6 +123,7 @@ COVERS = [
     (r'^sk_(finaleui|officeui|breachui|secretui|lobbyui)\.js$', ['finalepage', 'hudpage', 'dom']),
     (r'^sk_(storyui|beastui|elfui|styleui|reactui|roomui|shortui)\.js$', ['finalepage', 'hudpage', 'dom', 'act1page']),
     (r'^sk_beastui\.js$', ['beastpage']),
+    (r'^sk_flowui\.js$|^sk_css_flow\.css$|^tools/flow_test\.py$', ['flowpage', 'hudpage', 'dom']),
     (r'^sk_storyui\.js$|^music/|^sfx/|^sk_voui\.js$|^vo/|^tools/vo/', ['soundpage']),
     (r'^sk_sfxui\.js$', ['soundpage', 'dom']),
     (r'^sk_lightui\.js$', ['lightpage', 'lookpage', 'dom']),

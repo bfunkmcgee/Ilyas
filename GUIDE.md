@@ -706,6 +706,29 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   Room tab shows only while the room offers something (sk_roomui.js); on a desktop the room's two buttons sit in the Tactics group.
   While Ilyas fights with the arc-blade the stance bar sits over the moves (sk_stancesui.js: the dock's first row upright, over the
   bar beside the tabs sideways and on a tablet, the dock's top row on a desktop).
+- The flow test (sk_flowui.js, sk_css_flow.css, tools/flow_test.py; since Nov 10, on the branch claude/flow-test, asked for: a
+  test fight to try a quicker fight and a smaller HUD before any of it goes into the game). Measured first over the 36 lab fights:
+  a fight is about 22 turns and 51 s of action with 28 prompts for the player (10 of his own moves, 7 answers, 11 openings), a stop
+  every 1.8 s; on an upright phone the HUD was 56% of the screen on his turn (116 px over, 359 under). All of it is off in the
+  game's own page (`FLOW.on` false: checked). `python3 tools/flow_test.py [out] [page]` makes the test's page (the built page with
+  `FLOW_TEST` set ahead of its script; `--wrap` for an artifact), published as its own artifact, "Ilyas: flow test"
+  (https://claude.ai/artifact/9PVwXBG7Sox2gZ1gwnUwqM, slug 43ed4ea0-2ec0-4a84-b907-ad35789d3414; index.html and sfx/ only, no
+  song or voices: publish index.html again with its live version as `base_version`). It opens on a lab fight in the street and
+  has a Test button under the top bar: five parts to switch (kept in localStorage `sk_flow`), three fights (Qadir and his crew;
+  the three elves; a runt, a skulker and a brute, made goblins in the lab by setting `beast` before `restart`), a count of the
+  fight's prompts and the seconds spent on them. The parts: `quick`, an answer to a blow as a row of chips, 1.15 to 1.55 s, the
+  game running on at .22 (`openScale` in sk_ui.js, .08 in the game), his own read's pick marked from the start (`o.flowPick`:
+  `aiOpening` thrown when the prompt comes up, where the game throws it only when the window runs out) and taken if the player
+  lets it go (the `tickOpening` wrapper); `follow`, a routine opening (`FLOW.routine`) the same way in .95 s, the full card and
+  the slow time kept for a man Broken, a Flow link, a hold and a tandem; `dock`, the upright phone's dock and top bar smaller
+  (116 and 359 px to 94 and 231: moves in two lines without the technique's name, the style beside the stances, a one-line tip);
+  `labels`, an enemy's plan as one line (`flowLabel`, called from drawLabels); `build`, `ANIM_BUILD` in sk_anim.js (off in the
+  game): a man's pace and reach by his bulk through `styleMoves`, a goblin's by its kind, never Ilyas's, and a blow's plain
+  variant weighed down as rank rises. The rules are the game's: every prompt is still offered with the same choices and costs.
+  Not in it: queueing a move during the enemies' turns (the upright dock drops away then), a tap on an enemy to strike, moves of
+  a rank's own, Ilyas's motion by his style's level. Suite: `flowpage` (sk_flow_page.js, 17 checks: off in the game's page; the
+  test's page, each part, the panel, the three fights). If it is approved, the parts become the game's by their flags, and the
+  timing of `build` moves every seeded fight (the look review's frames with it: Pitfalls).
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,
