@@ -493,6 +493,17 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   either still goes warm when the game offers an opening on him. Timed by turns against V111's beasts on this machine: the lizard the same,
   a goblin about a tenth dearer (more outline to rim). `node uiwork/beast_studio.js`, `uiwork/beast_shots.js` and
   `uiwork/beast_turns.js` shoot them (under Screenshots).
+- Three kinds of goblin (since Nov 10, asked for: goblin sizes can vary, the toss and the cut in half still working; a pack of
+  them was one body). `BeastLook.GOB_KIND`: the skulker is the goblin there was (106 to 119 cm, .72 to .86), the runt 90 to 101
+  and .6 to .7, bent lower over a wider stance, the brute 122 to 134 and .98 to 1.14, more upright, longer in the arm and
+  heavier in the head. `goblinKind(seed,temper)`: a rusher is a runt (.55) or a skulker, a brute a brute (.7) or a skulker, any
+  other temper (and a goblin with none: the trolley's crew, the one at the brake hose) a skulker, by dice of its own, so a
+  seed's other numbers are what they were. The body hook passes the temper (sk_story.js), and the body is the game's as before:
+  a goblin's reach, weight and the gap it fights at go by its kind. Its drawing unit is its girth now (`size`, `GIRTH` .7 of its
+  build over a skulker's middle, .79; sk_beast.js `beastSz` is the game's copy and must say the same; the lizard's is as it
+  was), so a skulker off that middle is drawn up to 6% wider or narrower than before. The toss and the cut have no size in them
+  but the toss's `build` mod: +2 on the slightest runt, +1 on a skulker, -1 on the heaviest brute, which is 90, 85 and 75 in a
+  hundred in the lab (skill 4, a goblin of skill 1 on its feet). `beastpage` checks all of this.
 - The way out of the kitchen in more detail (since V114, asked for: more detail and effects in the restaurant's explosion and the
   lift). All of it is drawing (the scenes' times, the game's records and the dice are V104's): the effects library lends its sprites and
   its soft layer to the painters (`FxLook.kit`: glowSpr, puffSpr, tongueSpr, heatOps, stamp, soft, SMOKE, SOOT, HEAT; envx/fx_guns.js).
@@ -670,6 +681,13 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   and Kade taller and Doran and Kessa a little shorter; CAST's `build`, the Help and sk_cast_page.js repeat them. The man in
   white is drawn as he was, with no shape or heft: the roof's colour script read under its limit once with a shape on him, in a
   full run where that suite's readings wander (Pitfalls), and he was put back sooner than find out which it was.
+- The crews' sizes and types (since Nov 10, asked for: crew body sizes and types). A crew man's height and build are the game's
+  (sk_cast.js `HUMAN_BUILD`): 154 to 176 cm and .94 to 1.44, where they were 160 to 176 and 1.04 to 1.34, so every seeded fight
+  with a crew in it plays differently from before; the Help and sk_cast_page.js repeat the heights. His type is the drawing's
+  (sk_castui.js `CREW_TYPES`, each a `shapeOf`): plain, lanky, wiry, slope (round-backed, narrow in the shoulder), top (heavy
+  above the belt), stocky, paunch, pear. `crewType(room,seed,bulk)` picks it by dice of its own from the list for his build
+  (`CREW_PICK`: slight, middling, heavy), so a slight man is never a paunch, and gives his head its size (.93 to 1.08);
+  `crewSpec` takes the bulk as a third argument and says `type`. Only wardrobes with `heft` get one. Drawn only.
 - sk_lightui.js (FXL): effects Full/Lite/Off (localStorage sk_fx; auto-drops to Lite on a slow device, never under SK_TEST). Full
   draws each fighter into a sprite (ctx swapped) reused for cast shadows and reflections; the fx are restyled as light; the vignette
   is CSS (data-fx on #wrap). With Off the picture is the old one.
@@ -1311,6 +1329,13 @@ the page loads. Its fields:
   lobby's guards in the drill (their line in the log, Guard C's plate, the batons drawn, nothing of it his, what they shout), Act I,
   and the chip and the plates at each screen). For a style's strips: `node uiwork/anim/moves.js` takes `prep`, a line of script on
   the stage before the blow ("A.style='wire'"); a shove's Timp is its contact.
+- Suite: `beastpage` (sk_beast_page.js, since Nov 10; about 3 s): the goblins' kinds (each inside its sizes, which temper may be
+  which, a skulker the goblin there was, the drawing's unit the game's, the line's first two a runt and a brute, the lizard as
+  he was); then in the lab's field with the smallest runt and the biggest brute of 6000 seeds and a middling skulker: the toss
+  offered on each and its odds by weight, a throw that takes (up and over, down where it was aimed, hurt, whole), one that
+  fails, out of reach, each of the two thrown into the other; the cut in half by a slash, a sweep and a blow from above on
+  each (where it parts, the halves apart, each holding together, at rest on the floor); the gore off. With an outdir it
+  leaves a still of each. Until it, nothing checked a goblin's toss or cut but the command list in `rules`.
 
 ## Rules
 1. **The drawing never changes the game.** render() and everything it calls may not change anything the game or the page reads. Work
@@ -1511,7 +1536,10 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
    outline alone, filled black, at the sizes an upright phone draws him. `node uiwork/look/lineup.js` makes the sheet and says how
    alike each two are. Judged by eye, the numbers a guide: on Nov 9, a stand of his own for each brought the named pairs' mean
    from .68 to .53 and the closest pair from .87 to .82; their builds showing and a shape of his own for each, to .51 and .78.
-   Their fighting guards are still one shape, and the crews' bodies differ in size only.
+   Their fighting guards are still one shape. On Nov 10 the crews got wider sizes and types (the same eleven men: mean .58 to
+   .56, the closest two .85 to .81; the three policemen .77 to .85 before and .70 to .81 after, the lobby's three guards .78 to
+   .85 and .62 to .77: one stand and one uniform still hold a crew close) and the goblins three kinds (the same seven, in their
+   guard: mean .69 to .47, the closest two .82 to .75).
 
 **The drawing's rules (the drawing guide, approved Nov 2).** How things are drawn; the guide has the tables and the examples.
 1. Detail follows depth in five tiers: far (shapes and lit specks, within .15 of the sky behind), the set (the most detail, above

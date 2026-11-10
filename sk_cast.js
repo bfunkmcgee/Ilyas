@@ -2,7 +2,8 @@
 // The restaurant's people. Every named enemy is an elf; the crews that come through the doors are humans. In the canon an elf is
 // much stronger than a human, and here that is in the bodies and the ranks: each elf has a build of his or her own, taller than any
 // crew member, no named elf fights below Trained, and the elf who leads a room not below Veteran. A crew member's body still comes
-// from his seed, but between 160 and 176 cm and on the heavy side. Kael and Amri are not part of this.
+// from his seed, but between 154 and 176 cm, slight to heavy (160 to 176 and on the heavy side until Nov 10: a crew's men were
+// one size). Kael and Amri are not part of this.
 // cm: height; bulk: build; min: the lowest rank they fight at (Mr. Hallowell never fights). Since Nov 9 the heights run from 178 to
 // 208 (they ran to 198): Orrin and Kade stand taller, Doran and Kessa a little shorter, so that a height is something to tell them
 // by. (Brask was tried at 200 and put back: the seeded dining-room fights two suites are built on went another way.) How much of a build shows in the outline, and each one's own shape, are the look's (sk_castui.js: HEFT, shape).
@@ -11,7 +12,7 @@ const ELVES={
   Orrin:{cm:204,bulk:1.36,min:3},Hesk:{cm:195,bulk:.86,min:2},Odile:{cm:178,bulk:.88,min:2},
   Sable:{cm:196,bulk:1,min:3},Doran:{cm:190,bulk:1.38,min:2},Kessa:{cm:182,bulk:.92,min:2},
   Kade:{cm:208,bulk:1.18,min:3},'Mr. Hallowell':{cm:185,bulk:1.08,min:1}};
-const HUMAN_BUILD={cm:[160,176],bulk:[1.04,1.34]};
+const HUMAN_BUILD={cm:[154,176],bulk:[.94,1.44]};
 function isElf(f){return!!f&&f.team===1&&!f.hench&&!!ELVES[f.name];}
 function isHuman(f){return!!f&&f.team===1&&!!f.hench;}
 function elfMin(name){return ELVES[name]?ELVES[name].min:1;}

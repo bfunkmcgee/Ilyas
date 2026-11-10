@@ -136,15 +136,28 @@ const HP=a=>a.map(([x,y])=>V(x,y));
 // lizard-man is half again as tall as Kael, heavy, with long arms, leaning in like something that hunts.
 const KIND={goblin:{H:[106,119],bulk:[.72,.86],posture:[.2,.29],stance:[1.24,1.42]},
   lizard:{H:[206,218],bulk:[1.64,1.78],posture:[.1,.15],stance:[1.08,1.18]}};
-function body(kind,b,seed){const K=KIND[kind];if(!K)return b;const R=rng(((seed||1)>>>0)*977+(kind==='lizard'?331:17)),o=Object.assign({},b),H=lerp(K.H[0],K.H[1],R());
-  if(kind==='goblin'){o.headR=lerp(12.6,14.2,R());o.neck=lerp(8,9.4,R());o.torso=H*lerp(.28,.3,R());const legs=H-o.headR-o.neck-o.torso;o.th=legs*.53;o.sh=legs-o.th;
-    o.ua=H*lerp(.238,.252,R());o.fa=H*lerp(.222,.236,R());}
+// Three kinds of goblin (since Nov 10: a pack of them was one body). The skulker is the goblin there was. The runt is smaller and
+// slighter, bent lower over a wider stance, its head as big as anyone's; the brute is a head taller than a runt and half again as
+// heavy, more upright, with longer arms and a heavier head. Its temper says which it may be (a rusher a runt or a skulker, a brute a
+// brute or a skulker, anything else a skulker), its seed which it is, by dice of its own, so a seed's other numbers are what they
+// were. head: the head's radius; arm: the upper arm and the forearm as shares of the height.
+const GOB_KIND={skulker:{H:[106,119],bulk:[.72,.86],posture:[.2,.29],stance:[1.24,1.42],head:[12.6,14.2],arm:[.238,.252,.222,.236]},
+  runt:{H:[90,101],bulk:[.6,.7],posture:[.28,.35],stance:[1.34,1.52],head:[12.2,13.4],arm:[.24,.254,.224,.238]},
+  brute:{H:[122,134],bulk:[.98,1.14],posture:[.13,.19],stance:[1.16,1.3],head:[13.8,15.2],arm:[.25,.264,.236,.25]}};
+function goblinKind(seed,temper){const r=rng(((seed||1)>>>0)*2971+53)();return temper==='brute'?(r<.7?'brute':'skulker'):temper==='rusher'?(r<.55?'runt':'skulker'):'skulker';}
+function body(kind,b,seed,temper){let K=KIND[kind];if(!K)return b;const gk=kind==='goblin'?goblinKind(seed,temper):null;if(gk)K=GOB_KIND[gk];
+  const R=rng(((seed||1)>>>0)*977+(kind==='lizard'?331:17)),o=Object.assign({},b),H=lerp(K.H[0],K.H[1],R());
+  if(kind==='goblin'){o.headR=lerp(K.head[0],K.head[1],R());o.neck=lerp(8,9.4,R())*(gk==='brute'?1.1:gk==='runt'?.88:1);o.torso=H*lerp(.28,.3,R());const legs=H-o.headR-o.neck-o.torso;o.th=legs*.53;o.sh=legs-o.th;
+    o.ua=H*lerp(K.arm[0],K.arm[1],R());o.fa=H*lerp(K.arm[2],K.arm[3],R());o.gob=gk;}
   else{o.headR=lerp(15,16.4,R());o.neck=lerp(21,23.5,R());o.torso=H*lerp(.31,.322,R());const legs=H-o.headR-o.neck-o.torso;o.th=legs*.52;o.sh=legs-o.th;
     o.ua=H*lerp(.198,.206,R());o.fa=H*lerp(.188,.196,R());}
   o.h=H/139.5;o.bulk=lerp(K.bulk[0],K.bulk[1],R());o.mass=o.bulk*o.h;o.limbW=6*o.bulk;o.torsoW=11.5*o.bulk;
   o.posture=lerp(K.posture[0],K.posture[1],R());o.stance=lerp(K.stance[0],K.stance[1],R());o.beast=kind;o.tall=H;return o;}
-// the drawing's own unit: how many world units one body unit of a beast is (the game runs the lizard's tail with it too)
-function size(F){const b=F.body;return b.h*(.93+.07*b.bulk)*(F.beast==='lizard'?1:1.08);}
+// the drawing's own unit: how many world units one body unit of a beast is (the game runs the lizard's tail with it too). A
+// goblin's is its girth (since Nov 10): every width in its drawing goes by it, so most of its build shows (GIRTH of it; .79 is the
+// middle of a skulker's, where the unit is what it was). sk_beast.js beastSz is the game's copy of this.
+const GIRTH=.7;
+function size(F){const b=F.body;return F.beast==='lizard'?b.h*(.93+.07*b.bulk):b.h*.9853*(1+GIRTH*(b.bulk/.79-1))*1.08;}
 
 // ---------- who they are ----------
 // a goblin's look from its seed: its skin, what it has scavenged, its ears and nose; a crowd of them is never two the same. What
@@ -1261,6 +1274,6 @@ const SPEC={
   goblin:{hp:16,skill:1,temper:'rusher',weapons:['shiv','hook','boneclub'],note:'One clean blow from Ilyas kills one; they come in threes and fours'},
   lizard:{hp:160,skill:4,temper:'brute',weapons:['glaive'],note:'An Expert: Ilyas outclasses him by one rank only, so his crits can still floor Ilyas'}};
 // (turns: a beast in a spin is drawn turned in the round, given yaw)
-return{body,draw,weapon,WEAPONS,SPEC,specOf,DBG,TAIL,size,tailW:(F,t)=>tailW(t,size(F)),tailPiece,LOD,turns:true,ok:typeof Path2D==='function'};
+return{body,GOB_KIND,goblinKind,draw,weapon,WEAPONS,SPEC,specOf,DBG,TAIL,size,tailW:(F,t)=>tailW(t,size(F)),tailPiece,LOD,turns:true,ok:typeof Path2D==='function'};
 })();
 // ===== BEASTS END =====

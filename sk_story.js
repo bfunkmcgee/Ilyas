@@ -1140,7 +1140,7 @@ for(const [k,w] of Object.entries(BEAST_ARMS)){const base=WEAPONS[w.kind];
   T.why=sw(T.why);if(T.name)T.name=T.name.replace(re(B.short),w.short);
   return T;};}
 // a beast's body is its own (the beasts' painter shapes it when it is on the page)
-{const bh=S.hooks.body;S.hooks.body=(f,b)=>f&&f.beast&&typeof BeastLook!=='undefined'&&BeastLook.body?BeastLook.body(f.beast,b,f.seed):bh?bh(f,b):b;}
+{const bh=S.hooks.body;S.hooks.body=(f,b)=>f&&f.beast&&typeof BeastLook!=='undefined'&&BeastLook.body?BeastLook.body(f.beast,b,f.seed,f.temper):bh?bh(f,b):b;}
 
 // ===== STAGE VII: THE LINE =====
 // Down the family's private railway on an open flatcar. Feral goblins live in the old line now; they drop onto the deck out of the

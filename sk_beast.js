@@ -11,7 +11,7 @@
 // its numbers are the painter's: N links over half his height, rooted at the small of his back; w: root and tip width and how it
 // tapers (size units); cut: the link the tail comes off at (a stump of three links of eight)
 const TAIL={N:8,len:.5,root:[-.02,-7.4],w:[19,1.2,.85],cut:3};
-function beastSz(f){const b=f.body;return(b.h||1)*(.93+.07*(b.bulk||1))*(f.beast==='lizard'?1:1.08);}
+function beastSz(f){const b=f.body;return f.beast==='lizard'?(b.h||1)*(.93+.07*(b.bulk||1)):(b.h||1)*.9853*(1+.7*((b.bulk||.79)/.79-1))*1.08;}
 function tailW(f,t){return beastSz(f)*lerp(TAIL.w[0],TAIL.w[1],Math.pow(clamp(t,0,1),TAIL.w[2]));}
 function tailLen(f){return(f.body.tall||210)*TAIL.len;}
 function hasTail(f){return!!f&&f.beast==='lizard'&&!f.gone;}

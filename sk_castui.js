@@ -749,8 +749,24 @@ const HUMAN_HEADS={skull:[['human',3],['flat',2],['round',2],['gaunt',2]],hair:[
   hairCol:[['#2a211b',3],['#3a2c22',2],['#1a1716',2],['#5a4a3a',1],['#6b6560',1]]};
 function pick(R,list){let t=R()*list.reduce((s,e)=>s+e[1],0);for(const e of list){t-=e[1];if(t<0)return e[0];}return list[0][0];}
 function rng(a){return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+// A crew member's body type (since Nov 10): his shape beside his clothes, so that men in one uniform are not one man. Drawn from
+// his seed by dice of its own (what his seed gave him before, it still gives him), from the lean ones for a light build, the
+// heavy ones for a heavy one and any of the middle ones between; bulk is his body's (sk_cast.js HUMAN_BUILD), the middle one where
+// a caller has no body to give. plain is no shape at all. His head has a size of its own with it.
+const CREW_TYPES={plain:null,
+  lanky:{chest:.9,waist:.86,hips:.9,neck:.86,shoulder:.9,arms:.86,legs:.88},
+  wiry:{chest:.96,waist:.84,hips:.92,shoulder:1.04,arms:.94,legs:.94},
+  slope:{chest:.94,hips:1.06,back:1.16,neck:.92,shoulder:.84,arms:.92},
+  top:{chest:1.16,waist:.92,hips:.94,neck:1.12,shoulder:1.22,arms:1.14,legs:.96},
+  stocky:{chest:1.1,waist:1.12,hips:1.06,neck:1.22,shoulder:1.15,arms:1.14,legs:1.12,hands:1.1},
+  paunch:{waist:1.14,belly:1.34,hips:1.08,back:1.06,neck:1.1},
+  pear:{chest:.92,waist:1.04,belly:1.12,hips:1.16,shoulder:.9,legs:1.1}};
+const CREW_PICK=[[['lanky',3],['wiry',2],['slope',2],['plain',1]],[['plain',2],['top',2],['slope',1],['pear',1],['wiry',1],['paunch',1]],[['stocky',3],['paunch',3],['top',2],['pear',1]]];
+const CREW_SHAPES={};for(const k in CREW_TYPES)CREW_SHAPES[k]=CREW_TYPES[k]&&shapeOf(CREW_TYPES[k]);
+function crewType(room,seed,bulk){const HB=typeof HUMAN_BUILD!=='undefined'?HUMAN_BUILD.bulk:[1.04,1.34],t=bulk==null?.5:cl((bulk-HB[0])/((HB[1]-HB[0])||1),0,1),R=rng(seed*2713+room.length*17+5);
+  return{type:pick(R,CREW_PICK[t<.34?0:t<.67?1:2]),head:.93+.15*R()};}
 // one human of a room's crew, the same every time for the same seed
-function crewSpec(room,seed){
+function crewSpec(room,seed,bulk){
   const W=CREWS[room]||CREWS.dining,R=rng(seed*977+room.length*131),top=pick(R,W.tops),hat=pick(R,W.hats),hc=pick(R,HUMAN_HEADS.hairCol);
   const sleeves=top==='chef'&&pick(R,W.sleeves)==='jacket'?'jacket':top==='blazer'||top==='suit'?'jacket':pick(R,W.sleeves);
   const col=humanCol(Object.assign({},W.col,{hair:hc,hairShade:mid(hc,'#000000',.4),beard:mid(hc,'#000000',.15)}));
@@ -759,10 +775,11 @@ function crewSpec(room,seed){
   const out={top,sleeves,neck:top==='chef'?'mandarin':top==='blazer'&&R()<.6?'turtle':'collar',tie:top==='chef'?null:pick(R,W.ties),apron:pick(R,W.aprons),braces:top==='shirt'&&R()<(W.braces||0),
     lanyard:W.lanyard&&(top==='blazer'||top==='suit'),boots:!!W.boots};
   out.belt=top==='shirt'&&!out.apron;
-  return{race:'human',room,col,head,outfit:out,trail:null,heft:W.heft?HEFT:null};}
+  let type='plain';if(W.heft){const ct=crewType(room,seed,bulk);type=ct.type;head.scale=ct.head;}
+  return{race:'human',room,col,head,outfit:out,trail:null,heft:W.heft?HEFT:null,type,shape:CREW_SHAPES[type]||null};}
 // (the tables a later file adds its people's parts to: the profile's SKULLS, EARS, HAIR, HATS, BEARDS, and for a head turned in the
 // round EAR3, HAIR3, HAT3, BEARD3, WIDE3, LINE3; shapes: how the hair and hats here are made, and the colour mix)
-return{draw,CAST,CREWS,crewSpec,HEFT,shapeOf,SKULLS,EARS,HAIR,HATS,BEARDS,EAR3,HAIR3,HAT3,BEARD3,WIDE3,LINE3,elfCol,humanCol,
+return{draw,CAST,CREWS,crewSpec,CREW_TYPES,HEFT,shapeOf,SKULLS,EARS,HAIR,HATS,BEARDS,EAR3,HAIR3,HAT3,BEARD3,WIDE3,LINE3,elfCol,humanCol,
   shapes:{smoothD,hairPath,spikyPath,SLICK,HP,mid},ok:typeof Path2D==='function'};
 })();
 // ---------- in the game ----------
@@ -774,7 +791,7 @@ function castOn(f){return CastLook.ok&&!S.classicLook&&(isElf(f)||isHuman(f)||is
 // a crew member dresses for the room he comes into: the dining room, the kitchen, the lobby, or the street outside the restaurant
 function castRoom(f){return f.p2?'kitchen':f.p3?'lobby':S.arenaKey==='restaurant'?'dining':'street';}
 function castSpec(f){
-  if(isHuman(f)){const room=castRoom(f),seed=f.seed||f.idx,c=f._cspec;if(c&&c.seed===seed&&c.room===room)return c.spec;f._cspec={seed,room,spec:CastLook.crewSpec(room,seed)};return f._cspec.spec;}
+  if(isHuman(f)){const room=castRoom(f),seed=f.seed||f.idx,c=f._cspec;if(c&&c.seed===seed&&c.room===room)return c.spec;f._cspec={seed,room,spec:CastLook.crewSpec(room,seed,f.body&&f.body.bulk)};return f._cspec.spec;}
   if(isAlly(f))return CastLook.CAST.Amri;
   return CastLook.CAST[f.name==='Mr. Hallowell'?'Hallowell':f.name];}
 function drawCast(f){
