@@ -250,10 +250,12 @@ function claw(c,H,g,s,env,mat,far,fingers,closed,clawLen){const q=perp(g),pt=(a,
   const hook=(base,d,k)=>{const n2=perp(d),kk=k*s;c.moveTo(base.x+n2.x*.75*s,base.y+n2.y*.75*s);
     c.quadraticCurveTo(base.x+d.x*kk*.9+n2.x*.4*s,base.y+d.y*kk*.9+n2.y*.4*s,base.x+d.x*kk+n2.x*kk*.55,base.y+d.y*kk+n2.y*kk*.55);c.lineTo(base.x-n2.x*.75*s,base.y-n2.y*.75*s);c.closePath();};
   // (a fist with weight to it: the knuckles a broad ridge over the grip, the thumb wrapped round under them)
+  // (the creases between the fingers and the ridge's light are never thinner than the smallest mark, 1.5 units and 1 for the
+  // light: on a runt's fist they would be, since V115)
   if(closed){paint(c,[piece([pt(-3.7,-3.5),pt(-.4,-4.3),pt(2.4,-4.1),pt(4.1,-2),pt(4.4,1),pt(3.4,3.8),pt(-1.4,4.2),pt(-4.5,1.2)],.5,true)],mat,env,far);
-    if(env.lod>=1&&!far){c.strokeStyle=rgba('#000000',.5);c.lineWidth=Math.max(.83,1.38*s);c.beginPath();for(let i=0;i<fingers-1;i++){const a=-1.4+i*2.2;const k0=pt(a,1.2),k1=pt(a+.6,3.6);c.moveTo(k0.x,k0.y);c.lineTo(k1.x,k1.y);}c.stroke();
+    if(env.lod>=1&&!far){c.strokeStyle=rgba('#000000',.5);c.lineWidth=Math.max(1.5,1.38*s);c.beginPath();for(let i=0;i<fingers-1;i++){const a=-1.4+i*2.2;const k0=pt(a,1.2),k1=pt(a+.6,3.6);c.moveTo(k0.x,k0.y);c.lineTo(k1.x,k1.y);}c.stroke();
       // the knuckle ridge, lit along its top
-      const k0=pt(-1.8,-3.3),km=pt(2.6,-3.6),k1=pt(3.9,-.2);c.strokeStyle=rgba(C.rim,.38);c.lineWidth=Math.max(.46,.93*s);c.beginPath();c.moveTo(k0.x,k0.y);c.quadraticCurveTo(km.x,km.y,k1.x,k1.y);c.stroke();}
+      const k0=pt(-1.8,-3.3),km=pt(2.6,-3.6),k1=pt(3.9,-.2);c.strokeStyle=rgba(C.rim,.38);c.lineWidth=Math.max(1,.93*s);c.beginPath();c.moveTo(k0.x,k0.y);c.quadraticCurveTo(km.x,km.y,k1.x,k1.y);c.stroke();}
     c.fillStyle=C.claw;c.beginPath();for(let i=0;i<fingers;i++){const a=-2+i*(4.4/(fingers-1||1)),base=pt(a,3.4);hook(base,nrm(add(mul(q,1),mul(g,.35))),clawLen*.8);}c.fill();return;}
   // (open: long fingers of two joints each, curling a little toward the world's down, the knuckle between)
   const ps=[piece([pt(-3.3,-3.1),pt(2.6,-3.4),pt(3.8,0),pt(2.9,3.3),pt(-3,3.1),pt(-4.1,0)],.5,true)],tips=[],cu=dot(q,V(0,1))>0?1:-1;

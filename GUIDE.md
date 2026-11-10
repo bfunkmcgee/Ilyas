@@ -493,7 +493,7 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   either still goes warm when the game offers an opening on him. Timed by turns against V111's beasts on this machine: the lizard the same,
   a goblin about a tenth dearer (more outline to rim). `node uiwork/beast_studio.js`, `uiwork/beast_shots.js` and
   `uiwork/beast_turns.js` shoot them (under Screenshots).
-- Three kinds of goblin (since Nov 10, asked for: goblin sizes can vary, the toss and the cut in half still working; a pack of
+- Three kinds of goblin (since V115, Nov 10; asked for: goblin sizes can vary, the toss and the cut in half still working; a pack of
   them was one body). `BeastLook.GOB_KIND`: the skulker is the goblin there was (106 to 119 cm, .72 to .86), the runt 90 to 101
   and .6 to .7, bent lower over a wider stance, the brute 122 to 134 and .98 to 1.14, more upright, longer in the arm and
   heavier in the head. `goblinKind(seed,temper)`: a rusher is a runt (.55) or a skulker, a brute a brute (.7) or a skulker, any
@@ -504,6 +504,16 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   was), so a skulker off that middle is drawn up to 6% wider or narrower than before. The toss and the cut have no size in them
   but the toss's `build` mod: +2 on the slightest runt, +1 on a skulker, -1 on the heaviest brute, which is 90, 85 and 75 in a
   hundred in the lab (skill 4, a goblin of skill 1 on its feet). `beastpage` checks all of this.
+- V115's look review (Nov 10). The bodies changed, so every seeded fight goes differently and the review's fight frames are
+  other moments than V114's. Its first run failed ten. Five thin lines, put right: two on the goblin's fist, sized to a
+  skulker and under the rule on a runt (floored at 1.5 and 1 now), and the tunnel mouth's three arcs (1.2), the mile plates'
+  frame (.8) and the Ward's inner ring (.8), none of them in a frame before (1.5, 1 and 1 now). Five frames, each judged and
+  kept in kept.json with what it measured: the dining room's f5 (outline 60%, open: he is at the room's left end, low in a
+  sweep, dark on dark), the kick on a wide screen (outline 65%, at the line: Kade's size hides more of him), the kitchen's f2
+  on a wide screen (ground .196, at the line: by the yard door), the avenue's f8 (not a repeat: the dome and the tower 87 px
+  apart). The first two kinds are the first keeps under the style guide's rule 8: kept.json has `outline` and `ground`
+  sections now, and the lookbook says so at each place (the dining room mixed for it). V114 built beside it gave the numbers
+  before: `git worktree add <dir> <commit>`, node_modules linked into it, its own audit.js on the four places, 14 s a place.
 - The way out of the kitchen in more detail (since V114, asked for: more detail and effects in the restaurant's explosion and the
   lift). All of it is drawing (the scenes' times, the game's records and the dice are V104's): the effects library lends its sprites and
   its soft layer to the painters (`FxLook.kit`: glowSpr, puffSpr, tongueSpr, heatOps, stamp, soft, SMOKE, SOOT, HEAT; envx/fx_guns.js).
@@ -659,7 +669,7 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   the dining room's with it, and they play, step
   the song back, stop, go silent with the switch and hold with the game).
 - sk_lookui.js (Kael), sk_castui.js (everyone else), sk_figui.js (FigKit: the shared shaping and light). drawFighterItem in sk_ui.js.
-- How each of them stands (since Nov 9): sk_cast.js `STANDS` (the named, keyed by the shown name; the hero's entry is `Kael`),
+- How each of them stands (since V115, Nov 9): sk_cast.js `STANDS` (the named, keyed by the shown name; the hero's entry is `Kael`),
   `STAND_CREW` (the crews, by wardrobe: `f.ward`, or the restaurant's room in the lab) and `standOf(f)`. Standing easy in a scene
   (`easyBody` and `easyArm`, sk_story.js) reads it: how high the hips ride, the lean, the feet and how near their marks they must
   be, the chin, both hands, and whether he keeps still. An elf stands tall and still, each named one in a way of his own; a crew
@@ -669,7 +679,7 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   to 1.03, and that is what straightens a leg. Hip and feet together must leave the back leg short of straight (about hip less
   .04 from hip to foot, more as the feet part). A weapon longer than the hand is high is raised until its point clears the floor.
   `node uiwork/look/lineup.js` shows everyone side by side; the fighting guard is not part of this yet.
-- A figure's build and shape in the drawing (since Nov 9, sk_castui.js). `heft` is how much of a body's bulk shows in the outline,
+- A figure's build and shape in the drawing (since V115, Nov 9; sk_castui.js). `heft` is how much of a body's bulk shows in the outline,
   [the torso, the limbs]: `CastLook.HEFT` (.8 and .7) for the named elves and the crews, whose wardrobes say `heft:1`; a look that
   does not say keeps the old .3 and .4 (`HEFT0`), which the Pit's people were drawn to. A named figure's `shape`
   (`CastLook.shapeOf`) is his own beside that: chest, waist, hips (how deep he is there, both sides), belly (the front, at the
@@ -681,7 +691,7 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   and Kade taller and Doran and Kessa a little shorter; CAST's `build`, the Help and sk_cast_page.js repeat them. The man in
   white is drawn as he was, with no shape or heft: the roof's colour script read under its limit once with a shape on him, in a
   full run where that suite's readings wander (Pitfalls), and he was put back sooner than find out which it was.
-- The crews' sizes and types (since Nov 10, asked for: crew body sizes and types). A crew man's height and build are the game's
+- The crews' sizes and types (since V115, Nov 10; asked for: crew body sizes and types). A crew man's height and build are the game's
   (sk_cast.js `HUMAN_BUILD`): 154 to 176 cm and .94 to 1.44, where they were 160 to 176 and 1.04 to 1.34, so every seeded fight
   with a crew in it plays differently from before; the Help and sk_cast_page.js repeat the heights. His type is the drawing's
   (sk_castui.js `CREW_TYPES`, each a `shapeOf`): plain, lanky, wiry, slope (round-backed, narrow in the shoulder), top (heavy
@@ -1329,7 +1339,7 @@ the page loads. Its fields:
   lobby's guards in the drill (their line in the log, Guard C's plate, the batons drawn, nothing of it his, what they shout), Act I,
   and the chip and the plates at each screen). For a style's strips: `node uiwork/anim/moves.js` takes `prep`, a line of script on
   the stage before the blow ("A.style='wire'"); a shove's Timp is its contact.
-- Suite: `beastpage` (sk_beast_page.js, since Nov 10; about 3 s): the goblins' kinds (each inside its sizes, which temper may be
+- Suite: `beastpage` (sk_beast_page.js, since V115; about 3 s): the goblins' kinds (each inside its sizes, which temper may be
   which, a skulker the goblin there was, the drawing's unit the game's, the line's first two a runt and a brute, the lizard as
   he was); then in the lab's field with the smallest runt and the biggest brute of 6000 seeds and a middling skulker: the toss
   offered on each and its odds by weight, a throw that takes (up and over, down where it was aimed, hurt, whole), one that
@@ -1394,7 +1404,7 @@ Build a copy first (`python3 build.py --qa`) and point the tools at it with `PAG
   game's own detail, 3.4 and over a close view's), one file each and strips.json listing them. `node uiwork/beast_shots.js <out> [w h
   dpr] [stage] [frames per still] [stills] [moment]`: the same stills as the player sees them, the frame and a crop round each beast.
   `node uiwork/beast_turns.js <out.png> [K] [stage] [moment] [yaws]`: each beast drawn turned at several yaws, side by side.
-- `node uiwork/look/lineup.js <out> [K] [arms]` (since Nov 9): the cast's line-up. Everyone the prologue fields (every named elf, three
+- `node uiwork/look/lineup.js <out> [K] [arms]` (since V115): the cast's line-up. Everyone the prologue fields (every named elf, three
   of each crew), the named elves it does not, and Amri, stood easy on the lab's field and drawn each on a card: filled black at K
   pixels a unit, black again at the two sizes an upright phone draws them, and as the game draws them, named (lineup.png, the
   cards, lineup.json). It prints how alike each two named figures are at the push-in's size (the share of their two outlines
@@ -1600,10 +1610,8 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V115 ..." (V114 was the last published; count on from it). Since Nov 10 main holds work that no version has published: the cast's
-stands, builds and shapes, the crews' sizes and types and the goblins' kinds (three commits and their merge, put on main at the
-user's word after a full run here; the timing checks and the look review were not run on them). V115 publishes them with whatever
-else it holds and runs both first; until then the published page is V114's and main is ahead of it. Where the Artifact tool is not offered, the artifacts
+short label "V116 ..." (V115 was the last published; count on from it). (V115's work went onto main the night before it was
+published, at the user's word, as a merge of its branch: the commit under V115's own.) Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
@@ -1659,6 +1667,11 @@ was checked, and anything that did not work, plainly.
   end of each full run, and the V69 build timed beside it read 1.14 to 1.28: the machine again (V70 was published on the 24 other
   suites and the timing checks passing alone).
 - Under SK_TEST the effects never auto-drop; in a real browser a slow first second can move a device to Lite.
+- A change to anyone's body moves every seeded fight, and so where the look review's fight frames catch him (V115: four frames
+  that had passed for months measured something else). Run the look review before promising a version, and build the last
+  version beside this one to tell a place's fault from a moved moment. The places' check judges a thin line by its median over
+  the places it is given: over a few places it fails lines the whole review passes (a sprite drawn small there); go by the
+  whole review for thin.
 - Two of the look suite's pixel counts sit near their limits and move with the machine's load: the drained tattoos' cyan (the
   check wants under 15% of the lit count) and the eye's light at the end of the fall (over 15% of what it had). On Nov 5 the V92
   and V93 builds, whose lab layout, canvas and camera are the same, each missed one or the other in some runs (a full run, or the

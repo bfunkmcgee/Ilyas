@@ -81,7 +81,7 @@ function drawSpell2Fx(){if(S.cut)return;const now=S.t;ctx.save();ctx.lineCap='ro
     for(const f of S.F){if(!f.p||f.dead)continue;const held=f.react==='ward',hit=f.wardHitT!=null&&now-f.wardHitT<.35;if(!held&&!hit)continue;
       const h=f.p[HAB],c=P(h.x,h.y,f.dep),u=hit?(now-f.wardHitT)/.35:.5+.5*Math.sin(now*12),r=hit?11+8*u:10,a=hit?.9*(1-u):.55+.2*u;
       ctx.globalAlpha=a*.35;ctx.fillStyle='#e2b65a';ctx.beginPath();ctx.ellipse(c.x,c.y,r*.55,r,0,0,TAU);ctx.fill();
-      ctx.globalAlpha=a;ctx.strokeStyle='#ffe299';ctx.lineWidth=1.6;ctx.stroke();ctx.lineWidth=.8;ctx.beginPath();ctx.ellipse(c.x,c.y,r*.32,r*.62,0,0,TAU);ctx.stroke();}
+      ctx.globalAlpha=a;ctx.strokeStyle='#ffe299';ctx.lineWidth=1.6;ctx.stroke();ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(c.x,c.y,r*.32,r*.62,0,0,TAU);ctx.stroke();}
   }catch(e){if(S.debug)console.error(e);}
   ctx.restore();}
 V11UI.world.push(drawSpell2Fx);V11UI.tick.push(sp2Tick);

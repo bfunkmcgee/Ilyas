@@ -65,8 +65,19 @@ def frame_data(review, kept, n):
     fl = (ph.get('faults') or {})
     if fl.get('flats') and F['id'] in kept.get('flat', {}):
         d['kept'].append(kept['flat'][F['id']]['why'])
-    if fl.get('repeats') and F['id'] in kept.get('repeat', {}):
-        d['kept'].append(kept['repeat'][F['id']])
+    if fl.get('repeats'):
+        # (a repeat kept for the frame at the phone's size, for the frame, or for its place)
+        for k in (n + '@412x714', n, F['id']):
+            if k in kept.get('repeat', {}):
+                d['kept'].append(kept['repeat'][k])
+                break
+    # the style guide's rule 8, kept for a frame at either size (since V115)
+    for rule, size, hh in (('outline', '412x714', h), ('outline', '1280x800', dk.get('hero') or {}), ('ground', '412x714', h), ('ground', '1280x800', dk.get('hero') or {})):
+        if rule in (hh.get('fails') or []):
+            for k in (n + '@' + size, n, F['id']):
+                if k in kept.get(rule, {}) and kept[rule][k] not in d['kept']:
+                    d['kept'].append(kept[rule][k])
+                    break
     return d
 
 

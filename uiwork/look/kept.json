@@ -25,7 +25,15 @@
   "officeback": "the office again: its coffered walnut ceiling (a coffer every 124 units) and its wall of glass, built, so they may repeat (drawing rule 6), as the office's (V106)",
   "lab_street": "Lamplight Street's arches and the beat of its gas lamps, machine-made (judged in V82)",
   "roadblock": "not a repeat: the two searchlight beams cross f4's band of sky about 77 px apart on a phone (r .75), in V99, whose longer spoken lines start the fight later and the sweep has them there; the sky between them is plain",
-  "highway_t4@412x714": "the highway's lane dashes, one every 120 of the world, across the near lane in front of the ramp's foot (V110: the shot rides with him there, the lane clear): built, so they repeat exactly (drawing rule 6)"
+  "highway_t4@412x714": "the highway's lane dashes, one every 120 of the world, across the near lane in front of the ramp's foot (V110: the shot rides with him there, the lane clear): built, so they repeat exactly (drawing rule 6)",
+  "chase_f8@412x714": "not a repeat: the Regent's dome and Hallowell Tower stand about 87 px apart in f8's band of sky over the roofs on a phone (r .88), the sky between them plain; in V115, whose crews' sizes move the picture a few pixels (V114's frame of the same moment, the same street, read under .7)"
+},
+"outline": {
+  "dining_f5": "open (V115): the cast's new bodies change how the dining room's fight goes, and f5 now catches him at the room's left end in the middle of an Ankle wrap, low, a leg thrown out along the boards: his dark coat and leg against the walnut wainscot and the dark parquet read 60% on a phone and 63 on a wide screen (V114's f5, another moment of another fight, 79 on both). The room is V114's. To do: the ground at the room's left end",
+  "kick_c0.9@1280x800": "at the line (V115): Kade stands 208 cm now and is drawn in his own build, and hides more of him as the kick lands (.90 of his outline shown, .95 in V114); what shows reads 65% on a wide screen (72 in V114) and 68 on a phone, against the night in the office's glass. The scene's staging and the office are V114's"
+},
+"ground": {
+  "kitchen_f2@1280x800": "at the line (V115): the fight's first two seconds now leave him where he comes in, at the kitchen's left end by the yard door, the quarry tiles round him at .196 on a wide screen and .209 on a phone (in V114 the moment had him across the room, .45). The kitchen is V114's. To do: the floor by the yard door"
 },
 "cost": {
   "deep_f4@412x714": {"max": 1.3, "why": "at the line since V88 (94 to 104% then, the lizard's sprite a third of the screen, about 9 ms of it); 99.6 and 108% in V89's two runs as the fall's own dearest wandered from 42.4 to 38.5 ms; under 105% and 106% in V90's two; 36.9 ms against the fall's 36.2 (102%) in one of V106's timings"},

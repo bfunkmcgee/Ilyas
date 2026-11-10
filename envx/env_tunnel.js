@@ -235,7 +235,7 @@ function passSprite(k){const sc=bucket(k);if(PS&&PS.sc===sc)return PS;
   const cx=56,R=47,cy=sh+30+R,arch=(x,yb,r,cyy)=>{c.beginPath();c.moveTo(x-r,yb);c.lineTo(x-r,cyy);c.arc(x,cyy,r,Math.PI,0);c.lineTo(x+r,yb);c.closePath();};
   arch(cx,wb,R+5,cy);c.fillStyle='#10131a';c.fill();
   arch(cx,wb,R,cy);c.fillStyle='#020203';c.fill();
-  for(const [u,a] of [[.82,.5],[.66,.35],[.52,.25]]){const yb=wb-(1-u)*30;arch(cx+(1-u)*22,yb,R*u,yb-(wb-cy)*u);c.strokeStyle=rgba('#2a3040',a);c.lineWidth=1.2;c.stroke();}
+  for(const [u,a] of [[.82,.5],[.66,.35],[.52,.25]]){const yb=wb-(1-u)*30;arch(cx+(1-u)*22,yb,R*u,yb-(wb-cy)*u);c.strokeStyle=rgba('#2a3040',a);c.lineWidth=1.5;c.stroke();}
   glow(c,cx+12,wb-62,26,'#ffb866',.32);c.fillStyle=rgba('#ffcf86',.55);c.fillRect(cx+9,wb-66,6,2);
   c.strokeStyle=rgba('#8a94b0',.18);c.lineWidth=.8;c.beginPath();c.arc(cx,cy,R+5.5,Math.PI,0);c.stroke();
   c.fillStyle=rgba('#000000',.5);c.fillRect(cx-R-6,wb-3,2*R+12,4);
@@ -302,7 +302,7 @@ function live(){const t=S.t,v=Math.abs(S.scrollV||0),s0=S.scroll||0,sh=yS(),wb=y
       if(blurA<1)ctx.drawImage(SP.cv,x+SP.x0,SP.y0,SP.w,SP.h);if(blurA>0){ctx.globalAlpha=blurA;ctx.imageSmoothingEnabled=false;ctx.drawImage(SP.blur,x+SP.x0,SP.y0,SP.w,SP.h);ctx.imageSmoothingEnabled=true;ctx.globalAlpha=1;}}}}
   // mile plates: gilt numbers on black, a gold smear at speed
   {const i0=Math.floor((s0+vx0-ox-620)/PLATE),i1=Math.floor((s0+vx1-ox-620)/PLATE)+1;for(let i=i0;i<=i1;i++){const xw=i*PLATE+620;if(stnAt(xw,60)!=null||cisAt2(xw,60))continue;const x=xw-s0+ox;if(x<vx0-40||x>vx1)continue;
-    if(blurA<.5){ctx.fillStyle='#08080a';ctx.fillRect(x,sh+96,26,15);ctx.strokeStyle=rgba(C.gold,.7);ctx.lineWidth=.8;ctx.strokeRect(x+1.5,sh+97.5,23,12);gilt(ctx,String(1+((i%9)+9)%9),x+13,sh+107.6,10,{style:'700'});}
+    if(blurA<.5){ctx.fillStyle='#08080a';ctx.fillRect(x,sh+96,26,15);ctx.strokeStyle=rgba(C.gold,.7);ctx.lineWidth=1;ctx.strokeRect(x+1.5,sh+97.5,23,12);gilt(ctx,String(1+((i%9)+9)%9),x+13,sh+107.6,10,{style:'700'});}
     else{ctx.fillStyle=lin(ctx,x-14,0,x+40,0,[[0,rgba('#08080a',0)],[.3,rgba('#08080a',.7)],[.7,rgba('#08080a',.7)],[1,rgba('#08080a',0)]]);ctx.fillRect(x-14,sh+96,54,15);ctx.fillStyle=rgba(C.gold,.22);ctx.fillRect(x-10,sh+102,46,2);}}}
   // the lamps flash by: each crystal lit, its light on the brick round it; a streak behind it at speed
   {const i0=Math.floor((s0+vx0-ox-200)/LAMP),i1=Math.ceil((s0+vx1-ox+200)/LAMP),LS=lampSprite(k);
