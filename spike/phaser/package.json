@@ -1,0 +1,6 @@
+{
+  "name": "ilyas-phaser-spike",
+  "private": true,
+  "description": "A test of the game hosted inside a Phaser scene. Not part of the game's build.",
+  "dependencies": { "phaser": "4.2.1" }
+}
