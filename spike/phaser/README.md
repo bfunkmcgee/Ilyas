@@ -114,8 +114,8 @@ tiles), to tell what each costs on a device.
 
 ## In the flow test
 
-On the branch `claude/flow-test` the same scripts go over the flow test's page, and the four switches (Phaser view, Glow and
-grade, Ilyas from drawn pieces, Everyone else skinned) sit in its Test panel under their own heading, with the frame time on a
+On the branch `claude/flow-test` the same scripts go over the flow test's page, and the five switches (Phaser view, Glow and
+grade, Ilyas from drawn pieces, Everyone else skinned, The fall, new cut) sit in its Test panel under their own heading, with the frame time on a
 line below them. They are remembered between visits (`sk_phost` in the browser's storage) and all start on.
 
 ```
@@ -126,6 +126,44 @@ python3 spike/phaser/build_spike.py flow-test.html flow-phaser
 
 That writes `spike/phaser/out/flow-phaser.html` and `out/flow-phaser-index.html`, the wrapped page the flow test's artifact
 is published from. `sk_flowui.js` is not changed: `host.js` adds its rows to the panel once the panel is built.
+
+## The fall, a new cut
+
+`fall_cut.js` (`FallCut`) films the roof's last seconds and the whole of the fall again: the same lines and the same things
+happening to him, with a camera that moves, a body that acts, and the desert in his head as scenes of its own. It is a fifth
+switch in the flow test's panel, "The fall, new cut", on; under it two buttons play the roof and then the fall, or the fall
+alone. Off, the two stages run their own scripts: checked frame for frame against the page without the script.
+
+It changes no file of the game. `FallCut.install()` puts its own generators in place of `STAGES` roof's `intro` and fall's
+`setup` and `intro` (each calls the stage's own when the switch is off), adds a callback to `V11.step` after the Pit's, a
+pass at the head of `V11UI.screen` (under the story's bars and words) and one in `V11UI.world`, and wraps `kaelLight`.
+
+- The roof: the stage's own script runs to the moment he is let go, with this cut's camera from the shot on (a push in, then
+  held close while the gilt goes out); the steps back end with his heels on the coping; then the tip is played, not fallen
+  (`tip`: the heel nearer the edge on the lip, the body going back over it stiff, slowed), and there is no black. In the game
+  as published he never goes over: his mark stays where he stood, and the limp body is drawn back to it across the roof
+  before the cut to black.
+- His body: poses are angles in his own frame (`POSES`, `poseStep`: each limb turned a part of the way each step, so bones keep
+  their lengths and the trunk is not pushed), `act({pose, k, ang, rate, spin})` says what he is asked to do, `turnBy` and
+  `stillSpin` face him the way the shot wants. In the Pit he is the game's ragdoll again.
+- The camera: `shot(name, {w, wn, dx, dy, at, k, cut})` sets `S.camCut` each step from where he is (`wn` and `dxn`, `dyn` on an
+  upright phone); with reduced motion every shot is a cut. The picture is kept above where the fall's far side stops being
+  painted (596 down the world) unless the shot says `deep`.
+- The desert: three memories, each the whole picture, on the lines that speak of it: the inking (a needle of light down his
+  arm, the lines taking light behind it, his eye last), the wire (him small at a post, the posts to the horizon), the well and
+  the people with their jars. In through his eye (the picture closes on it and a light takes everything), out by the picture
+  torn upward in strands. On "I can wait" the air he lies on becomes a dune under him; the vow tears it away. Each is a plate
+  painted once at the screen's size (`plates`, no more than 1.7 million pixels, painted a piece at a time from the stage's
+  start by `warm`, let go at the Pit), with him drawn into it by his own painter as he was (`rangerOf`, `bakeFigure`: the
+  gilt alight) and a little that moves. `FALL_DREAM` and `FALL_SLOW` are given this cut's values for the stage and put back.
+- The Pit: its mouth slowed and wide, the first blow punched in on, the reach slowed, the spike held close, the picture left
+  with the arm as he drops (`PC.hold`: the Pit's own camera move taken back each step), then waiting at the Sump's roof; a
+  spark in his eye; the arm; the dark closing on its lines.
+- Every frame is drawn. Skipping the fall's own drawing under a memory made its painter take up to a second on the first
+  frame back, so it is drawn under the memories as always.
+
+Tools kept outside the repository drove it (stills at chosen seconds with the script injected into `test_page.html`). Nothing
+new was recorded for it: the wind's loop follows the fall's speed, so the memories are hushed.
 
 ## Checks
 

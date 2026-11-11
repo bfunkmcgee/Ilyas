@@ -773,6 +773,11 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   the beasts the finer rim, and Ilyas, drawn from his pieces in that page, only where the painted figure still draws him.
   Nov 11: the cast's skins (above, under the looks; spike/phaser/README.md) are a fourth switch among the Phaser test's own,
   "Everyone else skinned", on.
+  Nov 11: the fall filmed again is a fifth, "The fall, new cut", on (spike/phaser/fall_cut.js; README, "The fall, a new cut"): the
+  roof's last seconds and the fall with a camera that moves, his body posed, and the desert as three memories that take the whole
+  picture. It stands in for the two stages' scripts while it is on and changes no file of the game. A fault it found in the game as
+  published: on the roof he never goes over the edge. His mark (`K.station`) stays where he stood, and the limp body is drawn back to
+  it, about his own height across the roof, in the .9 s before the cut to black.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,
