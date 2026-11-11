@@ -298,6 +298,14 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   // (near: the arm on the near side, which holds the weapon; far: painted as the far side of him)
   const sleeve=(A,far,near)=>{
     if(out.sleeves==='bare'){pt([A.tb],'skin',far);pt([capsule(sub(A.Wr,mul(A.fd,2.2*sz)),add(A.Wr,mul(A.fd,.6*sz)),WA(5.2),WA(4.8))],'wrap',far);}
+    // (the finer figures: a rolled sleeve ends above the elbow in a band that lies along the upper arm, in place of the round roll
+    // on the joint itself; asked for Nov 11, the orc woman's elbows)
+    else if(out.sleeves==='rolled'&&fine){const rr=a=>armW[0]+(armW[1]-armW[0])*a,d=nrm(sub(A.E,A.S)),n=perp(d),Pa=(a,b)=>add(mix(A.S,A.E,a),mul(n,b)),bw=a=>rr(a)*1.07+WA(.5);
+      pt([A.tb,capsule(sub(A.Wr,mul(A.fd,.4*sz)),add(A.Wr,mul(A.fd,1*sz)),WA(4.6),WA(4.4))],'skin',far);
+      pt([FigKit.tube([A.S,mix(A.S,A.E,.8)],[armW[0]*1.03,rr(.8)*1.05],{cap0:1.16,bulge:[.07],lite:lod===0})],'sleeve',far);
+      pt([piece([Pa(.69,bw(.69)),Pa(.775,bw(.775)*1.04),Pa(.86,bw(.86)),Pa(.86,-bw(.86)),Pa(.775,-bw(.775)*1.04),Pa(.69,-bw(.69))],.3)],'sleeve',far);
+      // (close up, the fold of the roll: a darker line across the band)
+      if(lod>=1&&!far){c.fillStyle=mid(baseOf(C,'sleeve',far),'#000000',.45);c.fill(piece([Pa(.765,bw(.775)*.98),Pa(.79,bw(.775)*.98),Pa(.79,-bw(.775)*.98),Pa(.765,-bw(.775)*.98)],.1).p);}}
     else if(out.sleeves==='rolled'){const roll=capsule(mix(A.E,A.S,.12),mix(A.E,A.H,.12),WA(7),WA(6.6));
       pt([A.tb,capsule(sub(A.Wr,mul(A.fd,.4*sz)),add(A.Wr,mul(A.fd,1*sz)),WA(4.6),WA(4.4))],'skin',far);pt([A.up],'sleeve',far);pt([roll],'sleeve',far);}
     else{pt([A.tb],sleeveMat,far);if(!BK)FigKit.folds(c,A.tb,env,far?foldFar:foldCol);if(out.cuffs!==false)pt([A.cuff],out.gloves?'glove':'shirt',far);
@@ -551,11 +559,39 @@ function torso(c,spec,g){
     if(side>=0)pt([piece(P([[T*.02,-6.4],[-T*.12,-8.6],[-T*.34,-9.4],[-T*.3,-7.6],[-T*.12,-6.6],[-T*.02,-5.2]]),.4),piece(P([[0,-5.6],[-T*.2,-6.2],[-T*.42,-6.2],[-T*.38,-4.6],[-T*.18,-4.4],[0,-4.2]]),.4)],'sashC');}
 }
 
+// The finer figures' braid (FigKit.fine; asked for Nov 11: the orc woman's hair to look more like hair). A plait as it is plaited: a
+// tapered rope in the hair's shade, the strands laid over it from the tie up, each crossing from one edge to past the middle and
+// lying over the one below it, a little lighter on the side the light is on; a tie near the end in the wearer's colour; the loose
+// end below the tie in three locks. Along the same chain as the lobes it stands in for.
+function braidFine(c,pts,C,sz,env){
+  const N=pts.length,cum=[0];for(let i=1;i<N;i++)cum.push(cum[i-1]+len(sub(pts[i],pts[i-1])));const L=cum[N-1];if(L<6*sz)return;
+  const at=s=>{s=cl(s,0,L);let i=1;while(i<N-1&&cum[i]<s)i++;const t=(s-cum[i-1])/Math.max(1e-6,cum[i]-cum[i-1]),d=nrm(sub(pts[Math.min(N-1,i+1)],pts[Math.max(0,i-2)]));return{p:mix(pts[i-1],pts[i],t),d,n:perp(d)};};
+  const hw=s=>(3.05-1.2*s/L)*sz,tie=L*.83,off=(s,b)=>{const q=at(s);return V(q.p.x+q.n.x*b,q.p.y+q.n.y*b);},Lx=env&&env.L?env.L:V(.5,-1);
+  const poly=Q=>{const P=new Path2D();P.moveTo(Q[0].x,Q[0].y);for(let i=1;i<Q.length;i++)P.lineTo(Q[i].x,Q[i].y);P.closePath();return P;};
+  // the loose end, under the tie
+  const e0=tie+.5*sz,we=hw(tie);for(const [b,col,sh] of [[-.62,C.hairShade,.86],[.62,C.hairShade,.9],[0,C.hair,1]]){const s1=e0+(L-e0)*sh,tip=off(s1,b*we*1.1),m=e0+(s1-e0)*.5;
+    const P=new Path2D();P.moveTo(off(e0,b*we*.5-we*.34).x,off(e0,b*we*.5-we*.34).y);const a=off(m,b*we*.95-we*.42),bb=off(m,b*we*.95+we*.42),t0=off(e0,b*we*.5+we*.34);
+    P.quadraticCurveTo(a.x,a.y,tip.x,tip.y);P.quadraticCurveTo(bb.x,bb.y,t0.x,t0.y);P.closePath();c.fillStyle=col;c.fill(P);}
+  // the rope under the strands, round at its root (the head is drawn over where it leaves the nape)
+  const E=[],M=12;for(let k=0;k<=M;k++){const s=tie*k/M;E.push(off(s,hw(s)*.9));}for(let k=M;k>=0;k--){const s=tie*k/M;E.push(off(s,-hw(s)*.9));}
+  {const q=at(0),r=hw(0)*.9;for(let k=1;k<4;k++){const an=Math.PI*k/4,bq=-Math.cos(an)*r,up=Math.sin(an)*r*1.1;E.push(V(q.p.x+q.n.x*bq-q.d.x*up,q.p.y+q.n.y*bq-q.d.y*up));}}c.fillStyle=C.hairShade;c.fill(poly(E));
+  // the strands, the lowest first
+  const S0=[];for(let s=0,k=0;s<tie-1.2*sz;k++){S0.push([s,k%2?1:-1]);s+=hw(s)*1.02;}
+  {const q=at(0),r=hw(0),P=new Path2D();P.ellipse(q.p.x-q.d.x*r*.25,q.p.y-q.d.y*r*.25,r*.86,r*.8,Math.atan2(q.d.y,q.d.x),0,TAU);c.fillStyle=C.hair;c.fill(P);}
+  for(let i=S0.length-1;i>=0;i--){const [s,sd]=S0[i],h=hw(s),q0=at(s),lit=sd*(q0.n.x*Lx.x+q0.n.y*Lx.y)>0,A=off(s,sd*h),B=off(Math.min(tie,s+2.05*h),-sd*h*.3),c1=off(s+1.1*h,sd*h*1.16),c2=off(s+.6*h,-sd*h*.16);
+    const P=new Path2D();P.moveTo(A.x,A.y);P.quadraticCurveTo(c1.x,c1.y,B.x,B.y);P.quadraticCurveTo(c2.x,c2.y,A.x,A.y);P.closePath();c.fillStyle=lit?mid(C.hair,C.hairHi||'#d8d8d0',.24):C.hair;c.fill(P);
+    // (the light along the top of each strand's curve)
+    if(lit||env.k>=2.4){const a0=off(s+.3*h,sd*h*.93),a1=off(s+1.45*h,sd*h*.5),m1=off(s+.95*h,sd*h*1.02),m2=off(s+.9*h,sd*h*.74),H=new Path2D();H.moveTo(a0.x,a0.y);H.quadraticCurveTo(m1.x,m1.y,a1.x,a1.y);H.quadraticCurveTo(m2.x,m2.y,a0.x,a0.y);H.closePath();
+      c.fillStyle=rgba(C.hairHi||'#d8d8d0',lit?.5:.24);c.fill(H);}}
+  // the tie
+  const t0=tie-.75*sz,t1=tie+.85*sz,wt=hw(tie);c.fillStyle=C.accent;c.fill(poly([off(t0,wt*1.12),off(t1,wt*1.06),off(t1,-wt*1.06),off(t0,-wt*1.12)]));
+  c.fillStyle=mid(C.accent,'#000000',.38);c.fill(poly([off(tie+.25*sz,wt*1.08),off(t1,wt*1.06),off(t1,-wt*1.06),off(tie+.25*sz,-wt*1.08)]));}
 // the scarf, or Kade's braid, along the chain the game already swings from the back of every named fighter's neck
 // (tr.back: the chain hangs from the middle of the neck; a braid worn from the nape is drawn that far toward the back)
 function trail(c,F,spec,env,now,sz){
   const s=F.scarf,tr=spec.trail,bk=tr.back?-F.facing*tr.back*sz:0,pts0=s.slice(0,tr.n||s.length).map(q=>V(q.x+bk,q.y)),pts=resample(pts0,3),N=pts.length,C=spec.col;
   if(tr.kind==='braid'){
+    if(FigKit.fine){braidFine(c,pts,C,sz,env);return;}
     // a plait: a run of overlapping lobes, thinner toward the end, and a tie in his colour
     for(let i=N-1;i>=0;i--){const w=(3.4-1.6*i/(N-1))*sz;c.fillStyle=i%2?C.hairShade:C.hair;c.beginPath();c.ellipse(pts[i].x,pts[i].y,w*1.15,w*.85,Math.atan2((pts[Math.min(N-1,i+1)].y-pts[Math.max(0,i-1)].y),(pts[Math.min(N-1,i+1)].x-pts[Math.max(0,i-1)].x)),0,TAU);c.fill();}
     const e=pts[N-1];c.fillStyle=C.accent;c.beginPath();c.arc(e.x,e.y,1.6*sz,0,TAU);c.fill();return;}
@@ -602,7 +638,10 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
   if(FC){const sk=baseOf(C,'skin',false);c.fillStyle=mid(sk,elf?mid('#8f86a8',C.accent&&C.accent.length===7?C.accent:'#8f86a8',.3):'#a67e5e',lod?.15:.12);c.fill(FC.cheek);c.fill(FC.nose);if(lod>=1)c.fill(FC.lip);
     c.fillStyle=mid(sk,'#000000',.62);if(!elf)c.fill(FC.socket);c.fill(FC.mouth);if(lod>=1)c.fill(FC.nostril);}
   if(HR.shaved&&lod>=1){c.save();c.clip(skull);c.fillStyle=rgba(C.hair,.18);c.fill(P2(smoothD(HP(SLICK.concat([[-30,24],[-14,14],[4,-2],[13,5],[22,-18]])),true,.4)));c.restore();}
-  if(HR.cap){fillHair(P2(HR.cap));if(lod>=1&&HR.strands){c.save();c.clip(P2(HR.cap));c.strokeStyle=C.hairHi;c.lineWidth=2;c.globalAlpha=elf?.55:.3;c.stroke(P2(HR.strands));c.restore();}}
+  if(HR.cap){fillHair(P2(HR.cap));if(lod>=1&&HR.strands){c.save();c.clip(P2(HR.cap));
+      // (the finer figures: each strand's shade under its light, so the hair has a lie to it)
+      if(fine){c.translate(0,2.4);c.strokeStyle=C.hairShade;c.lineWidth=3;c.globalAlpha=.55;c.stroke(P2(HR.strands));c.translate(0,-2.4);}
+      c.strokeStyle=C.hairHi;c.lineWidth=2;c.globalAlpha=elf?.55:fine?.42:.3;c.stroke(P2(HR.strands));c.restore();}}
   if(HR.tie){c.strokeStyle=C.accent||C.hairLine;c.lineWidth=6.26;c.stroke(P2(HR.tie));}
   // the ear over the hair (an elf's points out through it); an ear marked over stands out over a hat too (a goblin's through her
   // headcloth)
