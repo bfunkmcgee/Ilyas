@@ -691,6 +691,39 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   and Kade taller and Doran and Kessa a little shorter; CAST's `build`, the Help and sk_cast_page.js repeat them. The man in
   white is drawn as he was, with no shape or heft: the roof's colour script read under its limit once with a shape on him, in a
   full run where that suite's readings wander (Pitfalls), and he was put back sooner than find out which it was.
+- The finer figures (Nov 10; asked for: every character model analysed and its drawing improved; behind a switch, not in the game
+  yet). `FigKit.fine` (sk_figui.js; `window.FINE_FIGURES` set ahead of the script turns it on, as a tool or the flow test does) is
+  off in the game's page, and off, every figure is drawn exactly as before: each part below is reached only through it. What the
+  analysis found: the beasts carry the most drawing (claws, teeth, hide, form) and show it at the game's own size (`LOD` in
+  beasts.js), while the cast and Ilyas, drawn to a simpler tier there, had mittens for hands, capsules for boots and blank faces.
+  On: hands with fingers (`FigKit.fist`: a knuckle for each finger and the thumb across, round a grip along the weapon or closed
+  on nothing; `openHand` on anyone the story poses with a `guardArm` of his own, or who lies dead; every Fighter has a `guardArm`
+  method, so only an own one counts); boots with a shaped shaft, a round toe, a thick sole and a band round the top
+  (`FigKit.boot`), shoes with a heel (`shoe`); faces in profile (`faceOf`, sk_castui.js: planes a little lighter than the skin for
+  the cheekbone, the side of the nose and the lower lip, since a face is too dark to take a darker mark, and the dark kept for the
+  eye's socket, the nostril and the mouth, all placed from the skull's own outline; a human's eye with a pupil and a thinner rim on
+  his ear in a close view); in a close view only, a flap on a jacket's hip pocket, two buttons at its cuff, a belt's buckle and the
+  crease down a suit's trouser; a rolled sleeve that ends above the elbow in a band along the upper arm, in place of the round
+  roll that sat on the joint, and a braid plaited (`braidFine`: strands crossing over a tapered rope, a tie, the loose end below
+  it) in place of the run of lobes, with the shade of each strand under its light on a head's hair close up (asked for Nov 11:
+  the orc woman's hair to look more like hair, her elbows less like bubbles; everyone with rolled sleeves gets the sleeve); and
+  in `FigKit.light` a rim that narrows as its edge turns from the light (`fineRim`: at the
+  game's own size it keeps over half its width, the look's rule 8) and a shade along the edges that face away (`fineShade`). The
+  beasts take only the rim and the shade and look as they did. Costs with it on, timed as the timing checks time them: a cast
+  figure 1.12 to 1.14 ms (0.97 to 0.99 off; the limit is 1.2), Ilyas 1.14 to 1.18 (1.12 to 1.15; 1.5). The cast's close-view
+  detail at the game's own size was tried and costs 1.31, over the limit, so the tiers are as they were. The turned head
+  (`headRound`) is as it was. `node uiwork/look/figsheet.js` shoots everyone before and after (under Screenshots); with the switch
+  off its cards are the same as main's, pixel for pixel (46 people, standing easy at 3.4 and in their guard at 2).
+- A place for a skin in the cast's painter (Nov 11; asked for: skins for everyone, as Ilyas has; in the test pages only).
+  `CastLook.skin` is null in the game and nothing below runs. Set (spike/phaser/cast_skin.js, whose README says how the skins
+  are made), the painter still poses and layers a figure and the skin's textures are laid on in profile: `env.tex` in `paint`
+  fills an arm's or a leg's shapes from its texture, `torsoAll` draws the torso's two layers (`torsoA` and `torsoB`, split so a
+  braid swings between them) and `drawHead` the head from theirs, the eyes over it as ever, and a shape with no texture takes
+  its material's tile (`env.sn`). To make a texture the skin has one part painted alone on a figure stood straight (`o.only`,
+  `BK` in `draw`: nothing else is painted, a coat's skirt is not stepped, the folds at the joints are left out since they are
+  drawn each frame) and each shape handed to the skin's own painting (`SKIN.baking` in `paint`, the hair, a hat and a beard
+  too). `FigKit.light` takes `o.pa`, its plane and shade part strength over a texture. With no skin set every card is as it
+  was, the finer figures off and on (the same 46 people, two poses, two sizes). A turned figure is painted as ever.
 - The crews' sizes and types (since V115, Nov 10; asked for: crew body sizes and types). A crew man's height and build are the game's
   (sk_cast.js `HUMAN_BUILD`): 154 to 176 cm and .94 to 1.44, where they were 160 to 176 and 1.04 to 1.34, so every seeded fight
   with a crew in it plays differently from before; the Help and sk_cast_page.js repeat the heights. His type is the drawing's
@@ -706,6 +739,45 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   Room tab shows only while the room offers something (sk_roomui.js); on a desktop the room's two buttons sit in the Tactics group.
   While Ilyas fights with the arc-blade the stance bar sits over the moves (sk_stancesui.js: the dock's first row upright, over the
   bar beside the tabs sideways and on a tablet, the dock's top row on a desktop).
+- The flow test (sk_flowui.js, sk_css_flow.css, tools/flow_test.py; since Nov 10, on the branch claude/flow-test, asked for: a
+  test fight to try a quicker fight and a smaller HUD before any of it goes into the game). Measured first over the 36 lab fights:
+  a fight is about 22 turns and 51 s of action with 28 prompts for the player (10 of his own moves, 7 answers, 11 openings), a stop
+  every 1.8 s; on an upright phone the HUD was 56% of the screen on his turn (116 px over, 359 under). All of it is off in the
+  game's own page (`FLOW.on` false: checked). `python3 tools/flow_test.py [out] [page]` makes the test's page (the built page with
+  `FLOW_TEST` set ahead of its script; `--wrap` for an artifact), published as its own artifact, "Ilyas: flow test"
+  (https://claude.ai/artifact/9PVwXBG7Sox2gZ1gwnUwqM, slug 43ed4ea0-2ec0-4a84-b907-ad35789d3414; index.html and sfx/ only, no
+  song or voices: publish index.html again with its live version as `base_version`). It opens on a lab fight in the street and
+  has a Test button under the top bar: five parts to switch (kept in localStorage `sk_flow`), three fights (Qadir and his crew;
+  the three elves; a runt, a skulker and a brute, made goblins in the lab by setting `beast` before `restart`), a count of the
+  fight's prompts and the seconds spent on them. The parts: `quick`, an answer to a blow as a row of chips, 1.15 to 1.55 s, the
+  game running on at .22 (`openScale` in sk_ui.js, .08 in the game), his own read's pick marked from the start (`o.flowPick`:
+  `aiOpening` thrown when the prompt comes up, where the game throws it only when the window runs out) and taken if the player
+  lets it go (the `tickOpening` wrapper); `follow`, a routine opening (`FLOW.routine`) the same way in .95 s, the full card and
+  the slow time kept for a man Broken, a Flow link, a hold and a tandem; `dock`, the upright phone's dock and top bar smaller
+  (116 and 359 px to 94 and 231: moves in two lines without the technique's name, the style beside the stances, a one-line tip);
+  `labels`, an enemy's plan as one line (`flowLabel`, called from drawLabels); `build`, `ANIM_BUILD` in sk_anim.js (off in the
+  game): a man's pace and reach by his bulk through `styleMoves`, a goblin's by its kind, never Ilyas's, and a blow's plain
+  variant weighed down as rank rises. The rules are the game's: every prompt is still offered with the same choices and costs.
+  Not in it: queueing a move during the enemies' turns (the upright dock drops away then), a tap on an enemy to strike, moves of
+  a rank's own, Ilyas's motion by his style's level. Suite: `flowpage` (sk_flow_page.js, 18 checks: off in the game's page; the
+  test's page, each part, the panel, the three fights). If it is approved, the parts become the game's by their flags, and the
+  timing of `build` moves every seeded fight (the look review's frames with it: Pitfalls).
+  Since Nov 10 the published flow test also carries the Phaser look test (asked for: to feel those changes in the flow test): the
+  page shown through a Phaser scene, glow and a grade over it, and Ilyas drawn from art pieces on the ragdoll, each a switch in the
+  Test panel. It is added after the build by `spike/phaser/build_spike.py flow-test.html flow-phaser` and touches no file of the
+  game or of the flow test: `spike/phaser/README.md`. Later that day the drawn Ilyas was made to cover every state the game draws
+  him in (asked for: all the other art he needs): turned through a spin, the coat's damage, one arm, the Pit's clothes and all 26
+  pieces of gear, the gear screen's views. `node spike/phaser/check_skin.js` plays at every chapter and counts which figure drew him.
+  That night the finer figures became a sixth part of the test (`fine`, on; asked for: every character model's drawing improved):
+  the switch sets `FigKit.fine` (above, under the looks), so the cast and the Pit's people get their hands, boots and faces there,
+  the beasts the finer rim, and Ilyas, drawn from his pieces in that page, only where the painted figure still draws him.
+  Nov 11: the cast's skins (above, under the looks; spike/phaser/README.md) are a fourth switch among the Phaser test's own,
+  "Everyone else skinned", on.
+  Nov 11: the fall filmed again is a fifth, "The fall, new cut", on (spike/phaser/fall_cut.js; README, "The fall, a new cut"): the
+  roof's last seconds and the fall with a camera that moves, his body posed, and the desert as three memories that take the whole
+  picture. It stands in for the two stages' scripts while it is on and changes no file of the game. A fault it found in the game as
+  published: on the roof he never goes over the edge. His mark (`K.station`) stays where he stood, and the limp body is drawn back to
+  it, about his own height across the roof, in the .9 s before the cut to black.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,
@@ -1409,6 +1481,11 @@ Build a copy first (`python3 build.py --qa`) and point the tools at it with `PAG
   pixels a unit, black again at the two sizes an upright phone draws them, and as the game draws them, named (lineup.png, the
   cards, lineup.json). It prints how alike each two named figures are at the push-in's size (the share of their two outlines
   they have in common, feet together) and the closest pairs. `arms` 1 leaves the weapons in their hands. About a minute.
+- `node uiwork/look/figsheet.js <out> [K] [easy|guard] [cast|pit|all]` (since Nov 10): everyone the cast's painter draws (the
+  line-up's people and the Pit's, three each of its beggars, townsfolk and children) and Ilyas, each on a card as the game draws
+  him and again with the finer figures on (`FigKit.fine`), one above the other on sheets of five (sheet-N.png; cards/<id>.0.png
+  and .1.png). easy: standing easy, their weapons hidden; guard: in their guard, armed. K 2 is an upright phone's push-in.
+  `FINE=1 node uiwork/beast_studio.js ...` shoots the beasts with it on. Half a minute.
 - `node uiwork/pose_light.js <out.png> <ground> kx kz ex ez`: two fighters placed by hand. `node envx/game_shot.js <script.json>`:
   scripted steps on the game's own canvas. `node uiwork/shots.js <prefix> w h dpr [mobile] [load|fight|story]`: the real page.
 Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well as desktop.
