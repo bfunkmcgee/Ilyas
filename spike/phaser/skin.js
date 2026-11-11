@@ -266,7 +266,7 @@ const Skin = (() => {
       else if (o.drawOther) across(LAT[HAF], () => o.drawOther(F)); };
     // (the tattoos' own light, over the arm: brighter with an opening, a fast hand, a flare)
     const glowArm = (E, H, S0, far) => { const hq0 = p0[HAF], hsp = hq0.px != null && typeof DT !== 'undefined' ? Math.hypot(hq0.x - hq0.px, hq0.y - hq0.py) / DT : 0, g = ((o.opening || F.opening) ? .8 : 0) + cl(hsp / 800, 0, .6) + cl(F.flare || 0, 0, 1.4);
-      if (g <= .02 || !TEX[K.glow]) return; c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha *= cl(g * .55, 0, 1) * (1 - cl(F.drain || 0, 0, 1)) * (far ? .5 : 1);
+      if (g <= .02 || !TEX[K.glow]) return; c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha *= cl(g * .3, 0, .55) * (1 - cl(F.drain || 0, 0, 1)) * (far ? .5 : 1);
       strip(c, TEX[K.glow], shoulderFor(E, S0), E, H, R.ua, R.fa, fv, sz, { r: 3.2, hw: 5.4, padA: 5, padB: 1 }); c.restore(); };
     const farArm = far => { armStrip(K.arm, p[ELB], p[HAB], SH[1], far); const fd = nrm(sub(p[HAB], p[ELB]));
       if (!K.coatOff) tearOn('armF', far, armQ(p[ELB], p[HAB], SH[1]));
