@@ -15,9 +15,10 @@ const expect=(label,cond,info)=>{rep.push((cond?'ok   ':'FAIL ')+label+(process.
 const SIZES={land:[844,390,true],port:[390,844,true],desk:[1440,900,false],tab:[820,1180,true],small:[1280,560,false]};
 async function open(sz,page){const [w,h,mob]=SIZES[sz];const ctx=await b.newContext({viewport:{width:w,height:h},isMobile:mob,hasTouch:mob}),p=await ctx.newPage();
   p.on('pageerror',e=>errs.push(sz+' page: '+e.message));p.on('console',m=>{if(m.type()==='error'&&!/fonts|ERR_|net::/.test(m.text()))errs.push(sz+' console: '+m.text());});
-  await p.addInitScript(e=>{window.requestAnimationFrame=cb=>{window.__raf=cb;return 1;};if(e)window.__drawEvery=e;},+process.env.SK_DRAW_EVERY||0);
+  // (every frame loop the page starts is kept and run: since V116 the published page has the look's host beside the game's own)
+  await p.addInitScript(e=>{window.__rafs=[];window.requestAnimationFrame=cb=>{window.__rafs.push(cb);return window.__rafs.length;};if(e)window.__drawEvery=e;},+process.env.SK_DRAW_EVERY||0);
   await p.goto('file://'+process.cwd()+'/'+(page||PAGE));await p.waitForTimeout(250);
-  await p.evaluate(()=>{S.soundOn=false;window.__now=performance.now()+1000;window.step=(k,o)=>{const ev=(o&&o.every)||window.__drawEvery||1;for(let i=0;i<k;i++){window.__now+=16.7;const f=window.__raf;window.__raf=null;if(!f)continue;if(ev===1||(window.__fc=(window.__fc||0)+1)%ev===0)f(window.__now);else{const R=window.render;window.render=()=>{};try{f(window.__now);}finally{window.render=R;}}}};window.__drawEvery=window.__drawEvery||8;window.drawAll=fn=>{const e=window.__drawEvery;window.__drawEvery=1;try{return fn();}finally{window.__drawEvery=e;}};
+  await p.evaluate(()=>{S.soundOn=false;window.__now=performance.now()+1000;window.step=(k,o)=>{const ev=(o&&o.every)||window.__drawEvery||1;for(let i=0;i<k;i++){window.__now+=16.7;const L=window.__rafs;window.__rafs=[];if(!L.length)continue;const f=t=>{for(const g of L)g(t);};if(ev===1||(window.__fc=(window.__fc||0)+1)%ev===0)f(window.__now);else{const R=window.render;window.render=()=>{};try{f(window.__now);}finally{window.render=R;}}}};window.__drawEvery=window.__drawEvery||8;window.drawAll=fn=>{const e=window.__drawEvery;window.__drawEvery=1;try{return fn();}finally{window.__drawEvery=e;}};
     window.seed=s=>{let a=s;Math.random=()=>{a=(a*1103515245+12345)&0x7fffffff;return a/0x7fffffff;};S.rng=Math.random;};
     window.fight=o=>{seed(o.seed||11);S.arenaKey=o.arena||'street';S.introOn=false;S.cfg.n=o.n||2;S.cfg.crew=!!o.crew;S.cfg.ally.on=o.ally!==false;S.auto=false;S.allyAuto=false;S.F=[];rosterBuild();restart();step(60);};
     window.rect=s=>{const e=typeof s==='string'?document.querySelector(s):s;if(!e)return null;const r=e.getBoundingClientRect();return{l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height};};});
@@ -144,7 +145,7 @@ for(const sz of ['land','port','desk']){const p=await open(sz);
 // ---- the push-in: on an upright phone the moves drop away for the action and the camera comes in, the fighters over where the
 // opening cards come up; with reduced motion it cuts there; a sideways phone and a desktop keep their framing
 for(const [sz,red] of [['port',false],['port',true],['land',false],['desk',false]]){const p=await open(sz);
-  if(red)await p.emulateMedia({reducedMotion:'reduce'}),await p.reload(),await p.waitForTimeout(250),await p.evaluate(()=>{S.soundOn=false;window.__now=performance.now()+1000;window.step=k=>{for(let i=0;i<k;i++){window.__now+=16.7;const f=window.__raf;window.__raf=null;if(f)f(window.__now);}};
+  if(red)await p.emulateMedia({reducedMotion:'reduce'}),await p.reload(),await p.waitForTimeout(250),await p.evaluate(()=>{S.soundOn=false;window.__now=performance.now()+1000;window.step=k=>{for(let i=0;i<k;i++){window.__now+=16.7;const L=window.__rafs;window.__rafs=[];for(const g of L)g(window.__now);}};
     window.seed=s=>{let a=s;Math.random=()=>{a=(a*1103515245+12345)&0x7fffffff;return a/0x7fffffff;};S.rng=Math.random;};
     window.fight=o=>{seed(o.seed||11);S.arenaKey=o.arena||'street';S.introOn=false;S.cfg.n=o.n||2;S.cfg.crew=!!o.crew;S.cfg.ally.on=o.ally!==false;S.auto=false;S.allyAuto=false;S.F=[];rosterBuild();restart();step(60);};});
   const r=await ev(p,()=>{fight({seed:11});const g=S.game,wr=document.getElementById('wrap');let t=0;

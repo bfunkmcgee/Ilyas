@@ -494,6 +494,7 @@ function drawLabels(){
   for(const f of foes()){const it=human&&f.intent&&cmdValid(f,targetOf(f),f.intent.cmd)?f.intent:null,tgt=f.idx===ht&&g.phase!=='over';
     if(!it&&!tgt)continue;const q=head(f);let a='',b='',w=0,h=0;
     if(it){a='▸ '+intentLabel(f)+(two&&targetOf(f)?' → '+targetOf(f).name:'');b=(it.changed?'changed plan · ':'')+(f._when||'')+(f._back?' · at your back':'');
+      if(typeof flowLabel==='function'){const r=flowLabel(f,it,a,b);if(r){a=r.a;b=r.b;}}
       w=Math.max(tw(a,fo.a),b?tw(b,fo.b):0)+fo.px*2;h=fo.ah+(b?fo.bh+3:0)+fo.py*2+1;}
     B.push({x:q.x,y:q.y,a,b,w,h,tri:tgt?TRI+3:0,back:!!f._back,col:Hh.color});}
   // a man at the hero's back
@@ -1342,12 +1343,14 @@ function restart(){
 
 // loop
 let last=performance.now(),acc=0,tagClock=0;
+// how fast the game runs while a prompt is up (the flow trial runs its quick prompts faster: sk_flowui.js)
+function openScale(o){return .08;}
 function frame(now){
   requestAnimationFrame(frame);
   const rdt=Math.min(.05,(now-last)/1000);last=now;
   if(S.paused){updateCamera(rdt);camVert(rdt);uiTick();render();return;}
   if(S.freeze>0)S.freeze-=rdt;
-  else{const sc=(S.opening?.08:1)*(S.userSlow?.35:1)*(S.slowT>0?.3:1);if(S.slowT>0)S.slowT-=rdt;acc+=rdt*sc;let n=0;while(acc>=DT&&n<12){simStep();acc-=DT;n++;}if(n>=12)acc=0;}
+  else{const sc=(S.opening?openScale(S.opening):1)*(S.userSlow?.35:1)*(S.slowT>0?.3:1);if(S.slowT>0)S.slowT-=rdt;acc+=rdt*sc;let n=0;while(acc>=DT&&n<12){simStep();acc-=DT;n++;}if(n>=12)acc=0;}
   if(S.opening){tickOpening(rdt);if(S.opening)$('opBar').style.width=(clamp(S.opening.left/S.opening.dur,0,1)*100)+'%';}
   S.shake*=Math.exp(-rdt*10);if(S.shake<.05)S.shake=0;
   if(S.punch){S.punch.t=(S.punch.t||0)+rdt;if(S.punch.t>1)S.punch=null;}

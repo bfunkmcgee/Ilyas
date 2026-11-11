@@ -19,13 +19,13 @@ CORE = ['core', 'rules', 'anim', 'brawl', 'fin', 'team', 'env', 'phase', 'arc']
 # the features, each with a game part (sk_<f>.js) and a UI part (sk_<f>ui.js) where it has one
 FEAT = ['crew', 'chain', 'insure', 'style', 'secret', 'lobby', 'breach', 'office', 'finale', 'ctxmoves', 'fig', 'look', 'cast',
         'scene', 'arms', 'guns', 'story', 'highway', 'lantern', 'under', 'gondola', 'beast', 'elf', 'hud', 'light', 'react', 'room', 'rise', 'stances', 'spells', 'stnmotion', 'styles', 'wire', 'order', 'explore', 'pit',
-        'pitcast', 'gear', 'pit2', 'pit5', 'short', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu', 'save', 'growth', 'vo', 'sfx']
+        'pitcast', 'gear', 'pit2', 'pit5', 'short', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu', 'fallcut', 'save', 'growth', 'vo', 'sfx', 'flow']
 # the UI parts that come before the features' UI parts, and the main UI script that comes last (its frame loop starts the game)
 UI_FIRST = ['envui', 'phaseui', 'arcui']
 UI_LAST = 'ui'
 # the stylesheets, in cascade order
 CSS = ['base', 'extra', 'crew', 'chain', 'insure', 'style', 'secret', 'lobby', 'breach', 'office', 'finale', 'ctxmoves', 'arms', 'story',
-       'elf', 'hud', 'light', 'react', 'room', 'stances', 'spells', 'explore', 'pit', 'pit2', 'pit5', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu', 'gear', 'growth', 'styles']
+       'elf', 'hud', 'light', 'react', 'room', 'stances', 'spells', 'explore', 'pit', 'pit2', 'pit5', 'pit6', 'pit7', 'pit8', 'pit9', 'pitmenu', 'gear', 'growth', 'styles', 'flow']
 # the scene painters (envx/) that make sk_sceneui.js, with the glue that puts them in the game last
 SCENES = ['env_look', 'env_tex', 'env_props', 'tex_lobby', 'tex_office', 'tex_out_a', 'tex_out_b', 'env_street', 'env_dining', 'env_kitchen',
           'env_lobby', 'env_office', 'env_field', 'env_hill', 'env_ledge', 'env_wall', 'env_crops', 'env_outskirts', 'env_chase', 'env_highway', 'env_roadblock', 'env_roof',
@@ -97,10 +97,23 @@ def assemble():
     html = read('sk_head.txt') + css + '</style>\n\n' + read('sk_body.html') + '\n<script>\n' + js + '</script>\n'
     return js, html, starts
 
+# The page that is published (since V116): the game with the flow test's parts on (FLOW_GAME ahead of its script: sk_flowui.js) and,
+# after its script, the drawn figures and the Phaser view (spike/phaser: the skins of Ilyas and of everyone else, and host.js, which
+# shows the picture through Phaser with its glow and grade; each has a switch in the Options panel). test_page.html has none of it:
+# the browser checks run the game as it was, and the parts are checked in their own pages.
+LOOK_PARTS = ('skin_kit.js', 'skin_art_body.js', 'skin_art_head.js', 'skin_art_pit.js', 'skin.js', 'cast_skin.js', 'host.js')
+def game_page(html):
+    i = html.rfind('<script>')
+    extra = [read(os.path.join('vendor', 'phaser.min.js'))] + [read(os.path.join('spike', 'phaser', n)) for n in LOOK_PARTS]
+    for s in extra:
+        if '</script' in s: sys.exit('a script for the published page holds a closing script tag')
+    return html[:i] + '<script>var FLOW_GAME=1;</script>\n' + html[i:] + ''.join('<script>\n' + s + '\n</script>\n' for s in extra)
+
 def build(qa=False, scenes=False):
     regenerated = build_scenes(force=scenes)
     js, html, starts = assemble()
     test = '<meta charset="utf-8">\n<script>window.SK_TEST=1</script>\n' + html
+    html = game_page(html)
     if qa:
         outs = {'uiwork/qa_full.html': html, 'uiwork/qa_full.js': js, 'uiwork/qa_test.html': test}
     else:

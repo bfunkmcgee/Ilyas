@@ -691,6 +691,39 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   and Kade taller and Doran and Kessa a little shorter; CAST's `build`, the Help and sk_cast_page.js repeat them. The man in
   white is drawn as he was, with no shape or heft: the roof's colour script read under its limit once with a shape on him, in a
   full run where that suite's readings wander (Pitfalls), and he was put back sooner than find out which it was.
+- The finer figures (Nov 10; asked for: every character model analysed and its drawing improved; behind a switch, not in the game
+  yet). `FigKit.fine` (sk_figui.js; `window.FINE_FIGURES` set ahead of the script turns it on, as a tool or the flow test does) is
+  off in the game's page, and off, every figure is drawn exactly as before: each part below is reached only through it. What the
+  analysis found: the beasts carry the most drawing (claws, teeth, hide, form) and show it at the game's own size (`LOD` in
+  beasts.js), while the cast and Ilyas, drawn to a simpler tier there, had mittens for hands, capsules for boots and blank faces.
+  On: hands with fingers (`FigKit.fist`: a knuckle for each finger and the thumb across, round a grip along the weapon or closed
+  on nothing; `openHand` on anyone the story poses with a `guardArm` of his own, or who lies dead; every Fighter has a `guardArm`
+  method, so only an own one counts); boots with a shaped shaft, a round toe, a thick sole and a band round the top
+  (`FigKit.boot`), shoes with a heel (`shoe`); faces in profile (`faceOf`, sk_castui.js: planes a little lighter than the skin for
+  the cheekbone, the side of the nose and the lower lip, since a face is too dark to take a darker mark, and the dark kept for the
+  eye's socket, the nostril and the mouth, all placed from the skull's own outline; a human's eye with a pupil and a thinner rim on
+  his ear in a close view); in a close view only, a flap on a jacket's hip pocket, two buttons at its cuff, a belt's buckle and the
+  crease down a suit's trouser; a rolled sleeve that ends above the elbow in a band along the upper arm, in place of the round
+  roll that sat on the joint, and a braid plaited (`braidFine`: strands crossing over a tapered rope, a tie, the loose end below
+  it) in place of the run of lobes, with the shade of each strand under its light on a head's hair close up (asked for Nov 11:
+  the orc woman's hair to look more like hair, her elbows less like bubbles; everyone with rolled sleeves gets the sleeve); and
+  in `FigKit.light` a rim that narrows as its edge turns from the light (`fineRim`: at the
+  game's own size it keeps over half its width, the look's rule 8) and a shade along the edges that face away (`fineShade`). The
+  beasts take only the rim and the shade and look as they did. Costs with it on, timed as the timing checks time them: a cast
+  figure 1.12 to 1.14 ms (0.97 to 0.99 off; the limit is 1.2), Ilyas 1.14 to 1.18 (1.12 to 1.15; 1.5). The cast's close-view
+  detail at the game's own size was tried and costs 1.31, over the limit, so the tiers are as they were. The turned head
+  (`headRound`) is as it was. `node uiwork/look/figsheet.js` shoots everyone before and after (under Screenshots); with the switch
+  off its cards are the same as main's, pixel for pixel (46 people, standing easy at 3.4 and in their guard at 2).
+- A place for a skin in the cast's painter (Nov 11; asked for: skins for everyone, as Ilyas has; in the test pages only).
+  `CastLook.skin` is null in the game and nothing below runs. Set (spike/phaser/cast_skin.js, whose README says how the skins
+  are made), the painter still poses and layers a figure and the skin's textures are laid on in profile: `env.tex` in `paint`
+  fills an arm's or a leg's shapes from its texture, `torsoAll` draws the torso's two layers (`torsoA` and `torsoB`, split so a
+  braid swings between them) and `drawHead` the head from theirs, the eyes over it as ever, and a shape with no texture takes
+  its material's tile (`env.sn`). To make a texture the skin has one part painted alone on a figure stood straight (`o.only`,
+  `BK` in `draw`: nothing else is painted, a coat's skirt is not stepped, the folds at the joints are left out since they are
+  drawn each frame) and each shape handed to the skin's own painting (`SKIN.baking` in `paint`, the hair, a hat and a beard
+  too). `FigKit.light` takes `o.pa`, its plane and shade part strength over a texture. With no skin set every card is as it
+  was, the finer figures off and on (the same 46 people, two poses, two sizes). A turned figure is painted as ever.
 - The crews' sizes and types (since V115, Nov 10; asked for: crew body sizes and types). A crew man's height and build are the game's
   (sk_cast.js `HUMAN_BUILD`): 154 to 176 cm and .94 to 1.44, where they were 160 to 176 and 1.04 to 1.34, so every seeded fight
   with a crew in it plays differently from before; the Help and sk_cast_page.js repeat the heights. His type is the drawing's
@@ -706,6 +739,53 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   Room tab shows only while the room offers something (sk_roomui.js); on a desktop the room's two buttons sit in the Tactics group.
   While Ilyas fights with the arc-blade the stance bar sits over the moves (sk_stancesui.js: the dock's first row upright, over the
   bar beside the tabs sideways and on a tablet, the dock's top row on a desktop).
+- The flow test (sk_flowui.js, sk_css_flow.css, tools/flow_test.py; since Nov 10, on the branch claude/flow-test, asked for: a
+  test fight to try a quicker fight and a smaller HUD before any of it goes into the game). Measured first over the 36 lab fights:
+  a fight is about 22 turns and 51 s of action with 28 prompts for the player (10 of his own moves, 7 answers, 11 openings), a stop
+  every 1.8 s; on an upright phone the HUD was 56% of the screen on his turn (116 px over, 359 under). All of it is off in the
+  game's own page (`FLOW.on` false: checked). `python3 tools/flow_test.py [out] [page]` makes the test's page (the built page with
+  `FLOW_TEST` set ahead of its script; `--wrap` for an artifact), published as its own artifact, "Ilyas: flow test"
+  (https://claude.ai/artifact/9PVwXBG7Sox2gZ1gwnUwqM, slug 43ed4ea0-2ec0-4a84-b907-ad35789d3414; index.html and sfx/ only, no
+  song or voices: publish index.html again with its live version as `base_version`). It opens on a lab fight in the street and
+  has a Test button under the top bar: five parts to switch (kept in localStorage `sk_flow`), three fights (Qadir and his crew;
+  the three elves; a runt, a skulker and a brute, made goblins in the lab by setting `beast` before `restart`), a count of the
+  fight's prompts and the seconds spent on them. The parts: `quick`, an answer to a blow as a row of chips, 1.15 to 1.55 s, the
+  game running on at .22 (`openScale` in sk_ui.js, .08 in the game), his own read's pick marked from the start (`o.flowPick`:
+  `aiOpening` thrown when the prompt comes up, where the game throws it only when the window runs out) and taken if the player
+  lets it go (the `tickOpening` wrapper); `follow`, a routine opening (`FLOW.routine`) the same way in .95 s, the full card and
+  the slow time kept for a man Broken, a Flow link, a hold and a tandem; `dock`, the upright phone's dock and top bar smaller
+  (116 and 359 px to 94 and 231: moves in two lines without the technique's name, the style beside the stances, a one-line tip);
+  `labels`, an enemy's plan as one line (`flowLabel`, called from drawLabels); `build`, `ANIM_BUILD` in sk_anim.js (off in the
+  game): a man's pace and reach by his bulk through `styleMoves`, a goblin's by its kind, never Ilyas's, and a blow's plain
+  variant weighed down as rank rises. The rules are the game's: every prompt is still offered with the same choices and costs.
+  Not in it: queueing a move during the enemies' turns (the upright dock drops away then), a tap on an enemy to strike, moves of
+  a rank's own, Ilyas's motion by his style's level. Suite: `flowpage` (sk_flow_page.js, 18 checks: off in the game's page; the
+  test's page, each part, the panel, the three fights). If it is approved, the parts become the game's by their flags, and the
+  timing of `build` moves every seeded fight (the look review's frames with it: Pitfalls).
+  Since Nov 10 the published flow test also carries the Phaser look test (asked for: to feel those changes in the flow test): the
+  page shown through a Phaser scene, glow and a grade over it, and Ilyas drawn from art pieces on the ragdoll, each a switch in the
+  Test panel. It is added after the build by `spike/phaser/build_spike.py flow-test.html flow-phaser` and touches no file of the
+  game or of the flow test: `spike/phaser/README.md`. Later that day the drawn Ilyas was made to cover every state the game draws
+  him in (asked for: all the other art he needs): turned through a spin, the coat's damage, one arm, the Pit's clothes and all 26
+  pieces of gear, the gear screen's views. `node spike/phaser/check_skin.js` plays at every chapter and counts which figure drew him.
+  That night the finer figures became a sixth part of the test (`fine`, on; asked for: every character model's drawing improved):
+  the switch sets `FigKit.fine` (above, under the looks), so the cast and the Pit's people get their hands, boots and faces there,
+  the beasts the finer rim, and Ilyas, drawn from his pieces in that page, only where the painted figure still draws him.
+  Nov 11: the cast's skins (above, under the looks; spike/phaser/README.md) are a fourth switch among the Phaser test's own,
+  "Everyone else skinned", on.
+  **Since V116 all of it is on in the game's own page** (asked for: "push all to main and the next version", "also the other test
+  work"). `build.py` writes ragdoll-skirmish-lab.html with `FLOW_GAME` set ahead of the game's script (`FLOW.on` and `FLOW.game`:
+  the six parts on, their panel the game's "Options", nothing opening by itself) and, after the script, Phaser (vendor/phaser.min.js,
+  4.2.1, MIT) and spike/phaser's skin_kit.js, skin_art_body.js, skin_art_head.js, skin_art_pit.js, skin.js, cast_skin.js and host.js
+  (`game_page`, `LOOK_PARTS`): Ilyas from drawn pieces, everyone else skinned, the picture shown through Phaser with its glow and
+  grade, each with its switch under "Look" in the panel, all on, remembered (`sk_flow`, `sk_phost`). The look module lets the drawn
+  figure's helpers out itself now. **test_page.html has none of it** (neither flag, no added script): every browser check but the
+  flow page's runs the game as it was to V115, and so do the look review and the timing checks. What is on in the published page is
+  checked by the flow page's suite, by `node spike/phaser/check_skin.js` over every chapter (copy the page to spike/phaser/out/
+  and give its name as SK_PAGE), and by play. Known and shipped at the user's word: a skinned cast figure costs about 1.9 ms to
+  draw here against the 1.2 ms the timing check allows a painted one, the skins are side view only (a spin shows the painted
+  figure), and no phone's frame time has been read. The folder keeps its name for now.
+  The fall filmed again, a fifth switch there for a morning, is the game's own scene since V116: sk_fallcut.js, below.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,
@@ -861,6 +941,63 @@ drawn-only flutter on the skirt's edges and hem: a wave running down the cloth p
 V44). In a wind the corners are not mirrored while he is drawn turning round (drawTurned's `f._phys.mir`), so the hem stays downwind (the look suite checks both: the wind's sources, and the hem streaming back in a
 headwind, forward in a tailwind, hanging again in none). `node uiwork/wind/stand.js <out.png> <wind,...> [facing] [frames]` shows him
 standing in set winds; `node uiwork/wind/shots.js <out> <stage> w h dpr <frame,...>` photographs a story stage at chosen frames.
+
+**The fall as it is filmed (since V116; sk_fallcut.js, sk_fallcutui.js).** Asked for: the scene analysed and made more cinematic,
+then the desert in his head made clearer and more dramatic. The roof's last seconds and the fall are a scene with a camera now: the
+same twelve thoughts at the same lengths, the same Pit. sk_fallcut.js stands in for the roof's intro from the shot on and the
+fall's setup and intro (`FallCut.state.on` false runs them as they were to V115); sk_fallcutui.js draws what it asks for.
+- The roof: the stage's own script runs to the moment he is let go, with a push in on the shot and the steps back held close; the
+  steps end with his heels on the coping, and the tip over it is played, not fallen (`tip`), slowed; no black. To V115 he never
+  went over: `K.station` stayed where he stood, and the limp body was drawn back to it across the roof before the cut to black.
+  On an upright phone the roof's close shots and the tip look lower (`dyn`): at the roof and the drop, not the sky over them.
+- His body down the tower is posed: `POSES` (angles in his own frame), `act({pose, k, ang, rate, spin})`, each limb turned a part of
+  the way each step so bones keep their lengths (`poseStep`), the whole of him turned to face as the shot wants (`turnBy`,
+  `stillSpin`). In the Pit he is the ragdoll again, and everything that happens to him there is pitStep's as before.
+- The camera: `shot(name, {w, wn, dx, dy, dxn, dyn, at, half, k, cut, deep})` and `camStep` set `S.camCut` each step from where he is
+  (`wn`, `dxn`, `dyn`: an upright phone). `C.fc` marks it as the scene's (with reduced motion the UI makes every shot a cut);
+  `C.footMax` (596) is the lowest the picture may show, since the fall's far side is painted only so far down: the UI's `camTarget`
+  keeps the view above it. A shot for each thought; the Pit's mouth slowed and wide, the first blow punched in on, the reach slowed,
+  the spike held close, the picture left with the arm as he drops (`PC.hold`: afterStep takes the Pit's own camera move back), then
+  waiting at the Sump's roof, a push to his face, the look up, and the dark closing on the arm (`V.last`).
+- The desert: three memories, each the whole picture, on the lines that speak of it (`FallCut.V.kind`): the inking (a Ranger's hand
+  and a needle of light down his arm, the lines taking light behind it, his eye last), the wire (him small at a post, the posts to
+  the horizon), the well and the people with their jars. In through his eye (`V.eye`, `V.white`), out torn upward in strands
+  (`V.strip`). On "I can wait" a dune under him in the world's own terms (`dune`), which the vow's first "For" tears away. Each
+  is a plate painted once at the screen's size (`plates`: no more than 1.7 million pixels, painted a piece at a time from the stage's
+  start by `warmTick`, let go when the Pit has him), him in them drawn by his own painter as he was (`rangerOf`, `bakeFigure`).
+  The dune is a piece painted once too (`duneLie`, `P.dune`: the ripples down its lit face, the sand's slips down the other, the
+  grains' glitter), set down under him each frame.
+- The memories are painted for the screen, not the world, so the drawing guide's widths are kept in the world's units as the
+  camera under them has them: `FallCut.MEM`, the shot the tear-away opens on, which the camera cuts to under the white (the fall's
+  pieces are made for that shot before it shows). `PXU` is that unit in the screen's pixels; `dkw` gives a dark line its unit and
+  a half at the least, `ltw` a light one its unit (both a little over: the look review reads a plate against the camera's scale
+  when it was last drawn, and the inking's plate stands behind the dune while the camera closes an eighth). Their skies carry
+  combed cirrus (`cirrus`) and their open sand the wind's ripples (`ripples`): a bare sky or a bare face of sand is a flat patch.
+  `FALL_DREAM` and `FALL_SLOW` take this scene's values for the stage (`tables`): beside the tower the desert is what is left over
+  between the memories, all there is again on the wire, and it holds until the first blow wakes him, as it always did.
+- Besides: the helicopter's light far up on the eighth thought, motes of the gilt's light and beads of blood left above him, a
+  pulse of the rim's light as each setback passes, the sign's colour over the picture, a spark in his eye in the hay.
+- Under a memory that covers the picture (the three, and the dune once it is whole: `covered`) the page's drawing runs as always
+  but inside an empty clip (the UI's `render`; the memory's pass lifts the clip before it draws): the fall's painter keeps its
+  pieces up, and nothing of it is put down. Skipping the drawing made the painter take up to a second on the first frame back.
+- What it costs, on this machine's software canvas, an upright phone (412 by 714 at 2), each frame flushed: the scene to V115 took
+  37 ms at the middle and 39 on average, its dearest 98; beside the tower the new cut takes 43 at the middle (the wide shots 33 to
+  39, the close ones 45 to 48: they show more of the tower's face, whose painter takes 27 to 32 ms of it against 20 to 25), a
+  frame under a memory 17 to 24, and the average is 39 as it was; the dearest frames are the cuts that make the face's pieces
+  again for a new zoom, 100 to 125 ms, four or five of them. No phone's frame time has been read. Nothing was recorded for the
+  scene: the wind's loop follows the fall's speed, so the memories are hushed. Not built: the house's people at their windows,
+  the gold H moved to its line.
+- The look suite's check of the fall on an upright phone reads the picture at 28 s (the eighth thought's wide shot), not at 20.
+- V116's look review (Nov 11). The fall has two more moments (places.js: `t9` the wire, `t11.5` the well). Its first run failed
+  twenty-one. Six flat patches, put right: the dune's bare sky (38% of the picture) and its bare faces, by the cirrus, the
+  ripples and the painted dune above; the roof's sky in the close shots on an upright phone (2.0 and 2.4%), by framing them lower.
+  Ten thin lines in the memories, brought to the guide's widths as above (they had been read against the camera closed on his
+  eye under them, where a unit is four pixels). Five lines of the figures' own drawing, the same as in V115 and under the rule
+  only now that the camera comes close, kept in kept_lines.json with what each is: the shadow under the scars the drained lines
+  leave and the scars' curls, the rim along his lit edge, a man's glasses on the roof, and the cast's hair strands (kept since
+  V103: its text changed with the finer figures). The fall's dearest frame, the review's yardstick for every other place (rule
+  6), read 44.8 ms against 35 in the reviews before: its close shots show more of the tower's face. Sixteen frames kept for
+  their cost no longer need the keep while it reads so; they stay in kept.json.
 
 **The desert in his head (since V72).** As he goes down the face thinking of the wire, the night out past the corner turns by
 degrees to the noon he rode it in, and the tower's windows fill with sand and pour it. `fallDream()` (sk_story.js) is how deep it is,
@@ -1409,6 +1546,11 @@ Build a copy first (`python3 build.py --qa`) and point the tools at it with `PAG
   pixels a unit, black again at the two sizes an upright phone draws them, and as the game draws them, named (lineup.png, the
   cards, lineup.json). It prints how alike each two named figures are at the push-in's size (the share of their two outlines
   they have in common, feet together) and the closest pairs. `arms` 1 leaves the weapons in their hands. About a minute.
+- `node uiwork/look/figsheet.js <out> [K] [easy|guard] [cast|pit|all]` (since Nov 10): everyone the cast's painter draws (the
+  line-up's people and the Pit's, three each of its beggars, townsfolk and children) and Ilyas, each on a card as the game draws
+  him and again with the finer figures on (`FigKit.fine`), one above the other on sheets of five (sheet-N.png; cards/<id>.0.png
+  and .1.png). easy: standing easy, their weapons hidden; guard: in their guard, armed. K 2 is an upright phone's push-in.
+  `FINE=1 node uiwork/beast_studio.js ...` shoots the beasts with it on. Half a minute.
 - `node uiwork/pose_light.js <out.png> <ground> kx kz ex ez`: two fighters placed by hand. `node envx/game_shot.js <script.json>`:
   scripted steps on the game's own canvas. `node uiwork/shots.js <prefix> w h dpr [mobile] [load|fight|story]`: the real page.
 Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well as desktop.
@@ -1610,7 +1752,8 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V116 ..." (V115 was the last published; count on from it). (V115's work went onto main the night before it was
+short label "V117 ..." (V116 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
+the skins and the Phaser view built in (build.py `game_page`: above, under the flow test); test_page.html is not. (V115's work went onto main the night before it was
 published, at the user's word, as a merge of its branch: the commit under V115's own.) Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page

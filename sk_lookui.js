@@ -730,6 +730,12 @@ function draw(c,F,o={}){
   // a hand at rest, open (F.openHand, when it holds nothing): the palm and the fingers together, a little curled, the thumb along it
   const openHand=(H,g,s)=>{const q=perp(g),k=1.12,pt=(a,bb)=>add(H,add(mul(g,a*s*k),mul(q,bb*s*k)));
     return piece([pt(-2.8,-2.5),pt(1.4,-2.8),pt(4.8,-2.5),pt(7.8,-1.8),pt(9.6,-.6),pt(9.5,.9),pt(7.6,1.9),pt(4.2,2.5),pt(1.6,2.9),pt(-.6,4.3),pt(-2.4,3.9),pt(-3.3,.6)],.5);};
+  // (the finer figures, FigKit.fine: the cast's hands, sk_castui.js: a fist with its knuckles and thumb, round a grip or closed on
+  // nothing; an open hand when the story has him standing easy (a guardArm of his own), when he lies dead or the game says so)
+  const fine=FigKit.fine,easy=!!(F.openHand||F.dead||Object.prototype.hasOwnProperty.call(F,'guardArm'));
+  const handFine=(H,fd,grip,s,mat,far,open)=>{const th=FigKit.thumbSide(fd,fv),h=grip?FigKit.fist(H,tipDir,FigKit.gripSide(tipDir,fd),s):open?FigKit.openHand(H,fd,th,s):FigKit.fist(H,th,fd,s);
+    if(h.open)paint([h.body,h.thumb],mat,far);else{paint([h.body],mat,far);paint([h.thumb],mat,far);}
+    if(!far||lod>=1){c.fillStyle='rgba(0,0,0,.42)';c.fill(h.creases);}};
   const foldCol={lit:rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.26),dark:'rgba(0,0,0,.55)'},foldFar={lit:rgbaHex(FigKit.rimCol(look.col.rim||'#ffcf86'),.12),dark:'rgba(0,0,0,.3)',far:true};
   // a bare arm: the shoulder's swell, the upper arm and the forearm in skin, the tattoos in their light, a leather wrap at the wrist
   const bareArm=(A,far)=>{const wr=capsule(sub(A.W,mul(A.fd,.7*sz)),add(A.W,mul(A.fd,.9*sz)),5.9*sz,5.6*sz);
@@ -740,7 +746,7 @@ function draw(c,F,o={}){
   const farArm=far=>{const AB=armParts(p[ELB],p[HAB],coatOff,SH[1]);
     if(coatOff)bareArm(AB,far);
     else{paint([AB.tb],'suit',far);FigKit.folds(c,AB.tb,env,far?foldFar:foldCol);tear('armF',AB.tb.p,colOf(far?'liningFar':'lining',far?'#123d39':'#1d625c'));paint([AB.cuff],'shirt',far);}
-    paint([fist(p[HAB],offOnGrip?tipDir:AB.fd,sz*.95)],'skin',far);
+    if(fine)handFine(p[HAB],AB.fd,offOnGrip,sz*.95,'skin',far,easy&&!o.afterFarArm);else paint([fist(p[HAB],offOnGrip?tipDir:AB.fd,sz*.95)],'skin',far);
     if(o.afterFarArm)across(LAT[HAB],()=>o.afterFarArm(F));};
   // the weapon, then the near arm over its grip
   const nearArm=far=>{
@@ -754,7 +760,7 @@ function draw(c,F,o={}){
     if(coatOff)bareArm(AF,far);
     else{paint([AF.tb],'suit',far);FigKit.folds(c,AF.tb,env,far?foldFar:foldCol);tear('armN',AF.tb.p,colOf(far?'liningFar':'lining',far?'#123d39':'#1d625c'));paint([AF.cuff],'shirt',far);
       {const q=perp(AF.fd),W=AF.W,e=sub(W,mul(AF.fd,1.3*sz));goldLine(c,look,env,[add(W,mul(q,2.55*sz)),add(e,mul(q,2.65*sz)),sub(e,mul(q,2.65*sz)),sub(W,mul(q,2.55*sz))],lod,.8,true);}}
-    paint([fist(p[HAF],armed?tipDir:AF.fd,sz)],'skin',far);
+    if(fine)handFine(p[HAF],AF.fd,armed,sz,'skin',far,easy);else paint([fist(p[HAF],armed?tipDir:AF.fd,sz)],'skin',far);
     if(lod>=1&&!look.noGold){const rg=add(p[HAF],mul(perp(tipDir),-3.1*sz));c.fillStyle=goldC;c.beginPath();c.arc(rg.x,rg.y,.75*sz,0,TAU);c.fill();}
     // (F.armTear 0..1: the arm giving at the shoulder under the weight of him: the seam opening and, with blood on, the flesh under it)
     if(F.armTear>0)shoulderTear(c,look,shoulder,AF.E,sz,F.armTear,gore,coatOff,k);};
@@ -786,9 +792,10 @@ function draw(c,F,o={}){
     if(gnt){const H=p[HAF],c0=sub(H,mul(A.fd,2.2*sz)),c1=mix(H,A.E,.62),cp=capsule(c1,c0,8.8*sz,6.9*sz);paint([cp],'hide',far);
       if(lod>=1||k>1.6){const q=perp(A.fd);c.save();c.clip(cp.p);c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.35,.45*sz);c.setLineDash([1*sz,.8*sz]);c.beginPath();c.moveTo(c1.x+q.x*1.2*sz,c1.y+q.y*1.2*sz);c.lineTo(c0.x+q.x*.9*sz,c0.y+q.y*.9*sz);c.stroke();c.setLineDash([]);
         c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=Math.max(.5,.8/k);const e=mix(c1,c0,.08);c.beginPath();c.moveTo(e.x+q.x*4.6*sz,e.y+q.y*4.6*sz);c.lineTo(e.x-q.x*4.6*sz,e.y-q.y*4.6*sz);c.stroke();c.restore();}}
-    paint([op?openHand(p[HAF],A.fd,sz):fist(p[HAF],armed?tipDir:A.fd,sz)],gnt?'hide':WEAR&&WEAR.hands==='glove'?'glove':'skin',far);
+    if(fine)handFine(p[HAF],A.fd,armed&&!op,sz,gnt?'hide':WEAR&&WEAR.hands==='glove'?'glove':'skin',far,op||easy);
+    else paint([op?openHand(p[HAF],A.fd,sz):fist(p[HAF],armed?tipDir:A.fd,sz)],gnt?'hide':WEAR&&WEAR.hands==='glove'?'glove':'skin',far);
     // (the open hand's fingers, close up)
-    if(op&&(lod>=1||k>1.6)){const g=A.fd,q=perp(g),H=p[HAF],pt=(a,bb)=>add(H,add(mul(g,a*sz*1.12),mul(q,bb*sz*1.12)));c.save();c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.6,.9/k);c.lineCap='round';c.beginPath();
+    if(op&&!fine&&(lod>=1||k>1.6)){const g=A.fd,q=perp(g),H=p[HAF],pt=(a,bb)=>add(H,add(mul(g,a*sz*1.12),mul(q,bb*sz*1.12)));c.save();c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=Math.max(.6,.9/k);c.lineCap='round';c.beginPath();
       for(const bb of [-1.2,.1,1.3]){const a0=pt(4.6,bb),a1=pt(8.6,bb*.75);c.moveTo(a0.x,a0.y);c.lineTo(a1.x,a1.y);}c.stroke();c.restore();}};
   // the near shoulder: the dressed stump (three weeks on), or the empty sleeve pinned up
   const lostArm=()=>{const W0=WEAR||{};env.far=false;
@@ -1472,7 +1479,7 @@ function snap(f,extra={}){
     coatShield:f.coatShield,coatOpen:f.coatOpen,nade:f.grenade==='coat',coatShred:f.coatShred,coatOff:f.coatOff,charge:f.charge,hemTears:f.hemTears,armOff:f.armOff,armTear:f.armTear,wear:f.wear,oneArm:f.oneArm,seared:f.seared,drain:f.drain,eyeLit:f.eyeLit,phantom:f.phantom},extra);}
 // drawing needs Path2D and a context that reports its transform; without them (the headless checks) Kael keeps the old figure
 const ok=typeof Path2D==='function'&&typeof CanvasRenderingContext2D!=='undefined'&&!!CanvasRenderingContext2D.prototype.getTransform;
-return{draw,snap,cfg,ok,rng,LOOKS,OUTFITS,HAIRS,seen:SEEN,capsule,piece,coatTargets,hemLine,COAT,coatCloth,coatClothStep,coatFly,CLOTH,armPiece,windK,WIND,bareTube,armFront,MUS};
+return{blade,coatStep,layerOpen,layerClose,shieldShape,pitLook,scarfRibbon,ripShape,draw,snap,cfg,ok,rng,LOOKS,OUTFITS,HAIRS,seen:SEEN,capsule,piece,coatTargets,hemLine,COAT,coatCloth,coatClothStep,coatFly,CLOTH,armPiece,windK,WIND,bareTube,armFront,MUS};
 })();
 // ---------- in the game ----------
 // Kael (HERO_NAME on the screen: Ilyas) is S.F[0]; S.classicLook brings back the old figure

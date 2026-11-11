@@ -456,8 +456,17 @@ function stylePose(f,part,name){const p=animStyleOf(f).pose;return p&&p[part]&&p
 function styleMoves(f,T){const R=ANIM_MOVES;if(!f||(T&&T.lash))return R;
   const st=animStyleOf(f),P=st.moves;let o=R;
   if(P&&P!==R){if(!st.full||st.full<=1)o=P;else{const m=clamp((f.skill-1)/(st.full-1),0,1);if(m>=1)o=P;else if(m>0){o={};for(const k in R)o[k]=lerp(R[k],P[k]??R[k],m);}}}
-  const sm=skillMix(f);if(!sm.w)return o;const SP=ANIM_SKILL[sm.k].moves,r={};
-  for(const k in R)r[k]=o[k]*lerp(1,SP[k]??1,sm.w);return r;}
+  const sm=skillMix(f),bm=buildMix(f);if(!sm.w&&!bm)return o;const SP=sm.w?ANIM_SKILL[sm.k].moves:null,BP=bm?ANIM_BUILD[bm<0?'slight':'heavy']:null,r={};
+  for(const k in R)r[k]=o[k]*(SP?lerp(1,SP[k]??1,sm.w):1)*(BP?lerp(1,BP[k]??1,Math.abs(bm)):1);return r;}
+// Motion by build (a trial, off in the game: ANIM_BUILD.on; the flow test turns it on): a heavy man winds up bigger, swings
+// through further and is slower back to his guard, a slight one is quicker and tighter. buildMix: -1 the slightest to 1 the
+// heaviest (a man's by his bulk, lo to hi; a goblin's by its kind); plain: the plain variant of a blow weighs this for a Novice
+// and for a Master, so a better man uses it less.
+const ANIM_BUILD={on:false,lo:.96,hi:1.4,gob:{runt:-1,skulker:-.35,brute:.9},plain:[1.25,.55],
+  slight:{cock:.92,wind:.9,follow:.9,reach:.94,recover:.86,amp:.95},heavy:{cock:1.12,wind:1.12,follow:1.14,reach:1.08,recover:1.2,amp:1.07}};
+function buildMix(f){if(!ANIM_BUILD.on||!f||!f.body||f.idx===0)return 0;const b=f.body;
+  if(b.gob)return ANIM_BUILD.gob[b.gob]||0;if(f.beast)return 0;
+  return clamp((b.bulk-(ANIM_BUILD.lo+ANIM_BUILD.hi)/2)/((ANIM_BUILD.hi-ANIM_BUILD.lo)/2),-1,1);}
 // the guard: the weapon's GUARD entry at his rank (skillGuard) with the style's changes
 function styleGuard(f){const g=skillGuard(f),k=animStyleOf(f).guard;if(!k)return g;
   const o={...g,hx:g.hx*(k.hand??1),hy:g.hy-(k.up??0),off:g.off?[g.off[0]*(k.off??1),g.off[1]-(k.offUp??0)]:g.off,crouch:g.crouch+(k.crouch??0),lean:g.lean+(k.lean??0),
@@ -613,6 +622,7 @@ function variantWeight(A,kind,v,last,chain){
   if(v.fam&&!v.fam.includes(wp.fam))return 0;
   if(v.curved&&!wp.curved)return 0;
   if(v.wsk)w*=lerp(v.wsk[0],v.wsk[1],A.sk);
+  if(ANIM_BUILD.on&&v===ATTACK.variant[kind][0])w*=lerp(ANIM_BUILD.plain[0],ANIM_BUILD.plain[1],A.sk||0);
   // the same one again straight after: seldom; one that starts where the last left the blade: often
   if(last&&last.kind===kind&&last.key===v.key)w*=.35;
   if(chain&&v.from)w*=v.from===chain?3.5:.6;

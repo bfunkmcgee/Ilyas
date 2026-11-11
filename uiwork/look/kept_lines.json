@@ -1933,12 +1933,6 @@
 },
 {
 "file": "sk_castui.js",
-"src": "save();c.clip(P2(HR.cap));c.strokeStyle=C.hairHi;c.lineWidth=2;c.globalAlpha=elf?.55:.3;c.stroke(P2(HR.strands));c.restore();}}",
-"med": 0.261,
-"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
-},
-{
-"file": "sk_castui.js",
 "src": "  if(HR.tie){c.strokeStyle=C.accent||C.hairLine;c.lineWidth=6.26;c.stroke(P2(HR.tie));}",
 "med": 0.958,
 "why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views"
@@ -2134,5 +2128,35 @@
 "src": "(c,V,G.cyl,pal.case,ld);c.strokeStyle=pal.caseHi;c.lineWidth=1.5;c.globalAlpha=.55;c.beginPath();",
 "med": 1.354,
 "why": "drawn smaller for its distance on the Tower Road's ramp (B.vk, since V101): a bike and its rider far up the ramp, and a drum's blast, their lines scaled with them"
+},
+{
+"file": "sk_castui.js",
+"src": "c.strokeStyle=C.hairHi;c.lineWidth=2;c.globalAlpha=elf?.55:fine?.42:.3;c.stroke(P2(HR.strands));c.restore",
+"med": 0.369,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first in the review's frames in V103, in the set pieces' close views (its text changed with V116's finer figures)"
+},
+{
+"file": "sk_castui.js",
+"src": "ed){c.strokeStyle=C.glasses||C.button||'#e2b65a';c.lineWidth=lod>=1?4.18:5.43;c.beginPath();c.ellipse(E.x-3.4,E.y+.6,8,6.2,0,0,TAU)",
+"med": 0.771,
+"why": "the figure tier: its lines held to the fighters' drawing budgets in V84's pass (the perf suite's limits); first under the rule in V116: the roof's close shot draws a man's glasses at their finer width (4.18 for 5.43), 2.3 pixels on a phone"
+},
+{
+"file": "sk_lookui.js",
+"src": "poly(J);c.strokeStyle=col[2];c.globalAlpha=.7*a0;c.lineWidth=sw*1.55;c.stroke();c.translate(L.x*sw*.35,L.y*sw*.35);",
+"med": 1.139,
+"why": "the figure tier: his own drawing's fine lines (the shadow under each scar the drained lines leave: 2 pixels at the least on the screen, 1.1 of his units), held to the fighters' drawing budgets (V84); first under the rule in V116, in the fall's close shots, where a unit is three or four pixels"
+},
+{
+"file": "sk_lookui.js",
+"src": "{c.fillStyle=col[0];c.fill(leaves);c.fill(runes);c.lineWidth=Math.max(.3,.55/k);c.strokeStyle=col[0];c.stroke(curls);}",
+"med": 0.5,
+"why": "the figure tier: his own drawing's fine lines (the curls of the scars, drawn only close up, as the lit lines' curls kept in V106), held to the fighters' drawing budgets (V84); first in the review's frames in V116, the fall's close shots"
+},
+{
+"file": "sk_lookui.js",
+"src": "trokeStyle=rimCol;c.globalAlpha=al*(lod?.48:.34);c.lineWidth=w*1.1;c.stroke(P);c.translate(-L.x*w*1.2,-L.y*w*1.2);",
+"med": 0.369,
+"why": "the figure tier: his own drawing's fine lines (the rim along his lit edge: faint at the game's size, under .2, and a little stronger close up), held to the fighters' drawing budgets (V84); first in the review's frames in V116, where the memories paint him large"
 }
 ]

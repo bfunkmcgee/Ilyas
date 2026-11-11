@@ -1,7 +1,7 @@
 {
 "_": "The lookbook's judgments (uiwork/look/lookbook.py builds the page from these and a look review's folder): every place held to the frame of its kind, as the style guide's rule 2 and its place table set them. A verdict is ok (holds beside its target), mid (mixed) or bad (falls off); a target is the frame of its kind. Notes are [p, m or o, text]: what holds, what does not, what would bring it up. Judged by eye at V88 (Nov 4) on the review's phone frames, the 13 mixed ones again at V90 (Nov 5); judge again when a place changes.",
-"version": "V115",
-"date": "November 10, 2026",
+"version": "V116",
+"date": "November 11, 2026",
 "before": {"ok": 15, "mid": 13, "bad": 0, "views": 28, "version": "V88", "date": "November 4"},
 "audit": {"ok": 9, "mid": 12, "bad": 6, "views": 27, "version": "V73", "date": "November 2"},
 "kinds": [
@@ -19,14 +19,15 @@
   {"id": "roof", "kind": "set", "title": "XI. The Roof", "sub": "Midnight, the top of the tower", "verdict": "ok",
    "frames": ["roof_t22", "roof_t4", "roof_t10", "roof_t16", "roof_t32.9", "roof_t33.9"],
    "notes": [["p", "The searchlights fade softly into the night, and the man in white stands lit in the helicopter's door."],
-             ["p", "The gold drains on the shot: 2.3% of the light before it, 1.2% as it fires, 0.6% after."],
+             ["p", "The gold drains on the shot: 2.3% of the light before it, 0.2% as it fires and after."],
              ["p", "Since V90 a deck of cloud goes over the pad, silvered toward the moon and warm with the city under it, and the far city fills the band over the parapet, its avenues running out to the horizon: the sky has the fall's layers."],
-             ["m", "Below the roof's edge the city shows only past the edge itself, as he backs to it."]]},
+             ["p", "Since V116 the shot and his steps back to the edge are filmed close, and on an upright phone from a little above: the roof, his blood on it and the edge, with the city far under the edge as he tips over it."]]},
   {"id": "fall", "kind": "set", "title": "The Fall", "sub": "Down the face of Hallowell Tower, into the Pit", "verdict": "target",
-   "frames": ["fall_t24", "fall_t4", "fall_t37", "fall_t46.5"],
-   "notes": [["p", "The frame set pieces are held to: the tower's face in lit windows, the desert in his head beyond it, the finish's glow and darkened edges."],
+   "frames": ["fall_t24", "fall_t4", "fall_t9", "fall_t11.5", "fall_t37", "fall_t46.5"],
+   "notes": [["p", "The frame set pieces are held to: the tower's face in lit windows, the finish's glow and darkened edges. Since V116 the scene is filmed shot by shot, close on him for most of his thoughts."],
+             ["p", "The desert in his head is three memories, each the whole picture (the inking, the wire, the well), and a dune under him when he says he can wait. Their skies carry combed cirrus and their sand the wind's ripples: no flat patch in any of them."],
              ["p", "Its dearest frame, timed by turns, is every place's budget for a frame."],
-             ["m", "The dream's open sky stays clean on purpose (8 to 10% of the picture flat), the one clean sky in the game."]]},
+             ["m", "That frame reads 44.8 ms in V116's review against 35 before: the close shots show more of the tower's face. The budget is that much looser for every other place."]]},
 
   {"id": "dining", "kind": "rooms", "title": "V. The Dining Room", "sub": "The Lantern Bistro, midnight", "verdict": "mid",
    "frames": ["dining_f5", "dining_f2"],
@@ -194,7 +195,7 @@
 ],
 "script": [
   {"label": "The prologue: one night, an hour before midnight to just past it", "frames": ["sundown_t6", "field_f4", "chase_f8", "highway_f4", "roadblock_f4", "vargo_t3", "vargo_f4", "dining_f5", "kitchen_f2", "platform_t3", "line_f2", "deep_f4", "lobby_t3", "lobby_f4", "office_t3", "office_f4", "roof_t4", "roof_t22", "roof_t32.9", "roof_t33.9"]},
-  {"label": "The fall", "frames": ["fall_t4", "fall_t24", "fall_t37", "fall_t46.5"]},
+  {"label": "The fall", "frames": ["fall_t4", "fall_t9", "fall_t11.5", "fall_t24", "fall_t37", "fall_t46.5"]},
   {"label": "Act I, the Pit: the landing to the mornings", "frames": ["roof1_t9", "kitchen1_t3", "backroom_t12", "yard1_t15", "list_t5", "stairsup_t15", "shelfstair_t5", "shelf_t5", "stairsdown_t5", "toll_f4", "tamm_f4", "night_t5", "sh1_t3", "sh1_f4"]}
 ]
 }

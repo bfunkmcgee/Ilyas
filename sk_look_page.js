@@ -251,7 +251,7 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   expect('on a phone he draws every frame and still shows the gold and the pale hair',phone.calls===240&&phone.px.gold>20&&phone.px.pale>10,JSON.stringify(phone));
   // the fall on a phone held upright: the floors and the night are drawn to the top of the picture (it sees far above the still layer's
   // top, whose edge was only stretched up there before V72: a band of bare piers over the windows)
-  const phFall=await ph.evaluate(()=>{storyGo('fall');S.storyAuto=true;S.auto=true;step(2);const t0=S.t;while(S.t<t0+20)step(1);
+  const phFall=await ph.evaluate(()=>{storyGo('fall');S.storyAuto=true;S.auto=true;step(2);const t0=S.t;while(S.t<t0+28)step(1);
     const r=drawAll(()=>{step(2);const sp=EnvLook.S.fall.span;return{top:Math.round(sp.top),camTop:Math.round(camTop()),layerTop:RC.y0,D:+fallDream().toFixed(2)};});storyQuit();return r;});
   expect('the fall on a phone held upright: the floors and the night are drawn to the top of the picture, past the still layer\'s top',phFall.camTop<phFall.layerTop&&phFall.top<=phFall.camTop-30,JSON.stringify(phFall));
 
