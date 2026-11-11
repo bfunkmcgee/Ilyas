@@ -5,15 +5,19 @@
 //                  stage's start, let go when the Pit has him), with him in them drawn by his own painter as he was (rangerOf,
 //                  bakeFigure: bare of the coat, the gilt alight), and a little that moves over each (the needle and the lines taking
 //                  light, the scarf, the sand on the wind). In through his eye (V.eye, V.white), out torn upward in strands (V.strip).
-//                  Waiting on the wire, a dune under him in the world's own terms, and he is drawn again over it.
+//                  Waiting on the wire, a dune under him in the world's own terms (duneLie: a piece painted once), and he is
+//                  drawn again over it. Their lines are the drawing guide's widths in the world's units as the camera under them
+//                  has them (FallCut.MEM; PXU, dkw, ltw); their skies carry combed cirrus and their sand the wind's ripples: a
+//                  bare sky or a bare face of sand is a flat patch to the look review.
 //   besides        the helicopter's light far up (V.heli), the sign's colour over the picture (V.wash), beads of blood and motes
 //                  of the gilt's light left above him, a pulse of the rim's light as each setback passes, the spark in his eye
 //                  (V.spark), the dark closing on the arm at the end (V.last).
-// Every frame of the fall is drawn under a memory as always: skipping it made the fall's painter take up to a second on the first
-// frame back. With reduced motion the flash, the strands, the sand and the pulse are left out and the camera cuts.
+// Under a memory that covers the picture the page's drawing runs as always, but inside an empty clip (covered, render): the fall's
+// painter keeps its pieces up (skipping the drawing made it take up to a second on the first frame back) and nothing of it is put
+// down. With reduced motion the flash, the strands, the sand and the pulse are left out and the camera cuts.
 const FallCutUI = (() => {
   'use strict';
-  const { state, V, FX, POSES, fk, bonesOf, hsh, armAt } = FallCut, DEG = Math.PI / 180, PL = { key: '', P: null, n: 0 };
+  const { state, V, FX, POSES, fk, bonesOf, hsh, armAt, MEM, WIRE } = FallCut, DEG = Math.PI / 180, PL = { key: '', P: null, n: 0 };
 
   // ---------- the desert in his head ----------
   // Three memories and a waking dream, each the whole picture: painted once as a plate the size of the screen (the sky, the sun, the
@@ -40,11 +44,32 @@ const FallCutUI = (() => {
   // ----- the plates -----
   const vt = () => (V.tFix != null ? V.tFix : S.t - V.t0);
   // the picture between the bars: its size in the canvas's own pixels, u a unit that keeps things the same size on any screen
-  function box() { const w = cv.width, h = cv.height, bar = S.letter ? Math.round(h * .105) : 0, vh = h - 2 * bar; return { w, h, y0: bar, vh, tall: vh > w * 1.05, u: Math.min(w, vh * 1.9) / 1000 }; }
+  // (px: the screen's pixels to one of the world's units as the camera under the memories has them, FallCut.MEM)
+  function box() { const w = cv.width, h = cv.height, bar = S.letter ? Math.round(h * .105) : 0, vh = h - 2 * bar; return { w, h, y0: bar, vh, tall: vh > w * 1.05, u: Math.min(w, vh * 1.9) / 1000, px: w / (cssW < 640 ? MEM.wn : MEM.w) }; }
+  // The drawing guide's widths (rule 2) in pictures painted for the screen: a dark line is a unit and a half at the least and a
+  // light one a unit, of the world's units as the camera under the memories has them (PXU, set with the plates).
+  // (a little over, for the inking's plate: it stands behind the dune while the camera closes an eighth before the vow's first cut)
+  let PXU = 1; const dkw = v => Math.max(v, 1.7 * PXU), ltw = v => Math.max(v, 1.15 * PXU);
   function skyAndSun(g, B, hz, sx, sy, sr) { const { w, h } = B;
     g.fillStyle = lin(g, 0, B.y0, 0, hz, [[0, '#2b65a5'], [.42, '#6ea7d5'], [.78, '#cadedb'], [1, '#fbecca']]); g.fillRect(0, 0, w, hz + 2);
+    cirrus(g, B, hz, sx, sy, Math.round(hz + sx));
     g.fillStyle = rad(g, sx, sy, 0, sr * 9, [[0, 'rgba(255,253,244,1)'], [.1, 'rgba(255,247,220,.9)'], [.24, 'rgba(255,232,170,.45)'], [.55, 'rgba(255,214,140,.14)'], [1, 'rgba(255,205,130,0)']]); g.fillRect(0, 0, w, h);
     g.fillStyle = '#fffef6'; g.beginPath(); g.arc(sx, sy, sr, 0, TAU); g.fill(); }
+  // High cirrus combed out along the wind over the whole of a sky, white where the sky is deep and the sun near, a cooler thread
+  // low down where the sky is white with the heat (a bare sky is a flat patch: the drawing guide's rule 5).
+  function cirrus(g, B, hz, sx, sy, seed) { const { w } = B, r = mulberry32(seed), y0 = B.y0, D = hz - y0, n = Math.round(w * D / (PXU * PXU * 520));
+    for (let i = 0; i < n; i++) { const v = r(), y = y0 + D * (.02 + .96 * v), x = r() * w, hw = (24 + r() * 130) * PXU, hh = (.9 + r() * 2.2) * PXU, near = clamp(1 - Math.hypot(x - sx, (y - sy) * 1.4) / (w * .9), 0, 1), cool = r() < .12 + .5 * v * v;
+      g.fillStyle = cool ? 'rgba(96,134,176,' + (.07 + .1 * r()).toFixed(3) + ')' : 'rgba(255,255,255,' + ((.05 + .08 * near) * (.5 + r() * .5) * (1.25 - .5 * v)).toFixed(3) + ')';
+      g.beginPath(); g.ellipse(x, y, hw, hh, -.05 + (r() - .5) * .05, 0, TAU); g.fill(); } }
+  // The wind's ripples across open sand from y0 down to y1 (u: how near, 0 at the horizon to 1 at the picture's foot; none far
+  // off): broken lines running with the wind, each a lip of light over a line of shade, wider apart and longer the nearer.
+  function ripples(g, B, y0, y1, u, seed) { if (u < .3 || y1 <= y0) { return; } const { w } = B, r = mulberry32(seed), gap = (5 + 11 * u) * PXU; g.save(); g.beginPath(); g.rect(0, y0, w, y1 - y0); g.clip(); g.lineCap = 'round';
+    for (let y = y0 + gap * (.5 + r()); y < y1 + gap; y += gap * (.75 + r() * .5)) { const ph = r() * 7, amp = (1 + 2.2 * u) * PXU, wl = (26 + 30 * u) * (.8 + .4 * r()) * PXU; let x = -r() * 120 * PXU;
+      while (x < w) { const xa = x, xb = Math.min(w + 10, xa + (50 + r() * 190) * (.5 + u) * PXU), run = dy => { g.beginPath(); for (let xx = xa; xx <= xb; xx += 9 * PXU) { const yy = y - (xx - xa) * .03 + Math.sin(xx / wl + ph) * amp + dy; if (xx === xa) { g.moveTo(xx, yy); } else { g.lineTo(xx, yy); } } g.stroke(); };
+        g.strokeStyle = 'rgba(112,64,26,' + (.1 + .08 * u).toFixed(3) + ')'; g.lineWidth = dkw(1.2 * PXU * (.6 + u)); run(0);
+        g.strokeStyle = 'rgba(255,240,208,' + (.1 + .08 * u).toFixed(3) + ')'; g.lineWidth = ltw(PXU * (.5 + u * .6)); run(-1.6 * PXU * (.7 + u * .5));
+        x = xb + (16 + r() * 90) * PXU; } }
+    g.restore(); }
   // The land from the horizon to the picture's foot: ridge behind ridge of sand, each pale along its crest and deeper toward its
   // foot, paler and flatter the further off; then (o.dunes) the near dunes, each with the crest that winds down from its top toward
   // us and the face left of it turned from the sun.
@@ -62,13 +87,14 @@ const FallCutUI = (() => {
     sh.bezierCurveTo(px - hw * .56, ky, px + hw * .2, py + hh * .52, px, py); sh.closePath(); g.fillStyle = lin(g, 0, py, 0, foot, [[0, C.s[0]], [1, C.s[1]]]); g.fill(sh);
     g.beginPath(); g.moveTo(px, py); g.bezierCurveTo(px + hw * .2, py + hh * .52, px - hw * .56, ky, ex, foot + 4); g.strokeStyle = C.c; g.lineWidth = lw; g.lineCap = 'round'; g.stroke();
     // the wind's ripples down the lit side
-    g.save(); g.clip(body); g.strokeStyle = 'rgba(120,70,30,.13)'; g.lineWidth = Math.max(1, lw * .7); for (let i = 1; i < 8; i++) { const t = i / 8; g.beginPath(); g.moveTo(px + hw * (.1 + t * .16), py + hh * (.2 + t * .5)); g.bezierCurveTo(px + hw * .5, py + hh * (.3 + t * .7), px + hw * 1.0, by + (foot - by) * t * .5, R, by + hh * .2 + (foot - by) * t * .8); g.stroke(); } g.restore(); }
+    g.save(); g.clip(body); g.strokeStyle = 'rgba(120,70,30,.13)'; g.lineWidth = dkw(lw * .7); for (let i = 1; i < 8; i++) { const t = i / 8; g.beginPath(); g.moveTo(px + hw * (.1 + t * .16), py + hh * (.2 + t * .5)); g.bezierCurveTo(px + hw * .5, py + hh * (.3 + t * .7), px + hw * 1.0, by + (foot - by) * t * .5, R, by + hh * .2 + (foot - by) * t * .8); g.stroke(); } g.restore(); }
   const DUNE = [{ l: ['#ecc88c', '#dcae6a'], s: ['#b98a56', '#c69860'], c: 'rgba(255,246,220,.85)' }, { l: ['#e4b468', '#cf9648'], s: ['#96663a', '#a97642'], c: 'rgba(255,242,208,.9)' }, { l: ['#dba24e', '#b97c36'], s: ['#74482a', '#8a5a30'], c: 'rgba(255,238,196,.95)' }];
   function land(g, B, hz, seed, o) { const { w, h, u } = B, foot = B.y0 + B.vh, D = foot - hz; o = o || {};
     g.fillStyle = lin(g, 0, hz, 0, foot, [[0, '#f5e6c4'], [1, '#d9a85e']]); g.fillRect(0, hz - 1, w, h - hz + 1);
     const ys = o.ys || [.03, .075, .14, .23, .36, .54, .78], n = ys.length;
-    for (let i = 0; i < n; i++) { ridge(g, B, hz + D * ys[i], D * (.012 + .028 * i) * (o.amp || 1), seed * 13 + i, RIDGE[Math.min(RIDGE.length - 1, Math.round(i * (RIDGE.length - 1) / (n - 1)))], foot, Math.max(1, (.7 + i * .25) * u)); 
-      for (const d of (o.dunes || [])) { if (d.after === i) { dune(g, w * d.x, hz + D * d.y, w * d.w * (B.tall ? 1.5 : 1), Math.min(D * d.h, w * d.w * (B.tall ? .8 : 9)), foot, DUNE[d.tone ?? 1], Math.max(1.5, (d.lw || 2) * u)); } } }
+    for (let i = 0; i < n; i++) { ridge(g, B, hz + D * ys[i], D * (.012 + .028 * i) * (o.amp || 1), seed * 13 + i, RIDGE[Math.min(RIDGE.length - 1, Math.round(i * (RIDGE.length - 1) / (n - 1)))], foot, ltw((.7 + i * .25) * u));
+      ripples(g, B, hz + D * ys[i] + 2 * PXU, i + 1 < n ? hz + D * ys[i + 1] + 2 * PXU : foot + 4, i / (n - 1), seed * 31 + i);
+      for (const d of (o.dunes || [])) { if (d.after === i) { dune(g, w * d.x, hz + D * d.y, w * d.w * (B.tall ? 1.5 : 1), Math.min(D * d.h, w * d.w * (B.tall ? .8 : 9)), foot, DUNE[d.tone ?? 1], ltw((d.lw || 2) * u)); } } }
     // the white of the heat lying along the horizon
     g.fillStyle = lin(g, 0, hz - D * .06, 0, hz + D * .1, [[0, 'rgba(255,250,236,0)'], [.36, 'rgba(255,250,236,.75)'], [1, 'rgba(255,250,236,0)']]); g.fillRect(0, hz - D * .06, w, D * .16);
     // grain in the sand
@@ -79,16 +105,17 @@ const FallCutUI = (() => {
   // a post of the wire, and the wire's strands from one post to the next
   function post(g, x, y, hgt, lean) { const w0 = hgt * .05, w1 = hgt * .032, tx = x + lean * hgt;
     g.beginPath(); g.moveTo(x - w0, y); g.lineTo(tx - w1, y - hgt); g.lineTo(tx + w1, y - hgt * 1.01); g.lineTo(x + w0, y); g.closePath(); g.fillStyle = '#2c1b13'; g.fill();
-    g.beginPath(); g.moveTo(x + w0 * .9, y); g.lineTo(tx + w1 * .9, y - hgt * 1.01); g.strokeStyle = 'rgba(255,214,150,.8)'; g.lineWidth = Math.max(1, w0 * .34); g.stroke();
+    g.beginPath(); g.moveTo(x + w0 * .9, y); g.lineTo(tx + w1 * .9, y - hgt * 1.01); g.strokeStyle = 'rgba(255,214,150,.8)'; g.lineWidth = ltw(w0 * .34); g.stroke();
     return [.93, .72, .5].map(f => ({ x: lerp(x, tx, f), y: y - hgt * f })); }
-  function strands(g, A, Bq, lw) { g.strokeStyle = 'rgba(46,28,18,.92)'; g.lineWidth = lw; g.lineCap = 'round';
-    for (let i = 0; i < 3; i++) { const a = A[i], b = Bq[i], sag = Math.hypot(b.x - a.x, b.y - a.y) * .05; g.beginPath(); g.moveTo(a.x, a.y); g.quadraticCurveTo((a.x + b.x) / 2, (a.y + b.y) / 2 + sag, b.x, b.y); g.stroke(); } }
+  // (far off, where the three would run together, the wire is one line)
+  function strands(g, A, Bq, lw) { g.strokeStyle = 'rgba(46,28,18,.92)'; g.lineWidth = lw; g.lineCap = 'round'; const one = Math.abs(Bq[1].y - Bq[0].y) < lw * 2.4;
+    for (let i = one ? 1 : 0; i < (one ? 2 : 3); i++) { const a = A[i], b = Bq[i], sag = Math.hypot(b.x - a.x, b.y - a.y) * .05; g.beginPath(); g.moveTo(a.x, a.y); g.quadraticCurveTo((a.x + b.x) / 2, (a.y + b.y) / 2 + sag, b.x, b.y); g.stroke(); } }
   // the wire running out to the horizon: posts from near (x0, y0, height h0) to far, and what hangs on it
   function wire(g, B, near, far, n, seed) { const r = mulberry32(seed), P = []; const c = .55, F = 1 - 1 / (1 + n * c);
     for (let k = 0; k <= n; k++) { const s = (1 - 1 / (1 + k * c)) / F; P.push({ x: lerp(near.x, far.x, s), y: lerp(near.y, far.y, s), h: lerp(near.h, far.h, s), lean: (r() - .5) * .07 }); }
     let prev = null; const tops = [];
     for (let k = n; k >= 0; k--) { const q = P[k], T = post(g, q.x, q.y, q.h, q.lean); tops[k] = T; }
-    for (let k = n; k > 0; k--) { strands(g, tops[k], tops[k - 1], Math.max(1, P[k - 1].h * .011));
+    for (let k = n; k > 0; k--) { strands(g, tops[k], tops[k - 1], dkw(P[k - 1].h * .011));
       // (rags and tin tags tied along the nearer spans)
       if (k < 4) { const a = tops[k][1], b = tops[k - 1][1]; for (let j = 1; j < 5; j++) { const t = j / 5, x = lerp(a.x, b.x, t), y = lerp(a.y, b.y, t) + Math.sin(t * Math.PI) * Math.hypot(b.x - a.x, b.y - a.y) * .025, sz = P[k - 1].h * .03;
         g.fillStyle = j % 2 ? '#8e3f24' : '#d9c9a0'; g.fillRect(x - sz * .3, y, sz * .6, sz * (1 + r())); } } }
@@ -105,14 +132,14 @@ const FallCutUI = (() => {
     g.beginPath(); g.moveTo(X(.05), Y(-.905)); g.lineTo(X(.082), Y(-.885)); g.lineTo(X(.05), Y(-.87)); g.closePath(); g.fill();
     g.fillStyle = o.cloth || '#e6d7b4'; g.beginPath(); g.moveTo(X(.03), Y(-.975)); g.quadraticCurveTo(X(-.075), Y(-.99), X(-.07), Y(-.89)); g.quadraticCurveTo(X(-.135), Y(-.82), X(-.118), Y(-.68)); g.lineTo(X(-.02), Y(-.77));
     g.quadraticCurveTo(X(-.012), Y(-.86), X(.004), Y(-.9)); g.quadraticCurveTo(X(.03), Y(-.94), X(.03), Y(-.975)); g.closePath(); g.fill();
-    g.strokeStyle = 'rgba(60,34,20,.35)'; g.lineWidth = Math.max(1, hgt * .012); g.beginPath(); g.moveTo(X(-.06), Y(-.88)); g.quadraticCurveTo(X(-.1), Y(-.8), X(-.09), Y(-.71)); g.stroke();
+    g.strokeStyle = 'rgba(60,34,20,.35)'; g.lineWidth = dkw(hgt * .012); g.beginPath(); g.moveTo(X(-.06), Y(-.88)); g.quadraticCurveTo(X(-.1), Y(-.8), X(-.09), Y(-.71)); g.stroke();
     const jar = (jx, jy, s) => { g.fillStyle = '#9a5a34'; g.beginPath(); g.ellipse(jx, jy, s * .8, s, 0, 0, TAU); g.fill(); g.fillRect(jx - s * .3, jy - s * 1.35, s * .6, s * .5);
       g.fillStyle = 'rgba(255,226,170,.75)'; g.beginPath(); g.ellipse(jx + s * .3, jy - s * .2, s * .16, s * .5, .2, 0, TAU); g.fill(); };
     if (o.jar === 'head') { jar(X(.0), Y(-1.06), hgt * .075); g.strokeStyle = col; g.lineWidth = hgt * .045; g.lineCap = 'round'; g.beginPath(); g.moveTo(X(.08), Y(-.76)); g.lineTo(X(.07), Y(-1.02)); g.stroke(); }
     else if (o.jar === 'hip') { jar(X(.17), Y(-.4), hgt * .085); g.strokeStyle = col; g.lineWidth = hgt * .045; g.lineCap = 'round'; g.beginPath(); g.moveTo(X(.07), Y(-.74)); g.lineTo(X(.15), Y(-.48)); g.stroke(); }
     else if (o.jar === 'cup') { g.strokeStyle = col; g.lineWidth = hgt * .045; g.lineCap = 'round'; g.beginPath(); g.moveTo(X(.07), Y(-.74)); g.lineTo(X(.2), Y(-.62)); g.stroke(); }
     // the sun along the edge of them
-    g.save(); g.clip(body); g.strokeStyle = 'rgba(255,226,170,.9)'; g.lineWidth = Math.max(1.5, hgt * .028); g.beginPath(); const sx = d < 0 ? X(-.105) : X(.1), ex = d < 0 ? X(-.19) : X(.2);
+    g.save(); g.clip(body); g.strokeStyle = 'rgba(255,226,170,.9)'; g.lineWidth = ltw(hgt * .028); g.beginPath(); const sx = d < 0 ? X(-.105) : X(.1), ex = d < 0 ? X(-.19) : X(.2);
     g.moveTo(sx, Y(-.8)); g.quadraticCurveTo(d < 0 ? X(-.16) : X(.17), Y(-.43), ex, Y(0)); g.stroke(); g.restore(); }
   // the well: its ring of stone, the dark of its mouth, the frame over it, the rope and the pail
   function well(g, x, y, s) { const rx = 62 * s, ry = 17 * s, hh = 38 * s;
@@ -120,24 +147,50 @@ const FallCutUI = (() => {
     g.fillStyle = 'rgba(255,238,200,.55)'; g.beginPath(); g.ellipse(x + rx * .3, y + ry * .55, rx * 1.5, ry * .9, 0, 0, TAU); g.fill();
     const wall = new Path2D(); wall.moveTo(x - rx, y - hh); wall.lineTo(x - rx, y); wall.ellipse(x, y, rx, ry, 0, Math.PI, 0, true); wall.lineTo(x + rx, y - hh); wall.closePath();
     g.fillStyle = lin(g, x - rx, 0, x + rx, 0, [[0, '#6a4a32'], [.45, '#a8825a'], [.8, '#dcbb88'], [1, '#e9cd9c']]); g.fill(wall);
-    g.save(); g.clip(wall); g.strokeStyle = 'rgba(40,24,14,.42)'; g.lineWidth = Math.max(1, 1.2 * s);
+    g.save(); g.clip(wall); g.strokeStyle = 'rgba(40,24,14,.42)'; g.lineWidth = dkw(1.2 * s);
     for (let i = 1; i < 3; i++) { g.beginPath(); g.ellipse(x, y - hh * i / 3, rx, ry, 0, 0, Math.PI); g.stroke(); }
     for (let i = 0; i < 3; i++) { for (let j = 0; j < 9; j++) { const a = (j + (i % 2) * .5) / 9 * Math.PI, bx = x - Math.cos(a) * rx, by0 = y - hh * (i + 1) / 3 + Math.sin(a) * ry; g.beginPath(); g.moveTo(bx, by0); g.lineTo(bx, by0 + hh / 3); g.stroke(); } }
     g.restore();
     g.fillStyle = '#ecd2a2'; g.beginPath(); g.ellipse(x, y - hh, rx, ry, 0, 0, TAU); g.fill();
     g.fillStyle = '#140c07'; g.beginPath(); g.ellipse(x, y - hh, rx * .76, ry * .7, 0, 0, TAU); g.fill();
-    g.strokeStyle = 'rgba(110,200,214,.55)'; g.lineWidth = Math.max(1, 1.6 * s); g.beginPath(); g.ellipse(x, y - hh + ry * .1, rx * .5, ry * .34, 0, .3, 2.2); g.stroke();
+    g.strokeStyle = 'rgba(110,200,214,.55)'; g.lineWidth = ltw(1.6 * s); g.beginPath(); g.ellipse(x, y - hh + ry * .1, rx * .5, ry * .34, 0, .3, 2.2); g.stroke();
     // the frame, the wheel, the rope, the pail with the light in its water
     g.strokeStyle = '#3a2416'; g.lineCap = 'round'; g.lineWidth = 7 * s; g.beginPath(); g.moveTo(x - rx * .86, y - hh * .6); g.lineTo(x - rx * .7, y - hh - 104 * s); g.moveTo(x + rx * .86, y - hh * .6); g.lineTo(x + rx * .7, y - hh - 104 * s); g.stroke();
     g.lineWidth = 8 * s; g.beginPath(); g.moveTo(x - rx * .82, y - hh - 104 * s); g.lineTo(x + rx * .82, y - hh - 106 * s); g.stroke();
-    g.strokeStyle = 'rgba(255,214,150,.8)'; g.lineWidth = Math.max(1, 1.6 * s); g.beginPath(); g.moveTo(x + rx * .9, y - hh * .6); g.lineTo(x + rx * .74, y - hh - 104 * s); g.stroke();
+    g.strokeStyle = 'rgba(255,214,150,.8)'; g.lineWidth = ltw(1.6 * s); g.beginPath(); g.moveTo(x + rx * .9, y - hh * .6); g.lineTo(x + rx * .74, y - hh - 104 * s); g.stroke();
     g.fillStyle = '#4a2e1c'; g.beginPath(); g.arc(x, y - hh - 96 * s, 9 * s, 0, TAU); g.fill();
-    g.strokeStyle = '#cdb68c'; g.lineWidth = Math.max(1, 1.5 * s); g.beginPath(); g.moveTo(x, y - hh - 88 * s); g.lineTo(x, y - hh - 30 * s); g.stroke();
+    g.strokeStyle = '#cdb68c'; g.lineWidth = ltw(1.5 * s); g.beginPath(); g.moveTo(x, y - hh - 88 * s); g.lineTo(x, y - hh - 30 * s); g.stroke();
     const py = y - hh - 30 * s; g.fillStyle = '#5a3a22'; g.beginPath(); g.moveTo(x - 11 * s, py); g.lineTo(x + 11 * s, py); g.lineTo(x + 8 * s, py + 17 * s); g.lineTo(x - 8 * s, py + 17 * s); g.closePath(); g.fill();
     g.fillStyle = '#bff3ff'; g.beginPath(); g.ellipse(x, py + 1 * s, 10 * s, 2.6 * s, 0, 0, TAU); g.fill();
     return { pail: { x, y: py }, top: y - hh }; }
+  // The dune he lies on, waiting: its lit face and the face turned from the sun, the crest winding down between them toward us,
+  // the wind's ripples over the lit face (each a lip of light over a line of shade), the sand's slips down the other, and the
+  // glitter of the grains. In its own terms: x from his middle, y from where he lies; vw the view's width, HW how far it runs to
+  // either side, D how deep. (Painted once: a face of bare gradients is a flat patch, the drawing guide's rule 5.)
+  function duneLie(g, vw, HW, D) { const Lx = -HW - 10, Rx = HW + 10, bot = D + 10, eL = -vw / 2 - 30, eR = vw / 2 + 30, yL = 64 + (40 - 64) / (-vw * .3 - eL) * (Lx - eL), yR = 52 + (52 - 16) / (eR - 190) * (Rx - eR);
+    const bz = (a, b, c2, d, t) => { const m = 1 - t; return m * m * m * a + 3 * m * m * t * b + 3 * m * t * t * c2 + t * t * t * d; }, r = mulberry32(77);
+    const body = new Path2D(); body.moveTo(Lx, yL); body.lineTo(eL, 64); body.bezierCurveTo(-vw * .3, 40, -150, 1, -30, 0); body.bezierCurveTo(70, -1, 190, 16, eR, 52); body.lineTo(Rx, yR); body.lineTo(Rx, bot); body.lineTo(Lx, bot); body.closePath();
+    g.fillStyle = lin(g, 0, 0, 0, D, [[0, '#e9bd72'], [.5, '#d09a4c'], [1, '#a8702f']]); g.fill(body);
+    // (the lit face's top edge, to lay the ripples under)
+    const TP = []; for (let i = 0; i <= 40; i++) { TP.push([bz(-30, 70, 190, eR, i / 40), bz(0, -1, 16, 52, i / 40)]); } TP.push([Rx + 1, yR]);
+    const topY = x => { for (let i = 1; i < TP.length; i++) { if (x <= TP[i][0]) { const a = TP[i - 1], b = TP[i]; return a[1] + (b[1] - a[1]) * (x - a[0]) / Math.max(1e-6, b[0] - a[0]); } } return yR; };
+    g.save(); g.clip(body); g.lineCap = 'round'; const xs = -270;
+    for (let d = 8 + r() * 3, i = 0; d < bot + 20; d += 9 + i * 1.15 + r() * 4, i++) { const ph = r() * 7, amp = Math.min(2.6, .8 + i * .14), spread = .55 + r() * .2;
+      const line = dy => { g.beginPath(); for (let x = xs; x <= Rx; x += 7) { const u = clamp((x + 30) / (Rx + 30), 0, 1), y = topY(Math.max(x, -30)) + Math.max(0, -30 - x) * .12 + d * (1 + spread * u) + Math.sin(x / (21 + i) + ph) * amp + dy; if (x === xs) { g.moveTo(x, y); } else { g.lineTo(x, y); } } g.stroke(); };
+      g.strokeStyle = 'rgba(112,64,26,.17)'; g.lineWidth = 1.65; line(0); g.strokeStyle = 'rgba(255,236,196,.16)'; g.lineWidth = 1.2; line(-1.5); }
+    g.fillStyle = '#fff8e6'; for (let i = 0, n = Math.round((Rx + 200) * bot / 170); i < n; i++) { const x = -200 + r() * (Rx + 200), y = topY(Math.max(x, -30)) + 3 + r() * bot; g.globalAlpha = .2 + .5 * r(); g.fillRect(x, y, 1.1, 1.1); } g.globalAlpha = 1;
+    g.restore();
+    // the face turned from the sun, and the sand's slips down it
+    const sh = new Path2D(); sh.moveTo(-30, 0); sh.bezierCurveTo(-150, 1, -vw * .3, 40, eL, 64); sh.lineTo(Lx, yL); sh.lineTo(Lx, bot); sh.lineTo(-190, bot); sh.bezierCurveTo(-240, 120, -20, 70, -30, 0); sh.closePath();
+    g.fillStyle = lin(g, 0, 0, 0, D, [[0, '#9a6638'], [1, '#7a4a28']]); g.fill(sh);
+    g.save(); g.clip(sh); g.lineCap = 'round';
+    for (let off = 11 + r() * 4, j = 0; off < HW + 260; off += 12 + j * 2.2 + r() * 6, j++) { const ph = r() * 7, slip = k => { g.beginPath(); for (let i = 0; i <= 24; i++) { const t = i / 24, x = bz(-30, -20, -240, -190, t) - off * (.25 + .75 * t) + Math.sin(t * 9 + ph) * 2.2 + k, y = bz(0, 70, 120, bot, t); if (i) { g.lineTo(x, y); } else { g.moveTo(x, y); } } g.stroke(); };
+      g.strokeStyle = 'rgba(46,24,12,.2)'; g.lineWidth = 1.65; slip(0); g.strokeStyle = 'rgba(206,146,90,.15)'; g.lineWidth = 1.5; slip(2.2); }
+    g.restore();
+    // the crest catching the noon
+    g.beginPath(); g.moveTo(-30, 0); g.bezierCurveTo(-20, 70, -240, 120, -190, bot); g.strokeStyle = 'rgba(255,240,204,.9)'; g.lineWidth = 1.7; g.stroke(); }
   // the plates of this screen, made when first wanted (again if the screen changes)
-  function plates() { const B = box(), key = B.w + 'x' + B.h + (S.letter ? 'L' : ''); if (PL.P && PL.key === key) { return PL.P; } freePlates(); PL.key = key; const P = PL.P = { B }, { w, h, u, y0, vh, tall } = B;
+  function plates() { const B = box(), key = B.w + 'x' + B.h + (S.letter ? 'L' : ''); if (PL.P && PL.key === key) { return PL.P; } freePlates(); PL.key = key; PXU = B.px; const P = PL.P = { B }, { w, h, u, y0, vh, tall } = B;
     // (each plate is painted when it is first asked for: warmTick asks for them one at a time before they are wanted)
     const ps = Math.min(1, Math.sqrt(1.7e6 / (w * h))), plate = fn => { const c = mk(w * ps, h * ps), g = c.getContext('2d'); g.setTransform(ps, 0, 0, ps, 0, 0); fn(g); return c; };
     const lazy = (o, k, fn) => Object.defineProperty(o, k, { configurable: true, get() { const v = fn(); Object.defineProperty(o, k, { value: v, writable: true }); return v; } });
@@ -159,6 +212,10 @@ const FallCutUI = (() => {
         g.fillStyle = 'rgba(70,40,22,.3)'; g.beginPath(); g.ellipse(px - hg * .18, py, hg * .24, hg * .035, 0, 0, TAU); g.fill();
         robed(g, px, py, hg, { dir: -1, col: ROBES[(i * 3 + 1) % ROBES.length], jar: i === 0 ? 'cup' : i === 2 ? null : i % 2 ? 'head' : 'hip', cloth: i % 3 === 1 ? '#cfb07a' : '#e6d7b4' }); }
       I.well = well(g, wx, wy, s); I.s = s; I.wx = wx; I.wy = wy; I.him = tall ? 116 : 150; }));
+    // the dune he waits on, in its own terms (x from his middle, y from where he lies), at the size the wire's shot shows it
+    { const vw = cssW < 640 ? WIRE.wn : WIRE.w, sc = w / vw, HW = vw / 2 + 150, D = h / sc * .56 + 40, yd = -14, q = Math.min(1, Math.sqrt(1.3e6 / (2 * HW * sc * (D - yd) * sc)));
+      P.dune = { x0: -HW, y0: yd, w: 2 * HW, h: D - yd };
+      lazy(P.dune, 'cv', () => { const c = mk(2 * HW * sc * q, (D - yd) * sc * q), g = c.getContext('2d'); g.setTransform(sc * q, 0, 0, sc * q, HW * sc * q, -yd * sc * q); duneLie(g, vw, HW, D); return c; }); }
     // the light of noon let in round the edges of a memory
     lazy(P, 'glow', () => { const c = mk(256, 256), g = c.getContext('2d'); g.setTransform(256 / w, 0, 0, 256 / h, 0, 0); g.fillStyle = rad(g, w / 2, y0 + vh / 2, Math.min(w, vh) * .32, Math.hypot(w, vh) * .62, [[0, 'rgba(255,248,228,0)'], [.7, 'rgba(255,246,222,.2)'], [1, 'rgba(255,244,214,.62)']]); g.fillRect(0, 0, w, h); return c; });
     return P; }
@@ -179,7 +236,7 @@ const FallCutUI = (() => {
   // everything the memories are made of, asked for a piece at a time from the stage's start, before the first of them is wanted;
   // and let go once the Pit has him
   function warmTick() { if (!state.run || S.arenaKey !== 'fall' || !S.pit) { if (PL.P) { freePlates(); } return; } if (S.pit.on) { if (PL.P && !V.kind && !V.strip) { freeBig(); } return; }
-    if (++PL.n % 20) { return; } try { const P = plates(), F = figs(P), jobs = [() => P.ink.cv, () => F.inkDark, () => F.inkLit, () => P.wire.cv, () => P.wire.fg, () => F.wire, () => P.well.cv, () => F.well, () => (P.glow, F.glow)];
+    if (++PL.n % 20) { return; } try { const P = plates(), F = figs(P), jobs = [() => P.ink.cv, () => F.inkDark, () => F.inkLit, () => P.wire.cv, () => P.wire.fg, () => F.wire, () => P.well.cv, () => F.well, () => P.dune.cv, () => (P.glow, F.glow)];
       P.wi = P.wi || 0; if (P.wi < jobs.length) { jobs[P.wi++](); } } catch (e) { state.err = String(e && e.message || e); } }
   // a piece set down with one of his joints at (x, y) on the screen; back: where another joint then is
   function putFig(c, Fg, joint, x, y) { const F = Fg.F, fm = (F.p[FTF].x + F.p[FTB].x) / 2, dx = x - (Fg.ox + (F.p[joint].x - fm) * Fg.k), dy = y - (Fg.oy + (F.p[joint].y - F.foot) * Fg.k);
@@ -188,28 +245,30 @@ const FallCutUI = (() => {
   function scarfLive(c, x, y, s, t, dir) { const N = 10, L = 5 * s, top = [], bot = [];
     for (let i = 0; i <= N; i++) { const a = i / N, px = x + dir * i * L, py = y + a * a * 8 * s + Math.sin(t * 7.5 - i * .85) * (.8 + 5.2 * a) * s, wd = (3.4 - 2.3 * a) * s; top.push([px, py - wd]); bot.push([px, py + wd]); }
     c.beginPath(); c.moveTo(top[0][0], top[0][1]); for (const q of top) { c.lineTo(q[0], q[1]); } for (let i = N; i >= 0; i--) { c.lineTo(bot[i][0], bot[i][1]); } c.closePath(); c.fillStyle = '#a4532e'; c.fill();
-    c.beginPath(); c.moveTo(bot[0][0], bot[0][1]); for (const q of bot) { c.lineTo(q[0], q[1]); } c.strokeStyle = '#6a3018'; c.lineWidth = Math.max(1, 1.3 * s); c.stroke();
-    c.beginPath(); c.moveTo(top[0][0], top[0][1]); for (const q of top) { c.lineTo(q[0], q[1]); } c.strokeStyle = 'rgba(255,214,160,.7)'; c.lineWidth = Math.max(1, .7 * s); c.stroke();
+    // (its shaded edge and its lit one, as far along it as it is wide enough to carry them)
+    const wD = dkw(1.3 * s), wL = ltw(.7 * s), m = Math.floor(clamp((3.4 - (wD + wL) / s) / 2.3, 0, 1) * N);
+    if (m > 0) { c.lineCap = 'round'; c.beginPath(); c.moveTo(bot[0][0], bot[0][1]); for (let i = 1; i <= m; i++) { c.lineTo(bot[i][0], bot[i][1]); } c.strokeStyle = '#6a3018'; c.lineWidth = wD; c.stroke();
+      c.beginPath(); c.moveTo(top[0][0], top[0][1]); for (let i = 1; i <= m; i++) { c.lineTo(top[i][0], top[i][1]); } c.strokeStyle = 'rgba(255,214,160,.7)'; c.lineWidth = wL; c.stroke(); }
     // (the knot of it at his throat)
     c.fillStyle = '#8e4526'; c.beginPath(); c.ellipse(x, y, 3.6 * s, 3 * s, 0, 0, TAU); c.fill(); }
   // sand going by on the wind, in one batch (big: the nearer, faster, longer streaks)
-  function sandWind(c, B, t, ya, yb, n, a, big) { if (reduceMotion) { return; } const { w, u } = B, len = (big ? 110 : 50) * u, span = w + len * 2; c.save(); c.strokeStyle = 'rgba(255,243,214,' + a + ')'; c.lineWidth = Math.max(1, (big ? 2.2 : 1.2) * u); c.lineCap = 'round'; c.beginPath();
+  function sandWind(c, B, t, ya, yb, n, a, big) { if (reduceMotion) { return; } const { w, u } = B, len = (big ? 110 : 50) * u, span = w + len * 2; c.save(); c.strokeStyle = 'rgba(255,243,214,' + a + ')'; c.lineWidth = ltw((big ? 2.2 : 1.2) * u); c.lineCap = 'round'; c.beginPath();
     for (let i = 0; i < n; i++) { const sp = (.3 + hsh(i, 3) * .5) * w * (big ? 1.7 : 1), x = w + len - ((hsh(i, 1) * span + t * sp) % span), y = lerp(ya, yb, hsh(i, 2)) + Math.sin(t * 2 + i) * 4 * u, l = len * (.4 + hsh(i, 4));
       c.moveTo(x, y); c.lineTo(x + l, y - l * .05); } c.stroke(); c.restore(); }
   // the Ranger who inks him: a hand out of a rust sleeve, the needle of light in it, its point at (tx, ty)
   function inker(c, tx, ty, s, t) { const an = -1.16, L = 25 * s, hx = tx + Math.cos(an) * L, hy = ty + Math.sin(an) * L, sa = -.62, dx = Math.cos(sa), dy = Math.sin(sa), nx = -dy, ny = dx;
-    c.lineCap = 'round'; c.strokeStyle = '#24140c'; c.lineWidth = 1.5 * s; c.beginPath(); c.moveTo(tx, ty); c.lineTo(hx + Math.cos(an) * 7 * s, hy + Math.sin(an) * 7 * s); c.stroke();
-    c.strokeStyle = '#e0aa50'; c.lineWidth = .8 * s; c.beginPath(); c.moveTo(lerp(tx, hx, .5), lerp(ty, hy, .5)); c.lineTo(lerp(tx, hx, .66), lerp(ty, hy, .66)); c.stroke();
+    c.lineCap = 'round'; c.strokeStyle = '#24140c'; c.lineWidth = dkw(1.5 * s); c.beginPath(); c.moveTo(tx, ty); c.lineTo(hx + Math.cos(an) * 7 * s, hy + Math.sin(an) * 7 * s); c.stroke();
+    c.strokeStyle = '#e0aa50'; c.lineWidth = ltw(.8 * s); c.beginPath(); c.moveTo(lerp(tx, hx, .5), lerp(ty, hy, .5)); c.lineTo(lerp(tx, hx, .66), lerp(ty, hy, .66)); c.stroke();
     // the sleeve, wide at the cuff, going off to the corner
     const cx0 = hx + dx * 7 * s, cy0 = hy + dy * 7 * s, far = 420 * s; c.beginPath(); c.moveTo(cx0 + nx * 7.5 * s, cy0 + ny * 7.5 * s); c.lineTo(cx0 + dx * far + nx * 34 * s, cy0 + dy * far + ny * 34 * s); c.lineTo(cx0 + dx * far - nx * 30 * s, cy0 + dy * far - ny * 30 * s); c.lineTo(cx0 - nx * 7 * s, cy0 - ny * 7 * s); c.closePath();
     c.fillStyle = lin(c, cx0 - nx * 8 * s, cy0 - ny * 8 * s, cx0 + nx * 9 * s, cy0 + ny * 9 * s, [[0, '#b65e34'], [.55, '#8e4324'], [1, '#5c2917']]); c.fill();
-    c.strokeStyle = '#e0aa50'; c.lineWidth = 1.5 * s; c.beginPath(); c.moveTo(cx0 + nx * 7.5 * s, cy0 + ny * 7.5 * s); c.lineTo(cx0 - nx * 7 * s, cy0 - ny * 7 * s); c.stroke();
-    c.strokeStyle = 'rgba(224,170,80,.7)'; c.lineWidth = .6 * s; c.beginPath(); c.moveTo(cx0 + dx * 3.4 * s + nx * 7.9 * s, cy0 + dy * 3.4 * s + ny * 7.9 * s); c.lineTo(cx0 + dx * 3.4 * s - nx * 7.4 * s, cy0 + dy * 3.4 * s - ny * 7.4 * s); c.stroke();
+    c.strokeStyle = '#e0aa50'; c.lineWidth = ltw(1.5 * s); c.beginPath(); c.moveTo(cx0 + nx * 7.5 * s, cy0 + ny * 7.5 * s); c.lineTo(cx0 - nx * 7 * s, cy0 - ny * 7 * s); c.stroke();
+    c.strokeStyle = 'rgba(224,170,80,.7)'; c.lineWidth = ltw(.6 * s); c.beginPath(); c.moveTo(cx0 + dx * 3.4 * s + nx * 7.9 * s, cy0 + dy * 3.4 * s + ny * 7.9 * s); c.lineTo(cx0 + dx * 3.4 * s - nx * 7.4 * s, cy0 + dy * 3.4 * s - ny * 7.4 * s); c.stroke();
     // the hand closed on the needle: the back of it, the thumb, the knuckles
     c.fillStyle = '#7c4a2a'; c.beginPath(); c.ellipse(hx + dx * 1.4 * s, hy + dy * 1.4 * s, 6.2 * s, 4.7 * s, sa, 0, TAU); c.fill();
     c.fillStyle = '#935a34'; c.beginPath(); c.ellipse(hx - dx * 2.4 * s + nx * 2.6 * s, hy - dy * 2.4 * s + ny * 2.6 * s, 3.4 * s, 2.3 * s, sa + .9, 0, TAU); c.fill();
-    c.strokeStyle = 'rgba(40,20,10,.5)'; c.lineWidth = Math.max(1, .5 * s); c.beginPath(); for (let i = -1; i <= 1; i++) { c.moveTo(hx + dx * (.6 + i * 2.2) * s - nx * 2.6 * s, hy + dy * (.6 + i * 2.2) * s - ny * 2.6 * s); c.lineTo(hx + dx * (1.2 + i * 2.2) * s - nx * 4.4 * s, hy + dy * (1.2 + i * 2.2) * s - ny * 4.4 * s); } c.stroke();
-    c.strokeStyle = 'rgba(255,214,160,.6)'; c.lineWidth = Math.max(1, .6 * s); c.beginPath(); c.ellipse(hx + dx * 1.4 * s, hy + dy * 1.4 * s, 6.2 * s, 4.7 * s, sa, -1.2, .5); c.stroke(); }
+    c.strokeStyle = 'rgba(40,20,10,.5)'; c.lineWidth = dkw(.5 * s); c.beginPath(); for (let i = -1; i <= 1; i++) { c.moveTo(hx + dx * (.6 + i * 2.2) * s - nx * 2.6 * s, hy + dy * (.6 + i * 2.2) * s - ny * 2.6 * s); c.lineTo(hx + dx * (1.2 + i * 2.2) * s - nx * 4.4 * s, hy + dy * (1.2 + i * 2.2) * s - ny * 4.4 * s); } c.stroke();
+    c.strokeStyle = 'rgba(255,214,160,.6)'; c.lineWidth = ltw(.6 * s); c.beginPath(); c.ellipse(hx + dx * 1.4 * s, hy + dy * 1.4 * s, 6.2 * s, 4.7 * s, sa, -1.2, .5); c.stroke(); }
   // The inking (2.2 s): the needle goes down his arm from the shoulder to the wrist and the lines take light behind it; then the
   // stones on his breast, and last his eye.
   function drawInk(c, P, t) { const B = P.B, { w, h, u, y0, vh, tall } = B, I = P.ink, F = figs(P), L = F.inkLit, s = L.k, uu = clamp(t / 2.2, 0, 1), z = 1.07 - .06 * sstep(uu);
@@ -227,7 +286,7 @@ const FallCutUI = (() => {
     if (a < 1) { inker(c, tip.x, tip.y, s, t);
       // the point of light, and what flies off it
       c.save(); c.globalCompositeOperation = 'lighter'; const g = 10 * s * (1 + .25 * Math.sin(t * 31)); c.drawImage(F.glow, tip.x - g, tip.y - g, g * 2, g * 2);
-      if (!reduceMotion) { c.lineCap = 'round'; c.lineWidth = Math.max(1, .7 * s); const fr = Math.floor(t * 30);
+      if (!reduceMotion) { c.lineCap = 'round'; c.lineWidth = ltw(.7 * s); const fr = Math.floor(t * 30);
         for (let i = 0; i < 9; i++) { const an = -Math.PI * (.15 + .7 * hsh(i, fr)), l0 = (3 + 9 * hsh(i, fr + 7)) * s, l1 = l0 + (3 + 7 * hsh(i, fr + 13)) * s; c.strokeStyle = i % 3 ? 'rgba(190,246,255,.9)' : 'rgba(255,232,170,.9)';
           c.beginPath(); c.moveTo(tip.x + Math.cos(an) * l0, tip.y + Math.sin(an) * l0); c.lineTo(tip.x + Math.cos(an) * l1, tip.y + Math.sin(an) * l1); c.stroke(); } }
       c.restore(); }
@@ -255,19 +314,14 @@ const FallCutUI = (() => {
   // Waiting: the air he lies on becomes a dune under him, the wire beside him, the noon over it. The far of it is the inking's plate;
   // the dune and the post are drawn in the world's own terms under where his body is, and he is drawn again over them.
   function drawDune(c, P, t, bare) { const B = P.B, K = hero(), I = P.ink; c.drawImage(I.cv, 0, 0, B.w, B.h);
-    const s = cv.width / cam.viewW, L = cam.x - cam.viewW / 2, T = camTop(), vb = T + cv.height / s, vw = cam.viewW; let lo = -1e9, x0 = 1e9, x1 = -1e9;
+    const s = cv.width / cam.viewW, L = cam.x - cam.viewW / 2, T = camTop(), vw = cam.viewW; let lo = -1e9, x0 = 1e9, x1 = -1e9;
     for (const i of [PEL, CHE, HEAD, KNF, FTF, KNB, FTB]) { const q = K.p[i], y = prjY(q.y, K.dep) + (q.r || 3), x = prjX(q.x, K.dep); lo = Math.max(lo, y); x0 = Math.min(x0, x); x1 = Math.max(x1, x); }
-    const cx = (x0 + x1) / 2, top = lo - 2; c.save(); c.setTransform(s, 0, 0, s, -L * s, -T * s);
-    const body = new Path2D(); body.moveTo(L - 30, top + 64); body.bezierCurveTo(L + vw * .2, top + 40, cx - 150, top + 1, cx - 30, top); body.bezierCurveTo(cx + 70, top - 1, cx + 190, top + 16, L + vw + 30, top + 52); body.lineTo(L + vw + 30, vb + 20); body.lineTo(L - 30, vb + 20); body.closePath();
-    c.fillStyle = lin(c, 0, top, 0, vb, [[0, '#e9bd72'], [.5, '#d09a4c'], [1, '#a8702f']]); c.fill(body);
-    const sh = new Path2D(); sh.moveTo(cx - 30, top); sh.bezierCurveTo(cx - 150, top + 1, L + vw * .2, top + 40, L - 30, top + 64); sh.lineTo(L - 30, vb + 20); sh.lineTo(cx - 190, vb + 20); sh.bezierCurveTo(cx - 240, top + 120, cx - 20, top + 70, cx - 30, top); sh.closePath();
-    c.fillStyle = lin(c, 0, top, 0, vb, [[0, '#9a6638'], [1, '#7a4a28']]); c.fill(sh);
-    c.strokeStyle = 'rgba(255,240,204,.9)'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(cx - 30, top); c.bezierCurveTo(cx - 20, top + 70, cx - 240, top + 120, cx - 190, vb + 20); c.stroke();
-    c.save(); c.clip(body); c.strokeStyle = 'rgba(120,70,30,.16)'; c.lineWidth = 1.5; for (let i = 1; i < 9; i++) { c.beginPath(); c.moveTo(cx + 10 + i * 6, top + i * 9); c.bezierCurveTo(cx + 120, top + 6 + i * 10, cx + 240, top + 24 + i * 11, L + vw + 30, top + 60 + i * 13); c.stroke(); } c.restore();
+    const cx = (x0 + x1) / 2, top = lo - 2, Dn = P.dune; c.save(); c.setTransform(s, 0, 0, s, -L * s, -T * s);
+    c.drawImage(Dn.cv, cx + Dn.x0, top + Dn.y0, Dn.w, Dn.h);
     // a post of the wire by his head, the strands going off both ways
     { const px = cx + (x1 - x0) * .5 + 46, py = top + 12, hh = 150; c.fillStyle = '#2c1b13'; c.beginPath(); c.moveTo(px - 4, py); c.lineTo(px - 1, py - hh); c.lineTo(px + 4.4, py - hh - 1); c.lineTo(px + 5, py); c.closePath(); c.fill();
       c.strokeStyle = 'rgba(255,214,150,.8)'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(px + 4.4, py); c.lineTo(px + 4, py - hh); c.stroke();
-      c.strokeStyle = 'rgba(46,28,18,.9)'; c.lineWidth = 1.5; for (const f of [.93, .72, .5]) { const y = py - hh * f; c.beginPath(); c.moveTo(px + 1, y); c.quadraticCurveTo(px + 180, y + 26, L + vw + 30, y - 18 + f * 20); c.moveTo(px + 1, y); c.quadraticCurveTo(px - 200, y + 30, L - 30, y + 8 - f * 30); c.stroke(); } }
+      c.strokeStyle = 'rgba(46,28,18,.9)'; c.lineWidth = 1.6; for (const f of [.93, .72, .5]) { const y = py - hh * f; c.beginPath(); c.moveTo(px + 1, y); c.quadraticCurveTo(px + 180, y + 26, L + vw + 30, y - 18 + f * 20); c.moveTo(px + 1, y); c.quadraticCurveTo(px - 200, y + 30, L - 30, y + 8 - f * 30); c.stroke(); } }
     if (!bare) { c.translate(K.dep * PSX, -K.dep * PSY); drawKael(K); }
     c.restore();
     sandWind(c, B, t, B.y0 + B.vh * .4, B.y0 + B.vh, 22, .26, false); c.drawImage(P.glow, 0, 0, B.w, B.h); }
@@ -278,8 +332,14 @@ const FallCutUI = (() => {
       { const kx = zc.width / B.w; c.drawImage(zc, i * sw * kx, 0, sw * kx, zc.height, i * sw, -e * B.h, sw, B.h); } }
     if (Z.kind === 'well' && uu < .3) { const P = plates(), I = P.well, Fg = figs(P).well, M = putFig(c, Fg, FTB, I.wx - I.him * I.s, I.wy + 10 * I.s - 3 * Fg.k); c.globalAlpha = (1 - uu / .3) * Z.a; c.drawImage(Fg.cv, M.dx, M.dy - uu * uu * B.h * .8); }
     c.globalAlpha = 1; }
+  // Under a memory that covers the whole picture nothing of the fall shows, so none of it is put down: the page's drawing runs as
+  // always (every piece the fall keeps is kept up: skipping the drawing made its painter take up to a second on the first frame
+  // back), but inside an empty clip, where a draw costs next to nothing; the pass below lifts the clip before it draws the memory.
+  let CLIP = false;
+  const covered = () => state.run && !state.err && S.arenaKey === 'fall' && !!V.kind && V.alpha >= 1 && !V.strip && !!PL.P && !PL.P.freed;
+  function unclip() { if (!CLIP) { return; } CLIP = false; ctx.restore(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
   // the pass itself: under the story's bars and words
-  function drawVision() { if (!state.run || S.arenaKey !== 'fall' || (!V.kind && V.white <= 0 && !V.strip && !V.eye && !V.wash && !V.last && !V.heli)) { return; } const c = ctx; c.save(); c.setTransform(1, 0, 0, 1, 0, 0);
+  function drawVision() { unclip(); if (!state.run || S.arenaKey !== 'fall' || (!V.kind && V.white <= 0 && !V.strip && !V.eye && !V.wash && !V.last && !V.heli)) { return; } const c = ctx; c.save(); c.setTransform(1, 0, 0, 1, 0, 0);
     try { const P = plates(), B = P.B;
       if (V.kind && V.alpha > 0) { c.globalAlpha = V.alpha; drawKind(c, P, V.kind, vt()); c.globalAlpha = 1; c.setTransform(1, 0, 0, 1, 0, 0); }
       if (V.strip) { drawStrip(c, B); }
@@ -297,7 +357,7 @@ const FallCutUI = (() => {
         c.fillStyle = r1 < 1 ? '#000' : rad(c, ax, ay, r0, r1, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,1)']]); c.fillRect(0, 0, B.w, B.h); } }
     catch (e) { state.err = String(e && e.message || e); V.kind = null; V.white = 0; V.strip = null; V.eye = 0; V.last = null; }
     c.restore(); }
-  function freePlates() { const P = PL.P; if (!P) { return; } for (const o of [P.ink, P.wire, P.well]) { for (const k of ['cv', 'fg']) { const d = o && Object.getOwnPropertyDescriptor(o, k); if (d && d.value && d.value.width) { d.value.width = d.value.height = 0; } } }
+  function freePlates() { const P = PL.P; if (!P) { return; } for (const o of [P.ink, P.wire, P.well, P.dune]) { for (const k of ['cv', 'fg']) { const d = o && Object.getOwnPropertyDescriptor(o, k); if (d && d.value && d.value.width) { d.value.width = d.value.height = 0; } } }
     if (P.fig) { for (const k of ['inkLit', 'inkDark', 'wire', 'well']) { const d = Object.getOwnPropertyDescriptor(P.fig, k); if (d && d.value && d.value.cv) { d.value.cv.width = d.value.cv.height = 0; } } } PL.P = null; PL.key = ''; }
   function drawFx() { if (!state.run || S.arenaKey !== 'fall' || !S.pit) { return; } const K = hero(), c = ctx;
     if (FX.beads.length && !(V.kind && V.alpha > .5)) { c.save(); c.fillStyle = typeof GORE_COL !== 'undefined' && GORE_COL[S.gore] ? GORE_COL[S.gore].mark : '#a01420';
@@ -323,6 +383,8 @@ const FallCutUI = (() => {
   V11UI.screen.unshift(drawVision); V11UI.world.push(drawFx); V11UI.tick.push(warmTick);
   { const kl = kaelLight; kaelLight = function (f) { return lightOf(f, kl(f)); }; }   // eslint-disable-line no-global-assign
   // the scene's camera: with reduced motion every shot is a cut; and the picture is kept above the lowest it may show (C.footMax)
+  { const r0 = render; render = function () { if (!covered()) { return r0(); }   // eslint-disable-line no-global-assign
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 0, 0, 0); ctx.clip(); CLIP = true; try { r0(); } finally { unclip(); } }; }
   { let seen = null; const uc = updateCamera; updateCamera = function (rdt) { const C = S.camCut; if (C && C.fc && reduceMotion) { C.k = 0; if (C !== seen) { seen = C; cam.cut = true; } } uc(rdt); }; }   // eslint-disable-line no-global-assign
   { const ct = camTarget; camTarget = function () { const t = ct(), C = S.camCut; if (!C || C.footMax == null) { return t; }   // eslint-disable-line no-global-assign
       const s = cssW / Math.max(1, cam.viewW), bar = S.letter ? cssH * .105 : 0; return Math.min(t, C.footMax - (cssH - Math.max(HUD_IN.bottom, bar)) / s); }; }

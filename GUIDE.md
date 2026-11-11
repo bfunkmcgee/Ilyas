@@ -949,6 +949,7 @@ fall's setup and intro (`FallCut.state.on` false runs them as they were to V115)
 - The roof: the stage's own script runs to the moment he is let go, with a push in on the shot and the steps back held close; the
   steps end with his heels on the coping, and the tip over it is played, not fallen (`tip`), slowed; no black. To V115 he never
   went over: `K.station` stayed where he stood, and the limp body was drawn back to it across the roof before the cut to black.
+  On an upright phone the roof's close shots and the tip look lower (`dyn`): at the roof and the drop, not the sky over them.
 - His body down the tower is posed: `POSES` (angles in his own frame), `act({pose, k, ang, rate, spin})`, each limb turned a part of
   the way each step so bones keep their lengths (`poseStep`), the whole of him turned to face as the shot wants (`turnBy`,
   `stillSpin`). In the Pit he is the ragdoll again, and everything that happens to him there is pitStep's as before.
@@ -964,15 +965,39 @@ fall's setup and intro (`FallCut.state.on` false runs them as they were to V115)
   (`V.strip`). On "I can wait" a dune under him in the world's own terms (`dune`), which the vow's first "For" tears away. Each
   is a plate painted once at the screen's size (`plates`: no more than 1.7 million pixels, painted a piece at a time from the stage's
   start by `warmTick`, let go when the Pit has him), him in them drawn by his own painter as he was (`rangerOf`, `bakeFigure`).
+  The dune is a piece painted once too (`duneLie`, `P.dune`: the ripples down its lit face, the sand's slips down the other, the
+  grains' glitter), set down under him each frame.
+- The memories are painted for the screen, not the world, so the drawing guide's widths are kept in the world's units as the
+  camera under them has them: `FallCut.MEM`, the shot the tear-away opens on, which the camera cuts to under the white (the fall's
+  pieces are made for that shot before it shows). `PXU` is that unit in the screen's pixels; `dkw` gives a dark line its unit and
+  a half at the least, `ltw` a light one its unit (both a little over: the look review reads a plate against the camera's scale
+  when it was last drawn, and the inking's plate stands behind the dune while the camera closes an eighth). Their skies carry
+  combed cirrus (`cirrus`) and their open sand the wind's ripples (`ripples`): a bare sky or a bare face of sand is a flat patch.
   `FALL_DREAM` and `FALL_SLOW` take this scene's values for the stage (`tables`): beside the tower the desert is what is left over
   between the memories, all there is again on the wire, and it holds until the first blow wakes him, as it always did.
 - Besides: the helicopter's light far up on the eighth thought, motes of the gilt's light and beads of blood left above him, a
   pulse of the rim's light as each setback passes, the sign's colour over the picture, a spark in his eye in the hay.
-- Every frame of the fall is drawn under a memory. Skipping it made the fall's painter take up to a second on the first frame back.
-  On this machine's software canvas the scene costs about what it did (56 ms a frame against 55), the memories about 40% over the
-  fall's average for some eight seconds, the dearest frame 141 ms against 136. Nothing was recorded for it: the wind's loop follows
-  the fall's speed, so the memories are hushed. Not built: the house's people at their windows, the gold H moved to its line.
+- Under a memory that covers the picture (the three, and the dune once it is whole: `covered`) the page's drawing runs as always
+  but inside an empty clip (the UI's `render`; the memory's pass lifts the clip before it draws): the fall's painter keeps its
+  pieces up, and nothing of it is put down. Skipping the drawing made the painter take up to a second on the first frame back.
+- What it costs, on this machine's software canvas, an upright phone (412 by 714 at 2), each frame flushed: the scene to V115 took
+  37 ms at the middle and 39 on average, its dearest 98; beside the tower the new cut takes 43 at the middle (the wide shots 33 to
+  39, the close ones 45 to 48: they show more of the tower's face, whose painter takes 27 to 32 ms of it against 20 to 25), a
+  frame under a memory 17 to 24, and the average is 39 as it was; the dearest frames are the cuts that make the face's pieces
+  again for a new zoom, 100 to 125 ms, four or five of them. No phone's frame time has been read. Nothing was recorded for the
+  scene: the wind's loop follows the fall's speed, so the memories are hushed. Not built: the house's people at their windows,
+  the gold H moved to its line.
 - The look suite's check of the fall on an upright phone reads the picture at 28 s (the eighth thought's wide shot), not at 20.
+- V116's look review (Nov 11). The fall has two more moments (places.js: `t9` the wire, `t11.5` the well). Its first run failed
+  twenty-one. Six flat patches, put right: the dune's bare sky (38% of the picture) and its bare faces, by the cirrus, the
+  ripples and the painted dune above; the roof's sky in the close shots on an upright phone (2.0 and 2.4%), by framing them lower.
+  Ten thin lines in the memories, brought to the guide's widths as above (they had been read against the camera closed on his
+  eye under them, where a unit is four pixels). Five lines of the figures' own drawing, the same as in V115 and under the rule
+  only now that the camera comes close, kept in kept_lines.json with what each is: the shadow under the scars the drained lines
+  leave and the scars' curls, the rim along his lit edge, a man's glasses on the roof, and the cast's hair strands (kept since
+  V103: its text changed with the finer figures). The fall's dearest frame, the review's yardstick for every other place (rule
+  6), read 44.8 ms against 35 in the reviews before: its close shots show more of the tower's face. Sixteen frames kept for
+  their cost no longer need the keep while it reads so; they stay in kept.json.
 
 **The desert in his head (since V72).** As he goes down the face thinking of the wire, the night out past the corner turns by
 degrees to the noon he rode it in, and the tower's windows fill with sand and pour it. `fallDream()` (sk_story.js) is how deep it is,

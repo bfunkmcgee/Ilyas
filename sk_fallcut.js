@@ -109,6 +109,9 @@ const FallCut = (() => {
   // A shot: how wide the picture is (w; wn on an upright phone), where it looks from his middle (dx, dy; dxn, dyn upright), and how
   // it gets there: cut (lands at once) or glide at a rate k. With reduced motion every shot is a cut. at: a point to frame instead of him.
   let SHOT = null;
+  // (two shots the drawing is made for: MEM, where the camera stands under the three memories, which is the shot the tear-away
+  // opens on, so the picture under them is ready and their lines are painted to its scale; and WIRE, the shot the dune is laid in)
+  const MEM = { w: 800, wn: 560 }, WIRE = { w: 860, wn: 560 };
   function shot(name, o) { const cut = o.cut || !S.camCut; SHOT = Object.assign({ w: 760, dx: 0, dy: 0, k: 2 }, o, { name });
     SHOT.wn = o.wn ?? Math.max(200, Math.min(SHOT.w, SHOT.w * .62)); SHOT.dxn = o.dxn ?? SHOT.dx * .6; SHOT.dyn = o.dyn ?? SHOT.dy;
     if (cut) { S.camCut = { snap: true, k: 0, fc: true }; } else { S.camCut = Object.assign({}, S.camCut, { snap: false, fc: true }); }
@@ -125,11 +128,11 @@ const FallCut = (() => {
   // left where it stands (its wait and its black) and the tip is played here.
   function* roofCut(st, orig) { const K = hero(), g = orig.call(st, st); let shotOn = false, mine = null;
     while (true) { const r = g.next(); if (r.done) { return; }
-      if (!shotOn && S.slowT > 1.5 && S.arenaKey === 'roof') { shotOn = true; EYE.set = false; eyeStep(K, 1); shot('roof: the shot', { w: 460, wn: 300, dx: -46, dxn: -10, dy: -14, k: 2.6 }); }
+      if (!shotOn && S.slowT > 1.5 && S.arenaKey === 'roof') { shotOn = true; EYE.set = false; eyeStep(K, 1); shot('roof: the shot', { w: 460, wn: 300, dx: -46, dxn: -10, dy: -14, dyn: 62, k: 2.6 }); }
       if (shotOn) { eyeStep(K, .2);
         // (the stage sets its own camera after the hit: this cut's again, on the same frame)
         if (S.camCut && S.camCut.snap === undefined) { S.camCut = { snap: false, k: SHOT.k, fc: true }; }
-        if (K.action && K.action !== mine && K.action.end === 2.2) { mine = K.action = stepsBack(K, K.action.t0); shot('roof: the gilt goes out', { w: 420, wn: 280, dx: 30, dxn: 12, dy: -10, k: 1.6 }); }
+        if (K.action && K.action !== mine && K.action.end === 2.2) { mine = K.action = stepsBack(K, K.action.t0); shot('roof: the gilt goes out', { w: 420, wn: 280, dx: 30, dxn: 12, dy: -10, dyn: 62, k: 1.6 }); }
         camStep();
         if (K.knockUntil > S.t + 50) { break; } }
       yield; }
@@ -150,7 +153,7 @@ const FallCut = (() => {
       const hx = lerp(from[heel].x, lipX, sstep(clamp(u * 4, 0, 1))) + 26 * u * u, hy = lipY, x = hx - R[heel][0], y = hy - R[heel][1];
       poseSet(K, B, ps, x, y, ang, true);
       if (blend < 1) { for (let i = 0; i < p.length; i++) { const q = p[i]; q.x = lerp(from[i].x, q.x, blend); q.y = lerp(from[i].y, q.y, blend); q.px = q.x; q.py = q.y; } } };
-    shot('roof: the edge', { w: 400, wn: 270, at: () => ({ x: prjX(ROOF_EDGE + 10, K.dep), y: prjY(GB - 64, K.dep) }), k: 2.4 });
+    shot('roof: the edge', { w: 400, wn: 270, at: () => ({ x: prjX(ROOF_EDGE + 10, K.dep), y: prjY(GB - 64, K.dep) }), dyn: 88, k: 2.4 });
     S.slowT = Math.max(S.slowT, .2);
     const t0 = S.t; let last = null;
     yield* until(() => { const u = clamp((S.t - t0) / T, 0, 1); last = p.map(q => ({ x: q.x, y: q.y })); at(u, sstep(clamp((S.t - t0) / .14, 0, 1))); camStep();
@@ -204,13 +207,13 @@ const FallCut = (() => {
       const head = () => ({ x: prjX(K.p[HEAD].x, K.dep), y: prjY(K.p[HEAD].y, K.dep) });
       shot('into his eye', { w: 300, wn: 200, at: head, dy: 6, k: 3.4 }); S.hooks.sound('eye_light', 1);
       const t0 = S.t; yield* until(() => { const u = (S.t - t0) / .62; V.eye = clamp(u, 0, 1); V.white = clamp((u - .5) / .5, 0, 1); return u >= 1; });
-      V.eye = 0; vision('ink'); act({ pose: 'slack', over: 1.5, k: .1, ang: null, spin: 14 });
+      V.eye = 0; shot('under the memories', Object.assign({ dx: -40, dy: 10, cut: true }, MEM)); vision('ink'); act({ pose: 'slack', over: 1.5, k: .1, ang: null, spin: 14 });
       const t1 = S.t; yield* until(() => { V.white = 1 - clamp((S.t - t1) / .5, 0, 1); return S.t > t1 + 2.25; });
       vision('wire'); const t2 = S.t, left = d - (S.t - t0); yield* until(() => { V.white = .5 * (1 - clamp((S.t - t2) / .3, 0, 1)); return S.t > t2 + left; }); }
     else if (i === 2) { vision('well'); const t2 = S.t; yield* until(() => { V.white = .5 * (1 - clamp((S.t - t2) / .3, 0, 1)); return S.t > t2 + d; }); }
     else if (i === 3) { // the Sprawl takes it: the memory is torn away upward and he is back at the tower, the house's mark going by
       strip(1.0, 1); V.kind = null; V.white = 0;
-      shot('the house’s mark', { w: 800, wn: 560, dx: -40, dy: 10, cut: true }); act({ pose: 'curl', over: 1.2, k: .14, ang: null, spin: -22 }); yield* wait(d); }
+      shot('the house’s mark', Object.assign({ dx: -40, dy: 10, cut: true }, MEM)); act({ pose: 'curl', over: 1.2, k: .14, ang: null, spin: -22 }); yield* wait(d); }
     else if (i === 4) { shot('thirty years', { w: 520, wn: 340, dy: 0, cut: true }); act({ pose: 'slack', over: 1.4, k: .1, spin: 16 }); yield* wait(d); }
     else if (i === 5) { shot('every door', { w: 600, wn: 380, dx: -60, dy: 10, cut: true }); yield* wait(d); }
     else if (i === 6) { shot('every name', { w: 440, wn: 290, dx: 20, dy: -6, cut: true }); act({ pose: 'curl', over: 1.6, k: .12, spin: 10 }); yield* wait(d); }
@@ -218,7 +221,7 @@ const FallCut = (() => {
     else if (i === 8) { shot('the turn', { w: 300, wn: 210, at: () => ({ x: prjX(K.p[HEAD].x, K.dep), y: prjY(K.p[HEAD].y, K.dep) }), dy: 14, cut: true }); act({ pose: 'set', over: .5, k: .26, ang: 100, rate: 40 }); yield* wait(d); }
     else if (i === 9) { SHOT.k = .9; SHOT.w = 360; SHOT.wn = 240; yield* wait(d); }
     else if (i === 10) { // he can wait: wide and still, and the air he lies on becomes the sand of the wire
-      shot('the wire', { w: 860, wn: 560, dx: -4, dxn: 40, dy: 6, cut: true }); act({ pose: 'lie', over: .7, k: .22, ang: 90, rate: 200 });
+      shot('the wire', Object.assign({ dx: -4, dxn: 40, dy: 6, cut: true }, WIRE)); act({ pose: 'lie', over: .7, k: .22, ang: 90, rate: 200 });
       vision('dune'); V.alpha = 0; const t0 = S.t; yield* until(() => { V.alpha = sstep(clamp((S.t - t0 - .25) / .9, 0, 1)); return S.t > t0 + d; }); }
     else { // the vow: three cuts in, one on each "For", and the speed back in three jolts
       const marks = [0, .2, .46, .7].map(u => u * d), W = [[620, 400], [460, 300], [320, 220]];
@@ -302,5 +305,5 @@ const FallCut = (() => {
     V11.step.push(afterStep);
     // (any other fight or scene: nothing of this one is left up)
     V11.duelStart.push(() => { if (S.arenaKey !== 'fall') { state.run = false; visionOff(); PC.hold = null; } }); }
-  return { state, V, FX, PC, POSES, ACT, act, fk, bonesOf, hsh, armAt };
+  return { state, V, FX, PC, POSES, ACT, act, fk, bonesOf, hsh, armAt, MEM, WIRE };
 })();
