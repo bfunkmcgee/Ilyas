@@ -97,10 +97,23 @@ def assemble():
     html = read('sk_head.txt') + css + '</style>\n\n' + read('sk_body.html') + '\n<script>\n' + js + '</script>\n'
     return js, html, starts
 
+# The page that is published (since V116): the game with the flow test's parts on (FLOW_GAME ahead of its script: sk_flowui.js) and,
+# after its script, the drawn figures and the Phaser view (spike/phaser: the skins of Ilyas and of everyone else, and host.js, which
+# shows the picture through Phaser with its glow and grade; each has a switch in the Options panel). test_page.html has none of it:
+# the browser checks run the game as it was, and the parts are checked in their own pages.
+LOOK_PARTS = ('skin_kit.js', 'skin_art_body.js', 'skin_art_head.js', 'skin_art_pit.js', 'skin.js', 'cast_skin.js', 'host.js')
+def game_page(html):
+    i = html.rfind('<script>')
+    extra = [read(os.path.join('vendor', 'phaser.min.js'))] + [read(os.path.join('spike', 'phaser', n)) for n in LOOK_PARTS]
+    for s in extra:
+        if '</script' in s: sys.exit('a script for the published page holds a closing script tag')
+    return html[:i] + '<script>var FLOW_GAME=1;</script>\n' + html[i:] + ''.join('<script>\n' + s + '\n</script>\n' for s in extra)
+
 def build(qa=False, scenes=False):
     regenerated = build_scenes(force=scenes)
     js, html, starts = assemble()
     test = '<meta charset="utf-8">\n<script>window.SK_TEST=1</script>\n' + html
+    html = game_page(html)
     if qa:
         outs = {'uiwork/qa_full.html': html, 'uiwork/qa_full.js': js, 'uiwork/qa_test.html': test}
     else:

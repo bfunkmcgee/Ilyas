@@ -25,14 +25,16 @@ def main():
     src = os.path.abspath(args[0]) if args else os.path.join(ROOT, 'ragdoll-skirmish-lab.html')
     outname = args[1] if len(args) > 1 else 'phaser-spike'
     page = open(src, encoding='utf-8').read()
-    phaser = open(os.path.join(HERE, 'node_modules', 'phaser', 'dist', 'phaser.min.js'), encoding='utf-8').read()
+    phaser = open(os.path.join(ROOT, 'vendor', 'phaser.min.js'), encoding='utf-8').read()
     # (a few of the painted figure's own helpers are let out of its module for the skinned figure: the arc-blade's painter, the coat's
     # springs and shield, the layer a cut cloth is drawn in, the Pit's colours)
+    # (since V116 the look module lets these out itself; a page built before it is patched here)
     seam = 'return{draw,snap,cfg,ok,rng,LOOKS,'
-    if page.count(seam) != 1:
+    if page.count(seam) == 1:
+        page = page.replace(seam, 'return{blade,coatStep,layerOpen,layerClose,shieldShape,pitLook,scarfRibbon,ripShape,draw,snap,cfg,ok,rng,LOOKS,')
+    elif 'return{blade,coatStep,layerOpen,layerClose,shieldShape,pitLook,scarfRibbon,ripShape,draw,snap,cfg,ok,rng,LOOKS,' not in page:
         sys.exit('the look module no longer ends the way this test expects: see build_spike.py')
-    page = page.replace(seam, 'return{blade,coatStep,layerOpen,layerClose,shieldShape,pitLook,scarfRibbon,ripShape,draw,snap,cfg,ok,rng,LOOKS,')
-    parts = [('phaser.min.js', phaser)] + [(n, open(os.path.join(HERE, n), encoding='utf-8').read()) for n in ('skin_kit.js', 'skin_art_body.js', 'skin_art_head.js', 'skin_art_pit.js', 'skin.js', 'cast_skin.js', 'fall_cut.js', 'host.js')]
+    parts = [('phaser.min.js', phaser)] + [(n, open(os.path.join(HERE, n), encoding='utf-8').read()) for n in ('skin_kit.js', 'skin_art_body.js', 'skin_art_head.js', 'skin_art_pit.js', 'skin.js', 'cast_skin.js', 'host.js')]
     for name, s in parts:
         if '</script' in s:
             sys.exit(name + ' holds a closing script tag: it cannot go in the page as it is')

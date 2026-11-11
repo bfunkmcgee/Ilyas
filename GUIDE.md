@@ -773,11 +773,19 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   the beasts the finer rim, and Ilyas, drawn from his pieces in that page, only where the painted figure still draws him.
   Nov 11: the cast's skins (above, under the looks; spike/phaser/README.md) are a fourth switch among the Phaser test's own,
   "Everyone else skinned", on.
-  Nov 11: the fall filmed again is a fifth, "The fall, new cut", on (spike/phaser/fall_cut.js; README, "The fall, a new cut"): the
-  roof's last seconds and the fall with a camera that moves, his body posed, and the desert as three memories that take the whole
-  picture. It stands in for the two stages' scripts while it is on and changes no file of the game. A fault it found in the game as
-  published: on the roof he never goes over the edge. His mark (`K.station`) stays where he stood, and the limp body is drawn back to
-  it, about his own height across the roof, in the .9 s before the cut to black.
+  **Since V116 all of it is on in the game's own page** (asked for: "push all to main and the next version", "also the other test
+  work"). `build.py` writes ragdoll-skirmish-lab.html with `FLOW_GAME` set ahead of the game's script (`FLOW.on` and `FLOW.game`:
+  the six parts on, their panel the game's "Options", nothing opening by itself) and, after the script, Phaser (vendor/phaser.min.js,
+  4.2.1, MIT) and spike/phaser's skin_kit.js, skin_art_body.js, skin_art_head.js, skin_art_pit.js, skin.js, cast_skin.js and host.js
+  (`game_page`, `LOOK_PARTS`): Ilyas from drawn pieces, everyone else skinned, the picture shown through Phaser with its glow and
+  grade, each with its switch under "Look" in the panel, all on, remembered (`sk_flow`, `sk_phost`). The look module lets the drawn
+  figure's helpers out itself now. **test_page.html has none of it** (neither flag, no added script): every browser check but the
+  flow page's runs the game as it was to V115, and so do the look review and the timing checks. What is on in the published page is
+  checked by the flow page's suite, by `node spike/phaser/check_skin.js` over every chapter (copy the page to spike/phaser/out/
+  and give its name as SK_PAGE), and by play. Known and shipped at the user's word: a skinned cast figure costs about 1.9 ms to
+  draw here against the 1.2 ms the timing check allows a painted one, the skins are side view only (a spin shows the painted
+  figure), and no phone's frame time has been read. The folder keeps its name for now.
+  The fall filmed again, a fifth switch there for a morning, is the game's own scene since V116: sk_fallcut.js, below.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,
@@ -933,6 +941,38 @@ drawn-only flutter on the skirt's edges and hem: a wave running down the cloth p
 V44). In a wind the corners are not mirrored while he is drawn turning round (drawTurned's `f._phys.mir`), so the hem stays downwind (the look suite checks both: the wind's sources, and the hem streaming back in a
 headwind, forward in a tailwind, hanging again in none). `node uiwork/wind/stand.js <out.png> <wind,...> [facing] [frames]` shows him
 standing in set winds; `node uiwork/wind/shots.js <out> <stage> w h dpr <frame,...>` photographs a story stage at chosen frames.
+
+**The fall as it is filmed (since V116; sk_fallcut.js, sk_fallcutui.js).** Asked for: the scene analysed and made more cinematic,
+then the desert in his head made clearer and more dramatic. The roof's last seconds and the fall are a scene with a camera now: the
+same twelve thoughts at the same lengths, the same Pit. sk_fallcut.js stands in for the roof's intro from the shot on and the
+fall's setup and intro (`FallCut.state.on` false runs them as they were to V115); sk_fallcutui.js draws what it asks for.
+- The roof: the stage's own script runs to the moment he is let go, with a push in on the shot and the steps back held close; the
+  steps end with his heels on the coping, and the tip over it is played, not fallen (`tip`), slowed; no black. To V115 he never
+  went over: `K.station` stayed where he stood, and the limp body was drawn back to it across the roof before the cut to black.
+- His body down the tower is posed: `POSES` (angles in his own frame), `act({pose, k, ang, rate, spin})`, each limb turned a part of
+  the way each step so bones keep their lengths (`poseStep`), the whole of him turned to face as the shot wants (`turnBy`,
+  `stillSpin`). In the Pit he is the ragdoll again, and everything that happens to him there is pitStep's as before.
+- The camera: `shot(name, {w, wn, dx, dy, dxn, dyn, at, half, k, cut, deep})` and `camStep` set `S.camCut` each step from where he is
+  (`wn`, `dxn`, `dyn`: an upright phone). `C.fc` marks it as the scene's (with reduced motion the UI makes every shot a cut);
+  `C.footMax` (596) is the lowest the picture may show, since the fall's far side is painted only so far down: the UI's `camTarget`
+  keeps the view above it. A shot for each thought; the Pit's mouth slowed and wide, the first blow punched in on, the reach slowed,
+  the spike held close, the picture left with the arm as he drops (`PC.hold`: afterStep takes the Pit's own camera move back), then
+  waiting at the Sump's roof, a push to his face, the look up, and the dark closing on the arm (`V.last`).
+- The desert: three memories, each the whole picture, on the lines that speak of it (`FallCut.V.kind`): the inking (a Ranger's hand
+  and a needle of light down his arm, the lines taking light behind it, his eye last), the wire (him small at a post, the posts to
+  the horizon), the well and the people with their jars. In through his eye (`V.eye`, `V.white`), out torn upward in strands
+  (`V.strip`). On "I can wait" a dune under him in the world's own terms (`dune`), which the vow's first "For" tears away. Each
+  is a plate painted once at the screen's size (`plates`: no more than 1.7 million pixels, painted a piece at a time from the stage's
+  start by `warmTick`, let go when the Pit has him), him in them drawn by his own painter as he was (`rangerOf`, `bakeFigure`).
+  `FALL_DREAM` and `FALL_SLOW` take this scene's values for the stage (`tables`): beside the tower the desert is what is left over
+  between the memories, all there is again on the wire, and it holds until the first blow wakes him, as it always did.
+- Besides: the helicopter's light far up on the eighth thought, motes of the gilt's light and beads of blood left above him, a
+  pulse of the rim's light as each setback passes, the sign's colour over the picture, a spark in his eye in the hay.
+- Every frame of the fall is drawn under a memory. Skipping it made the fall's painter take up to a second on the first frame back.
+  On this machine's software canvas the scene costs about what it did (56 ms a frame against 55), the memories about 40% over the
+  fall's average for some eight seconds, the dearest frame 141 ms against 136. Nothing was recorded for it: the wind's loop follows
+  the fall's speed, so the memories are hushed. Not built: the house's people at their windows, the gold H moved to its line.
+- The look suite's check of the fall on an upright phone reads the picture at 28 s (the eighth thought's wide shot), not at 20.
 
 **The desert in his head (since V72).** As he goes down the face thinking of the wire, the night out past the corner turns by
 degrees to the noon he rode it in, and the tower's windows fill with sand and pour it. `fallDream()` (sk_story.js) is how deep it is,
@@ -1687,7 +1727,8 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V116 ..." (V115 was the last published; count on from it). (V115's work went onto main the night before it was
+short label "V117 ..." (V116 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
+the skins and the Phaser view built in (build.py `game_page`: above, under the flow test); test_page.html is not. (V115's work went onto main the night before it was
 published, at the user's word, as a merge of its branch: the commit under V115's own.) Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
 whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page

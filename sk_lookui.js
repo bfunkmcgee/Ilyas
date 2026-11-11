@@ -1479,7 +1479,7 @@ function snap(f,extra={}){
     coatShield:f.coatShield,coatOpen:f.coatOpen,nade:f.grenade==='coat',coatShred:f.coatShred,coatOff:f.coatOff,charge:f.charge,hemTears:f.hemTears,armOff:f.armOff,armTear:f.armTear,wear:f.wear,oneArm:f.oneArm,seared:f.seared,drain:f.drain,eyeLit:f.eyeLit,phantom:f.phantom},extra);}
 // drawing needs Path2D and a context that reports its transform; without them (the headless checks) Kael keeps the old figure
 const ok=typeof Path2D==='function'&&typeof CanvasRenderingContext2D!=='undefined'&&!!CanvasRenderingContext2D.prototype.getTransform;
-return{draw,snap,cfg,ok,rng,LOOKS,OUTFITS,HAIRS,seen:SEEN,capsule,piece,coatTargets,hemLine,COAT,coatCloth,coatClothStep,coatFly,CLOTH,armPiece,windK,WIND,bareTube,armFront,MUS};
+return{blade,coatStep,layerOpen,layerClose,shieldShape,pitLook,scarfRibbon,ripShape,draw,snap,cfg,ok,rng,LOOKS,OUTFITS,HAIRS,seen:SEEN,capsule,piece,coatTargets,hemLine,COAT,coatCloth,coatClothStep,coatFly,CLOTH,armPiece,windK,WIND,bareTube,armFront,MUS};
 })();
 // ---------- in the game ----------
 // Kael (HERO_NAME on the screen: Ilyas) is S.F[0]; S.classicLook brings back the old figure
