@@ -703,7 +703,11 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   the cheekbone, the side of the nose and the lower lip, since a face is too dark to take a darker mark, and the dark kept for the
   eye's socket, the nostril and the mouth, all placed from the skull's own outline; a human's eye with a pupil and a thinner rim on
   his ear in a close view); in a close view only, a flap on a jacket's hip pocket, two buttons at its cuff, a belt's buckle and the
-  crease down a suit's trouser; and in `FigKit.light` a rim that narrows as its edge turns from the light (`fineRim`: at the
+  crease down a suit's trouser; a rolled sleeve that ends above the elbow in a band along the upper arm, in place of the round
+  roll that sat on the joint, and a braid plaited (`braidFine`: strands crossing over a tapered rope, a tie, the loose end below
+  it) in place of the run of lobes, with the shade of each strand under its light on a head's hair close up (asked for Nov 11:
+  the orc woman's hair to look more like hair, her elbows less like bubbles; everyone with rolled sleeves gets the sleeve); and
+  in `FigKit.light` a rim that narrows as its edge turns from the light (`fineRim`: at the
   game's own size it keeps over half its width, the look's rule 8) and a shade along the edges that face away (`fineShade`). The
   beasts take only the rim and the shade and look as they did. Costs with it on, timed as the timing checks time them: a cast
   figure 1.12 to 1.14 ms (0.97 to 0.99 off; the limit is 1.2), Ilyas 1.14 to 1.18 (1.12 to 1.15; 1.5). The cast's close-view
