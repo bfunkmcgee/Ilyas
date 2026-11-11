@@ -13,13 +13,15 @@
 //   labels   an enemy's plan over his head as one short line (the blow and how many of your moves away).
 //   build    motion by build (sk_anim.js ANIM_BUILD): heavy men swing bigger and recover slower, slight men are quicker, a goblin
 //            by its kind; and a better man uses a blow's plain variant less.
+//   fine     the finer figures (FigKit.fine, sk_figui.js; asked for: the character models' drawing improved): hands with fingers,
+//            shaped boots, faces with planes to them, a rim that narrows as it turns from the light. Drawing only.
 // The rules are not changed: every prompt is still offered, with the same choices at the same costs.
-const FLOW={on:!!(typeof window!=='undefined'&&window.FLOW_TEST),quick:true,follow:true,dock:true,labels:true,build:true,
+const FLOW={on:!!(typeof window!=='undefined'&&window.FLOW_TEST),quick:true,follow:true,dock:true,labels:true,build:true,fine:true,
   ans:{dur:[1.15,1.55],scale:.22},fol:{dur:.95,scale:.28},
   routine:['stop','dodgeOver','parry','brace','dodge','hit','fumble','counter','block'],
   parts:[['quick','Quick answers','A row of chips; the blow keeps coming'],['follow','Follow-ups play through','A full card only for Broken, Flow and holds'],
     ['dock','Compact HUD','Smaller dock and top bar (upright phone)'],['labels','Short enemy labels','The blow and how many moves away'],
-    ['build','Motion by build','Heavy men slower and bigger, slight men quicker']],
+    ['build','Motion by build','Heavy men slower and bigger, slight men quicker'],['fine','Finer figures','Hands, boots and faces drawn finer']],
   rosters:[['Elf and his crew','Qadir, a Veteran with an axe, and his crew as they come'],['Three elves','Qadir, Brask and Iyla'],['Goblin pack','A runt, a skulker and a brute']],
   roster:0,booted:false,stat:{n:0,wait:0,big:0,t:0},panel:null,btn:null};
 function flowIs(k){return FLOW.on&&!!FLOW[k];}
@@ -38,7 +40,7 @@ function flowLoad(){try{const o=JSON.parse(localStorage.getItem('sk_flow')||'nul
 // the parts as they are now, put on the page: the stylesheet's switches, the motion, and the HUD measured again
 function flowApply(){if(!FLOW.on)return;const wr=document.getElementById('wrap');
   if(wr&&wr.dataset)wr.dataset.flow=['quick','follow','dock','labels'].filter(k=>FLOW[k]).join(' ');
-  ANIM_BUILD.on=!!FLOW.build;
+  ANIM_BUILD.on=!!FLOW.build;if(typeof FigKit!=='undefined')FigKit.fine=!!FLOW.fine;
   if(typeof HUD!=='undefined'){HUD.measAt=0;HUD.cardH=HUD.cardAH=0;}}
 // the test's fights, in the lab's street
 function flowStart(i){

@@ -1,7 +1,7 @@
 // The beasts on their own, large: a story stage's fight stepped, and at each still every goblin, the lizard and Ilyas drawn again by
 // their own painters on a plain dark card at K pixels a unit (K under 3.4 is the game's own detail, as a phone or a desktop draws
 // them; 3.4 and over is a close view's), side by side in one sheet per still, then all the stills of each in one strip.
-// usage: node uiwork/beast_studio.js <out> [K] [stage] [frames per still] [stills] [moment]
+// usage: node uiwork/beast_studio.js <out> [K] [stage] [frames per still] [stills] [moment]     (FINE=1: with the finer figures on, FigKit.fine)
 //   PAGE=uiwork/qa_test.html to shoot a copy
 const {chromium}=require('playwright'),fs=require('fs'),path=require('path');
 const {chromiumPath,pageSetup,stageStart,toMoment}=require('./look/places.js');
@@ -10,6 +10,7 @@ fs.mkdirSync(OUT,{recursive:true});
 (async()=>{const b=await chromium.launch({executablePath:chromiumPath()}),errs=[];
   const p=await (await b.newContext({viewport:{width:1200,height:800},deviceScaleFactor:1})).newPage();p.on('pageerror',e=>errs.push(e.message));
   await p.addInitScript(()=>{window.requestAnimationFrame=cb=>{window.__raf=cb;return 1;};});
+  if(process.env.FINE)await p.addInitScript(()=>{window.FINE_FIGURES=1;});
   await p.goto('file://'+process.cwd()+'/'+(process.env.PAGE||'test_page.html'));await p.waitForTimeout(300);
   await p.evaluate(([a,b2,c])=>{window.pageSetup=eval('('+a+')');window.stageStart=eval('('+b2+')');window.toMoment=eval('('+c+')');pageSetup();},
     [pageSetup.toString(),stageStart.toString(),toMoment.toString()]);

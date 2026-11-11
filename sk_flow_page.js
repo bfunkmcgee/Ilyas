@@ -33,9 +33,9 @@ cp.execFileSync('python3',[path.join(__dirname,'tools','flow_test.py'),TEST,path
   // 1. the game's own page: nothing of it
   let p=await open(path.join(__dirname,process.env.PAGE||'test_page.html'));
   let r=await p.evaluate(()=>{const lab=document.getElementById('stLab');if(lab)lab.click();S.cfg.n=2;S.cfg.crew=false;S.arenaKey='street';S.F=[];restart();toMine();
-    const out={on:FLOW.on,btn:!!document.getElementById('flowBtn'),ds:document.getElementById('wrap').dataset.flow||'',build:ANIM_BUILD.on,hud:[HUD_IN.top,HUD_IN.bottom],scale:openScale({source:'react'}),label:flowLabel({_when:'after your next move'},{cmd:'slash'},'a','b')};
+    const out={on:FLOW.on,btn:!!document.getElementById('flowBtn'),ds:document.getElementById('wrap').dataset.flow||'',build:ANIM_BUILD.on,fine:FigKit.fine,hud:[HUD_IN.top,HUD_IN.bottom],scale:openScale({source:'react'}),label:flowLabel({_when:'after your next move'},{cmd:'slash'},'a','b')};
     const o=toPrompt('ans0');out.ans=o&&{dur:+o.dur.toFixed(2),pick:o.pick};out.q=document.getElementById('opening').classList.contains('flowq');return out;});
-  expect('in the game\'s own page the trial is off: no Test button, no switches, the motion and the labels as they are',!r.on&&!r.btn&&r.ds===''&&!r.build&&r.label===null,JSON.stringify(r));
+  expect('in the game\'s own page the trial is off: no Test button, no switches, the motion, the labels and the figures as they are',!r.on&&!r.btn&&r.ds===''&&!r.build&&r.fine===false&&r.label===null,JSON.stringify(r));
   expect('there a prompt runs at a twelfth and the answer window is as long as it was, the full card',r.scale===.08&&r.ans&&r.ans.dur>=2.2&&r.ans.dur<=3.4&&r.ans.pick===null&&!r.q,JSON.stringify(r));
   const old=r.hud;await p.close();
 
@@ -86,9 +86,11 @@ cp.execFileSync('python3',[path.join(__dirname,'tools','flow_test.py'),TEST,path
     P.querySelector('button[data-a="close"]').click();out.closed=P.hidden;out.unpaused=!S.paused;toMine();const meas=()=>{HUD.measAt=0;step(3);return[HUD_IN.top,HUD_IN.bottom];};out.on=meas();
     document.getElementById('flowBtn').click();step(2);
     const c=P.querySelector('input[data-k="dock"]');c.click();const q=P.querySelector('input[data-k="quick"]');q.click();const bm=P.querySelector('input[data-k="build"]');bm.click();out.ds=document.getElementById('wrap').dataset.flow;out.build=ANIM_BUILD.on;
+    out.fine=[FigKit.fine];const fn=P.querySelector('input[data-k="fine"]');fn.click();out.fine.push(FigKit.fine);fn.click();out.fine.push(FigKit.fine);
     P.querySelector('button[data-a="close"]').click();out.hud=meas();
     const o=toPrompt('ans0');out.ans=o&&+o.dur.toFixed(2);out.q=document.getElementById('opening').classList.contains('flowq');return out;});
-  expect('the Test panel pauses the fight and has the five parts and the three fights',r.open&&r.paused&&r.parts===5&&r.ros===3&&/prompt/.test(r.stat)&&r.closed&&r.unpaused,JSON.stringify(r));
+  expect('the Test panel pauses the fight and has the six parts and the three fights',r.open&&r.paused&&r.parts===6&&r.ros===3&&/prompt/.test(r.stat)&&r.closed&&r.unpaused,JSON.stringify(r));
+  expect('the finer figures are on in the test, and their switch turns them off and on again',r.fine&&r.fine[0]===true&&r.fine[1]===false&&r.fine[2]===true,JSON.stringify(r.fine));
   expect('a part switched off is the game as it is: the dock and the top bar their old size, the answer the full card and its old length, the motion as it was',r.ds==='follow labels'&&!r.build&&r.hud[0]===old[0]&&r.hud[0]>r.on[0]+10&&r.hud[1]>r.on[1]+80&&r.ans>=2.2&&!r.q,JSON.stringify({ds:r.ds,on:r.on,hud:r.hud,old,ans:r.ans,q:r.q}));
   for(const [i,want] of [[1,/^Ilyas,Qadir,Brask,Iyla$/],[2,/^Ilyas,Goblin A,Goblin B,Goblin C$/]]){
     r=await p.evaluate(i=>{document.getElementById('flowBtn').click();step(2);document.querySelector('#flowPanel button[data-r="'+i+'"]').click();const n=toMine();

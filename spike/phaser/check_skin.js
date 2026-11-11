@@ -3,7 +3,8 @@
 // drew him or the painted figure had to. It fails on an error, on a piece that could not be made, or on a case the pieces left to the
 // painted figure after they had loaded.
 //   node spike/phaser/check_skin.js [first] [last] [seconds each]     (chapters by their place in the list, 0 the skirmish lab)
-//   pictures of each go to spike/phaser/out/skin_<n>.png; SK_PAGE=flow-phaser.html checks the flow test's page instead
+//   pictures of each go to spike/phaser/out/skin_<n>.png; SK_PAGE=flow-phaser.html checks the flow test's page instead;
+//   SK_FINE=1 plays with the finer figures on (FigKit.fine), where the page does not switch them on itself
 const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path');
 const out = path.join(__dirname, 'out'), page0 = 'file://' + path.join(out, process.env.SK_PAGE || 'phaser-spike.html') + '?host=0';
 const first = +(process.argv[2] || 0), last = +(process.argv[3] || 99), secs = +(process.argv[4] || 14);
@@ -11,7 +12,7 @@ const first = +(process.argv[2] || 0), last = +(process.argv[3] || 99), secs = +
   const exe = process.env.SK_CHROMIUM || (fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined);
   const b = await chromium.launch({ executablePath: exe });
   const open = async () => { const ctx = await b.newContext({ viewport: { width: 844, height: 390 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true }); const p = await ctx.newPage(), errs = [];
-    p.on('pageerror', e => errs.push(String(e.message))); await p.goto(page0, { waitUntil: 'load' }); await p.waitForTimeout(1200);
+    p.on('pageerror', e => errs.push(String(e.message))); if (process.env.SK_FINE) await ctx.addInitScript(() => { window.FINE_FIGURES = 1; }); await p.goto(page0, { waitUntil: 'load' }); await p.waitForTimeout(1200);
     // (the count: every drawing of him, under what he had on and how he was seen)
     await p.evaluate(() => { const d = KaelLook.draw, cov = window.__cov = {};
       KaelLook.draw = function (c, F, o) { const s0 = Skin.state.drawn, r = d.apply(this, arguments), drew = Skin.state.drawn > s0, yaw = +((o && o.yaw) ?? F.yaw ?? 0) || 0, W = F.wear && typeof F.wear === 'object' ? F.wear : null;
