@@ -14,8 +14,14 @@
   // (the skinned figure, where its script is on the page: skin.js, with its pieces in skin_ilyas.js)
   const HAS_SKIN = typeof Skin !== 'undefined' && typeof SkinIlyas !== 'undefined';
   if (HAS_SKIN) { Skin.install(); Skin.load(SkinIlyas); }
+  try { const o = JSON.parse(localStorage.getItem('sk_phost') || 'null'); if (HAS_SKIN && o && o.skin === false) { Skin.state.on = false; } } catch (e) { /* no storage */ }
   const q = new URLSearchParams(location.search);
-  const state = { mode: Math.max(0, Math.min(2, +(q.get('host') || 1))), hostMs: 0, err: null, frames: 0 };
+  // (in the flow test's page the switches live in its Test panel and are remembered; there the effects start on)
+  const IN_FLOW = typeof FLOW !== 'undefined' && !!FLOW.on;
+  let saved = null; try { saved = JSON.parse(localStorage.getItem('sk_phost') || 'null'); } catch (e) { saved = null; }
+  const start = q.get('host') != null ? +q.get('host') : saved && typeof saved.mode === 'number' ? saved.mode : IN_FLOW ? 2 : 1;
+  const state = { mode: Math.max(0, Math.min(2, start | 0)), hostMs: 0, err: null, frames: 0 };
+  const save = () => { try { localStorage.setItem('sk_phost', JSON.stringify({ mode: state.mode, skin: HAS_SKIN ? Skin.state.on : true })); } catch (e) { /* no storage: nothing kept */ } };
   window.PHOST = state;
 
   // ---------- the Phaser canvas, under the game's ----------
@@ -114,10 +120,37 @@
     b.style.cssText = 'font:inherit;color:#f3e3b3;background:rgba(10,9,8,.84);border:1px solid #6d5a2b;border-radius:8px;padding:3px 8px;text-align:center;white-space:pre;touch-action:manipulation';
     bar.appendChild(b); return b; };
   const pill = mkBtn('phostMeter'), figBtn = HAS_SKIN ? mkBtn('phostFig') : null;
+  if (IN_FLOW) { bar.style.display = 'none'; }
   document.body.appendChild(bar);
   pill.addEventListener('click', e => { e.stopPropagation(); state.set(state.mode + 1); });
-  state.set = m => { state.mode = m % (game && !state.err ? 3 : 1); filled = 0; k = 0; apply(); };
-  if (figBtn) figBtn.addEventListener('click', e => { e.stopPropagation(); Skin.state.on = !Skin.state.on; filled = 0; k = 0; draw(); });
+  state.set = m => { state.mode = m % (game && !state.err ? 3 : 1); filled = 0; k = 0; apply(); save(); };
+  if (figBtn) figBtn.addEventListener('click', e => { e.stopPropagation(); Skin.state.on = !Skin.state.on; filled = 0; k = 0; draw(); save(); });
+
+  // ---------- in the flow test: three more switches in its Test panel, and the meter as a line under them ----------
+  let rows = null, meterLine = null;
+  function panelRows() {
+    const p = IN_FLOW && FLOW.panel && FLOW.panel.querySelector('.fw-in'); if (!p || rows) { return; }
+    const parts = [['view', 'Phaser view', 'The picture shown through the GPU'], ['fx', 'Glow and grade', 'Bloom and a colour grade, over Phaser view']];
+    if (HAS_SKIN) { parts.push(['skin', 'Ilyas from drawn pieces', 'Art pieces on the same ragdoll']); }
+    const h = document.createElement('p'); h.className = 'fw-h'; h.textContent = 'Look (Phaser test)';
+    rows = document.createElement('div'); rows.className = 'fw-parts';
+    rows.innerHTML = parts.map(([k2, n, d]) => '<label class="fw-part"><input type="checkbox" data-ph="' + k2 + '"><span><b>' + n + '</b><small>' + d + '</small></span></label>').join('');
+    meterLine = document.createElement('p'); meterLine.className = 'fw-t'; meterLine.style.margin = '8px 0 0';   // (not the panel's own .fw-stat: the flow test fills the first of those)
+    const before = p.querySelector('.fw-h');
+    p.insertBefore(h, before); p.insertBefore(rows, before); p.insertBefore(meterLine, before);
+    rows.addEventListener('change', e => { const c = e.target, k2 = c && c.dataset && c.dataset.ph; if (!k2) { return; } e.stopPropagation();
+      if (k2 === 'skin') { Skin.state.on = !!c.checked; save(); }
+      else { const view = k2 === 'view' ? c.checked : state.mode > 0 || c.checked, fx = k2 === 'fx' ? c.checked : state.mode === 2; state.set(view ? (fx ? 2 : 1) : 0); }
+      draw(); });
+  }
+  function panelFill() {
+    if (!rows) { return; }
+    const ok = !!game && !state.err;
+    rows.querySelectorAll('input[data-ph]').forEach(c => { const k2 = c.dataset.ph;
+      c.checked = k2 === 'view' ? state.mode > 0 : k2 === 'fx' ? state.mode === 2 : Skin.state.on && !Skin.state.err;
+      c.disabled = k2 === 'skin' ? !!Skin.state.err : !ok; });
+    meterLine.textContent = (state.err ? 'Phaser did not start on this device. ' : '') + (filled < 30 ? 'Frame time: measuring.' : 'Frame time: ' + state.avg.toFixed(1) + ' ms, worst ' + state.worst.toFixed(0) + ' ms' + (state.mode > 0 ? ', of which Phaser ' + state.hostMs.toFixed(1) + ' ms.' : '.') + '');
+  }
 
   function draw() {
     let sum = 0, worst = 0, slow = 0;
@@ -127,11 +160,12 @@
     const l2 = state.err ? 'Phaser did not start' : filled < 30 ? 'measuring' : avg.toFixed(1) + ' ms  worst ' + worst.toFixed(0) + (state.mode > 0 ? '  Phaser ' + state.hostMs.toFixed(1) : '');
     pill.textContent = l1 + '\n' + l2;
     if (figBtn) { const K = Skin.state; figBtn.textContent = 'Ilyas: ' + (K.err ? 'painted' : K.on ? (K.ready ? 'drawn pieces' : 'loading') : 'painted') + '\n' + (K.err ? 'pieces failed' : 'tap to switch'); }
-    state.avg = avg; state.worst = worst; state.slow = filled ? slow / filled : 0;
+    if (!(IN_FLOW && FLOW.panel && !FLOW.panel.hidden) || filled >= 30 && !state.avg) { state.avg = avg; state.worst = worst; state.slow = filled ? slow / filled : 0; }
+    panelRows(); panelFill();
   }
   function tick(now) {
     requestAnimationFrame(tick);
-    if (lastT) { dts[k] = now - lastT; k = (k + 1) % N; if (filled < N) { filled++; } }
+    if (lastT && !(IN_FLOW && FLOW.panel && !FLOW.panel.hidden)) { dts[k] = now - lastT; k = (k + 1) % N; if (filled < N) { filled++; } }
     lastT = now;
     // (Phaser wakes its own loop when the page comes back into view: in Direct it stays asleep)
     if (game && state.mode === 0 && game.loop.running) { game.loop.sleep(); }
