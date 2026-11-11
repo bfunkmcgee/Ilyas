@@ -95,21 +95,6 @@ python3 spike/phaser/build_spike.py flow-test.html flow-phaser
 That writes `spike/phaser/out/flow-phaser.html` and `out/flow-phaser-index.html`, the wrapped page the flow test's artifact
 is published from. `sk_flowui.js` is not changed: `host.js` adds its rows to the panel once the panel is built.
 
-## In the flow test
-
-On the branch `claude/flow-test` the same scripts go over the flow test's page, and the three switches (Phaser view, Glow and
-grade, Ilyas from drawn pieces) sit in its Test panel under their own heading, with the frame time on a line below them. They
-are remembered between visits (`sk_phost` in the browser's storage) and all start on.
-
-```
-python3 build.py
-python3 tools/flow_test.py flow-test.html
-python3 spike/phaser/build_spike.py flow-test.html flow-phaser
-```
-
-That writes `spike/phaser/out/flow-phaser.html` and `out/flow-phaser-index.html`, the wrapped page the flow test's artifact
-is published from. `sk_flowui.js` is not changed: `host.js` adds its rows to the panel once the panel is built.
-
 ## Checks
 
 - `node spike/phaser/check_spike.js`: the page in each mode on a phone-sized screen, no errors, a picture of each.
