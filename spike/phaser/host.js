@@ -167,6 +167,8 @@
     if (figBtn) { const K = Skin.state; figBtn.textContent = 'Ilyas: ' + (K.err ? 'painted' : K.on ? 'drawn pieces' : 'painted') + '\n' + (K.err ? 'pieces failed' : 'tap to switch'); }
     if (!(IN_FLOW && FLOW.panel && !FLOW.panel.hidden) || filled >= 30 && !state.avg) { state.avg = avg; state.worst = worst; state.slow = filled ? slow / filled : 0; }
     panelRows(); panelFill();
+    // (in the game's own page the Options button stands clear of the menu button while a scene hides the rest of the top bar)
+    if (IN_FLOW && FLOW.game && FLOW.btn) { const wr = document.getElementById('wrap'), cut = !!(wr && wr.dataset && wr.dataset.hud === 'cut'); FLOW.btn.style.left = cut ? 'calc(max(10px, env(safe-area-inset-left, 0px)) + 52px)' : ''; }
   }
   function tick(now) {
     requestAnimationFrame(tick);
