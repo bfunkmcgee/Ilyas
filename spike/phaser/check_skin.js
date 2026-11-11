@@ -3,9 +3,9 @@
 // drew him or the painted figure had to. It fails on an error, on a piece that could not be made, or on a case the pieces left to the
 // painted figure after they had loaded.
 //   node spike/phaser/check_skin.js [first] [last] [seconds each]     (chapters by their place in the list, 0 the skirmish lab)
-//   pictures of each go to spike/phaser/out/skin_<n>.png
+//   pictures of each go to spike/phaser/out/skin_<n>.png; SK_PAGE=flow-phaser.html checks the flow test's page instead
 const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path');
-const out = path.join(__dirname, 'out'), page0 = 'file://' + path.join(out, 'phaser-spike.html') + '?host=0';
+const out = path.join(__dirname, 'out'), page0 = 'file://' + path.join(out, process.env.SK_PAGE || 'phaser-spike.html') + '?host=0';
 const first = +(process.argv[2] || 0), last = +(process.argv[3] || 99), secs = +(process.argv[4] || 14);
 (async () => {
   const exe = process.env.SK_CHROMIUM || (fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined);
@@ -29,13 +29,15 @@ const first = +(process.argv[2] || 0), last = +(process.argv[3] || 99), secs = +
         for (const id of ids[GEAR_SLOTS[i]]) { kit[GEAR_SLOTS[i]] = id; rec(i + 1, kit); } };
       rec(0, {}); return { n, gear: Object.keys(GEAR).length, missing: [...missing] }; });
     if (r) { if (r.missing.length) bad++; console.log((r.missing.length ? 'FAIL ' : 'ok   ') + 'every kit of the ' + r.gear + ' pieces of gear (' + r.n + ' kits): ' + (r.missing.length ? 'no drawing for ' + r.missing.join(', ') : 'each has its pieces')); } }
-  await L.p.getByText('Chapters', { exact: true }).first().click(); await L.p.waitForTimeout(800);
-  const names = await L.p.evaluate(() => { const seen = new Set(), outN = []; for (const el of document.querySelectorAll('button')) { if (!el.offsetParent) continue; const t = el.textContent.trim().replace(/\s+/g, ' '); if (!/^(?:[IVX]+|\d+)?The |^(?:[IVX]+|\d+)[A-Z]|^Check and|^Three T/.test(t) || seen.has(t)) continue; if (/^(Resume|Fight|Arena|Codex|Title)/.test(t)) continue; seen.add(t); outN.push(t); } return outN; });
+  // (the flow test's page opens straight into its fight, with no title: there it is that fight that is played at)
+  const titled = await L.p.getByText('Chapters', { exact: true }).first().isVisible().catch(() => false);
+  if (titled) { await L.p.getByText('Chapters', { exact: true }).first().click(); await L.p.waitForTimeout(800); }
+  const names = !titled ? [] : await L.p.evaluate(() => { const seen = new Set(), outN = []; for (const el of document.querySelectorAll('button')) { if (!el.offsetParent) continue; const t = el.textContent.trim().replace(/\s+/g, ' '); if (!/^(?:[IVX]+|\d+)?The |^(?:[IVX]+|\d+)[A-Z]|^Check and|^Three T/.test(t) || seen.has(t)) continue; if (/^(Resume|Fight|Arena|Codex|Title)/.test(t)) continue; seen.add(t); outN.push(t); } return outN; });
   await L.ctx.close();
-  const list = ['Skirmish lab', ...names]; const all = {};
+  const list = [titled ? 'Skirmish lab' : 'The fight the page opens in', ...names]; const all = {};
   for (let i = Math.max(0, first); i <= Math.min(last, list.length - 1); i++) {
     const { ctx, p, errs } = await open(), name = list[i];
-    if (i === 0) await p.getByText('Skirmish lab', { exact: true }).first().click();
+    if (i === 0) { if (titled) await p.getByText('Skirmish lab', { exact: true }).first().click(); }
     else { await p.getByText('Chapters', { exact: true }).first().click(); await p.waitForTimeout(600); await p.getByText(name, { exact: true }).first().click(); }
     await p.waitForTimeout(1500);
     // played at: taps to move the story on, a walk to the right, and in a fight whatever command is offered
