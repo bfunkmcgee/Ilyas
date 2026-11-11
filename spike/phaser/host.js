@@ -15,14 +15,16 @@
   // pieces he starts in are made as the page opens; the rest as he comes to need them)
   const HAS_SKIN = typeof Skin !== 'undefined' && typeof SkinArt !== 'undefined';
   if (HAS_SKIN) { Skin.install(); Skin.ready = Skin.prewarm(); }
-  try { const o = JSON.parse(localStorage.getItem('sk_phost') || 'null'); if (HAS_SKIN && o && o.skin === false) { Skin.state.on = false; } } catch (e) { /* no storage */ }
+  // (the cast's skins, cast_skin.js: everyone the cast's painter draws, from textures made of each of them as they first appear)
+  const HAS_CAST = typeof CastSkin !== 'undefined' && CastSkin.install();
+  try { const o = JSON.parse(localStorage.getItem('sk_phost') || 'null'); if (HAS_SKIN && o && o.skin === false) { Skin.state.on = false; } if (HAS_CAST && o && o.cast === false) { CastSkin.state.on = false; } } catch (e) { /* no storage */ }
   const q = new URLSearchParams(location.search);
   // (in the flow test's page the switches live in its Test panel and are remembered; there the effects start on)
   const IN_FLOW = typeof FLOW !== 'undefined' && !!FLOW.on;
   let saved = null; try { saved = JSON.parse(localStorage.getItem('sk_phost') || 'null'); } catch (e) { saved = null; }
   const start = q.get('host') != null ? +q.get('host') : saved && typeof saved.mode === 'number' ? saved.mode : IN_FLOW ? 2 : 1;
   const state = { mode: Math.max(0, Math.min(2, start | 0)), hostMs: 0, err: null, frames: 0 };
-  const save = () => { try { localStorage.setItem('sk_phost', JSON.stringify({ mode: state.mode, skin: HAS_SKIN ? Skin.state.on : true })); } catch (e) { /* no storage: nothing kept */ } };
+  const save = () => { try { localStorage.setItem('sk_phost', JSON.stringify({ mode: state.mode, skin: HAS_SKIN ? Skin.state.on : true, cast: HAS_CAST ? CastSkin.state.on : true })); } catch (e) { /* no storage: nothing kept */ } };
   window.PHOST = state;
 
   // ---------- the Phaser canvas, under the game's ----------
@@ -133,6 +135,7 @@
     const p = IN_FLOW && FLOW.panel && FLOW.panel.querySelector('.fw-in'); if (!p || rows) { return; }
     const parts = [['view', 'Phaser view', 'The picture shown through the GPU'], ['fx', 'Glow and grade', 'Bloom and a colour grade, over Phaser view']];
     if (HAS_SKIN) { parts.push(['skin', 'Ilyas from drawn pieces', 'Art pieces on the same ragdoll']); }
+    if (HAS_CAST) { parts.push(['cast', 'Everyone else skinned', 'Each of them painted once in detail, laid on the ragdoll']); }
     const h = document.createElement('p'); h.className = 'fw-h'; h.textContent = 'Look (Phaser test)';
     rows = document.createElement('div'); rows.className = 'fw-parts';
     rows.innerHTML = parts.map(([k2, n, d]) => '<label class="fw-part"><input type="checkbox" data-ph="' + k2 + '"><span><b>' + n + '</b><small>' + d + '</small></span></label>').join('');
@@ -141,6 +144,7 @@
     p.insertBefore(h, before); p.insertBefore(rows, before); p.insertBefore(meterLine, before);
     rows.addEventListener('change', e => { const c = e.target, k2 = c && c.dataset && c.dataset.ph; if (!k2) { return; } e.stopPropagation();
       if (k2 === 'skin') { Skin.state.on = !!c.checked; save(); }
+      else if (k2 === 'cast') { CastSkin.state.on = !!c.checked; save(); }
       else { const view = k2 === 'view' ? c.checked : state.mode > 0 || c.checked, fx = k2 === 'fx' ? c.checked : state.mode === 2; state.set(view ? (fx ? 2 : 1) : 0); }
       draw(); });
   }
@@ -148,8 +152,8 @@
     if (!rows) { return; }
     const ok = !!game && !state.err;
     rows.querySelectorAll('input[data-ph]').forEach(c => { const k2 = c.dataset.ph;
-      c.checked = k2 === 'view' ? state.mode > 0 : k2 === 'fx' ? state.mode === 2 : Skin.state.on && !Skin.state.err;
-      c.disabled = k2 === 'skin' ? !!Skin.state.err : !ok; });
+      c.checked = k2 === 'view' ? state.mode > 0 : k2 === 'fx' ? state.mode === 2 : k2 === 'cast' ? CastSkin.state.on && !CastSkin.state.err : Skin.state.on && !Skin.state.err;
+      c.disabled = k2 === 'skin' ? !!Skin.state.err : k2 === 'cast' ? !!CastSkin.state.err : !ok; });
     meterLine.textContent = (state.err ? 'Phaser did not start on this device. ' : '') + (filled < 30 ? 'Frame time: measuring.' : 'Frame time: ' + state.avg.toFixed(1) + ' ms, worst ' + state.worst.toFixed(0) + ' ms' + (state.mode > 0 ? ', of which Phaser ' + state.hostMs.toFixed(1) + ' ms.' : '.') + '');
   }
 

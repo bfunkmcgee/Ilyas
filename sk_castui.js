@@ -8,6 +8,13 @@
 // hoods, and what they wear that the restaurant's people never did (a skirt, a bib, a shawl, a rope coil, a satchel, an armband,
 // patches, goggles, tusks). Each is drawn only for someone whose look asks for it.
 const CastLook=(()=>{
+// The skin (CastLook.skin; null in the game, set by spike/phaser/cast_skin.js in the test pages; asked for Nov 11: skins for
+// everyone as Ilyas has). The painter still poses and layers the figure; the skin keeps a texture of each of his parts, painted once
+// with more to it than a frame can afford, and here they are laid on: an arm's or a leg's pieces filled from its texture along the
+// limb as it bends (env.tex, in paint), the torso and the head drawn from theirs. To make a texture the skin has one part painted
+// alone on a figure stood straight (o.only: armN, armF, legN, legF, torso1, torso2, head; SKIN.baking: paint hands each shape to
+// the skin's own painting; SKIN.geo: where the parts lie). In profile only: a turned figure is painted as ever.
+let SKIN=null;
 const PEL=0,CHE=1,HEAD=2,ELF=3,HAF=4,ELB=5,HAB=6,KNF=7,FTF=8,KNB=9,FTB=10,TIP=11;
 const V=(x,y)=>({x,y}),add=(a,b)=>V(a.x+b.x,a.y+b.y),sub=(a,b)=>V(a.x-b.x,a.y-b.y),mul=(a,k)=>V(a.x*k,a.y*k),
   len=a=>Math.hypot(a.x,a.y),nrm=a=>{const l=Math.hypot(a.x,a.y)||1;return V(a.x/l,a.y/l);},perp=a=>V(-a.y,a.x),
@@ -140,11 +147,16 @@ const LIT={suit:'wool',coat:'wool',trouser:'wool',hat:'wool',vest:'wool',lapel:'
   chef:'cotton',chefPanel:'cotton',skin:'skin',shoe:'leather',glove:'leather',wrap:'leather',shawl:'wool',bag:'leather',rope:'cotton',band:'cotton'};
 function baseOf(C,mat,far){const b=(far&&C[mat+'Far'])||(far?mid(C[mat]||C.suit,'#3a3346',.32):C[mat])||C.suit;return b[0]==='#'&&b.length===7?b:'#17141a';}
 function paint(c,ps,mat,env){const C=env.col,base=(env.far&&C[mat+'Far'])||(env.far?mid(C[mat]||C.suit,'#3a3346',.32):C[mat])||C.suit,U=unionOf(ps),lit=(C.lit&&C.lit[mat])||LIT[mat],old=lit?ps.filter(q=>!FigKit.litOK(q,env)):ps;
+  if(SKIN&&SKIN.baking){SKIN.paint(c,ps,mat,env,base,U,lit);return;}
   // (flat: what is on a turned torso, whose light its main shape carries)
   if(env.flat){c.fillStyle=base;c.fill(U);return;}
   if(RIMMED[mat]&&old.length){const a0=c.globalAlpha,dx=env.L.x*env.rw,dy=env.L.y*env.rw;c.globalAlpha=a0*Math.min(1,(env.far?.4:1)*FigKit.rimK());c.translate(dx,dy);c.fillStyle=FigKit.rimCol(C.rim);c.fill(old.length===ps.length?U:unionOf(old));c.translate(-dx,-dy);c.globalAlpha=a0;}
   c.fillStyle=base;c.fill(U);
-  if(lit&&base[0]==='#'&&base.length===7)FigKit.light(c,ps,env,{cls:lit,base,light:FigKit.rimCol(C.rim||'#ffcf86'),far:env.far});}
+  // (env.tex: the skin's texture over the base, and the light laid on it part strength, so the texture shows through its plane;
+  // env.sn: the skin of a figure that has one, which gives the material's own tile to a shape with no texture of its own)
+  const tx=env.tex||(env.sn&&base[0]==='#'&&base.length===7?env.sn.mat(base,lit,mat):null);if(tx)tx.fill(c,U);
+  if(lit&&base[0]==='#'&&base.length===7)FigKit.light(c,ps,env,{cls:lit,base,light:FigKit.rimCol(C.rim||'#ffcf86'),far:env.far,pa:tx?tx.pa:undefined});}
+function lightOver(c,ps,mat,env,pa){const C=env.col,lit=(C.lit&&C.lit[mat])||LIT[mat];if(lit)FigKit.light(c,ps,env,{cls:lit,base:baseOf(C,mat,env.far),light:FigKit.rimCol(C.rim||'#ffcf86'),far:env.far,pa});}
 
 // ---------- the coat's skirt (KaelLook's) ----------
 const COAT={w:21,z:.8,vmax:1100,snap:110};
@@ -233,6 +245,8 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   // ----- turned (a spin): as KaelLook's. Each joint has a place across the body, p is where each is seen, fv the way the figure
   // seems to face, dp how far toward the viewer a place is -----
   const yaw=+(o.yaw??F.yaw??0)||0,TN=Math.abs(Math.sin(yaw))>.015||Math.cos(yaw)<0;
+  // (the skin: BK, the one part a bake paints; SN, this figure's textures as far as they are made, in profile)
+  const BK=o.only||null,SN=SKIN&&!TN&&!BK&&SKIN.get?SKIN.get(F,spec,o,env,lod):null;if(SN)env.sn=SN;
   const onGrip=(P,td)=>{const h=P[HAB],a=sub(P[HAF],mul(td,9)),bq=P[TIP],ab=sub(bq,a),t=cl(dot(sub(h,a),ab)/(dot(ab,ab)||1),0,1);return len(sub(h,add(a,mul(ab,t))))<4.5;};
   // (o.apart: his hands each on its own grip, a machine's bars, not one on a weapon's; o.latArm, o.latElbow, o.latKnee, o.latFoot: how
   // far out from his middle his hands, elbows, knees and feet are drawn as a share of where they would be, as KaelLook's: a rider
@@ -281,14 +295,17 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
     if(!far||lod>=1){c.fillStyle=mid(baseOf(C,mat,far),'#000000',.5);c.fill(h.creases);}};
   const foldCol={lit:rgba(FigKit.rimCol(C.rim||'#ffcf86'),.24),dark:'rgba(0,0,0,.5)'},foldFar={lit:rgba(FigKit.rimCol(C.rim||'#ffcf86'),.1),dark:'rgba(0,0,0,.28)',far:true};
   // (near: the arm on the near side, which holds the weapon; far: painted as the far side of him)
-  const arm=(A,far,near)=>{
+  const sleeve=(A,far,near)=>{
     if(out.sleeves==='bare'){pt([A.tb],'skin',far);pt([capsule(sub(A.Wr,mul(A.fd,2.2*sz)),add(A.Wr,mul(A.fd,.6*sz)),WA(5.2),WA(4.8))],'wrap',far);}
     else if(out.sleeves==='rolled'){const roll=capsule(mix(A.E,A.S,.12),mix(A.E,A.H,.12),WA(7),WA(6.6));
       pt([A.tb,capsule(sub(A.Wr,mul(A.fd,.4*sz)),add(A.Wr,mul(A.fd,1*sz)),WA(4.6),WA(4.4))],'skin',far);pt([A.up],'sleeve',far);pt([roll],'sleeve',far);}
-    else{pt([A.tb],sleeveMat,far);FigKit.folds(c,A.tb,env,far?foldFar:foldCol);if(out.cuffs!==false)pt([A.cuff],out.gloves?'glove':'shirt',far);
+    else{pt([A.tb],sleeveMat,far);if(!BK)FigKit.folds(c,A.tb,env,far?foldFar:foldCol);if(out.cuffs!==false)pt([A.cuff],out.gloves?'glove':'shirt',far);
       // (the finer figures, close up: two buttons at the back of a jacket's cuff)
       if(fine&&lod>=1&&!far&&out.sleeves==='jacket'&&C.button){let q=perp(A.fd);if(dot(q,V(-fv,0))<0)q=mul(q,-1);c.fillStyle=C.button;c.beginPath();
-        for(const a of [2.1,3.7]){const b0=add(sub(A.Wr,mul(A.fd,a*sz)),mul(q,WA(1.75)));c.moveTo(b0.x+.55*sz,b0.y);c.arc(b0.x,b0.y,.55*sz,0,TAU);}c.fill();}}
+        for(const a of [2.1,3.7]){const b0=add(sub(A.Wr,mul(A.fd,a*sz)),mul(q,WA(1.75)));c.moveTo(b0.x+.55*sz,b0.y);c.arc(b0.x,b0.y,.55*sz,0,TAU);}c.fill();}}};
+  const arm=(A,far,near)=>{
+    // (the skin: the sleeve's pieces filled from the arm's texture)
+    const tx=SN&&SN.limb(near?'armN':'armF',A.S,A.E,A.Wr);if(tx){env.tex=tx;sleeve(A,far,near);env.tex=null;}else sleeve(A,far,near);
     // a rag tied round the upper arm (out.armband; C.band its colour): the band, and the knot behind the arm with its two ends
     if(out.armband&&near){const d=nrm(sub(A.E,A.S)),m0=mix(A.S,A.E,.44),m1=mix(A.S,A.E,.6),w=WA(4.3);let q=perp(d);if(dot(q,V(-fv,0))<0)q=mul(q,-1);
       const kn=add(mix(m0,m1,.5),mul(q,w*.92));
@@ -322,8 +339,10 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   const shoeAt=(kn,ft,l)=>{const S0=shoeOf(p0[kn],p0[ft]);if(!TN)return S0;const pts=[];for(const q of S0.Q)for(const w of [-2.4*sz,2.4*sz])pts.push(VW.at(q,l+w));
     const K=p[kn],A=p[ft];return{pc:piece(FigKit.hull(pts),.4,k>=2.4),boot:out.boots?(fine?FigKit.boot(K,A,V(fv||1,0),V(0,-1),sz,big,WL(8.2),WL(6.6)).shaft:capsule(mix(K,A,.62),add(A,V(0,-1.2*sz)),WL(8.6),WL(7.8))):null};};
   const leg=(kn,ft,side,far)=>{const L=legParts(p[kn],p[ft],HIP[side>0?0:1]),S=shoeAt(kn,ft,side*LH);
-    pt([S.pc],'shoe',far);pt([L.tb],'trouser',far);FigKit.folds(c,L.tb,env,far?foldFar:foldCol);if(S.boot)pt([S.boot],'shoe',far);
-    if(fine)fineFoot(S,p[kn],p[ft],far);
+    // (the skin: the trouser and a boot's shaft filled from the leg's texture; a bake paints those alone)
+    const tx=SN&&SN.limb(side>0?'legN':'legF',HIP[side>0?0:1],p[kn],p[ft]);
+    if(!BK)pt([S.pc],'shoe',far);if(tx)env.tex=tx;pt([L.tb],'trouser',far);if(!BK)FigKit.folds(c,L.tb,env,far?foldFar:foldCol);if(S.boot)pt([S.boot],'shoe',far);if(tx)env.tex=null;
+    if(fine&&!BK)fineFoot(S,p[kn],p[ft],far);
     // (the finer figures, close up: the crease pressed down the front of a suit's trouser, a line of light)
     if(fine&&lod>=1&&!far&&creased){const hp=HIP[side>0?0:1],K=p[kn],A=p[ft],n1=nrm(add(perp(nrm(sub(K,hp))),perp(nrm(sub(A,K)))));const nf=dot(n1,V(fv,0))<0?mul(n1,-1):n1;
       line(c,[add(mix(hp,K,.3),mul(nf,WL(1.5))),add(K,mul(nf,WL(1.05))),add(mix(K,A,.92),mul(nf,WL(.8)))],rgba(FigKit.rimCol(C.rim||'#ffcf86'),.22),Math.max(1,1.05*sz));}
@@ -341,7 +360,7 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   // ----- a long coat's skirt: between the legs in profile, in front of the far one; turned, a cone round both (KaelLook's) -----
   // (out.coat.closed: a skirt, closed all round: in profile it hangs over both legs, in front of the near one too)
   let skirtDraw=null,SK=null;const shut=!!(out.coat&&out.coat.closed);
-  if(out.coat){const L0=out.coat.len||46,farPts=[mix(P0,p0[KNB],.5),p0[KNB],mix(p0[KNB],p0[FTB],.45)],allPts=[...farPts,mix(P0,p0[KNF],.5),p0[KNF],mix(p0[KNF],p0[FTF],.45)];
+  if(out.coat&&!BK){const L0=out.coat.len||46,farPts=[mix(P0,p0[KNB],.5),p0[KNB],mix(p0[KNB],p0[FTB],.45)],allPts=[...farPts,mix(P0,p0[KNF],.5),p0[KNF],mix(p0[KNF],p0[FTF],.45)];
     const an=[{p:at(-T*.06,7.4),len:L0*sz,pts:shut?allPts:farPts,clear:4.2*sz},{p:at(-T*.08,-8.6),len:(L0+1)*sz,pts:allPts,clear:4.8*sz}];
     const Qc=coatStep(F,'_castCoat',an,fa,gy,now);let fr=V(Qc[0].x,Qc[0].y),bk=V(Qc[1].x,Qc[1].y);if(fr.x*fa<bk.x*fa){const t=fr;fr=bk;bk=t;}
     if(TN){const R0=secAt(-T*.06),top={F:at0(-T*.06,R0[1]),B:at0(-T*.06,R0[0]),w:R0[2]*sz*wf},fl=o.spin!=null?Math.sin(Math.PI*cl(o.spin,0,1)):0;
@@ -419,20 +438,34 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
     onCopies(AT=>{if(out.neck==='turtle')pt([piece([AT(T-2,-4.2),AT(T+5.6,-3.6),AT(T+6.4,0),AT(T+5.6,3.8),AT(T-1.6,4.6),AT(T-3,0)],.45)],'shirt');
       else if(out.neck==='mandarin')pt([piece([AT(T-.4,-4),AT(T+4.2,-3.6),AT(T+4.4,-.4),AT(T+3.6,3.6),AT(T-.2,5.2),AT(T-1.4,1.5)],.45)],out.top==='chef'?'chef':'shirt');
       else pt([piece([AT(T+.4,-3.7),AT(T+4.3,-3.3),AT(T+4.5,-.4),AT(T+3.1,3.1),AT(T+.6,5.0),AT(T-1,1.5)],.45)],'shirt');});};
-  const torsoAll=()=>{
-    const bs=copies.map(([AT])=>{const q=piece(base.Q.map(([a,s])=>AT(a,s)),.42,true);if(base.pw){q.pw=base.pw*sz;q.pf=base.pf;}return q;});pt(bs,base.mat);
+  // (in two for the skin, a braid swinging between them: torsoA the main shape, what is worn on it and a standing collar; torsoB a
+  // scarf's collar and knot, a watch chain and the extras)
+  const torsoBs=()=>copies.map(([AT])=>{const q=piece(base.Q.map(([a,s])=>AT(a,s)),.42,true);if(base.pw){q.pw=base.pw*sz;q.pf=base.pf;}return q;});
+  const torsoA=()=>{
+    const bs=torsoBs();pt(bs,base.mat);
     onCopies((AT,side)=>{torso(c,spec,{at:AT,side,T,sz,wf,lod,k,pt,env});
       // a standing collar, turned up behind the neck to the jaw (Kade's coat)
       if(out.highCollar&&!F.severed){const P=Q=>Q.map(([a,s2])=>AT(a,s2));pt([piece(P([[T-2.4,-5.6],[T+8.6,-6.4],[T+10.6,-3.4],[T+7.4,-.6],[T+1,-1.2],[T-2.6,-1.4]]),.4)],'coat');
         if(C.trim&&lod>=1)line(c,resample(P([[T+8.6,-6.4],[T+10.6,-3.4],[T+7.4,-.6]]),3),C.trim,Math.max(.45,.7/k));}});
-    if(spec.trail&&spec.trail.kind==='braid'&&F.scarf&&F.scarf.length>2&&!F.severed)across(0,()=>trail(c,F,spec,env,now,sz));
+  };
+  const torsoB=()=>{
     onCopies((AT,side)=>{
       if(spec.trail&&spec.trail.kind==='scarf'&&!F.severed){const P=Q=>Q.map(([a,s2])=>AT(a,s2));
         pt([piece(P([[T+.2,-4.6],[T+4.2,-4.2],[T+5.4,0],[T+4.6,4.8],[T+.8,5.8],[T-1.4,1]]),.5)],'scarfC');
         if(spec.trail.knot!==false&&side>=0)pt([piece(P([[T+1,4.2],[T-.4,7.4],[T-4.6,7.2],[T-6.8,6.4],[T-3.6,5],[T-.8,3.6]]),.45)],'scarfC');}
       if(out.watch&&lod>=1&&side>=0){const P=Q=>Q.map(([a,s2])=>AT(a,s2));line(c,resample(P([[T*.42,7.2],[T*.36,4.4],[T*.4,1.6]]),3),C.button,Math.max(.5,.9*sz));}});
     if((out.apron&&out.apron.bib)||out.shawl||out.rope||out.satchel||out.patches)onCopies(extras);};
-  const head=()=>{if(!F.severed)drawHead(c,F,spec,env,lod,o,sz,TN?{h:p[HEAD],C0:p[CHE],fa,hy:o.headYaw??FigKit.headYaw(yaw)}:null);};
+  const torsoAll=()=>{
+    if(SN&&SN.torso(c,'torso1',P0,u0,n0))lightOver(c,torsoBs(),base.mat,env,SN.pa);else torsoA();
+    if(spec.trail&&spec.trail.kind==='braid'&&F.scarf&&F.scarf.length>2&&!F.severed)across(0,()=>trail(c,F,spec,env,now,sz));
+    if(!(SN&&SN.torso(c,'torso2',P0,u0,n0)))torsoB();};
+  const head=()=>{if(!F.severed){env.snH=SN?SN.head:null;drawHead(c,F,spec,env,lod,o,sz,TN?{h:p[HEAD],C0:p[CHE],fa,hy:o.headYaw??FigKit.headYaw(yaw)}:null);env.snH=null;}};
+  // (a bake, for the skin: where the parts lie on this figure, and the one part painted alone)
+  if(BK){const AFg=armParts(p[ELF],p[HAF],SH[0]),ABg=armParts(p[ELB],p[HAB],SH[1]);
+    if(SKIN.geo)SKIN.geo({armN:[AFg.S,AFg.E,AFg.Wr],armF:[ABg.S,ABg.E,ABg.Wr],legN:[HIP[0],p[KNF],p[FTF]],legF:[HIP[1],p[KNB],p[FTB]],P0,u0,n0,T,sz});
+    if(BK==='armN')sleeve(AFg,false,true);else if(BK==='armF')sleeve(ABg,true,false);else if(BK==='legN')leg(KNF,FTF,1,false);else if(BK==='legF')leg(KNB,FTB,-1,true);
+    else if(BK==='torso1')torsoA();else if(BK==='torso2')torsoB();else if(BK==='head')head();
+    c.restore();return;}
 
   if(!TN){
     // in profile: the far arm, the far leg, the seat, a coat's skirt, the near leg, an apron, the neck, the torso, the head, the near arm
@@ -555,12 +588,16 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
   const SK=SKULLS[hd.skull||'elf'],EAR=EARS[hd.ear||(elf?'long':'human')],HR=HAIR[hd.hair||'slick'],HT=hd.hat?HATS[hd.hat]:null;
   c.save();c.translate(h.x,h.y);c.scale(fa*back*sx,1);c.rotate(thw*fa*back);c.scale(s,s);c.translate(0,-8);
   const Lw=env.L,Lh=rot(V(Lw.x*fa*back,Lw.y),-thw*fa*back),he={...env,L:Lh,rw:env.rw/s,ow:env.ow/s,k:env.k*s};
-  const fillHair=(path)=>{c.fillStyle=C.hairShade;c.fill(path);c.save();c.clip(path);c.translate(Lh.x*9,Lh.y*9);c.fillStyle=C.hair;c.fill(path);c.restore();};
+  const fillHair=(path)=>{if(SKIN&&SKIN.baking){SKIN.paint(c,null,'hair',he,C.hair,path,'hair');return;}c.fillStyle=C.hairShade;c.fill(path);c.save();c.clip(path);c.translate(Lh.x*9,Lh.y*9);c.fillStyle=C.hair;c.fill(path);c.restore();};
+  // (the skin: the head's art comes off the figure's own texture, TXH, and only the eyes are drawn over it each frame; a bake, BKH,
+  // paints the art alone and tells the skin where the head lies)
+  const fine=FigKit.fine,FC=fine?faceOf(SK):null,TXH=!hj&&env.snH||null,BKH=o.only==='head';
+  if(BKH&&SKIN&&SKIN.geo)SKIN.geo({head:{h,s,thw,fa,back}});
+  if(TXH)TXH.draw(c,he);else{
   // long hair, tails and buns behind the skull
   if(HR.back)fillHair(P2(HR.back));
   const skull=SK.path||(SK.path=new Path2D(smoothD(HP(SK.pts),true,.42)));
   paint(c,[{p:skull,c:V(6,10),r:42}],'skin',he);
-  const fine=FigKit.fine,FC=fine?faceOf(SK):null;
   if(FC){const sk=baseOf(C,'skin',false);c.fillStyle=mid(sk,elf?mid('#8f86a8',C.accent&&C.accent.length===7?C.accent:'#8f86a8',.3):'#a67e5e',lod?.15:.12);c.fill(FC.cheek);c.fill(FC.nose);if(lod>=1)c.fill(FC.lip);
     c.fillStyle=mid(sk,'#000000',.62);if(!elf)c.fill(FC.socket);c.fill(FC.mouth);if(lod>=1)c.fill(FC.nostril);}
   if(HR.shaved&&lod>=1){c.save();c.clip(skull);c.fillStyle=rgba(C.hair,.18);c.fill(P2(smoothD(HP(SLICK.concat([[-30,24],[-14,14],[4,-2],[13,5],[22,-18]])),true,.4)));c.restore();}
@@ -573,13 +610,13 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
     if(hd.earring&&lod>=1){c.strokeStyle=C.button;c.lineWidth=1.6;for(const [x,y,r] of hd.earring){c.beginPath();c.arc(x,y,r,0,TAU);c.stroke();}}};
   const earOver=!!(EAR.over&&HT);
   if(!earOver)ear();
-  if(hd.beard){c.fillStyle=C.beard||C.hair;c.fill(P2(BEARDS[hd.beard]));}
+  if(hd.beard){if(SKIN&&SKIN.baking)SKIN.paint(c,null,'hair',he,C.beard||C.hair,P2(BEARDS[hd.beard]),'hair');else{c.fillStyle=C.beard||C.hair;c.fill(P2(BEARDS[hd.beard]));}}
   if(hd.moustache){c.fillStyle=C.beard||C.hair;c.fill(P2(BEARDS.moustache));}
   // tusks up out of the lower jaw (hd.tusks; where they stand is the skull's: [base x, y, tip x, y, half-width, far])
   if(hd.tusks&&SK.tusks)for(const [bx,by,tx,ty,w,far] of SK.tusks){const d=`M${bx-w},${by} Q${R1(bx-w*.7)},${R1((by+ty)/2)} ${tx},${ty} Q${R1(bx+w*1.1)},${R1((by+ty)/2+1)} ${bx+w},${by} Z`;
     c.fillStyle=far?C.tuskShade||'#8a8068':C.tusk||'#cfc4a2';c.fill(P2(d));
     if(lod>=1&&!far){c.strokeStyle=C.tuskShade||'#8a8068';c.lineWidth=1.2;c.beginPath();c.moveTo(bx+w*.5,by);c.quadraticCurveTo(bx+w*.6,(by+ty)/2,tx,ty);c.stroke();}}
-  if(HT){const fillHat=(d,shade)=>{const P=P2(d),dx=Lh.x*he.rw,dy=Lh.y*he.rw;c.translate(dx,dy);c.fillStyle=FigKit.rimCol(C.rim);c.fill(P);c.translate(-dx,-dy);c.fillStyle=shade?C.hatShade:C.hat;c.fill(P);};
+  if(HT){const fillHat=(d,shade)=>{if(SKIN&&SKIN.baking){SKIN.paint(c,null,'hat',he,(shade?C.hatShade:C.hat)||'#17141a',P2(d),'hat');return;}const P=P2(d),dx=Lh.x*he.rw,dy=Lh.y*he.rw;c.translate(dx,dy);c.fillStyle=FigKit.rimCol(C.rim);c.fill(P);c.translate(-dx,-dy);c.fillStyle=shade?C.hatShade:C.hat;c.fill(P);};
     if(HT.knot)fillHat(HT.knot,true);fillHat(HT.crown);if(HT.band)fillHat(HT.band,true);if(HT.brim)fillHat(HT.brim,true);
     if(HT.pleats&&lod>=1){c.strokeStyle=C.hatShade;c.lineWidth=2.4;c.stroke(P2(HT.pleats));}
     if(HT.badge&&lod>=1){c.fillStyle=C.badge||C.button;c.beginPath();c.arc(HT.badge[0],HT.badge[1],3.2,0,TAU);c.fill();}}
@@ -596,10 +633,12 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
       if(lod>=1&&!far){c.strokeStyle=rgba(C.brassHi||'#ffe299',.75);c.lineWidth=1.2;c.beginPath();c.ellipse(x1,y1,r*.42,r,an,-2.2,-.6);c.stroke();
         c.strokeStyle='rgba(220,240,240,.35)';c.lineWidth=1.4;c.beginPath();c.moveTo(x1-uy*r*.4+ux*.6,y1+ux*r*.4+uy*.6);c.lineTo(x1-uy*r*.05+ux*.6,y1+ux*r*.05+uy*.6);c.stroke();}}}
   if(hd.scar&&lod>=1){c.strokeStyle=elf?mid(C.accent,'#ffffff',.2):'#5a4438';c.lineWidth=2.2;c.globalAlpha=.85;c.stroke(P2(hd.scar));c.globalAlpha=1;}
+  }
   // the face: a brow, and the eye
   const E=V(SK.eye[0],SK.eye[1]);
   if(lod>=1){c.strokeStyle=C.brow||(elf?'#22202a':'#2a201a');c.lineWidth=SK.browW||(elf?6:7.5);c.stroke(P2(SK.brow));}
   const open=!!o.opening||!!F.opening;
+  if(!BKH){
   if(elf&&!F.dead){
     // the glow: what marks an elf at any size, in the colour the game gives him or her
     const g0=c.globalCompositeOperation;c.globalCompositeOperation='lighter';const r=open?13:9,gl=c.createRadialGradient(E.x-2,E.y,0,E.x-2,E.y,r*1.8);
@@ -612,7 +651,7 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
     else{c.fillStyle=open?'#ffc163':rgba(C.eye,lod?.8:.65);c.beginPath();c.ellipse(E.x-1,E.y,lod?3.4:4.2,lod?2.2:3,0,0,TAU);c.fill();}}
   // gold-rimmed spectacles (a cast entry's head.glasses)
   if(hd.glasses&&!F.severed){c.strokeStyle=C.glasses||C.button||'#e2b65a';c.lineWidth=lod>=1?4.18:5.43;c.beginPath();c.ellipse(E.x-3.4,E.y+.6,8,6.2,0,0,TAU);c.moveTo(E.x-11.4,E.y-.4);c.lineTo(E.x-30,E.y-3.6);c.stroke();
-    if(lod>=1){c.fillStyle='rgba(255,255,255,.07)';c.beginPath();c.ellipse(E.x-3.4,E.y+.6,7.2,5.4,0,0,TAU);c.fill();}}
+    if(lod>=1){c.fillStyle='rgba(255,255,255,.07)';c.beginPath();c.ellipse(E.x-3.4,E.y+.6,7.2,5.4,0,0,TAU);c.fill();}}}
   c.restore();
 }
 
@@ -821,7 +860,7 @@ function crewSpec(room,seed,bulk){
   return{race:'human',room,col,head,outfit:out,trail:null,heft:W.heft?HEFT:null,type,shape:CREW_SHAPES[type]||null};}
 // (the tables a later file adds its people's parts to: the profile's SKULLS, EARS, HAIR, HATS, BEARDS, and for a head turned in the
 // round EAR3, HAIR3, HAT3, BEARD3, WIDE3, LINE3; shapes: how the hair and hats here are made, and the colour mix)
-return{draw,CAST,CREWS,crewSpec,CREW_TYPES,HEFT,shapeOf,SKULLS,EARS,HAIR,HATS,BEARDS,EAR3,HAIR3,HAT3,BEARD3,WIDE3,LINE3,elfCol,humanCol,
+return{get skin(){return SKIN;},set skin(v){SKIN=v||null;},draw,CAST,CREWS,crewSpec,CREW_TYPES,HEFT,shapeOf,SKULLS,EARS,HAIR,HATS,BEARDS,EAR3,HAIR3,HAT3,BEARD3,WIDE3,LINE3,elfCol,humanCol,
   shapes:{smoothD,hairPath,spikyPath,SLICK,HP,mid},ok:typeof Path2D==='function'};
 })();
 // ---------- in the game ----------

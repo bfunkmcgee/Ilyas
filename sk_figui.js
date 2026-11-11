@@ -163,8 +163,11 @@ function light(c,ps,env,o){let some=false;for(const q of ps)if(litOK(q,env)){som
         if(lv<0){cur=-1;continue;}const b=V(O[j].x-N[j].x*rw*.5,O[j].y-N[j].y*rw*.5);
         if(lv!==cur){const a=V(O[i].x-N[i].x*rw*.5,O[i].y-N[i].y*rw*.5);RM[lv].moveTo(a.x,a.y);cur=lv;anyR[lv]=true;}RM[lv].lineTo(b.x,b.y);}}
     if(SD&&fineShade(SD,q,ps,many,L,K,pmax))anyD=true;}
+  // (o.pa: the plane and the shade laid on part strength, over a skin's texture, sk_castui.js)
+  const a00=c.globalAlpha;if(o.pa!=null)c.globalAlpha=a00*o.pa;
   if(anyD){c.fillStyle=mixHex(o.base,'#07060d',K.shade??.3);c.fill(SD);}
   if(any){c.fillStyle=planeCol;c.fill(PL);}
+  if(o.pa!=null)c.globalAlpha=a00;
   if(anyS){c.fillStyle=specCol;c.fill(SP);}
   if(anyF){const a0=c.globalAlpha;c.globalAlpha=a0*Math.min(1,K.rim*(far?.4:1)*KEY.k);c.fillStyle=o.light;c.fill(RF);c.globalAlpha=a0;}
   // (on a dark ground the rim is laid on stronger, and wider by half as much again)
