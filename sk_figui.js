@@ -10,6 +10,8 @@
 // Every shape made here carries its outline (o, outward normals worked out from its winding), the width of the shape at each point
 // of it (ow), and a test for whether a point is inside it, which is what the lighting works from.
 const FigKit=(()=>{
+// (KIT.fine: the finer figures, at the end of this file; off in the game's own page)
+const KIT={fine:typeof window!=='undefined'&&!!window.FINE_FIGURES};
 const V=(x,y)=>({x,y}),add=(a,b)=>V(a.x+b.x,a.y+b.y),sub=(a,b)=>V(a.x-b.x,a.y-b.y),mul=(a,k)=>V(a.x*k,a.y*k),
   len=a=>Math.hypot(a.x,a.y),nrm=a=>{const l=Math.hypot(a.x,a.y)||1;return V(a.x/l,a.y/l);},perp=a=>V(-a.y,a.x),
   mix=(a,b,u)=>V(a.x+(b.x-a.x)*u,a.y+(b.y-a.y)*u),dot=(a,b)=>a.x*b.x+a.y*b.y,cross=(a,b)=>a.x*b.y-a.y*b.x,
@@ -129,7 +131,7 @@ const rimCol=c=>KEY.col||c,rimK=()=>KEY.k;
 // After a shape's base fill: its plane of light, its sheen (for the materials that have one), and its rim, along the lit runs of its
 // outline. env: {L (toward the light, unit), rw (the rim's width), k (the drawing scale)}; o: {cls, base, light (its colour), far}
 function light(c,ps,env,o){let some=false;for(const q of ps)if(litOK(q,env)){some=true;break;}if(!some)return;
-  const K=CLS[o.cls]||CLS.wool,L=env.L,far=!!o.far,f0=far?.55:1;
+  const K=CLS[o.cls]||CLS.wool,L=env.L,far=!!o.far,f0=far?.55:1,fine=KIT.fine,RF=fine?new Path2D():null,SD=fine&&!far?new Path2D():null;let anyF=false,anyD=false;
   const planeCol=mixHex(o.base,o.light,K.mix*f0),specCol=K.spec?mixHex(o.base,o.light,Math.min(.9,K.mix+K.spec*(far?.25:.55))):null;
   const PL=new Path2D(),SP=K.spec?new Path2D():null,RM=[new Path2D(),new Path2D()];let any=false,anyR=[false,false],anyS=false;
   const rw=env.rw||1,th=K.th,pmax=env.planeMax||1e9,small=(env.k||1)<2.4;
@@ -156,11 +158,15 @@ function light(c,ps,env,o){let some=false;for(const q of ps)if(litOK(q,env)){som
         SP.moveTo(O[R[0]].x,O[R[0]].y);for(let k=1;k<R.length;k++)SP.lineTo(O[R[k]].x,O[R[k]].y);for(let k=sw.length-1;k>=0;k--)SP.lineTo(sw[k].x,sw[k].y);SP.closePath();anyS=true;}
       // the rim: only where the edge faces the light squarely, strongest where it faces it most; a line just inside the edge, drawn
       // as unbroken runs (one stroke each) so it costs little
+      if(fine){if(fineRim(RF,O,N,f,R,th,rw*(1+(KEY.k-1)*.5),small))anyF=true;continue;}
       let cur=-1;for(let k=0;k<R.length-1;k++){const i=R[k],j=R[k+1],fm=(f[i]+f[j])/2,lv=fm<th?-1:(small||fm>th+(1-th)*.5)?1:0;
         if(lv<0){cur=-1;continue;}const b=V(O[j].x-N[j].x*rw*.5,O[j].y-N[j].y*rw*.5);
-        if(lv!==cur){const a=V(O[i].x-N[i].x*rw*.5,O[i].y-N[i].y*rw*.5);RM[lv].moveTo(a.x,a.y);cur=lv;anyR[lv]=true;}RM[lv].lineTo(b.x,b.y);}}}
+        if(lv!==cur){const a=V(O[i].x-N[i].x*rw*.5,O[i].y-N[i].y*rw*.5);RM[lv].moveTo(a.x,a.y);cur=lv;anyR[lv]=true;}RM[lv].lineTo(b.x,b.y);}}
+    if(SD&&fineShade(SD,q,ps,many,L,K,pmax))anyD=true;}
+  if(anyD){c.fillStyle=mixHex(o.base,'#07060d',K.shade??.3);c.fill(SD);}
   if(any){c.fillStyle=planeCol;c.fill(PL);}
   if(anyS){c.fillStyle=specCol;c.fill(SP);}
+  if(anyF){const a0=c.globalAlpha;c.globalAlpha=a0*Math.min(1,K.rim*(far?.4:1)*KEY.k);c.fillStyle=o.light;c.fill(RF);c.globalAlpha=a0;}
   // (on a dark ground the rim is laid on stronger, and wider by half as much again)
   if(anyR[0]||anyR[1]){const a0=c.globalAlpha,bk=KEY.k;c.lineCap='butt';c.lineJoin='bevel';c.strokeStyle=o.light;c.lineWidth=rw*(1+(bk-1)*.5);
     if(anyR[0]){c.globalAlpha=a0*Math.min(1,K.rim*.5*(far?.4:1)*bk);c.stroke(RM[0]);}if(anyR[1]){c.globalAlpha=a0*Math.min(1,K.rim*(small?.85:1)*(far?.4:1)*bk);c.stroke(RM[1]);}c.globalAlpha=a0;}}
@@ -356,7 +362,72 @@ function headView(M,hy){const c=Math.cos(hy),s=Math.sin(hy),P=q=>V(q[0]*c+q[2]*s
   // the line of the mouth and the nose's tip
   out.mouth=[P([M.chin[0]+6,37,-6]),P([M.chin[0]+8,37.5,0]),P([M.chin[0]+6,37,6])];out.noseTip=P([M.nose[0],M.nose[1],0]);out.noseZ=Z([1,0,0]);
   return out;}
-return{V,add,sub,mul,len,nrm,perp,mix,dot,cross,cl,ss,curvePts,pathOf,normals,piece,outlined,capsule,tube,light,litOK,folds,CLS,mixHex,inPoly,segDist,useKey,rimCol,rimK,rimOf,
-  view,wrap,spinYaw,headYaw,torsoMap,seen,hull,cone,ellOutline,ellPt,ellPatch,loopPath,headModel,headView};
+// ---------- the finer figures (KIT.fine) ----------
+// What the looks draw differently when the switch is on (Nov 10, asked for: the character models' drawing improved). Off, every
+// figure is drawn exactly as before: each of these is only reached through `FigKit.fine`.
+// - The rim narrows as its edge turns from the light instead of one width all along it: a band laid inside the edge, full where the
+//   edge faces the light squarely and down to a point where it stops facing it (fineRim), in place of the two strokes. At the
+//   game's own size it keeps over half its width to its ends: there the rim is most of what reads of a figure (the look's rule 8).
+// - A shade: a band along the edges that face away from the light, a little darker than the shape (fineShade; CLS's shade and sh,
+//   .3 of the way to dark and .3 of the shape's width unless a material says otherwise). It shows on cloth and skin with some
+//   colour in them and not on the black of a suit, which is as it should be.
+// - Hands with fingers to them (fist, openHand) and footwear with a heel (shoe, boot), the same for everyone.
+function fineRim(RF,O,N,f,R,th,rw,small){let seg=null,any=false;const lo=th-.2,w0=small?.56:.14,w1=small?.74:1.16,W=i=>rw*(w0+w1*ss(lo,.96,f[i]));
+  const flush=()=>{if(seg&&seg.length>1){RF.moveTo(O[seg[0]].x,O[seg[0]].y);for(let k=1;k<seg.length;k++)RF.lineTo(O[seg[k]].x,O[seg[k]].y);
+      for(let k=seg.length-1;k>=0;k--){const i=seg[k],w=W(i);RF.lineTo(O[i].x-N[i].x*w,O[i].y-N[i].y*w);}RF.closePath();any=true;}seg=null;};
+  for(const i of R){if(f[i]>=lo)(seg||(seg=[])).push(i);else flush();}flush();return any;}
+function fineShade(SD,q,ps,many,L,K,pmax){const O=q.o,N=q.on,n=O.length,W=q.ow,w0=q.w||q.r*1.8,g=new Float32Array(n);let some=false;
+  for(let i=0;i<n;i++){const d=-(N[i].x*L.x+N[i].y*L.y);if(d<.2)continue;let hid=false;
+    if(many){const tp=V(O[i].x+N[i].x*.75,O[i].y+N[i].y*.75);for(const z of ps){if(z!==q&&z.inside&&z.inside(tp)){hid=true;break;}}}if(!hid){g[i]=d;some=true;}}
+  if(!some)return false;let i0=-1,any=false;for(let s=0;s<n;s++)if(g[s]<.2){i0=s;break;}
+  const runs=[];if(i0<0)runs.push([...Array(n).keys()]);else{let run=null;for(let k=1;k<=n;k++){const i=(i0+k)%n;if(g[i]>=.2){if(!run)run=[];run.push(i);}else if(run){runs.push(run);run=null;}}if(run)runs.push(run);}
+  const sh=K.sh??.3,pm=pmax*.8;
+  for(const R of runs){const m=R.length;if(m<3)continue;const wd=new Float32Array(m);for(let k=0;k<m;k++){const i=R[k];wd[k]=Math.min((W?W[i]:w0)*sh,pm)*ss(.2,.72,g[i]);}
+    for(let pass=0;pass<2;pass++)for(let k=1;k<m-1;k++)wd[k]=(wd[k-1]+wd[k]*2+wd[k+1])/4;
+    SD.moveTo(O[R[0]].x,O[R[0]].y);for(let k=1;k<m;k++)SD.lineTo(O[R[k]].x,O[R[k]].y);for(let k=m-1;k>=0;k--){const i=R[k];SD.lineTo(O[i].x-N[i].x*wd[k],O[i].y-N[i].y*wd[k]);}SD.closePath();any=true;}
+  return any;}
+// which way an empty hand's first finger and thumb lie, across the forearm fd: up for a raised forearm, forward (fv) for one that
+// hangs, back toward the head for one held straight up
+function thumbSide(fd,fv){const q=perp(fd),rx=fv*(fd.y>0?1.2*fd.y:.5*fd.y);return q.x*rx-q.y>=0?q:mul(q,-1);}
+// which way the knuckles of a hand face that holds a grip running along g: across it, away from the wrist (fd: along the forearm);
+// where the grip lies along the forearm, up
+function gripSide(g,fd){const q=perp(g);return q.x*fd.x+q.y*(fd.y-.35)>=0?q:mul(q,-1);}
+// a fist: the back of the hand and the four fingers folded over what it holds. ax: the way the fingers are stacked, the first finger
+// at its + end (along a grip toward the blade; thumbSide for an empty hand); kd: the way the knuckles face (gripSide; along the
+// forearm for an empty hand); s: the body's unit times the look's share for a hand. body: its outline, a knuckle for each finger;
+// thumb: the thumb laid across the first finger, painted after it so its own edge takes the light; creases: the lines between the
+// fingers and the thumb's shadow on them, to fill a little darker than the hand
+function fist(H,ax,kd,s){const k=1.22*s,pt=(a,b)=>V(H.x+(ax.x*a+kd.x*b)*k,H.y+(ax.y*a+kd.y*b)*k);
+  const body=piece([pt(-3.5,-2.9),pt(-3.95,-.7),pt(-3.7,1.5),pt(-2.75,2.7),pt(-1.8,2.3),pt(-.85,3.1),pt(.1,2.65),pt(1.05,3.35),pt(2,2.85),pt(2.95,3.25),pt(3.95,1.9),pt(4.1,-.3),pt(3.1,-2.7),pt(.3,-3.3)],.5);
+  const thumb=capsule(pt(2.1,-2.6),pt(3.75,.9),2.9*k,2.25*k),CR=new Path2D();
+  for(const [a,b] of [[-1.8,2.3],[.1,2.65],[2,2.85]]){const p0=pt(a-.36,b+.15),p1=pt(a+.36,b+.15),p2=pt(a-.15,b-2.2);CR.moveTo(p0.x,p0.y);CR.lineTo(p1.x,p1.y);CR.lineTo(p2.x,p2.y);CR.closePath();}
+  {const p0=pt(.79,-1.98),p1=pt(2.74,1.38),p2=pt(2.17,1.65),p3=pt(.29,-1.75);CR.moveTo(p0.x,p0.y);CR.lineTo(p1.x,p1.y);CR.lineTo(p2.x,p2.y);CR.lineTo(p3.x,p3.y);CR.closePath();}
+  return{body,thumb,creases:CR};}
+// a hand at rest, open: the palm, the fingers together and a little curled, their tips apart, the thumb along the first finger.
+// fd: along the forearm; th: the thumb's side across it (thumbSide)
+function openHand(H,fd,th,s){const k=1.12*s,cv=a=>{const t=(a-4.4)/5.2;return a>4.4?-t*t:0;},pt=(a,b)=>{b+=cv(a);return V(H.x+(fd.x*a+th.x*b)*k,H.y+(fd.y*a+th.y*b)*k);};
+  const body=piece([pt(-2.9,-2.4),pt(1.2,-2.85),pt(4.6,-2.75),pt(7.3,-2.95),pt(8.55,-2.55),pt(8.35,-1.55),pt(9.75,-1.25),pt(9.95,-.2),pt(8.95,.25),pt(9.15,.95),pt(8.55,1.75),pt(5.6,2.35),pt(3.2,2.7),pt(.6,2.75),pt(-2.6,2.5),pt(-3.3,.1)],.45);
+  const thumb=capsule(pt(.3,2.1),pt(4.3,3.6),2.7*k,2*k),CR=new Path2D();
+  for(const [a,b,a2,b2] of [[8.35,-1.55,4.9,-1],[8.95,.25,5.1,.75]]){const p0=pt(a,b-.33),p1=pt(a,b+.33),p2=pt(a2,b2);CR.moveTo(p0.x,p0.y);CR.lineTo(p1.x,p1.y);CR.lineTo(p2.x,p2.y);CR.closePath();}
+  return{body,thumb,creases:CR,open:true};}
+// footwear. A: the ankle; d: along the foot; w: up off its sole (unit vectors); s: the body's unit; big: how much longer a boot's foot
+// is. A shoe: its outline (Q, as the looks' own, the sole cut up between the heel and the ball of the foot) and its heel's block.
+function shoe(A,d,w,s,big=1){const q=(a,b)=>V(A.x+(d.x*a+w.x*b)*s,A.y+(d.y*a+w.y*b)*s);
+  return{q,Q:[q(-3.5*big,-3.3),q(-3.75*big,-.2),q(-1.7,2.3),q(2.4,1.55),q(6.4*big,-.3),q(9.6*big,-1.35),q(11.9*big,-2.45),q(11.3*big,-3.3),q(5.4*big,-3.3),q(3.1,-2.45),q(.95,-2.5),q(.5,-3.3)],
+    heel:[q(-3.3*big,-3.25),q(-3.45*big,-2.05),q(.8,-2.05),q(.45,-3.25)],toe:q(9*big,-1.6)};}
+// A boot: a heavier foot, its toe round and its sole thick and flat, under a shaft up the shin from the ankle to `up` of the way from
+// the knee K, cut straight across its top and a little wider there than at the ankle (wT, wA: its widths). shaft: its outline (a
+// main form: leather takes its sheen along it); sole: the sole and the heel's block, to fill in the sole's colour; cuff: the band
+// round its top
+function boot(K,A,d,w,s,big,wT,wA,up=.62){const g=big/1.12,q=(a,b)=>V(A.x+(d.x*a*g+w.x*b)*s,A.y+(d.y*a*g+w.y*b)*s),sd=nrm(sub(A,K));let sn=perp(sd);if(dot(sn,d)<0)sn=mul(sn,-1);
+  const Q=[q(-3.9,-3.3),q(-4.2,-.4),q(-2.2,2.4),q(2.9,2.3),q(6.6,.9),q(10.2,.2),q(12.6,-.9),q(13.5,-2.3),q(12.9,-3.3),q(4.5,-3.3)];
+  const T0=mix(K,A,up),hT=wT/2,hA=wA/2,B0=add(A,mul(w,.5*s)),m=mix(T0,B0,.55),hM=(hT+hA)/2*.97,B1=add(B0,mul(sd,1.7*s));
+  const shaft=piece([add(T0,mul(sn,hT)),add(m,mul(sn,hM)),add(B0,mul(sn,hA)),add(B1,mul(sn,hA*.55)),add(B1,mul(sn,-hA*.55)),sub(B0,mul(sn,hA)),sub(m,mul(sn,hM)),sub(T0,mul(sn,hT))],.3,2,true);
+  const P=(pts)=>{const D=new Path2D();D.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)D.lineTo(pts[i].x,pts[i].y);D.closePath();return D;};
+  const sole=P([q(-3.7,-3.25),q(-3.95,-1.6),q(.9,-1.6),q(1.3,-2.15),q(12.2,-2.2),q(13.1,-2.55),q(12.75,-3.25)]);
+  const c0=add(T0,mul(sd,.15*s)),c1=add(T0,mul(sd,1.9*s)),cuff=P([add(c0,mul(sn,hT*.95)),sub(c0,mul(sn,hT*.95)),sub(c1,mul(sn,hT*.93)),add(c1,mul(sn,hT*.93))]);
+  return{Q,shaft,sole,cuff,toe:q(10,-1.2),q};}
+return Object.assign(KIT,{V,add,sub,mul,len,nrm,perp,mix,dot,cross,cl,ss,curvePts,pathOf,normals,piece,outlined,capsule,tube,light,litOK,folds,CLS,mixHex,inPoly,segDist,useKey,rimCol,rimK,rimOf,
+  view,wrap,spinYaw,headYaw,torsoMap,seen,hull,cone,ellOutline,ellPt,ellPatch,loopPath,headModel,headView,thumbSide,gripSide,fist,openHand,shoe,boot});
 })();
 // ===== FIGURE KIT END =====

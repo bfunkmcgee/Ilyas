@@ -138,6 +138,7 @@ const RIMMED={suit:1,skin:1,shoe:1,coat:1,lapel:1,shirt:1,vest:1,apron:1,hat:1,t
 // {coat:'leather'} for oilcloth, {skin:'gskin'} for a green skin)
 const LIT={suit:'wool',coat:'wool',trouser:'wool',hat:'wool',vest:'wool',lapel:'satin',tie:'satin',scarfC:'satin',sashC:'satin',shirt:'cotton',sleeve:'cotton',apron:'cotton',
   chef:'cotton',chefPanel:'cotton',skin:'skin',shoe:'leather',glove:'leather',wrap:'leather',shawl:'wool',bag:'leather',rope:'cotton',band:'cotton'};
+function baseOf(C,mat,far){const b=(far&&C[mat+'Far'])||(far?mid(C[mat]||C.suit,'#3a3346',.32):C[mat])||C.suit;return b[0]==='#'&&b.length===7?b:'#17141a';}
 function paint(c,ps,mat,env){const C=env.col,base=(env.far&&C[mat+'Far'])||(env.far?mid(C[mat]||C.suit,'#3a3346',.32):C[mat])||C.suit,U=unionOf(ps),lit=(C.lit&&C.lit[mat])||LIT[mat],old=lit?ps.filter(q=>!FigKit.litOK(q,env)):ps;
   // (flat: what is on a turned torso, whose light its main shape carries)
   if(env.flat){c.fillStyle=base;c.fill(U);return;}
@@ -225,7 +226,7 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   const Ld=o.dir?nrm(o.dir):o.light?nrm(sub(o.light,mix(P0,C0,.5))):nrm(V(.5,-1));
   const env={k,fa,L:Ld,far:false,col:C,rw:Math.max(.9,1.25/k)*1.05,ow:Math.max(.55,1.05/k),planeMax:5.4*sz,litMin:3.1*sz};
   // (the detail by the scale drawn at, or o.lod: a figure drawn into a picture that is set down smaller says how small it shows)
-  const lod=o.lod??(k<2.4?0:k<5?1:2);
+  const lod=o.lod??(k<2.4?0:k<5?1:2),fine=FigKit.fine;
   const gy=typeof F.gr==='function'?(x=>F.gr(x)):(x=>F.ground??(Math.max(p0[FTF].y,p0[FTB].y)+3));
   const pt=(ps,mat,far=false)=>{env.far=far;paint(c,ps,mat,env);env.far=false;};
   const lw=(1-HF[1]+HF[1]*b.bulk)*(elf?.96:1.04),W=w=>w*sz*lw,bsA=BS?BS.arms:1,bsL=BS?BS.legs:1,WA=w=>w*sz*lw*bsA,WL=w=>w*sz*lw*bsL;
@@ -270,6 +271,14 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   // a hand with weight to it: a full fist, the thumb's knuckle along the top of the grip
   const fist=(H,g,s)=>{const q=perp(g),kk=1.22,ptq=(a,bb)=>add(H,add(mul(g,a*s*kk),mul(q,bb*s*kk)));
     return piece([ptq(-3.2,-2.7),ptq(.4,-3.3),ptq(2.5,-3.7),ptq(3.9,-1.5),ptq(3.8,1.4),ptq(2.7,3),ptq(-2.8,3),ptq(-3.8,.2)],.55);};
+  // (the finer figures, FigKit.fine: a fist with its knuckles and thumb, round a grip or closed on nothing; an open hand on someone
+  // the story has standing easy, sitting or carrying (a guardArm of his own), or who lies dead)
+  const easy=!!(F.openHand||F.dead||Object.prototype.hasOwnProperty.call(F,'guardArm'))&&!o.afterFarArm;
+  const fineHand=(A,grip,s,far)=>{const mat=out.gloves&&C.glove?'glove':'skin',th=FigKit.thumbSide(A.fd,fv),
+      h=grip?FigKit.fist(A.H,tipDir,FigKit.gripSide(tipDir,A.fd),s):easy?FigKit.openHand(A.H,A.fd,th,s):FigKit.fist(A.H,th,A.fd,s);
+    // (a fist's thumb is painted after it, so its own edge takes the light across the fingers; an open hand's with it)
+    if(h.open)pt([h.body,h.thumb],mat,far);else{pt([h.body],mat,far);pt([h.thumb],mat,far);}
+    if(!far||lod>=1){c.fillStyle=mid(baseOf(C,mat,far),'#000000',.5);c.fill(h.creases);}};
   const foldCol={lit:rgba(FigKit.rimCol(C.rim||'#ffcf86'),.24),dark:'rgba(0,0,0,.5)'},foldFar={lit:rgba(FigKit.rimCol(C.rim||'#ffcf86'),.1),dark:'rgba(0,0,0,.28)',far:true};
   // (near: the arm on the near side, which holds the weapon; far: painted as the far side of him)
   const arm=(A,far,near)=>{
@@ -284,6 +293,7 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
         piece([add(kn,mul(d,-1.3*sz)),add(kn,mul(q,1.5*sz)),add(kn,mul(d,1.4*sz)),add(kn,mul(q,-.8*sz))],.5)],'band',far);
       if(lod>=1)pt([piece([kn,add(kn,V(-fv*1.6*sz,1.2*sz)),add(kn,V(-fv*2.8*sz,5.4*sz)),add(kn,V(-fv*1.4*sz,5*sz))],.4),piece([kn,add(kn,V(-fv*.4*sz,1.6*sz)),add(kn,V(fv*.4*sz,6.2*sz)),add(kn,V(fv*1.4*sz,5.6*sz))],.4)],'band',far);}
     const g=armed&&near?tipDir:(!near&&offOnGrip?tipDir:A.fd),s=sz*(near?1:.95)*(BS?BS.hands:1);
+    if(fine){fineHand(A,(armed&&near)||(!near&&offOnGrip),s,far);return;}
     if(out.gloves&&C.glove)pt([fist(A.H,g,s)],'glove',far);else pt([fist(A.H,g,s)],'skin',far);};
   const farArm=far=>{arm(armParts(p[ELB],p[HAB],SH[1]),far,false);if(o.afterFarArm)across(LAT[HAB],()=>o.afterFarArm(F));};
   const nearArm=far=>{if(armed&&o.drawOther)across(LAT[HAF],()=>o.drawOther(F));
@@ -295,16 +305,22 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   const legParts=(K,A,hip)=>{const sd=nrm(sub(A,K)),calf=dot(perp(sd),V(-fv,0))>0?1:-1,tb=FigKit.tube([hip,K,A],[WL(6.1),WL(4.2),WL(3.4)],{gather:.3,stretch:.12,bulge:[.06,.16],bulgeSide:[0,calf],lite:lod===0});
     return{tb,th:tb,sh:tb};};
   const big=out.boots?1.12:1;
+  // (the finer figures: a boot's sole and the band round its top)
+  const fineFoot=(S,K,A,far)=>{const b0=baseOf(C,'shoe',far),f=S.fine;
+    if(f&&f.sole){c.fillStyle=C.sole||mid(b0,'#8a7862',far?.2:.34);c.fill(f.sole);c.fillStyle=mid(b0,'#8a7862',far?.1:.2);c.fill(f.cuff);}};
   const shoeOf=(K,A)=>{const sd=nrm(sub(A,K)),g=gy(A.x);let d;const planted=A.y>g-6&&Math.abs(Math.atan2(sd.x,sd.y))<.95;
     if(planted)d=V(fa,0);else{d=perp(sd);if(dot(d,n0)<0)d=mul(d,-1);}
     let w=perp(d);if(dot(w,sub(K,A))<0)w=mul(w,-1);const q=(a,bb)=>add(A,add(mul(d,a*sz),mul(w,bb*sz)));
     const Q=[q(-3.4*big,-3),q(-3.6*big,0),q(-1.6,2.2),q(2.4,1.4),q(6.4*big,-.4),q(9.6*big,-1.4),q(11.8*big,-2.5),q(11*big,-3.2),q(3,-3.3)];
+    // (the finer figures: a shoe with a heel under it; a boot with a shaped shaft, a thick sole and a band round its top)
+    if(fine){const S=out.boots?FigKit.boot(K,A,d,w,sz,big,WL(8.2),WL(6.6)):FigKit.shoe(A,d,w,sz,big);return{pc:piece(S.Q,.42,k>=2.4),Q:S.Q,w,boot:S.shaft||null,fine:S,toe:S.toe,d};}
     return{pc:piece(Q,.45,k>=2.4),Q,w,boot:out.boots?capsule(mix(K,A,.62),add(A,mul(w,1.2*sz)),WL(8.6),WL(7.8)):null,toe:q(9*big,-1.6),d};};
   // turned: the outline round the shoe's profile set out either side of the foot; a boot's shaft round the shin as it is seen
   const shoeAt=(kn,ft,l)=>{const S0=shoeOf(p0[kn],p0[ft]);if(!TN)return S0;const pts=[];for(const q of S0.Q)for(const w of [-2.4*sz,2.4*sz])pts.push(VW.at(q,l+w));
-    const K=p[kn],A=p[ft];return{pc:piece(FigKit.hull(pts),.4,k>=2.4),boot:out.boots?capsule(mix(K,A,.62),add(A,V(0,-1.2*sz)),WL(8.6),WL(7.8)):null};};
+    const K=p[kn],A=p[ft];return{pc:piece(FigKit.hull(pts),.4,k>=2.4),boot:out.boots?(fine?FigKit.boot(K,A,V(fv||1,0),V(0,-1),sz,big,WL(8.2),WL(6.6)).shaft:capsule(mix(K,A,.62),add(A,V(0,-1.2*sz)),WL(8.6),WL(7.8))):null};};
   const leg=(kn,ft,side,far)=>{const L=legParts(p[kn],p[ft],HIP[side>0?0:1]),S=shoeAt(kn,ft,side*LH);
     pt([S.pc],'shoe',far);pt([L.tb],'trouser',far);FigKit.folds(c,L.tb,env,far?foldFar:foldCol);if(S.boot)pt([S.boot],'shoe',far);
+    if(fine)fineFoot(S,p[kn],p[ft],far);
     // a patch sewn over the knee (out.kneePatch; C.patch), on the front of it
     if(out.kneePatch&&lod>=1){const K=p[kn],d=nrm(sub(p[ft],HIP[side>0?0:1]));let n=perp(d);if(dot(n,V(fv,0))<0)n=mul(n,-1);const m=add(K,mul(n,WL(1.1))),a=mul(d,WL(3.3)),b=mul(n,WL(2.7));
       const Q=[add(m,add(a,b)),add(m,sub(b,a)),sub(m,add(a,b)),add(m,sub(a,b))];c.fillStyle=far?mid(C.patch||C.trouser,'#2a2433',.3):C.patch||mid(C.trouser,'#8a7a62',.25);c.fill(piece(Q,.25).p);
@@ -506,6 +522,18 @@ function trail(c,F,spec,env,now,sz){
     c.fillStyle=front?(side[i]<.35?C.accentShade:C.accent):mid(C.accentShade,'#000000',.3);c.fill(P);}
 }
 
+// The finer figures' faces (FigKit.fine), in profile. A face is dark like the rest of him, so it is modelled with planes a little
+// lighter than the skin (the cheekbone, the side of the nose, the lower lip) and the dark kept for the eye's socket, the nostril
+// and the line of the mouth. Where they sit comes from the skull's own outline: the nose's tip is its furthest point forward, the
+// mouth the notch between the lips below it.
+function faceOf(SK){if(SK.face)return SK.face;const X=SK.pts.map(q=>q[0]),E=SK.eye;let i=X.indexOf(Math.max(...X));const N=SK.pts[i];i--;
+  while(i>1&&X[i-1]<X[i])i--;while(i>1&&X[i-1]>=X[i])i--;while(i>1&&X[i-1]<=X[i])i--;const M=SK.pts[i],r=v=>R1(v),el=(x,y,rx,ry,a=0)=>{const P=new Path2D();P.ellipse(x,y,rx,ry,a,0,TAU);return P;};
+  return SK.face={M,N,
+    cheek:new Path2D(`M${r(E[0]+7)},${r(E[1]+8)} Q${r(E[0]-6)},${r(E[1]+5)} ${r(E[0]-19)},${r(E[1]+11)} Q${r(E[0]-20)},${r(E[1]+25)} ${r(E[0]-9)},${r(E[1]+33)} Q${r(E[0]+3)},${r(E[1]+28)} ${r(E[0]+7)},${r(E[1]+8)} Z`),
+    nose:new Path2D(`M${r(E[0]+7.5)},${r(E[1]+1)} L${r(N[0]-2.2)},${r(N[1]-3)} L${r(N[0]-5.5)},${r(N[1]+3)} L${r(E[0]+5)},${r(E[1]+13)} Z`),
+    lip:el(M[0]-4.6,M[1]+5.6,4.2,2.3,-.15),socket:el(E[0]-1.5,E[1]-.3,8.2,4.8,-.08),nostril:el(N[0]-8,N[1]+3.7,2.2,1.3,.3),
+    mouth:new Path2D(`M${r(M[0]+.8)},${r(M[1]-1.3)} L${r(M[0]+.8)},${r(M[1]+1.3)} L${r(M[0]-11.5)},${r(M[1]+2.1)} Z`),
+    eye:new Path2D(`M${r(E[0]-6.6)},${r(E[1]+.3)} Q${r(E[0]-2.5)},${r(E[1]-3.3)} ${r(E[0]+2.7)},${r(E[1]-.6)} Q${r(E[0]-2)},${r(E[1]+2.7)} ${r(E[0]-6.6)},${r(E[1]+.3)} Z`)};}
 // hj (a turned figure): {h, C0: the head and the chest as seen, fa, hy: the head's own turn}. Near the profile the profile drawing,
 // a little narrower as it turns; further round, the head in the round (headRound).
 function drawHead(c,F,spec,env,lod,o,sz,hj){
@@ -522,12 +550,15 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
   if(HR.back)fillHair(P2(HR.back));
   const skull=SK.path||(SK.path=new Path2D(smoothD(HP(SK.pts),true,.42)));
   paint(c,[{p:skull,c:V(6,10),r:42}],'skin',he);
+  const fine=FigKit.fine,FC=fine?faceOf(SK):null;
+  if(FC){const sk=baseOf(C,'skin',false);c.fillStyle=mid(sk,elf?mid('#8f86a8',C.accent&&C.accent.length===7?C.accent:'#8f86a8',.3):'#a67e5e',lod?.15:.12);c.fill(FC.cheek);c.fill(FC.nose);if(lod>=1)c.fill(FC.lip);
+    c.fillStyle=mid(sk,'#000000',.62);if(!elf)c.fill(FC.socket);c.fill(FC.mouth);if(lod>=1)c.fill(FC.nostril);}
   if(HR.shaved&&lod>=1){c.save();c.clip(skull);c.fillStyle=rgba(C.hair,.18);c.fill(P2(smoothD(HP(SLICK.concat([[-30,24],[-14,14],[4,-2],[13,5],[22,-18]])),true,.4)));c.restore();}
   if(HR.cap){fillHair(P2(HR.cap));if(lod>=1&&HR.strands){c.save();c.clip(P2(HR.cap));c.strokeStyle=C.hairHi;c.lineWidth=2;c.globalAlpha=elf?.55:.3;c.stroke(P2(HR.strands));c.restore();}}
   if(HR.tie){c.strokeStyle=C.accent||C.hairLine;c.lineWidth=6.26;c.stroke(P2(HR.tie));}
   // the ear over the hair (an elf's points out through it); an ear marked over stands out over a hat too (a goblin's through her
   // headcloth)
-  const ear=()=>{paint(c,[{p:P2(EAR.d),c:V(-20,4),r:14}],'skin',he);
+  const ear=()=>{paint(c,[{p:P2(EAR.d),c:V(-20,4),r:14}],'skin',fine&&!elf?{...he,rw:he.rw*.55}:he);
     if(lod>=1){c.strokeStyle=C.earIn||(elf?'#2b2128':'#2c221d');c.lineWidth=4.4;c.stroke(P2(EAR.inner));}
     if(hd.earring&&lod>=1){c.strokeStyle=C.button;c.lineWidth=1.6;for(const [x,y,r] of hd.earring){c.beginPath();c.arc(x,y,r,0,TAU);c.stroke();}}};
   const earOver=!!(EAR.over&&HT);
@@ -567,7 +598,8 @@ function drawHead(c,F,spec,env,lod,o,sz,hj){
     if(lod>=1){c.fillStyle=open?'#ffc163':C.eye;c.fill(P2(`M${E.x-10.6},${E.y+.4} Q${E.x-4.1},${E.y-5.1} ${E.x+3.4},${E.y-1.1} Q${E.x-3.1},${E.y+3.9} ${E.x-10.6},${E.y+.4} Z`));}}
   else if(!F.dead){
     // a human's eye catches the light and gives none back
-    c.fillStyle=open?'#ffc163':rgba(C.eye,lod?.8:.65);c.beginPath();c.ellipse(E.x-1,E.y,lod?3.4:4.2,lod?2.2:3,0,0,TAU);c.fill();}
+    if(FC&&lod>=1){c.fillStyle=open?'#ffc163':rgba(C.eye,.86);c.fill(FC.eye);c.fillStyle='#0b0908';c.beginPath();c.arc(E.x-.4,E.y-.2,1.55,0,TAU);c.fill();}
+    else{c.fillStyle=open?'#ffc163':rgba(C.eye,lod?.8:.65);c.beginPath();c.ellipse(E.x-1,E.y,lod?3.4:4.2,lod?2.2:3,0,0,TAU);c.fill();}}
   // gold-rimmed spectacles (a cast entry's head.glasses)
   if(hd.glasses&&!F.severed){c.strokeStyle=C.glasses||C.button||'#e2b65a';c.lineWidth=lod>=1?4.18:5.43;c.beginPath();c.ellipse(E.x-3.4,E.y+.6,8,6.2,0,0,TAU);c.moveTo(E.x-11.4,E.y-.4);c.lineTo(E.x-30,E.y-3.6);c.stroke();
     if(lod>=1){c.fillStyle='rgba(255,255,255,.07)';c.beginPath();c.ellipse(E.x-3.4,E.y+.6,7.2,5.4,0,0,TAU);c.fill();}}
