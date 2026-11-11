@@ -45,15 +45,15 @@ function sheets([K,guard,per]){
     const a=box(o.cards[0]),b=box(o.cards[1]);o.box=[Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[2],b[2]),Math.max(a[3],b[3])];}}
   finally{drawWeapon=dw;drawing(false);FigKit.fine=fine0;}
   // the sheets: `per` people across, as the game draws them above, the finer figures below, on the lab's slate
-  const out=[],pad=Math.round(6*K),lab=30,gapY=Math.round(4*K);
-  for(let i=0;i<L.length;i+=per){const G=L.slice(i,i+per),ws=G.map(o=>o.box[2]-o.box[0]+2*pad),h=Math.max(...G.map(o=>o.box[3]-o.box[1]))+pad,W=ws.reduce((a,b)=>a+b,0),H=lab+2*(h+gapY)+lab;
+  const out=[],pad=Math.round(6*K),lab=34,bar=30,gapY=Math.round(3*K);
+  for(let i=0;i<L.length;i+=per){const G=L.slice(i,i+per),ws=G.map(o=>o.box[2]-o.box[0]+2*pad),h=Math.max(...G.map(o=>o.box[3]-o.box[1]))+pad,W=ws.reduce((a,b)=>a+b,0),H=lab+2*(bar+h+gapY);
     const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#8f8a82';x.fillRect(0,0,W,H);
     // (a lit ground behind them, as a place's is: the figures are dark and read against light)
     const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#a9a399');g.addColorStop(1,'#7d776f');x.fillStyle=g;x.fillRect(0,0,W,H);
     let px=0;x.textBaseline='middle';
-    G.forEach((o,j)=>{for(let r=0;r<2;r++){const y=lab+r*(h+gapY+lab*0)+ (r?gapY:0)+(h-(o.box[3]-o.box[1]));x.drawImage(o.cards[r],o.box[0],o.box[1],o.box[2]-o.box[0],o.box[3]-o.box[1],px+pad,y,o.box[2]-o.box[0],o.box[3]-o.box[1]);}
-      x.fillStyle='#1b1a1d';x.font='600 17px sans-serif';x.fillText(o.id,px+pad,lab/2);px+=ws[j];});
-    x.fillStyle='rgba(20,19,22,.72)';x.font='600 14px sans-serif';x.fillText('now',4,lab+12);x.fillText('finer',4,lab+h+gapY+12);
+    G.forEach((o,j)=>{for(let r=0;r<2;r++){const y=lab+bar+r*(bar+h+gapY)+(h-(o.box[3]-o.box[1]));x.drawImage(o.cards[r],o.box[0],o.box[1],o.box[2]-o.box[0],o.box[3]-o.box[1],px+pad,y,o.box[2]-o.box[0],o.box[3]-o.box[1]);}
+      x.fillStyle='#1b1a1d';x.font='600 19px sans-serif';x.fillText(o.id,px+pad,lab/2);px+=ws[j];});
+    ['As the game draws them now','With the finer figures'].forEach((t,r)=>{const y=lab+r*(bar+h+gapY);x.fillStyle='rgba(27,26,29,.82)';x.fillRect(0,y,W,bar-6);x.fillStyle='#f3ead6';x.font='600 16px sans-serif';x.fillText(t,10,y+(bar-6)/2+1);});
     out.push(c.toDataURL('image/png'));}
   return{sheets:out,cards:L.map(o=>({id:o.id,urls:o.cards.map(c=>c.toDataURL('image/png'))})),errs};}
 (async()=>{const b=await chromium.launch({executablePath:chromiumPath()});
