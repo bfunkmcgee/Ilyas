@@ -151,10 +151,11 @@ function paint(c,ps,mat,env){const C=env.col,base=(env.far&&C[mat+'Far'])||(env.
   // (flat: what is on a turned torso, whose light its main shape carries)
   if(env.flat){c.fillStyle=base;c.fill(U);return;}
   if(RIMMED[mat]&&old.length){const a0=c.globalAlpha,dx=env.L.x*env.rw,dy=env.L.y*env.rw;c.globalAlpha=a0*Math.min(1,(env.far?.4:1)*FigKit.rimK());c.translate(dx,dy);c.fillStyle=FigKit.rimCol(C.rim);c.fill(old.length===ps.length?U:unionOf(old));c.translate(-dx,-dy);c.globalAlpha=a0;}
-  c.fillStyle=base;c.fill(U);
   // (env.tex: the skin's texture over the base, and the light laid on it part strength, so the texture shows through its plane;
-  // env.sn: the skin of a figure that has one, which gives the material's own tile to a shape with no texture of its own)
-  const tx=env.tex||(env.sn&&base[0]==='#'&&base.length===7?env.sn.mat(base,lit,mat):null);if(tx)tx.fill(c,U);
+  // env.sn: the skin of a figure that has one, which gives the material's own tile to a shape with no texture of its own, or at
+  // the game's own size just the tile's colour, laid as the base)
+  const tx=env.tex||(env.sn&&base[0]==='#'&&base.length===7?env.sn.mat(base,lit,mat):null),fc=tx&&tx.flat?tx.flat():null;
+  c.fillStyle=fc||base;c.fill(U);if(tx&&!fc)tx.fill(c,U,ps);
   if(lit&&base[0]==='#'&&base.length===7)FigKit.light(c,ps,env,{cls:lit,base,light:FigKit.rimCol(C.rim||'#ffcf86'),far:env.far,pa:tx?tx.pa:undefined});}
 function lightOver(c,ps,mat,env,pa){const C=env.col,lit=(C.lit&&C.lit[mat])||LIT[mat];if(lit)FigKit.light(c,ps,env,{cls:lit,base:baseOf(C,mat,env.far),light:FigKit.rimCol(C.rim||'#ffcf86'),far:env.far,pa});}
 

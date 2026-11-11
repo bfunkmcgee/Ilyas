@@ -80,11 +80,43 @@ The build lets a few of the look module's own helpers out of the built page, so 
 springs, shield shape, scarf ribbon, tear shapes and Pit colours and not copies of them (`blade`, `coatStep`, `layerOpen`,
 `layerClose`, `shieldShape`, `pitLook`, `scarfRibbon`, `ripShape`, added to its `return{...}`). The game's source is not changed.
 
+## The cast's skins
+
+Everyone the cast's painter draws (the named elves, the crews, the Pit's people) is skinned too (`cast_skin.js`; asked for Nov
+11: skins for everyone, as Ilyas has). Ilyas's skin is art drawn piece by piece for one man. Theirs are made from each one's
+spec, the way the painter makes the man: the painter paints each of his parts once, alone, on a figure stood straight, at six
+pixels a unit and at its closest detail, with the finer figures on, and every shape goes through the skin's own painting, which
+adds what a frame cannot afford: a soft shadow under each layer, a shade inside each shape's edges, a seam just inside the
+edge (stitches on leather), a grain by material, more light on the top of a shape than at its foot. The parts are kept as
+textures: each arm and leg, near and far, the torso in two layers (a braid swings between them), the head.
+
+When the game draws him the painter still does the posing and the layering. `CastLook.skin` (sk_castui.js; null in the game) is
+where the skin sits: in profile an arm's or a leg's shapes are filled from its texture along the limb as it bends (each half
+of the limb a pattern that does not repeat, so a fill takes each half only where it lies), the torso and the head are drawn
+from theirs, the eyes are drawn over the head each frame, and the shapes with no texture of their own (hands, shoes, the neck,
+the seat, a coat's skirt, an apron) take the material's own tile in a close view and its colour at the game's size, so they
+are of a piece with the rest. The place's light goes on over the textures, its plane at half strength.
+
+| What | Where |
+|---|---|
+| the hook, the one part painted alone (`o.only`), the texture fills | `sk_castui.js` (search "the skin") |
+| the light at part strength over a texture (`o.pa`) | `sk_figui.js` |
+| the making of the textures and the laying of them on | `cast_skin.js` |
+
+What it does not cover: a turned figure, who is painted as ever, so a man who spins goes from skinned to painted and back; the
+beasts and Ilyas, who have their own painters; the weapons; a crowd's small figures.
+
+A part takes about 6 ms to make here (the worst about 20), one a frame the first time a man is drawn, so he is painted for his
+first seven frames. A skinned figure costs about 1.9 ms a frame on this machine's software canvas against 1.2 painted, most of
+it the limbs' fills; a phone's canvas is not this one, and the Test panel's meter is the number to read. A man's textures
+take about 4 MB and go when he does. `CastSkin.state.no` leaves parts to the painter (`l` limbs, `t` torso, `h` head, `m` the
+tiles), to tell what each costs on a device.
+
 ## In the flow test
 
-On the branch `claude/flow-test` the same scripts go over the flow test's page, and the three switches (Phaser view, Glow and
-grade, Ilyas from drawn pieces) sit in its Test panel under their own heading, with the frame time on a line below them. They
-are remembered between visits (`sk_phost` in the browser's storage) and all start on.
+On the branch `claude/flow-test` the same scripts go over the flow test's page, and the four switches (Phaser view, Glow and
+grade, Ilyas from drawn pieces, Everyone else skinned) sit in its Test panel under their own heading, with the frame time on a
+line below them. They are remembered between visits (`sk_phost` in the browser's storage) and all start on.
 
 ```
 python3 build.py
@@ -101,7 +133,11 @@ is published from. `sk_flowui.js` is not changed: `host.js` adds its rows to the
 - `node spike/phaser/shots.js "Skirmish lab"`: the same paused moment in the three modes, for comparing the pictures.
 - `node spike/phaser/check_skin.js [first] [last] [seconds]`: the drawn figure in the game. Each chapter and the skirmish lab is
   opened and played at with taps and keys, and every drawing of Ilyas is counted by what he had on and whether the pieces drew
-  him. It fails on an error, a piece that could not be made, or a case left to the painted figure.
+  him. It fails on an error, a piece that could not be made, or a case left to the painted figure. It also says how many of
+  the cast were skinned, what share of their drawings had every texture, and what a part took to make, and fails if a
+  skin could not be made. `SK_FINE=1` plays with the finer figures on.
+- `MODE=skin PAGE=uiwork/qa_test.html node uiwork/look/figsheet.js <out> [K] [easy|guard] [cast|pit|all]`: everyone painted
+  (the finer figures on) above and skinned below, on sheets of five. The tool puts `cast_skin.js` into the QA page itself.
 - `node spike/phaser/sheet.js <set> [out.png] [scale] [both|painted|drawn] [body|head|torso]`: a sheet of him in a list of
   states, the painted figure beside the drawn one. The sets are named at the top of the file: the eight sides, the prologue's
   states, the coat's, the Pit's outfits and gear, each of those turned, and the gear screen's views (`gv1` to `gv3`).

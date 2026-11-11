@@ -49,11 +49,14 @@ const first = +(process.argv[2] || 0), last = +(process.argv[3] || 99), secs = +
       if (!cmd) { if (n % 3 === 0) { await p.keyboard.down('ArrowRight'); await p.waitForTimeout(500); await p.keyboard.up('ArrowRight'); } else { await p.touchscreen.tap(422 + (n % 2 ? 150 : -40), 200 + (n % 4) * 30).catch(() => {}); if (n % 5 === 0) await p.keyboard.press('Space').catch(() => {}); } }
       await p.waitForTimeout(450); }
     await p.screenshot({ path: path.join(out, 'skin_' + i + '.png') });
-    const r = await p.evaluate(() => ({ st: Skin.state, cov: window.__cov }));
+    const r = await p.evaluate(() => ({ st: Skin.state, cov: window.__cov, cast: typeof CastSkin !== 'undefined' ? CastSkin.state : null }));
     const left = Object.entries(r.cov).filter(([k, v]) => v[1] > 2 && !/a look by name/.test(k)), failed = Object.keys(r.st.failed);
-    const ok = !errs.length && !r.st.err && !failed.length && !left.length; if (!ok) bad++;
+    // (the cast's skins, cast_skin.js: how many of them had theirs made, and whether any could not be)
+    const cs = r.cast, castBad = !!cs && (!!cs.err || cs.failed > 0);
+    const ok = !errs.length && !r.st.err && !failed.length && !left.length && !castBad; if (!ok) bad++;
     for (const k in r.cov) { const a = all[k] || (all[k] = [0, 0]); a[0] += r.cov[k][0]; a[1] += r.cov[k][1]; }
     console.log((ok ? 'ok   ' : 'FAIL ') + i + ' ' + name.slice(0, 44) + ': drawn ' + r.st.drawn + ', waiting on pieces ' + r.st.missed + ', other looks ' + r.st.other + ', pieces made ' + r.st.loaded
+      + (cs ? ' | cast: ' + cs.men + ' skinned, ' + cs.parts + ' parts, ' + (cs.calls ? Math.round(100 * cs.full / cs.calls) : 0) + '% of drawings with all of them, a part ' + (cs.parts ? (cs.ms / cs.parts).toFixed(1) : 0) + ' ms (worst ' + cs.worst.toFixed(0) + ')' + (castBad ? '\n     cast skin: ' + (cs.err || cs.failed + ' could not be made: ' + cs.last) : '') : '')
       + (r.st.err ? '\n     skin error: ' + r.st.err.slice(0, 400) : '') + (failed.length ? '\n     pieces failed: ' + failed.map(k => k + ' (' + r.st.failed[k] + ')').join(', ') : '') + (left.length ? '\n     left to the painted figure: ' + left.map(([k, v]) => k + ' x' + v[1]).join('; ') : '') + (errs.length ? '\n     errors: ' + errs.slice(0, 4).join(' | ') : ''));
     await ctx.close();
   }

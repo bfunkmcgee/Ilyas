@@ -710,6 +710,16 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   detail at the game's own size was tried and costs 1.31, over the limit, so the tiers are as they were. The turned head
   (`headRound`) is as it was. `node uiwork/look/figsheet.js` shoots everyone before and after (under Screenshots); with the switch
   off its cards are the same as main's, pixel for pixel (46 people, standing easy at 3.4 and in their guard at 2).
+- A place for a skin in the cast's painter (Nov 11; asked for: skins for everyone, as Ilyas has; in the test pages only).
+  `CastLook.skin` is null in the game and nothing below runs. Set (spike/phaser/cast_skin.js, whose README says how the skins
+  are made), the painter still poses and layers a figure and the skin's textures are laid on in profile: `env.tex` in `paint`
+  fills an arm's or a leg's shapes from its texture, `torsoAll` draws the torso's two layers (`torsoA` and `torsoB`, split so a
+  braid swings between them) and `drawHead` the head from theirs, the eyes over it as ever, and a shape with no texture takes
+  its material's tile (`env.sn`). To make a texture the skin has one part painted alone on a figure stood straight (`o.only`,
+  `BK` in `draw`: nothing else is painted, a coat's skirt is not stepped, the folds at the joints are left out since they are
+  drawn each frame) and each shape handed to the skin's own painting (`SKIN.baking` in `paint`, the hair, a hat and a beard
+  too). `FigKit.light` takes `o.pa`, its plane and shade part strength over a texture. With no skin set every card is as it
+  was, the finer figures off and on (the same 46 people, two poses, two sizes). A turned figure is painted as ever.
 - The crews' sizes and types (since V115, Nov 10; asked for: crew body sizes and types). A crew man's height and build are the game's
   (sk_cast.js `HUMAN_BUILD`): 154 to 176 cm and .94 to 1.44, where they were 160 to 176 and 1.04 to 1.34, so every seeded fight
   with a crew in it plays differently from before; the Help and sk_cast_page.js repeat the heights. His type is the drawing's
@@ -757,6 +767,8 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   That night the finer figures became a sixth part of the test (`fine`, on; asked for: every character model's drawing improved):
   the switch sets `FigKit.fine` (above, under the looks), so the cast and the Pit's people get their hands, boots and faces there,
   the beasts the finer rim, and Ilyas, drawn from his pieces in that page, only where the painted figure still draws him.
+  Nov 11: the cast's skins (above, under the looks; spike/phaser/README.md) are a fourth switch among the Phaser test's own,
+  "Everyone else skinned", on.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,

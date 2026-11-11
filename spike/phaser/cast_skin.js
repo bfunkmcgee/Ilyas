@@ -16,7 +16,8 @@
 const CastSkin = (() => {
   'use strict';
   const TS = 6, PA = .5, PARTS = ['torso1', 'head', 'armN', 'legN', 'armF', 'legF', 'torso2'];
-  const state = { on: true, err: null, men: 0, parts: 0, failed: 0, ms: 0, worst: 0, calls: 0, full: 0, last: '' };
+  // (state.no: parts left to the painter, to tell what each costs: any of l (limbs), t (torso), h (head), m (the materials' tiles))
+  const state = { on: true, err: null, men: 0, parts: 0, failed: 0, ms: 0, worst: 0, calls: 0, full: 0, last: '', no: '' };
   const ENT = new WeakMap(), QUEUE = new Set();
   let stamp = -1, scratch = null;
   const V = (x, y) => ({ x, y }), sub = (a, b) => V(a.x - b.x, a.y - b.y), len = a => Math.hypot(a.x, a.y), nrm = a => { const l = len(a) || 1; return V(a.x / l, a.y / l); }, perp = a => V(-a.y, a.x);
@@ -52,21 +53,35 @@ const CastSkin = (() => {
     const m = c.getTransform(), D = c.canvas.width + 600, w = thick(ps), kind = KIND[cls] || KIND[mat] || 'wool', dark = kind === 'skin' ? .3 : .4;
     c.save(); c.globalCompositeOperation = 'source-atop'; c.setTransform(m.a, m.b, m.c, m.d, m.e - D, m.f);
     c.shadowColor = 'rgba(3,2,7,.5)'; c.shadowBlur = 1.1 * TS; c.shadowOffsetX = D; c.shadowOffsetY = .3 * TS; c.fillStyle = '#000'; c.fill(U); c.restore();
-    c.fillStyle = lift(base, kind === 'skin' ? .05 : .07); c.fill(U);
-    // (what is outside the shape, as far as the canvas goes and a little over, in the canvas's own pixels: its shadow falls inside)
-    const hole = new Path2D(); hole.rect(-90, -90, c.canvas.width + 180, c.canvas.height + 180); hole.addPath(U, m);
-    c.save(); c.clip(U); c.setTransform(1, 0, 0, 1, -D, 0); c.shadowColor = 'rgba(3,2,7,' + dark + ')'; c.shadowBlur = Math.max(3, Math.min(15, w * .2 * TS)); c.shadowOffsetX = D; c.fillStyle = '#000';
+    const col = lift(base, kind === 'skin' ? .03 : .04), sc = Math.hypot(m.a, m.b) || 1; c.fillStyle = col; c.fill(U);
+    // (a seam just inside the edge of a shape with some width to it: stitches on leather, a pressed edge on cloth. Two strokes kept
+    // inside the shape, the second in its own colour over all but the seam)
+    if (w > 2.6 && kind !== 'skin' && kind !== 'hair' && ps) { const d = (kind === 'leather' ? 4.2 : 5) / sc, hw = .75 / sc; c.save(); c.clip(U); c.lineJoin = 'round';
+      if (kind === 'leather') { c.setLineDash([2.2 / sc, 1.8 / sc]); c.strokeStyle = 'rgba(226,204,160,.34)'; } else { c.strokeStyle = 'rgba(2,2,5,.3)'; }
+      c.lineWidth = 2 * (d + hw); c.stroke(U); c.setLineDash([]); c.strokeStyle = col; c.lineWidth = 2 * (d - hw); c.stroke(U); c.restore(); }
+    // (the torso and the head stand as they are painted: a little more light on the top of each shape than at its foot)
+    if (PART && PART[0] !== 'a' && PART[0] !== 'l' && ps) { const bb = boxOf(ps, m, c.canvas, 0), g = c.createLinearGradient(0, bb[1], 0, bb[3]); g.addColorStop(0, 'rgba(255,244,226,.07)'); g.addColorStop(.5, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,6,.2)');
+      c.save(); c.setTransform(1, 0, 0, 1, 0, 0); const U2 = new Path2D(); U2.addPath(U, m); c.fillStyle = g; c.fill(U2); c.restore(); }
+    // (what is outside the shape, in the canvas's own pixels, as far round it as its shadow reaches: that shadow falls inside it)
+    const blur = Math.max(3, Math.min(15, w * .2 * TS)), bb = boxOf(ps, m, c.canvas, blur * 3 + 4), hole = new Path2D(); hole.rect(bb[0], bb[1], bb[2] - bb[0], bb[3] - bb[1]); hole.addPath(U, m);
+    c.save(); c.clip(U); c.setTransform(1, 0, 0, 1, -D, 0); c.shadowColor = 'rgba(3,2,7,' + dark + ')'; c.shadowBlur = blur; c.shadowOffsetX = D; c.fillStyle = '#000';
     c.fill(hole, 'evenodd'); c.restore();
-    const g = grain(kind); g.setTransform(m.inverse()); c.fillStyle = g; c.fill(U);
+    const g = grain(kind); g.setTransform(m.inverse()); c.fillStyle = g; c.fill(U); NPAINT++;
+    if (ps && BOX) { const b = boxOf(ps, m, c.canvas, 0); if (b[0] < -80) { BOX = null; } else { if (b[0] < BOX[0]) { BOX[0] = b[0]; } if (b[1] < BOX[1]) { BOX[1] = b[1]; } if (b[2] > BOX[2]) { BOX[2] = b[2]; } if (b[3] > BOX[3]) { BOX[3] = b[3]; } } } else { BOX = null; }
   }
+  // a shape's box in the canvas's pixels, grown by pad (the whole canvas where its points are not known)
+  function boxOf(ps, m, cv, pad) { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, ok = !!ps;
+    if (ps) { for (const q of ps) { const o = q.o; if (!o || !o.length) { ok = false; break; } for (const a of o) { const x = m.a * a.x + m.c * a.y + m.e, y = m.b * a.x + m.d * a.y + m.f; if (x < x0) { x0 = x; } if (x > x1) { x1 = x; } if (y < y0) { y0 = y; } if (y > y1) { y1 = y; } } } }
+    return ok ? [x0 - pad, y0 - pad, x1 + pad, y1 + pad] : [-90, -90, cv.width + 90, cv.height + 90]; }
+  let NPAINT = 0, PART = null, BOX = null;
 
   // a material on its own: the lifted colour and the grain as a tile, for the shapes painted each frame beside the textures (a
   // coat's skirt, the seat, an apron, the neck, the hands), so they are of a piece with them. It lies still on the figure (its
-  // pelvis, set by the hook each time he is drawn).
-  const TILE = new Map(); let ORG = { x: 0, y: 0 };
-  function tile(base, cls, mat) { const kind = KIND[cls] || KIND[mat] || 'wool', key = base + kind; let t = TILE.get(key);
-    if (!t) { if (TILE.size > 90) { TILE.clear(); } const cv = mk(96, 96), x = cv.getContext('2d'); x.fillStyle = lift(base, kind === 'skin' ? .05 : .07); x.fillRect(0, 0, 96, 96); const g = grain(kind); g.setTransform(new DOMMatrix()); x.fillStyle = g; x.fillRect(0, 0, 96, 96);
-      t = { pa: PA, p: sctx().createPattern(cv, 'repeat'), fill(c, U) { this.p.setTransform(new DOMMatrix([1 / TS, 0, 0, 1 / TS, ORG.x, ORG.y])); c.fillStyle = this.p; c.fill(U); } }; TILE.set(key, t); }
+  // pelvis, set by the hook each time he is drawn). At the game's own size the grain is too fine to see and the colour alone is laid.
+  const TILE = new Map(); let ORG = { x: 0, y: 0 }, KNOW = 3;
+  function tile(base, cls, mat) { if (state.no.includes('m')) { return null; } const kind = KIND[cls] || KIND[mat] || 'wool', key = base + kind; let t = TILE.get(key);
+    if (!t) { if (TILE.size > 90) { TILE.clear(); } const cv = mk(96, 96), x = cv.getContext('2d'), col = lift(base, kind === 'skin' ? .03 : .04); x.fillStyle = col; x.fillRect(0, 0, 96, 96); const g = grain(kind); g.setTransform(new DOMMatrix()); x.fillStyle = g; x.fillRect(0, 0, 96, 96);
+      t = { pa: PA, col, p: sctx().createPattern(cv, 'repeat'), flat() { return KNOW < 2.7 ? this.col : null; }, fill(c, U) { this.p.setTransform(new DOMMatrix([1 / TS, 0, 0, 1 / TS, ORG.x, ORG.y])); c.fillStyle = this.p; c.fill(U); } }; TILE.set(key, t); }
     return t; }
 
   // ---------- a man's textures ----------
@@ -82,14 +97,9 @@ const CastSkin = (() => {
   function geoOf(G, spec) { GEO = {}; const x = mk(8, 8).getContext('2d'); x.setTransform(TS, 0, 0, TS, 0, 0); CastLook.draw(x, G, spec, OPT('geo')); const g = GEO; GEO = null; return g; }
   // the edge's colours carried outward a few pixels, so a limb bent further than it was painted is still filled to its edge
   function bleed(cv) { const x = cv.getContext('2d'); x.save(); x.globalCompositeOperation = 'destination-over';
-    for (const d of [1, 2, 4, 7]) { for (const [i, j] of [[d, 0], [-d, 0], [0, d], [0, -d], [d, d], [-d, d], [d, -d], [-d, -d]]) { x.drawImage(cv, i, j); } } x.restore(); }
+    for (const d of [2, 5]) { for (const [i, j] of [[d, 0], [-d, 0], [0, d], [0, -d], [d, d], [-d, d], [d, -d], [-d, -d]]) { x.drawImage(cv, i, j); } } x.restore(); }
   function half(cv) { const h = mk(cv.width / 2, cv.height / 2), x = h.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(cv, 0, 0, h.width, h.height); return h; }
-  // the part of a canvas that has anything on it
-  function trim(cv) { const w = cv.width, h = cv.height, d = cv.getContext('2d').getImageData(0, 0, w, h).data; let x0 = w, x1 = -1, y0 = h, y1 = -1;
-    for (let y = 0; y < h; y++) { for (let x = 0; x < w; x++) { if (d[(y * w + x) * 4 + 3] > 6) { if (x < x0) { x0 = x; } if (x > x1) { x1 = x; } if (y < y0) { y0 = y; } if (y > y1) { y1 = y; } } } }
-    if (x1 < 0) { return null; } x0 = Math.max(0, x0 - 2); y0 = Math.max(0, y0 - 2); x1 = Math.min(w - 1, x1 + 2); y1 = Math.min(h - 1, y1 + 2);
-    const t = mk(x1 - x0 + 1, y1 - y0 + 1); t.getContext('2d').drawImage(cv, -x0, -y0); return { cv: t, x0, y0 }; }
-  function drawPart(x, G, spec, part) { const f0 = FigKit.fine; HOOK.baking = true; FigKit.fine = true; GEO = {};
+  function drawPart(x, G, spec, part) { const f0 = FigKit.fine; HOOK.baking = true; FigKit.fine = true; GEO = {}; NPAINT = 0; PART = part; BOX = [1e9, 1e9, -1e9, -1e9];
     try { CastLook.draw(x, G, spec, OPT(part)); } finally { HOOK.baking = false; FigKit.fine = f0; } const g = GEO; GEO = null; return g; }
 
   // an arm or a leg: painted along the texture (the limb's root to its end left to right, its back side down), then cut in two at
@@ -98,12 +108,15 @@ const CastSkin = (() => {
     const [S, E, W] = e.geo[part], ax = nrm(sub(W, S)), bk = perp(ax), L = len(sub(E, S)) + len(sub(W, E)), mu = 9, mv = part[0] === 'a' ? 10 : 15;
     const cv = mk((L + 2 * mu) * TS, 2 * mv * TS), x = cv.getContext('2d');
     x.setTransform(ax.x * TS, bk.x * TS, ax.y * TS, bk.y * TS, (-(S.x * ax.x + S.y * ax.y) + mu) * TS, (-(S.x * bk.x + S.y * bk.y) + mv) * TS);
-    drawPart(x, G, spec, part); if (!trim(cv)) { return { none: true }; } bleed(cv);
+    drawPart(x, G, spec, part); if (!NPAINT) { return { none: true }; } bleed(cv);
     const tp = q => V(((q.x - S.x) * ax.x + (q.y - S.y) * ax.y + mu) * TS, ((q.x - S.x) * bk.x + (q.y - S.y) * bk.y + mv) * TS), tR = tp(S), tM = tp(E), tE = tp(W);
     const lvl = (c0, k) => { const R = V(tR.x / k, tR.y / k), M = V(tM.x / k, tM.y / k), En = V(tE.x / k, tE.y / k), ov = Math.round(mv * 1.25 * TS / k), xl = Math.max(0, Math.round(M.x - 1.5 * TS / k)), wu = Math.min(c0.width, Math.round(M.x + ov));
       const up = mk(wu, c0.height), lo = mk(c0.width - xl, c0.height); up.getContext('2d').drawImage(c0, 0, 0); lo.getContext('2d').drawImage(c0, -xl, 0);
       return { R, M, E: En, xl, s: TS / k, pu: sctx().createPattern(up, 'no-repeat'), pl: sctx().createPattern(lo, 'no-repeat') }; };
-    return { limb: true, lv: [lvl(cv, 1), lvl(half(cv), 2)], pa: PA, cur: null, fill(c, U) { const t = this.cur; c.fillStyle = t.pu; c.fill(U); c.fillStyle = t.pl; c.fill(U); } };
+    // (a small shape that lies wholly past the joint, a cuff or a boot's shaft, takes the lower half alone, and one before it the upper)
+    return { limb: true, lv: [lvl(cv, 1), lvl(half(cv), 2)], pa: PA, cur: null, J: null, ax: null, len: 1,
+      fill(c, U, ps) { const t = this.cur; let side = 0; if (ps && ps.length === 1 && ps[0].c && ps[0].r) { const q = ps[0], d = (q.c.x - this.J.x) * this.ax.x + (q.c.y - this.J.y) * this.ax.y; if (q.r < this.len * .3) { side = d > q.r * 1.5 ? 1 : d < -q.r * 1.5 ? -1 : 0; } }
+        if (side <= 0) { c.fillStyle = t.pu; c.fill(U); } if (side >= 0) { c.fillStyle = t.pl; c.fill(U); } } };
   }
   // where a half of the limb's texture goes: its own root onto R, its axis along R to M at the limb's present length, its back side
   // to the back of the figure as he faces (fa)
@@ -113,16 +126,20 @@ const CastSkin = (() => {
   // the torso (either layer) and the head: painted upright, kept as what was painted and where it lay
   function bakeBox(e, G, spec, part, x0, y0, w, h) {
     const cv = mk(w * TS, h * TS), x = cv.getContext('2d'); x.setTransform(TS, 0, 0, TS, -x0 * TS, -y0 * TS);
-    const g = drawPart(x, G, spec, part), t = trim(cv); if (!t) { return { none: true }; }
-    return { cv: t.cv, hf: half(t.cv), x: x0 + t.x0 / TS, y: y0 + t.y0 / TS, w: t.cv.width / TS, h: t.cv.height / TS, g };
+    const g = drawPart(x, G, spec, part); if (!NPAINT) { return { none: true }; }
+    // (the torso's main layer is cut to what was painted, every shape's own points saying where it lay; not its second layer, whose
+    // straps and chains are lines with no shape to them, nor the head, whose hair and hat are paths alone)
+    if (part === 'torso1' && BOX && BOX[2] > BOX[0]) { const pad = 3 * TS, bx = Math.max(0, Math.floor(BOX[0] - pad)), by = Math.max(0, Math.floor(BOX[1] - pad)), bw = Math.min(cv.width, Math.ceil(BOX[2] + pad)) - bx, bh = Math.min(cv.height, Math.ceil(BOX[3] + pad)) - by;
+      if (bw > 0 && bh > 0 && bw * bh < cv.width * cv.height * .85) { const t = mk(bw, bh); t.getContext('2d').drawImage(cv, -bx, -by); return { cv: t, hf: half(t), x: x0 + bx / TS, y: y0 + by / TS, w: bw / TS, h: bh / TS, g }; } }
+    return { cv, hf: half(cv), x: x0, y: y0, w: cv.width / TS, h: cv.height / TS, g };
   }
   function bake(e, F, spec, part) {
     const G = e.G || (e.G = stood(F)); if (!e.geo) { e.geo = geoOf(G, spec); }
     const T = e.geo.T, P0 = e.geo.P0;
-    if (part === 'head') { const hp = G.p[2], t = bakeBox(e, G, spec, part, hp.x - 30, hp.y - 44, 58, 80); if (t.none) { return t; } const hd = t.g.head, s = hd.s;
+    if (part === 'head') { const hp = G.p[2], t = bakeBox(e, G, spec, part, hp.x - 26, hp.y - 38, 50, 68); if (t.none) { return t; } const hd = t.g.head, s = hd.s;
       // (in the head's own units, as the painter's transform has them: 8 above its joint, s of a unit each)
       return Object.assign(t, { hx: (t.x - hd.h.x) / s, hy: (t.y - hd.h.y) / s + 8, hw: t.w / s, hh: t.h / s, rim: new Map() }); }
-    if (part === 'torso1' || part === 'torso2') { return Object.assign(bakeBox(e, G, spec, part, P0.x - 30, P0.y - T - 26, 64, T + 26 + 46), { P0 }); }
+    if (part === 'torso1' || part === 'torso2') { return Object.assign(bakeBox(e, G, spec, part, P0.x - 24, P0.y - T - 18, 50, T + 18 + 34), { P0 }); }
     return bakeLimb(e, G, spec, part);
   }
   // the shape of a texture in one colour, for the rim of light laid a little toward the light under it
@@ -133,12 +150,12 @@ const CastSkin = (() => {
     const e = { spec, bh: F.body.h, bk: F.body.bulk, T: {}, todo: PARTS.slice(), G: null, geo: null, fail: false, env: null, api: null };
     e.api = { pa: PA, mat: tile,
       // an arm's or a leg's texture set to where the limb is now (S its root, E its joint, W its end); null until it is made
-      limb(key, S, E, W) { const t = e.T[key]; if (!t || !t.limb) { return null; } const lv = t.lv[e.env.k < 2.7 ? 1 : 0], fa = e.env.fa;
-        lv.pu.setTransform(segMat(lv.R, lv.M, S, E, fa, lv.s, 0)); lv.pl.setTransform(segMat(lv.M, lv.E, E, W, fa, lv.s, lv.xl)); t.cur = lv; return t; },
+      limb(key, S, E, W) { const t = e.T[key]; if (!t || !t.limb || state.no.includes('l')) { return null; } const lv = t.lv[e.env.k < 2.7 ? 1 : 0], fa = e.env.fa;
+        lv.pu.setTransform(segMat(lv.R, lv.M, S, E, fa, lv.s, 0)); lv.pl.setTransform(segMat(lv.M, lv.E, E, W, fa, lv.s, lv.xl)); t.cur = lv; t.J = E; t.ax = nrm(sub(W, E)); t.len = len(sub(W, E)); return t; },
       // the torso's layer drawn where the torso is (its pelvis, the way up it, the way to its front); true once it is made
-      torso(c, key, P0, u0, n0) { const t = e.T[key]; if (!t) { return false; } if (t.none) { return true; } const b = t.P0;
+      torso(c, key, P0, u0, n0) { const t = e.T[key]; if (!t || t.none || state.no.includes('t')) { return false; } const b = t.P0;
         c.save(); c.transform(n0.x, n0.y, -u0.x, -u0.y, P0.x - (n0.x * b.x - u0.x * b.y), P0.y - (n0.y * b.x - u0.y * b.y)); c.drawImage(e.env.k < 2.7 ? t.hf : t.cv, t.x, t.y, t.w, t.h); c.restore(); return true; },
-      get head() { const t = e.T.head; return t && !t.none ? t : null; } };
+      get head() { const t = e.T.head; return t && !t.none && !state.no.includes('h') ? t : null; } };
     return e;
   }
   function headDraw(c, he) { const t = this, C = he.col, a0 = c.globalAlpha, dx = he.L.x * he.rw, dy = he.L.y * he.rw;
@@ -158,7 +175,7 @@ const CastSkin = (() => {
       let e = ENT.get(F); if (!e || e.spec !== spec || e.bh !== F.body.h || e.bk !== F.body.bulk) { e = entry(F, spec); e.job = { e, F, spec }; ENT.set(F, e); QUEUE.add(e.job); }
       state.calls++; if (e.fail) { return null; }
       if (e.todo.length) { const s = Math.floor(performance.now() / 14); if (s !== stamp) { stamp = s; make(e.job); } } else { state.full++; }
-      e.env = env; ORG = F.p[0]; return e.api; } };
+      e.env = env; ORG = F.p[0]; KNOW = env.k; return e.api; } };
   // everything waiting, made now (the tools; a page may call it while a curtain is down)
   function flush() { for (const j of [...QUEUE]) { while (j.e.todo.length && !j.e.fail) { make(j); } } QUEUE.clear(); }
   function install() { if (typeof CastLook === 'undefined' || !('skin' in CastLook) || typeof DOMMatrix === 'undefined') { state.err = 'the painter has no place for a skin'; return false; } CastLook.skin = HOOK; return true; }
