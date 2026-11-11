@@ -285,7 +285,10 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
     if(out.sleeves==='bare'){pt([A.tb],'skin',far);pt([capsule(sub(A.Wr,mul(A.fd,2.2*sz)),add(A.Wr,mul(A.fd,.6*sz)),WA(5.2),WA(4.8))],'wrap',far);}
     else if(out.sleeves==='rolled'){const roll=capsule(mix(A.E,A.S,.12),mix(A.E,A.H,.12),WA(7),WA(6.6));
       pt([A.tb,capsule(sub(A.Wr,mul(A.fd,.4*sz)),add(A.Wr,mul(A.fd,1*sz)),WA(4.6),WA(4.4))],'skin',far);pt([A.up],'sleeve',far);pt([roll],'sleeve',far);}
-    else{pt([A.tb],sleeveMat,far);FigKit.folds(c,A.tb,env,far?foldFar:foldCol);if(out.cuffs!==false)pt([A.cuff],out.gloves?'glove':'shirt',far);}
+    else{pt([A.tb],sleeveMat,far);FigKit.folds(c,A.tb,env,far?foldFar:foldCol);if(out.cuffs!==false)pt([A.cuff],out.gloves?'glove':'shirt',far);
+      // (the finer figures, close up: two buttons at the back of a jacket's cuff)
+      if(fine&&lod>=1&&!far&&out.sleeves==='jacket'&&C.button){let q=perp(A.fd);if(dot(q,V(-fv,0))<0)q=mul(q,-1);c.fillStyle=C.button;c.beginPath();
+        for(const a of [2.1,3.7]){const b0=add(sub(A.Wr,mul(A.fd,a*sz)),mul(q,WA(1.75)));c.moveTo(b0.x+.55*sz,b0.y);c.arc(b0.x,b0.y,.55*sz,0,TAU);}c.fill();}}
     // a rag tied round the upper arm (out.armband; C.band its colour): the band, and the knot behind the arm with its two ends
     if(out.armband&&near){const d=nrm(sub(A.E,A.S)),m0=mix(A.S,A.E,.44),m1=mix(A.S,A.E,.6),w=WA(4.3);let q=perp(d);if(dot(q,V(-fv,0))<0)q=mul(q,-1);
       const kn=add(mix(m0,m1,.5),mul(q,w*.92));
@@ -304,7 +307,7 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   // a leg is one shape from the hip to the ankle: the knee gathers the trouser behind it and pulls it round in front, the calf swells
   const legParts=(K,A,hip)=>{const sd=nrm(sub(A,K)),calf=dot(perp(sd),V(-fv,0))>0?1:-1,tb=FigKit.tube([hip,K,A],[WL(6.1),WL(4.2),WL(3.4)],{gather:.3,stretch:.12,bulge:[.06,.16],bulgeSide:[0,calf],lite:lod===0});
     return{tb,th:tb,sh:tb};};
-  const big=out.boots?1.12:1;
+  const big=out.boots?1.12:1,creased=(out.top==='suit'||out.top==='double'||out.top==='blazer')&&!(out.coat&&out.coat.closed);
   // (the finer figures: a boot's sole and the band round its top)
   const fineFoot=(S,K,A,far)=>{const b0=baseOf(C,'shoe',far),f=S.fine;
     if(f&&f.sole){c.fillStyle=C.sole||mid(b0,'#8a7862',far?.2:.34);c.fill(f.sole);c.fillStyle=mid(b0,'#8a7862',far?.1:.2);c.fill(f.cuff);}};
@@ -321,6 +324,9 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
   const leg=(kn,ft,side,far)=>{const L=legParts(p[kn],p[ft],HIP[side>0?0:1]),S=shoeAt(kn,ft,side*LH);
     pt([S.pc],'shoe',far);pt([L.tb],'trouser',far);FigKit.folds(c,L.tb,env,far?foldFar:foldCol);if(S.boot)pt([S.boot],'shoe',far);
     if(fine)fineFoot(S,p[kn],p[ft],far);
+    // (the finer figures, close up: the crease pressed down the front of a suit's trouser, a line of light)
+    if(fine&&lod>=1&&!far&&creased){const hp=HIP[side>0?0:1],K=p[kn],A=p[ft],n1=nrm(add(perp(nrm(sub(K,hp))),perp(nrm(sub(A,K)))));const nf=dot(n1,V(fv,0))<0?mul(n1,-1):n1;
+      line(c,[add(mix(hp,K,.3),mul(nf,WL(1.5))),add(K,mul(nf,WL(1.05))),add(mix(K,A,.92),mul(nf,WL(.8)))],rgba(FigKit.rimCol(C.rim||'#ffcf86'),.22),Math.max(1,1.05*sz));}
     // a patch sewn over the knee (out.kneePatch; C.patch), on the front of it
     if(out.kneePatch&&lod>=1){const K=p[kn],d=nrm(sub(p[ft],HIP[side>0?0:1]));let n=perp(d);if(dot(n,V(fv,0))<0)n=mul(n,-1);const m=add(K,mul(n,WL(1.1))),a=mul(d,WL(3.3)),b=mul(n,WL(2.7));
       const Q=[add(m,add(a,b)),add(m,sub(b,a)),sub(m,add(a,b)),add(m,sub(a,b))];c.fillStyle=far?mid(C.patch||C.trouser,'#2a2433',.3):C.patch||mid(C.trouser,'#8a7a62',.25);c.fill(piece(Q,.25).p);
@@ -482,6 +488,8 @@ function torso(c,spec,g){
     // an elf's piping down the front and round the hem, in his or her colour (turned, round the side to the back)
     if(C.trim&&out.piping)line(c,resample(P([[T+.7,3.9],[T*.92,7.3*D],[T*.80,9.0*D],[T*.64,9.0*D],[T*.48,7.55*D],[T*.33,6.65*D],[T*.20,6.95*D],[T*.05,7.05*D],[-T*.10,5.1],[-T*.14,1.9],
       ...(side?[[-T*.143,-.2],[-T*.146,-2.3],[-T*.149,-4.3]]:[]),[-T*.15,-6.3],[-T*.115,-8.3]]),3),C.trim,trimW);
+    // (the finer figures, close up: the flap of the hip pocket)
+    if(FigKit.fine&&lod>=1&&side>=0)pt([piece(P([[T*.14,-.4],[T*.118,5.8],[T*.064,5.6],[T*.086,-.6]]),.3)],'lapel');
     if(out.square&&side>=0){const a0=T*.66;pt([piece(P([[a0,5.6],[a0+2.6,6.3],[a0+1.4,7.1],[a0+3.0,7.9],[a0,8.6]]),.3)],'square');}
     if(out.lanyard&&lod>=1&&side>=0){line(c,P([[T+.6,1.4],[T*.7,1.8],[T*.52,2.2]]),C.lanyard,Math.max(.5,.7*sz));const q=at(T*.48,2.4);if(!q.h){c.fillStyle=C.badge||C.lanyard;c.fillRect(q.x-1.6*sz,q.y-.4*sz,3.2*sz,4.2*sz);}}
   }else if(top==='waistcoat'||top==='shirt'){
@@ -494,6 +502,8 @@ function torso(c,spec,g){
     if(out.tie==='tie')pt([piece(P([[T+.2,5.1],[T*.92,6.3],[T*.7,6.6],[T*.52,6.4],[T*.5,5.4],[T*.7,5.2],[T*.9,5]]),.4)],'tie');
     // (the belt round the waist: turned, it goes round him)
     if(out.belt)line(c,P(side?[[-T*.02,-7.4],[-T*.02,-4],[-T*.02,0],[-T*.02,4],[-T*.02,7.6]]:[[-T*.02,-7.4],[-T*.02,7.6]]),C.belt||C.suit,Math.max(.8,2.2*sz));
+    // (the finer figures, close up: its buckle)
+    if(out.belt&&FigKit.fine&&lod>=1&&side>=0){const Q=P([[T*.012,5.2],[T*.012,7.3],[-T*.052,7.3],[-T*.052,5.2]]);if(!Q.some(q=>q.h)){c.fillStyle=C.buckle||C.button||'#8d7b58';c.fill(piece(Q,.2).p);}}
   }else if(top==='chef'){
     // double-breasted, the overlap buttoned down the near side, a straight hem at the hip
     pt([piece(P([[T*.92,1.2],[T*.94,8.4],[T*.6,8.6],[T*.3,8],[-T*.12,7.4],[-T*.13,2.6],[T*.3,2.2],[T*.6,1.6]]),.42)],'chefPanel');
