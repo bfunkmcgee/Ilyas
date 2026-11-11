@@ -14,7 +14,7 @@ const out = path.join(__dirname, 'out'), page0 = 'file://' + path.join(out, 'pha
     await p.goto(page0 + '?host=' + mode, { waitUntil: 'load' });
     await p.waitForTimeout(6000);
     const s = await p.evaluate(() => ({ mode: PHOST.mode, err: PHOST.err, frames: PHOST.frames, hostMs: +PHOST.hostMs.toFixed(2), avg: +(PHOST.avg || 0).toFixed(1),
-      skin: typeof Skin !== 'undefined' ? [Skin.state.ready, Skin.state.err] : null, cv: [cv.width, cv.height, getComputedStyle(cv).opacity], gl: (g => [g.width, g.height, getComputedStyle(g).display])(document.getElementById('phaserCv')),
+      skin: typeof Skin !== 'undefined' ? [!Object.keys(Skin.state.failed).length, Skin.state.err] : null, cv: [cv.width, cv.height, getComputedStyle(cv).opacity], gl: (g => [g.width, g.height, getComputedStyle(g).display])(document.getElementById('phaserCv')),
       meter: document.getElementById('phostMeter').textContent }));
     await p.screenshot({ path: path.join(out, 'mode' + mode + '.png') });
     const ok = !errs.length && !s.err && (!s.skin || (s.skin[0] && !s.skin[1])) && s.mode === mode && (mode === 0 || (s.frames > 3 && s.gl[0] === s.cv[0] && s.gl[1] === s.cv[1]));

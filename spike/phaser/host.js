@@ -11,9 +11,10 @@
   if (typeof Phaser === 'undefined' || typeof cv === 'undefined') { return; }
 
   const MODES = ['Direct', 'Phaser', 'Phaser + effects'];
-  // (the skinned figure, where its script is on the page: skin.js, with its pieces in skin_ilyas.js)
-  const HAS_SKIN = typeof Skin !== 'undefined' && typeof SkinIlyas !== 'undefined';
-  if (HAS_SKIN) { Skin.install(); Skin.load(SkinIlyas); }
+  // (the skinned figure, where its scripts are on the page: skin.js, with its pieces in skin_kit.js and the skin_art_*.js files. The
+  // pieces he starts in are made as the page opens; the rest as he comes to need them)
+  const HAS_SKIN = typeof Skin !== 'undefined' && typeof SkinArt !== 'undefined';
+  if (HAS_SKIN) { Skin.install(); Skin.ready = Skin.prewarm(); }
   try { const o = JSON.parse(localStorage.getItem('sk_phost') || 'null'); if (HAS_SKIN && o && o.skin === false) { Skin.state.on = false; } } catch (e) { /* no storage */ }
   const q = new URLSearchParams(location.search);
   // (in the flow test's page the switches live in its Test panel and are remembered; there the effects start on)
@@ -159,7 +160,7 @@
     const l1 = 'View: ' + MODES[state.mode];
     const l2 = state.err ? 'Phaser did not start' : filled < 30 ? 'measuring' : avg.toFixed(1) + ' ms  worst ' + worst.toFixed(0) + (state.mode > 0 ? '  Phaser ' + state.hostMs.toFixed(1) : '');
     pill.textContent = l1 + '\n' + l2;
-    if (figBtn) { const K = Skin.state; figBtn.textContent = 'Ilyas: ' + (K.err ? 'painted' : K.on ? (K.ready ? 'drawn pieces' : 'loading') : 'painted') + '\n' + (K.err ? 'pieces failed' : 'tap to switch'); }
+    if (figBtn) { const K = Skin.state; figBtn.textContent = 'Ilyas: ' + (K.err ? 'painted' : K.on ? 'drawn pieces' : 'painted') + '\n' + (K.err ? 'pieces failed' : 'tap to switch'); }
     if (!(IN_FLOW && FLOW.panel && !FLOW.panel.hidden) || filled >= 30 && !state.avg) { state.avg = avg; state.worst = worst; state.slow = filled ? slow / filled : 0; }
     panelRows(); panelFill();
   }
