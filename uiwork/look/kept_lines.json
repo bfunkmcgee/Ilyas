@@ -2182,5 +2182,11 @@
 "src": ".strokeStyle=noir?'#020104':'rgba(70,45,55,.85)';c.lineWidth=2;c.beginPath();c.moveTo(HV.mouth[0].x,HV.mouth[0].y);c.quadraticCurve",
 "med": 0.42,
 "why": "the figure tier: his own drawing's fine lines (his mouth when he faces us, drawn only close up), held to the fighters' drawing budgets (V84); first in the review's frames in V117, the yard's close shots"
+},
+{
+"file": "sk_lookui.js",
+"src": "const x0=pt(4,-9),x1=pt(0,-4);c.strokeStyle=gc;c.lineWidth=1.2;c.beginPath();c.moveTo(x0.x,x0.y);c.lineTo(x1.x,x1.y);c.stroke();",
+"med": 0.958,
+"why": "the figure tier: his own drawing's fine lines (the small gold guard of the hilt on his belt, 1.2 of his units), held to the fighters' drawing budgets (V84); under the rule since V117, when the review began to read a sprite's own scale each time it is set down (.96 for 1.14 before)"
 }
 ]
