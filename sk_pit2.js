@@ -115,13 +115,76 @@ STAGES.push({key:'lostprop',act:1,num:'3',title:'Lost Property',sub:'The Sump’
 // pump (he sets it under the spout and works the handle with his one hand), the ladder (two hands), the little gate at the foot of
 // the stairs round the side (his hand full: the bucket set down first), and up the stairs.
 ACT1_PLACES.yard.stairGate={x:126,d:196,w:34};
+// ---------- the yard's camera (since V117) ----------
+// Its shots by name: where the camera looks (x, as drawn), how wide (w; wn on a phone held upright; ws on a phone on its side, where
+// the shot's band would not fit under w) and what it keeps in the picture from top to foot (band: world y, as drawn). k 0 is a cut
+// (it lands at once, up and down too); a glide is a cut with reduced motion. The whole yard as the scene opens; in on whoever
+// speaks; in on the pump and the ladder as he uses them; up the stairs with him, and the roof, as it closes.
+const YARD_SHOTS={
+  yard:{x:464,w:820,ws:900,wn:640,band:[56,478]},   // the whole yard under the Sump's roof
+  door:{x:232,w:500,ws:600,wn:300,band:[146,364]},  // the back door, Tamm before its step, he by her
+  pump:{x:540,w:430,wn:300,band:[200,420]},         // the pump, the bucket under its spout, the trough
+  loft:{x:436,w:460,wn:320,band:[30,250]},          // up the ladder to the loft's hatch and the birds' boxes on the ridge
+  ladder:{x:428,w:560,ws:700,wn:300,band:[44,356]}, // he at the ladder's foot, the loft over him
+  dob:{x:752,w:420,wn:280,band:[200,380]},          // Dob up on his crate by the yard wall
+  him:{x:300,w:420,wn:280,band:[215,395]},          // he where he stands (x given)
+  roof:{x:150,w:440,ws:640,wn:300,band:[-84,196]}}; // the roof's corner over the stairs' landing, the birds' boxes on the ridge
+// (an upright phone has height to spare: there each shot sits at the foot of the screen, YARD_FOOT at its lower edge, and the
+// Pit's wall over the yard fills the rest; while he walks about, YARD_HUD pixels under it are left to the hand's panel and the
+// buttons, which lie over the picture. The roof's shot looks up and keeps its own band)
+const YARD_VIEWN=440,YARD_VIEWS=900,YARD_FOOT=492,YARD_HUD=90;
+function yardShot(name,k,o){const Sh=YARD_SHOTS[name],rm=typeof reduceMotion!=='undefined'&&reduceMotion;camTo(o&&o.x!=null?o.x:Sh.x,Sh.w,rm?0:k);
+  const C=S.camCut,K=o&&o.x!=null?hero():null,dy=K?prjY(GB,K.dep)-prjY(GB,150):0;C.wn=Sh.wn;C.ws=Sh.ws||null;C.band={top:Sh.band[0]+dy,foot:Sh.band[1]+dy};
+  if(name!=='roof')C.bandN={top:Sh.band[0]+dy,foot:YARD_FOOT,low:YARD_HUD};if(rm||!k)C.snap=true;return C;}
+// shots one after another while a line is spoken ([name, k, how long]); it stops with the line
+function* yardSeq(list){for(const [name,k,hold] of list){yardShot(name,k);const t=S.t+hold;while(S.t<t&&S.say)yield;if(!S.say)return;}}
+// while he walks about: on an upright phone the view is closer (YARD_VIEWN) and leads him a little the way he walks; a phone on its
+// side looks wider (YARD_VIEWS), so that his head at the yard's back is clear of the goal's panel and his feet at its front are
+// clear of the hand's. The yard's floor sits at the foot of the picture, over the panels
+function yardExCam(C,K){C.ws=YARD_VIEWS;C.band={top:128,foot:460,low:56};C.bandN={top:56,foot:YARD_FOOT,low:YARD_HUD};C.xn=prjX(K.station,K.dep)+(K.cutWalk?K.facing*36:0);}
+// a shot that goes with him (the climb): S.act1.yardFollow {w, wn, ws, up, down (how much of the picture over and under his feet), dx}
+V11.step.push(()=>{const A=S.act1,Fw=A&&A.yardFollow;if(!Fw||!S.camCut||S.arenaKey!=='yard')return;const st=act1Stage();if(!st||st.key!=='yard1')return;const K=hero(),x=K.p[PEL].x,y=prjY(K.gr(x),K.dep),C=S.camCut;
+  C.x=C.xn=prjX(x,K.dep)+(Fw.dx||0);C.w=Fw.w;C.wn=Fw.wn;C.ws=Fw.ws||null;C.band={top:y-Fw.up,foot:y+Fw.down};C.bandN=null;});
+// ---------- the way up: the side stairs, their landing, the roof (since V117) ----------
+// The side stairs are ground to a man on his way up them (f.yardUp, in this scene only): ten treads from inside the gate up to the
+// landing at the Sump's corner, and from the landing a step up onto the roof's tin, which rises to the ridge as it goes back.
+// yardStairH: how high the tread at x stands; yardRoofH: how high the roof is at depth d (the painter's own numbers).
+const YARD_STEPS=10,YARD_LAND=150,YARD_ROOF={d0:232,d1:278,eave:166,ridge:210};
+function yardStairH(x){const St=ACT1_PLACES.yard.sidestair,run=(St.x1-St.x0)/YARD_STEPS;return x>=St.x1?0:Math.min(YARD_STEPS,Math.floor((St.x1-x)/run)+1)*YARD_LAND/YARD_STEPS;}
+function yardRoofH(d){return lerp(YARD_ROOF.eave,YARD_ROOF.ridge,clamp((d-YARD_ROOF.d0)/(YARD_ROOF.d1-YARD_ROOF.d0),0,1));}
+function yardUpH(x,d){const St=ACT1_PLACES.yard.sidestair;return d>=YARD_ROOF.d0-1?yardRoofH(d):d>=St.d-2?yardStairH(x):0;}
+{const gr=Fighter.prototype.gr;Fighter.prototype.gr=function(x){if(this.yardUp&&S.arenaKey==='yard'){const st=act1Stage();if(st&&st.key==='yard1')return GB-yardUpH(x,this.dep);}return gr.call(this,x);};}
+// The scene's close. He goes in at the gate with the bucket and up the flight a tread at a time, at the pace the stairs allow him;
+// over the landing and up onto the roof to the pigeon lofts, where he sets the water down by their boxes. The birds go up as he
+// comes. The camera goes up with him (S.act1.yardFollow), then holds the roof.
+const YARD_UP={d:213,v:21,land:{x:24,d:219},roof:[{x:30,d:240},{x:46,d:258}],bucket:{x:63,d:260}};
+function* yardClimb(){const A=act1State(),K=hero(),Y=ACT1_PLACES.yard,G=Y.stairGate,St=Y.sidestair,U=YARD_UP;
+  letter(1);A.stairGate=1;camTo(prjX(K.station,K.dep),540,2.4);A.yardFollow={w:540,ws:700,wn:330,up:170,down:54,dx:-34};
+  yield* goTo(K,G.x+3,G.d-8,56,{direct:true});
+  // (the stairs and the roof lie deeper than the yard's floor and past its left edge: his own depth limit goes with him, K.zMax,
+  // and the stage's edge lets him by, K.offstage)
+  K.yardUp=true;K.zMax=YARD_ROOF.d1+8;K.offstage=true;
+  yield* goTo(K,G.x-3,U.d,44,{direct:true});
+  yield* goTo(K,St.x0+7,U.d,U.v,{direct:true});
+  yield* goTo(K,U.land.x,U.land.d,26,{direct:true});
+  A.yardFollow=null;yardShot('roof',1.3);
+  yield* goTo(K,U.roof[0].x,U.roof[0].d,26,{direct:true});
+  A.birdsUp=S.t;S.hooks.sound('birds',1);
+  yield* goTo(K,U.roof[1].x,U.roof[1].d,26,{direct:true});
+  K.facing=1;K.action=stoopAction(K,1.1,{crouch:.84,lean:.42});yield* wait(.55);
+  if(S.ex)S.ex.hand=null;A.bucket.where='roof';A.bucket.x=U.bucket.x;A.bucket.d=U.bucket.d;A.bucket.h=yardRoofH(U.bucket.d);
+  yield* wait(.6);K.action=null;yield* wait(1.3);
+  yield* fadeTo(1,1.4);
+  K.yardUp=false;K.zMax=null;K.offstage=false;A.yardFollow=null;}
 // (Dob perches on the crate by the wall: no one stands deeper than DEP_MAX, so the wall itself is out of reach. The crate's top is
 // ground at its own depth, behind where he walks: the yard's floor ends short of it)
 ACT1_PLACES.yard.dobSeat={x:690,d:170,crate:true};ACT1_PLACES.yard.floor.z1=164;
 {const Cr=ACT1_PLACES.yard.crates[1];ARENAS.yard.ground=(x,d)=>d!=null&&d>=Cr.d-4&&d<=Cr.d+6&&Math.abs(x-Cr.x)<=Cr.w/2?GB-Cr.h:GB;}
+// what stands on the yard's floor, that he walks round (the pump and its trough, the two barrels, the crates by Dob)
+const YARD_BLOCKS=[{x0:506,x1:606,z0:110,z1:137},{x0:234,x1:298,z0:140,z1:180},{x0:641,x1:708,z0:146,z1:180}];
 // the goal as it stands: what he has done of the errand and what is in his hand
 function yardGoal(){const A=S.act1,YD=A&&A.yard;if(!YD)return'';const H=S.ex&&S.ex.hand,has=id=>!!H&&H.id===id;
-  if(!YD.filled)return has('bucket')?'Fill the bucket at the pump':'Take the bucket';
+  if(!YD.filled)return has('bucket')||A.bucket.where==='spout'?'Fill the bucket at the pump':'Take the bucket';
   if(!has('water'))return'Take up the bucket of water';
   if(!YD.ladderTried)return'Take the water up to Dob’s birds in the loft';
   if(A.stairGate<1)return'Round the side: through the gate to the stairs';
@@ -129,6 +192,7 @@ function yardGoal(){const A=S.act1,YD=A&&A.yard;if(!YD)return'';const H=S.ex&&S.
 // the hint under it: how he is walked at first, then how each part of the job is done ({touch, keys}: a finger, or keys)
 function yardHint(){const A=S.act1,YD=A&&A.yard;if(!YD)return'';const H=S.ex&&S.ex.hand,has=id=>!!H&&H.id===id,h=(touch,keys)=>({touch,keys});
   if(!YD.step&&YD.walked<160)return h('Tap the ground to walk there. Tap twice to jog. Up the screen is farther away.','Arrows or WASD walk, Shift jogs. Up is farther away. E uses, Q sets down.');
+  if(!YD.filled&&A.bucket.where==='spout')return h('One hand for the handle. The bucket waits under the spout.','One hand for the handle. The bucket waits under the spout.');
   if(!YD.filled)return has('bucket')?h('Walk to the pump, then tap Fill.','Walk to the pump and press E to fill it.')
     :h('The bucket is by the pump. Walk to it, then tap Take.','The bucket is by the pump. Walk to it and press E to take it.');
   if(!has('water'))return YD.ladderTried&&A.stairGate<1?h('Walk to the gate, then tap Open. Then take the bucket again.','Walk to the gate and press E to open it. Then take the bucket again.')
@@ -137,67 +201,102 @@ function yardHint(){const A=S.act1,YD=A&&A.yard;if(!YD)return'';const H=S.ex&&S.
   if(A.stairGate<1)return h('The gate needs a free hand. Tap Set down to put the bucket down first.','The gate needs a free hand. Press Q to put the bucket down first.');
   return h('Walk to the stairs, then tap Go up.','Walk to the stairs and press E to go up.');}
 STAGES.push({key:'yard1',act:1,num:'4',title:'A Man’s Pace',sub:'The Sump’s yard',arena:'yard',next:null,weapon:'fists',wear:'kit',foes:[],
-  spawn:[[ACT1_PLACES.yard.step.x+20,ACT1_PLACES.yard.floor.z1-4]],
-  setup(st){const K=hero(),Y=ACT1_PLACES.yard,A=act1State();S.fade=1;standEasy(K);K.station=Y.step.x+20;K.lane=K.dep=K.stepDep=Y.floor.z1-4;K.facing=1;K.build();K.lurch=1;
+  spawn:[[ACT1_PLACES.yard.step.x+46,ACT1_PLACES.yard.floor.z1-14]],
+  setup(st){const K=hero(),Y=ACT1_PLACES.yard,A=act1State();S.fade=1;standEasy(K);K.station=Y.step.x+46;K.lane=K.dep=K.stepDep=Y.floor.z1-14;K.facing=-1;K.build();K.lurch=1;
     A.yard={step:0,walked:0,ladderTried:false,drunk:false,jogNote:false,filled:false,done:false};A.stairGate=0;A.gate=0;
-    A.bucket={x:Y.pump.x-30,d:Y.pump.d-16,full:false,where:'floor'};A.pumping=null;
+    A.bucket={x:Y.pump.x-30,d:Y.pump.d-16,full:false,where:'floor'};A.pumping=null;A.pumpA=0;A.yardFollow=null;A.birdsUp=0;A.yardDoor=0;K.yardUp=false;K.zMax=null;
     const D=act1Npc('Dob',{x:Y.dobSeat.x,dep:Y.dobSeat.d,facing:-1});D.guardBody=()=>sitBody(D,4);D.guardArm=()=>sitArm(D);A.dob=D;
-    const T=act1Npc('Tamm',{x:Y.door.x+8,dep:Y.door.d-10,facing:1});A.tamm=T;},
+    // (Tamm stands on the yard's floor before the back door's step, as deep as the floor goes)
+    const T=act1Npc('Tamm',{x:Y.door.x-8,dep:DEP_MAX,facing:1});A.tamm=T;},
   *intro(st){const A=act1State(),T=A.tamm,D=A.dob,K=hero(),Y=ACT1_PLACES.yard;
-    letter(1);camTo(Y.step.x+200,760,0);
-    yield* fadeTo(0,1.2);yield* wait(.8);
-    // Tamm, at the back door, gives him the yard's job: water for Dob's birds, up in the roof loft. Dob watches from his crate
-    faceToward(K,T.station);yield* wait(.3);
+    // the whole yard as it opens, then in on the two of them at the back door
+    letter(1);yardShot('yard',0);
+    yield* fadeTo(0,1.2);yield* wait(.9);
+    // Tamm, before the back door's step, gives him the yard's job: water for Dob's birds, up in the roof loft. Dob watches from his crate
+    faceToward(K,T.station);yardShot('door',1.5);yield* wait(.5);
     yield* speak('Tamm','Up and walking. Good. You can earn your soup.',{dur:2.6});
-    yield* speak('Tamm','Dob’s birds want water. Fill the bucket at the pump and take it up to the loft.',{dur:4});
-    faceToward(K,D.station);yield* wait(.2);
+    // (the camera goes to each thing as she names it: the pump, then up the ladder to the loft and the birds' boxes)
+    yield* all(yardSeq([['door',1.5,1.3],['pump',2,1.5],['loft',2,9]]),speak('Tamm','Dob’s birds want water. Fill the bucket at the pump and take it up to the loft.',{dur:4}));
+    yardShot('dob',0);faceToward(K,D.station);yield* wait(.25);
     yield* speak('Dob','I’d do it myself, but I’m watching.',{dur:2.4});
-    // Tamm goes back in to her kitchen; the yard is his
-    yield* goTo(T,Y.door.x,Y.door.d-2,40);T.hidden=true;
+    // Tamm goes back in to her kitchen: the door opens to her and shuts behind her (A.yardDoor, which the yard's picture draws);
+    // the yard is his
+    yardShot('door',0);T.zMax=Y.door.d;
+    yield* all(goTo(T,Y.door.x+4,Y.door.d-5,48,{direct:true}),yardDoorTo(1,.5,.3));T.hidden=true;
+    yield* yardDoorTo(0,.4,.1);
     letter(0);},
   explore(st){const Y=ACT1_PLACES.yard,A=act1State(),YD=A.yard,G=Y.stairGate;
     const hand=()=>S.ex&&S.ex.hand,holds=id=>!!hand()&&hand().id===id;
-    return{area:'yard',bounds:{x0:Y.floor.x0,x1:Y.floor.x1,z0:Y.floor.z0,z1:Y.floor.z1},view:760,hand:null,
+    return{area:'yard',bounds:{x0:Y.floor.x0,x1:Y.floor.x1,z0:Y.floor.z0,z1:Y.floor.z1},view:760,viewN:YARD_VIEWN,cam:yardExCam,hand:null,blocks:YARD_BLOCKS,
       goal:{text:yardGoal,done:()=>YD.done,hint:yardHint},
       spots:[
-        {id:'bucket',label:'The bucket',verb:'Take',x:A.bucket.x,z:A.bucket.d,at:{x:A.bucket.x,y:GB-10,d:A.bucket.d},take:{id:'bucket',name:'Bucket'},when:()=>A.bucket.where==='floor',
+        {id:'bucket',label:'The bucket',verb:'Take',x:A.bucket.x-14,z:A.bucket.d,at:{x:A.bucket.x,y:GB-10,d:A.bucket.d},take:{id:'bucket',name:'Bucket'},when:()=>A.bucket.where==='floor',
           *run(){A.bucket.where='hand';YD.step=Math.max(YD.step,1);}},
-        {id:'pump',label:'The pump',verb:'Fill',x:Y.pump.x-26,z:Y.pump.d-6,at:{x:Y.pump.x,y:GB-44,d:Y.pump.d},
+        {id:'pump',label:'The pump',verb:'Fill',x:Y.pump.x+4,z:Y.pump.d-24,at:{x:Y.pump.x+14,y:GB-44,d:Y.pump.d},
           needs:()=>holds('bucket')?null:holds('water')?'The bucket is full':'Bring the bucket',
-          *run(){const K=hero();
-            // the bucket under the spout, the handle worked with his one hand, three strokes, and the bucket up again
-            S.ex.hand=null;A.bucket.where='spout';K.action=stoopAction(K,.8,{crouch:.86,lean:.4});yield* wait(.8);
-            A.pumping={t0:S.t};for(let i=0;i<3;i++){K.action=pumpAction(K);S.hooks.sound('pump',1);yield* wait(.7);A.bucket.fill=(i+1)/3;}
-            A.pumping=null;K.action=stoopAction(K,.8,{crouch:.86,lean:.4});yield* wait(.8);K.action=null;
-            A.bucket.where='hand';A.bucket.full=true;S.ex.hand={id:'water',name:'Bucket of water'};YD.filled=true;YD.step=Math.max(YD.step,2);}},
+          *run(){const K=hero(),Pm=Y.pump;
+            // a one-handed job in three goes: the bucket down under the spout; round to the handle and three strokes of it, the
+            // water coming with each; back round for the bucket. The camera comes in for it
+            yardShot('pump',1.8);
+            K.facing=1;K.action=stoopAction(K,.8,{crouch:.86,lean:.4});yield* wait(.4);S.ex.hand=null;A.bucket.where='spout';yield* wait(.4);K.action=null;
+            yield* goTo(K,Pm.x-PUMP_STAND,Pm.d,64,{direct:true});K.facing=1;yield* wait(.15);
+            A.pumping={t0:S.t};for(let i=0;i<3;i++){K.action=pumpAction(K);S.hooks.sound('pump',1);const t0=S.t;
+              yield* until(()=>{A.pumpA=-Math.sin(clamp((S.t-t0)/.7,0,1)*Math.PI);return S.t>=t0+.7;},1);A.bucket.fill=(i+1)/3;}
+            A.pumping=null;A.pumpA=0;K.action=null;
+            yield* goTo(K,Pm.x+4,Pm.d-24,64,{direct:true});K.facing=1;K.action=stoopAction(K,.8,{crouch:.86,lean:.4});yield* wait(.4);
+            A.bucket.where='hand';A.bucket.full=true;S.ex.hand={id:'water',name:'Bucket of water'};YD.filled=true;YD.step=Math.max(YD.step,2);yield* wait(.4);K.action=null;}},
         {id:'ladder',label:'The ladder',verb:'Climb',x:Y.ladder.x+4,z:Y.floor.z1,at:{x:Y.ladder.x,y:GB-70,d:Y.ladder.d},needs:'two',
-          *refused(){const K=hero();
-            // he reaches up for the rung with the hand he has (when it is free), and for the next with the hand he has not
+          *refused(){const K=hero(),Ld=Y.ladder,first=!YD.ladderTried;
+            // he goes in to its foot and looks up it to the loft; he reaches for the rung with the hand he has (when it is free), and
+            // for the next with the hand he has not; then back out onto the yard's floor
+            yardShot('ladder',1.6);
+            K.zMax=Ld.d;yield* goTo(K,Ld.x-LADDER_STAND,Ld.d-22,60,{direct:true});
             K.facing=1;K.action=reachAction(K,1.8,{holding:!!S.ex.hand});yield* wait(1.9);K.action=null;
-            if(!YD.ladderTried){YD.ladderTried=true;YD.step=Math.max(YD.step,3);yield* wait(.3);
-              yield* speak('Dob','Stairs are round the side. Takes longer. Everything does now, I bet.',{dur:3.6});}}},
+            if(first){YD.ladderTried=true;YD.step=Math.max(YD.step,3);yield* wait(.3);
+              yardShot('dob',0);
+              yield* speak('Dob','Stairs are round the side. Takes longer. Everything does now, I bet.',{dur:3.6});yardShot('ladder',0);}
+            yield* goTo(K,Ld.x+4,Y.floor.z1,60,{direct:true});K.zMax=null;}},
         {id:'stairgate',label:'The gate',verb:'Open',x:G.x+22,z:Y.floor.z1,at:{x:G.x,y:GB-34,d:G.d},needs:'free',when:()=>YD.ladderTried&&A.stairGate<1,
-          *run(){const K=hero();K.action=stoopAction(K,.7,{crouch:.95,lean:.2});const t0=S.t;yield* until(()=>{A.stairGate=sstep(clamp((S.t-t0)/.8,0,1));return A.stairGate>=1;},2);
-            S.hooks.sound('gate',1);K.action=null;}},
+          *run(){const K=hero(),dz=12;
+            // up to it, his hand on its top rail, and in it goes; then back out onto the yard's floor
+            K.zMax=G.d;yield* goTo(K,G.x-6,G.d-dz,56,{direct:true});K.facing=1;
+            const t0=S.t+.35,at=()=>{const k=sstep(clamp((S.t-t0)/.8,0,1));return{x:G.x+10-k*5+dz*PSX,y:GB-(SG_RAIL+k*2)-dz*PSY};};
+            K.action=holdAction(K,1.3,{fn:at});yield* wait(.35);
+            yield* until(()=>{A.stairGate=sstep(clamp((S.t-t0)/.8,0,1));return A.stairGate>=1;},2);
+            S.hooks.sound('gate',1);yield* wait(.15);K.action=null;
+            yield* goTo(K,G.x+22,Y.floor.z1,56,{direct:true});K.zMax=null;}},
         {id:'stairs',label:'The stairs',verb:'Go up',x:Y.sidestair.x1+4,z:Y.floor.z1,at:{x:(Y.sidestair.x0+Y.sidestair.x1)/2,y:GB-40,d:Y.sidestair.d},
           when:()=>YD.ladderTried&&A.stairGate>=1,needs:()=>holds('water')?null:'The birds want the water',key:true,
           *run(){YD.done=true;}}],
       exits:[]};},
-  *outro(st){const K=hero(),Y=ACT1_PLACES.yard;
-    // up the stairs with the bucket
-    yield* goTo(K,Y.sidestair.x0+20,Y.floor.z1,60);yield* fadeTo(1,1.4);S.story.ended='act1';}});
+  *outro(st){
+    // up the stairs with the bucket, to the birds
+    yield* yardClimb();S.story.ended='act1';}});
 
 // the yard's moments: Dob's first look at his walk, and the jog he gets for a run
 V11.step.push(()=>{const st=act1Stage();if(!st||st.key!=='yard1'||!S.ex||!S.ex.on||S.cut)return;const A=S.act1,YD=A&&A.yard,K=S.F[0];if(!YD)return;
+  // (Dob is watching: he turns on his crate to keep him in sight)
+  {const D=A.dob,dx=D?K.station-D.station:0;if(D&&Math.abs(dx)>26)D.facing=Math.sign(dx);}
   if(K.cutWalk&&K.walkV)YD.walked+=Math.hypot(K.walkV.x,K.walkV.z)*DT;
   if(!YD.drunk&&YD.walked>90&&K.lurch>.3){YD.drunk=true;cutStart('yard:drunk',(function*(){const D=A.dob;D.facing=K.station<D.station?-1:1;
       // (he has stopped where he was: the scene's start halts the walk) he turns to her to answer
+      yardShot('dob',0);
       yield* speak('Dob','You walk like a drunk on payday.',{dur:2.6});yield* wait(.2);faceToward(K,D.station);
+      yardShot('him',0,{x:prjX(K.station,K.dep)});
       yield* speak(HERO_NAME,'I’m still finding where the floor is.',{dur:2.6});})(),{then:()=>{if(exOn())S.game.phase='explore';}});return;}
   if(!YD.jogNote&&(S.ex.run||S.ex.keys.run)&&K.cutWalk){YD.jogNote=true;exNote('A man’s jog. The sprint went with the gilt.');}});
+// the back door on its hinges: open (1) or shut (0) over dur, after a wait
+function* yardDoorTo(v,dur,after){const A=act1State(),v0=A.yardDoor||0;yield* wait(after||0);const t0=S.t;yield* until(()=>{A.yardDoor=lerp(v0,v,sstep(clamp((S.t-t0)/dur,0,1)));return S.t>=t0+dur;},dur+1);A.yardDoor=v;}
 // the pump's handle worked with his one hand: the hand up to the handle and down with it
-function pumpAction(f){const a=f.arm;return{t0:S.t,end:.7,body:[{t:0,v:()=>({...easyBody(f),crouch:.9,lean:.22})}],
-  arm:[{t:0,v:{hand:{sh:[.62*a,.2*a]},wAng:.3,off:{sh:[0,.9*a]},tilt:0}},{t:.3,v:{hand:{sh:[.6*a,.62*a]},wAng:.9,off:{sh:[0,.9*a]},tilt:.1},e:eOut},{t:.7,v:{hand:{sh:[.62*a,.2*a]},wAng:.3,off:{sh:[0,.9*a]},tilt:0},e:eOut}]};}
+// (his hand keeps hold of the handle's grip as it goes down and comes up: the grip's place is the game's, pumpGrip, and the
+// drawing puts the handle there; his weight goes onto it with the stroke)
+function pumpAction(f){const a=f.arm,grip=()=>{const g=pumpGrip(S.act1&&S.act1.pumpA),dd=g.d-f.dep;return{x:g.x+dd*PSX,y:GB-g.h-dd*PSY};},
+    lean=()=>({...easyBody(f),crouch:.93+.05*((S.act1&&S.act1.pumpA)||0),lean:.16-.12*((S.act1&&S.act1.pumpA)||0)});
+  return{t0:S.t,end:.7,body:[{t:0,v:lean},{t:.7,v:lean}],arm:[{t:0,v:{hand:{fn:grip},wAng:.5,off:{sh:[0,.9*a]},tilt:.05}},{t:.7,v:{hand:{fn:grip},wAng:.5,off:{sh:[0,.9*a]},tilt:.05}}]};}
+// the pump's handle: a lever from the head of the column back toward him, its grip's place as it swings (a: 0 at rest, -1 pushed
+// right down): x, height over the ground, depth
+const PUMP_STAND=56,PUMP_LEVER=31,LADDER_STAND=13,SG_RAIL=42;
+function pumpGrip(a){const Pm=ACT1_PLACES.yard.pump,th=-(a||0)*.6;return{x:Pm.x-2-PUMP_LEVER*Math.cos(th),h:64-PUMP_LEVER*Math.sin(th),d:Pm.d,th};}
 // reaching up a ladder: the hand up to a rung over his head and held there (unless it holds something), and then the reach of the
 // arm he has not got: the empty side's shoulder comes up and the sleeve swings forward with it (f.phantom, which the look draws)
 function reachAction(f,dur,o={}){const a=f.arm,arm=o.holding?[{t:0,v:easyArm(f)},{t:dur,v:easyArm(f)}]:

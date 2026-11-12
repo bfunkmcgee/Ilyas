@@ -415,12 +415,11 @@ function sump(c,P){const Yd=Y(),far=Yd.far,b=(x,h)=>Q(x,h,far),x0=SUMP.x0,x1=SUM
     c.strokeStyle=rgba('#c8a050',.45);c.lineWidth=1.01;c.beginPath();for(let i=0;i<60;i++){const x=x0+20+r()*(x1-x0-40),hh=lerp(SUMP.eave,SUMP.ridge,r()),p=Q(x,hh,lerp(far,far+SUMP.rd,(hh-SUMP.eave)/(SUMP.ridge-SUMP.eave))),a=r()*TAU;c.moveTo(p.x,p.y);c.lineTo(p.x+Math.cos(a)*3,p.y+Math.sin(a)*1.5);}c.stroke();
     c.restore();
     c.strokeStyle=sh('#363230');c.lineWidth=3;c.beginPath();c.moveTo(lp.x,lp.y);c.lineTo(rp.x,rp.y);c.stroke();c.strokeStyle=rgba(P.light,.12+.45*P.lightA);c.lineWidth=.99;c.beginPath();c.moveTo(lp.x,lp.y-1.4);c.lineTo(rp.x,rp.y-1.4);c.stroke();}
-  // Dob's pigeon lofts on the roof at the left: boxes of planks with round holes, the birds along the ridge
-  {const r=rng(31);for(const [lx,lw,lh] of [[60,40,26],[106,34,22],[146,38,25]]){const fb=Q(lx,SUMP.ridge-6,far+SUMP.rd-8),fr=Q(lx+lw,SUMP.ridge-6,far+SUMP.rd-8);
+  // Dob's pigeon lofts on the roof at the left: boxes of planks with round holes (the birds are live: FLOCK)
+  {for(const [lx,lw,lh] of [[60,40,26],[106,34,22],[146,38,25]]){const fb=Q(lx,SUMP.ridge-6,far+SUMP.rd-8),fr=Q(lx+lw,SUMP.ridge-6,far+SUMP.rd-8);
       c.fillStyle=sh('#3e3226',1.1);c.fillRect(fb.x,fb.y-lh,fr.x-fb.x,lh);c.fillStyle=sh('#241a12',1.2);c.fillRect(fr.x,fb.y-lh+2,4,lh-2);
       c.fillStyle=K.topLit(P,'#4a3c30',.9);c.beginPath();c.moveTo(fb.x-3,fb.y-lh);c.lineTo((fb.x+fr.x)/2,fb.y-lh-7);c.lineTo(fr.x+4,fb.y-lh);c.closePath();c.fill();
-      for(let q=0;q<3;q++){c.fillStyle='#0a0808';c.beginPath();c.arc(fb.x+lw*(.2+q*.3),fb.y-lh*.55,2.3,0,TAU);c.fill();c.fillStyle=sh('#5a4a3a');c.fillRect(fb.x+lw*(.2+q*.3)-3.6,fb.y-lh*.55+2.6,7.2,1.1);}}
-    for(let i=0;i<9;i++){const x=40+r()*400,p=Q(x,SUMP.ridge,far+SUMP.rd);bird(c,p.x,p.y-1.4,r()<.5?1:-1,.9+r()*.3,K.shade(P,['#4a4e5c','#3a3e4a','#5c5e6a'][(r()*3)|0],.8));}}
+      for(let q=0;q<3;q++){c.fillStyle='#0a0808';c.beginPath();c.arc(fb.x+lw*(.2+q*.3),fb.y-lh*.55,2.3,0,TAU);c.fill();c.fillStyle=sh('#5a4a3a');c.fillRect(fb.x+lw*(.2+q*.3)-3.6,fb.y-lh*.55+2.6,7.2,1.1);}}}
   // the stovepipe through the roof, its cap (the smoke is live)
   {const p=Q(318,lerp(SUMP.eave,SUMP.ridge,.45),far+SUMP.rd*.45);c.fillStyle=sh('#1e1a18');c.fillRect(p.x-3.5,p.y-52,7,52);c.fillStyle=sh('#2e2826');c.fillRect(p.x-6,p.y-56,12,4);c.fillStyle=rgba(P.light,.08+.35*P.lightA);c.fillRect(p.x-3.5,p.y-52,1.2,52);
     c.fillStyle=rgba('#7a3a18',.45);c.fillRect(p.x+1,p.y-40,2.4,30);STOVE.x=p.x;STOVE.y=p.y-57;}
@@ -437,8 +436,6 @@ function sump(c,P){const Yd=Y(),far=Yd.far,b=(x,h)=>Q(x,h,far),x0=SUMP.x0,x1=SUM
     for(const yy of [dp.y+30,dp.y+80]){c.fillStyle=sh('#1a1614');c.fillRect(dp.x-4,yy,8,2.4);}}
   door(c,P);win(c,P);dormer(c,P);}
 // a pigeon sitting: a plump body, a round head, the tail
-function bird(c,x,y,fa,s,col){c.save();c.translate(x,y);c.scale(fa*s,s);c.fillStyle=col;c.beginPath();c.ellipse(0,-2.6,3.4,2.2,-.15,0,TAU);c.fill();c.beginPath();c.arc(2.8,-4.8,1.5,0,TAU);c.fill();
-  c.beginPath();c.moveTo(-2.8,-3.2);c.lineTo(-6,-2);c.lineTo(-2.8,-1.2);c.closePath();c.fill();c.restore();}
 // the back door: planks in a frame under a little tin hood; at night open on the kitchen's light (an oil lamp's orange, the Pit's,
 // never a gold: the style guide's rule 3, since V81; painted dark, since the yard's set light, a dodge, lifts it to that orange)
 function door(c,P){const Yd=Y(),D=Yd.door,far=Yd.far,b=(x,h)=>Q(x,h,far),x0=D.x-D.w/2,x1=D.x+D.w/2,top=b(x0,SUMP.doorH),bot=b(x1,0),sh=(col,k)=>K.shade(P,col,k),night=P.key==='night',w=bot.x-top.x,h=bot.y-top.y;
@@ -727,21 +724,26 @@ function pumpPiece(){const Yd=Y(),P=K.pal(),Pm=Yd.pump,c0=Q(Pm.x,0,Pm.d),R=Pm.r;
     c.fillStyle=sh('#36322e',1.4);K.poly(c,[B,Cb,Ct,Bt]);c.fill();c.fillStyle=sh('#4a4640',1.1);K.poly(c,[A,B,Bt,At]);c.fill();c.fillStyle=K.topLit(P,'#56524c',1);K.poly(c,[At,Bt,Ct,Dt]);c.fill();
     c.strokeStyle=rgba('#000000',.35);c.lineWidth=1.57;c.beginPath();c.moveTo(lerp(A.x,B.x,.45),A.y);c.lineTo(lerp(At.x,Bt.x,.5),At.y);c.moveTo(A.x,lerp(A.y,At.y,.5));c.lineTo(lerp(A.x,B.x,.45),lerp(A.y,At.y,.5));c.stroke();
     c.fillStyle=rgba(jm2(P.air[0],P.light,.2),.3);c.beginPath();const wp=Q(Pm.x+6,bh,Pm.d-4);c.ellipse(wp.x,wp.y,9,2.6,0,0,TAU);c.fill();
-    // the iron column, its cap, the spout to the right over the trough, the handle up and back
+    // the iron column, its cap, the spout to the right over the trough
     const p=Q(Pm.x,bh,Pm.d),ch=48;c.fillStyle=lin(c,p.x-6,0,p.x+6,0,[[0,sh('#1a1c20',1.3)],[.35,K.topLit(P,'#34383e',1)],[.65,sh('#22252a')],[1,sh('#121316',1.4)]]);
     c.beginPath();c.moveTo(p.x-6.5,p.y);c.lineTo(p.x-5,p.y-ch);c.lineTo(p.x+5,p.y-ch);c.lineTo(p.x+6.5,p.y);c.closePath();c.fill();
     c.fillStyle=sh('#202226');c.fillRect(p.x-8,p.y-3,16,3);c.fillRect(p.x-7,p.y-ch-4,14,5);c.fillStyle=K.topLit(P,'#383c42',1.2);c.beginPath();c.ellipse(p.x,p.y-ch-4,7,2.2,0,0,TAU);c.fill();
     c.fillStyle=sh('#202226');c.beginPath();c.arc(p.x,p.y-ch-7,3,Math.PI,0);c.fill();
     c.fillStyle=sh('#1c1e22');c.beginPath();c.moveTo(p.x+4,p.y-ch+12);c.lineTo(p.x+20,p.y-ch+14);c.lineTo(p.x+21,p.y-ch+20);c.lineTo(p.x+17,p.y-ch+19);c.lineTo(p.x+16,p.y-ch+17);c.lineTo(p.x+4,p.y-ch+18);c.closePath();c.fill();
     c.fillStyle=rgba(P.light,.12+.35*P.lightA);c.fillRect(p.x+5,p.y-ch+12.4,14,.9);
-    c.strokeStyle=sh('#1a1c20');c.lineWidth=3.2;c.lineCap='round';c.beginPath();c.moveTo(p.x-2,p.y-ch-2);c.quadraticCurveTo(p.x-14,p.y-ch-10,p.x-30,p.y-ch-4);c.stroke();
-    c.strokeStyle=sh('#4e3a28');c.lineWidth=4;c.beginPath();c.moveTo(p.x-26,p.y-ch-5);c.lineTo(p.x-36,p.y-ch-1);c.stroke();c.lineCap='butt';
-    c.fillStyle=sh('#2e3034');c.beginPath();c.arc(p.x-2,p.y-ch-2,2.4,0,TAU);c.fill();
+    // (the handle is drawn live, pumpHandle: it goes down under his hand)
     c.strokeStyle=rgba(P.light,.1+.4*P.lightA);c.lineWidth=1.04;c.beginPath();c.moveTo(p.x-4.6,p.y-2);c.lineTo(p.x-3.6,p.y-ch+2);c.stroke();
     c.fillStyle=rgba('#7a3a14',.32);c.fillRect(p.x+1,p.y-ch+20,2,24);c.fillRect(p.x-3,p.y-ch+4,1.4,12);
     // Tarr's tag on the column, a rag of the Pump King's blue through it: the Sump's water is his, paid on the first
     c.fillStyle=sh('#6a665e',.9);c.fillRect(p.x-10,p.y-ch+24,6,8);c.fillStyle=rgba('#000000',.35);c.fillRect(p.x-9,p.y-ch+26,4,.7);c.fillRect(p.x-9,p.y-ch+28.4,3,.7);
     c.fillStyle=K.shade(P,'#2f5c7c',.8);c.beginPath();c.moveTo(p.x-7,p.y-ch+22);c.lineTo(p.x-3,p.y-ch+21);c.lineTo(p.x-5,p.y-ch+33);c.lineTo(p.x-7.5,p.y-ch+31);c.closePath();c.fill();});}
+// the pump's handle, live: an iron lever from the column's head back to its wooden grip, where the game has it (pumpGrip in
+// sk_pit2.js: it goes down under his hand and comes up again)
+function pumpHandle(c){const Yd=Y(),P=K.pal(),Pm=Yd.pump,A=typeof S!=='undefined'&&S?S.act1:null,g=typeof pumpGrip==='function'?pumpGrip(A&&A.pumpA):{x:Pm.x-33,h:64};
+  const pv=Q(Pm.x-2,64,Pm.d),e=Q(g.x,g.h,Pm.d),ux=e.x-pv.x,uy=e.y-pv.y,L=Math.hypot(ux,uy)||1,nx=-uy/L,ny=ux/L,sh=(col,k)=>K.shade(P,col,k);
+  c.lineCap='round';c.strokeStyle=sh('#1a1c20');c.lineWidth=3.2;c.beginPath();c.moveTo(pv.x,pv.y);c.quadraticCurveTo(pv.x+ux*.45+nx*7,pv.y+uy*.45+ny*7,pv.x+ux*.84,pv.y+uy*.84);c.stroke();
+  c.strokeStyle=sh('#4e3a28');c.lineWidth=4;c.beginPath();c.moveTo(pv.x+ux*.82,pv.y+uy*.82);c.lineTo(pv.x+ux*1.16,pv.y+uy*1.16);c.stroke();c.lineCap='butt';
+  c.fillStyle=sh('#2e3034');c.beginPath();c.arc(pv.x,pv.y,2.4,0,TAU);c.fill();}
 function troughPiece(){const Yd=Y(),P=K.pal(),T0=Yd.trough,d0=T0.d-9,d1=T0.d+9,h=18,a=Q(T0.x0,h+4,d1),b=Q(T0.x1,0,d0);
   return K.piece('yardtrough|'+P.key,a.x-4,a.y-6,b.x-a.x+30,b.y-a.y+12,c=>{const sh=(col,k)=>K.shade(P,col,k),x0=T0.x0,x1=T0.x1;
     c.fillStyle=sh('#403c37',1.1);K.poly(c,[Q(x0,0,d0),Q(x1,0,d0),Q(x1,h,d0),Q(x0,h,d0)]);c.fill();
@@ -771,16 +773,100 @@ function gateLeaf(c,P,hx,hd,len,h,th,ux,ud,vx,vd,pts,base){const sh=(col,k)=>K.s
 // the yard's gate on the right: hinged on its front post, swinging in toward the yard (S.act1.gate)
 function mainGate(c){const Yd=Y(),G=Yd.gate,P=K.pal(),g0=G.d-G.w/2,g1=G.d+G.w/2;gateLeaf(c,P,FENCE.x,g0+1,g1-g0-2,FENCE.h-4,opened('gate')*1.62,0,1,-1,0,true,'#3e3020');}
 // the stair gate: hinged on its left post, swinging out into the yard toward the eye (S.act1.stairGate)
+// the near side of the side stairs, a piece among the people: the handrail and the fence's pickets in front of the lowest steps,
+// so that a man going up the stairs goes up behind them (they are painted into the layer too)
+function stairFrontPiece(){const P=K.pal(),Yd=Y(),St=Yd.sidestair,G=SG(),sh=(col,k)=>K.shade(P,col,k),d0=St.d,xb=St.x1,xt=St.x0,top=150,run=(xb-xt)/10,rise=15,lx0=xt-26,a0=Q(lx0,top+40,d0),a1=Q(xb+8,0,G.d);
+  return K.piece('yardstairfront|'+P.key,a0.x-6,a0.y-4,a1.x-a0.x+16,a1.y-a0.y+8,c=>{
+    c.strokeStyle=sh('#33251a');c.lineWidth=2.2;c.beginPath();
+    const rail=[];for(const [xx,hh] of [[xb+2,0],[xb-run*3.5,rise*3.5],[xb-run*7,rise*7],[xt,top],[lx0+3,top]]){const a=Q(xx,hh,d0-1),e=Q(xx,hh+34,d0-1);c.moveTo(a.x,a.y);c.lineTo(e.x,e.y);rail.push(e);}
+    c.stroke();c.lineWidth=2.6;c.beginPath();rail.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();
+    c.strokeStyle=rgba(P.light,.08+.35*P.lightA);c.lineWidth=.99;c.beginPath();rail.forEach((p,i)=>i?c.lineTo(p.x,p.y-1.2):c.moveTo(p.x,p.y-1.2));c.stroke();
+    const hx=G.x-G.w/2,x0=hx-28,d=G.d,r=rng(131);
+    c.strokeStyle=sh('#2e2218',1.1);c.lineWidth=2.6;c.beginPath();for(const hh of [12,SGH-10]){const a=Q(x0,hh,d),e=Q(hx,hh,d);c.moveTo(a.x,a.y);c.lineTo(e.x,e.y);}c.stroke();
+    for(let x=x0+4;x<hx-2;x+=6){const a=Q(x,0,d),e=Q(x,SGH-2-(r()<.3?4:0),d);c.fillStyle=sh('#3a2c20',1.1);c.fillRect(a.x-2,e.y,4,a.y-e.y);c.fillStyle=rgba(P.light,.06+.25*P.lightA);c.fillRect(a.x-2,e.y,4,1);}
+    for(const [px,ph] of [[x0,SGH+4],[hx,SGH+10]]){const a=Q(px-3,0,d),e=Q(px+3,ph,d);c.fillStyle=sh('#2a1e14',1.1);c.fillRect(a.x,e.y,e.x-a.x,a.y-e.y);c.fillStyle=K.topLit(P,'#3a2c20',.8);c.fillRect(a.x,e.y-1.4,e.x-a.x,1.6);}});}
 function stairGate(c){const G=SG(),P=K.pal();gateLeaf(c,P,G.x-G.w/2+3,G.d,G.w-6,SGH-6,opened('stairGate')*1.7,1,0,0,-1,false,'#433424');}
 function pieces(){const Yd=Y(),out=[],G=SG(),g=Yd.gate;
   out.push({d:G.d-(G.w/2)*Math.sin(opened('stairGate')*1.7)+.5,draw:stairGate});
   out.push({d:g.d-g.w/2+(g.w/2)*Math.cos(opened('gate')*1.62),draw:mainGate});
-  out.push({d:Yd.pump.d,draw:c=>K.drawPiece(c,pumpPiece())});
-  out.push({d:Yd.trough.d,draw:c=>K.drawPiece(c,troughPiece())});
+  out.push({d:Yd.pump.d+.6,draw:c=>{K.drawPiece(c,pumpPiece());pumpHandle(c);}});
+  out.push({d:Yd.trough.d,draw:c=>{K.drawPiece(c,troughPiece());const P=K.pal();for(const b of FLOCK)if(b.trough)birdDraw(c,b,S.t,P);}});
+  for(const b of FLOCK)if(b.ground)out.push({d:b.ground.d,draw:c=>birdDraw(c,b,S.t,K.pal())});
+  out.push({d:SG().d+.5,draw:c=>K.drawPiece(c,stairFrontPiece())});
   Yd.barrels.forEach((B0,i)=>out.push({d:B0.d,draw:c=>K.drawPiece(c,barrelPiece(B0,i))}));
   // a crate goes down a little before a man at its own depth: Dob perches on the nearer one (its top is ground for him)
   Yd.crates.forEach((Cr,i)=>out.push({d:Cr.d+1,draw:c=>K.drawPiece(c,cratePiece(Cr,i))}));
   return out;}
+// ---------- Dob's birds, alive (since V117) ----------
+// The pigeons that live in the yard, the roof scene's own birds at the roof scene's size: on the lofts and along the ridge, down
+// pecking by the crates, at the trough once the pump has run, and in the air: a turn out over the yard now and then, up onto the
+// yard wall when a man walks at them, all of them up off the roof when he comes along it with their water (S.act1.birdsUp). What
+// they do reads the game; nothing in the game reads them. At night they sit.
+// one bird at (x, y), facing fa, size s: sitting (o.pk: how far its head is down to peck, 0 to 1) or flying (o.fl; o.w: the wing's beat)
+function pigeon(c,x,y,fa,s,col,o){c.save();c.translate(x,y);c.scale(fa*s,s);c.fillStyle=col;
+  if(o.fl){const w=5*(o.w||0);c.beginPath();c.ellipse(0,0,3.4,1.5,0,0,TAU);c.fill();c.beginPath();c.arc(3.3,-.5,1.3,0,TAU);c.fill();
+    c.beginPath();c.moveTo(-3,0);c.lineTo(-5.8,-.8);c.lineTo(-5.4,1);c.closePath();c.fill();
+    c.beginPath();c.moveTo(.6,-.4);c.quadraticCurveTo(1.2,-w*.9,-1.6,-w-.6);c.lineTo(-1.4,-.2);c.closePath();c.fill();
+    c.fillStyle=o.wing;c.beginPath();c.moveTo(-.4,-.4);c.quadraticCurveTo(-.4,-w*1.1,-3.2,-w*1.2-.4);c.lineTo(1.4,-.6);c.closePath();c.fill();}
+  else{const pk=o.pk||0;c.beginPath();c.ellipse(0,-3,3.6,2.4,-.15+pk*.4,0,TAU);c.fill();c.beginPath();c.arc(2.9+pk*1.5,-5.4+pk*3.6,1.6,0,TAU);c.fill();
+    c.beginPath();c.moveTo(-3,-3.6);c.lineTo(-6.6,-2.2-pk*1.6);c.lineTo(-3,-1.4);c.closePath();c.fill();
+    c.fillStyle=o.beak;c.fillRect(4.2+pk*1.5,-5.8+pk*3.9,1.6,1);
+    c.fillStyle=o.sheen;c.beginPath();c.arc(2.4+pk*1.2,-4.2+pk*2.6,1,0,TAU);c.fill();
+    if(o.pale){c.fillStyle=o.wing;c.beginPath();c.ellipse(-.6,-2.9,2.3,1.3,-.2,0,TAU);c.fill();}}
+  c.restore();}
+// where they sit on the roof (x, how high, how deep): the lofts' peaks, the tin in front of the third loft, the ridge
+const BIRDS_UP=9,ROOSTS=[[80,237,270],[123,233,270],[165,236,270],[205,210,278],[236,210,278],[262,210,278],[350,210,278],[392,210,278],[430,210,278],[150,195,262],[300,210,278]],
+  PECKS=[[618,150],[640,134],[668,128]];
+const FLOCK=(()=>{const r=rng(17),cols=['#4a4e5c','#3a3e4a','#5c5e6a','#a9a394','#4a4e5c','#7c7870','#3a3e4a','#5c5e6a','#4a4e5c','#3a3e4a','#5c5e6a'],a=[];
+  for(let i=0;i<ROOSTS.length;i++)a.push({i,col:cols[i],wing:i===3?'#7f796a':i===5?'#5a564e':cols[i]==='#3a3e4a'?'#6a6e7a':'#787a86',pale:i===3||i===5,roost:ROOSTS[i],per:13+r()*10,ph:r()*30,s:1.5+r()*.3,
+    trough:i<2,ground:i>=4&&i<=6?{x:PECKS[i-4][0],d:PECKS[i-4][1]}:null,loops:i===2||i===3||i===8,at:null,go:null,t0:-99});
+  return a;})();
+function birdPlace(b,k,t){const Yd=Y();
+  if(k==='ground'){const g=b.ground;return Q(g.x+Math.sin(t*.45+b.ph)*5,0,g.d);}
+  if(k==='wall')return Q(Yd.wall.x0+10+(b.i-4)*19,Yd.wall.h,Yd.wall.d);
+  if(k==='trough')return Q(Yd.trough.x1-12-b.i*17,22,Yd.trough.d+8);
+  return Q(b.roost[0],b.roost[1],b.roost[2]);}
+// each bird's next move, once a frame: where it wants to be, and off it goes
+function flockStep(t){const A=typeof S!=='undefined'&&S?S.act1:null,K0=typeof hero==='function'?hero():null,tod=K.tod(),night=tod==='night'||tod==='dusk',inYard=S.arenaKey==='yard';
+  const near=q=>K0&&K0.p&&inYard?Math.hypot(prjX(K0.station,K0.dep)-q.x,(prjY(GB,K0.dep)-q.y)*2):999;
+  for(const b of FLOCK){if(b.at==null||t<b.t0-1){b.at=b.ground&&!night?'ground':'roost';b.go=null;b.t0=t;}
+    if(b.go){if(t>=b.go.t0+b.go.dur){b.at=b.go.to;b.go=null;b.t0=t;}else continue;}
+    let want=b.ground&&!night?'ground':'roost';
+    // a man walking at the ones on the ground: up onto the wall, and down again when he has gone by
+    if(want==='ground'){const n=near(birdPlace(b,'ground',t));if(b.at==='ground'?n<58:(n<116||t-b.t0<4))want='wall';}
+    // water running at the pump: two come down to the trough, and keep to it while he keeps off
+    if(b.trough&&!night&&inYard&&A&&A.bucket&&A.yard&&!A.yard.done&&(A.pumping||A.bucket.full)){const n=near(birdPlace(b,'trough',t));if(b.at==='trough'?n>46:n>104)want='trough';}
+    if(want!==b.at){const a=birdPlace(b,b.at,t),z=birdPlace(b,want,t);b.go={from:b.at,to:want,t0:t,dur:clamp(Math.hypot(z.x-a.x,z.y-a.y)/150,.7,2.6)};}
+    else if(b.loops&&b.at==='roost'&&!night&&((t+b.ph)%b.per)<.05&&!(A&&A.birdsUp&&t<A.birdsUp+BIRDS_UP))b.go={from:'roost',to:'roost',t0:t,dur:3.6,loop:true};}}
+function birdDraw(c,b,t,P){const A=typeof S!=='undefined'&&S?S.act1:null,col=K.shade(P,b.col,.75),o={wing:K.shade(P,b.wing,.75),beak:K.shade(P,'#8a7a58',.8),sheen:rgba('#96dcc8',.1+.24*P.lightA),pale:b.pale,pk:0,fl:0,w:0},flap=Math.sin(t*27+b.i*1.7);
+  // all up off the roof as he comes with the water: round and round over the lofts, and down again in their own time
+  if(A&&A.birdsUp&&t>=A.birdsUp&&t<A.birdsUp+BIRDS_UP){const u=t-A.birdsUp,a=birdPlace(b,b.at||'roost',t),th=u*(1.5+b.i*.09)+b.i*.9,c0=Q(170,262,268),e=sstep(clamp((u-b.i*.06)/.9,0,1))*(1-sstep(clamp((u-BIRDS_UP+1.6)/1.5,0,1)));
+    const x=lerp(a.x,c0.x+Math.cos(th)*(70+b.i*9),e),y=lerp(a.y,c0.y+Math.sin(th)*(18+b.i*3)-Math.sin(u*2.1+b.i)*6,e);
+    if(e>.02){o.fl=1;o.w=flap;pigeon(c,x,y,-Math.sin(th)>=0?1:-1,b.s,col,o);return;}}
+  if(b.go){const g=b.go,u=clamp((t-g.t0)/g.dur,0,1),e=u*u*(3-2*u),a=birdPlace(b,g.from,t),z=birdPlace(b,g.to,t);let x,y,fa;
+    if(g.loop){const th=u*TAU,dir=b.i%2?1:-1;x=a.x+Math.sin(th)*(110+b.i*12)*dir;y=a.y-(1-Math.cos(th))*(40+b.i*5)-Math.sin(u*Math.PI)*12;fa=Math.cos(th)*dir>=0?1:-1;}
+    else{x=lerp(a.x,z.x,e);y=lerp(a.y,z.y,e)-Math.sin(u*Math.PI)*(26+Math.abs(z.x-a.x)*.1);fa=z.x>=a.x?1:-1;}
+    o.fl=1;o.w=u>.92&&!g.loop?.4:flap;pigeon(c,x,y,fa,b.s,col,o);return;}
+  const p=birdPlace(b,b.at||'roost',t),low=b.at==='ground'||b.at==='trough';
+  o.pk=low?Math.pow(Math.max(0,Math.sin(t*(2.3+b.i*.27)+b.ph)),8):Math.pow(Math.max(0,Math.sin(t*.9+b.ph)),40);
+  pigeon(c,p.x,p.y,Math.sin(t*.23+b.ph)>0?1:-1,b.s,col,o);}
+// the back door by day, opening (S.act1.yardDoor, 0 to 1: Tamm going back in): the leaf swings in on its left jamb, and the kitchen
+// shows past it, dim, the stove's glow low down. Drawn over the painted door, under the people.
+function doorLive(c,P){const k=opened('yardDoor');if(k<=.01||P.key==='night')return;const Yd=Y(),D=Yd.door,far=Yd.far,top=Q(D.x-D.w/2,SUMP.doorH,far),bot=Q(D.x+D.w/2,0,far),w=bot.x-top.x,h=bot.y-top.y,sh=(col,kk)=>K.shade(P,col,kk);
+  const e=lerp(bot.x,top.x+9,k);
+  c.fillStyle='#120a06';c.fillRect(e,top.y,bot.x-e,h);
+  c.fillStyle=rgba('#6c3214',.5);c.fillRect(e,top.y+h*.56,bot.x-e,h*.44);
+  c.fillStyle=rgba('#2a1206',.9);c.fillRect(e,top.y+h*.3,bot.x-e,2.4);
+  for(const [px,pw,ph] of [[20,6,9],[30,9,6]])if(top.x+px>=e)c.fillRect(top.x+px,top.y+h*.3-ph,pw,ph);
+  {const x0=Math.max(e,top.x+w*.5);if(bot.x-4>x0){c.fillStyle=rgba('#ff7a2a',.3);c.fillRect(x0,top.y+h*.68,bot.x-4-x0,3);}}
+  // the leaf, narrowing as it swings in; its boards' seams closing up
+  c.fillStyle=sh('#2c2018',1.15);c.fillRect(top.x,top.y,e-top.x,h);
+  c.fillStyle=rgba('#000000',.4);for(let x=top.x+lerp(7.6,2.6,k);x<e-1.5;x+=lerp(7.6,2.6,k))c.fillRect(x,top.y,1.5,h);
+  c.fillStyle=sh('#1a120c',1.2);c.fillRect(e-2,top.y,2,h);}
+// the ground wet under the spout once he has pumped (it reads the bucket's fill): a dark patch, the sky's light along its far side
+function pumpWet(c,P){const A=typeof S!=='undefined'&&S?S.act1:null,B=A&&A.bucket;if(!B)return;const k=B.full?1:clamp(B.fill||0,0,1);if(k<=0)return;const Pm=Y().pump,q=Q(Pm.x+15,0,Pm.d-9);
+  c.fillStyle=rgba('#050403',.2*k);c.beginPath();c.ellipse(q.x,q.y,10+17*k,(10+17*k)*.3,0,0,TAU);c.fill();
+  c.fillStyle=rgba(P.light,(.05+.1*P.lightA)*k);c.beginPath();c.ellipse(q.x+2,q.y-1.5,(10+17*k)*.6,1.1,0,0,TAU);c.fill();}
 // ---------- what moves ----------
 // smoke from the stovepipe and the chimneys round about, the fires on the far wall, the lamps and the window, the pump's drip, a bird
 // on the ridge, the morning's mist; on an upright phone, the walls going on up to the sky
@@ -815,7 +901,8 @@ function live(){const t=S.t,P=K.pal(),T=P.key,Yd=Y();ctx.save();
     if(u<.3){ctx.fillStyle=rgba('#cfe0e8',.55);const k=u/.3;ctx.beginPath();ctx.ellipse(x,y0+1+k*1.5,1,1+k*.8,0,0,TAU);ctx.fill();}
     else if(u<.42){const k=(u-.3)/.12;ctx.fillStyle=rgba('#cfe0e8',.6);ctx.fillRect(x-.5,lerp(y0+3,y1,k*k),1,2.4);}
     else if(u<.9){const k=(u-.42)/.48;ctx.strokeStyle=rgba('#d8e8f0',.4*(1-k));ctx.lineWidth=.6;ctx.beginPath();ctx.ellipse(x,y1,1.5+k*7,(1.5+k*7)*.3,0,0,TAU);ctx.stroke();}}
-  {const pk=Math.sin(t*1.1)>.92,p=Q(214,SUMP.ridge,Yd.far+SUMP.rd);if(pk){ctx.fillStyle=K.shade(P,'#4a4e5c',.8);ctx.beginPath();ctx.arc(p.x+2.6,p.y-3.2,1.5,0,TAU);ctx.fill();}}
+  // the back door as Tamm goes in; the wet under the spout; Dob's birds: each one's next move, and those that keep to the roof
+  doorLive(ctx,P);pumpWet(ctx,P);flockStep(t);for(const b of FLOCK)if(!b.trough&&!b.ground)birdDraw(ctx,b,t,P);
   if(P.mist>0){const sp=K.puffSpr('#c4d2e2');for(const m of MIST){const x=((m.ph+t*m.sp)%1500)-300,q=Q(x,0,m.d);ctx.globalAlpha=m.a*P.mist;ctx.drawImage(sp,q.x-m.w/2,q.y-m.w*.1,m.w,m.w*.2);}ctx.globalAlpha=1;}
   ctx.restore();}
 // the sun's light over the yard, the same in the layer and in the picture above it (from the rim, so its shafts run on unbroken)

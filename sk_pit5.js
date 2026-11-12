@@ -107,7 +107,7 @@ V11.step.push(()=>{const A=S.act1;if(!A||!(S.storyAuto||S.auto))return;
     act1ShopClose();}});
 
 // ---------- scene 4 goes on into scene 5 ----------
-{const Y=STAGES[stageIx('yard1')];Y.next='list';Y.outro=function*(st){const K=hero(),Yd=ACT1_PLACES.yard;yield* goTo(K,Yd.sidestair.x0+20,Yd.floor.z1,60);yield* fadeTo(1,1.4);};}
+{const Y=STAGES[stageIx('yard1')];Y.next='list';Y.outro=function*(st){yield* yardClimb();};}
 
 // ---------- the places of scene 5 ----------
 // (the old man and the beggars sit at the back of the stair-street, as deep as anyone can be)

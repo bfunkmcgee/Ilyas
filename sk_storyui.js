@@ -105,7 +105,8 @@ function camCutFit(C,wOld){
 let camSnapped=null;
 {const uc=updateCamera;updateCamera=function(rdt){const C=S.camCut;if(!C){uc(rdt);return;}
   if(C.snap&&camSnapped!==C){camSnapped=C;cam.cut=true;}
-  const narrow=cssW<640,wOld=clamp(narrow&&C.wn?C.wn:C.w*(narrow?Math.min(1,700/C.w):1),narrow&&C.wn?200:300,W),F=C.fit=camCutFit(C,wOld);
+  // (C.ws, since V117: the view's width on a wide screen too short for the shot, a phone on its side)
+  const narrow=cssW<640,short=!narrow&&cssH<480&&C.ws,wOld=clamp(narrow&&C.wn?C.wn:short?C.ws:C.w*(narrow?Math.min(1,700/C.w):1),narrow&&C.wn?200:300,W),F=C.fit=camCutFit(C,wOld);
   let w=wOld,tx=narrow&&C.xn!=null?C.xn:C.x,k=C.k?Math.min(1,rdt*C.k):1;
   // (a cut, k 0, lands at once and then follows; a scene's own glide goes on at its own rate)
   if(F){if(!C.fitOn){C.fitOn=true;if(!C.k)cam.cut=true;}
