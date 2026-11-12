@@ -2112,3 +2112,11 @@ was checked, and anything that did not work, plainly.
   that time with a shape on the man in white; .0197 alone without one) and the light in his eye at the end of the fall. Run alone it passed every time, on V114 and on the branch. If it
   fails in a full run, run `node sk_look_page.js` alone before looking for a cause in the change; the cause of the wandering
   itself has not been looked for.
+- On GitHub's runner (Playwright's own Chromium, not this machine's) lookpage has failed since V116 on the fall's end: he does
+  not end face up there (`faceUp` false, 4780 steps for 4731 here), three runs of three in V117's candidates; the eye's light
+  check beside it failed there once of the three. `pitLand` turns him face up as he lands, and the body goes on settling after;
+  where it comes to rest depends on the engine's rounding in the last place (nudging one sine in fifty by one ulp moves his hips
+  10 to 30 units and the scene's length by 40 steps here, face up each time of three). Every other suite passes there, the yard's
+  among them. Not put right in V117: the fall's end wants holding face up by the scene, not by where the hay leaves him.
+  Since V117 the pages job prints the checks that failed in its log ("What failed"): the kept outputs' download is refused
+  from this workspace.
