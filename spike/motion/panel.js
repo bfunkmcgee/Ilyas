@@ -27,22 +27,23 @@ STAGES.push({key:'motion',act:1,num:'',title:'',sub:'',arena:'yard',next:null,we
       standEasy(K,true);yield* wait(1.2);}};
     yield* all(his(),hers());}});
 // ---------- the switches ----------
-// Two buttons at the right edge: the drawing (new, old) and the rest. The rest: poses a second, the two bodies as lines, and the
-// three scenes (the walk above, the yard as the game plays it, a fight in the lab that plays itself).
+// Two buttons at the right edge: the drawing (new, old) and the rest. The rest: poses a second, how a blow is drawn, the two bodies
+// as lines, and the three scenes (the walk above, the yard as the game plays it, a fight in the lab that plays itself).
 const css=`
-#moBar{position:fixed;right:max(6px,env(safe-area-inset-right,0px));top:42%;z-index:2147483000;display:flex;flex-direction:column;gap:6px;align-items:flex-end;
+#moBar{position:fixed;right:max(6px,env(safe-area-inset-right,0px));bottom:21%;z-index:2147483000;display:flex;flex-direction:column;gap:6px;align-items:flex-end;
   font:600 12px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.03em;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 #moBar button{appearance:none;-webkit-appearance:none;border:1px solid rgba(201,176,128,.6);background:rgba(14,12,10,.82);color:#eadfc6;border-radius:9px;padding:0 10px;
   min-width:58px;min-height:40px;font:inherit;text-align:center;cursor:pointer}
 #moBar button.on{background:#d8c08a;color:#17130c;border-color:#d8c08a}
 #moBar button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-#moSheet{display:none;flex-direction:column;gap:8px;padding:10px;border:1px solid rgba(201,176,128,.6);background:rgba(14,12,10,.9);border-radius:11px;color:#eadfc6;max-width:232px}
+#moSheet{display:none;flex-direction:column;gap:8px;padding:10px;border:1px solid rgba(201,176,128,.6);background:rgba(14,12,10,.92);border-radius:11px;color:#eadfc6;max-width:232px;max-height:66vh;overflow-y:auto}
 #moBar.open #moSheet{display:flex}
 #moSheet .r{display:flex;flex-direction:column;gap:4px}
 #moSheet .r>span{font-weight:500;opacity:.78}
 #moSheet .b{display:flex;gap:5px}
 #moSheet .b button{flex:1;min-width:0;padding:0 6px}
-@media (prefers-reduced-motion:reduce){#moBar *{transition:none}}
+/* a phone on its side: the buttons half way up the right edge, the sheet beside them, in two columns */
+@media (max-height:480px){#moBar{bottom:34%;flex-direction:row;align-items:flex-end}#moSheet{max-width:min(470px,70vw);max-height:86vh;flex-direction:row;flex-wrap:wrap}#moSheet .r{flex:1 1 200px}#moBar button{min-height:36px}}
 `;
 const el=(t,p,k)=>{const e=document.createElement(t);if(p)Object.assign(e,p);if(k)for(const c of k)e.appendChild(c);return e;};
 const bar=el('div',{id:'moBar'}),sheet=el('div',{id:'moSheet'});
@@ -54,6 +55,7 @@ const pick=(label,opts,get,set)=>{const row=el('div',{className:'r'},[el('span',
 const paints=[];
 paints.push(pick('Drawing',[['New',true],['Old',false]],()=>MO.on,v=>{MO.on=v;}));
 paints.push(pick('Poses a second',[['Every frame',false],['12',true]],()=>MO.twos,v=>{MO.twos=v;}));
+paints.push(pick('Blows in a fight',[['Ragdoll above the hips','upper'],['Drawn','drawn']],()=>MO.blows,v=>{MO.blows=v;}));
 paints.push(pick('The two bodies as lines',[['Off',false],['On',true]],()=>!!MO.bones,v=>{MO.bones=v;}));
 paints.push(pick('Scene',[['Walk','walk'],['Yard','yard'],['Fight','fight']],()=>state.scene,v=>go(v)));
 const quick=el('button',{type:'button'}),more=el('button',{type:'button',textContent:'Test'});

@@ -13,8 +13,8 @@ python3 spike/motion/build_motion.py
 ```
 
 That writes `spike/motion/out/motion-test.html` (and `out/index.html`, wrapped for publishing). The page opens on the test's own
-scene. Two buttons sit at the right edge: `New` / `Old` changes the drawing, `Test` opens the rest (poses a second, the two
-bodies as lines, the scene). `?scene=none` opens the page on the game's title instead.
+scene. Two buttons sit at the right edge: `New` / `Old` changes the drawing, `Test` opens the rest (poses a second, how a blow
+is drawn, the two bodies as lines, the scene). `?scene=none` opens the page on the game's title instead.
 
 | Scene | What it is |
 |---|---|
@@ -35,14 +35,24 @@ late, with the sway and settling of the springs in it. With the test on, the fig
 | Elbows and knees | springs | found from shoulder and hand, hip and foot |
 | A planted foot | held by a spring | where it was planted, to the unit |
 | An action's keys | chased, and so rounded off late | read at five moments about now and averaged: rounded off on time |
+| A blow in a fight | the ragdoll | above the hips the ragdoll's, carried on the drawn hips and legs (the switch `Blows in a fight`: `Drawn` takes the blow from its keys as well) |
 | A change of pose made at once (a stance, a guard) | springs swing him into it | eased over a quarter of a second, head first, hands last |
 | Walking | feet slid low along the floor on bent knees | heel off, the ankle up and through, a straight leg under the hips |
+| A turn round | Ilyas through the front view, everyone else at once | the cast through the front view as well |
 | Standing easy the old way (`STAND0`) | on bent knees, stock still | on straight legs, breathing |
+| The blur of a quick blade | swept by the ragdoll's blade | swept by the blade he is drawn with |
 | Hit hard, thrown, down | the ragdoll | the ragdoll: the drawing gives way to it, and takes him back as the game does |
 | Mounted, perched, held, carried, a beast, a puppet, in bed | the ragdoll | left alone |
 
 `Poses a second: 12` holds each drawing for a twelfth of a second. The hips still travel every frame and a planted foot stays
 planted, so nothing slides; the pose changes twelve times a second.
+
+## Blows
+
+A blow's keys were tuned by eye against what the springs and the weight of the weapon made of them. Drawn from the keys alone a
+blow is smaller and tighter than the one the game shows: the arm stays bent where the ragdoll's is thrown out straight, and the
+body does not follow the weapon through. It is also exact: the blade is at the head on the frame of the hit, where the ragdoll's
+has already gone 60 units past it. The test keeps the game's blow by default and offers the other on a switch.
 
 ## What it found
 
@@ -77,8 +87,6 @@ start, the toll, the yard, the test's own scene.
 
 - The game is not changed. Taking this into the game is a version of its own: the drawing would move into the UI files, and the
   fault above would be mended in the game itself.
-- A turn round is drawn through the front view for Ilyas only, as in the game. Everyone else still changes sides at once.
 - The staggering first steps in the yard (scene 4) are the scene's own sway, drawn as written.
 - A walk still starts and stops at once, and squares up with two quick steps. The steps are the game's.
 - Jogging keeps the game's footfalls, which are a fast walk's. The test adds the heel kick, the bent arms and the bounce.
-- The weapon's blur is still the ragdoll's.

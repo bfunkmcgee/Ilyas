@@ -20,7 +20,10 @@
 (function(){
 'use strict';
 const MO=window.MotionTest={
-  on:true,twos:false,bones:false,dry:false,
+  on:true,twos:false,bones:false,dry:false,turns:true,
+  // a blow in a fight: 'drawn' from its keys like the rest, 'arms' the ragdoll's arms and blade on the drawn body, 'upper' the ragdoll
+  // above the hips on the drawn legs, 'ragdoll' the ragdoll whole
+  blows:'upper',
   // easing a change of pose: seconds; the head's and the hands' share of it; how fast a guard may move before it counts as a change
   blend:.26,headLead:.7,armLag:1.2,footLag:.7,footW:22,jump:320,
   // rounding off an action's keys: seconds between the five moments its pose is read at (0: the keys as they stand)
@@ -44,7 +47,7 @@ const copy=(A,B)=>{for(let i=0;i<12;i++){B[i].x=A[i].x;B[i].y=A[i].y;}};
 const ST=new WeakMap();
 function stOf(f){let s=ST.get(f);
   if(!s){s={K:pts(),C:pts(),Cp:pts(),dtp:0,D:pts(),Dp:pts(),O:pts(),V:pts(),R:pts(),Kl:pts(),out:pts(),show:false,had:false,t:-1,rf:-9,cb:null,w:1,ev:-9,sig:null,fa:0,rootX:0,
-    ft:[{t0:-1,pre:0,dx:0,pv:0,pre0:0,dx0:0,v0:0,fresh:false,seen:false,lx:0,ly:0,vx:0,vy:0,ox:0,oy:0,ovx:0,ovy:0,ot:0},{t0:-1,pre:0,dx:0,pv:0,pre0:0,dx0:0,v0:0,fresh:false,seen:false,lx:0,ly:0,vx:0,vy:0,ox:0,oy:0,ovx:0,ovy:0,ot:0}],dip:0,sink:0,hold:pts(),holdN:-1,holdFa:0,holdY:0,sc:new Float64Array(64),scN:0};ST.set(f,s);}
+    ft:[{t0:-1,pre:0,dx:0,pv:0,pre0:0,dx0:0,v0:0,fresh:false,seen:false,lx:0,ly:0,vx:0,vy:0,ox:0,oy:0,ovx:0,ovy:0,ot:0},{t0:-1,pre:0,dx:0,pv:0,pre0:0,dx0:0,v0:0,fresh:false,seen:false,lx:0,ly:0,vx:0,vy:0,ox:0,oy:0,ovx:0,ovy:0,ot:0}],dip:0,sink:0,hold:pts(),holdN:-1,holdFa:0,holdY:0,sc:new Float64Array(64),scN:0,trail:[],tl:{ok:false,hx:0,hy:0,tx:0,ty:0,px:0,py:0}};ST.set(f,s);}
   return s;}
 // figures the game does not pose on their own two feet are left as the game draws them
 function special(f){return!!(f.mount||f.perch||f.beast||(f.puppet&&f.pup)||f.hidden||f.clinch||f.carry||f.bed||f.impaled);}
@@ -164,10 +167,17 @@ function kin(f,s,dt){
   off=reachClamp(K[CHE],off,arm*.985);
   const eb=ik(K[CHE],off,b.ua,b.fa,fa,true);
   K[ELB].x=eb.x;K[ELB].y=eb.y;K[HAB].x=off.x;K[HAB].y=off.y;
+  // (a blow in a fight, MO.blows. A blow's keys were tuned by eye against what the springs and the weight of the weapon made of
+  // them, so drawn from the keys alone it is a smaller, tighter blow than the one the game shows. 'arms': his arms and his blade are
+  // the ragdoll's own, carried on the chest he is drawn with. 'upper': all of him above the hips is the ragdoll's, carried on the
+  // hips he is drawn with, so the swing and the follow-through are the game's and his legs and feet are the drawn ones)
+  const fight=inAct&&!!(S.game&&S.game.ex);
+  if(fight&&MO.blows==='arms'){const c=P[CHE];for(const i of [ELF,HAF,ELB,HAB,TIP]){K[i].x=cx+P[i].x-c.x;K[i].y=cy+P[i].y-c.y;}}
+  else if(fight&&MO.blows==='upper'){const c=P[PEL];for(const i of [CHE,HEAD,ELF,HAF,ELB,HAB,TIP]){K[i].x=px+P[i].x-c.x;K[i].y=py+P[i].y-c.y;}}
   if(kp&&ft[0]){ft[0]={x:lerp(ft[0].x,kp.x,bp.kw),y:lerp(ft[0].y,kp.y,bp.kw),air:true};}
   K[FTF].x=ft[0].x;K[FTF].y=ft[0].y;K[FTB].x=ft[1].x;K[FTB].y=ft[1].y;
   legs(f,K);
-  return{inAct,G,want,vault,sig:{act:inAct?A:null,G:!!G,vault,wk:f.weaponKey,gb:f.guardBody,ga:f.guardArm}};}
+  return{inAct,fight,G,want,vault,sig:{act:inAct?A:null,G:!!G,vault,wk:f.weaponKey,gb:f.guardBody,ga:f.guardArm}};}
 // his legs under a pose: a foot his hips have left out of reach comes up off the floor toward them, the knees are found from hip and foot
 function legs(f,J){const b=f.body,fa=f.facing,L=f.leg*.995;
   for(let k=0;k<2;k++){const ft=J[k?FTB:FTF],kn=J[k?KNB:KNF],hx=J[PEL].x+fa*(k?-2:2),hy=J[PEL].y,dx=ft.x-hx,dy=ft.y-hy,d=Math.hypot(dx,dy);
@@ -210,6 +220,19 @@ function ease(f,s,info,dt,fresh){
   for(const i of UP){const w=i===CHE?wb:i===HEAD?wh:wa;C[i].x=kx+(Kl[i].x+fade(O[i].x,V[i].x,w,u))*fa;C[i].y=C[PEL].y+Kl[i].y+fade(O[i].y,V[i].y,w,u);}
   for(const i of [FTF,FTB]){C[i].x=K[i].x+fade(O[i].x,V[i].x,wf,u);C[i].y=Math.min(K[i].y+fade(O[i].y,V[i].y,wf,u),f.gr(C[i].x)-3);}
   lengths(f,C,f.lash?0:f.wp.len);legs(f,C);}
+// ---------- the blade's blur ----------
+// The game keeps the blur of a quick blade as the ragdoll's blade swept it (recordTrail, sk_core.js). A figure drawn in his pose has
+// his blade somewhere else, so his blur is kept here the same way, by the same rule, from the blade he is drawn with: a step of the
+// game's clock at a time, between where the blade was drawn the frame before and where it is drawn now.
+function blur(f,s,out,dt,fresh){
+  const tr=s.trail,L=s.tl,h=out[HAF],t=out[TIP],pl=out[PEL];
+  for(const e of tr)e.age+=dt;while(tr.length&&tr[0].age>tr[0].life)tr.shift();
+  if(!fresh&&dt>0&&L.ok&&f.motor>.3&&!(f.lash||(f.arc&&S.t<f.arc.t0+f.arc.lock[0])||(f.sheath&&S.t<f.sheath.t0+f.sheath.out))){
+    const sp=Math.hypot(t.x-L.tx,t.y-L.ty)/dt,rel=Math.hypot(t.x-L.tx-(pl.x-L.px),t.y-L.ty-(pl.y-L.py))/dt,fl=f.flair&&S.t>=f.flair.from&&f.flair.trail!==false;
+    if(fl?rel>240:sp>330){const n=Math.max(1,Math.min(8,Math.round(dt/DT))),k=fl?.12:.3;
+      for(let j=1;j<=n;j++){const u=j/n,hx=lerp(L.hx,h.x,u),hy=lerp(L.hy,h.y,u),tx=lerp(L.tx,t.x,u),ty=lerp(L.ty,t.y,u),back=(n-j)*DT;
+        tr.push({hx:lerp(hx,tx,k),hy:lerp(hy,ty,k),tx,ty,age:back,life:fl?.24:.1,c:fl?f.color:null,t:S.t-back});}}}
+  L.hx=h.x;L.hy=h.y;L.tx=t.x;L.ty=t.y;L.px=pl.x;L.py=pl.y;L.ok=true;}
 // ---------- one figure, one frame ----------
 function figure(f,rf,now){
   const P=f.p;if(!P||P.length<12||f.gone)return null;
@@ -223,7 +246,7 @@ function figure(f,rf,now){
   const cb=f.curBody,stepped=!!cb&&(cb!==s.cb||fresh);s.cb=cb;
   const can=stepped&&!f.dead&&!f.downed&&S.t>=(f.knockUntil||0)&&upright(P);
   let wT=1,info=null;
-  if(can){info=kin(f,s,dt);wT=1-sm(MO.phys0,MO.phys1,f.motor==null?1:f.motor);
+  if(can){info=kin(f,s,dt);wT=info.fight&&MO.blows==='ragdoll'?1:1-sm(MO.phys0,MO.phys1,f.motor==null?1:f.motor);
     // where the ragdoll is against where its own pose would have it: far off, the game has him somewhere this reading does not know of
     let m=0;const mh=Math.abs(P[PEL].y-info.want);
     for(let k=0;k<2;k++){const st=f.steps[k];if(!st.active&&!f.vaulting){const q=P[k?FTB:FTF];m=Math.max(m,Math.hypot(q.x-st.plant.x,q.y-st.plant.y));}}
@@ -247,7 +270,7 @@ function figure(f,rf,now){
   const kv=fresh||dt<=0?0:DT/dt;
   for(let i=0;i<12;i++){const q=D[i];q.px=q.x-(q.x-Dp[i].x)*kv;q.py=q.y-(q.y-Dp[i].y)*kv;if(Math.abs(q.x-q.px)>30){q.px=q.x;q.py=q.y;}}
   const drawn=s.had&&w<.999;
-  if(!drawn&&!MO.twos){s.show=false;return null;}
+  if(!drawn&&!MO.twos){s.show=false;s.tl.ok=false;s.trail.length=0;return null;}
   // what is handed to the painters
   const out=s.out;
   if(MO.twos){const n=Math.floor(now*12/1000),H=s.hold,fa=f.facing;
@@ -262,6 +285,7 @@ function figure(f,rf,now){
   for(let i=0;i<12;i++){const o=out[i],q=P[i];o.m=q.m;o.im=q.im;o.r=q.r;}
   // (the arm that is gone: the game keeps its two joints on his chest, and the painters count on finding them there)
   if(f.oneArm){const c=out[CHE];for(const i of [ELB,HAB]){const o=out[i];o.x=c.x;o.y=c.y;o.px=c.px;o.py=c.py;}}
+  blur(f,s,out,dt,fresh);
   s.show=true;return s;}
 // ---------- the two bodies as lines (MO.bones) ----------
 // The ragdoll the game has (red) and the pose he is drawn in (white), over the picture: what the test changes, seen bare.
@@ -276,6 +300,10 @@ function bones(sw){
   ctx.restore();}
 // the joints of one figure as the page last drew him and as the game has him (for the test's own checks)
 MO.joints=f=>{const s=ST.get(f);return{shown:!!(s&&s.show),w:s?s.w:1,out:s&&s.show?s.out.map(q=>[q.x,q.y]):null,sim:f.p.map(q=>[q.x,q.y])};};
+// ---------- turning round ----------
+// The game draws Ilyas turning round through the front view when it changes the way he faces, and changes everyone else over at
+// once. The cast's painter can be drawn turned as his can (it is, in a spin), so with the test on the cast turn round as he does.
+{const ta=turnsAround;turnsAround=function(f){return ta(f)||(MO.on&&MO.turns&&typeof FigKit!=='undefined'&&typeof castOn==='function'&&castOn(f)&&!f.beast);};}
 // ---------- the frame ----------
 // Each figure's joints are changed for the drawn ones while the game's own render runs, and put back after it. His scarf, which the
 // game hangs from the ragdoll's neck, is carried across to the neck he is drawn with and put back to the last digit.
@@ -287,12 +315,13 @@ render=function(){
     for(const f of S.F){const s=figure(f,MO.rf,t0);if(!s)continue;
       const P=f.p,o=s.out,sc=f.scarf,dx=o[CHE].x-P[CHE].x,dy=o[CHE].y-P[CHE].y;
       s.scN=0;if(sc&&sc.length&&sc.length<=16){const B=s.sc;let j=0;for(const q of sc){B[j++]=q.x;B[j++]=q.y;B[j++]=q.px;B[j++]=q.py;q.x+=dx;q.y+=dy;q.px+=dx;q.py+=dy;}s.scN=sc.length;}
+      s.tr0=S.trails[f.idx];if(s.tr0)S.trails[f.idx]=s.trail;
       sw.push(f,P,s);f.p=o;}
     MO.n=sw.length/3;MO.ms=performance.now()-t0;
     if(MO.dry)return;
     R0();
     if(MO.bones)bones(sw);}
   finally{
-    for(let i=0;i<sw.length;i+=3){const f=sw[i],s=sw[i+2];f.p=sw[i+1];
+    for(let i=0;i<sw.length;i+=3){const f=sw[i],s=sw[i+2];f.p=sw[i+1];if(s.tr0){S.trails[f.idx]=s.tr0;s.tr0=null;}
       if(s.scN){const sc=f.scarf,B=s.sc;let j=0;for(let k=0;k<s.scN&&k<sc.length;k++){const q=sc[k];q.x=B[j++];q.y=B[j++];q.px=B[j++];q.py=B[j++];}}}}};
 })();
