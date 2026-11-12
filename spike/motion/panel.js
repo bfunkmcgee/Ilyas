@@ -3,6 +3,9 @@
 (function(){
 'use strict';
 const MO=window.MotionTest;
+// The test keeps no night: its scenes are started the way a chapter is picked, and a page that kept the place would leave the title's
+// Continue pointing into a test (sk_saveui.js). Nothing is written.
+if(typeof saveWrite==='function')saveWrite=function(){return false;};
 // ---------- the walk ----------
 // Ilyas in the Sump's yard, in front of the pump, going through what the test is about: a walk across and back, a jog across and
 // back, squaring up and standing easy again, round and round, while Tamm crosses the yard behind him the other way. Nothing here is

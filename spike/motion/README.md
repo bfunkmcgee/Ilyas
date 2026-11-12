@@ -22,6 +22,10 @@ is drawn, the two bodies as lines, the scene). `?scene=none` opens the page on t
 | Yard | the yard as the game plays it (scene 4), to walk about in |
 | Fight | a fight in the lab that plays itself |
 
+The page is published as a private artifact of its own (slug `f83e8c2e-151d-4761-8e06-24956d3f680a`): `publish_files`, mode
+`patch`, `out/index.html` as `index.html`. The sounds its scenes use are published beside it under `sfx/`, from the repository's
+own; the song and the voices are not.
+
 ## What it changes
 
 The game poses a figure in two steps. Each step of its clock it reads the pose he is meant to be in (the keys of his action, or
