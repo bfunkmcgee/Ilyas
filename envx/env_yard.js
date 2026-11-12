@@ -158,7 +158,7 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
     for(const [a,b,off] of segs){const y=ry+off;
       c.fillStyle=col('#141110',y+bh/2,1.2);c.fillRect(a,y,b-a,bh+2.6*ur);
       for(let x=a+r()*6;x<b;){const k=r(),w=(5+r()*14)*ur,cy=y+bh*(.35+r()*.4),cc=col(JUNKC[(r()*JUNKC.length)|0],cy,1.1);
-        if(k<.22){c.strokeStyle=col('#141214',cy,1.2);c.lineWidth=2.67*ur;c.beginPath();c.arc(x+2.6*ur,cy,2.2*ur,0,TAU);c.stroke();x+=6*ur;}
+        if(k<.22){c.strokeStyle=col('#141214',cy,1.2);c.lineWidth=Math.max(1.5,2.67*ur);c.beginPath();c.arc(x+2.6*ur,cy,2.2*ur,0,TAU);c.stroke();x+=6*ur;}
         else if(k<.4){c.fillStyle=cc;c.beginPath();c.arc(x+3*ur,cy,2.8*ur,0,TAU);c.fill();c.fillStyle=rgba('#000000',.4);c.beginPath();c.arc(x+3*ur,cy,1.4*ur,0,TAU);c.fill();x+=6.5*ur;}
         else if(k<.62){c.fillStyle=cc;c.fillRect(x,cy-2.2*ur,w*1.6,4.4*ur);c.fillStyle=rgba('#000000',.45);c.fillRect(x+w*.4,cy-1.4*ur,w*.5,1.2*ur);x+=w*1.6;}
         else{c.fillStyle=cc;c.fillRect(x,cy-1.6*ur,w,3.2*ur);x+=w;}
@@ -198,7 +198,7 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
       // the roof: a sheet of tin across it, its edge lit from above
       const tip=(r()-.5)*5*ur,tc=col(TINC[(r()*TINC.length)|0],top);c.fillStyle=tc;c.beginPath();c.moveTo(x-2*ur,top-Math.max(0,tip));c.lineTo(x+w+2*ur,top-Math.max(0,-tip));c.lineTo(x+w+2*ur,top+2.4*ur-Math.max(0,-tip));c.lineTo(x-2*ur,top+2.4*ur-Math.max(0,tip));c.closePath();c.fill();
       c.fillStyle=jm(tc,P.light,P.lightA*(sunny?2.1:1.6));c.fillRect(x-2*ur,top-Math.max(0,tip)-.2,w+4*ur,(sunny?1.5:.7)*ur);
-      if(r()<.3){c.strokeStyle=col('#0e0d0f',top,1.2);c.lineWidth=2.76*ur;const tn=1+((r()*3)|0);for(let q=0;q<tn;q++){c.beginPath();c.ellipse(x+w*(.2+.6*(q+.5)/tn),top-1.4*ur,3*ur,1.3*ur,0,0,TAU);c.stroke();}}
+      if(r()<.3){c.strokeStyle=col('#0e0d0f',top,1.2);c.lineWidth=Math.max(1.5,2.76*ur);const tn=1+((r()*3)|0);for(let q=0;q<tn;q++){c.beginPath();c.ellipse(x+w*(.2+.6*(q+.5)/tn),top-1.4*ur,3*ur,1.3*ur,0,0,TAU);c.stroke();}}
       if(r()<.2){c.fillStyle=col(TARPC[(r()*TARPC.length)|0],top);const a0=r()*.5,a1=a0+.3+r()*.25;c.beginPath();c.moveTo(x+w*a0,top-1);c.lineTo(x+w*a1,top-1);c.lineTo(x+w*a1+2*ur,top+h*.35);c.lineTo(x+w*a0-1*ur,top+h*.3);c.closePath();c.fill();}
       // windows, lit or dark; a door to the walkway
       const nw=w>44*ur?2:1;for(let q=0;q<nw;q++){const ww=(5+r()*4)*ur,wh=(4+r()*4)*ur,wx=x+5*ur+q*w*.48+r()*3*ur,wy=top+(5+r()*4)*ur,v=r();
@@ -212,7 +212,7 @@ function shackRows(c,o){const P=o.pal,u=o.u||1,rs=o.rs||54*u,x0=o.x0,x1=o.x1,yb=
       if(r()<.12){const cx=x+w*(.2+.6*r()),ch=(6+r()*6)*ur;c.fillStyle=col('#1c1818',top-ch);c.fillRect(cx-1.2*ur,top-ch,2.4*ur,ch);out.chims.push({x:cx,y:top-ch,hz:hzOf(top),s:ur});}
       if(r()<.16){const x2=x+w+(14+r()*26)*ur,sag=(4+r()*5)*ur,ly=top+3*ur;c.strokeStyle=col('#8a8070',ly);c.lineWidth=.9*ur;c.beginPath();c.moveTo(x+w,ly);c.quadraticCurveTo((x+w+x2)/2,ly+sag*2,x2,ly+1);c.stroke();
         for(let q=0;q<3;q++){const s2=.25+q*.25,cx=lerp(x+w,x2,s2),cy=ly+sag*2*(1-Math.pow(2*s2-1,2))*.5+1;c.fillStyle=col(CLOTH[(r()*CLOTH.length)|0],cy,.7);c.fillRect(cx-2*ur,cy,4*ur,(4+r()*3)*ur);}}
-      if(r()<.08){const lx=x+w*.5;c.strokeStyle=col('#241c1a',gy+rr*.5);c.lineWidth=2.4*ur;c.beginPath();c.moveTo(lx,gy);c.lineTo(lx,gy+rr-2);c.moveTo(lx+5*ur,gy);c.lineTo(lx+5*ur,gy+rr-2);for(let q=4*ur;q<rr;q+=6*ur){c.moveTo(lx,gy+q);c.lineTo(lx+5*ur,gy+q);}c.stroke();}
+      if(r()<.08){const lx=x+w*.5;c.strokeStyle=col('#241c1a',gy+rr*.5);c.lineWidth=Math.max(1.5,2.4*ur);c.beginPath();c.moveTo(lx,gy);c.lineTo(lx,gy+rr-2);c.moveTo(lx+5*ur,gy);c.lineTo(lx+5*ur,gy+rr-2);for(let q=4*ur;q<rr;q+=6*ur){c.moveTo(lx,gy+q);c.lineTo(lx+5*ur,gy+q);}c.stroke();}
       if(r()<.035)out.fires.push({x:x+w+3*ur,y:gy-3*ur,s:ur,hz:hzOf(gy)});
       const gap=r()<.18?(8+r()*30)*ur:(1+r()*3)*ur;x+=w+gap;}}
   // by day and by morning each walkway throws a cool slate shadow down over the row under it, and its edge and the roofs catch the sun
@@ -406,8 +406,13 @@ function sump(c,P){const Yd=Y(),far=Yd.far,b=(x,h)=>Q(x,h,far),x0=SUMP.x0,x1=SUM
   {const a=b(x0-8,SUMP.eave),e=b(x1+10,SUMP.eave),rp=Q(x1+10,SUMP.ridge,far+SUMP.rd),lp=Q(x0-8,SUMP.ridge,far+SUMP.rd);
     c.fillStyle=lin(c,0,lp.y,0,a.y,[[0,K.topLit(P,'#46403c',1.1)],[1,sh('#2a2624',1.1)]]);K.poly(c,[a,e,rp,lp]);c.fill();
     c.save();K.poly(c,[a,e,rp,lp]);c.clip();
-    for(let x=x0-8;x<x1+10;x+=5){const p0=b(x,SUMP.eave),p1=Q(x,SUMP.ridge,far+SUMP.rd);c.strokeStyle=rgba('#000000',.3);c.lineWidth=1.6;c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.stroke();
-      c.strokeStyle=rgba(P.light,.04+.2*P.lightA);c.lineWidth=.6;c.beginPath();c.moveTo(p0.x+1.6,p0.y);c.lineTo(p1.x+1.6,p1.y);c.stroke();}
+    // (sheet by sheet since V117: each sheet's own pitch and its own start, a dark lap where it lies over the next, so that the
+    // roof seen close is sheets of tin and not one ruled field)
+    {const rs=rng(53);for(let sx=x0-8;sx<x1+10;){const sw=30+rs()*34,pitch=4.4+rs()*1.5,a=.24+rs()*.1,e=Math.min(sx+sw,x1+10);
+        for(let x=sx+rs()*pitch;x<e;x+=pitch){const p0=b(x,SUMP.eave),p1=Q(x,SUMP.ridge,far+SUMP.rd);c.strokeStyle=rgba('#000000',a);c.lineWidth=1.6;c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.stroke();
+          c.strokeStyle=rgba(P.light,.04+.2*P.lightA);c.lineWidth=.6;c.beginPath();c.moveTo(p0.x+1.6,p0.y);c.lineTo(p1.x+1.6,p1.y);c.stroke();}
+        if(e<x1+10){const p0=b(e,SUMP.eave),p1=Q(e,SUMP.ridge,far+SUMP.rd);c.strokeStyle=rgba('#000000',.3);c.lineWidth=2.4;c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(p1.x,p1.y);c.stroke();}
+        sx=e;}}
     // sheets of different ages: rusted, patched, one newer
     const r=rng(5);for(let i=0;i<9;i++){const sx=x0+r()*(x1-x0-60),sw=30+r()*60,hk=r()*.5,q0=b(sx,SUMP.eave),q1=b(sx+sw,SUMP.eave),q2=Q(sx+sw,lerp(SUMP.eave,SUMP.ridge,.5+hk),far+SUMP.rd*(.5+hk)),q3=Q(sx,lerp(SUMP.eave,SUMP.ridge,.5+hk),far+SUMP.rd*(.5+hk));
       c.fillStyle=rgba(r()<.6?'#7a3a1a':r()<.5?'#2a2624':'#8a8478',.16+.16*r());K.poly(c,[q0,q1,q2,q3]);c.fill();}
@@ -604,6 +609,15 @@ function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.
   for(let i=0;i<900;i++){const x=X0+r()*(X1-X0),d=-60+r()*(far+90),v=r();c.fillStyle=v<.5?rgba('#000000',.1+.14*r()):rgba(P.light,.03+.07*r()*(.4+P.lightA));c.fillRect(x,d,.8+r()*2.4,.6+r()*1.4);}
   // (more of it, finer, over the whole floor, since V82: the packed dirt read as one flat fill near us)
   {const rf=rng(103);for(let i=0;i<1800;i++){const x=X0+rf()*(X1-X0),d=E.NEAR+rf()*(far+40-E.NEAR),v=rf();c.fillStyle=v<.5?rgba('#000000',.08+.1*rf()):rgba(P.light,.025+.05*rf()*(.4+P.lightA));c.fillRect(x,d,.7+rf()*1.6,.5+rf()*.9);}}
+  // (and since V117, for the shots that come in close: the packed dirt's own unevenness, in the floor's plane, between the grit and
+  // the big mottle: the ground before the door read as one flat fill at a third of the old distance)
+  K.mottle(c,X0,E.NEAR-10,X1,far+50,night?.24:.42,{sc:.8,sy:.8});
+  // (what feet and buckets have left in it: scuffs, a hand long, dark where they cut and light where they piled; small stones)
+  {const rq=rng(107);c.lineCap='round';for(let i=0;i<620;i++){const x=X0+140+rq()*(X1-X0-280),d=E.NEAR+rq()*(far+20-E.NEAR),a=(rq()-.5)*.9,l=3+rq()*6,dk=rq()<.6;
+      c.strokeStyle=dk?rgba('#000000',.09+.09*rq()):rgba(P.light,.04+.07*rq()*(.4+P.lightA));c.lineWidth=1.6+rq()*1.4;c.beginPath();c.moveTo(x,d);c.quadraticCurveTo(x+Math.cos(a)*l*.5,d+Math.sin(a)*l*.5+1.2,x+Math.cos(a)*l,d+Math.sin(a)*l);c.stroke();}
+    c.lineCap='butt';
+    for(let i=0;i<260;i++){const x=X0+140+rq()*(X1-X0-280),d=E.NEAR+rq()*(far+20-E.NEAR),rr=1+rq()*1.5;c.fillStyle=K.shade(P,['#5a5246','#4a4238','#6a6052'][(rq()*3)|0],1.05);c.beginPath();c.ellipse(x,d,rr,rr*.9,0,0,TAU);c.fill();
+      c.fillStyle=rgba('#000000',.16);c.beginPath();c.ellipse(x+.6,d-rr*.8,rr,rr*.5,0,0,TAU);c.fill();}}
   // (the grit runs on toward us in front of the fight, a little coarser for being near; its own dice)
   {const rn=rng(102);for(let i=0;i<2400;i++){const x=X0+rn()*(X1-X0),d=E.NEAR+rn()*(-60-E.NEAR),v=rn();c.fillStyle=v<.55?rgba('#000000',.12+.16*rn()):rgba(P.light,.03+.06*rn()*(.4+P.lightA));c.fillRect(x,d,1+rn()*3,.8+rn()*1.8);}}
   // the path, packed harder, and the ruts in from the gate
@@ -619,6 +633,8 @@ function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.
   {const S2=K.sun();if(S2){const sx=S2.x<500?1:-1,rs2=rng(117);for(let q=0;q<7;q++){const d0=-50+rs2()*(far+30),x0=sx>0?X0+rs2()*520:X1-rs2()*520,len=240+rs2()*380,w=10+rs2()*26,x1=x0+sx*len;
       const g=c.createLinearGradient(x0,0,x1,0);g.addColorStop(0,rgba('#121824',.2+.08*rs2()));g.addColorStop(.7,rgba('#121824',.08));g.addColorStop(1,rgba('#121824',0));c.fillStyle=g;
       c.beginPath();c.moveTo(x0,d0);c.lineTo(x1,d0-len*.1);c.lineTo(x1,d0-len*.1-w*1.8);c.lineTo(x0,d0-w);c.closePath();c.fill();}}}
+  // grain thrown down for the birds, where they peck by the crates (since V117; the straw's colour)
+  {const rg=rng(109);c.fillStyle=rgba('#c8a050',night?.25:.5);for(let i=0;i<80;i++){const a2=rg()*TAU,rr=Math.sqrt(rg())*34;c.fillRect(642+Math.cos(a2)*rr*1.3,138+Math.sin(a2)*rr*.6,2,2);}}
   // puddles, the biggest away from the middle of the yard
   for(const [px,pd,pr,sd] of [[612,40,26,3],[548,96,18,5],[420,58,14,7],[150,112,16,9],[300,20,30,11],[82,62,22,13],[772,150,12,15],[740,72,10,17]])K.puddle(c,P,px,pd,pr,sd,1);
   // straw blown off the roof, feathers, stones
@@ -900,7 +916,7 @@ function live(){const t=S.t,P=K.pal(),T=P.key,Yd=Y();ctx.save();
   {const Pm=Yd.pump,per=1.7,u=(t%per)/per,sp=Q(Pm.x,14+48-17,Pm.d),x=sp.x+18,y0=sp.y,y1=Q(Yd.trough.x0+6,18,Yd.trough.d).y;
     if(u<.3){ctx.fillStyle=rgba('#cfe0e8',.55);const k=u/.3;ctx.beginPath();ctx.ellipse(x,y0+1+k*1.5,1,1+k*.8,0,0,TAU);ctx.fill();}
     else if(u<.42){const k=(u-.3)/.12;ctx.fillStyle=rgba('#cfe0e8',.6);ctx.fillRect(x-.5,lerp(y0+3,y1,k*k),1,2.4);}
-    else if(u<.9){const k=(u-.42)/.48;ctx.strokeStyle=rgba('#d8e8f0',.4*(1-k));ctx.lineWidth=.6;ctx.beginPath();ctx.ellipse(x,y1,1.5+k*7,(1.5+k*7)*.3,0,0,TAU);ctx.stroke();}}
+    else if(u<.9){const k=(u-.42)/.48;ctx.strokeStyle=rgba('#d8e8f0',.4*(1-k));ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x,y1,1.5+k*7,(1.5+k*7)*.3,0,0,TAU);ctx.stroke();}}
   // the back door as Tamm goes in; the wet under the spout; Dob's birds: each one's next move, and those that keep to the roof
   doorLive(ctx,P);pumpWet(ctx,P);flockStep(t);for(const b of FLOCK)if(!b.trough&&!b.ground)birdDraw(ctx,b,t,P);
   if(P.mist>0){const sp=K.puffSpr('#c4d2e2');for(const m of MIST){const x=((m.ph+t*m.sp)%1500)-300,q=Q(x,0,m.d);ctx.globalAlpha=m.a*P.mist;ctx.drawImage(sp,q.x-m.w/2,q.y-m.w*.1,m.w,m.w*.2);}ctx.globalAlpha=1;}

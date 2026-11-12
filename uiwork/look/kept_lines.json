@@ -2158,5 +2158,29 @@
 "src": "trokeStyle=rimCol;c.globalAlpha=al*(lod?.48:.34);c.lineWidth=w*1.1;c.stroke(P);c.translate(-L.x*w*1.2,-L.y*w*1.2);",
 "med": 0.369,
 "why": "the figure tier: his own drawing's fine lines (the rim along his lit edge: faint at the game's size, under .2, and a little stronger close up), held to the fighters' drawing budgets (V84); first in the review's frames in V116, where the memories paint him large"
+},
+{
+"file": "sk_castui.js",
+"src": "d>=1&&!far){c.strokeStyle=C.tuskShade||'#8a8068';c.lineWidth=1.2;c.beginPath();c.moveTo(bx+w*.5,by);c.quadraticCurveTo(bx+w*.6,(by+",
+"med": 0.31,
+"why": "the figure tier: a face's own fine lines (the shade along a tusk, drawn only close up), held to the fighters' drawing budgets (V84); first in the review's frames in V117, the yard's shot at the back door, where Tamm stands large"
+},
+{
+"file": "sk_lookui.js",
+"src": "=look.col.hairShade||'#b3a37c';c.globalAlpha=.85;c.lineWidth=2.9;c.lineCap='round';c.beginPath();c.moveTo(q.x-7*f*out,q.y-8.5);c.qu",
+"med": 0.621,
+"why": "the figure tier: his own drawing's fine lines (his pale brow when he faces us, drawn only close up: 1.7 pixels on a phone), held to the fighters' drawing budgets (V84); first in the review's frames in V117, the yard's close shots"
+},
+{
+"file": "sk_lookui.js",
+"src": "c.strokeStyle='#020104';c.lineWidth=2.4;c.beginPath();c.moveTo(q.x-7*f,q.y+.3);c.quadraticCurveTo(q.x,q.y-",
+"med": 0.522,
+"why": "the figure tier: his own drawing's fine lines (the lid over his eye when he faces us, drawn only close up), held to the fighters' drawing budgets (V84); first in the review's frames in V117, the yard's close shots"
+},
+{
+"file": "sk_lookui.js",
+"src": ".strokeStyle=noir?'#020104':'rgba(70,45,55,.85)';c.lineWidth=2;c.beginPath();c.moveTo(HV.mouth[0].x,HV.mouth[0].y);c.quadraticCurve",
+"med": 0.42,
+"why": "the figure tier: his own drawing's fine lines (his mouth when he faces us, drawn only close up), held to the fighters' drawing budgets (V84); first in the review's frames in V117, the yard's close shots"
 }
 ]

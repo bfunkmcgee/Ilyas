@@ -13,7 +13,7 @@ const SHOTS=[
   {id:'officeback',stage:'officeback',at:['x1','t8']},
   {id:'roof',stage:'roof',at:['t4','t10','t16','t22','t32.9','t33.9']},{id:'fall',stage:'fall',at:['t4','t9','t11.5','t24','t37','t46.5'],draw:'all'},
   {id:'roof1',stage:'roof1',at:['t3','t9']},{id:'kitchen1',stage:'kitchen1',at:['t3','t8']},{id:'backroom',stage:'backroom',at:['t4','t12']},
-  {id:'lostprop',stage:'lostprop',at:['t4','t12']},{id:'yard1',stage:'yard1',at:['t5','t15']},{id:'list',stage:'list',at:['t5','t15']},
+  {id:'lostprop',stage:'lostprop',at:['t4','t12']},{id:'yard1',stage:'yard1',at:['t7.5','t12','o4','o10']},{id:'list',stage:'list',at:['t5','t15']},
   {id:'stairsup',stage:'stairsup',at:['t5','t15']},{id:'shelfstair',stage:'shelfstair',at:['t5','t12']},{id:'shelf',stage:'shelf',at:['t5','t15']},
   {id:'stairsdown',stage:'stairsdown',at:['t5','t12']},{id:'toll',stage:'toll',at:['t3','f4']},{id:'tamm',stage:'tamm',at:['t3','f4']},
   {id:'night',stage:'night',at:['t5','t15']},{id:'sh1',stage:'sh1',at:['t3','f4']},

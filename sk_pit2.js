@@ -159,7 +159,7 @@ function yardUpH(x,d){const St=ACT1_PLACES.yard.sidestair;return d>=YARD_ROOF.d0
 // comes. The camera goes up with him (S.act1.yardFollow), then holds the roof.
 const YARD_UP={d:213,v:21,land:{x:24,d:219},roof:[{x:30,d:240},{x:46,d:258}],bucket:{x:63,d:260}};
 function* yardClimb(){const A=act1State(),K=hero(),Y=ACT1_PLACES.yard,G=Y.stairGate,St=Y.sidestair,U=YARD_UP;
-  letter(1);A.stairGate=1;camTo(prjX(K.station,K.dep),540,2.4);A.yardFollow={w:540,ws:700,wn:330,up:170,down:54,dx:-34};
+  letter(1);A.stairGate=1;camTo(prjX(K.station,K.dep),540,typeof reduceMotion!=='undefined'&&reduceMotion?0:2.4);A.yardFollow={w:540,ws:700,wn:330,up:170,down:54,dx:-34};
   yield* goTo(K,G.x+3,G.d-8,56,{direct:true});
   // (the stairs and the roof lie deeper than the yard's floor and past its left edge: his own depth limit goes with him, K.zMax,
   // and the stage's edge lets him by, K.offstage)
@@ -175,7 +175,7 @@ function* yardClimb(){const A=act1State(),K=hero(),Y=ACT1_PLACES.yard,G=Y.stairG
   if(S.ex)S.ex.hand=null;A.bucket.where='roof';A.bucket.x=U.bucket.x;A.bucket.d=U.bucket.d;A.bucket.h=yardRoofH(U.bucket.d);
   yield* wait(.6);K.action=null;yield* wait(1.3);
   yield* fadeTo(1,1.4);
-  K.yardUp=false;K.zMax=null;K.offstage=false;A.yardFollow=null;}
+  K.yardUp=false;K.zMax=null;K.offstage=false;A.yardFollow=null;A.birdsUp=0;}
 // (Dob perches on the crate by the wall: no one stands deeper than DEP_MAX, so the wall itself is out of reach. The crate's top is
 // ground at its own depth, behind where he walks: the yard's floor ends short of it)
 ACT1_PLACES.yard.dobSeat={x:690,d:170,crate:true};ACT1_PLACES.yard.floor.z1=164;
