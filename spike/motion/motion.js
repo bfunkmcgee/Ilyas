@@ -177,7 +177,7 @@ function kin(f,s,dt){
   if(kp&&ft[0]){ft[0]={x:lerp(ft[0].x,kp.x,bp.kw),y:lerp(ft[0].y,kp.y,bp.kw),air:true};}
   K[FTF].x=ft[0].x;K[FTF].y=ft[0].y;K[FTB].x=ft[1].x;K[FTB].y=ft[1].y;
   legs(f,K);
-  return{inAct,fight,G,want,vault,sig:{act:inAct?A:null,G:!!G,vault,wk:f.weaponKey,gb:f.guardBody,ga:f.guardArm}};}
+  return{inAct,fight,G,want,vault,sig:{act:inAct?A:null,G:!!G,vault,up:fight?MO.blows:'',wk:f.weaponKey,gb:f.guardBody,ga:f.guardArm}};}
 // his legs under a pose: a foot his hips have left out of reach comes up off the floor toward them, the knees are found from hip and foot
 function legs(f,J){const b=f.body,fa=f.facing,L=f.leg*.995;
   for(let k=0;k<2;k++){const ft=J[k?FTB:FTF],kn=J[k?KNB:KNF],hx=J[PEL].x+fa*(k?-2:2),hy=J[PEL].y,dx=ft.x-hx,dy=ft.y-hy,d=Math.hypot(dx,dy);
@@ -199,7 +199,7 @@ function ease(f,s,info,dt,fresh){
   const reset=fresh||!s.had||fa!==s.fa||Math.abs(kx-s.rootX)>40;
   let ev=false;
   if(!reset){
-    if(sig.act!==p.act||sig.G!==p.G||sig.vault!==p.vault||sig.wk!==p.wk||sig.gb!==p.gb||sig.ga!==p.ga)ev=true;
+    if(sig.act!==p.act||sig.G!==p.G||sig.vault!==p.vault||sig.up!==p.up||sig.wk!==p.wk||sig.gb!==p.gb||sig.ga!==p.ga)ev=true;
     else if(!sig.act){const lim=3+MO.jump*dt;for(const i of UP){if(Math.hypot((K[i].x-kx)*fa-Kl[i].x,K[i].y-ky-Kl[i].y)>lim){ev=true;break;}}}}
   for(const i of UP){Kl[i].x=(K[i].x-kx)*fa;Kl[i].y=K[i].y-ky;}
   const w0=3.89/MO.blend,u0=S.t-s.ev,live=u0<7/w0*Math.max(1,MO.armLag);
