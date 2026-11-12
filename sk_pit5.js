@@ -123,7 +123,8 @@ STAGES.push({key:'list',act:1,num:'5',title:'Tamm’s List',sub:'The stair-stree
     A.errand=errandNew();A.gate=0;A.stairGate=0;A.map=null;A.shop=null;A.satchel=false;
     const T=act1Npc('Tamm',{x:Y.step.x+10,dep:150,facing:1});A.tamm=T;},
   *intro(st){const K=hero(),A=act1State(),T=A.tamm,Y=ACT1_PLACES.yard;
-    letter(1);camTo(Y.step.x+160,700,0);
+    // (the yard's own shot of the two of them before the back door, and its own frame for the walk about: scene 4's, since V117)
+    letter(1);yardShot('door',0);
     yield* fadeTo(0,1.2);yield* wait(.6);
     // the satchel, the list, the purse and the chits, from her apron to his hand
     T.action=holdAction(T,1.6,{fn:()=>{const h=K.p[HAF];return{x:h.x,y:h.y-4};}});yield* wait(1);A.satchel=true;S.hooks.sound('purse',1);yield* wait(.7);T.action=null;
@@ -133,7 +134,7 @@ STAGES.push({key:'list',act:1,num:'5',title:'Tamm’s List',sub:'The stair-stree
     letter(0);const M=act1MapOpen({tutor:true});yield* until(()=>!M.open,1e6);
     T.facing=1;},
   explore(st){const Y=ACT1_PLACES.yard,A=act1State();
-    return{area:'yard',bounds:{x0:Y.floor.x0,x1:Y.floor.x1,z0:Y.floor.z0,z1:Y.floor.z1},view:760,map:true,
+    return{area:'yard',bounds:{x0:Y.floor.x0,x1:Y.floor.x1,z0:Y.floor.z0,z1:Y.floor.z1},view:760,viewN:YARD_VIEWN,cam:yardExCam,blocks:YARD_BLOCKS,map:true,
       goal:{text:'Out the gate to the stair-streets',done:()=>A.gate>=1&&A.outGate},
       spots:[{id:'gate',label:'The gate',verb:'Open',x:Y.out.x,z:Y.out.z,at:{x:Y.gate.x,y:GB-40,d:Y.gate.d},needs:'free',key:true,
         *run(){const K=hero();K.facing=1;K.action=stoopAction(K,.7,{crouch:.95,lean:.2});const t0=S.t;yield* until(()=>{A.gate=sstep(clamp((S.t-t0)/.8,0,1));return A.gate>=1;},2);

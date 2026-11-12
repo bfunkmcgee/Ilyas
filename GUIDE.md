@@ -998,6 +998,18 @@ fall's setup and intro (`FallCut.state.on` false runs them as they were to V115)
   V103: its text changed with the finer figures). The fall's dearest frame, the review's yardstick for every other place (rule
   6), read 44.8 ms against 35 in the reviews before: its close shots show more of the tower's face. Sixteen frames kept for
   their cost no longer need the keep while it reads so; they stay in kept.json.
+- V117's look review (Nov 12). The yard has four moments now (places.js: `t7.5` the back door, `t12` Dob, `o4` the stairs,
+  `o10` the roof), and its camera comes to a third of the old distance. The places' own run failed seventeen at first. Two were
+  the picture's: the ground before the door flat over a tenth of the frame, and the roof's tin repeating across the top of it,
+  both put right in the painting (the yard, above). Eleven were thin lines in the yard's pieces that are not thin: the review set
+  the last camera's pixels a unit against the least and the most a sprite was ever scaled by, which under-reads every piece
+  where the camera's width changes between a place's moments (1.57 units read .88). lines.js reads a sprite's own scale each
+  time it is set down now. Over the whole review that let nineteen lines that had read thin meet the rule (fourteen of them
+  kept: 72 keeps are not needed while it reads so, against 60 before; they stay in kept_lines.json) and brought three under
+  it: two kept already, and the gold guard of the hilt on his belt (.96 for 1.14), kept now. Three were true and small: tyres
+  and ladders in the Pit's far rows at 1.3 and 1.4 units, floored at 1.5 (`shackRows`), and the ring of the pump's drip (.6,
+  now 1). Four are lines of the faces' own drawing, under the rule only now that the camera comes close (his brow, his lid and
+  his mouth when he faces us, Tamm's tusk), kept in kept_lines.json with what each is.
 
 **The desert in his head (since V72).** As he goes down the face thinking of the wire, the night out past the corner turns by
 degrees to the noon he rode it in, and the tower's windows fill with sand and pour it. `fallDream()` (sk_story.js) is how deep it is,
@@ -1208,6 +1220,9 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   - The picture. The roof's tin is painted sheet by sheet (each its own pitch and start, a dark lap between); the floor has a finer
     mottle in its own plane, scuffs and stones (both from the look review, below: at a third of the old distance the tin read as
     one ruled field and the ground before the door as one flat fill).
+  - Scene 5 opens in the same yard and takes the same frame: the back door's shot for Tamm's list, and the walk about's view,
+    camera and blocks (sk_pit5.js). Scene 8, the yard at night, keeps its own wide view: its plates lie where he spills them
+    and its buttons stand on the right, neither tried against the closer frame.
   - Tools: `node uiwork/act1/yardshots.js <outdir> [w h]` plays the scene by hand and keeps a still of each of its moments (RM=1:
     reduced motion); `node uiwork/act1/yardclimb.js <outdir> [w h every]` keeps one every so many steps of the climb (GATE=1: the
     gate's opening instead).
