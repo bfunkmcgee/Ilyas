@@ -188,8 +188,8 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
   expect('he dresses in it and Tamm pins the empty sleeve up: the work shirt, the oilcloth coat, the rust scarf, the boots, the belt',/"top":"shirt","coat":"oilcloth","scarf":"rust","hands":null,"feet":"boots","belt":"belt".*"pinned":true/.test(run.st.pinned.wear),JSON.stringify(run.st.pinned));
   expect('scene 4 dresses him from the crate\'s choice, lurching at first; Dob sits up on the crate by the yard wall',/"coat":"oilcloth"/.test(run.st.yard0.wear)&&run.st.yard0.lurch===1&&run.st.yard0.dob&&run.st.yard0.dobY===ACT1_DOBTOP,JSON.stringify(run.st.yard0));
   const Y=run.yard;
-  expect('the yard on auto: the bucket in his hand, filled at the pump, the ladder refused (Needs two hands), the gate refused with his hand full, the bucket set down, the gate opened, the bucket taken up, the stairs',
-    Y.hands==='bucket - water - water'&&Y.notes.includes('Needs two hands')&&Y.notes.some(t=>/^Your hand is full/.test(t))&&Y.gate===1&&/bucket/.test(Y.used)&&/pump/.test(Y.used)&&/stairgate/.test(Y.used)&&/stairs/.test(Y.used),JSON.stringify(Y));
+  expect('the yard on auto: the bucket in his hand, filled at the pump, the ladder refused (Needs two hands), the gate refused with his hand full, the bucket set down, the gate opened, the bucket taken up, the stairs, and the water set down by the lofts (since V117)',
+    Y.hands==='bucket - water - water -'&&Y.notes.includes('Needs two hands')&&Y.notes.some(t=>/^Your hand is full/.test(t))&&Y.gate===1&&/bucket/.test(Y.used)&&/pump/.test(Y.used)&&/stairgate/.test(Y.used)&&/stairs/.test(Y.used),JSON.stringify(Y));
   expect('Dob\'s line about his walk stops him where he is: no stepping in place under it (at most two steps to square his feet), and he turns to Dob to answer',
     !!Y.drunk&&Y.drunk.frames>200&&Y.drunk.walk===0&&Y.drunk.steps<=2&&Y.drunk.moved<3&&Y.drunk.face===true,JSON.stringify(Y.drunk));
   const last4=await ev(()=>STAGES[stageIx('yard1')].next);

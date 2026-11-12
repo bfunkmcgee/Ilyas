@@ -108,11 +108,15 @@ V11UI.tick.push(()=>{const g=A1G.el;if(!g)return;const G=S.act1&&act1On()&&S.act
 // where the bucket is: in his hand, set down somewhere on the floor, under the spout, or where it started; full or not
 function a1Bucket(){const A=S.act1,B=A.bucket,E=S.ex,K=hero(),Y=ACT1_PLACES.yard;
   const held=E&&E.hand&&(E.hand.id==='bucket'||E.hand.id==='water');
+  // (stooping for it: it lies where it lay until his hand is down to it)
+  if(held&&E.lift&&S.t<E.lift.until)return{x:E.lift.x,y:S.arena.ground(E.lift.x,E.lift.z),d:E.lift.z,full:E.hand.id==='water',fill:E.hand.id==='water'?1:0};
   if(held){const h=K.p[HAF];return{hand:true,x:h.x,y:h.y,d:K.dep,full:E.hand.id==='water',fill:E.hand.id==='water'?1:0};}
   const fl=E&&E.spots.find(s=>s.floor&&!s.gone&&s.take&&(s.take.id==='bucket'||s.take.id==='water'));
   if(fl)return{x:fl.x,y:S.arena.ground(fl.x,fl.z),d:fl.z,full:fl.take.id==='water',fill:fl.take.id==='water'?1:0};
   if(B.where==='spout')return{x:Y.pump.x+12,y:GB,d:Y.pump.d-8,spout:true,fill:B.fill||0};
   if(B.where==='floor')return{x:B.x,y:GB,d:B.d,fill:0};
+  // (set down on the roof by the birds' boxes, full: where the scene's close leaves it)
+  if(B.where==='roof')return{x:B.x,y:GB-(B.h||0),d:B.d,full:true,fill:1};
   return null;}
 // the crate Tamm carries in: rough boards, and the cloth of thirty years spilling over its edge. (x, y): the middle of its bottom edge
 // on the canvas

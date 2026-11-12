@@ -48,7 +48,8 @@ for fn in sorted(glob.glob(os.path.join(IND,'*.json'))):
     for e in E:
       s,d=e['s'],e['d']
       if s in roots:continue
-      if e.get('pd'):lo,hi=e['pd']/e['kmx'],e['pd']/e['kmn']
+      if e.get('rlo'):lo,hi=e['rlo'],e['rhi']
+      elif e.get('pd'):lo,hi=e['pd']/e['kmx'],e['pd']/e['kmn']
       elif d in ppu:lo,hi=ppu[d][0]/e['kmx'],ppu[d][1]/e['kmn']
       else:continue
       nl,nh=(min(lo,ppu[s][0]),max(hi,ppu[s][1])) if s in ppu else (lo,hi)

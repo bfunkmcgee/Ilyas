@@ -34,7 +34,11 @@ function instrument(){if(window.__LW)return;const R=window.__LW={sites:{},edges:
     const di=P.drawImage;P.drawImage=function(img){if(isSrc(img)&&img.width>0){const a=arguments,m=scl(this.getTransform());let sw,dw;
         if(a.length<=3){sw=img.width;dw=img.width;}else if(a.length<=5){sw=img.width;dw=a[3];}else{sw=a[3];dw=a[7];}
         const k=Math.abs(dw)*m/Math.max(1e-6,Math.abs(sw)),sid=idOf(img),did=idOf(this.canvas),ek=sid+'>'+did,pd=isMain(this.canvas)?mainPPU():null;
-        let e=R.edges[ek];if(!e)e=R.edges[ek]={s:sid,d:did,kmn:1e9,kmx:0,pd:pd,n:0};e.n++;if(k<e.kmn)e.kmn=k;if(k>e.kmx)e.kmx=k;if(pd)e.pd=pd;}
+        let e=R.edges[ek];if(!e)e=R.edges[ek]={s:sid,d:did,kmn:1e9,kmx:0,pd:pd,n:0};e.n++;if(k<e.kmn)e.kmn=k;if(k>e.kmx)e.kmx=k;if(pd)e.pd=pd;
+        // (set down on the game's canvas: its own pixels a unit, read each time it is set down (rlo, rhi), since V117. The last
+        // camera's pixels a unit over the least and the most it was ever scaled by made a sprite's lines read thinner than they are
+        // wherever the camera's width changed between a place's moments: the yard's shots)
+        if(pd&&k>0){const r=pd/k;if(!(e.rlo<=r))e.rlo=r;if(!(e.rhi>=r))e.rhi=r;}}
       return di.apply(this,arguments);};}
   // a bitmap taken off an offscreen canvas carries what was drawn on it; the canvas starts again as a new one
   if(typeof OffscreenCanvas!=='undefined'&&OffscreenCanvas.prototype.transferToImageBitmap){const tb=OffscreenCanvas.prototype.transferToImageBitmap;

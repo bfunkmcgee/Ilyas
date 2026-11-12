@@ -998,6 +998,18 @@ fall's setup and intro (`FallCut.state.on` false runs them as they were to V115)
   V103: its text changed with the finer figures). The fall's dearest frame, the review's yardstick for every other place (rule
   6), read 44.8 ms against 35 in the reviews before: its close shots show more of the tower's face. Sixteen frames kept for
   their cost no longer need the keep while it reads so; they stay in kept.json.
+- V117's look review (Nov 12). The yard has four moments now (places.js: `t7.5` the back door, `t12` Dob, `o4` the stairs,
+  `o10` the roof), and its camera comes to a third of the old distance. The places' own run failed seventeen at first. Two were
+  the picture's: the ground before the door flat over a tenth of the frame, and the roof's tin repeating across the top of it,
+  both put right in the painting (the yard, above). Eleven were thin lines in the yard's pieces that are not thin: the review set
+  the last camera's pixels a unit against the least and the most a sprite was ever scaled by, which under-reads every piece
+  where the camera's width changes between a place's moments (1.57 units read .88). lines.js reads a sprite's own scale each
+  time it is set down now. Over the whole review that let nineteen lines that had read thin meet the rule (fourteen of them
+  kept: 72 keeps are not needed while it reads so, against 60 before; they stay in kept_lines.json) and brought three under
+  it: two kept already, and the gold guard of the hilt on his belt (.96 for 1.14), kept now. Three were true and small: tyres
+  and ladders in the Pit's far rows at 1.3 and 1.4 units, floored at 1.5 (`shackRows`), and the ring of the pump's drip (.6,
+  now 1). Four are lines of the faces' own drawing, under the rule only now that the camera comes close (his brow, his lid and
+  his mouth when he faces us, Tamm's tusk), kept in kept_lines.json with what each is.
 
 **The desert in his head (since V72).** As he goes down the face thinking of the wire, the night out past the corner turns by
 degrees to the noon he rode it in, and the tower's windows fill with sand and pour it. `fallDream()` (sk_story.js) is how deep it is,
@@ -1166,8 +1178,58 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   finger or for keys (`yardHint`: walking first, then take, fill, the ladder, the gate's free hand, the stairs; since V63). On a
   narrow screen (up to 700 px wide) the walking-about controls stack: the action and Jog on the bottom row, what his hand holds on the
   row over Jog (named Hand), the note over that (sk_css_explore.css); wider, they share one row.
+- The yard as it plays since V117 (asked for: the scene analysed, its look made better, what he does with the place made to make
+  sense, its camera too). To V116 one wide view followed him through it, Dob was off an upright phone's screen for his three
+  lines, Tamm stood on him at the door, his hand was not on the pump's handle, he reached for the ladder forty units in front of
+  it, "Go up" walked him left along the ground into a fade, and he walked through the trough and the barrels.
+  - The camera. `YARD_SHOTS` (sk_pit2.js) names the shots, each {x, w, wn, ws, band}: the whole yard as it opens, the back door
+    (Tamm and him), the pump, the loft up the ladder, the ladder's foot, Dob on his crate, him where he stands, the roof.
+    `yardShot(name, k)` cuts to one (k 0: it lands at once, up and down too, `snap`) or glides (a cut with reduced motion);
+    `yardSeq` goes from shot to shot while a line is spoken (Tamm's second: the door, the pump as she names it, the loft). Each of
+    Dob's lines cuts to him and back. Walking about, `yardExCam` frames each step (the explore spec's `cam`): 440 wide on an upright
+    phone (`viewN`), 900 on a phone on its side (`ws`), 760 elsewhere.
+  - Upright phones. Every shot's band there is `low` (sk_pitui.js): the yard's foot sits at the foot of the screen and the Pit's
+    wall fills the height over it. To V116 the yard was a strip a third of the screen high with dead dark under it. While he walks
+    about, `YARD_HUD` pixels under the foot are left to the hand's panel and the buttons, which lie over the picture (HUD_IN is
+    nought then: it knows the fight's dock, not these).
+  - A phone on its side. `C.ws` (sk_storyui.js) is a shot's width on a wide screen under 480 px high, for a band that would not fit
+    under `w`: the ladder with the loft over it, the roof, the climb, and the walk about (his head at the yard's back clear of the
+    goal's panel, his feet at its front clear of the hand's).
+  - What he does with the place. What he takes up he stoops for (`S.ex.lift`: it lies where it lay until his hand is down to it;
+    sk_explore.js does this for anything taken, the page's `a1Bucket` draws it). At the pump he sets the bucket under the spout,
+    goes round to the handle and gives it three strokes, his one hand on the grip (`pumpAction`, `pumpGrip`; the handle is drawn
+    live, `pumpHandle` in env_yard.js, and goes down with `S.act1.pumpA`), then goes back for it; the ground under the spout is wet
+    after (`pumpWet`). The ladder's refusal walks him to its foot; the gate is pushed in at the gate, his hand on its top rail
+    (`holdAction`). Both stand deeper than DEP_MAX: `K.zMax` goes with him and comes off after. What stands on the floor he walks
+    round (`YARD_BLOCKS`: the pump and its trough, the barrels, the crates). Dob turns on his crate to keep him in sight. Tamm
+    goes back in at the door, which opens to her (`S.act1.yardDoor`; `doorLive` draws it over the painted door).
+  - The close (`yardClimb`: the stage's outro, and scene 5's in its place). In at the gate, up the side stairs a tread at a time,
+    over the landing and up onto the roof's tin to the pigeon lofts, where he sets the water down (`S.act1.bucket.where='roof'`,
+    and there it stays in the scenes after) as the birds go up (`S.act1.birdsUp`; the sound `birds`). The stairs and the roof are
+    ground to him while `K.yardUp` (a wrap of `Fighter.prototype.gr`, in this stage only: `yardStairH`, `yardRoofH`, the painter's
+    own numbers); `K.zMax` lets him as deep as the ridge and `K.offstage` lets him past the stage's edge (without it his hips
+    stopped at x 60 while his mark went on, and he took the last treads at a run). The camera goes up with him
+    (`S.act1.yardFollow` {w, ws, wn, up, down, dx}: a band about his feet, set every step), then holds the roof. The stairs' near
+    rail and the fence's pickets are a piece among the people (`stairFrontPiece`), so he climbs behind them. About twelve seconds.
+  - Dob's birds (env_yard.js: `FLOCK`, `flockStep`, `birdDraw`, `pigeon`). Eleven pigeons, the roof scene's birds at the roof
+    scene's size, drawn live; the nine painted small along the ridge are gone. Three peck at the grain by the crates and go up onto
+    the yard wall when he walks at them; two come down to the trough once the pump has run and keep to it while he keeps off;
+    three take a turn out over the yard now and then; all of them go up for nine seconds at `birdsUp`. Their state is the page's
+    own: they read the game and nothing reads them. At night and at dusk they sit. Those on the ground and at the trough are
+    pieces, sorted among the people; the roof's are drawn in `live()`.
+  - The picture. The roof's tin is painted sheet by sheet (each its own pitch and start, a dark lap between); the floor has a finer
+    mottle in its own plane, scuffs and stones (both from the look review, below: at a third of the old distance the tin read as
+    one ruled field and the ground before the door as one flat fill).
+  - Scene 5 opens in the same yard and takes the same frame: the back door's shot for Tamm's list, and the walk about's view,
+    camera and blocks (sk_pit5.js). Scene 8, the yard at night, keeps its own wide view: its plates lie where he spills them
+    and its buttons stand on the right, neither tried against the closer frame.
+  - Tools: `node uiwork/act1/yardshots.js <outdir> [w h]` plays the scene by hand and keeps a still of each of its moments (RM=1:
+    reduced motion); `node uiwork/act1/yardclimb.js <outdir> [w h every]` keeps one every so many steps of the climb (GATE=1: the
+    gate's opening instead).
 - Walking about (sk_explore.js, sk_exploreui.js): a stage with `explore(st)` returns {bounds, spots, exits, goal {text or fn, hint
-  {touch, keys}, done}, view}. A spot: {id, label, verb, x, z, at, run (a scene), when, once, key, needs ('free', 'two' or a fn giving
+  {touch, keys}, done}, view, viewN (the view on an upright phone), cam (cam(C, K, E): the camera's cut to adjust, every step),
+  blocks ([{x0,x1,z0,z1}]: what stands on the floor; sent through one he goes along its face and round its nearer end, steered into
+  one he stops; `exBlock`, `exOutOf`; since V117)}. A spot: {id, label, verb, x, z, at, run (a scene), when, once, key, needs ('free', 'two' or a fn giving
   the reason), refused (a scene), take (an item into his hand)}. S.ex holds it all: `exGo`, `exUse`, `exSetDown` (what he holds goes on
   the floor as a spot), `exNote`. On auto `exAutoPick` uses each thing in turn (refusals once each, the goal's own last) and sets down
   what blocks him. The page: the goal box (place, goal, hint), the action button, Jog, the hand chip with Set down, the note. A scene
@@ -1181,7 +1243,7 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
 - The places: ACT1_PLACES (sk_pit.js) are the layouts; the painters read them. envx/env_sumproof.js (with the Sump's shared kit
   EnvLook.sump: keep it first of the three), env_sumpkitchen.js, env_backroom.js, env_yard.js (with the Pit's kit EnvLook.pitKit for
   the stairs and the Shelf: S.act1.night/morning/dusk set the time of day), env_stairs.js, env_shelf.js. No fighter stands deeper
-  than DEP_MAX (170): Dob perches on the yard's crate, not its wall. A scene can look up: `S.camCut.band` {top, foot} keeps that much of the picture between the letterbox's bars, centred (sk_pitui.js), and `S.camCut.wn` sets the view's width on a narrow screen (the kitchen's window shot; since V53). The three Sump rooms' ceilings are drawn, not left black (since V76, `EnvLook.sump.ceiling`: planks, joists leaning as the floor's boards run, the beams pieced with iron straps, lit where the room's lamp, stove or window reaches), the roof's sky goes on up with the far wall's windows, and their floors run on to 870, so an upright phone's closer framing (`camCutFit`) fills with the room. Where the ground climbs (an arena with `climb(x)`, how far it has come up without the steps: the stair-streets), a walk about or a cut with no band frames the floor's band (BAND0) raised that far where the camera looks, so the picture goes up the stair with him (since V71; a phone on its side lost his head over the top landing).
+  than DEP_MAX (170): Dob perches on the yard's crate, not its wall. A scene can look up: `S.camCut.band` {top, foot} keeps that much of the picture between the letterbox's bars, centred (sk_pitui.js), and `S.camCut.wn` sets the view's width on a narrow screen (the kitchen's window shot; since V53). A band marked `low` sits at the foot of the view instead of its middle (a number: so many pixels left under it while no letterbox is up), and `S.camCut.ws` is the width on a wide screen under 480 px high (both since V117: the yard, above). The three Sump rooms' ceilings are drawn, not left black (since V76, `EnvLook.sump.ceiling`: planks, joists leaning as the floor's boards run, the beams pieced with iron straps, lit where the room's lamp, stove or window reaches), the roof's sky goes on up with the far wall's windows, and their floors run on to 870, so an upright phone's closer framing (`camCutFit`) fills with the room. Where the ground climbs (an arena with `climb(x)`, how far it has come up without the steps: the stair-streets), a walk about or a cut with no band frames the floor's band (BAND0) raised that far where the camera looks, so the picture goes up the stair with him (since V71; a phone on its side lost his head over the top landing).
 - One Pit (since V71; the comment over ACT1_PLACES). The yard, the stair-streets and the Shelf are all seen from the Pit's open middle
   looking at the wall the Sump stands under (the Sump's rooms and roof look the other way, at the far wall and the spike), so left and
   right there are left and right on the Pit map: up he walks to the right in every scene, down to the left, through the same places.
@@ -1578,6 +1640,10 @@ Look at the pictures at phone sizes (390x844 upright, 844x390 sideways) as well 
   units where it lands on the screen (through the still layer, sprites and offscreen bitmaps), put down to the lineWidth assignment
   that set it (file, line and column): its median, least and most, colour and alpha, and whether it meets the drawing guide's rule 2
   (1.5 units; 1 for a highlight). `LWF=<file>` ({"line:col": k} for the page the run uses) previews a change to those assignments.
+  A sprite's pixels a unit are read each time it is set down on the game's canvas (since V117). Before, the last camera's pixels a
+  unit were set against the least and the most the sprite was ever scaled by, which is the same thing only while the camera's
+  width holds still: where it changed between a place's moments, every line in a piece read thinner than it is (the yard's
+  pieces at 1.57 units read .88).
 - `python3 uiwork/look/review.py [out] [--judge] [--analyse] [--retime] [--no-desk] [--keep-lines "why"]`: the look review (since V88;
   `python3 test.py look` runs it alone into test_out/look and keeps its pass in test_out/passes.json, which `--status` checks;
   `--analyse`, since V99, reads the pictures already taken again and judges; `--retime`, since Nov 8, times the costs again too). It
@@ -1752,7 +1818,7 @@ server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live ve
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
 the frames index.html names (V107 found platform_t8's three left from a build before).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V117 ..." (V116 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
+short label "V118 ..." (V117 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
 the skins and the Phaser view built in (build.py `game_page`: above, under the flow test); test_page.html is not. (V115's work went onto main the night before it was
 published, at the user's word, as a merge of its branch: the commit under V115's own.) Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
@@ -2046,3 +2112,11 @@ was checked, and anything that did not work, plainly.
   that time with a shape on the man in white; .0197 alone without one) and the light in his eye at the end of the fall. Run alone it passed every time, on V114 and on the branch. If it
   fails in a full run, run `node sk_look_page.js` alone before looking for a cause in the change; the cause of the wandering
   itself has not been looked for.
+- On GitHub's runner (Playwright's own Chromium, not this machine's) lookpage has failed since V116 on the fall's end: he does
+  not end face up there (`faceUp` false, 4780 steps for 4731 here), three runs of three in V117's candidates; the eye's light
+  check beside it failed there once of the three. `pitLand` turns him face up as he lands, and the body goes on settling after;
+  where it comes to rest depends on the engine's rounding in the last place (nudging one sine in fifty by one ulp moves his hips
+  10 to 30 units and the scene's length by 40 steps here, face up each time of three). Every other suite passes there, the yard's
+  among them. Not put right in V117: the fall's end wants holding face up by the scene, not by where the hay leaves him.
+  Since V117 the pages job prints the checks that failed in its log ("What failed"): the kept outputs' download is refused
+  from this workspace.

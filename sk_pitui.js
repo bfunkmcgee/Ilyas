@@ -137,6 +137,9 @@ V11UI.screen.push(()=>{const A=S.act1;if(!A||!A.sear||!act1On())return;const u=S
 // it does not (the kitchen's window over the table). C.bandN, where a scene gives one, is the band on a narrow screen (a phone held
 // upright has height to spare: the opening's sundown fills it from the sky's top to the world's foot). C.bandS is the band on a
 // screen too short for the floor's own (BAND0) between the bars: a phone on its side (the fall keeps him there, not the floor).
+// A band marked low (since V117: the yard) sits at the foot of the view where it fits, not in its middle: what is painted over it
+// fills the height to spare, and nothing under the picture's foot is shown. low may be a number: so many pixels kept clear under
+// the band's foot while no letterbox is up (the walk-about's panels and buttons lie over the picture there: HUD_IN does not know them).
 // A scene framed closer on an upright phone (C.fit, camCutFit in sk_storyui.js) keeps its view between the bars inside the part of
 // the place that is painted, the people in it (or the floor's band, BAND0, raised with the ground where it climbs: camBand below)
 // in the middle where that allows; a painted part shorter than the view is centred.
@@ -147,7 +150,8 @@ V11UI.screen.push(()=>{const A=S.act1;if(!A||!A.sear||!act1On())return;const u=S
   const F=C.fit&&C.fit.band;if(F){const v=free/s;if((F.foot-F.top)<=v)return(F.top+F.foot)/2-(t+free/2)/s;
     const b0=camBand(),mid=C.fit.mid??(b0.top+b0.foot)/2;return clamp(mid-v/2,F.top,F.foot-v)-t/s;}
   const B=cssW<640&&C.bandN?C.bandN:C.band||(C.bandS&&(BAND0.foot-BAND0.top)*s>free?C.bandS:null);if(!B)return ct();
-  return(B.foot-B.top)*s<=free?(B.top+B.foot)/2-(t+free/2)/s:B.top-t/s;};
+  const m=B.low&&B.low!==true&&!S.letter?B.low:0;
+  return(B.foot-B.top)*s<=free-m?(B.low?B.foot-(t+free-m)/s:(B.top+B.foot)/2-(t+free/2)/s):B.top-t/s;};
   camTarget=function(){const C=S.camCut;if(!C)return ct();
     if(C.from&&C.blend<1)return lerp(top({...C,band:C.from.band,bandN:C.from.bandN,fit:null}),top(C),Math.max(0,C.blend));
     return top(C);};}
