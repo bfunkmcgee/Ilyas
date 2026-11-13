@@ -35,6 +35,21 @@ Phaser shows the three sheets one over the other, and between them:
   the plate and the stage is made here the same way (the frame an eighth the size, multiplied by itself twice, at the place's
   strength) and Phaser lays it over them in the blend the game uses.
 
+- **Parallax, in the yard.** The yard's still picture is painted back to front in bands: the far side of the Pit, the neighbours'
+  shacks with the lane beyond the fence, the yard itself. Here the two far bands go on sheets of their own under the plate, and
+  each has its own view of the world, worked out from the camera's:
+  - going along the yard, the far side follows a fifth of the camera's move and the neighbours' shacks about seven tenths, so
+    they slide past slower than the yard does;
+  - pushing in, the far side grows as the 0.65th power of the push and the shacks as the 0.88th, so from the whole yard to a
+    close shot the far side grows about two thirds as much as the yard and shows more of its wall;
+  - the bands stand on the line where the yard's ground ends, and keep to it;
+  - a band grown less shows more of itself higher up. In a view that looks high the bands are let grow until the far wall's own
+    view stops where its painted wall does, so the sky comes into a shot only where the game's own picture has it. The widest
+    view on an upright phone looks that high already, and has the bands as they were painted.
+  What moves on the far wall (smoke, fires, windows going dark, the tram, the picture above the layer) is drawn on the far
+  band's sheet, so it slides and softens with it. Each band has its own softness with the focus on. Where motion is reduced
+  the bands stand still, as painted.
+
 A frame is painted flat, as published, wherever the sheets cannot be used: Phaser's view off, a place that finishes its own picture
 (the fall) or streaks its light (the road at sundown), the old look, a screen that has just changed size. `LayerTest.why` says
 which. Everything the test adds sits under the game's own canvas in Phaser's scene, so a fault leaves the published picture.
@@ -46,20 +61,22 @@ python3 build.py
 python3 spike/layers/build_layers.py
 ```
 
-That writes `spike/layers/out/layers-test.html` and `out/index.html`, wrapped for publishing. The page carries the motion test as
+That writes `spike/layers/out/layers-test.html` and `out/index.html`, wrapped for publishing. In that copy of the page the yard's
+painter is opened so that it can paint its bands apart (the `YARD` list in `build_layers.py`: each piece of the painter's text
+must be found once, or the build stops). `envx/env_yard.js` itself is not changed. The page carries the motion test as
 well (spike/motion: the drawn pose and its panel), and opens on its walk across the yard. It is published as a private test page
 of its own, "Ilyas: layers test" (artifact 4d618786-0672-492b-89f5-519c9ad07370: index.html and the sounds the test's scenes
 play), beside the game's page and the motion test's, which it does not touch.
 
 The Test button opens the panel: what a frame costs on this device, the drawing (the motion test's new or old), the scene (the walk,
 the yard as the game plays it, a fight in the restaurant that plays itself), the picture (in layers or flat), the focus (all of it,
-about half of it, or none) and the dust. The button beside it switches between layers and flat.
+about half of it, or none), the dust and the parallax. The button beside it switches between layers and flat.
 
 | File | What it holds |
 |---|---|
-| `layers.js` | the sheets and their seams, the focus's masks, the footfalls, the bloom, and Phaser's side of it all |
+| `layers.js` | the sheets and their seams, the focus's masks, the footfalls, the bloom, the far bands and their views, and Phaser's side of it all |
 | `panel.js` | its rows in the motion test's panel, and the meter |
-| `build_layers.py` | the built game with the motion test and these two added after its script |
+| `build_layers.py` | the built game with the motion test and these two added after its script, and the yard's painter opened in that copy |
 | `probe.js` | the check that the game computes the same on the sheets as flat |
 | `shots.js` | pictures of the page through Phaser: one moment drawn several ways, or a strip of frames |
 
@@ -81,7 +98,30 @@ about half of it, or none) and the dust. The button beside it switches between l
 - The pictures were looked at in the yard by day and by night, in the restaurant and on the stair-street at dusk. On the stair the
   shop signs behind the walkway went too soft to read, which is why the focus is set place by place.
 
+### The parallax
+
+- **The same picture with the bands unmoved.** The bands apart, their sliding and their growing both turned off, the row behind
+  left out, the focus off, against the whole picture on the sheets: 0.35 of 255 apart on average, 0.33% of the pixels by more
+  than 12. What differs is fine lines on the far wall and the pole's wires, which are painted smaller on the bands' sheets and
+  drawn out again.
+- **The same game.** `probe.js` again with the bands apart: all six scenes agree (the yard 899 frames on the sheets, the walk 599).
+- **Pictures looked at** on an upright phone: the walk's pan from end to end; the yard as the game plays it (the whole yard, the
+  door, the pump, Dob on his crate); the camera put at the far left and far right of the yard at 440 and 300 units of view, and
+  looking up over the roof; by night and at dusk; and a phone held sideways, where the walk's view shows no far wall at all.
+- **Switching.** Parallax off and on, flat and back, the three settings of focus, the restaurant and back to the yard, the screen
+  turned, Phaser's view off and on: by the page's own buttons at 412x714, no errors, and each state as the meter says.
+- **What it costs.** Painting the bands the first time the yard is shown took about a quarter of a second here, once (the yard's
+  still picture is painted, then its three bands). After that, on this machine's software canvas, a frame's painting measured
+  the same with the bands apart as without. As with the rest, only the phone can say what Phaser's side costs.
+
 ## Found on the way
+
+- **The fill over the layer.** A view taller than the layer is filled above it with the colours of the layer's top row, and the
+  picture above the layer is drawn over that fill. With the far wall on a sheet under the plate, the fill hid it: the yard's
+  layer carries no top row while its far bands are apart.
+- **A wire that ends in the air.** In the game's own yard one of the two wires from the pole ends in the air a little right of
+  the woodshed (env_yard.js, `neighbours`: the curve ends at 700, 126; the woodshed's roof ends at 652). On the middle band's
+  sheet both wires run on to the Sump.
 
 - **The game has its own light and air already** (sk_lightui.js, since V38): each fighter in a sprite of his own, the shadows and
   reflections made from it, rain, mist and motes by place, dust and sparks at the big moments; and its own finish over the frame
@@ -106,4 +146,13 @@ about half of it, or none) and the dust. The button beside it switches between l
 - **A glow drawn among the figures** (a lamp's halo in the restaurant) falls on a clear sheet and is laid over the plate plainly,
   where on the one picture it was added to it. The difference measured small and is not seen at the game's size.
 - **The dust takes no light.** It is not in the bloom, and a lamp does not light it.
+- **The parallax is the yard's only**, and has three planes. The floor itself cannot take part: the game draws depth on the floor
+  as a slant, with no vanishing point, so every row of it moves at one pace. A place gets its bands by its painter being opened
+  band by band, as the yard's is here.
+- **The neighbour's shack past the Sump's corner goes with the middle band.** With the camera at the yard's far left it slides
+  out of view and the alley beside the stair widens onto the far wall. The row over the yard wall is painted on behind the
+  woodshed for the other end; nothing is painted on behind the Sump on this side.
+- **The far side is less soft with the bands apart** (2.4 points at full focus, against 3.6 on the plate), so that its rows of
+  shacks can be seen to slide. Turning the parallax off at full focus makes it softer again.
+- **The yard is painted twice over the first time it is shown**: whole, for the game's own measuring, then band by band.
 - Nothing is in the game. The published page is as it was.

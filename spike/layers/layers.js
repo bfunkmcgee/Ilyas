@@ -17,20 +17,28 @@
 //     depth: nothing at the depth he stands at, more the further a row of the floor lies from it, and more again up the far wall
 //     to what rises beyond it. The copies are a half and a quarter the size, so the blurring costs little;
 //   - dust: motes in the air behind the stage and in front of it, and a puff where a foot comes down on the yard's dirt;
-//   - the finish's bloom, worked out from the sheets as the game works it out from its one picture, and laid over them as it is.
+//   - the finish's bloom, worked out from the sheets as the game works it out from its one picture, and laid over them as it is;
+//   - parallax, in the yard: the Pit's far side, and the shacks round the yard with the lane beyond its fence, each on a sheet of
+//     its own under the plate. As the camera goes along the yard they slide slower than it does, and as it pushes in they grow
+//     less than it does (PARALLAX, below).
 // Where the sheets cannot be used (Phaser's view off, a place that finishes its own picture, a screen changing size) the frame is
 // painted flat, as published, and LayerTest.why says which.
 (function(){
 'use strict';
 if(typeof Phaser==='undefined'||typeof cv==='undefined'||typeof PHOST==='undefined'||!PHOST.game||typeof FXL==='undefined'||typeof envKey!=='function')return;
 const LY=window.LayerTest={
-  on:true,focus:true,focusK:1,dust:true,
+  on:true,focus:true,focusK:1,dust:true,parallax:true,
   // focus. Depths are the game's own (units into the picture). Within f0 of where he stands nothing is soft; f1 further it is fMax
   // soft. What stands at the far edge of the floor is one wall: as soft as the floor at its foot, and fRoom more by its top (fTop
   // units up, where the place does not say: BEYOND, below). fEase: the seconds the focus takes to follow him to another depth. The
   // two blurs' reach, in points of the screen; fMid: the softness at which the light one is all there and the heavy one begins.
   // focusK (above) is how much of all this softness is laid on: 1 for all of it.
   f0:30,f1:340,fMax:.9,fTop:260,fRoom:.2,fEase:.5,blur1:1.2,blur2:3.6,fMid:.45,
+  // the far bands' softness where they are on sheets of their own, in points of the screen (at focusK 1: the far side less soft
+  // than the heavy blur makes it on the plate, so that its rows of shacks can still be seen to slide); slide, push: how much
+  // of their sliding and of their growing less is shown (1: all of it; both 0: the bands apart but standing as they were painted,
+  // for checking them against the whole picture); ext: the middle band's row painted on behind the yard (off for that check)
+  blurFar:2.4,blurMid:1.3,slide:1,push:1,ext:true,
   // dust: how many motes behind the stage and in front of it, how bright they are and how thick a footfall's puff is (0: none)
   motesBack:40,motesFront:9,moteA:1,puffA:1,dustAll:false,
   // read by the page: whether the last frame went onto the sheets, why not if not, frames so painted, what render() took (ms)
@@ -54,7 +62,7 @@ function wipe(L){const g=L.g||L,c=g.canvas;g.setTransform(1,0,0,1,0,0);g.clearRe
 
 // phase: -1 outside a frame on the sheets, 0 the plate, 1 the stage, 2 the top. TR: the frame's world-to-canvas transform, read off
 // the plate's context where the stage begins (the camera's place, its scale and its shake, as render() set them).
-let phase=-1,G=null,TR={s:1,tx:0,ty:0},tPrev=null,maskKey='',maskNew=false,lightOn=false;
+let phase=-1,G=null,TR={s:1,tx:0,ty:0,planes:false},tPrev=null,maskKey='',maskNew=false,lightOn=false,DPR=1;
 function finishOf(){const k=envKey(),X=k&&EnvLook.S[k];if(!X)return null;if(X.post)return'post';
   return X.finish?(typeof X.finish==='function'?X.finish():X.finish):SCENE_FINISH[SCENE_WORLD[k]]||null;}
 function why(){
@@ -70,16 +78,19 @@ const _render=render;
 render=function(){
   if(phase>=0)return _render.apply(this,arguments);
   const t0=performance.now(),w=why();LY.why=w;
-  if(w||!G||G.w!==cv.width||G.h!==cv.height){
+  const lay=!w&&!!G&&G.w===cv.width&&G.h===cv.height;
+  bandsFrame(lay);
+  if(!lay){
     if(!w){LY.need=true;LY.why='making the sheets';}LY.live=false;
     try{return _render.apply(this,arguments);}finally{LY.ms+=(performance.now()-t0-LY.ms)*.05;}}
   phase=0;wipe(A);carry(MAIN,A.g);ctx=A.g;
   try{return _render.apply(this,arguments);}
-  finally{LY.live=phase===2;ctx=MAIN;phase=-1;LY.n++;LY.ms+=(performance.now()-t0-LY.ms)*.05;}};
+  finally{LY.live=phase===2;ctx=MAIN;phase=-1;farT=null;LY.n++;LY.ms+=(performance.now()-t0-LY.ms)*.05;}};
 function toStage(){
-  const a=A.g,m=a.getTransform();TR={s:m.a,tx:m.e,ty:m.f};
+  const a=A.g,m=a.getTransform();TR={s:m.a,tx:m.e,ty:m.f,planes:planes&&!!PX&&!!PX.far};
   wipe(B);carry(a,B.g);ctx=B.g;phase=1;
-  try{focusNow();feet();
+  try{if(TR.planes){if(BT.n!==LY.n)bandsT(m);if(PX.soft!==softNow())bandsFar();}
+    focusNow();feet();
     // (the plate is whole now: its two small copies for the blurs)
     if(LY.focus&&focusHere()){SH.g.globalCompositeOperation='copy';SH.g.drawImage(A.cv,0,0,SH.cv.width,SH.cv.height);SQ.g.globalCompositeOperation='copy';SQ.g.drawImage(SH.cv,0,0,SQ.cv.width,SQ.cv.height);}}
   catch(e){LY.err=String(e&&e.message||e);}}
@@ -94,7 +105,12 @@ for(const k of ['front','grade']){const f=FXL[k];FXL[k]=function(){if(phase===1)
 function light(){
   const o=finishOf();lightOn=false;if(!o||o==='post'||!(o.glow>0)||FXL.q!=='full')return;
   const bw=BL.cv.width,bh=BL.cv.height,g=BL.g;g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.imageSmoothingEnabled=true;
-  g.globalCompositeOperation='copy';g.drawImage(A.cv,0,0,bw,bh);g.globalCompositeOperation='source-over';g.drawImage(B.cv,0,0,bw,bh);
+  if(TR.planes){const kx=bw/cv.width,ky=bh/cv.height,s=TR.s,o=BT.mid;g.globalCompositeOperation='source-over';g.clearRect(0,0,bw,bh);
+    g.drawImage(FAR.cv,0,0,bw,bh);
+    g.drawImage(PX.mid.cv,((o.r*RECT.x0+o.tx)*s+TR.tx)*kx,((o.r*RECT.y0+o.ty)*s+TR.ty)*ky,RECT.w*o.r*s*kx,RECT.h*o.r*s*ky);
+    g.drawImage(A.cv,0,0,bw,bh);}
+  else{g.globalCompositeOperation='copy';g.drawImage(A.cv,0,0,bw,bh);g.globalCompositeOperation='source-over';}
+  g.drawImage(B.cv,0,0,bw,bh);
   g.globalCompositeOperation='multiply';g.drawImage(BL.cv,0,0);g.drawImage(BL.cv,0,0);
   const h=BM.g;h.setTransform(1,0,0,1,0,0);h.globalCompositeOperation='copy';h.globalAlpha=cl(o.glow,0,1);h.drawImage(BL.cv,0,0);lightOn=true;}
 
@@ -112,9 +128,9 @@ function focusNow(){
   const want=f?f.dep:LY.focusAt,dt=tPrev==null?1e3:S.t-tPrev;tPrev=S.t;
   LY.focusAt=dt<0||dt>1?want:LY.focusAt+(want-LY.focusAt)*(1-Math.exp(-dt/Math.max(.01,LY.fEase)));
   const s=TR.s,ty=TR.ty,H=cv.height,far=(S.arena&&S.arena.far)||DEP_MAX+40,dF=LY.focusAt;
-  const ek=envKey(),P0=PLACES[ek]||null,by=P0&&P0.wall?P0:null;
+  const ek=envKey(),P0=PLACES[ek]||null,by=!TR.planes&&P0&&P0.wall?P0:null;
   const K=cl(+LY.focusK||0,0,1);
-  const key=[ek,s.toFixed(3),ty.toFixed(1),H,far,dF.toFixed(1),LY.f0,LY.f1,LY.fMax,LY.fTop,LY.fRoom,LY.fMid,K].join('|');if(key===maskKey)return;maskKey=key;
+  const key=[ek,s.toFixed(3),ty.toFixed(1),H,far,dF.toFixed(1),LY.f0,LY.f1,LY.fMax,LY.fTop,LY.fRoom,LY.fMid,K,TR.planes].join('|');if(key===maskKey)return;maskKey=key;
   const i1=M1.g.createImageData(3,255),i2=M2.g.createImageData(3,255),soft=x=>cl((Math.abs(x-dF)-LY.f0)/LY.f1,0,1)*LY.fMax,yFar=(GB-PSY*far)*s+ty,mFar=soft(far),mid=cl(LY.fMid,.05,.95);
   for(let i=0;i<255;i++){const y=(i+.5)/255*H;let m;
     if(y>=yFar)m=soft((GB-(y-ty)/s)/PSY);
@@ -127,6 +143,104 @@ function focusNow(){
     const a1=Math.round(cl(m/mid,0,1)*255),a2=Math.round(cl((m-mid)/(1-mid),0,1)*255);
     for(let x=0;x<3;x++){const o=(i*3+x)*4;i1.data[o]=i1.data[o+1]=i1.data[o+2]=i2.data[o]=i2.data[o+1]=i2.data[o+2]=255;i1.data[o+3]=a1;i2.data[o+3]=a2;}}
   M1.g.putImageData(i1,0,0);M2.g.putImageData(i2,0,0);maskNew=true;}
+
+// ---------- PARALLAX ----------
+// A place's far bands on sheets of their own. The game paints a place's still picture whole, back to front, onto one layer
+// (sceneLayer, sk_scene_glue.js). In this page's copy the yard's painter has been opened (build_layers.py) to paint its bands
+// apart. The game still paints its layer whole and measures it (where the picture ends, how light the ground is behind a man: the
+// camera and the rim light go by those). Then, the first time the layer is drawn in a frame on the sheets, it is painted over in
+// place with the yard alone, lit as the whole was, and the two far bands are painted small on canvases of their own. A frame that
+// has to be flat cannot use a layer with its far bands gone: the layer is dropped and the game paints it whole again.
+//
+// Each band has its own view of the world, worked out from the frame's own (bandsT). x0, y0: where the camera stands for the
+// picture as it was painted, and the line the bands stand on (the far edge of the yard's ground). w0: the width of view at which
+// the picture is as it was painted. Then for each band: how much of the camera's going along the yard it follows, and the power of
+// the camera's push it grows by (the yard itself is 1 and 1; a band at 0 and 0 would hang still behind it). So from the yard's
+// whole view to a close one the Pit's far side slides a fifth as far as the yard does and grows about two thirds as much, and the
+// shacks round the yard keep nearer to it. top: how far up the far wall's picture goes before the sky begins over it. A band
+// grown less than the yard shows more of itself, higher up, so in a view that looks high the bands are let grow until the far
+// wall's own view stops at top, and a view that looks as high as that has them as they were painted: the sky comes into a shot
+// only where the game's own picture has it.
+// The far band: its still picture and everything that moves on the far wall, put together each frame on one sheet (FAR) the size
+// of the screen's canvas or a part of it, which Phaser shows under everything. The middle band: its still picture, placed by
+// Phaser; its chimneys' smoke is drawn on the plate where the band has gone. The middle band's row of shacks is painted on to the
+// left, behind the woodshed and the Sump (build_layers.py): the whole picture hides that, and the band shows it as it slides out.
+const BANDS={yard:{x0:470,y0:262,w0:820,top:-470,far:[.2,.65],mid:[.72,.88]}};
+// (the far bands' rectangle in the world: as wide as the yard's backdrop is painted, and from just over the layer's top to 342,
+// where the backdrop's own haze ends, well under the lowest roof)
+const RECT={x0:-170,y0:-110,w:W+420,h:452};
+const SLID=globalThis.__lyp={far:null,mid:null,end:null,ext:true};
+let planes=false,PX=null,farT=null;
+const FAR=mk(4,4),BT={n:-1,far:{r:1,tx:0,ty:0},mid:{r:1,tx:0,ty:0}};
+const bandsHere=()=>{const k=envKey(),X=k&&EnvLook.S[k];return!!(X&&X.bands&&BANDS[k]&&typeof X.paint==='function');};
+const layerDrop=()=>{if(typeof SCENE_LY!=='undefined'&&SCENE_LY&&SCENE_LY.lyNear){SCENE_LY.cv.width=SCENE_LY.cv.height=0;SCENE_LY=null;}};
+// before each frame: are the bands used in it
+function bandsFrame(lay){
+  planes=lay&&LY.parallax&&bandsHere();
+  if(!planes||SLID.ext!==(LY.ext!==false))layerDrop();
+  SLID.ext=LY.ext!==false;}
+// a band's view this frame. m is the frame's own (world to canvas: the camera's place, its width of view, its shake). A point
+// X, Y of a band is drawn where the yard's point r*X+tx, r*Y+ty would be.
+function bandsT(m){
+  // (where motion is reduced the bands stand as they were painted: apart, each with its own softness, and still)
+  const B0=BANDS[PX.k],cx=(cv.width/2-m.e)/m.a,vw=cv.width/m.a,rm=still(),sl=rm?0:cl(+LY.slide||0,0,1),pu=rm?0:cl(+LY.push||0,0,1);
+  const need=cl((B0.y0+m.f/m.d)/(B0.y0-B0.top),0,1);
+  for(const b of ['far','mid']){const k=1-(1-B0[b][0])*sl,r0=cl(Math.pow(vw/B0.w0,(1-B0[b][1])*pu),.4,1.6),r=r0<1?Math.max(r0,need):r0,o=BT[b];
+    o.r=r;o.tx=cx-r*(B0.x0+k*(cx-B0.x0));o.ty=B0.y0*(1-r);}
+  BT.n=LY.n;}
+// What the yard's painter asks for (build_layers.py). far(c): the far band's sheet, cleared, with the still far band laid on it
+// under the band's own view, for the painter to draw the far wall's moving things on (nothing where the bands are not apart: it
+// then draws them on the plate as ever, inside its skyline). While it does, the camera's top is the band's own, so that the
+// picture above the layer and the tram are drawn as far up as this band's view reaches. end(): those are down. mid(c): the middle
+// band's view, laid on a context that holds the frame's own.
+SLID.far=function(c0){
+  if(!planes||phase!==0||!PX||!PX.far)return null;
+  const m=c0.getTransform();if(m.b||m.c||!(m.a>0))return null;
+  bandsT(m);
+  // (blurred, a part of the canvas is plenty: small enough that the blur costs little, and no smaller than the blur's reach can
+  // hide; sharp, all of it, or half where the screen is dense enough to carry that)
+  const reach=PX.soft?LY.blurFar*cl(+LY.focusK||0,0,1):0,need=reach>0?1.8/(reach*DPR):9,f=!PX.soft?(DPR>=2.5?.5:1):need<=.26?.25:need<=.34?1/3:need<=.51?.5:1;
+  const w=Math.max(8,Math.ceil(cv.width*f)),h=Math.max(8,Math.ceil(cv.height*f));
+  if(FAR.cv.width!==w||FAR.cv.height!==h){FAR.cv.width=w;FAR.cv.height=h;}
+  const g=FAR.g,o=BT.far,kx=w/cv.width,ky=h/cv.height;
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.clearRect(0,0,w,h);
+  g.setTransform(kx*m.a*o.r,0,0,ky*m.d*o.r,kx*(m.a*o.tx+m.e),ky*(m.d*o.ty+m.f));g.imageSmoothingEnabled=true;
+  g.drawImage(PX.far.cv,RECT.x0,RECT.y0,RECT.w,RECT.h);
+  farT=(cam.T-o.ty)/o.r;return g;};
+SLID.end=function(){farT=null;};
+SLID.mid=function(c){if(planes&&phase===0&&PX&&BT.n===LY.n){const o=BT.mid;c.translate(o.tx,o.ty);c.scale(o.r,o.r);}};
+{const f=camTop;camTop=function(){return farT!=null?farT:f.apply(this,arguments);};}
+{const f=sceneLayer;sceneLayer=function(k){const L=f.apply(this,arguments);
+  if(planes&&phase===0&&L&&!L.lyNear&&k===envKey()){try{bandsMake(k,L);}catch(e){LY.err='bands: '+String(e&&e.message||e);}}
+  return L;};}
+// the light that goes over a place's whole picture, on one band of it: the painter's own pass, and the place's key light as
+// sceneLayer lays it in
+function bandLight(k,c,x0,w){const X=EnvLook.S[k];X.paint(c,'light');if(!X.setLive){const G0=setOf(k);if(G0)setDraw(c,G0,x0,w);}}
+const plain=c=>{c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.globalAlpha=1;};
+// (the light is laid over the whole canvas and then kept only where the band itself is painted: what it does to a pixel depends on
+// that pixel alone, so each band comes out lit as it was in the whole picture)
+function keepOnly(c,M){plain(c);c.globalCompositeOperation='destination-in';c.drawImage(M.cv,0,0);c.globalCompositeOperation='source-over';M.cv.width=M.cv.height=0;}
+function bandsMake(k,L){
+  const X=EnvLook.S[k],sc=L.sc,c=L.cv.getContext('2d'),t0=performance.now(),world=()=>c.setTransform(sc,0,0,sc,-RC.x0*sc,-RC.y0*sc);
+  // (above its top the game fills a tall view with the top row's colours as it measured them on the whole picture, and the
+  // picture above the layer goes over that. Here that picture is on the far band's sheet, under the plate: no fill)
+  L.lyNear=true;L.row=null;
+  plain(c);c.clearRect(0,0,L.cv.width,L.cv.height);world();X.paint(c,'near');
+  const M=mk(L.cv.width,L.cv.height);M.g.drawImage(L.cv,0,0);
+  plain(c);world();bandLight(k,c,RC.x0,RC.w);keepOnly(c,M);world();
+  for(const b of PX?[PX.far,PX.mid]:[])if(b)b.cv.width=b.cv.height=0;
+  PX={k,L,soft:null,far:null,mid:null,up:false,ms:0};bandsFar();PX.ms=performance.now()-t0;}
+// the two far bands: small where the focus will blur them anyway (a quarter and a half of the layer's scale at full focus, a
+// third and a half at a lighter one: smaller than that and the blur no longer hides the sheet's own grain), near the layer's
+// own scale where it is off and they must be as sharp as the whole picture was. softNow: 0 sharp, 1 lightly blurred, 2 fully.
+const softNow=()=>LY.focus&&focusHere()?(cl(+LY.focusK||0,0,1)>.75?2:1):0;
+function bandsFar(){
+  const k=PX.k,X=EnvLook.S[k],soft=softNow(),sc=PX.L.sc,R=RECT;
+  const one=(which,q,cut)=>{const cn=mk(Math.ceil(R.w*q),Math.ceil(R.h*q)),c=cn.g,world=()=>c.setTransform(q,0,0,q,-R.x0*q,-R.y0*q);
+    world();X.paint(c,which);let M=null;if(cut){M=mk(cn.cv.width,cn.cv.height);M.g.drawImage(cn.cv,0,0);}
+    plain(c);world();bandLight(k,c,R.x0,R.w);if(M)keepOnly(c,M);return{cv:cn.cv,q};};
+  for(const b of [PX.far,PX.mid])if(b)b.cv.width=b.cv.height=0;
+  PX.far=one('far',sc*[.75,1/3,1/4][soft],false);PX.mid=one('mid',sc*[.75,1/2,1/2][soft],true);PX.soft=soft;PX.up=true;}
 
 // ---------- dust ----------
 // Only where the ground is dirt: the yard. Nothing moves where motion is reduced (the motes stand still, no puffs).
@@ -163,7 +277,21 @@ function scn(){const g=PHOST.game,s=g&&g.scene&&g.scene.getScene('host');return 
 function tex(sc,key,c){if(sc.textures.exists(key))sc.textures.remove(key);sc.textures.create(key,c,c.width,c.height).add('__BASE',0,0,0,c.width,c.height);}
 function dot(){const L=mk(60,60),g=L.g,r=g.createRadialGradient(30,30,0,30,30,29);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.5,'rgba(255,255,255,.5)');r.addColorStop(1,'rgba(255,255,255,0)');
   g.fillStyle=r;g.fillRect(0,0,60,60);return L.cv;}
-function drop(){if(!G)return;for(const o of [G.plate,G.soft1,G.soft2,G.stage,G.bloom,G.back,G.front])try{o.destroy();}catch(e){/* gone with its scene */}G=null;}
+function drop(){if(!G)return;for(const o of [G.plate,G.soft1,G.soft2,G.stage,G.bloom,G.back,G.front,G.far,G.mid])try{if(o)o.destroy();}catch(e){/* gone with its scene */}G=null;}
+// the far band's sheet under everything, the size of the screen; over it the middle band, where its own view of the world puts
+// it. Each is blurred by its own small amount where the focus is on (the textures are small, so the blurs are nearly free)
+function bandsSync(sc,live,dpr){
+  const on=live&&TR.planes&&!!PX&&!!PX.mid&&FAR.cv.width>4;
+  if(G.far)G.far.setVisible(on);if(G.mid)G.mid.setVisible(on);
+  if(!on)return;
+  const im=(key,d)=>{const o=sc.add.image(0,0,key).setOrigin(0,0).setDepth(d);o.enableFilters();o.bl=o.filters.internal.addBlur(1,1,1,1,0xffffff,1);o.bl.setPaddingOverride(0,0,0,0);return o;};
+  if(!G.far||G.farW!==FAR.cv.width||G.farH!==FAR.cv.height){if(G.far)G.far.destroy();tex(sc,'lyFar',FAR.cv);G.far=im('lyFar',-64);G.farW=FAR.cv.width;G.farH=FAR.cv.height;G.farSeen=LY.n;}
+  else if(G.farSeen!==LY.n){G.farSeen=LY.n;sc.textures.get('lyFar').source[0].update();}
+  if(PX.up||!G.mid||G.px!==PX){PX.up=false;G.px=PX;if(G.mid)G.mid.destroy();tex(sc,'lyMid',PX.mid.cv);G.mid=im('lyMid',-62);}
+  const s=TR.s,K=cl(+LY.focusK||0,0,1);
+  {const up=G.w/FAR.cv.width,r=PX.soft?LY.blurFar*K*dpr/(1.9*up):0;G.far.setScale(up,G.h/FAR.cv.height);G.far.bl.setActive(r>.02);G.far.bl.x=G.far.bl.y=r;}
+  {const o=BT.mid,b=PX.mid,up=s*o.r/b.q,r=PX.soft?LY.blurMid*K*dpr/(1.9*up):0;
+    G.mid.setPosition((o.r*RECT.x0+o.tx)*s+TR.tx,(o.r*RECT.y0+o.ty)*s+TR.ty).setScale(up);G.mid.bl.setActive(r>.02);G.mid.bl.x=G.mid.bl.y=r;}}
 function build(sc){
   drop();const w=cv.width,h=cv.height,bw=Math.max(24,Math.round(w/8)),bh=Math.max(24,Math.round(h/8));
   for(const L of [A,B]){L.cv.width=w;L.cv.height=h;}for(const L of [BL,BM]){L.cv.width=bw;L.cv.height=bh;}
@@ -205,18 +333,19 @@ function sync(){
   const live=LY.live&&PHOST.mode>0&&!PHOST.err;
   G.plate.setVisible(live);G.stage.setVisible(live);G.back.setVisible(live);G.front.setVisible(live);const foc=live&&LY.focus&&focusHere();G.soft1.setVisible(foc);G.soft2.setVisible(foc);
   G.bloom.setVisible(live&&lightOn);
+  const r=cv.getBoundingClientRect(),dpr=r.width>0?cv.width/r.width:1;DPR=dpr;
+  bandsSync(sc,live,dpr);
   if(!live)return;
   if(G.seen!==LY.n){G.seen=LY.n;const T=sc.textures,up=k=>T.get(k).source[0].update();up('ly0');up('ly1');if(lightOn)up('lyBloom');
     if(foc){up('lyH');up('lyQ');if(maskNew){maskNew=false;up('lyM1');up('lyM2');}}}
   // (a blur's reach is in points of the screen: the canvas holds more pixels than that where the screen is dense, and each small
   // copy fewer than the canvas. One pass of Phaser's medium blur spreads a picture about 1.9 of its own pixels at a setting of 1)
-  const r=cv.getBoundingClientRect(),dpr=r.width>0?cv.width/r.width:1;
   G.soft1.bl.x=G.soft1.bl.y=LY.blur1*dpr/(1.9*G.soft1.scaleX);G.soft2.bl.x=G.soft2.bl.y=LY.blur2*dpr/(1.9*G.soft2.scaleX);
   dust();}
 PHOST.game.events.on('prestep',()=>{try{sync();}catch(e){LY.err=String(e&&e.message||e);}});
-LY.info=()=>({live:LY.live,why:LY.why,focus:LY.focus&&focusHere(),dust:LY.dust&&dusty(),n:LY.n,ms:+LY.ms.toFixed(2),host:+(PHOST.hostMs||0).toFixed(2),focusAt:+LY.focusAt.toFixed(1),puffs:PUFFS.length,err:LY.err,
+LY.info=()=>({live:LY.live,why:LY.why,focus:LY.focus&&focusHere(),dust:LY.dust&&dusty(),parallax:LY.live&&TR.planes,bands:TR.planes?['far','mid'].map(b=>[+BT[b].r.toFixed(3),+BT[b].tx.toFixed(1),+BT[b].ty.toFixed(1)]):null,bandsMs:PX?Math.round(PX.ms):0,far:[FAR.cv.width,FAR.cv.height],n:LY.n,ms:+LY.ms.toFixed(2),host:+(PHOST.hostMs||0).toFixed(2),focusAt:+LY.focusAt.toFixed(1),puffs:PUFFS.length,err:LY.err,
   size:G?[G.w,G.h]:null,light:lightOn});
 // (for the checks: the sheets themselves)
 LY.puffs=()=>PUFFS.map(p=>({x:+p.x.toFixed(1),y:+p.y.toFixed(1),a:+p.a.toFixed(2),r:+p.r.toFixed(1),age:+(S.t-p.t0).toFixed(2),life:+p.life.toFixed(2)}));
-LY.sheets=()=>({plate:A.cv,stage:B.cv,top:cv,half:SH.cv,quarter:SQ.cv,mask1:M1.cv,mask2:M2.cv,bloom:BM.cv});
+LY.sheets=()=>({far:FAR.cv,farStill:PX&&PX.far&&PX.far.cv,mid:PX&&PX.mid&&PX.mid.cv,plate:A.cv,stage:B.cv,top:cv,half:SH.cv,quarter:SQ.cv,mask1:M1.cv,mask2:M2.cv,bloom:BM.cv});
 })();
