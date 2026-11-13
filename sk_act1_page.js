@@ -243,6 +243,21 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     yard.ladder.note==='Needs two hands'&&yard.ladder.shown&&yard.ladder.phantom>.9&&yard.ladder.hand==='water'&&yard.ladder.tried,JSON.stringify(yard.ladder));
   expect('the gate will not open with his hand full; set down, the bucket waits on the floor, the gate opens, and he takes it up again; the stairs end the scene',
     /^Your hand is full\. Set down bucket of water first/.test(yard.gate1.note||'')&&yard.gate1.open===0&&yard.drop.hand===null&&yard.drop.floor==='water'&&yard.gate2.open===1&&yard.retake.hand==='water'&&(yard.next4?yard.ended==='next:'+yard.next4:yard.ended==='act1'),JSON.stringify(yard));
+  // ---- the yard's south (since V118): the floor past where a fight goes, round what stands on it, along the lip ----
+  const south=await ev(()=>{storyGo('yard1');S.storyAuto=false;S.auto=false;step(2);runUntil(()=>S.story.step==='explore',4000);const E=S.ex,K=hero(),Y=ACT1_PLACES.yard,So=Y.south,out={};
+    let hit=0,off=0,minDep=1e9;const watch=()=>{if(exBlock(K.station,K.lane))hit++;const q=exClampTo(K.station,K.lane);if(Math.hypot(q.x-K.station,q.z-K.lane)>.5)off++;minDep=Math.min(minDep,K.dep);};
+    const go=(x,z)=>{exGo(x,z);const way=E.to&&E.to.path?E.to.path.length:0;runUntil(()=>{watch();return!E.to&&!S.cut&&!K.action;},2600);return{x:Math.round(K.station),z:Math.round(K.lane),way};};
+    out.zMin=K.zMin;out.want={z0:So.z0,dx:So.drain.x,dz:So.drain.d-14,sx:So.shed.x0+36,sz:So.shed.d0-14,bx:Y.step.x+46,bz:Y.floor.z1-14};
+    out.drain=go(So.drain.x,So.drain.d-14);        // before the pipe's mouth: round the bank's end and its wing
+    out.shed=go(So.shed.x0+36,So.shed.d0-14);      // before the shed's door: round the wing again, the fire, the cart
+    out.over=go(5000,-5000);                       // sent off past the lip: he stops on the floor, a pace back from it
+    // steered at the lip with the keys: he goes along it, never past it
+    const x0=K.station;E.keys.x=-1;E.keys.z=-1;runUntil(()=>{watch();return false;},150);E.keys.x=E.keys.z=0;out.slid=Math.round(x0-K.station);
+    out.back=go(Y.step.x+46,Y.floor.z1-14);out.hit=hit;out.off=off;out.minDep=Math.round(minDep);storyQuit();out.zMinAfter=hero().zMin??null;return out;});
+  expect('the yard\'s south: his own near limit goes with the floor; he is sent to the drain\'s mouth by a way round the bank and its wing, to the ground before the shed, and past the lip only as far as the floor goes; steered at the lip he goes along it; never inside anything that stands there, never off the floor; and back; the limit is gone when the story is left',
+    south.zMin===south.want.z0&&south.drain.x===south.want.dx&&south.drain.z===south.want.dz&&south.drain.way>=2&&
+    south.shed.x===south.want.sx&&south.shed.z===south.want.sz&&south.over.x>900&&south.over.z<-140&&south.slid>40&&
+    south.hit===0&&south.off===0&&south.minDep<-150&&south.back.x===south.want.bx&&south.back.z===south.want.bz&&south.zMinAfter===null,JSON.stringify(south));
 
   // ---- scene 5: Tamm's list (when the build has it) ----
   const has5=await ev(()=>typeof errand==='function'&&stageIx('list')>=0);

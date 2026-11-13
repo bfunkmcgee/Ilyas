@@ -198,11 +198,12 @@ const YARD_BLOCKS_S=(()=>{const So=ACT1_PLACES.yard.south,B=So.bank,D=So.drain,F
   return[{x0:-400,x1:B.x1,z0:B.d0-4,z1:B.d1},{x0:-400,x1:w0+2,z0:D.d-D.wing,z1:D.d+2},{x0:w1-2,x1:w1+30,z0:D.d-D.wing,z1:D.d+2},
     {x0:ACT1_PLACES.yard.floor.x1,x1:1300,z0:So.shed.d0-4,z1:400},{x0:F.x-F.r-22,x1:F.x+F.r+22,z0:F.d-16,z1:F.d+16},{x0:C.x0,x1:C.x1,z0:So.z0-20,z1:C.d+14}];})();
 YARD_BLOCKS.push(...YARD_BLOCKS_S);
-// the yard's floor as he may walk it: the old floor and the south, its right corner cut off along the lip (he stands a pace back
-// from it: the rail is between)
-function yardBounds(){const Y=ACT1_PLACES.yard,So=Y.south,L=So.lip,cuts=[];
-  for(let i=0;i<3;i++){const a=L[i+1],b=L[i],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz),nx=dz/l,nz=-dx/l;cuts.push({nx,nz,c:nx*a[0]+nz*a[1]-18});}
-  return{x0:Y.floor.x0,x1:So.x1,z0:So.z0,z1:Y.floor.z1,cuts};}
+// the yard's floor as he may walk it: the old floor and the south, its foot along the lip at the right (he stands a pace back from
+// it: the rail is between), run on at its left end down to the floor's own foot
+function yardBounds(){const Y=ACT1_PLACES.yard,So=Y.south,L=So.lip,foot=[];
+  for(let i=3;i>=0;i--)foot.push([L[i][0],L[i][1]+18]);
+  {const a=foot[0],b=foot[1];foot.unshift([a[0]-(a[1]-So.z0)*(b[0]-a[0])/(b[1]-a[1]),So.z0]);}
+  return{x0:Y.floor.x0,x1:So.x1,z0:So.z0,z1:Y.floor.z1,foot};}
 // the goal as it stands: what he has done of the errand and what is in his hand
 function yardGoal(){const A=S.act1,YD=A&&A.yard;if(!YD)return'';const H=S.ex&&S.ex.hand,has=id=>!!H&&H.id===id;
   if(!YD.filled)return has('bucket')||A.bucket.where==='spout'?'Fill the bucket at the pump':'Take the bucket';

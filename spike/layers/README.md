@@ -158,3 +158,16 @@ about half of it, or none), the dust and the parallax. The button beside it swit
   shacks can be seen to slide. Turning the parallax off at full focus makes it softer again.
 - **The yard is painted twice over the first time it is shown**: whole, for the game's own measuring, then band by band.
 - Nothing is in the game. The published page is as it was.
+
+## The yard's south (V118, in work)
+
+The test page is built from the working tree, so it shows the yard as the branch has it: the floor run on south to a drain in a
+bank of spoil, a kerb with Tarr's main on it, and the lip of the quarry's last cut with a shed by it (GUIDE.md, "The yard's
+south"). It is the first place to walk about in it. What that means for the layers:
+
+- The south is on the near band with the rest of the floor: its pieces (the shed, the main, the rail and hoist, the fire, the
+  cart) go on the stage's sheet with the people, and what moves in the picture (the gully, the drain, the cut) on the plate.
+- The yard's painter is opened by the same three patches, which follow its changed lines (`YARD` in build_layers.py: the south's
+  shade and its second painting are with the light and the over pass).
+- The focus follows him south: the Sump goes soft behind him, and the view down past the lip is soft as the nearest rows are.
+- `probe.js` on the yard: the sums agree, flat and on the sheets, with the walk about begun.

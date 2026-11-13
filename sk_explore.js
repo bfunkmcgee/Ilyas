@@ -11,8 +11,8 @@
 // The goal: {text (or a function giving it), done()}; when done() turns true the stage's exploring is over and its closing scene plays.
 // His hand (S.ex.hand): what his one hand holds, an item {id, name} or null. What he holds he can set down at his feet, where it
 // becomes a spot to take it again. A refusal shows as a short note (S.ex.note) and plays the spot's refused scene, if it has one.
-// blocks: what stands on the floor that he walks round (exBlock, below). The floor is bounds' box, less any corners cut off it
-// (bounds.cuts, since V118: [{nx,nz,c}], he stays where nx*x+nz*z<=c: the yard's edge over the Pit runs aslant).
+// blocks: what stands on the floor that he walks round (exBlock, below). The floor is bounds' box; its foot may run aslant
+// (bounds.foot, since V118: [[x,z],...] by x, the nearest he may come at each x: the yard's edge over the Pit's last cut).
 
 // walk and jog speeds (world units a second); reach: how near a spot he must stand to use it
 const EX={walk:84,jog:142,reach:30,stop:3,lift:.36};
@@ -27,8 +27,9 @@ function exWhyNot(s){const E=S.ex;if(!s.needs)return null;
   return typeof s.needs==='function'?s.needs(s)||null:null;}
 function exNote(text){if(S.ex)S.ex.note={text,t0:S.t};}
 function exClampTo(x,z){const B=S.ex.bounds,p={x:clamp(x,B.x0,B.x1),z:clamp(z,B.z0,B.z1)};
-  // (a cut corner: the point comes straight back onto its line, so a man steered into it goes along it)
-  if(B.cuts)for(let i=0;i<3;i++)for(const k of B.cuts){const o=k.nx*p.x+k.nz*p.z-k.c;if(o>0){p.x=clamp(p.x-k.nx*o,B.x0,B.x1);p.z=clamp(p.z-k.nz*o,B.z0,B.z1);}}
+  // (a foot that runs aslant: a point past it comes straight back up to it, so a man steered into it goes along it)
+  if(B.foot){const F=B.foot,n=F.length;let f=p.x>=F[n-1][0]?F[n-1][1]:F[0][1];if(p.x>F[0][0]&&p.x<F[n-1][0])for(let i=0;i<n-1;i++)if(p.x<=F[i+1][0]){f=lerp(F[i][1],F[i+1][1],(p.x-F[i][0])/(F[i+1][0]-F[i][0]));break;}
+    if(p.z<f)p.z=Math.min(f,B.z1);}
   return p;}
 // What stands on the floor in his way (since V117): a stage's exploring may give blocks, [{x0,x1,z0,z1}], that he walks round. Sent
 // somewhere straight through one, he goes along its face and round its nearer end; steered into one, he stops against it. A point
@@ -140,5 +141,5 @@ S.hooks.explore=()=>{};
   if(st&&st.explore){letter(0);S.story.step='explore';exStart(st.explore(st));S.hooks.story('explore');return;}
   sf(list);};}
 V11.duelStart.push(()=>{if(S.ex){S.ex.on=false;S.ex=null;}});
-{const sq=storyQuit;storyQuit=function(){sq();S.ex=null;};}
+{const sq=storyQuit;storyQuit=function(){const K=hero();if(K)K.zMin=null;sq();S.ex=null;};}
 // ===== EXPLORE END =====

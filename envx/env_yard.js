@@ -1097,6 +1097,12 @@ function hill(c,P){const So=SO(),H=hillPts(),sh=(col,k)=>K.shade(P,col,k),r=rng(
       c.fillStyle=sh('#222c1c',1.05);K.blob(c,p.x,p.y-9*s2,14*s2,10*s2,rb,12);c.fill();c.fillStyle=sh('#324026',1.05);K.blob(c,p.x-3*s2,p.y-12*s2,9*s2,6*s2,rb,10);c.fill();
       c.fillStyle=rgba(P.light,.04+.12*LA);K.blob(c,p.x-5*s2,p.y-15*s2,5*s2,2.6*s2,rb,8);c.fill();
       c.strokeStyle=sh('#241c14');c.lineWidth=1.5;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+1,p.y-6*s2);c.moveTo(p.x+1,p.y-4*s2);c.lineTo(p.x+5*s2,p.y-8*s2);c.stroke();}
+    // (a dead tree on it: a trunk split low and its limbs bare, a rag caught in them)
+    {const tx=-52,td=-156,p=Q(tx,hillH(tx,td),td),tr=rng(337);c.fillStyle=rgba('#000000',.28);c.beginPath();c.ellipse(p.x+10,p.y+1,24,4,0,0,TAU);c.fill();c.strokeStyle=sh('#2a211a',1.05);c.lineCap='round';
+      const limb=(x,y,a,l,w,n)=>{const x1=x+Math.cos(a)*l,y1=y+Math.sin(a)*l;c.lineWidth=Math.max(1.6,w);c.beginPath();c.moveTo(x,y);c.quadraticCurveTo((x+x1)/2+(tr()-.5)*l*.3,(y+y1)/2,x1,y1);c.stroke();
+        if(n>0){limb(x1,y1,a-.34-tr()*.5,l*.68,w*.62,n-1);limb(x1,y1,a+.3+tr()*.5,l*.62,w*.58,n-1);if(n>1&&tr()<.6)limb(lerp(x,x1,.6),lerp(y,y1,.6),a+(tr()<.5?-1:1)*(.7+tr()*.4),l*.5,w*.5,n-2);}};
+      limb(p.x,p.y,-Math.PI/2-.14,44,7.5,3);c.lineCap='butt';
+      c.fillStyle=rgba(P.light,.05+.16*LA);c.fillRect(p.x-4.6,p.y-36,1.2,32);c.fillStyle=sh('#7a3e30',1.05);c.beginPath();c.moveTo(p.x-18,p.y-74);c.lineTo(p.x-13,p.y-75);c.lineTo(p.x-12,p.y-62);c.lineTo(p.x-15,p.y-65);c.lineTo(p.x-18,p.y-60);c.closePath();c.fill();}
     // (its foot dark where it meets the floor)
     c.strokeStyle=rgba('#000000',.3);c.lineWidth=8;c.lineJoin='round';c.beginPath();toe.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();
     c.restore();}

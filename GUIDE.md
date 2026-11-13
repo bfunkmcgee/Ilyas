@@ -1267,9 +1267,11 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
       it likes: what it would hide is further left still. The shed (160) stands right of x 866 as drawn, clear of the old
       floor's right edge and under the gate's foot; it was 40 further left and stood in Dob's close-up.
     - The game's side. A walker's own near limit `f.zMin` (sk_core.js, beside `f.zMax`; set by `exStart` from the bounds,
-      cleared when a stage starts and in `initFighter`). The walk about's floor may have corners cut off it:
-      `bounds.cuts` [{nx, nz, c}], he stays where nx*x+nz*z <= c and slides along the line (`exClampTo`): the lip runs aslant
-      (`yardBounds()`, sk_pit2.js: 18 units back from the lip, the rail between). Things stand against each other there, so
+      cleared when a stage starts and in `initFighter`). The walk about's floor may have a foot that runs aslant:
+      `bounds.foot` [[x, z], ...] by x, the nearest he may come at each x; a point past it comes straight back up to it, so
+      he goes along it (`exClampTo`): the lip (`yardBounds()`, sk_pit2.js: 18 units back from the lip, the rail between). It
+      was first three half planes, one for each run of the lip, which only hold a floor that bulges outward at every corner:
+      the lip turns the other way at one, and the first run's line cut most of the ground before the shed off. Things stand against each other there, so
       a man sent somewhere is given a way round them once, as he is sent (`exRoute`: the shortest way by the blocks' corners;
       `E.to.path`), where the step's own way round one thing at a time is kept for the keys; `exOutOf` moves a point out of
       one thing without leaving it in the next. `YARD_BLOCKS_S`: the bank, the wings, everything right of the old floor's

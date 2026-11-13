@@ -23,7 +23,7 @@ function nightSpill(N){const K=hero(),E=S.ex,Y=ACT1_PLACES.yard,b=E.bounds,R=mul
   const solid=(x,z)=>Y.barrels.some(o=>Math.hypot(x-o.x,z-o.d)<o.r+8)||Math.hypot(x-Y.pump.x,z-Y.pump.d)<Y.pump.r+8||
     (x>Y.trough.x0-8&&x<Y.trough.x1+8&&Math.abs(z-Y.trough.d)<14)||Y.crates.some(o=>Math.abs(x-o.x)<o.w/2+8&&Math.abs(z-o.d)<16)||
     YARD_BLOCKS_S.some(o=>x>o.x0-6&&x<o.x1+6&&z>o.z0-6&&z<o.z1+6);
-  // (nor past the lip, where the floor's corner is cut off: since V118)
+  // (nor past the lip, where the floor's foot runs aslant: since V118)
   const off=(x,z)=>{const c=exClampTo(x,z);return Math.hypot(c.x-x,c.z-z)>.5;};
   N.from={x:h.x,y:h.y,d:K.dep};
   for(let i=0;i<9;i++){let dx=K.facing*(14+R()*44)+(R()-.5)*16,dz=(R()-.5)*48,x,z,k=0;
