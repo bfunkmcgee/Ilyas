@@ -361,7 +361,7 @@ const LANT={x:212,h:118,d:228},GLAMP={h:84,dx:-3,dd:-4};
 // the Pit's wall across the floor: its rows (the picture above the layer paints the same rows on up)
 const ROWS={yBot:236,rs:50,u:.86,seed:41,span:300,shrink:.5,sspan:760};
 let OUT={fires:[],chims:[],lit:[]},NEARCH=[];
-const STOVE={x:0,y:0};
+const STOVE={x:0,y:0},HOIST={x:0,y:0};
 function key(){return'yard:'+K.tod();}
 // where the Pit's far wall shows, x by x: above the top of everything nearer (the shack past the corner, the Sump's ridge and its
 // lofts, the woodshed, the shacks over the yard wall, the stair-street beyond the fence). The far wall's fires, flickers and smoke
@@ -490,8 +490,8 @@ function dormer(c,P){const Yd=Y(),Ld=Yd.ladder,far=Yd.far,b=(x,h)=>Q(x,h,far),cx
   c.fillStyle='#0a0706';c.fillRect(da.x+2,da.y,de.x-da.x-4,3);
   {const p0=Q(cx,sill+dh+2,far),p1=Q(cx,sill+dh+2,far-26);c.fillStyle=sh('#2e2218');c.beginPath();c.moveTo(p0.x,p0.y-2);c.lineTo(p1.x,p1.y-2);c.lineTo(p1.x,p1.y+4);c.lineTo(p0.x,p0.y+4);c.closePath();c.fill();
     c.fillStyle=rgba(P.light,.08+.3*P.lightA);c.fillRect(p1.x,p1.y-2,p0.x-p1.x,1);c.fillStyle=sh('#3a3632');c.beginPath();c.arc(p1.x+2,p1.y+7,3.4,0,TAU);c.fill();
-    c.strokeStyle=sh('#5a4a38');c.lineWidth=1.6;c.beginPath();c.moveTo(p1.x+5,p1.y+7);c.lineTo(p1.x+5,p1.y+50);c.quadraticCurveTo(p1.x+7,p1.y+58,p1.x+1,p1.y+62);c.moveTo(p1.x-1,p1.y+7);c.lineTo(p1.x-1,p1.y+30);c.stroke();
-    c.fillStyle=sh('#3a3632');c.beginPath();c.arc(p1.x+1,p1.y+64,2,0,TAU);c.fill();}}
+    // (the fall with the hook on it hangs live since V118, and swings: ropeLive. Here the end that is made fast)
+    c.strokeStyle=sh('#5a4a38');c.lineWidth=1.6;c.beginPath();c.moveTo(p1.x-1,p1.y+7);c.lineTo(p1.x-1,p1.y+30);c.stroke();HOIST.x=p1.x+5;HOIST.y=p1.y+7;}}
 // the ladder against the wall up to the loft door: two long rails and their rungs, a hand's polish on them
 function ladder(c,P){const Yd=Y(),Ld=Yd.ladder,sh=(col,k)=>K.shade(P,col,k),foot=Ld.d-12,top=Ld.d+6,ht=Ld.top+18,rail=xx=>[Q(xx,0,foot),Q(xx,ht,top)];
   {const a=Q(Ld.x+6,4,Yd.far),e=Q(Ld.x+6,ht-6,Yd.far);c.strokeStyle=rgba('#000000',.25);c.lineWidth=14;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(e.x+3,e.y);c.stroke();}
@@ -543,9 +543,36 @@ function shed(c,P){const Yd=Y(),far=Yd.far,sh=(col,k)=>K.shade(P,col,k),x0=SUMP.
   const da=Q(x0+56,78,far),de=Q(x0+92,0,far);c.fillStyle='#0c0907';c.fillRect(da.x,da.y,de.x-da.x,de.y-da.y);c.fillStyle=rgba(P.light,.03+.08*P.lightA);c.fillRect(da.x,de.y-14,de.x-da.x,14);
   c.fillStyle=sh('#241a12');c.beginPath();c.moveTo(de.x,da.y);c.lineTo(de.x+12,da.y+4);c.lineTo(de.x+12,de.y-2);c.lineTo(de.x,de.y);c.closePath();c.fill();
   // a saw and a coil of rope on nails inside the door, a sack slumped in it
-  c.strokeStyle=rgba(P.light,.12+.2*P.lightA);c.lineWidth=.99;c.beginPath();c.moveTo(da.x+6,da.y+16);c.lineTo(da.x+20,da.y+20);c.stroke();
-  const r=rng(41);for(let row=0;row<4;row++)for(let q=0;q<6-row;q++){const p=Q(x0+8+q*9+row*4.5,7+row*8,far-8);c.fillStyle=sh(['#5e4830','#50402c','#6a5236'][(r()*3)|0]);c.beginPath();c.arc(p.x,p.y,4.4,0,TAU);c.fill();
-    c.strokeStyle=rgba('#2a1a0e',.6);c.lineWidth=1.5;c.beginPath();c.arc(p.x,p.y,2.4,0,TAU);c.stroke();c.fillStyle=rgba(P.light,.05+.25*P.lightA);c.fillRect(p.x-2,p.y-4,4,1);}}
+  c.strokeStyle=rgba(P.light,.12+.2*P.lightA);c.lineWidth=.99;c.beginPath();c.moveTo(da.x+6,da.y+16);c.lineTo(da.x+20,da.y+20);c.stroke();}
+// the stack of firewood against the woodshed, between two stakes (since V118: it was four rows of pale rings, the wall's own tone):
+// the logs' sawn ends, bark round each, their rings and checks, some split in half; dark between them; the top row's lengths
+// running back to the wall under an oilcloth held down with a brick; what the stack throws on the boards behind it, chips before it
+function woodpile(c,P){const far=Y().far,sh=(col,k)=>K.shade(P,col,k),r=rng(41),ls=-(sunDir()||1),LA=P.lightA,d=far-9,R=4.8,dx=9.8,dy=8.3,xa=SUMP.x1+9;
+  const at=(row,q)=>Q(xa+q*dx+(row%2)*dx/2,R+row*dy,d),L=[];for(let row=0;row<4;row++)for(let q=0;q<5-(row%2);q++)L.push({p:at(row,q),row,rr:R-.5+r()*.9,half:r()<.28,a:r()*TAU,v:r()});
+  const g0=Q(xa-R-3,0,d),g1=Q(xa+4*dx+R+3,0,d),yt=at(3,0).y-R,back=Q(0,0,far).y-Q(0,0,d).y,bx=(far-d)*PSX;
+  thrown(c,P,5,2,()=>{c.beginPath();c.rect(g0.x,yt-5,g1.x-g0.x,g0.y-yt+3);},.85);
+  // (the ground under it and before it dark; the dark between the logs)
+  c.fillStyle=rgba('#000000',.4);c.beginPath();c.ellipse((g0.x+g1.x)/2,g0.y+1.5,(g1.x-g0.x)/2+4,4,0,0,TAU);c.fill();
+  c.fillStyle=sh('#0e0a08',1.2);c.fillRect(g0.x+1.5,yt+2,g1.x-g0.x-3,g0.y-yt-2);
+  // (the top row's lengths, seen from above, running back to the wall)
+  {const tl=at(3,0),tr=at(3,3);c.fillStyle=K.topLit(P,'#4a3826',.8);K.poly(c,[{x:tl.x-R,y:yt+1.5},{x:tr.x+R,y:yt+1.5},{x:tr.x+R+bx,y:yt+1.5+back},{x:tl.x-R+bx,y:yt+1.5+back}]);c.fill();
+    c.strokeStyle=rgba('#000000',.3);c.lineWidth=1.5;c.beginPath();for(let q=0;q<3;q++){const p=at(3,q);c.moveTo(p.x+R,yt+1.5);c.lineTo(p.x+R+bx,yt+1.5+back);}c.stroke();}
+  // (the stakes)
+  for(const sx of [g0.x+.6,g1.x-3]){c.fillStyle=sh('#32261a',1.1);c.fillRect(sx,yt-7,2.6,g0.y-yt+7);c.fillStyle=rgba(P.light,.1+.36*LA);c.fillRect(ls<0?sx:sx+1.8,yt-7,.8,g0.y-yt+7);}
+  for(const o of L){const p=o.p,rr=o.rr,bark=sh(['#33251a','#2c2018','#3a2a1e'][(o.v*3)|0],1.1),wood=K.topLit(P,['#7e6040','#705436','#886a46','#765a3a'][(o.v*4)|0],.45+.4*(o.row/3));
+    const disc=q=>{c.beginPath();if(o.half)c.arc(p.x,p.y,q,o.a,o.a+Math.PI);else c.arc(p.x,p.y,q,0,TAU);c.closePath();};
+    c.fillStyle=bark;disc(rr);c.fill();c.fillStyle=wood;disc(rr-1.15);c.fill();
+    c.save();disc(rr-1.15);c.clip();
+    c.fillStyle=rgba('#000000',.2);c.beginPath();c.arc(p.x-ls*rr*.5,p.y+rr*.55,rr*.95,0,TAU);c.fill();
+    c.fillStyle=rgba('#3a2412',.3);c.beginPath();c.arc(p.x,p.y,rr*.42,0,TAU);c.fill();
+    c.strokeStyle=rgba('#22140a',.5);c.lineWidth=1.5;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+Math.cos(o.a+1)*rr,p.y+Math.sin(o.a+1)*rr);c.stroke();
+    c.restore();
+    c.strokeStyle=rgba(P.light,.1+.42*LA);c.lineWidth=1;c.beginPath();c.arc(p.x,p.y,rr-.6,Math.PI*(ls<0?1.05:1.5),Math.PI*(ls<0?1.5:1.95));c.stroke();}
+  // (the oilcloth over the right of the top, its brick)
+  {const tr=at(3,3),tm=at(3,1);K.oilcloth(c,[{x:tm.x+bx+2,y:yt+back+.5},{x:tr.x+R+bx+3,y:yt+back+.5},{x:tr.x+R+4.5,y:yt+12},{x:tr.x-3,y:yt+8.5},{x:tm.x+3,y:yt+5}],{pal:P,seed:47,base:sh('#3d3c2c',.9),sag:2.2,patches:1,patch:[sh('#2f3d42')]});
+    const q={x:tr.x-1,y:yt+back*.5+1.5};c.fillStyle=sh('#4e2e22',1.2);c.fillRect(q.x-4,q.y-1,8,3.6);c.fillStyle=K.topLit(P,'#6a4030',.9);K.poly(c,[{x:q.x-4,y:q.y-1},{x:q.x+4,y:q.y-1},{x:q.x+5.2,y:q.y-3.4},{x:q.x-2.8,y:q.y-3.4}]);c.fill();}
+  // (chips and bark before it)
+  {const rc=rng(43);for(let i=0;i<22;i++){const q=Q(xa-12+rc()*74,0,d-3-rc()*26);c.fillStyle=rc()<.6?rgba(K.topLit(P,'#8a6c48',.8),.35+.3*rc()):rgba(sh('#2c2018'),.55);c.save();c.translate(q.x,q.y);c.rotate((rc()-.5)*1.6);c.fillRect(-1.4-rc(),-.5,2.8+rc()*2,1);c.restore();}}}
 // ---------- the yard wall and the fence ----------
 function yardWall(c,P){const Yd=Y(),Wl=Yd.wall,sh=(col,k)=>K.shade(P,col,k),d=Wl.d,x0=Wl.x0,x1=FENCE.x+4,h=Wl.h,a=Q(x0,h,d),e=Q(x1,0,d),r=rng(51);
   // brick low down, patched with stone; tin and boards over it; a plank coping
@@ -555,7 +582,10 @@ function yardWall(c,P){const Yd=Y(),Wl=Yd.wall,sh=(col,k)=>K.shade(P,col,k),d=Wl
     c.fillStyle=rgba('#000000',.25);for(let y=e.y-4.5;y>a.y+20;y-=4.5)c.fillRect(a.x,y,e.x-a.x,.6);
     for(const [px,pw] of [[60,70],[160,90],[268,40]]){K.tin(c,a.x+px,a.y+2,pw,26+r()*8,{base:sh(['#45413e','#52443a','#48443f'][(r()*3)|0],1.1),seed:px*3,pal:P,rust:3});}
     K.boards(c,a.x+0,a.y+2,a.x+58,a.y+30,{base:sh('#382c22',1.1),bw:9,seed:61,foot:4,pal:P});K.boards(c,a.x+232,a.y+2,a.x+266,a.y+34,{base:sh('#342a20',1.1),bw:9,seed:63,foot:4,pal:P});
-    for(let i=0;i<6;i++){const sx=a.x+20+r()*(e.x-a.x-40),sy=e.y-10-r()*24;c.fillStyle=sh('#4e4a44',1.1);c.beginPath();c.ellipse(sx,sy,5+r()*4,3+r()*2,0,0,TAU);c.fill();c.fillStyle=rgba(P.light,.06+.25*P.lightA);c.fillRect(sx-3,sy-3,6,1);}
+    // (the stones it is patched with, set in it: since V118 each in its bed of mortar, squared off, where they were pale rounds
+    // lying on the bricks)
+    for(let i=0;i<6;i++){const sx=a.x+20+r()*(e.x-a.x-40),sy=e.y-10-r()*24,sw=5+r()*4,shh=3+r()*2;c.fillStyle=rgba('#000000',.4);K.blob(c,sx,sy+.4,sw+1.2,shh+1.1,r,9);c.fill();
+      c.fillStyle=sh(['#4a4640','#423e3a','#544e46'][(r()*3)|0],1.2);K.blob(c,sx,sy,sw,shh,r,9);c.fill();c.fillStyle=rgba(P.light,.04+.14*P.lightA);c.fillRect(sx-sw*.5,sy-shh*.7,sw,.8);}
     c.fillStyle=lin(c,0,a.y,0,e.y,[[0,rgba('#000000',0)],[1,rgba('#000000',.35)]]);c.fillRect(a.x,a.y,e.x-a.x,e.y-a.y);c.restore();}
   // the coping: planks along its top (seen from above), bottles along it
   {const t0=Q(x0-4,h,d-4),t1=Q(x1+4,h,d-4),t2=Q(x1+4,h,d+6),t3=Q(x0-4,h,d+6);c.fillStyle=K.topLit(P,'#3e3226',.9);K.poly(c,[t0,t1,t2,t3]);c.fill();
@@ -598,6 +628,12 @@ function drumFire(c,P){const p=Q(DRUM.x,0,DRUM.d);barrel(c,P,p.x,p.y,11,28,'#3a2
   c.fillStyle=rgba('#ff8a3c',.5*P.fire);c.beginPath();c.ellipse(p.x,p.y-28,7,1.8,0,0,TAU);c.fill();
   for(let i=0;i<4;i++){c.fillStyle=rgba('#ffb25e',.4);c.fillRect(p.x-6+i*4,p.y-20,2,2);}}
 // ---------- the ground ----------
+// the puddles: x, d, how wide, their dice (the ground paints them; live() moves the light on the big ones and rings them underfoot)
+const PUDS=[[612,40,26,3],[548,96,18,5],[420,58,14,7],[150,112,16,9],[300,20,30,11],[82,62,22,13],[772,150,12,15],[740,72,10,17]];
+// the run of water from the trough's end to the big puddle, on the floor (x, d): its path, and a point u of the way along it
+const RILL=[[603,118],[622,104],[610,86],[626,70],[614,54]];
+function rill(c){c.moveTo(RILL[0][0],RILL[0][1]);for(let i=1;i<RILL.length-1;i++)c.quadraticCurveTo(RILL[i][0],RILL[i][1],(RILL[i][0]+RILL[i+1][0])/2,(RILL[i][1]+RILL[i+1][1])/2);c.lineTo(RILL[RILL.length-1][0],RILL[RILL.length-1][1]);}
+function rillAt(u){const n=RILL.length-1,f=clamp(u,0,.9999)*n,i=f|0,k=f-i;return[lerp(RILL[i][0],RILL[i+1][0],k),lerp(RILL[i][1],RILL[i+1][1],k)];}
 // packed dirt, darker toward the walls and toward us; the path worn from the door to the pump to the gate; ruts in from the gate;
 // puddles holding the light; straw and feathers off the roof; stones
 function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.key==='night';
@@ -624,6 +660,26 @@ function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.
   c.strokeStyle=rgba(jm2(P.dirt[0],'#d8ccb8',.2),night?.05:.13);c.lineCap='round';c.lineJoin='round';c.lineWidth=20;c.beginPath();c.moveTo(Yd.door.x,Yd.step.d-14);c.quadraticCurveTo(330,150,Yd.pump.x-24,Yd.pump.d-4);c.quadraticCurveTo(700,100,FENCE.x,Yd.gate.d);c.stroke();
   c.lineWidth=8;c.strokeStyle=rgba(jm2(P.dirt[0],'#d8ccb8',.2),night?.03:.08);c.beginPath();c.moveTo(Yd.sidestair.x1+6,Yd.sidestair.d-6);c.quadraticCurveTo(180,140,Yd.pump.x-30,Yd.pump.d-4);c.stroke();
   c.strokeStyle=rgba('#000000',.2);c.lineWidth=2;for(const off of [-12,12]){c.beginPath();c.moveTo(FENCE.x+30,Yd.gate.d+off);c.quadraticCurveTo(700,Yd.gate.d+off*1.4-20,560,60+off);c.stroke();}
+  // (since V118, more in the dirt than grit) flagstones let into it before the step, worn and sunk, dark in their joints
+  {const rf2=rng(131),D=Yd.door;for(const [fx,fd,fw,fh] of [[-26,190,26,13],[2,192,30,12],[-34,174,22,13],[-10,176,28,13],[20,177,24,12],[-22,159,26,12],[6,161,30,12],[-4,145,24,11],[24,147,20,10],[10,131,22,10]]){
+      const x=D.x+fx+(rf2()-.5)*3,d=fd+(rf2()-.5)*2,pts=[[x+rf2()*2,d+rf2()*1.5],[x+fw-rf2()*2,d+rf2()*2],[x+fw-rf2()*2.5,d+fh-rf2()*2],[x+rf2()*2.5,d+fh-rf2()*1.5]];
+      c.fillStyle=rgba('#000000',.3);c.beginPath();pts.forEach(([px,pd],i)=>i?c.lineTo(px+.8,pd-1.3):c.moveTo(px+.8,pd-1.3));c.closePath();c.fill();
+      c.fillStyle=K.jm(K.shade(P,['#4c4840','#45413a','#544e44'][(rf2()*3)|0],1.1),P.dirt[0],.3);c.beginPath();pts.forEach(([px,pd],i)=>i?c.lineTo(px,pd):c.moveTo(px,pd));c.closePath();c.fill();
+      c.fillStyle=rgba(P.light,.03+.1*P.lightA);c.fillRect(x+3,d+fh-3,fw-7,1);
+      if(rf2()<.5){c.strokeStyle=rgba('#000000',.26);c.lineWidth=1.75;c.beginPath();c.moveTo(x+fw*(.3+rf2()*.4),d+1.5);c.lineTo(x+fw*(.3+rf2()*.4),d+fh-2);c.stroke();}}}
+  // dry cracks in the packed dirt
+  {const rk=rng(137);c.strokeStyle=rgba('#000000',.13);c.lineWidth=1.75;c.lineJoin='round';c.beginPath();for(const [kx,kd] of [[370,70],[690,128],[236,96],[470,150]])for(let b=0;b<3;b++){let x=kx+(rk()-.5)*30,d=kd+(rk()-.5)*18,a=rk()*TAU;c.moveTo(x,d);
+        for(let i=0;i<4;i++){a+=(rk()-.5)*1.6;x+=Math.cos(a)*(4+rk()*5);d+=Math.sin(a)*(2+rk()*3);c.lineTo(x,d);}}c.stroke();}
+  // where no one walks the dirt is green with trodden weed: along the fence, under the yard wall, at the front corners
+  {const rg2=rng(141);for(const [gx,gd,gr] of [[838,186,24],[832,40,26],[700,206,30],[610,208,18],[60,204,22],[-60,60,50],[980,60,50],[330,214,26],[420,216,18]]){c.fillStyle=rgba(K.shade(P,'#4c5632'),.3);K.blob(c,gx,gd,gr,gr*.45,rg2,12);c.fill();
+      c.fillStyle=rgba(K.shade(P,'#5a643a'),.2);K.blob(c,gx+3,gd,gr*.6,gr*.3,rg2,9);c.fill();
+      c.strokeStyle=rgba(K.shade(P,'#34452a'),.45);c.lineWidth=1.75;c.beginPath();for(let i=0;i<gr*.7;i++){const a=rg2()*TAU,rr=Math.sqrt(rg2()),x=gx+Math.cos(a)*gr*.95*rr,d=gd+Math.sin(a)*gr*.42*rr;c.moveTo(x,d);c.lineTo(x+(rg2()-.5)*2.4,d+2.2+rg2()*2);}c.stroke();}}
+  // the prints of boots where the dirt is soft: before the pump, at the trough's end, in the gateway
+  {const rb=rng(143);c.fillStyle=rgba('#000000',.13);for(const [bx,bd,n,ang] of [[494,104,7,.3],[604,112,5,-.5],[818,118,7,.1],[470,132,4,2.6]])for(let i=0;i<n;i++){const u=(i-n/2)*9+(rb()-.5)*4,sd2=(i%2?1:-1)*3.2,x=bx+Math.cos(ang)*u-Math.sin(ang)*sd2*1.6,d=bd+Math.sin(ang)*u*.45+Math.cos(ang)*sd2;
+      c.save();c.translate(x,d);c.rotate(ang*.45+(rb()-.5)*.3);c.beginPath();c.ellipse(0,0,3.4,1.25,0,0,TAU);c.ellipse(-4.6,0,1.5,1.05,0,0,TAU);c.fill();c.restore();}}
+  // the trough's overflow, running off down the yard to the big puddle (its glints are live)
+  {c.lineCap='round';c.strokeStyle=rgba('#050403',.2);c.lineWidth=5;c.beginPath();rill(c);c.stroke();c.strokeStyle=K.jm(K.jm(P.dirt[1],'#000000',.5),P.key==='night'?'#2a2430':K.jm(P.air[0],P.light,.25),.1+.1*P.lightA);c.lineWidth=2.2;c.beginPath();rill(c);c.stroke();c.lineCap='butt';}
+
   // damp patches, darker
   for(const [px,pd,pr] of [[560,104,40],[180,170,46],[700,40,50],[380,30,40]]){c.fillStyle=rgba('#000000',.1);K.blob(c,px,pd,pr,pr*.7,rng(px));c.fill();}
   // the edge under the walls dark
@@ -636,7 +692,12 @@ function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.
   // grain thrown down for the birds, where they peck by the crates (since V117; the straw's colour)
   {const rg=rng(109);c.fillStyle=rgba('#c8a050',night?.25:.5);for(let i=0;i<80;i++){const a2=rg()*TAU,rr=Math.sqrt(rg())*34;c.fillRect(642+Math.cos(a2)*rr*1.3,138+Math.sin(a2)*rr*.6,2,2);}}
   // puddles, the biggest away from the middle of the yard
-  for(const [px,pd,pr,sd] of [[612,40,26,3],[548,96,18,5],[420,58,14,7],[150,112,16,9],[300,20,30,11],[82,62,22,13],[772,150,12,15],[740,72,10,17]])K.puddle(c,P,px,pd,pr,sd,1);
+  for(const [px,pd,pr,sd] of PUDS)K.puddle(c,P,px,pd,pr,sd,1);
+  // stones lying half in the dirt, the light on their far side and their shade on the near (since V118)
+  {const rst=rng(139);for(const [cx,cd,n,sp] of [[812,92,5,20],[676,198,4,16],[112,44,5,22],[404,196,3,12],[560,36,4,24],[250,206,3,10]])for(let i=0;i<n;i++){const x=cx+(rst()-.5)*sp*2,d=cd+(rst()-.5)*sp,rx=2.2+rst()*3.2,rd=rx*(.55+rst()*.25);
+      c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(x+.8,d-rd*.5,rx*1.1,rd,0,0,TAU);c.fill();
+      c.fillStyle=K.shade(P,['#5e584e','#4e4840','#6a6458'][(rst()*3)|0]);K.blob(c,x,d,rx,rd,rst,8);c.fill();
+      c.fillStyle=rgba(P.light,.06+.2*P.lightA);c.beginPath();c.ellipse(x-rx*.15,d+rd*.35,rx*.6,rd*.35,0,0,TAU);c.fill();}}
   // straw blown off the roof, feathers, stones
   c.strokeStyle=rgba('#c8a050',.4);c.lineWidth=1.18;c.beginPath();for(let i=0;i<140;i++){const x=-80+r()*700,d=150+r()*90,a=r()*TAU;c.moveTo(x,d);c.lineTo(x+Math.cos(a)*4,d+Math.sin(a)*4);}c.stroke();
   for(let i=0;i<40;i++){const x=X0+200+r()*1000,d=r()*far;c.fillStyle=r()<.5?rgba('#c8c8d0',.4):rgba('#8a8a94',.4);c.fillRect(x,d,2.2,.8);}
@@ -653,27 +714,77 @@ function along(c,P){const Yd=Y(),far=Yd.far,sh=(col,k)=>K.shade(P,col,k),r=rng(1
     c.fillStyle=rgba(P.light,.04+.1*P.lightA);K.poly(c,[Q(x0+16,hh,d0+2),Q(x1-16,hh,d0+2),Q(x1-20,hh,d0+20),Q(x0+20,hh,d0+20)]);c.fill();
     c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.48;const m=Q((x0+x1)/2+6,hh,d0),m2=Q((x0+x1)/2-4,hh,d1-6);c.beginPath();c.moveTo(m.x,m.y);c.lineTo(m2.x,m2.y);c.stroke();
     c.fillStyle=rgba(P.light,.08+.3*P.lightA);K.poly(c,[Q(x0,hh,d0),Q(x1,hh,d0),Q(x1,hh-1.2,d0),Q(x0,hh-1.2,d0)]);c.fill();}
-  // a chopping block with the axe in it and kindling, along the wall past the step
-  {const p=Q(226,0,214);c.fillStyle=rgba('#000000',.35);c.beginPath();c.ellipse(p.x,p.y,13,4,0,0,TAU);c.fill();c.fillStyle=sh('#42321f');c.fillRect(p.x-10,p.y-18,20,18);c.fillStyle=K.topLit(P,'#6a5640',.9);c.beginPath();c.ellipse(p.x,p.y-18,10,3.4,0,0,TAU);c.fill();
-    c.strokeStyle=rgba('#3a2a18',.6);c.lineWidth=1.5;c.beginPath();c.ellipse(p.x,p.y-18,6,2,0,0,TAU);c.stroke();
-    c.strokeStyle=sh('#54402c');c.lineWidth=2;c.beginPath();c.moveTo(p.x+2,p.y-19);c.lineTo(p.x+16,p.y-40);c.stroke();c.fillStyle=sh('#5a5a60');c.beginPath();c.moveTo(p.x-3,p.y-20);c.lineTo(p.x+6,p.y-24);c.lineTo(p.x+5,p.y-17);c.closePath();c.fill();
-    for(let i=0;i<7;i++){const q=Q(212+r()*30,0,200+r()*12);c.save();c.translate(q.x,q.y);c.rotate((r()-.5)*1.4);c.fillStyle=sh('#5e4830');c.fillRect(-5,-1.2,10,2.4);c.restore();}}
-  // a crate of empty bottles under the window, a broom against the wall, a washtub on a nail
-  {const W0=Yd.window,bx=(W0.x0+W0.x1)/2-16;box(c,P,bx,far-24,32,20,18,'#3e3020');for(let i=0;i<6;i++){const p=Q(bx+4+i*4.6,18,far-12);c.fillStyle=sh(i%2?'#24402a':'#36301a');c.fillRect(p.x-1.4,p.y-8,2.8,8);c.fillRect(p.x-.6,p.y-11,1.2,3);c.fillStyle=rgba(P.light,.15+.3*P.lightA);c.fillRect(p.x-.8,p.y-7,.6,5);}
-    const bp=Q(W0.x0-34,0,far-4),bq=Q(W0.x0-22,72,far-2);c.strokeStyle=sh('#54402c');c.lineWidth=1.6;c.beginPath();c.moveTo(bp.x,bp.y-8);c.lineTo(bq.x,bq.y);c.stroke();
-    c.fillStyle=sh('#6a5632');c.beginPath();c.moveTo(bp.x-6,bp.y);c.lineTo(bp.x+5,bp.y);c.lineTo(bp.x+2,bp.y-12);c.lineTo(bp.x-2,bp.y-12);c.closePath();c.fill();
-    const tp=Q(246,92,far);c.fillStyle=sh('#3e3c3a');c.beginPath();c.ellipse(tp.x,tp.y,12,9,0,0,TAU);c.fill();c.fillStyle=sh('#2a2826',1.2);c.beginPath();c.ellipse(tp.x+1,tp.y+1,8.6,6,0,0,TAU);c.fill();
-    c.strokeStyle=rgba(P.light,.1+.35*P.lightA);c.lineWidth=.99;c.beginPath();c.ellipse(tp.x,tp.y,12,9,0,Math.PI*1.1,Math.PI*1.7);c.stroke();c.fillStyle=sh('#1a1612');c.fillRect(tp.x-1,tp.y-11,2,3);}
-  // the rain barrel under the downpipe
-  {const p=Q(456,0,far-12);barrel(c,P,p.x,p.y,13,38,'#42301f');c.fillStyle=rgba(jm2(P.air[0],P.light,.2),.35);c.beginPath();c.ellipse(p.x,p.y-38,11,3,0,0,TAU);c.fill();}
-  // tyres stacked against the yard wall, a drum, a cartwheel, scrap
-  {const Wl=Yd.wall;for(let i=0;i<4;i++){const p=Q(626,i*9,Wl.d-10);c.fillStyle=sh('#141214');c.beginPath();c.ellipse(p.x,p.y-4.5,15,5,0,0,TAU);c.fill();c.strokeStyle=rgba('#4a4a52',.35);c.lineWidth=1.48;c.beginPath();c.ellipse(p.x,p.y-4.5,10,3,0,Math.PI,TAU);c.stroke();
-      c.fillStyle=sh('#0a0a0c');c.beginPath();c.ellipse(p.x,p.y-6,7,2,0,0,TAU);c.fill();}
-    const dp=Q(782,0,Wl.d-12);barrel(c,P,dp.x,dp.y,11,30,'#4e2216',true);
-    const wp=Q(744,26,Wl.d-6);c.strokeStyle=sh('#42341f');c.lineWidth=2.6;c.beginPath();c.arc(wp.x,wp.y,22,0,TAU);c.stroke();c.lineWidth=1.51;c.beginPath();for(let k=0;k<10;k++){const a=k/10*TAU;c.moveTo(wp.x,wp.y);c.lineTo(wp.x+Math.cos(a)*21,wp.y+Math.sin(a)*21);}c.stroke();c.fillStyle=sh('#261c14');c.beginPath();c.arc(wp.x,wp.y,4,0,TAU);c.fill();
-    for(let i=0;i<5;i++){const q=Q(800+r()*40,0,Wl.d-14-r()*16);c.fillStyle=sh(K.TINC[(r()*K.TINC.length)|0]);c.save();c.translate(q.x,q.y);c.rotate((r()-.5)*.6);c.fillRect(-12,-4,24,4);c.restore();}}
+  // green where the walls' feet stay damp (since V118): the Sump's, the woodshed's, the yard wall's
+  {const rm=rng(151),Wl=Yd.wall;for(let i=0;i<64;i++){const yw=i>=44,x=yw?Wl.x0+4+rm()*(FENCE.x-Wl.x0-8):22+rm()*580,p=Q(x,rm()*rm()*(yw?10:15),yw?Wl.d:far);if(!yw&&x>146&&x<206)continue;
+      c.fillStyle=rgba(sh('#46553a'),.1+.17*rm());K.blob(c,p.x,p.y,2.5+rm()*5,1.5+rm()*3.5,rm,7);c.fill();}}
   // junk heaped at the front corners, past where anyone walks
   heap(c,P,-170,40,-2,46,7);heap(c,P,880,1060,-6,40,9);}
+// The things that stand along the walls (they were part of along() until V118): the chopping block, the crate of bottles, the
+// broom and the washtub, the rain barrel, the tyres, the drum and the cartwheel at the yard wall, the firewood. Painted twice:
+// into the picture under its light, and again over it (crisp, below). Each throws its shape on the wall behind it.
+function wallThings(c,P){const Yd=Y(),far=Yd.far,sh=(col,k)=>K.shade(P,col,k),r=rng(113),ls=-(sunDir()||1),LA=P.lightA;
+  // a chopping block with the axe in it and kindling, along the wall past the step: its bark, the saw's rings and the axe's cuts in
+  // its top, the edge of the axe
+  {const p=Q(226,0,214),bw=10.5,bh=18,ty=p.y-bh;
+    thrown(c,P,6,2.5,()=>{c.beginPath();c.rect(p.x-bw,ty-3,bw*2,bh+3);});
+    c.fillStyle=rgba('#000000',.4);c.beginPath();c.ellipse(p.x-ls*2,p.y+.5,bw+4,4,0,0,TAU);c.fill();
+    c.fillStyle=lin(c,p.x+ls*bw,0,p.x-ls*bw,0,[[0,sh('#3e2e1e',1.1)],[.25,K.topLit(P,'#4a3824',.7)],[.6,sh('#35271a')],[1,sh('#2a1e14',1.5)]]);
+    c.beginPath();c.moveTo(p.x-bw,ty);c.lineTo(p.x-bw,p.y);c.ellipse(p.x,p.y,bw,3.2,0,Math.PI,0,true);c.lineTo(p.x+bw,ty);c.closePath();c.fill();
+    c.strokeStyle=rgba('#000000',.28);c.lineWidth=1.5;c.beginPath();for(let k=0;k<5;k++){const u=Math.sin((-.5+(k+.5)/5)*Math.PI)*bw;c.moveTo(p.x+u,ty+2);c.lineTo(p.x+u+(r()-.5)*1.2,p.y+1.5);}c.stroke();
+    c.fillStyle=sh('#33251a');c.beginPath();c.ellipse(p.x,ty,bw,3.4,0,0,TAU);c.fill();c.fillStyle=K.topLit(P,'#8a6c48',1);c.beginPath();c.ellipse(p.x,ty,bw-1.2,2.8,0,0,TAU);c.fill();
+    c.fillStyle=rgba('#3a2412',.3);c.beginPath();c.ellipse(p.x,ty,bw*.5,1.5,0,0,TAU);c.fill();
+    c.strokeStyle=rgba('#22140a',.5);c.lineWidth=1.5;c.beginPath();c.moveTo(p.x-6.5,ty-.4);c.lineTo(p.x-1.5,ty+1.1);c.moveTo(p.x+3,ty+1.5);c.lineTo(p.x+7.5,ty+.3);c.stroke();
+    c.strokeStyle=sh('#6a543a');c.lineWidth=2.2;c.lineCap='round';c.beginPath();c.moveTo(p.x+2.5,ty-2);c.lineTo(p.x+16,ty-22);c.stroke();c.lineCap='butt';
+    c.strokeStyle=rgba(P.light,.12+.4*LA);c.lineWidth=1;c.beginPath();c.moveTo(p.x+2.5+ls*.7,ty-2.4);c.lineTo(p.x+16+ls*.7,ty-22.4);c.stroke();
+    c.fillStyle=sh('#3c3e44');c.beginPath();c.moveTo(p.x-4.5,ty-2.4);c.lineTo(p.x+4.6,ty-7.2);c.lineTo(p.x+6.2,ty-3.2);c.lineTo(p.x+1,ty+.6);c.closePath();c.fill();
+    c.strokeStyle=rgba(P.light,.3+.5*LA);c.lineWidth=1;c.beginPath();c.moveTo(p.x-4.5,ty-2.4);c.lineTo(p.x+1,ty+.6);c.stroke();
+    for(let i=0;i<8;i++){const q=Q(210+r()*34,0,198+r()*13),a=(r()-.5)*1.4;c.save();c.translate(q.x,q.y);c.rotate(a);c.fillStyle=sh('#2a1e14',1.2);c.fillRect(-5,-.2,10,2);c.fillStyle=K.topLit(P,'#8a6c48',.85);c.fillRect(-5,-1.4,10,1.5);c.restore();}}
+  // a crate of empty bottles under the window, a broom against the wall, a washtub on a nail
+  {const W0=Yd.window,bx=(W0.x0+W0.x1)/2-16,ca=Q(bx,18,far-24),ce=Q(bx+32,0,far-24);
+    thrown(c,P,6,3,()=>{c.beginPath();c.rect(ca.x,ca.y-15,ce.x-ca.x+4,ce.y-ca.y+15);});
+    box(c,P,bx,far-24,32,20,18,'#3e3020');for(let i=0;i<6;i++){const p=Q(bx+4+i*4.6,18,far-12);c.fillStyle=sh(i%2?'#24402a':'#36301a');c.fillRect(p.x-1.4,p.y-8,2.8,8);c.fillRect(p.x-.6,p.y-11,1.2,3);c.fillStyle=rgba(P.light,.15+.3*LA);c.fillRect(p.x-.8,p.y-7,.6,5);}
+    const bp=Q(W0.x0-34,0,far-4),bq=Q(W0.x0-22,72,far-2);
+    thrown(c,P,4,2,()=>{c.beginPath();c.moveTo(bp.x,bp.y-8);c.lineTo(bq.x,bq.y);},1,1.8);
+    thrown(c,P,4,2,()=>{c.beginPath();c.moveTo(bp.x-6,bp.y);c.lineTo(bp.x+5,bp.y);c.lineTo(bp.x+2,bp.y-12);c.lineTo(bp.x-2,bp.y-12);c.closePath();});
+    c.strokeStyle=sh('#54402c');c.lineWidth=1.6;c.beginPath();c.moveTo(bp.x,bp.y-8);c.lineTo(bq.x,bq.y);c.stroke();
+    c.fillStyle=sh('#6a5632');c.beginPath();c.moveTo(bp.x-6,bp.y);c.lineTo(bp.x+5,bp.y);c.lineTo(bp.x+2,bp.y-12);c.lineTo(bp.x-2,bp.y-12);c.closePath();c.fill();
+    c.strokeStyle=rgba('#000000',.26);c.lineWidth=1.5;c.beginPath();for(const k of [-1,1]){c.moveTo(bp.x+k*.9,bp.y-11);c.lineTo(bp.x+k*2.6-.5,bp.y);}c.stroke();
+    c.fillStyle=sh('#2a1e14');c.fillRect(bp.x-2.4,bp.y-13.4,4.8,1.8);
+    const tp=Q(246,92,far);thrown(c,P,3,2.5,()=>{c.beginPath();c.ellipse(tp.x,tp.y,12,9,0,0,TAU);});
+    c.fillStyle=sh('#3e3c3a');c.beginPath();c.ellipse(tp.x,tp.y,12,9,0,0,TAU);c.fill();c.fillStyle=sh('#2a2826',1.2);c.beginPath();c.ellipse(tp.x+1,tp.y+1,8.6,6,0,0,TAU);c.fill();
+    c.strokeStyle=rgba(P.light,.1+.35*LA);c.lineWidth=.99;c.beginPath();c.ellipse(tp.x,tp.y,12,9,0,Math.PI*1.1,Math.PI*1.7);c.stroke();c.fillStyle=sh('#1a1612');c.fillRect(tp.x-1,tp.y-11,2,3);}
+  // the rain barrel under the downpipe: open and full, its hoops rusted, green up its foot; the pipe's shoe over it, the wall behind
+  // it damp where the gutter has run down, the ground about it wet, a tin dipper on its rim
+  {const p=Q(456,0,far-12),w=Q(456,40,far),g=Q(456,0,far),rr=13,hh=38;
+    c.fillStyle=rgba('#0a100a',.2);K.poly(c,[{x:w.x-3,y:w.y},{x:w.x+3,y:w.y},{x:w.x+9,y:g.y},{x:w.x-10,y:g.y}]);c.fill();
+    {const rm=rng(127);for(let i=0;i<7;i++){c.fillStyle=rgba(sh('#4c5a38'),.16+.2*rm());K.blob(c,w.x-7+rm()*14,lerp(w.y+8,g.y,rm()),2.5+rm()*4,2+rm()*5,rm,7);c.fill();}}
+    thrown(c,P,7,3,()=>{c.beginPath();c.moveTo(p.x-rr*.86,p.y);c.quadraticCurveTo(p.x-rr*1.06,p.y-hh/2,p.x-rr*.86,p.y-hh-3);c.lineTo(p.x+rr*.86,p.y-hh-3);c.quadraticCurveTo(p.x+rr*1.06,p.y-hh/2,p.x+rr*.86,p.y);c.closePath();},1.15);
+    c.fillStyle=rgba('#000000',.24);c.beginPath();c.ellipse(p.x-ls*3,p.y+2.5,rr+13,6,0,0,TAU);c.fill();
+    c.fillStyle=rgba(K.jm(P.air[0],P.light,.3),.1+.2*LA);c.beginPath();c.ellipse(p.x+ls*9,p.y+4.2,6,1.3,0,0,TAU);c.fill();
+    barrel(c,P,p.x,p.y,rr,hh,'#42301f',false,{seed:31,top:'water',rust:true,moss:true});
+    c.strokeStyle=sh('#262220');c.lineWidth=4.6;c.beginPath();c.moveTo(w.x,w.y-2);c.lineTo(p.x+1,w.y+5.5);c.stroke();c.strokeStyle=rgba(P.light,.05+.22*LA);c.lineWidth=1;c.beginPath();c.moveTo(w.x-1.4,w.y-2);c.lineTo(p.x-.4,w.y+5.5);c.stroke();
+    {const mx=p.x+ls*rr*.74,my=p.y-hh+1;c.fillStyle=sh('#3e4046');c.fillRect(mx-.75,my-2.6,1.5,6);c.fillRect(mx-2.2,my+3,4.4,4.6);c.fillStyle=rgba(P.light,.18+.5*LA);c.fillRect(mx+ls*1.2-.5,my+3.3,1,3.8);}}
+  // tyres stacked against the yard wall, a drum, a cartwheel, scrap
+  {const Wl=Yd.wall,t0=Q(626,0,Wl.d-10);
+    thrown(c,P,5,2,()=>{c.beginPath();for(let i=0;i<4;i++){const q=Q(626,i*9,Wl.d-10);c.moveTo(q.x+15,q.y-4.5);c.ellipse(q.x,q.y-4.5,15,5,0,0,TAU);}});
+    for(let i=0;i<4;i++){const p=Q(626,i*9,Wl.d-10);c.fillStyle=sh('#141214');c.beginPath();c.ellipse(p.x,p.y-4.5,15,5,0,0,TAU);c.fill();c.strokeStyle=rgba('#4a4a52',.35);c.lineWidth=1.48;c.beginPath();c.ellipse(p.x,p.y-4.5,10,3,0,Math.PI,TAU);c.stroke();
+      c.fillStyle=sh('#0a0a0c');c.beginPath();c.ellipse(p.x,p.y-6,7,2,0,0,TAU);c.fill();
+      c.strokeStyle=rgba(P.light,.08+.3*LA);c.lineWidth=1;c.beginPath();c.ellipse(p.x,p.y-5.4,14.4,4.6,0,Math.PI*(ls<0?1.02:1.55),Math.PI*(ls<0?1.45:1.98));c.stroke();
+      c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.5;c.beginPath();for(let k=-2;k<=2;k++){const u=k/2.4;c.moveTo(p.x+u*15,p.y-4.5+5*Math.sqrt(1-u*u)-.4);c.lineTo(p.x+u*15,p.y-4.5+5*Math.sqrt(1-u*u)-3.4);}c.stroke();}
+    const dp=Q(782,0,Wl.d-12);thrown(c,P,5,2,()=>{c.beginPath();c.rect(dp.x-9.5,dp.y-32,19,31);});barrel(c,P,dp.x,dp.y,11,30,'#4e2216',true,{seed:37});
+    const wp=Q(744,26,Wl.d-6),wheel=()=>{c.beginPath();c.arc(wp.x,wp.y,22,0,TAU);for(let k=0;k<10;k++){const a=k/10*TAU;c.moveTo(wp.x,wp.y);c.lineTo(wp.x+Math.cos(a)*21,wp.y+Math.sin(a)*21);}};
+    thrown(c,P,4,2.5,wheel,1,2.4);c.strokeStyle=sh('#42341f');c.lineWidth=2.6;c.beginPath();c.arc(wp.x,wp.y,22,0,TAU);c.stroke();c.lineWidth=1.51;c.beginPath();for(let k=0;k<10;k++){const a=k/10*TAU;c.moveTo(wp.x,wp.y);c.lineTo(wp.x+Math.cos(a)*21,wp.y+Math.sin(a)*21);}c.stroke();
+    c.strokeStyle=sh('#2a2622');c.lineWidth=1.5;c.beginPath();c.arc(wp.x,wp.y,23.4,0,TAU);c.stroke();c.strokeStyle=rgba(P.light,.1+.4*LA);c.lineWidth=1;c.beginPath();c.arc(wp.x,wp.y,23.6,Math.PI*(ls<0?1.02:1.52),Math.PI*(ls<0?1.48:1.98));c.stroke();
+    c.fillStyle=sh('#261c14');c.beginPath();c.arc(wp.x,wp.y,4,0,TAU);c.fill();c.fillStyle=sh('#3a3632');c.beginPath();c.arc(wp.x,wp.y,1.6,0,TAU);c.fill();
+    for(let i=0;i<5;i++){const q=Q(800+r()*40,0,Wl.d-14-r()*16);c.fillStyle=sh(K.TINC[(r()*K.TINC.length)|0]);c.save();c.translate(q.x,q.y);c.rotate((r()-.5)*.6);c.fillRect(-12,-4,24,4);c.fillStyle=rgba(P.light,.06+.25*LA);c.fillRect(-12,-4,24,.8);c.restore();}}
+  woodpile(c,P);}
+// The things along the walls a second time, over the light (since V118). The day's haze is light added over the whole picture, and
+// it lifts every dark in it: a black tyre came out the wall's own grey-brown, a barrel against the shed could not be told from the
+// boards behind it. The walls keep that haze. What stands against them is painted again on a strip of its own and laid back over
+// at part strength, so that each thing keeps the light that fell on it and has its own darks again.
+function crisp(c,P){const m=c.getTransform(),x0=120,x1=930,y0=170,y1=352;if(m.b||m.c||!(m.a>0))return;
+  const cn=document.createElement('canvas');cn.width=Math.ceil((x1-x0)*m.a);cn.height=Math.ceil((y1-y0)*m.d);const g=cn.getContext('2d');g.setTransform(m.a,0,0,m.d,-x0*m.a,-y0*m.d);
+  wallThings(g,P);c.save();c.globalAlpha=P.key==='night'?.5:.62;c.drawImage(cn,x0,y0,x1-x0,y1-y0);c.restore();cn.width=cn.height=0;}
 function heap(c,P,x0,x1,d0,d1,seed){const r=rng(seed),sh=(col,k)=>K.shade(P,col,k);
   const pts=[];for(let x=x0;x<=x1;x+=12)pts.push(Q(x,8+r()*16,lerp(d1,d0,.5+(r()-.5)*.4)));const a=Q(x0,0,d0),e=Q(x1,0,d0);
   c.fillStyle=sh('#161210',1.3);c.beginPath();c.moveTo(a.x,a.y+30);pts.forEach(p=>c.lineTo(p.x,p.y));c.lineTo(e.x,e.y+30);c.closePath();c.fill();
@@ -681,20 +792,153 @@ function heap(c,P,x0,x1,d0,d1,seed){const r=rng(seed),sh=(col,k)=>K.shade(P,col,
     if(k<.3){c.fillStyle=sh('#121012');c.beginPath();c.ellipse(p.x,p.y,13,5,(r()-.5)*.4,0,TAU);c.fill();c.fillStyle=sh('#050506');c.beginPath();c.ellipse(p.x,p.y-1,6,2,0,0,TAU);c.fill();}
     else if(k<.6){c.save();c.translate(p.x,p.y);c.rotate((r()-.5)*.8);c.fillStyle=sh(K.TINC[(r()*K.TINC.length)|0],1.2);c.fillRect(-16,-5,32,7);c.fillStyle=rgba('#7a3a18',.35);c.fillRect(-8,-5,10,7);c.restore();}
     else{c.save();c.translate(p.x,p.y);c.rotate((r()-.5)*.8);c.fillStyle=sh(['#42321f','#33251a'][(r()*2)|0],1.2);c.fillRect(-14,-2,28,4);c.restore();}}}
-// a barrel standing at (x, y) on the screen: r across the middle, h high; staves, hoops, the light down one side; a drum of steel if steel
-function barrel(c,P,x,y,r,h,base,steel){const sh=(col,k)=>K.shade(P,col,k);c.fillStyle=rgba('#000000',.35);c.beginPath();c.ellipse(x+2,y,r+4,r*.32,0,0,TAU);c.fill();
-  c.fillStyle=lin(c,x-r,0,x+r,0,[[0,sh(base,1.4)],[.35,K.topLit(P,base,.7)],[.7,sh(base,1.1)],[1,sh(base,1.5)]]);c.beginPath();c.moveTo(x-r*.86,y);c.quadraticCurveTo(x-r*1.06,y-h/2,x-r*.86,y-h);c.lineTo(x+r*.86,y-h);c.quadraticCurveTo(x+r*1.06,y-h/2,x+r*.86,y);c.closePath();c.fill();
-  if(!steel){c.strokeStyle=rgba('#000000',.35);c.lineWidth=1.51;c.beginPath();for(let k=-2;k<=2;k++){const xx=x+k*r*.36;c.moveTo(xx,y-1);c.quadraticCurveTo(xx+k*r*.06,y-h/2,xx,y-h+1);}c.stroke();}
-  c.strokeStyle=sh(steel?'#2a1a14':'#24201c');c.lineWidth=steel?1.6:2.2;for(const f of steel?[.33,.66]:[.14,.4,.6,.86]){const yy=y-h*f;c.beginPath();c.moveTo(x-r*(f>.2&&f<.8?1.02:.9),yy);c.lineTo(x+r*(f>.2&&f<.8?1.02:.9),yy);c.stroke();}
-  c.fillStyle=K.topLit(P,steel?'#42261c':'#4e3c28',1.1);c.beginPath();c.ellipse(x,y-h,r*.86,r*.26,0,0,TAU);c.fill();c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.51;c.stroke();
-  if(steel){for(let i=0;i<5;i++){c.fillStyle=rgba('#7a3a14',.28);c.fillRect(x-r*.6+i*r*.3,y-h*.8,2,h*.5);}}}
-// a box standing on the floor at (x, d), w across, dd deep, h high: its front, its right side, its top
-function box(c,P,x,d,w,dd,h,base){const sh=(col,k)=>K.shade(P,col,k),A=Q(x,0,d),B=Q(x+w,0,d),Bt=Q(x+w,h,d),At=Q(x,h,d),Ct=Q(x+w,h,d+dd),Dt=Q(x,h,d+dd),Cb=Q(x+w,0,d+dd);
+// which way things throw their shadows: away from the kit's sun (1: to the right, by day; -1: by morning; 0 where there is none),
+// and how dark a thrown shadow lies at this time of day
+const sunDir=()=>{const S2=K.sun();return S2?(S2.x<500?1:-1):0;},thrownA=P=>P.key==='night'||P.key==='dusk'?.2:.3;
+// what stands against a wall throws its shape on it (since V118: the things along the yard's walls stood the walls' own tone under
+// the day's haze and were lost in them): the same path again, a little along and down from the sun, in the shade's slate (stroked lw wide
+// for a thing that is all line); close in under it where there is no sun
+function thrown(c,P,dx,dy,path,a,lw){const sd=sunDir(),col=rgba('#0c121c',(a??1)*thrownA(P));c.save();c.translate(sd?sd*dx:0,sd?dy:dy*.6);path();if(lw){c.strokeStyle=col;c.lineWidth=lw;c.stroke();}else{c.fillStyle=col;c.fill();}c.restore();}
+// a barrel standing at (x, y) on the screen: r across the middle, h high. Since V118 a round thing: staves each of its own tone
+// round the bilge, iron hoops that go round it (seen a little from above, so each dips toward us), the light down the side the sun
+// is on and a little thrown back up the other, the head sunk in its chime, a bung and what has run from it, the damp at its foot.
+// o.top: 'head' (the head in its rim), 'lid' (two boards laid on it, a tin mug if o.mug), 'water' (open and full) or 'open' (open
+// and dark); o.rust: its hoops rusted; o.moss: green up its foot; o.seed. A drum of steel if steel: its rolled ribs, its rust
+function barrel(c,P,x,y,r,h,base,steel,o){o=o||{};const sh=(col,k)=>K.shade(P,col,k),rs=rng(o.seed||(Math.round(x)*7+Math.round(r)*3+1)),ls=-(sunDir()||1),LA=P.lightA,top=o.top||'head';
+  const w0=r*.86,ry=r*.26,hw=q=>r*(.86+.4*q*(1-q)),yq=q=>y-h*q,ty=y-h;
+  const body=()=>{c.beginPath();c.moveTo(x-w0,y);c.quadraticCurveTo(x-r*1.06,y-h/2,x-w0,ty);c.lineTo(x+w0,ty);c.quadraticCurveTo(x+r*1.06,y-h/2,x+w0,y);c.ellipse(x,y,w0,w0*.28,0,0,Math.PI);c.closePath();};
+  const side=u=>{c.moveTo(x+u*w0,y+w0*.28);c.quadraticCurveTo(x+u*r*1.06,y-h/2,x+u*w0,ty);};
+  c.fillStyle=rgba('#000000',.4);c.beginPath();c.ellipse(x-ls*2,y+ry*.3,r+3.5,r*.3,0,0,TAU);c.fill();
+  body();c.fillStyle=lin(c,x+ls*r,0,x-ls*r,0,[[0,sh(base,1.2)],[.2,K.topLit(P,base,.95)],[.5,sh(base,.95)],[.82,sh(base,1.6)],[1,sh(base,1.25)]]);c.fill();
+  c.save();body();c.clip();
+  if(!steel){const n=clamp(Math.round(r*.45),5,7),U=[];for(let k=0;k<=n;k++)U.push(Math.sin((-.5+k/n)*Math.PI));
+    for(let k=0;k<n;k++){c.fillStyle=rs()<.5?rgba('#000000',.04+.13*rs()):rgba(P.light,.02+.07*rs()*(.4+LA));
+      c.beginPath();side(U[k]);c.lineTo(x+U[k+1]*w0,ty);c.quadraticCurveTo(x+U[k+1]*r*1.06,y-h/2,x+U[k+1]*w0,y+w0*.28);c.closePath();c.fill();}
+    c.strokeStyle=rgba('#000000',.26);c.lineWidth=1.5;c.beginPath();for(let k=1;k<n;k++)side(U[k]);c.stroke();
+    if(o.bung!==false){const bx=x+ls*r*.24,by=yq(.52);c.fillStyle=rgba('#000000',.17);c.beginPath();c.moveTo(bx-1.2,by);c.lineTo(bx+1.2,by);c.lineTo(bx+2.2,by+h*.3);c.lineTo(bx-1.7,by+h*.3);c.closePath();c.fill();
+      c.fillStyle='#120c08';c.beginPath();c.ellipse(bx,by,1.6,1.9,0,0,TAU);c.fill();c.fillStyle=sh('#5e4a34');c.beginPath();c.ellipse(bx-ls*.15,by+.1,1.15,1.4,0,0,TAU);c.fill();}}
+  else{for(let i=0;i<4;i++){c.fillStyle=rgba('#8a4418',.14+.2*rs());c.fillRect(x+(-.7+rs()*1.4)*w0-1,yq(.85-rs()*.2),2+rs()*2.4,h*(.25+rs()*.4));}
+    for(let i=0;i<3;i++){c.fillStyle=rgba('#7a3a14',.2+.2*rs());K.blob(c,x+(rs()-.5)*r*1.4,yq(.15+rs()*.7),2.4+rs()*3,2+rs()*2.4,rs,7);c.fill();}}
+  c.fillStyle=lin(c,0,y-h*.26,0,y+ry,[[0,rgba('#000000',0)],[1,rgba('#000000',.34)]]);c.fillRect(x-r*1.1,y-h*.26,r*2.2,h*.26+ry+1);
+  if(o.moss)for(let i=0;i<9;i++){c.fillStyle=rgba(sh('#46553a'),.16+.16*rs());K.blob(c,x-ls*r*(-.3+rs()*1.1),yq(rs()*rs()*.4),1.4+rs()*2.6,1+rs()*1.6,rs,7);c.fill();}
+  c.strokeStyle=rgba(P.light,.06+.16*LA);c.lineWidth=1;c.beginPath();for(let i=0;i<2;i++){const sx=x+(rs()-.5)*r*1.3,sy=yq(.2+rs()*.6);c.moveTo(sx,sy);c.lineTo(sx+(rs()-.5)*4,sy-3-rs()*5);}c.stroke();
+  {const iron=sh(o.rust?K.jm('#2b2622','#6a3418',.55):steel?'#2a1a14':'#2b2622'),th=Math.max(2.2,h*.066);
+    for(const q of steel?[.03,.34,.66,.97]:[.08,.28,.72,.92]){const yy=yq(q),a=hw(q)+.5,b2=hw(q)*.28;
+      c.strokeStyle=rgba('#000000',.24);c.lineWidth=1.5;c.beginPath();c.ellipse(x,yy+th*.8,a,b2,0,0,Math.PI);c.stroke();
+      c.strokeStyle=iron;c.lineWidth=steel?1.7:th;c.beginPath();c.ellipse(x,yy,a,b2,0,0,Math.PI);c.stroke();
+      c.strokeStyle=rgba(P.light,.12+.5*LA);c.lineWidth=1;c.beginPath();c.ellipse(x,yy-th*.22,a,b2,0,Math.PI*(ls<0?.6:.1),Math.PI*(ls<0?.9:.4));c.stroke();
+      if(!steel){c.fillStyle=rgba('#000000',.5);c.beginPath();c.arc(x+ls*a*.45,yy+b2*.89,.8,0,TAU);c.fill();}}}
+  c.restore();
+  c.strokeStyle=rgba(P.light,.08+.34*LA);c.lineWidth=1;c.beginPath();c.moveTo(x+ls*(w0-.6),y-1);c.quadraticCurveTo(x+ls*(r*1.06-.6),y-h/2,x+ls*(w0-.6),ty+1);c.stroke();
+  if(top==='lid'){c.fillStyle=sh(base,1.5);c.beginPath();c.ellipse(x,ty-.4,w0+2.2,ry+1,0,0,TAU);c.fill();
+    c.fillStyle=K.topLit(P,'#5a4834',1);c.beginPath();c.ellipse(x,ty-2,w0+2.2,ry+1,0,0,TAU);c.fill();
+    c.strokeStyle=rgba('#000000',.3);c.lineWidth=1.5;c.beginPath();c.moveTo(x-w0-1.6,ty-2);c.lineTo(x+w0+1.6,ty-2);c.stroke();
+    c.fillStyle=sh('#3a2c1e',1.1);c.beginPath();c.moveTo(x-2.2,ty-2-ry*.86);c.lineTo(x+2.2,ty-2-ry*.86);c.lineTo(x+2.8,ty-2+ry*.9);c.lineTo(x-2.8,ty-2+ry*.9);c.closePath();c.fill();
+    c.fillStyle=rgba(P.light,.1+.4*LA);c.fillRect(x-2.2,ty-2-ry*.86,1,ry*1.7);
+    c.strokeStyle=rgba(P.light,.14+.5*LA);c.lineWidth=1;c.beginPath();c.ellipse(x,ty-2,w0+2.2,ry+1,0,Math.PI*1.05,Math.PI*1.95);c.stroke();
+    if(o.mug){const mx=x-ls*w0*.46,my=ty-2.6;c.fillStyle=sh('#55565c');c.fillRect(mx-2.2,my-5,4.4,5);c.beginPath();c.ellipse(mx,my,2.2,.8,0,0,TAU);c.fill();
+      c.fillStyle=K.topLit(P,'#8a8c94',1);c.beginPath();c.ellipse(mx,my-5,2.2,.8,0,0,TAU);c.fill();c.fillStyle='#16171a';c.beginPath();c.ellipse(mx,my-4.9,1.5,.5,0,0,TAU);c.fill();
+      c.fillStyle=rgba(P.light,.2+.5*LA);c.fillRect(mx+ls*1.3-.5,my-4.6,1,4);c.fillStyle=sh('#55565c');c.fillRect(mx-ls*3.6-.75,my-4.2,1.5,3.2);c.fillRect(mx-ls*2.2-1.1,my-4.2,2.2,1.5);}}
+  else{c.fillStyle=K.topLit(P,steel?'#4a3028':K.jm(base,'#6a5a48',.35),1.05);c.beginPath();c.ellipse(x,ty,w0+.5,ry+.3,0,0,TAU);c.fill();c.strokeStyle=rgba('#000000',.36);c.lineWidth=1.5;c.stroke();
+    c.save();c.beginPath();c.ellipse(x,ty+.2,w0*.84,ry*.8,0,0,TAU);c.clip();
+    if(top==='open'){c.fillStyle='#0b0806';c.fillRect(x-w0,ty-ry,w0*2,ry*2+1);}
+    else if(top==='water'){c.fillStyle=K.jm(sh('#1a2226',1.2),K.jm(P.air[0],P.light,.25),.16+.2*LA);c.fillRect(x-w0,ty-ry,w0*2,ry*2+1);
+      c.fillStyle=rgba(K.jm(P.air[0],P.light,.4),.16+.4*LA);c.beginPath();c.ellipse(x-ls*w0*.2,ty+ry*.46,w0*.5,ry*.2,0,0,TAU);c.fill();
+      c.fillStyle=rgba('#000000',.4);c.beginPath();c.ellipse(x,ty-ry*.55,w0*.84,ry*.5,0,0,TAU);c.fill();}
+    else{c.fillStyle=sh(base,1.7);c.fillRect(x-w0,ty-ry,w0*2,ry*2+1);
+      c.fillStyle=K.topLit(P,steel?'#4e2e24':base,.6);c.beginPath();c.ellipse(x,ty+ry*.36,w0*.84,ry*.66,0,0,TAU);c.fill();
+      if(steel){for(let i=0;i<2;i++){c.fillStyle=rgba('#8a4418',.3);K.blob(c,x+(rs()-.5)*w0,ty+ry*(.1+rs()*.5),2+rs()*2,.8+rs(),rs,7);c.fill();}
+        c.fillStyle='#120c0a';c.beginPath();c.ellipse(x-ls*w0*.4,ty+ry*.3,1.7,.7,0,0,TAU);c.fill();}
+      else{c.strokeStyle=rgba('#000000',.26);c.lineWidth=1.5;c.beginPath();for(const u of [-.34,.3]){c.moveTo(x+u*w0-1,ty-ry*.4);c.lineTo(x+u*w0+1,ty+ry);}c.stroke();}}
+    c.restore();
+    c.strokeStyle=rgba(P.light,.14+.5*LA);c.lineWidth=1;c.beginPath();c.ellipse(x,ty,w0+.5,ry+.3,0,Math.PI*1.05,Math.PI*1.95);c.stroke();}}
+// a box standing on the floor at (x, d), w across, dd deep, h high: its front, its right side, its top. Since V118 a crate of
+// boards: each board of its own tone, battens down its corners with their nails, the brace a board, the top's boards running back
+function box(c,P,x,d,w,dd,h,base){const sh=(col,k)=>K.shade(P,col,k),A=Q(x,0,d),B=Q(x+w,0,d),Bt=Q(x+w,h,d),At=Q(x,h,d),Ct=Q(x+w,h,d+dd),Dt=Q(x,h,d+dd),Cb=Q(x+w,0,d+dd),r=rng(Math.round(x*3+d)),LA=P.lightA,n=3,fh=A.y-At.y;
   c.fillStyle=rgba('#000000',.3);K.poly(c,[Q(x-2,0,d-2),Q(x+w+4,0,d-2),Q(x+w+4,0,d+dd+2),Q(x-2,0,d+dd+2)]);c.fill();
   c.fillStyle=sh(base,1.5);K.poly(c,[B,Cb,Ct,Bt]);c.fill();c.fillStyle=K.topLit(P,base,.55);K.poly(c,[At,Bt,Ct,Dt]);c.fill();c.fillStyle=sh(base,1.1);K.poly(c,[A,B,Bt,At]);c.fill();
-  c.strokeStyle=rgba('#000000',.35);c.lineWidth=1.57;for(const k of [.33,.66]){c.beginPath();c.moveTo(A.x,lerp(A.y,At.y,k));c.lineTo(B.x,lerp(B.y,Bt.y,k));c.stroke();}
-  c.strokeStyle=K.shade(P,'#22180f');c.lineWidth=1.6;c.beginPath();c.moveTo(A.x+1,A.y-1);c.lineTo(Bt.x-1,Bt.y+1);c.stroke();
+  for(let i=0;i<n;i++){c.fillStyle=r()<.5?rgba('#000000',.05+.1*r()):rgba(P.light,.02+.06*r()*(.4+LA));c.fillRect(A.x,At.y+fh*i/n,B.x-A.x,fh/n);}
+  c.strokeStyle=rgba('#000000',.36);c.lineWidth=1.5;c.beginPath();for(let i=1;i<n;i++){c.moveTo(A.x,At.y+fh*i/n);c.lineTo(B.x,At.y+fh*i/n);}c.stroke();
+  c.strokeStyle=rgba('#000000',.26);c.lineWidth=1.5;c.beginPath();for(let i=1;i<n;i++){c.moveTo(B.x,lerp(Bt.y,B.y,i/n));c.lineTo(Cb.x,lerp(Ct.y,Cb.y,i/n));}
+  for(let i=1;i<4;i++){c.moveTo(lerp(At.x,Bt.x,i/4),At.y);c.lineTo(lerp(Dt.x,Ct.x,i/4),Dt.y);}c.stroke();
+  c.strokeStyle=sh(base,1.4);c.lineWidth=3;c.beginPath();c.moveTo(A.x+3,A.y-1.6);c.lineTo(Bt.x-3,Bt.y+1.6);c.stroke();c.strokeStyle=rgba(P.light,.06+.2*LA);c.lineWidth=1;c.beginPath();c.moveTo(A.x+3,A.y-3);c.lineTo(Bt.x-3,Bt.y+.2);c.stroke();
+  for(const bx of [A.x,B.x-3]){c.fillStyle=sh(base,1.3);c.fillRect(bx,At.y,3,fh);c.fillStyle=rgba(P.light,.06+.22*LA);c.fillRect(bx,At.y,1,fh);c.fillStyle=rgba('#000000',.5);for(let i=0;i<n;i++)c.fillRect(bx+1,At.y+fh*(i+.5)/n-.75,1.5,1.5);}
+  c.fillStyle=rgba(P.light,.1+.34*LA);c.fillRect(At.x,At.y-.5,Bt.x-At.x,1);
   c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.57;K.poly(c,[A,B,Bt,At]);c.stroke();}
+// ---------- what grows in the yard, and what the wind moves (since V118) ----------
+// Weeds and grass where no one treads: at the feet of the walls and the fence, in the gutter, round the flagstones, at the puddles'
+// edges, in the junk at the front corners. GROW is the list, made once from its own dice: where each stands (x, d, and h off the
+// floor), how tall, its kind (0 grass, 1 dry grass gone to seed, 2 dock: broad leaves and a rusty spike) and its blades (where each
+// starts, its lean, its length, whether it takes the light). The tall ones are live: the wind moves them, so they are drawn each
+// frame (plantsLive), behind everyone, which is why they stand only where no one can get behind them. The rest go into the
+// picture, over its light (growth).
+let GROW=null;
+function grow(){if(GROW)return GROW;const Yd=Y(),far=Yd.far,Wl=Yd.wall,g=Yd.gate,r=rng(211),a=[];
+  const add=(x,d,s,k,live,h)=>{const n=k===2?2+((r()*2)|0):4+((r()*3)|0),B=[];
+    for(let i=0;i<n;i++)B.push({o:(r()-.5)*s*.45,a:((i+.5)/n-.5)*(k===2?.7:1.5)+(r()-.5)*.3,l:s*(k===2?.8+r()*.3:.6+r()*.5),t:r()<.4?1:0,v:r()});
+    a.push({x,d,h:h||0,s,k,live:!!live,B,ph:r()*TAU,lv:r()});};
+  const kind=()=>r()<.55?0:r()<.7?1:2;
+  const run=(x0,x1,d,step,gaps,s0,s1)=>{for(let x=x0+r()*step;x<x1;x+=step*(.6+r()*.8)){if(gaps.some(([g0,g1])=>x>g0&&x<g1)||r()<.25)continue;add(x,d-r()*2.5,s0+r()*(s1-s0),r()<.7?0:1);}};
+  run(24,466,far-1.5,13,[[136,214],[380,404],[436,476]],5.5,10);run(564,602,far-1.5,11,[],5.5,8.5);
+  run(Wl.x0+4,FENCE.x-4,Wl.d-1.5,14,[[608,646],[718,770]],5.5,9.5);run(26,120,Yd.sidestair.d-3,18,[],5,8);
+  for(let d=20;d<206;d+=12*(.6+r()*.8)){if(d>g.d-g.w/2-10&&d<g.d+g.w/2+10)continue;add(FENCE.x-4-r()*3,d,4+r()*5,r()<.6?0:1);}
+  for(const [px,pd,pr] of PUDS){add(px-pr*.9,pd+pr*.2,3.5+r()*1.5,0);if(pr>16)add(px+pr*.8,pd+pr*.3,3.5+r()*1.5,0);}
+  for(const [fx,fd] of [[142,188],[208,182],[150,160],[200,150],[186,134]])add(fx+(r()-.5)*4,fd,3.5+r()*1.5,0);
+  for(let i=0;i<7;i++)add(-160+r()*190,2+r()*40,5+r()*6,kind());for(let i=0;i<7;i++)add(890+r()*160,r()*38,5+r()*6,kind());
+  // (the tall ones: against the Sump, at the woodshed's corner, along the yard wall, in the fence's corners, in the junk)
+  for(const [x,d,s,k] of [[36,far-2,17,1],[100,far-2,13,2],[266,far-2,15,1],[366,far-2,14,2],[430,far-2,19,1],[598,far-2,18,2],[654,Wl.d-2,16,1],[700,Wl.d-2,13,0],[806,Wl.d-2,17,2],[842,Wl.d-3,21,1],
+      [847,186,15,0],[848,62,17,1],[846,24,14,2],[22,Yd.sidestair.d-4,15,0],[-64,22,20,1],[-128,30,16,2],[948,20,19,1],[1016,26,15,2]])add(x,d,s,k,true);
+  // (grass in the gutter, and one tuft on the woodshed's roof)
+  for(const x of [72,168,250,334,414])add(x+(r()-.5)*10,far,3.5+r()*2.5,r()<.5?0:1,true,SUMP.eave+2);add(540,far+6,4.5,1,true,SHED.h+5);
+  a.still=a.filter(g=>!g.live);a.live=a.filter(g=>g.live);return GROW=a;}
+// the wind in the yard: a slow push with gusts through it, the same for everything it moves; nothing where motion is reduced
+const gustAt=t=>.55+.45*Math.sin(t*.37+1.3)*Math.sin(t*.11);
+function windAt(t,x){if(typeof reduceMotion!=='undefined'&&reduceMotion)return 0;return gustAt(t)*(.25+.5*Math.sin(t*1.9+x*.021)+.3*Math.sin(t*3.1+x*.047+1.1));}
+const GREEN=['#2f4026','#4a6634'],DRY=['#453f2a','#6c6544'],DOCK=['#2e4024','#486034'];
+// the blades of the plants in list of one kind and one tone (0 the dark ones, 1 the lit), as one path to fill: each a blade's
+// shape, a mark wide at its foot and drawn out to a point (a stroked hair of grass is under the drawing guide's smallest mark, and
+// at that mark's width it is a worm); w(g): how far the wind has that plant
+function blades(c,list,kind,tone,w){for(const g of list){if(g.k!==kind)continue;const p=Q(g.x,g.h,g.d),k=w?w(g):0;
+    for(const b of g.B){if(b.t!==tone)continue;const sx=p.x+b.o,sn=Math.sin(b.a),tx=sx+sn*b.l*.8+k*b.l,ty=p.y-Math.cos(b.a)*b.l*(1-Math.abs(k)*.2),mx=sx+sn*b.l*.2+k*b.l*.3,my=p.y-b.l*.6,hw=.85+b.v*.4;
+      c.moveTo(sx-hw,p.y);c.quadraticCurveTo(mx-hw*.75,my,tx,ty);c.quadraticCurveTo(mx+hw*.75,my,sx+hw,p.y);c.closePath();}}}
+// plants drawn whole: the grass and the dry grass as blades (the dry with its seed at the tips), the dock as leaves and its spike
+function plants(c,P,list,w){const sh=(col,k)=>K.shade(P,col,k);c.lineCap='round';c.lineJoin='round';
+  for(let k=0;k<2;k++){const C0=k?DRY:GREEN;
+    c.fillStyle=sh(C0[0]);c.beginPath();blades(c,list,k,0,w);c.fill();c.fillStyle=K.topLit(P,C0[1],.22);c.beginPath();blades(c,list,k,1,w);c.fill();
+    if(k===1){c.fillStyle=K.topLit(P,'#7c7454',.3);for(const g of list){if(g.k!==1||g.s<9)continue;const p=Q(g.x,g.h,g.d),kk=w?w(g):0;for(const b of g.B){if(b.v<.45)continue;const sx=p.x+b.o,tx=sx+Math.sin(b.a)*b.l*.8+kk*b.l,ty=p.y-Math.cos(b.a)*b.l*(1-Math.abs(kk)*.2);
+          c.beginPath();c.ellipse(tx-Math.sin(b.a)*1.2,ty+1.4,1.1,2.5,b.a+kk*.6,0,TAU);c.fill();}}}}
+  for(const g of list){if(g.k!==2)continue;const p=Q(g.x,g.h,g.d),kk=w?w(g):0;
+    for(let i=0;i<4;i++){const a=(i-1.5)*.62+(g.lv-.5)*.3,l=g.s*(.42+.12*((i*7+3)%4)/3),tx=p.x+Math.sin(a)*l+kk*l*.35,ty=p.y-Math.cos(a)*l*.72,nx=Math.cos(a)*l*.2,ny=Math.sin(a)*l*.2;
+      c.fillStyle=i%2?K.topLit(P,DOCK[1],.25):sh(DOCK[0]);c.beginPath();c.moveTo(p.x,p.y);c.quadraticCurveTo(p.x+(tx-p.x)*.5+nx,p.y+(ty-p.y)*.5+ny,tx,ty);c.quadraticCurveTo(p.x+(tx-p.x)*.5-nx,p.y+(ty-p.y)*.5-ny,p.x,p.y);c.fill();}
+    for(const b of g.B){const sx=p.x+b.o,tx=sx+Math.sin(b.a)*b.l*.5+kk*b.l,ty=p.y-b.l*(1-Math.abs(kk)*.15),mx=sx+kk*b.l*.3,my=p.y-b.l*.55;
+      c.strokeStyle=sh(DOCK[0]);c.lineWidth=1.5;c.beginPath();c.moveTo(sx,p.y);c.quadraticCurveTo(mx,my,tx,ty);c.stroke();
+      c.strokeStyle=sh('#6e3c24',.8);c.lineWidth=2.6;c.beginPath();c.moveTo((mx+tx)/2+(sx-mx)*.1,(my+ty)/2+1);c.lineTo(tx,ty);c.stroke();}}
+  c.lineCap='butt';}
+// the washing line by the woodshed: from its corner to a pole at the yard wall, short of where Dob sits, three cloths pegged on it (the pole and the line
+// are painted into the picture; the cloths hang live, and lift when the wind is in them)
+const LINE=()=>{const Yd=Y(),a=Q(SHED.x1-1,SHED.h-3,Yd.far),b=Q(656,102,Yd.wall.d-1);return{a,b,foot:Q(656,0,Yd.wall.d-1)};};
+const lineAt=(L2,u)=>({x:lerp(L2.a.x,L2.b.x,u),y:lerp(L2.a.y,L2.b.y,u)+Math.sin(u*Math.PI)*3.5});
+const HUNG=[[.12,.38,14,'#55627c',0],[.47,.63,10,'#978a70',1],[.7,.93,15,'#804c40',2]];
+function clothsLive(c,t,P){const L2=LINE(),sh=(col,k)=>K.shade(P,col,k);
+  for(const [u0,u1,len,col,i] of HUNG){const p0=lineAt(L2,u0),p1=lineAt(L2,u1),pm=lineAt(L2,(u0+u1)/2),w=windAt(t+i*.7,p0.x*3+i*90),dx=w*len*.5,lift=Math.abs(w)*len*.13,fl=Math.sin(t*5.3+i*2)*w*2;
+    c.fillStyle=sh(col,.9);c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(pm.x,pm.y+.6);c.lineTo(p1.x,p1.y);c.quadraticCurveTo(p1.x+dx*.5,p1.y+len*.5,p1.x+dx+fl,p1.y+len-lift);
+    c.quadraticCurveTo((p0.x+p1.x)/2+dx,(p0.y+p1.y)/2+len-lift+1.6+fl,p0.x+dx-fl*.5,p0.y+len-lift*.6);c.quadraticCurveTo(p0.x+dx*.5,p0.y+len*.5,p0.x,p0.y);c.fill();
+    c.strokeStyle=rgba('#000000',.18);c.lineWidth=1.5;c.beginPath();c.moveTo(lerp(p0.x,p1.x,.38),lerp(p0.y,p1.y,.38)+1);c.quadraticCurveTo(lerp(p0.x,p1.x,.38)+dx*.5,lerp(p0.y,p1.y,.38)+len*.5,lerp(p0.x,p1.x,.4)+dx,lerp(p0.y,p1.y,.4)+len-lift-1.5);c.stroke();
+    c.strokeStyle=rgba(P.light,.1+.34*P.lightA);c.lineWidth=1;c.beginPath();c.moveTo(p0.x,p0.y+.5);c.lineTo(pm.x,pm.y+1.1);c.lineTo(p1.x,p1.y+.5);c.stroke();
+    c.fillStyle=sh('#2a2018');c.fillRect(p0.x-.75,p0.y-1.8,1.5,3.4);c.fillRect(p1.x-.75,p1.y-1.8,1.5,3.4);}}
+// what grows, into the picture over its light: each plant's shade on the ground, the low ones whole; a creeper up the woodshed's
+// corner; three tins of herbs on the kitchen's sill; the washing line and its pole
+function growth(c,P){const Yd=Y(),far=Yd.far,sh=(col,k)=>K.shade(P,col,k),G=grow(),LA=P.lightA;
+  c.fillStyle=rgba('#000000',.24);for(const g of G){if(g.h)continue;const p=Q(g.x,0,g.d);c.beginPath();c.ellipse(p.x,p.y+.3,g.s*.55+1,g.s*.12+.7,0,0,TAU);c.fill();}
+  plants(c,P,G.still,null);
+  {const r=rng(223),x=SHED.x1+far*PSX+1.5,y0=Q(0,0,far).y,y1=Q(0,SHED.h+4,far).y;c.strokeStyle=sh('#2e2a1c');c.lineWidth=1.5;c.beginPath();c.moveTo(x,y0);for(let y=y0-6;y>y1;y-=6)c.lineTo(x+Math.sin(y*.21)*2.4,y);c.stroke();
+    for(let i=0;i<34;i++){const y=lerp(y0-4,y1,r()),lx=x+Math.sin(y*.21)*2.4+(r()-.5)*9,a=r()*TAU;c.fillStyle=r()<.35?K.topLit(P,'#48603a',.25):sh(['#2a3a22','#324428'][(r()*2)|0]);c.beginPath();c.ellipse(lx,y,2.5,1.5,a,0,TAU);c.fill();}}
+  {const W0=Yd.window;for(const [tx,tc] of [[W0.x0+7,'#5a3a2c'],[W0.x0+16,'#4a4c50'],[W0.x1-9,'#5a4a34']]){const p=Q(tx,W0.y1,far);c.fillStyle=sh(tc,1.1);c.fillRect(p.x-2,p.y-4.2,4,4.4);c.fillStyle=rgba(P.light,.14+.4*LA);c.fillRect(p.x-2,p.y-4.2,1,4.4);
+      c.strokeStyle=sh(GREEN[0]);c.lineWidth=1.5;c.beginPath();for(const a of [-.7,.5]){c.moveTo(p.x,p.y-4);c.quadraticCurveTo(p.x+a*2,p.y-7,p.x+a*5,p.y-9.5);}c.stroke();
+      c.fillStyle=K.topLit(P,GREEN[1],.3);for(const a of [-.7,-.15,.5]){c.beginPath();c.ellipse(p.x+a*5,p.y-9.6,1.5,1,a,0,TAU);c.fill();}}}
+  {const L2=LINE();c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(L2.foot.x+1.5,L2.foot.y+.4,5,1.5,0,0,TAU);c.fill();
+    c.fillStyle=sh('#32281c',1.1);c.fillRect(L2.foot.x-1.4,L2.b.y-3,2.8,L2.foot.y-L2.b.y+3);c.fillStyle=rgba(P.light,.1+.34*LA);c.fillRect(L2.foot.x-1.4,L2.b.y-3,1,L2.foot.y-L2.b.y+3);
+    c.strokeStyle=sh('#1c1814');c.lineWidth=1.5;c.beginPath();c.moveTo(L2.a.x,L2.a.y);for(let u=.1;u<=1.001;u+=.1){const q=lineAt(L2,u);c.lineTo(q.x,q.y);}c.stroke();}}
 // ---------- the light over it all ----------
 function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
   c.save();c.globalCompositeOperation='lighter';
@@ -711,7 +955,10 @@ function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
   c.restore();
   // the sun's light down the wall and over the yard, by day and by morning (the kit's: shafts from over the rim, the slate shadows)
   K.sunlight(c,P,-200,1240,-640,GB+30,SUNO);
-  c.fillStyle=lin(c,0,Q(0,0,far).y-6,0,Q(0,0,far-50).y,[[0,rgba('#000000',.32)],[1,rgba('#000000',0)]]);c.fillRect(-200,Q(0,0,far).y-6,1400,Q(0,0,far-50).y-Q(0,0,far).y+6);
+  // (the dark at the walls' feet: at each wall's own foot, eased in from above since V118. It began as a hard line a hand over the
+  // Sump's foot, right across the yard: it cut through whatever stood at the wall and lay as a band on the yard wall's bricks)
+  for(const [xa,xb,dw] of [[-200,SHED.x1+far*PSX,far],[SHED.x1+far*PSX,FENCE.x+Yd.wall.d*PSX+6,Yd.wall.d]]){const yw=Q(0,0,dw).y,yf=Q(0,0,dw-50).y;
+    c.fillStyle=lin(c,0,yw-12,0,yf,[[0,rgba('#000000',0)],[12/(yf-yw+12),rgba('#000000',.3)],[1,rgba('#000000',0)]]);c.fillRect(xa,yw-12,xb-xa,yf-yw+12);}
   E.fallKeep(c,-200,1240,GB-40,[[GB-40,0],[GB+130,T==='night'?.6:.48]],null,.06);
   if(T==='morning'){// mist lying on the floor of the Pit: over the far shacks' feet, along the yard's walls, low over the yard (blue in
     // the shade, as the sun's shafts cross it warm: since V81, a pale grey that took the colour out of everything)
@@ -726,12 +973,18 @@ function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
 function paint(c){const P=K.pal(),X0=-170,X1=W+250,T0=-110;
   backdrop(c,P,X0,X1,T0);neighbours(c,P);beyond(c,P);
   ground(c,P);
-  sump(c,P);shed(c,P);sideStair(c,P);stairFence(c,P);ladder(c,P);yardWall(c,P);along(c,P);drumFire(c,P);fence(c,P);
+  sump(c,P);shed(c,P);sideStair(c,P);stairFence(c,P);ladder(c,P);yardWall(c,P);along(c,P);wallThings(c,P);drumFire(c,P);fence(c,P);
   // the contact shadows of the pieces that stand among the people
   {const Yd=Y();c.fillStyle=rgba('#000000',.3);for(const B0 of Yd.barrels){const p=Q(B0.x,0,B0.d);c.beginPath();c.ellipse(p.x+2,p.y,B0.r+5,B0.r*.36,0,0,TAU);c.fill();}
     const pm=Q(Yd.pump.x,0,Yd.pump.d);c.beginPath();c.ellipse(pm.x+3,pm.y,Yd.pump.r+8,Yd.pump.r*.42,0,0,TAU);c.fill();
-    const t0=Q(Yd.trough.x0-2,0,Yd.trough.d-12),t1=Q(Yd.trough.x1+4,0,Yd.trough.d+12);c.fillRect(t0.x,t1.y,t1.x-t0.x,t0.y-t1.y);}
-  lightPass(c,P);}
+    const t0=Q(Yd.trough.x0-2,0,Yd.trough.d-12),t1=Q(Yd.trough.x1+4,0,Yd.trough.d+12);c.fillRect(t0.x,t1.y,t1.x-t0.x,t0.y-t1.y);
+    // (and what each throws along the ground away from the sun, long and soft, since V118)
+    const sd=sunDir();if(sd){const lay=(x,d,w,len,dd)=>{const a=Q(x,0,d-dd),b=Q(x,0,d+dd),e=Q(x+sd*len,0,d);c.fillStyle=lin(c,a.x,0,e.x,0,[[0,rgba('#0c121c',.26)],[.5,rgba('#0c121c',.12)],[1,rgba('#0c121c',0)]]);
+        c.beginPath();c.moveTo(a.x-sd*w,a.y);c.lineTo(e.x,e.y+(a.y-b.y)*.3);c.lineTo(e.x,e.y-(a.y-b.y)*.3);c.lineTo(b.x-sd*w,b.y);c.closePath();c.fill();};
+      for(const B0 of Yd.barrels)lay(B0.x,B0.d,B0.r*.5,B0.r*3.6,B0.r*.5);for(const Cr of Yd.crates)lay(Cr.x,Cr.d,Cr.w*.3,Cr.h*1.5,Cr.w*.45);
+      lay(Yd.pump.x,Yd.pump.d,6,92,6);lay(Yd.trough.x1,Yd.trough.d,10,30,10);}}
+  lightPass(c,P);
+  crisp(c,P);growth(c,P);}
 // ---------- the pieces that stand among the people: the pump, the trough, the barrels, the crates ----------
 function pumpPiece(){const Yd=Y(),P=K.pal(),Pm=Yd.pump,c0=Q(Pm.x,0,Pm.d),R=Pm.r;
   return K.piece('yardpump|'+P.key,c0.x-48,c0.y-82,92,102,c=>{const sh=(col,k)=>K.shade(P,col,k);
@@ -771,8 +1024,7 @@ function troughPiece(){const Yd=Y(),P=K.pal(),T0=Yd.trough,d0=T0.d-9,d1=T0.d+9,h
     c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.57;c.beginPath();const m=Q(x0+22,0,d0),m2=Q(x0+24,h,d0);c.moveTo(m.x,m.y);c.lineTo(m2.x,m2.y);c.stroke();
     c.fillStyle=rgba(P.light,.1+.35*P.lightA);K.poly(c,[Q(x0,h,d0),Q(x1,h,d0),Q(x1,h-1,d0),Q(x0,h-1,d0)]);c.fill();});}
 function barrelPiece(B0,i){const P=K.pal(),p=Q(B0.x,0,B0.d),h=B0.r*2.5;
-  return K.piece('yardbarrel'+i+'|'+P.key,p.x-B0.r-8,p.y-h-B0.r,B0.r*2+16,h+B0.r*1.6,c=>{barrel(c,P,p.x,p.y,B0.r,h,i?'#4e3822':'#45331f');
-    if(i===0){c.fillStyle=K.shade(P,'#33251a');c.beginPath();c.ellipse(p.x,p.y-h-1,B0.r*.8,B0.r*.22,0,0,TAU);c.fill();c.strokeStyle=rgba('#000000',.4);c.lineWidth=1.51;c.beginPath();c.moveTo(p.x-B0.r*.7,p.y-h-1);c.lineTo(p.x+B0.r*.7,p.y-h-1);c.stroke();}});}
+  return K.piece('yardbarrel'+i+'|'+P.key,p.x-B0.r-8,p.y-h-B0.r,B0.r*2+16,h+B0.r*1.6,c=>{barrel(c,P,p.x,p.y,B0.r,h,i?'#57483a':'#45331f',false,i?{seed:29,top:'head',rust:true}:{seed:23,top:'lid',mug:true});});}
 function cratePiece(Cr,i){const P=K.pal(),x=Cr.x-Cr.w/2,d=Cr.d-Cr.w/2,a=Q(x,Cr.h,d+Cr.w),b=Q(x+Cr.w,0,d);
   return K.piece('yardcrate'+i+'|'+P.key,Q(x,Cr.h,d).x-3,a.y-2,b.x-Q(x,0,d).x+Cr.w*.2+8,b.y-a.y+5,c=>{box(c,P,x,d,Cr.w,Cr.w,Cr.h,i?'#3a2c1c':'#42321f');});}
 // a gate's leaf of planks, hinged at (hx, hd), len long and h high, turned th from shut: its shut way along (ux, ud), opening toward
@@ -883,6 +1135,54 @@ function doorLive(c,P){const k=opened('yardDoor');if(k<=.01||P.key==='night')ret
 function pumpWet(c,P){const A=typeof S!=='undefined'&&S?S.act1:null,B=A&&A.bucket;if(!B)return;const k=B.full?1:clamp(B.fill||0,0,1);if(k<=0)return;const Pm=Y().pump,q=Q(Pm.x+15,0,Pm.d-9);
   c.fillStyle=rgba('#050403',.2*k);c.beginPath();c.ellipse(q.x,q.y,10+17*k,(10+17*k)*.3,0,0,TAU);c.fill();
   c.fillStyle=rgba(P.light,(.05+.1*P.lightA)*k);c.beginPath();c.ellipse(q.x+2,q.y-1.5,(10+17*k)*.6,1.1,0,0,TAU);c.fill();}
+// The small things that move in the yard (since V118): the tall weeds and the washing in the wind, the hoist's fall, the gutter's
+// drip into the rain barrel, the light on the big puddles and a ring where a foot comes down in one, midges over the water (moths
+// round the lamps after dark), straw over the ground when the wind gets up, a feather coming down off the roof now and then,
+// sparks off the fire in the lane. Each from the clock and its own number, never from dice; still where motion is reduced.
+const hsh=n=>{n=(n|0)^0x5bd1e995;n=Math.imul(n^(n>>>15),0x2c1b3c6d);n=Math.imul(n^(n>>>12),0x297a2d39);n^=n>>>15;return(n>>>0)/4294967296;};
+// a foot coming down in a puddle: read off the joints as they are drawn (a foot that was off the floor and is on it again), kept
+// here and nowhere the game reads
+const WET=new WeakMap(),RINGS=[];
+function feetWet(t){if(typeof FTF==='undefined'||typeof S==='undefined'||!S.F)return;
+  for(const f of S.F){if(!f||f.gone||f.hidden||f.dead||!f.p||!f.p[FTF]||!f.gr)continue;let st=WET.get(f);if(!st)WET.set(f,st=[{},{}]);
+    for(let k=0;k<2;k++){const q=f.p[k?FTB:FTF],e=st[k],h=f.gr(q.x)-q.y,dt=e.t==null?-1:t-e.t;
+      if(dt>0&&dt<.1){e.base=Math.min(e.base+dt*.6,h);const up=h-e.base;
+        if(up>2.4)e.air=(e.air||0)+dt;
+        else if(up<1.1){if(e.air>.05)for(const [px,pd,pr] of PUDS){const ux=(q.x-px)/pr,ud=(f.dep-pd)/(pr*.62);if(ux*ux+ud*ud<1){const g=Q(q.x,0,f.dep);RINGS.push({x:g.x,y:g.y,t});break;}}e.air=0;}}
+      else{e.base=h;e.air=0;}
+      e.t=t;}}
+  if(RINGS.length>8)RINGS.splice(0,RINGS.length-8);}
+function yardLive(c,t,P){const Yd=Y(),far=Yd.far,T=P.key,still=typeof reduceMotion!=='undefined'&&reduceMotion,sh=(col,k)=>K.shade(P,col,k),dark=T==='night'||T==='dusk';
+  plants(c,P,grow().live,g=>windAt(t+g.ph*.4,g.x)*.2);
+  clothsLive(c,t,P);
+  // the hoist's fall and its hook
+  if(HOIST.x){const a=still?0:.05*windAt(t*.6+2,400)+.018*Math.sin(t*1.7),x1=HOIST.x+Math.sin(a)*43,y1=HOIST.y+Math.cos(a)*43;
+    c.strokeStyle=sh('#5a4a38');c.lineWidth=1.6;c.beginPath();c.moveTo(HOIST.x,HOIST.y);c.lineTo(x1,y1);c.quadraticCurveTo(x1+2+a*8,y1+8,x1-4+a*14,y1+12);c.stroke();c.fillStyle=sh('#3a3632');c.beginPath();c.arc(x1-4+a*14,y1+14,2,0,TAU);c.fill();}
+  // the gutter's drip into the rain barrel, a ring on its water
+  {const p=Q(456,0,far-12),w=Q(456,40,far),per=2.9,u=still?.99:(t%per)/per,x=p.x+1,y0=w.y+7,y1=p.y-36.8;
+    if(u<.34){c.fillStyle=rgba('#cfe0e8',.5);c.beginPath();c.ellipse(x,y0+u*3,.9,1+u*2,0,0,TAU);c.fill();}
+    else if(u<.42){const k=(u-.34)/.08;c.fillStyle=rgba('#cfe0e8',.55);c.fillRect(x-.5,lerp(y0+2,y1-2,k*k),1,2.2);}
+    else if(u<.95){const k=(u-.42)/.53;c.strokeStyle=rgba('#d8e8f0',.42*(1-k));c.lineWidth=1;c.beginPath();c.ellipse(x-1,y1,1+k*8,(1+k*8)*.27,0,0,TAU);c.stroke();}}
+  // the light moving on the big puddles; a ring where a foot comes down in one
+  if(T!=='night'){c.fillStyle=rgba(K.jm(P.air[0],P.light,.4),.1+.2*P.lightA);for(const [px,pd,pr] of PUDS){if(pr<20)continue;const q=Q(px,0,pd),k=still?0:Math.sin(t*.5+px*.01);c.globalAlpha=still?.6:.5+.5*Math.sin(t*.9+px);c.fillRect(q.x-pr*.5+k*pr*.3,q.y-1.5+(still?0:Math.sin(t*.7+px)*.8),pr*.5,1);}c.globalAlpha=1;}
+  if(!still){feetWet(t);c.lineWidth=1;for(let i=RINGS.length-1;i>=0;i--){const g=RINGS[i],u=(t-g.t)/.7;if(!(u>=0&&u<1)){RINGS.splice(i,1);continue;}
+      c.strokeStyle=rgba('#d8e8f0',.42*(1-u));for(const k of [u,u-.3]){if(k<=0)continue;c.beginPath();c.ellipse(g.x,g.y,2+k*13,(2+k*13)*.3,0,0,TAU);c.stroke();}}}
+  if(still)return;
+  // the water running in the trough's overflow: glints going down it
+  if(T!=='night'){c.fillStyle=rgba(K.jm(P.air[0],P.light,.5),.22+.3*P.lightA);for(let i=0;i<5;i++){const u=((t*.16+i/5)%1),[x,d]=rillAt(u),q=Q(x,0,d);c.globalAlpha=Math.sin(u*Math.PI);c.fillRect(q.x-1.4,q.y-.5,2.8,1);}c.globalAlpha=1;}
+  // midges over the rain barrel and the trough by day, moths round the lantern and the gate's lamp after dark
+  if(dark){c.fillStyle=rgba('#f0e2c0',.7);const lp=Q(LANT.x,LANT.h-4,LANT.d),gp=Q(FENCE.x+GLAMP.dx,GLAMP.h-3,Yd.gate.d-Yd.gate.w/2+GLAMP.dd);
+    for(let i=0;i<5;i++){const o=i<3?lp:gp,a=t*(1.7+i*.31)+i*2.1,rr=5+3*Math.sin(t*.9+i);c.fillRect(o.x+Math.cos(a)*rr*1.4,o.y+Math.sin(a*1.3)*rr*.8,1,1);}}
+  else{c.fillStyle=rgba('#1c1814',.45);const o1=Q(456,50,far-12),o2=Q((Yd.trough.x0+Yd.trough.x1)/2,26,Yd.trough.d);
+    for(let i=0;i<9;i++){const o=i<5?o1:o2,a=t*(1.1+hsh(i)*1.3)+i*1.7;c.fillRect(o.x+Math.sin(a)*(5+hsh(i+20)*7)+Math.sin(a*2.3+i)*2,o.y+Math.cos(a*1.31+i)*(3+hsh(i+40)*5),1.5,1.5);}}
+  // straw over the ground when the wind gets up
+  {const k=clamp((gustAt(t)-.55)/.3,0,1);if(k>0)for(let i=0;i<5;i++){const v=26+hsh(i+7)*30,x=((hsh(i+3)*1300+t*v)%1300)-200,q=Q(x,0,20+hsh(i+11)*190),hop=Math.abs(Math.sin(t*(3+hsh(i)*3)+i))*2.2;
+      c.save();c.translate(q.x,q.y-.6-hop);c.rotate(t*(2+hsh(i+5)*3)+i);c.fillStyle=rgba(i%2?'#b8a070':'#a09070',.55*k);c.fillRect(-2.4,-.5,4.8,1);c.restore();}}
+  // a feather coming down off the roof now and then
+  {const per=13,n=Math.floor(t/per),u=(t-n*per)/5.5;if(u<1){const x=70+hsh(n*3+1)*380+far*PSX+Math.sin(u*9+n)*9+u*14,y=lerp(Q(0,SUMP.eave+10,far).y,Q(0,0,far-20-hsh(n+9)*40).y,u*u*.4+u*.6);
+      c.save();c.translate(x,y);c.rotate(Math.sin(u*9+n)*.9);c.fillStyle=rgba('#c9c9d2',.75*(u>.85?(1-u)/.15:1));c.beginPath();c.ellipse(0,0,2.6,.8,0,0,TAU);c.fill();c.restore();}}
+  // sparks going up off the drum in the lane
+  if(P.fire>.5){const p=Q(DRUM.x,30,DRUM.d);c.fillStyle='#ffb25e';for(let i=0;i<5;i++){const per=1.6+hsh(i+31)*1.4,u=((t+hsh(i+33)*9)%per)/per;c.globalAlpha=.8*(1-u)*P.fire;c.fillRect(p.x-5+hsh(i+35)*10+Math.sin(u*6+i)*4,p.y-u*(30+hsh(i+37)*26),1.1,1.1);}c.globalAlpha=1;}}
 // ---------- what moves ----------
 // smoke from the stovepipe and the chimneys round about, the fires on the far wall, the lamps and the window, the pump's drip, a bird
 // on the ridge, the morning's mist; on an upright phone, the walls going on up to the sky
@@ -918,6 +1218,7 @@ function live(){const t=S.t,P=K.pal(),T=P.key,Yd=Y();ctx.save();
     else if(u<.42){const k=(u-.3)/.12;ctx.fillStyle=rgba('#cfe0e8',.6);ctx.fillRect(x-.5,lerp(y0+3,y1,k*k),1,2.4);}
     else if(u<.9){const k=(u-.42)/.48;ctx.strokeStyle=rgba('#d8e8f0',.4*(1-k));ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x,y1,1.5+k*7,(1.5+k*7)*.3,0,0,TAU);ctx.stroke();}}
   // the back door as Tamm goes in; the wet under the spout; Dob's birds: each one's next move, and those that keep to the roof
+  yardLive(ctx,t,P);
   doorLive(ctx,P);pumpWet(ctx,P);flockStep(t);for(const b of FLOCK)if(!b.trough&&!b.ground)birdDraw(ctx,b,t,P);
   if(P.mist>0){const sp=K.puffSpr('#c4d2e2');for(const m of MIST){const x=((m.ph+t*m.sp)%1500)-300,q=Q(x,0,m.d);ctx.globalAlpha=m.a*P.mist;ctx.drawImage(sp,q.x-m.w/2,q.y-m.w*.1,m.w,m.w*.2);}ctx.globalAlpha=1;}
   ctx.restore();}

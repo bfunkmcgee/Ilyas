@@ -1220,6 +1220,35 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   - The picture. The roof's tin is painted sheet by sheet (each its own pitch and start, a dark lap between); the floor has a finer
     mottle in its own plane, scuffs and stones (both from the look review, below: at a third of the old distance the tin read as
     one ruled field and the ground before the door as one flat fill).
+  - The picture again, for V118 (in work on the branch claude/v118-yard: not published). Asked for: the barrels' detail, the
+    barrel and the firewood against the shed that could not be seen, more growth and ground detail, more small things that move.
+    - Why the things along the walls were lost. The day's haze is light added over the whole picture (`lightPass`: the kit's
+      sunlight and its shafts), and it lifts every dark in it: a black tyre came out the wall's own grey-brown, luma 74 against the
+      wall's 105. So `wallThings` (the chopping block, the crate of bottles, the broom, the washtub, the rain barrel, the tyres,
+      the drum, the cartwheel, the firewood; out of `along`) is painted twice: under the light with everything else, and again
+      over it on a strip of its own, laid back at .62 (`crisp`; .5 at night). Each thing keeps the light that fell on it and has
+      its own darks again; the walls keep their haze. Each throws its shape on the wall behind it (`thrown`: the same path, a
+      little along and down from the kit's sun, `sunDir`).
+    - `barrel()` is a round thing: staves of their own tones round a bilge, hoops that go round it (the lower half of an ellipse
+      each), the lit side toward the sun, the head sunk in its chime, a bung. `o.top` 'head', 'lid', 'water' or 'open'; `o.rust`,
+      `o.moss`, `o.mug`. The two in the yard, the rain barrel, the drum at the yard wall and the fire's drum all use it. `box()`
+      is a crate of boards with battens and nails. `woodpile()` is a stack between two stakes under an oilcloth.
+    - The ground: flagstones before the step, cracks, stones, trodden green at its edges, boot prints in the soft places, the
+      trough's overflow running to the big puddle (`RILL`), the pieces' shadows thrown long from the sun. `PUDS` is the puddles.
+      The dark at the walls' feet is at each wall's own foot and eased in from above: it was one hard line across the yard.
+    - What grows: `GROW` (made once by `grow()`: where each plant stands, its kind, its blades). The low ones go into the picture
+      over its light (`growth`, with a creeper up the woodshed's corner, tins of herbs on the sill, the washing line's pole). The
+      tall ones stand only where no one can get behind them and are drawn live, in the wind. A blade is a filled shape, a mark
+      wide at its foot and drawn to a point: stroked at the drawing guide's 1.5 units it is a worm, and under that it fails the
+      look review's `thin` (the first try failed 34 lines that way).
+    - What moves (`yardLive`, from `live()`): the tall weeds and three cloths on the line (`windAt`, one wind for all of it), the
+      hoist's fall and its hook (out of `dormer`'s still picture), the gutter's drip into the rain barrel, the light on the big
+      puddles, glints going down the trough's overflow, a ring where a foot comes down in a puddle (`feetWet`: the joints as they
+      are drawn, kept in the painter and read by nothing), midges over the water by day and moths at the lamps after dark, straw
+      over the ground when the wind gets up, a feather off the roof every thirteen seconds, sparks off the drum in the lane. All
+      from the clock and each thing's own number (`hsh`), no dice; under reduced motion the wind is nothing and only the still
+      ones are drawn.
+    - The look review of yard1 alone (`python3 test.py places yard1`): clean; its frames 13 to 16 ms against the fall's 45.
   - Scene 5 opens in the same yard and takes the same frame: the back door's shot for Tamm's list, and the walk about's view,
     camera and blocks (sk_pit5.js). Scene 8, the yard at night, keeps its own wide view: its plates lie where he spills them
     and its buttons stand on the right, neither tried against the closer frame.
