@@ -63,7 +63,8 @@ paints.push(pick('Scene',[['Walk','walk'],['Yard','yard'],['Fight','fight']],()=
 const quick=el('button',{type:'button'}),more=el('button',{type:'button',textContent:'Test'});
 quick.addEventListener('click',()=>{MO.on=!MO.on;paint();});
 more.addEventListener('click',()=>{bar.classList.toggle('open');paint();});
-bar.appendChild(sheet);bar.appendChild(el('div',{className:'b',style:'display:flex;gap:6px'},[more,quick]));
+const quicks=el('div',{className:'b',style:'display:flex;gap:6px'},[more,quick]);
+bar.appendChild(sheet);bar.appendChild(quicks);
 function paint(){quick.textContent=MO.on?'New':'Old';quick.classList.toggle('on',MO.on);quick.setAttribute('aria-label',MO.on?'Drawing: new. Tap for old':'Drawing: old. Tap for new');
   more.setAttribute('aria-expanded',bar.classList.contains('open')?'true':'false');for(const p of paints)p();}
 // the three scenes
@@ -77,6 +78,8 @@ function go(v){
   else{S.auto=false;const t=document.getElementById('tAuto');if(t)t.checked=false;storyGo(v==='walk'?'motion':'yard1');}
   bar.classList.remove('open');paint();}
 MO.go=go;
+// (another test on the same page puts its own switches in this panel: the layers test, spike/layers)
+MO.panel={el,sheet,quicks,state,repaint:()=>paint(),row:(label,opts,get,set)=>{paints.push(pick(label,opts,get,set));},onPaint:fn=>{paints.push(fn);}};
 const start=()=>{document.body.appendChild(bar);paint();if(!/[?&]scene=none/.test(location.search))go('walk');};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else setTimeout(start,0);
 })();
