@@ -1,5 +1,5 @@
 // The motion test's pictures: the test page stepped by hand, a tile cut out round a figure every few frames.
-//   NODE_PATH=node_modules node spike/motion/strip.js <outdir> <on|off|twos> <first frame> <every> <count> [stage] [who] [w h]
+//   NODE_PATH=node_modules node spike/motion/strip.js <outdir> <on|off> <first frame> <every> <count> [stage] [who] [w h]
 // TW, TH: the tile in the game's units; FIX: a place on the floor to hold the tile on, where it should not follow the figure.
 // Frames are the page's own (a sixtieth of a second, two steps of the game's clock). The same frames with `on` and `off` show the same
 // moment of the same game, drawn the two ways.
@@ -16,7 +16,7 @@ fs.mkdirSync(OUT,{recursive:true});
     window.__now=1e6;performance.now=()=>window.__now;Date.now=()=>1.7e12+window.__now;});
   await p.goto('file://'+path.resolve(PAGE)+'?host=0&scene=none');await p.waitForTimeout(1500);
   await p.evaluate(([mode])=>{S.soundOn=false;window.R1=window.render;window.drawing=on=>{window.render=on?window.R1:()=>{};};
-    MotionTest.on=mode!=='off';MotionTest.twos=mode==='twos';
+    MotionTest.on=mode!=='off';
     // (the layer's twelfths of a second go by the page's clock: the harness's own here)
     window.step=k=>{for(let i=0;i<k;i++){window.__now+=1000/60;const L=window.__rafs;window.__rafs=[];for(const f of L){if(window.__all||f.name==='frame'){try{f(window.__now);}catch(e){window.__err=(window.__err||0)+1;window.__errm=String(e&&e.stack||e).slice(0,400);}}else window.__rafs.push(f);}}};drawing(false);},[MODE]);
   await p.evaluate(([st,pre])=>{if(st!=='-'){storyGo(st);S.storyAuto=true;S.auto=false;}if(pre)new Function(pre)();step(2);},[STAGE,PRE]);

@@ -13,8 +13,8 @@ python3 spike/motion/build_motion.py
 ```
 
 That writes `spike/motion/out/motion-test.html` (and `out/index.html`, wrapped for publishing). The page opens on the test's own
-scene. Two buttons sit at the right edge: `New` / `Old` changes the drawing, `Test` opens the rest (poses a second, how a blow
-is drawn, the two bodies as lines, the scene). `?scene=none` opens the page on the game's title instead.
+scene. Two buttons sit at the right edge: `New` / `Old` changes the drawing, `Test` opens the rest (how a blow is drawn, the
+two bodies as lines, the scene). `?scene=none` opens the page on the game's title instead.
 
 | Scene | What it is |
 |---|---|
@@ -37,19 +37,21 @@ late, with the sway and settling of the springs in it. With the test on, the fig
 | Hips along the floor | the ragdoll's | the ragdoll's: he is never drawn through a table, and a shove still moves him |
 | Height of the hips, chest, head, hands, blade | springs chasing the pose | the pose's own numbers |
 | Elbows and knees | springs | found from shoulder and hand, hip and foot |
-| A planted foot | held by a spring | where it was planted, to the unit |
+| A planted foot | held by a spring | still, to the unit, until a step lifts it |
+| Squaring up, closing the feet | two quick steps, as soon as a foot is out of place | one step in a person's time (a fifth to a half of a second by its length), the other foot waiting its turn |
+| Stopping a walk | the foot in the air is pulled back under him | the step lands where it was going, and he stands over his feet as they are |
+| Standing easy | feet put back under the pose whenever it shifts | he stands over his feet, and moves one only when his hips have gone past them |
 | An action's keys | chased, and so rounded off late | read at five moments about now and averaged: rounded off on time |
 | A blow in a fight | the ragdoll | above the hips the ragdoll's, carried on the drawn hips and legs (the switch `Blows in a fight`: `Drawn` takes the blow from its keys as well) |
 | A change of pose made at once (a stance, a guard) | springs swing him into it | eased over a quarter of a second, head first, hands last |
-| Walking | feet slid low along the floor on bent knees | heel off, the ankle up and through, a straight leg under the hips |
-| A turn round | Ilyas through the front view, everyone else at once | the cast through the front view as well |
+| Walking | feet slid low along the floor on bent knees | heel off, the ankle up and through, a straight leg under the hips; the trunk pitches a little with each step and the head stays level |
+| Starting and stopping a walk | upright at full pace from the first frame, upright at the last | he leans into the start and back against the stop, and his first step is slower than the rest |
+| A turn round | Ilyas through the front view, everyone else at once | the cast through the front view as well, in .46 of a second where the game takes .36 |
+| The first steps in the yard (scene 4) | his trunk and hand swayed on two clocks | a stagger tied to his footfalls: stooped, head hanging, each step pitching him forward or rocking him back, the knee giving under the bad ones |
 | Standing easy the old way (`STAND0`) | on bent knees, stock still | on straight legs, breathing |
 | The blur of a quick blade | swept by the ragdoll's blade | swept by the blade he is drawn with |
 | Hit hard, thrown, down | the ragdoll | the ragdoll: the drawing gives way to it, and takes him back as the game does |
 | Mounted, perched, held, carried, a beast, a puppet, in bed | the ragdoll | left alone |
-
-`Poses a second: 12` holds each drawing for a twelfth of a second. The hips still travel every frame and a planted foot stays
-planted, so nothing slides; the pose changes twelve times a second.
 
 ## Blows
 
@@ -69,7 +71,7 @@ That is a fault in the game, not in this test, and it is a large part of how he 
 
 | File | What it holds |
 |---|---|
-| `motion.js` | the drawn pose: reading the pose, the walk, the easing, giving way to the ragdoll, holding on twos |
+| `motion.js` | the drawn pose: reading the pose, the feet, the walk, the easing, giving way to the ragdoll |
 | `panel.js` | the test's scene and its switches |
 | `build_motion.py` | the page |
 | `probe.js` | the check that the game is the same with the test on (below) |
@@ -82,8 +84,8 @@ That is a fault in the game, not in this test, and it is a large part of how he 
 NODE_PATH=node_modules node spike/motion/probe.js 9000
 ```
 
-Each scene is played from a fresh page four times with nothing painted: twice with the test off, once with it on and once on
-twos. Every 300 frames the game's state is summed up (every figure's joints, scarf, strength, footing and place, the clock, the
+Each scene is played from a fresh page three times with nothing painted: twice with the test off and once with it on. Every
+300 frames the game's state is summed up (every figure's joints, scarf, strength, footing and place, the clock, the
 turn, the story's step, the dice). The sums must agree. Scenes: a lab fight of five, the prologue from its start, Act I from its
 start, the toll, the yard, the test's own scene.
 
@@ -91,6 +93,7 @@ start, the toll, the yard, the test's own scene.
 
 - The game is not changed. Taking this into the game is a version of its own: the drawing would move into the UI files, and the
   fault above would be mended in the game itself.
-- The staggering first steps in the yard (scene 4) are the scene's own sway, drawn as written.
-- A walk still starts and stops at once, and squares up with two quick steps. The steps are the game's.
+- His hips are the game's, so a walk is at full pace on its first frame and stopped dead on its last. The lean and the slower
+  first step make that read as a start and a stop; they do not make it one. A real one needs the game to bring him up to pace.
+- The feet in a fight are the game's: where it plants a foot, and when, is part of how a blow lands.
 - Jogging keeps the game's footfalls, which are a fast walk's. The test adds the heel kick, the bent arms and the bounce.

@@ -30,8 +30,8 @@ STAGES.push({key:'motion',act:1,num:'',title:'',sub:'',arena:'yard',next:null,we
       standEasy(K,true);yield* wait(1.2);}};
     yield* all(his(),hers());}});
 // ---------- the switches ----------
-// Two buttons at the right edge: the drawing (new, old) and the rest. The rest: poses a second, how a blow is drawn, the two bodies
-// as lines, and the three scenes (the walk above, the yard as the game plays it, a fight in the lab that plays itself).
+// Two buttons at the right edge: the drawing (new, old) and the rest. The rest: how a blow is drawn, the two bodies as lines, and
+// the three scenes (the walk above, the yard as the game plays it, a fight in the lab that plays itself).
 const css=`
 #moBar{position:fixed;right:max(6px,env(safe-area-inset-right,0px));bottom:21%;z-index:2147483000;display:flex;flex-direction:column;gap:6px;align-items:flex-end;
   font:600 12px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.03em;-webkit-user-select:none;user-select:none;touch-action:manipulation}
@@ -57,7 +57,6 @@ const pick=(label,opts,get,set)=>{const row=el('div',{className:'r'},[el('span',
   row.appendChild(b);sheet.appendChild(row);return()=>{for(const [x,v] of btns){const on=get()===v;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false');}};};
 const paints=[];
 paints.push(pick('Drawing',[['New',true],['Old',false]],()=>MO.on,v=>{MO.on=v;}));
-paints.push(pick('Poses a second',[['Every frame',false],['12',true]],()=>MO.twos,v=>{MO.twos=v;}));
 paints.push(pick('Blows in a fight',[['Ragdoll above the hips','upper'],['Drawn','drawn']],()=>MO.blows,v=>{MO.blows=v;}));
 paints.push(pick('The two bodies as lines',[['Off',false],['On',true]],()=>!!MO.bones,v=>{MO.bones=v;}));
 paints.push(pick('Scene',[['Walk','walk'],['Yard','yard'],['Fight','fight']],()=>state.scene,v=>go(v)));
