@@ -34,11 +34,11 @@ YARD = (
      "  for(const f of [{x0:424,x1:512,top:200,base:262,seed:31,col:'#342b2c',wins:[[24,16,13,11]]},{x0:512,x1:584,top:212,base:262,seed:37,col:'#3d3330',wins:[[28,13,12,10]],kind:'tin'},\n"
      "    {x0:584,x1:640,top:192,base:262,seed:41,col:'#30282a',wins:[[16,16,12,10]]}]){f.hz=.12;K.facade(c,P,f);}\n"
      "  c.strokeStyle=rgba('#0a0808',.65);c.lineWidth=1.51;c.beginPath();c.moveTo(700,126);c.lineTo(424,108);c.moveTo(640,156);c.lineTo(424,152);c.stroke();}\n"
-     "function paint(c,only){const P=K.pal(),X0=-170,X1=W+250,T0=-110;\n  if(only==='light'){lightPass(c,P);return;}\n  if(only==='over'){crisp(c,P);growth(c,P);return;}\n"
+     "function paint(c,only){const P=K.pal(),X0=-170,X1=W+250,T0=-110;\n  if(only==='light'){lightPass(c,P);dropShade(c,P);return;}\n  if(only==='over'){crisp(c,P);southOver(c,P);growth(c,P);return;}\n"
      "  if(!only||only==='far')backdrop(c,P,X0,X1,T0);\n  if(only==='mid'&&(" + SLID + "||0).ext!==false)behindRow(c,P);\n"
      "  if(!only||only==='mid'){neighbours(c,P);beyond(c,P);}\n  if(only==='far'||only==='mid')return;\n  ground(c,P);\n"),
-    ("  lightPass(c,P);\n  crisp(c,P);growth(c,P);}\n// ---------- the pieces that stand among the people",
-     "  if(!only){lightPass(c,P);crisp(c,P);growth(c,P);}}\n// ---------- the pieces that stand among the people"),
+    ("  southShadows(c,P);\n  lightPass(c,P);\n  dropShade(c,P);crisp(c,P);southOver(c,P);growth(c,P);}\n// ---------- the pieces that stand among the people",
+     "  southShadows(c,P);\n  if(!only){lightPass(c,P);dropShade(c,P);crisp(c,P);southOver(c,P);growth(c,P);}}\n// ---------- the pieces that stand among the people"),
     ("  K.upper('yard:'+T,-1000,",
      "  const __L=" + SLID + ",__c0=ctx,__fc=__L&&__L.far?__L.far(ctx):null;if(__fc)ctx=__fc;\n  K.upper('yard:'+T,-1000,"),
     ("  ctx.save();ctx.clip(skyPath());\n", "  ctx.save();if(!__fc)ctx.clip(skyPath());\n"),
@@ -48,8 +48,8 @@ YARD = (
      "K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);}\n",
      "  {const srcs=[{x:STOVE.x,y:STOVE.y,s:5,sp:.1,n:8,h:180,dx:24,a:.55}],src2=[];for(const ch of NEARCH)src2.push({x:ch.x,y:ch.y,s:4,sp:.09,n:6,h:120,dx:16,a:.45,ph:ch.x*.013});"
      "K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);\n    ctx.save();if(__L&&__L.mid)__L.mid(ctx);K.smoke(ctx,src2,t,P.smoke,T==='night'?.6:1);ctx.restore();}\n"),
-    ("E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT};",
-     "E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,bands:1};"),
+    ("E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:true};",
+     "E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:true,bands:1};"),
 )
 
 

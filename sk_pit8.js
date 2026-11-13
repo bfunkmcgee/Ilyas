@@ -21,10 +21,13 @@ function glimmerAction(K){const up=()=>({...easyBody(K),lean:-.2,crouch:.98});
 // the nine plates out of the hilt and into the dirt in front of him (never inside the yard's barrels, pump, trough or crates)
 function nightSpill(N){const K=hero(),E=S.ex,Y=ACT1_PLACES.yard,b=E.bounds,R=mulberry32(808+N.flicks),h=K.p[HAF];
   const solid=(x,z)=>Y.barrels.some(o=>Math.hypot(x-o.x,z-o.d)<o.r+8)||Math.hypot(x-Y.pump.x,z-Y.pump.d)<Y.pump.r+8||
-    (x>Y.trough.x0-8&&x<Y.trough.x1+8&&Math.abs(z-Y.trough.d)<14)||Y.crates.some(o=>Math.abs(x-o.x)<o.w/2+8&&Math.abs(z-o.d)<16);
+    (x>Y.trough.x0-8&&x<Y.trough.x1+8&&Math.abs(z-Y.trough.d)<14)||Y.crates.some(o=>Math.abs(x-o.x)<o.w/2+8&&Math.abs(z-o.d)<16)||
+    YARD_BLOCKS_S.some(o=>x>o.x0-6&&x<o.x1+6&&z>o.z0-6&&z<o.z1+6);
+  // (nor past the lip, where the floor's corner is cut off: since V118)
+  const off=(x,z)=>{const c=exClampTo(x,z);return Math.hypot(c.x-x,c.z-z)>.5;};
   N.from={x:h.x,y:h.y,d:K.dep};
   for(let i=0;i<9;i++){let dx=K.facing*(14+R()*44)+(R()-.5)*16,dz=(R()-.5)*48,x,z,k=0;
-    do{x=clamp(K.station+dx,b.x0+6,b.x1-6);z=clamp(K.lane+dz,b.z0+4,b.z1-4);dx*=.8;dz*=.8;k++;}while(solid(x,z)&&k<12);
+    do{x=clamp(K.station+dx,b.x0+6,b.x1-6);z=clamp(K.lane+dz,b.z0+4,b.z1-4);dx*=.8;dz*=.8;k++;}while((solid(x,z)||off(x,z))&&k<12);
     const p={x,z,a:R()*6.28,got:false,t0:S.t+i*.05};N.plates.push(p);
     E.spots.push({id:'plate'+i,label:'A plate',verb:'Pick up',x,z,at:{x,y:GB-4,d:z},once:true,used:0,when:()=>!p.got,
       *run(){const K=hero();K.action=stoopAction(K,.9,{crouch:.74,lean:.6});yield* wait(.55);p.got=true;N.picked++;S.hooks.sound('pin',.6);yield* wait(.35);K.action=null;
@@ -63,7 +66,7 @@ STAGES.push({key:'night',act:1,num:'8',title:'The Yard at Night',sub:'The Sumpâ€
     const T=act1Npc('Tamm',{x:Y.door.x,dep:Y.door.d-6,facing:-1});T.zMax=NIGHT_SEAT.zMax;T.hidden=true;A.tamm=T;},
   *intro(st){letter(1);camTo(380,760,0);yield* fadeTo(0,1.6);yield* wait(.6);letter(0);},
   explore(st){const Y=ACT1_PLACES.yard,A=act1State(),N=A.night8;
-    return{area:'yard',bounds:{x0:Y.floor.x0,x1:Y.floor.x1,z0:Y.floor.z0,z1:Y.floor.z1},view:760,old:true,
+    return{area:'yard',bounds:yardBounds(),view:760,old:true,blocks:YARD_BLOCKS,
       goal:{text:()=>!N.spilled?'Unroll the blade':N.picked<9?'Pick up the plates: '+N.picked+' of 9':'',done:()=>N.spilled&&N.picked>=9,
         hint:()=>N.tries<1?{touch:'The old ways are on the right: Unroll and Glimmer step.',keys:'The old ways: U to unroll the blade, G for the Glimmer step.'}:''},
       spots:[]};},

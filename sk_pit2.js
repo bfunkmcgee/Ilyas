@@ -133,15 +133,25 @@ const YARD_SHOTS={
 // Pit's wall over the yard fills the rest; while he walks about, YARD_HUD pixels under it are left to the hand's panel and the
 // buttons, which lie over the picture. The roof's shot looks up and keeps its own band)
 const YARD_VIEWN=440,YARD_VIEWS=900,YARD_FOOT=492,YARD_HUD=90;
+// (since V118 the floor runs on south, and the picture goes down it with him: nothing moves while he is in the yard's back half, deeper
+// than YARD_SLIDE.d; from there to the floor's foot the band comes down by so much (dy on a wide screen, dyN on an upright phone),
+// so the floor's foot stands clear of the panels when he is on it. On the ground before the shed the picture comes down further
+// (over, overN) and looks out past the lip: yardLook, 0 to 1, by how near the lip he stands)
+const YARD_SLIDE={d:100,dy:190,dyN:158,over:118,overN:150};
+function yardLook(K){return sstep(clamp((K.station-640)/150,0,1))*sstep(clamp((-116-K.dep)/50,0,1));}
+function yardDown(K,narrow){const So=ACT1_PLACES.yard.south,y=prjY(GB,K.dep),y0=prjY(GB,YARD_SLIDE.d),y1=prjY(GB,So.z0);
+  return sstep(clamp((y-y0)/(y1-y0),0,1))*(narrow?YARD_SLIDE.dyN:YARD_SLIDE.dy)+yardLook(K)*(narrow?YARD_SLIDE.overN:YARD_SLIDE.over);}
 function yardShot(name,k,o){const Sh=YARD_SHOTS[name],rm=typeof reduceMotion!=='undefined'&&reduceMotion;camTo(o&&o.x!=null?o.x:Sh.x,Sh.w,rm?0:k);
   const C=S.camCut,K=o&&o.x!=null?hero():null,dy=K?prjY(GB,K.dep)-prjY(GB,150):0;C.wn=Sh.wn;C.ws=Sh.ws||null;C.band={top:Sh.band[0]+dy,foot:Sh.band[1]+dy};
-  if(name!=='roof')C.bandN={top:Sh.band[0]+dy,foot:YARD_FOOT,low:YARD_HUD};if(rm||!k)C.snap=true;return C;}
+  // (the whole yard's shot takes in the south too on an upright phone, which has the height for it: since V118)
+  if(name!=='roof')C.bandN={top:Sh.band[0]+dy,foot:name==='yard'?prjY(GB,ACT1_PLACES.yard.south.z0)+14:YARD_FOOT,low:YARD_HUD};if(rm||!k)C.snap=true;return C;}
 // shots one after another while a line is spoken ([name, k, how long]); it stops with the line
 function* yardSeq(list){for(const [name,k,hold] of list){yardShot(name,k);const t=S.t+hold;while(S.t<t&&S.say)yield;if(!S.say)return;}}
 // while he walks about: on an upright phone the view is closer (YARD_VIEWN) and leads him a little the way he walks; a phone on its
 // side looks wider (YARD_VIEWS), so that his head at the yard's back is clear of the goal's panel and his feet at its front are
 // clear of the hand's. The yard's floor sits at the foot of the picture, over the panels
-function yardExCam(C,K){C.ws=YARD_VIEWS;C.band={top:128,foot:460,low:56};C.bandN={top:56,foot:YARD_FOOT,low:YARD_HUD};C.xn=prjX(K.station,K.dep)+(K.cutWalk?K.facing*36:0);}
+function yardExCam(C,K){const dy=yardDown(K,false),dn=yardDown(K,true),lk=yardLook(K);C.ws=YARD_VIEWS;C.band={top:128+dy,foot:460+dy,low:56};C.bandN={top:56+dn,foot:YARD_FOOT+dn,low:YARD_HUD};
+  C.xn=prjX(K.station,K.dep)+(K.cutWalk?K.facing*36:0)+lk*46;}
 // a shot that goes with him (the climb): S.act1.yardFollow {w, wn, ws, up, down (how much of the picture over and under his feet), dx}
 V11.step.push(()=>{const A=S.act1,Fw=A&&A.yardFollow;if(!Fw||!S.camCut||S.arenaKey!=='yard')return;const st=act1Stage();if(!st||st.key!=='yard1')return;const K=hero(),x=K.p[PEL].x,y=prjY(K.gr(x),K.dep),C=S.camCut;
   C.x=C.xn=prjX(x,K.dep)+(Fw.dx||0);C.w=Fw.w;C.wn=Fw.wn;C.ws=Fw.ws||null;C.band={top:y-Fw.up,foot:y+Fw.down};C.bandN=null;});
@@ -182,6 +192,17 @@ ACT1_PLACES.yard.dobSeat={x:690,d:170,crate:true};ACT1_PLACES.yard.floor.z1=164;
 {const Cr=ACT1_PLACES.yard.crates[1];ARENAS.yard.ground=(x,d)=>d!=null&&d>=Cr.d-4&&d<=Cr.d+6&&Math.abs(x-Cr.x)<=Cr.w/2?GB-Cr.h:GB;}
 // what stands on the yard's floor, that he walks round (the pump and its trough, the two barrels, the crates by Dob)
 const YARD_BLOCKS=[{x0:506,x1:606,z0:110,z1:137},{x0:234,x1:298,z0:140,z1:180},{x0:641,x1:708,z0:146,z1:180}];
+// (and in the yard's south, since V118: the spoil bank and the headwall in it, its two wing walls, everything right of the old
+// floor's edge down to the ground before the shed, the fire ring, the handcart by the kerb)
+const YARD_BLOCKS_S=(()=>{const So=ACT1_PLACES.yard.south,B=So.bank,D=So.drain,F=So.fire,C=So.cart,w0=D.x-D.r-18,w1=D.x+D.r+18;
+  return[{x0:-400,x1:B.x1,z0:B.d0-4,z1:B.d1},{x0:-400,x1:w0+2,z0:D.d-D.wing,z1:D.d+2},{x0:w1-2,x1:w1+30,z0:D.d-D.wing,z1:D.d+2},
+    {x0:ACT1_PLACES.yard.floor.x1,x1:1300,z0:So.shed.d0-4,z1:400},{x0:F.x-F.r-22,x1:F.x+F.r+22,z0:F.d-16,z1:F.d+16},{x0:C.x0,x1:C.x1,z0:So.z0-20,z1:C.d+14}];})();
+YARD_BLOCKS.push(...YARD_BLOCKS_S);
+// the yard's floor as he may walk it: the old floor and the south, its right corner cut off along the lip (he stands a pace back
+// from it: the rail is between)
+function yardBounds(){const Y=ACT1_PLACES.yard,So=Y.south,L=So.lip,cuts=[];
+  for(let i=0;i<3;i++){const a=L[i+1],b=L[i],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz),nx=dz/l,nz=-dx/l;cuts.push({nx,nz,c:nx*a[0]+nz*a[1]-18});}
+  return{x0:Y.floor.x0,x1:So.x1,z0:So.z0,z1:Y.floor.z1,cuts};}
 // the goal as it stands: what he has done of the errand and what is in his hand
 function yardGoal(){const A=S.act1,YD=A&&A.yard;if(!YD)return'';const H=S.ex&&S.ex.hand,has=id=>!!H&&H.id===id;
   if(!YD.filled)return has('bucket')||A.bucket.where==='spout'?'Fill the bucket at the pump':'Take the bucket';
@@ -227,7 +248,7 @@ STAGES.push({key:'yard1',act:1,num:'4',title:'A Man’s Pace',sub:'The Sump’s 
     letter(0);},
   explore(st){const Y=ACT1_PLACES.yard,A=act1State(),YD=A.yard,G=Y.stairGate;
     const hand=()=>S.ex&&S.ex.hand,holds=id=>!!hand()&&hand().id===id;
-    return{area:'yard',bounds:{x0:Y.floor.x0,x1:Y.floor.x1,z0:Y.floor.z0,z1:Y.floor.z1},view:760,viewN:YARD_VIEWN,cam:yardExCam,hand:null,blocks:YARD_BLOCKS,
+    return{area:'yard',bounds:yardBounds(),view:760,viewN:YARD_VIEWN,cam:yardExCam,hand:null,blocks:YARD_BLOCKS,
       goal:{text:yardGoal,done:()=>YD.done,hint:yardHint},
       spots:[
         {id:'bucket',label:'The bucket',verb:'Take',x:A.bucket.x-14,z:A.bucket.d,at:{x:A.bucket.x,y:GB-10,d:A.bucket.d},take:{id:'bucket',name:'Bucket'},when:()=>A.bucket.where==='floor',

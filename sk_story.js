@@ -395,7 +395,7 @@ function storyDuel(st){
   storyRoster(st);
   const sp=st.spawn,K=S.F[0],hw=S.cfg.hero.weapon;S.cfg.hero.weapon=STORY_KAEL.weapon;
   S.F.forEach((f,i)=>initFighter(f,sp[i],sp));S.cfg.hero.weapon=hw;K.stow=false;K.arcRev=null;K.perch=null;K.grenade=S.story.flags.grenade?'coat':null;K.coatOpen=0;K.nadeUp=0;K.nadeAng=0;K.nadePin=false;
-  K.zMax=null;K.hidden=false;K.pitClip=null;K.coatOff=!!S.story.flags.coatOff;K.coatShield=0;K.coatShred=0;K.charge=S.story.flags.coatOff&&!S.story.flags.charged?'belt':null;K.rideLift=false;K.drain=0;K.eyeLit=0;
+  K.zMax=null;K.zMin=null;K.hidden=false;K.pitClip=null;K.coatOff=!!S.story.flags.coatOff;K.coatShield=0;K.coatShred=0;K.charge=S.story.flags.coatOff&&!S.story.flags.charged?'belt':null;K.rideLift=false;K.drain=0;K.eyeLit=0;
   // between stages he gets some of his breath back: a third of his strength, never more than all of it
   K.maxHp=ruleNum('hpmax',{f:K},()=>STORY_KAEL.hp);K.hp=SV.hp==null?K.maxHp:Math.min(K.maxHp,Math.round(SV.hp+K.maxHp*(SV.healAt===SV.key?0:.3)));SV.healAt=SV.key;K.sidearm='sheathed';
   for(const f of S.F)if(f.team===1&&f.storyHp){f.maxHp=f.hp=f.storyHp;}

@@ -91,7 +91,17 @@ const ACT1_PLACES={
   // stair-streets, the ladder up to the roof loft (two hands), the stairs round the side, the wall Dob sits on, barrels and crates
   yard:{far:232,door:{x:170,d:226,w:46},step:{x:170,d:206,h:16},window:{x0:286,x1:346,y0:150,y1:104},pump:{x:520,d:118,r:22},trough:{x0:540,x1:600,d:126},
     bucket:{x:496,d:104},gate:{x:836,d:120,w:60},ladder:{x:392,d:224,top:150},sidestair:{x0:30,x1:118,d:200},wall:{x0:600,x1:900,d:214,h:64},dobSeat:{x:712,d:214},
-    barrels:[{x:250,d:150,r:16},{x:282,d:164,r:15}],crates:[{x:660,d:156,w:34,h:30},{x:690,d:170,w:30,h:26}],floor:{x0:40,x1:800,z0:30,z1:170}},
+    barrels:[{x:250,d:150,r:16},{x:282,d:164,r:15}],crates:[{x:660,d:156,w:34,h:30},{x:690,d:170,w:30,h:26}],floor:{x0:40,x1:800,z0:30,z1:170},
+    // (since V118 the yard runs on toward us, south on the Pit map, past where a fight goes: z0 its foot, x1 how far right its
+    // floor goes before the shed. The spoil bank at its left with the drain's mouth in a headwall (bank: its right end, its face's
+    // depth and its back; drain: the mouth's middle, the face, the pipe's radius, how far each wing wall comes forward). The kerb
+    // along its foot that Tarr's main lies on, the lane beyond. At its right the Floor ends at the lip of the quarry's last cut
+    // (lip: its line, x and d, from the right; past the kerb it turns toward us), the shed by it (shed: its box, its height at the
+    // front and at the back), a fire ring and a handcart on the floor between. Nothing here stands higher than lets a man at
+    // DEP_MIN be seen whole behind it, the shed apart, which stands clear of the floor's right edge)
+    south:{z0:-196,x1:950,bank:{x1:252,d0:-116,d1:8},drain:{x:156,d:-116,r:37,wing:38},kerb:-206,
+      lip:[[1180,-150],[962,-168],[780,-182],[652,-206],[616,-300],[596,-560]],shed:{x0:850,x1:962,d0:-122,d1:-50,h:160,hb:132},
+      fire:{x:453,d:-118,r:22},cart:{x0:508,x1:612,d:-176}}},
   // the stair-streets: two flights up the Pit's wall, each a scene of its own and each rising left to right on this one ground (the
   // steps are the ground; a landing at each end). S.act1.flight says which: 'lane', the Lane stair, from the first landing over the
   // lane (the short flight up from the lane comes in from the left) to the switchback at its top, where Tarr's collectors keep their

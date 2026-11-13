@@ -692,10 +692,11 @@ function controlAndForces(f){
   // a fighter in a scene may walk in from beyond the edge of the stage, or off it (f.offstage)
   const m=f.motor,pelTX=f.offstage?bp.px:f.entering?clamp(bp.px,8,W-8):clampStage(bp.px),lift=bp.lift||0,vaulting=lift>2&&m>.45;
   // depth: the whole body plane is carried toward its depth target by a damped spring
-  const zMax=f.zMax||DEP_MAX,tz=clamp(bp.pz??f.lane,DEP_MIN,zMax),mz=Math.pow(m,.8);
+  // (f.zMin, since V118: his own near limit, as f.zMax is his far one: the yard's floor runs on toward us past DEP_MIN)
+  const zMax=f.zMax||DEP_MAX,zMin=f.zMin??DEP_MIN,tz=clamp(bp.pz??f.lane,zMin,zMax),mz=Math.pow(m,.8);
   f.vdep+=(wB*wB*mz*(tz-f.dep)-2*zB*wB*Math.sqrt(Math.max(m,.02))*f.vdep)*DT;
   if(m<.35)f.vdep*=1-5*DT;
-  f.dep=clamp(f.dep+f.vdep*DT,DEP_MIN-8,zMax+8);
+  f.dep=clamp(f.dep+f.vdep*DT,zMin-8,zMax+8);
   f.velX=lerp(f.velX,(pelTX-f.lastPelTX)/DT,.2);f.lastPelTX=pelTX;
   if(vaulting){f.vaulting=true;f.steps[0].active=f.steps[1].active=false;}
   else{
@@ -2461,7 +2462,7 @@ function rosterBuild(){
   S.trails=S.F.map(()=>[]);S.crew=null;
 }
 function initFighter(f,s,sp){
-  f.maxHp=f.team?foeHp():f.ally?ALLY_HP:120;f.hp=f.maxHp;f.dead=false;f.gone=false;f.guarding=false;f.foot=footMaxOf(f);f.counter=false;f.react=null;f.broken=null;f.intent=null;f.laneT=-9;f.ready=0;
+  f.maxHp=f.team?foeHp():f.ally?ALLY_HP:120;f.hp=f.maxHp;f.dead=false;f.gone=false;f.guarding=false;f.foot=footMaxOf(f);f.counter=false;f.react=null;f.broken=null;f.intent=null;f.laneT=-9;f.ready=0;f.zMin=null;
   f.wounds={head:0,arm:0,leg:0,body:0};f.daze=0;f.downed=false;f.clinch=null;f.carry=null;f.marks=[];f.dripT=1;f.ownWeapon=null;f.circleGuard=false;f.spin=null;f.flair=null;
   f.severed=false;f.impaled=null;f.finRelease=null;f.fountain=null;f.dyingUntil=0;f.goneFrom=null;f.reads={};f.feint=null;f.feintRead=null;f.lastAct=null;f.holdFace=null;f.setSpear=false;f.wallPin=false;f.finName=null;f.finType=null;f.finBy=null;f.sidearm=f.idx===0?'sheathed':null;
   f.weaponKey=f.team?foeCfg(f).weapon:f.ally?S.cfg.ally.weapon:S.cfg.hero.weapon;f.temper=f.team?(foeCfg(f).temper||foeDefaultTemper(f)):null;

@@ -11,7 +11,8 @@
 // The goal: {text (or a function giving it), done()}; when done() turns true the stage's exploring is over and its closing scene plays.
 // His hand (S.ex.hand): what his one hand holds, an item {id, name} or null. What he holds he can set down at his feet, where it
 // becomes a spot to take it again. A refusal shows as a short note (S.ex.note) and plays the spot's refused scene, if it has one.
-// blocks: what stands on the floor that he walks round (exBlock, below).
+// blocks: what stands on the floor that he walks round (exBlock, below). The floor is bounds' box, less any corners cut off it
+// (bounds.cuts, since V118: [{nx,nz,c}], he stays where nx*x+nz*z<=c: the yard's edge over the Pit runs aslant).
 
 // walk and jog speeds (world units a second); reach: how near a spot he must stand to use it
 const EX={walk:84,jog:142,reach:30,stop:3,lift:.36};
@@ -25,23 +26,48 @@ function exWhyNot(s){const E=S.ex;if(!s.needs)return null;
   if(s.needs==='free')return E.hand?'Your hand is full. Set down '+E.hand.name.toLowerCase()+' first':null;
   return typeof s.needs==='function'?s.needs(s)||null:null;}
 function exNote(text){if(S.ex)S.ex.note={text,t0:S.t};}
-function exClampTo(x,z){const B=S.ex.bounds;return{x:clamp(x,B.x0,B.x1),z:clamp(z,B.z0,B.z1)};}
+function exClampTo(x,z){const B=S.ex.bounds,p={x:clamp(x,B.x0,B.x1),z:clamp(z,B.z0,B.z1)};
+  // (a cut corner: the point comes straight back onto its line, so a man steered into it goes along it)
+  if(B.cuts)for(let i=0;i<3;i++)for(const k of B.cuts){const o=k.nx*p.x+k.nz*p.z-k.c;if(o>0){p.x=clamp(p.x-k.nx*o,B.x0,B.x1);p.z=clamp(p.z-k.nz*o,B.z0,B.z1);}}
+  return p;}
 // What stands on the floor in his way (since V117): a stage's exploring may give blocks, [{x0,x1,z0,z1}], that he walks round. Sent
 // somewhere straight through one, he goes along its face and round its nearer end; steered into one, he stops against it. A point
 // inside one that he is sent to, or sets something down at, is moved out to its nearest edge.
 function exBlock(x,z){const B=S.ex&&S.ex.blocks;if(B)for(const b of B)if(x>b.x0&&x<b.x1&&z>b.z0&&z<b.z1)return b;return null;}
-function exOutOf(x,z){const b=exBlock(x,z);if(!b)return{x,z};const B=S.ex.bounds,c=[];
-  if(b.x0>=B.x0)c.push([x-b.x0,b.x0,z]);if(b.x1<=B.x1)c.push([b.x1-x,b.x1,z]);if(b.z0>=B.z0)c.push([z-b.z0,x,b.z0]);if(b.z1<=B.z1)c.push([b.z1-z,x,b.z1]);
-  if(!c.length)return{x,z};c.sort((a,e)=>a[0]-e[0]);return{x:c[0][1],z:c[0][2]};}
+function exOutOf(x,z){const B=S.ex.bounds;
+  // (things may stand against each other, since V118: the nearest edge that is not inside the next thing, and out of that one too)
+  for(let i=0;i<4;i++){const b=exBlock(x,z);if(!b)break;const c=[];
+    if(b.x0>=B.x0)c.push([x-b.x0,b.x0,z]);if(b.x1<=B.x1)c.push([b.x1-x,b.x1,z]);if(b.z0>=B.z0)c.push([z-b.z0,x,b.z0]);if(b.z1<=B.z1)c.push([b.z1-z,x,b.z1]);
+    if(!c.length)break;c.sort((a,e)=>a[0]-e[0]);const q=c.find(q=>!exBlock(q[1],q[2]))||c[0];x=q[1];z=q[2];}
+  return{x,z};}
+// A way round what stands in his way (since V118: in the yard's south things stand against each other, and the step's own way
+// round one thing at a time, below, cannot get past two). Where the straight line to where he is sent crosses a block, the shortest
+// way by the blocks' corners (stood off a little) is found once, as he is sent: the points to walk through before the place itself.
+// Null where the line is clear, or where there is no way (the step's own way round then, as before).
+function exSegHits(x0,z0,x1,z1,b){const e=.01,dx=x1-x0,dz=z1-z0;let t0=0,t1=1;
+  for(const [p,q] of [[-dx,x0-(b.x0+e)],[dx,(b.x1-e)-x0],[-dz,z0-(b.z0+e)],[dz,(b.z1-e)-z0]]){
+    if(p===0){if(q<0)return false;continue;}const r=q/p;if(p<0){if(r>t1)return false;if(r>t0)t0=r;}else{if(r<t0)return false;if(r<t1)t1=r;}}
+  return t1-t0>1e-6;}
+function exRoute(ax,az,bx,bz){const E=S.ex,BL=E&&E.blocks;if(!BL||!BL.length)return null;
+  const clear=(x0,z0,x1,z1)=>{for(const b of BL)if(exSegHits(x0,z0,x1,z1,b))return false;return true;};
+  if(clear(ax,az,bx,bz))return null;
+  const m=3,N=[[ax,az],[bx,bz]],on=(x,z)=>{const c=exClampTo(x,z);return Math.abs(c.x-x)<.01&&Math.abs(c.z-z)<.01;};
+  for(const b of BL)for(const [x,z] of [[b.x0-m,b.z0-m],[b.x1+m,b.z0-m],[b.x1+m,b.z1+m],[b.x0-m,b.z1+m]])if(on(x,z)&&!exBlock(x,z))N.push([x,z]);
+  const n=N.length,D=new Array(n).fill(1e9),P=new Array(n).fill(-1),done=new Array(n).fill(false);D[0]=0;
+  for(;;){let u=-1;for(let i=0;i<n;i++)if(!done[i]&&D[i]<1e9&&(u<0||D[i]<D[u]))u=i;if(u<0||u===1)break;done[u]=true;
+    for(let v=0;v<n;v++){if(done[v])continue;const w=Math.hypot(N[v][0]-N[u][0],N[v][1]-N[u][1]);if(D[u]+w>=D[v]||!clear(N[u][0],N[u][1],N[v][0],N[v][1]))continue;D[v]=D[u]+w;P[v]=u;}}
+  if(D[1]>=1e9)return null;const out=[];for(let v=P[1];v>0;v=P[v])out.unshift(N[v]);return out;}
 // begin exploring: the hero standing easy where the stage puts him, the camera riding with him
 function exStart(spec){const K=hero();
   S.ex={on:true,bounds:spec.bounds||{x0:40,x1:860,z0:30,z1:150},spots:(spec.spots||[]).map(s=>Object.assign({used:0},s)),exits:spec.exits||[],
     goal:spec.goal||null,to:null,run:false,keys:{x:0,z:0,run:false},want:null,moving:false,hand:spec.hand??(S.ex?S.ex.hand:null),view:spec.view||760,viewN:spec.viewN||null,cam:spec.cam||null,blocks:spec.blocks||null,area:spec.area||S.arenaKey,t0:S.t,note:null,dropped:0};
   standEasy(K);K.offstage=false;if(spec.start){K.station=spec.start[0];K.lane=spec.start[1];}
+  // (a floor that runs on toward us past where a fight goes: his own near limit goes with it, for the stage)
+  K.zMin=S.ex.bounds.z0<DEP_MIN?S.ex.bounds.z0:null;
   S.game.phase='explore';S.game.ex=null;S.game.aiAt=null;S.opening=null;S.hooks.explore('start',S.ex);}
 function exEnd(){if(!S.ex)return;const K=hero();exHalt(K);S.ex.on=false;S.hooks.explore('end',S.ex);}
 // send him somewhere (a spot to use when he gets there, if one is given)
-function exGo(x,z,o={}){if(!exOn()||S.cut)return false;const c=exClampTo(x,z),p=exOutOf(c.x,c.z);S.ex.to={x:p.x,z:p.z,spot:o.spot||null};S.ex.run=!!o.run;S.ex.keys.x=S.ex.keys.z=0;return true;}
+function exGo(x,z,o={}){if(!exOn()||S.cut)return false;const c=exClampTo(x,z),p=exOutOf(c.x,c.z),K=hero();S.ex.to={x:p.x,z:p.z,spot:o.spot||null,path:K?exRoute(K.station,K.lane,p.x,p.z):null};S.ex.run=!!o.run;S.ex.keys.x=S.ex.keys.z=0;return true;}
 // go to a spot and use it (at once if he is there already)
 function exUse(id,o={}){const s=exSpot(id);if(!s||!exShown(s)||!exOn()||S.cut)return false;
   const K=hero();if(Math.hypot(s.x-K.station,(s.z-K.lane)*.8)<=EX.reach){exHalt(K);exRun(s);return true;}
@@ -77,8 +103,10 @@ function exStep(){const E=S.ex;if(!E||!E.on||S.cut||S.warming)return;const K=her
   if((S.storyAuto||S.auto)&&!E.to&&!E.keys.x&&!E.keys.z&&!S.say&&S.t-E.t0>.6&&!K.action){const s=exAutoPick();if(s)exUse(s.id);else if(E.hand)exSetDown();}
   let vx=0,vz=0;const sp=(E.keys.run||E.run)?EX.jog:EX.walk;
   if(E.keys.x||E.keys.z){E.to=null;const L=Math.hypot(E.keys.x,E.keys.z)||1;vx=E.keys.x/L*sp;vz=E.keys.z/L*sp*.7;}
-  else if(E.to){const dx=E.to.x-K.station,dz=E.to.z-K.lane,d=Math.hypot(dx,dz);
-    if(d<=sp*DT+EX.stop*.2){K.station=E.to.x;K.lane=E.to.z;const sid=E.to.spot;exHalt(K);if(sid){const s=exSpot(sid);if(s&&exShown(s))exRun(s);}return;}
+  else if(E.to){let dx,dz,d,W0;
+    // (by the points of his way round, where he was sent one: each is passed without a stop)
+    for(;;){W0=E.to.path&&E.to.path[0];dx=(W0?W0[0]:E.to.x)-K.station;dz=(W0?W0[1]:E.to.z)-K.lane;d=Math.hypot(dx,dz);if(W0&&d<=sp*DT){E.to.path.shift();continue;}break;}
+    if(!W0&&d<=sp*DT+EX.stop*.2){K.station=E.to.x;K.lane=E.to.z;const sid=E.to.spot;exHalt(K);if(sid){const s=exSpot(sid);if(s&&exShown(s))exRun(s);}return;}
     vx=dx/d*sp;vz=dz/d*sp;}
   if(!vx&&!vz){if(E.moving)exHalt(K);return;}
   let p=exClampTo(K.station+vx*DT,K.lane+vz*DT);
@@ -93,7 +121,7 @@ function exStep(){const E=S.ex;if(!E||!E.on||S.cut||S.warming)return;const K=her
     vx=(p.x-K.station)/DT;vz=(p.z-K.lane)/DT;}
   // against the edge of where he may go: he stops there
   if(Math.hypot(p.x-K.station,p.z-K.lane)<.01){exHalt(K);return;}
-  K.station=p.x;K.lane=p.z;if(Math.abs(vx)>4)K.facing=Math.sign(vx);K.cutWalk=true;K.walkEnd=E.to&&!E.keys.x&&!E.keys.z?{x:E.to.x,z:E.to.z}:null;K.walkV={x:vx,z:vz};E.moving=true;
+  K.station=p.x;K.lane=p.z;if(Math.abs(vx)>4)K.facing=Math.sign(vx);K.cutWalk=true;K.walkEnd=E.to&&!E.keys.x&&!E.keys.z&&!(E.to.path&&E.to.path.length)?{x:E.to.x,z:E.to.z}:null;K.walkV={x:vx,z:vz};E.moving=true;
   // a way out
   for(const X of E.exits){if(X.when&&!X.when())continue;if(K.station>=X.x0&&K.station<=X.x1&&K.lane>=X.z0&&K.lane<=X.z1){exHalt(K);S.hooks.explore('exit',X);
     if(X.run)cutStart('exit:'+X.id,X.run(X),{then:()=>{if(exOn()){S.game.phase='explore';exGoalCheck();}}});else exGoalCheck();return;}}}

@@ -347,8 +347,13 @@ const L=()=>typeof ACT1_PLACES!=='undefined'&&ACT1_PLACES.yard?ACT1_PLACES.yard:
 // the layout when the game's is not there (the painter run alone)
 const L0={far:232,door:{x:170,d:226,w:46},step:{x:170,d:206,h:16},window:{x0:286,x1:346,y0:150,y1:104},pump:{x:520,d:118,r:22},trough:{x0:540,x1:600,d:126},
   gate:{x:836,d:120,w:60},ladder:{x:392,d:224,top:150},sidestair:{x0:30,x1:118,d:200},wall:{x0:600,x1:900,d:214,h:64},dobSeat:{x:690,d:170,crate:true},
-  barrels:[{x:250,d:150,r:16},{x:282,d:164,r:15}],crates:[{x:660,d:156,w:34,h:30},{x:690,d:170,w:30,h:26}],floor:{x0:40,x1:800,z0:30,z1:170},stairGate:{x:126,d:196,w:34}};
+  barrels:[{x:250,d:150,r:16},{x:282,d:164,r:15}],crates:[{x:660,d:156,w:34,h:30},{x:690,d:170,w:30,h:26}],floor:{x0:40,x1:800,z0:30,z1:170},stairGate:{x:126,d:196,w:34},
+  south:{z0:-196,x1:950,bank:{x1:252,d0:-116,d1:8},drain:{x:156,d:-116,r:37,wing:38},kerb:-206,
+    lip:[[1180,-150],[962,-168],[780,-182],[652,-206],[616,-300],[596,-560]],shed:{x0:850,x1:962,d0:-122,d1:-50,h:160,hb:132},
+    fire:{x:453,d:-118,r:22},cart:{x0:508,x1:612,d:-176}}};
 const Y=()=>L()||L0;
+// the yard's south (the game's layout where it has one)
+const SO=()=>Y().south||L0.south;
 // the low gate across the foot of the side stairs (the game's layout, else this one), and how far each gate stands open (S.act1.stairGate,
 // S.act1.gate: 0 shut, 1 open)
 const SG=()=>Y().stairGate||L0.stairGate,SGH=50;
@@ -629,7 +634,8 @@ function drumFire(c,P){const p=Q(DRUM.x,0,DRUM.d);barrel(c,P,p.x,p.y,11,28,'#3a2
   for(let i=0;i<4;i++){c.fillStyle=rgba('#ffb25e',.4);c.fillRect(p.x-6+i*4,p.y-20,2,2);}}
 // ---------- the ground ----------
 // the puddles: x, d, how wide, their dice (the ground paints them; live() moves the light on the big ones and rings them underfoot)
-const PUDS=[[612,40,26,3],[548,96,18,5],[420,58,14,7],[150,112,16,9],[300,20,30,11],[82,62,22,13],[772,150,12,15],[740,72,10,17]];
+const PUDS=[[612,40,26,3],[548,96,18,5],[420,58,14,7],[150,112,16,9],[300,20,30,11],[82,62,22,13],[772,150,12,15],[740,72,10,17],
+  [330,-56,20,21],[566,-150,17,23],[118,-178,22,25],[716,-92,13,27],[250,-188,12,29]];
 // the run of water from the trough's end to the big puddle, on the floor (x, d): its path, and a point u of the way along it
 const RILL=[[603,118],[622,104],[610,86],[626,70],[614,54]];
 function rill(c){c.moveTo(RILL[0][0],RILL[0][1]);for(let i=1;i<RILL.length-1;i++)c.quadraticCurveTo(RILL[i][0],RILL[i][1],(RILL[i][0]+RILL[i+1][0])/2,(RILL[i][1]+RILL[i+1][1])/2);c.lineTo(RILL[RILL.length-1][0],RILL[RILL.length-1][1]);}
@@ -639,7 +645,7 @@ function rillAt(u){const n=RILL.length-1,f=clamp(u,0,.9999)*n,i=f|0,k=f-i;return
 function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.key==='night';
   const pts=[Q(X0,0,far+40),Q(X1,0,far+40),Q(X1,0,E.NEAR),Q(X0,0,E.NEAR)];
   c.fillStyle=lin(c,0,pts[0].y,0,GB+60,[[0,P.dirt[0]],[.55,mix(P.dirt[0],P.dirt[1],.5)],[1,P.dirt[1]]]);K.poly(c,pts);c.fill();
-  c.save();K.poly(c,pts);c.clip();K.mottle(c,X0,pts[0].y,X1,GB+200,night?.2:.3,{sc:1.3,sy:.55});c.transform(1,0,PSX,-PSY,0,GB);
+  c.save();K.poly(c,pts);c.clip();K.mottle(c,X0,pts[0].y,X1,GB+410,night?.2:.3,{sc:1.3,sy:.55});c.transform(1,0,PSX,-PSY,0,GB);
   const tx=typeof EnvTex!=='undefined'?EnvTex.plaster(57,128,128,{base:'#808080'}):null;
   if(tx){const pt=c.createPattern(tx,'repeat');if(pt.setTransform)pt.setTransform(new DOMMatrix().scale(.7,.35));c.globalCompositeOperation='multiply';c.globalAlpha=.55;c.fillStyle=pt;c.fillRect(X0,E.NEAR-10,X1-X0,far+50-E.NEAR);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
   for(let i=0;i<900;i++){const x=X0+r()*(X1-X0),d=-60+r()*(far+90),v=r();c.fillStyle=v<.5?rgba('#000000',.1+.14*r()):rgba(P.light,.03+.07*r()*(.4+P.lightA));c.fillRect(x,d,.8+r()*2.4,.6+r()*1.4);}
@@ -702,6 +708,7 @@ function ground(c,P){const Yd=Y(),far=Yd.far,X0=-200,X1=1200,r=rng(101),night=P.
   c.strokeStyle=rgba('#c8a050',.4);c.lineWidth=1.18;c.beginPath();for(let i=0;i<140;i++){const x=-80+r()*700,d=150+r()*90,a=r()*TAU;c.moveTo(x,d);c.lineTo(x+Math.cos(a)*4,d+Math.sin(a)*4);}c.stroke();
   for(let i=0;i<40;i++){const x=X0+200+r()*1000,d=r()*far;c.fillStyle=r()<.5?rgba('#c8c8d0',.4):rgba('#8a8a94',.4);c.fillRect(x,d,2.2,.8);}
   for(let i=0;i<70;i++){const x=X0+r()*(X1-X0),d=-40+r()*(far+40);c.fillStyle=K.shade(P,['#4e4840','#423c34','#5a544a'][(r()*3)|0]);c.beginPath();c.ellipse(x,d,1.4+r()*2.4,1+r()*1.6,0,0,TAU);c.fill();}
+  southFloor(c,P);
   c.restore();}
 // ---------- the things in the yard that stay against the walls (painted into the layer) ----------
 function along(c,P){const Yd=Y(),far=Yd.far,sh=(col,k)=>K.shade(P,col,k),r=rng(111);
@@ -718,7 +725,7 @@ function along(c,P){const Yd=Y(),far=Yd.far,sh=(col,k)=>K.shade(P,col,k),r=rng(1
   {const rm=rng(151),Wl=Yd.wall;for(let i=0;i<64;i++){const yw=i>=44,x=yw?Wl.x0+4+rm()*(FENCE.x-Wl.x0-8):22+rm()*580,p=Q(x,rm()*rm()*(yw?10:15),yw?Wl.d:far);if(!yw&&x>146&&x<206)continue;
       c.fillStyle=rgba(sh('#46553a'),.1+.17*rm());K.blob(c,p.x,p.y,2.5+rm()*5,1.5+rm()*3.5,rm,7);c.fill();}}
   // junk heaped at the front corners, past where anyone walks
-  heap(c,P,-170,40,-2,46,7);heap(c,P,880,1060,-6,40,9);}
+  heap(c,P,880,1060,-6,40,9);}
 // The things that stand along the walls (they were part of along() until V118): the chopping block, the crate of bottles, the
 // broom and the washtub, the rain barrel, the tyres, the drum and the cartwheel at the yard wall, the firewood. Painted twice:
 // into the picture under its light, and again over it (crisp, below). Each throws its shape on the wall behind it.
@@ -787,7 +794,7 @@ function crisp(c,P){const m=c.getTransform(),x0=120,x1=930,y0=170,y1=352;if(m.b|
   wallThings(g,P);c.save();c.globalAlpha=P.key==='night'?.5:.62;c.drawImage(cn,x0,y0,x1-x0,y1-y0);c.restore();cn.width=cn.height=0;}
 function heap(c,P,x0,x1,d0,d1,seed){const r=rng(seed),sh=(col,k)=>K.shade(P,col,k);
   const pts=[];for(let x=x0;x<=x1;x+=12)pts.push(Q(x,8+r()*16,lerp(d1,d0,.5+(r()-.5)*.4)));const a=Q(x0,0,d0),e=Q(x1,0,d0);
-  c.fillStyle=sh('#161210',1.3);c.beginPath();c.moveTo(a.x,a.y+30);pts.forEach(p=>c.lineTo(p.x,p.y));c.lineTo(e.x,e.y+30);c.closePath();c.fill();
+  c.fillStyle=sh('#161210',1.3);c.beginPath();c.moveTo(a.x-6,a.y+5);pts.forEach(p=>c.lineTo(p.x,p.y));c.lineTo(e.x+8,e.y+5);c.quadraticCurveTo((a.x+e.x)/2,a.y+11,a.x-6,a.y+5);c.closePath();c.fill();
   for(let i=0;i<10;i++){const p=Q(lerp(x0,x1,r()),4+r()*14,lerp(d0,d1,r()));const k=r();
     if(k<.3){c.fillStyle=sh('#121012');c.beginPath();c.ellipse(p.x,p.y,13,5,(r()-.5)*.4,0,TAU);c.fill();c.fillStyle=sh('#050506');c.beginPath();c.ellipse(p.x,p.y-1,6,2,0,0,TAU);c.fill();}
     else if(k<.6){c.save();c.translate(p.x,p.y);c.rotate((r()-.5)*.8);c.fillStyle=sh(K.TINC[(r()*K.TINC.length)|0],1.2);c.fillRect(-16,-5,32,7);c.fillStyle=rgba('#7a3a18',.35);c.fillRect(-8,-5,10,7);c.restore();}
@@ -884,12 +891,24 @@ function grow(){if(GROW)return GROW;const Yd=Y(),far=Yd.far,Wl=Yd.wall,g=Yd.gate
   for(let d=20;d<206;d+=12*(.6+r()*.8)){if(d>g.d-g.w/2-10&&d<g.d+g.w/2+10)continue;add(FENCE.x-4-r()*3,d,4+r()*5,r()<.6?0:1);}
   for(const [px,pd,pr] of PUDS){add(px-pr*.9,pd+pr*.2,3.5+r()*1.5,0);if(pr>16)add(px+pr*.8,pd+pr*.3,3.5+r()*1.5,0);}
   for(const [fx,fd] of [[142,188],[208,182],[150,160],[200,150],[186,134]])add(fx+(r()-.5)*4,fd,3.5+r()*1.5,0);
-  for(let i=0;i<7;i++)add(-160+r()*190,2+r()*40,5+r()*6,kind());for(let i=0;i<7;i++)add(890+r()*160,r()*38,5+r()*6,kind());
+  for(let i=0;i<7;i++){const x=-160+r()*190,d=2+r()*40;add(x,d,5+r()*6,kind(),false,hillH(x,d));}for(let i=0;i<7;i++)add(890+r()*160,r()*38,5+r()*6,kind());
   // (the tall ones: against the Sump, at the woodshed's corner, along the yard wall, in the fence's corners, in the junk)
   for(const [x,d,s,k] of [[36,far-2,17,1],[100,far-2,13,2],[266,far-2,15,1],[366,far-2,14,2],[430,far-2,19,1],[598,far-2,18,2],[654,Wl.d-2,16,1],[700,Wl.d-2,13,0],[806,Wl.d-2,17,2],[842,Wl.d-3,21,1],
-      [847,186,15,0],[848,62,17,1],[846,24,14,2],[22,Yd.sidestair.d-4,15,0],[-64,22,20,1],[-128,30,16,2],[948,20,19,1],[1016,26,15,2]])add(x,d,s,k,true);
+      [847,186,15,0],[848,62,17,1],[846,24,14,2],[22,Yd.sidestair.d-4,15,0],[-64,22,20,1],[-128,30,16,2],[948,20,19,1],[1016,26,15,2]])add(x,d,s,k,true,hillH(x,d));
   // (grass in the gutter, and one tuft on the woodshed's roof)
   for(const x of [72,168,250,334,414])add(x+(r()-.5)*10,far,3.5+r()*2.5,r()<.5?0:1,true,SUMP.eave+2);add(540,far+6,4.5,1,true,SHED.h+5);
+  // (the south, since V118: along the kerb, on the heap and the bank, on the headwall's coping, at the lip, round the shed, by
+  // the gully and the fire; their own dice for where, after everything the old yard grows)
+  {const So=SO(),rs=rng(461),D=So.drain,H=hillPts(),ridgeH=x=>{const R=H.ridge;for(let i=0;i<R.length-1;i++)if(x<=R[i][0]&&x>=R[i+1][0]){const u=(x-R[i+1][0])/(R[i][0]-R[i+1][0]);return[lerp(R[i+1][1],R[i][1],u),lerp(R[i+1][2],R[i][2],u)];}return[-88,40];};
+    for(let x=toeX(So.kerb)+14;x<So.lip[3][0]-14;x+=13*(.6+rs()*.9)){if(rs()<.3||(x>So.cart.x0-4&&x<So.cart.x1))continue;add(x,So.kerb+7+rs()*3,4.5+rs()*4.5,rs()<.65?0:1);}
+    for(let x=-170;x<600;x+=26*(.5+rs())){if(rs()<.4)continue;add(x,So.kerb-9-rs()*5,4.5+rs()*4,rs()<.6?0:1);}
+    for(let i=0;i<54;i++){const d=-500+rs()*600,dx=6+rs()*150,x=toeX(d)-dx;if(x<-200)continue;add(x,d,5+rs()*7,rs()<.5?0:rs()<.75?1:2,rs()<.14,dx*.9);}
+    for(let x=52;x<250;x+=12*(.6+rs()*.9)){if(x>D.x-D.r-30&&x<D.x+D.r+30)continue;const [rd,rh]=ridgeH(x);add(x,rd+rs()*3,5+rs()*6,rs()<.6?0:1,rs()<.2,rh+1);}
+    for(let x=60;x<246;x+=15*(.6+rs()*.9)){const [rd,rh]=ridgeH(x),u=.25+rs()*.6;add(x,lerp(8,rd,u),4+rs()*5,rs()<.65?0:rs()<.85?1:2,false,rh*u);}
+    for(const [dx,k] of [[-52,0],[-30,1],[8,0],[38,0],[50,1]])add(D.x+dx,D.d+3,4.5+rs()*4,k,true,D.r*2+6.5);
+    for(let x=664;x<1130;x+=24*(.5+rs())){if(rs()<.35)continue;add(x,lipAt(x)+2+rs()*7,4+rs()*5,rs()<.6?0:1,rs()<.15);}
+    for(const [x,d,s2,k,lv] of [[846,-118,12,1,1],[843,-96,9,0,0],[845,-74,13,2,1],[848,-128,7,0,0],[966,-126,10,1,1],[258,-112,10,0,0],[246,-126,8,1,0],[60,-158,9,0,0],[66,-140,12,1,1],[224,-158,8,0,0],[596,-222,11,1,0],[608,-262,9,0,0],
+        [426,-134,6,0,0],[494,-108,6,1,0],[300,-70,7,2,0],[392,-70,6,0,0],[536,-28,6,0,0],[232,-146,6,0,0],[700,-176,9,1,1],[1010,-150,10,0,1]])add(x,d,s2,k,!!lv);}
   a.still=a.filter(g=>!g.live);a.live=a.filter(g=>g.live);return GROW=a;}
 // the wind in the yard: a slow push with gusts through it, the same for everything it moves; nothing where motion is reduced
 const gustAt=t=>.55+.45*Math.sin(t*.37+1.3)*Math.sin(t*.11);
@@ -939,6 +958,627 @@ function growth(c,P){const Yd=Y(),far=Yd.far,sh=(col,k)=>K.shade(P,col,k),G=grow
   {const L2=LINE();c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(L2.foot.x+1.5,L2.foot.y+.4,5,1.5,0,0,TAU);c.fill();
     c.fillStyle=sh('#32281c',1.1);c.fillRect(L2.foot.x-1.4,L2.b.y-3,2.8,L2.foot.y-L2.b.y+3);c.fillStyle=rgba(P.light,.1+.34*LA);c.fillRect(L2.foot.x-1.4,L2.b.y-3,1,L2.foot.y-L2.b.y+3);
     c.strokeStyle=sh('#1c1814');c.lineWidth=1.5;c.beginPath();c.moveTo(L2.a.x,L2.a.y);for(let u=.1;u<=1.001;u+=.1){const q=lineAt(L2,u);c.lineTo(q.x,q.y);}c.stroke();}}
+// ---------- the yard's south (since V118) ----------
+// The yard runs on toward us, south on the Pit map, past where a fight goes (the game's layout: ACT1_PLACES.yard.south). On its
+// left a bank of the quarry's spoil, gone to weed, with a storm drain's mouth in a headwall of old masonry: the yard's water runs
+// down a gully to it from the big puddle, and whoever kept a pitch at it has left the cup. Along its foot a kerb of quarry blocks
+// with Tarr's main lying on it, a standpipe and its valve under his blue; the lane beyond. On its right the Floor ends: the lip of
+// the quarry's last cut, the hole the Sump is named for, a rail of poles along it, a hoist, a bench to look from, the keeping
+// candles; and the shed standing by it. Between, a court chalked on the dirt for rondel, a fire ring, a handcart of kegs.
+// What a man may stand behind is a piece (the shed, the main, the rail, the fire, the cart); the rest is in the picture.
+// the run of water on from the big puddle down the yard to the drain's mouth, on the floor (x, d)
+const GULLY=[[606,34],[592,8],[548,-22],[474,-44],[404,-76],[334,-92],[268,-122],[218,-140],[180,-136],[160,-124]];
+function runOf(c,R){c.moveTo(R[0][0],R[0][1]);for(let i=1;i<R.length-1;i++)c.quadraticCurveTo(R[i][0],R[i][1],(R[i][0]+R[i+1][0])/2,(R[i][1]+R[i+1][1])/2);c.lineTo(R[R.length-1][0],R[R.length-1][1]);}
+function runAt(R,u){const n=R.length-1,f=clamp(u,0,.9999)*n,i=f|0,k=f-i;return[lerp(R[i][0],R[i+1][0],k),lerp(R[i][1],R[i+1][1],k)];}
+// the court chalked on the dirt for rondel
+const COURT={x0:572,x1:772,d0:-104,d1:-22};
+// a chalk line on the floor: rubbed thin in places, gone in others
+function chalk(c,r,x0,d0,x1,d1,a){const n=Math.max(2,Math.round(Math.hypot(x1-x0,d1-d0)/9));
+  for(let i=0;i<n;i++){if(r()<.13)continue;const u0=i/n,u1=Math.min(1,(i+.75+r()*.3)/n);c.globalAlpha=a*(.5+.5*r());c.beginPath();
+    c.moveTo(lerp(x0,x1,u0)+(r()-.5)*.9,lerp(d0,d1,u0)+(r()-.5)*.7);c.lineTo(lerp(x0,x1,u1)+(r()-.5)*.9,lerp(d0,d1,u1)+(r()-.5)*.7);c.stroke();}c.globalAlpha=1;}
+// the lip's line at x (its depth), along the yard's edge
+const sstep01=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
+function lipAt(x){const L2=SO().lip;for(let i=0;i<3;i++){const a=L2[i+1],b=L2[i];if(x<=b[0]||i===0){if(x>=a[0]||i===2)return lerp(a[1],b[1],clamp((x-a[0])/(b[0]-a[0]),-.5,1.5));}}return L2[3][1];}
+// The south floor, in the floor's own plane (called by ground() inside its transform): the ways worn across it, the bare rock
+// coming through toward the lip, the gully, the court, the lane's ruts beyond the kerb, the wet before the drain, ash by the fire.
+function southFloor(c,P){const So=SO(),night=P.key==='night',r=rng(301),path=rgba(jm2(P.dirt[0],'#d8ccb8',.2),night?.05:.12);
+  c.lineCap='round';c.lineJoin='round';
+  // the ways: from the pump down to the ground before the shed; to the fire; round the bank's end to the drain
+  c.strokeStyle=path;c.lineWidth=22;c.beginPath();c.moveTo(506,96);c.bezierCurveTo(560,40,640,-40,700,-104);c.bezierCurveTo(730,-136,790,-150,880,-148);c.stroke();
+  c.lineWidth=15;c.beginPath();c.moveTo(430,70);c.bezierCurveTo(424,10,440,-50,452,-86);c.stroke();
+  c.beginPath();c.moveTo(380,16);c.bezierCurveTo(330,-60,290,-150,236,-166);c.bezierCurveTo(206,-172,176,-160,160,-140);c.stroke();
+  // bare rock toward the lip: the dirt thins and the quarry's floor shows, split along its bed and across it; a few slabs stand proud
+  {const x0=590,x1=1210,col=K.jm(K.jm(P.dirt[0],'#6a6864',.6),'#000000',.14),rr=rng(303),edge=x=>lipAt(x)+64+Math.sin(x*.05)*12+Math.sin(x*.013)*8;
+    // (thinning in from the lip, and in from where the lip begins: laid in strips, each its own fade)
+    for(let x=x0;x<x1;x+=8){const k=sstep01((x-x0)/130),e=edge(x),g=c.createLinearGradient(0,lipAt(x)-30,0,e+16);g.addColorStop(0,rgba(col,.95*k));g.addColorStop(.62,rgba(col,.7*k));g.addColorStop(1,rgba(col,0));c.fillStyle=g;c.fillRect(x,lipAt(x)-30,8.4,e+46-lipAt(x));}
+    c.save();c.beginPath();c.moveTo(x0+40,-270);for(let x=x0+40;x<=x1;x+=20)c.lineTo(x,edge(x)-8);c.lineTo(x1,-270);c.closePath();c.clip();
+    // (the bedding: long cracks that run with the lip, shorter joints across them)
+    for(let i=0;i<8;i++){let x=640+rr()*150,d=lipAt(x)+5+i*7+rr()*4;c.strokeStyle=rgba('#000000',.2+.1*rr());c.lineWidth=1.75+rr()*.8;c.beginPath();c.moveTo(x,d);
+      while(x<x1){x+=14+rr()*26;d=lipAt(x)+5+i*7+(rr()-.5)*5;c.lineTo(x,d);if(rr()<.2){x+=14+rr()*30;c.moveTo(x,lipAt(x)+5+i*7);}}c.stroke();}
+    c.strokeStyle=rgba('#000000',.2);c.lineWidth=1.75;c.beginPath();for(let i=0;i<30;i++){const x=650+rr()*540,d=lipAt(x)+2+rr()*50,l=5+rr()*9;c.moveTo(x,d);c.lineTo(x+(rr()-.5)*6,d+l);}c.stroke();
+    // (the light on the cracks' far lips)
+    c.strokeStyle=rgba(P.light,.03+.07*P.lightA);c.lineWidth=1.75;c.beginPath();for(let i=0;i<14;i++){const x=660+rr()*520,d=lipAt(x)+8+rr()*44;c.moveTo(x,d);c.lineTo(x+16+rr()*30,d+(rr()-.5)*3);}c.stroke();
+    for(let i=0;i<9;i++){const x=664+rr()*500,dl=lipAt(x),d=dl+6+rr()*36,w=34+rr()*44,h=10+rr()*9,pts=[[x+rr()*5,d+rr()*2],[x+w-rr()*6,d+(rr()-.5)*4],[x+w-3-rr()*8,d+h-rr()*3],[x+3+rr()*8,d+h]];
+      c.fillStyle=rgba('#000000',.3);c.beginPath();pts.forEach(([px,pd],j)=>j?c.lineTo(px+1.2,pd-2.2):c.moveTo(px+1.2,pd-2.2));c.closePath();c.fill();
+      c.fillStyle=K.jm(col,'#000000',.04+.1*rr());c.beginPath();pts.forEach(([px,pd],j)=>j?c.lineTo(px,pd):c.moveTo(px,pd));c.closePath();c.fill();
+      c.fillStyle=rgba(P.light,.02+.05*P.lightA);c.fillRect(x+5,d+h-2.8,w-14,1.1);}
+    c.restore();}
+  // the lane beyond the kerb: two ruts along it, water standing in one
+  {c.strokeStyle=rgba('#000000',.2);c.lineWidth=3.2;for(const d0 of [-240,-268]){c.beginPath();c.moveTo(-200,d0+6);c.bezierCurveTo(100,d0-6,380,d0+8,600,d0-2);c.stroke();}
+    c.strokeStyle=rgba(P.light,.02+.05*P.lightA);c.lineWidth=1.75;for(const d0 of [-236,-264]){c.beginPath();c.moveTo(-200,d0+6);c.bezierCurveTo(100,d0-6,380,d0+8,600,d0-2);c.stroke();}
+    K.puddle(c,P,426,-241,26,31,.9);K.puddle(c,P,214,-268,18,33,.8);
+    // the lane ends at the lip: two posts and a plank across are painted with the rail
+  }
+  // the gully: a groove the water has cut, wet in its bed, pebbles washed along it
+  {c.strokeStyle=rgba('#050403',.2);c.lineWidth=8;c.beginPath();runOf(c,GULLY);c.stroke();
+    c.strokeStyle=rgba('#050403',.24);c.lineWidth=4.4;c.beginPath();runOf(c,GULLY);c.stroke();
+    c.strokeStyle=K.jm(K.jm(P.dirt[1],'#000000',.5),night?'#2a2430':K.jm(P.air[0],P.light,.25),.12+.12*P.lightA);c.lineWidth=2.2;c.beginPath();runOf(c,GULLY);c.stroke();
+    const rp=rng(305);for(let i=0;i<46;i++){const [x,d]=runAt(GULLY,rp()),o=(rp()-.5)*9;c.fillStyle=K.shade(P,['#5a5246','#4a4238','#6a6052'][(rp()*3)|0],1.05);c.beginPath();c.ellipse(x+o,d+o*.5,1+rp()*1.6,.9+rp()*.9,0,0,TAU);c.fill();}
+    // (green along its banks where it runs slow)
+    for(const u of [.18,.42,.55,.74,.9]){const [x,d]=runAt(GULLY,u);c.fillStyle=rgba(K.shade(P,'#4c5632'),.26);K.blob(c,x+(rp()-.5)*10,d+4,12+rp()*8,5+rp()*3,rp,9);c.fill();}}
+  // the wet before the drain's mouth: dark, silted, green at the wall's foot
+  {const D=So.drain;for(const [dx,dd,pr,a] of [[0,-22,54,.16],[-14,-34,36,.14],[18,-30,30,.12],[2,-12,26,.16]]){c.fillStyle=rgba('#050403',a);K.blob(c,D.x+dx,D.d+dd,pr,pr*.55,rng(307+pr),12);c.fill();}
+    c.fillStyle=rgba(K.shade(P,'#3c4a2c'),.3);K.blob(c,D.x-6,D.d-8,40,9,rng(309),12);c.fill();}
+  // the court: its lines, the well at one end and the house at the other, the middle mark; the tally beside it
+  {const C0=COURT,rc=rng(311),a=night?.2:.42;c.strokeStyle=K.shade(P,'#ddd6c8',.5);c.lineWidth=2.6;c.lineCap='butt';
+    chalk(c,rc,C0.x0,C0.d0,C0.x1,C0.d0,a);chalk(c,rc,C0.x0,C0.d1,C0.x1,C0.d1,a);chalk(c,rc,C0.x0,C0.d0,C0.x0,C0.d1,a);chalk(c,rc,C0.x1,C0.d0,C0.x1,C0.d1,a);
+    const mx=(C0.x0+C0.x1)/2,md=(C0.d0+C0.d1)/2;chalk(c,rc,mx,C0.d0,mx,C0.d1,a);chalk(c,rc,C0.x1-34,C0.d0,C0.x1-34,C0.d1,a*.9);
+    for(let i=0;i<9;i++){const a0=-Math.PI/2+i*Math.PI/9,a1=a0+Math.PI/9;chalk(c,rc,C0.x0+Math.cos(a0)*30,md+Math.sin(a0)*26,C0.x0+Math.cos(a1)*30,md+Math.sin(a1)*26,a*.9);}
+    for(let i=0;i<8;i++){const a0=i*TAU/8,a1=a0+TAU/8;chalk(c,rc,mx+Math.cos(a0)*7,md+Math.sin(a0)*6,mx+Math.cos(a1)*7,md+Math.sin(a1)*6,a);}
+    // (the score, in fives, off the court's far side)
+    for(let g=0;g<3;g++){const tx=C0.x0+38+g*26,td=C0.d1+9;for(let i=0;i<(g<2?4:2);i++)chalk(c,rc,tx+i*3.6,td,tx+i*3.6+.8,td+8,a);if(g<2)chalk(c,rc,tx-2,td+1.5,tx+13,td+6.5,a);}
+    c.lineCap='round';}
+  // ash and char round the fire ring
+  {const F=So.fire,ra=rng(313);c.fillStyle=rgba('#1a1614',.3);K.blob(c,F.x+3,F.d-2,F.r+16,(F.r+12)*.6,ra,12);c.fill();c.fillStyle=rgba('#8a857c',.22);K.blob(c,F.x-4,F.d-5,F.r+6,F.r*.6,ra,10);c.fill();
+    for(let i=0;i<40;i++){const an=ra()*TAU,rr2=F.r+ra()*26;c.fillStyle=ra()<.5?rgba('#0c0a08',.4):rgba('#9a958c',.3);c.fillRect(F.x+Math.cos(an)*rr2,F.d+Math.sin(an)*rr2*.6,1.4+ra()*1.6,1+ra());}}
+  // more boot prints where the ground is soft: at the gully's crossing, before the drain, on the way to the lip
+  {const rb=rng(315);c.fillStyle=rgba('#000000',.13);for(const [bx,bd,n,ang] of [[248,-158,6,.5],[190,-160,5,-.3],[452,-58,5,1.2],[716,-128,6,.6],[330,-100,4,2.2]])for(let i=0;i<n;i++){const u=(i-n/2)*9+(rb()-.5)*4,sd2=(i%2?1:-1)*3.2,x=bx+Math.cos(ang)*u-Math.sin(ang)*sd2*1.6,d=bd+Math.sin(ang)*u*.45+Math.cos(ang)*sd2;
+      c.save();c.translate(x,d);c.rotate(ang*.45+(rb()-.5)*.3);c.beginPath();c.ellipse(0,0,3.4,1.25,0,0,TAU);c.ellipse(-4.6,0,1.5,1.05,0,0,TAU);c.fill();c.restore();}}
+  // trodden green where no one walks: along the kerb, at the bank's foot, by the shed
+  {const rg2=rng(317);for(const [gx,gd,gr] of [[300,-198,30],[520,-200,26],[92,-190,22],[262,-66,20],[236,-108,16],[820,-118,18],[600,-190,18],[420,-206,24],[40,-150,16]]){c.fillStyle=rgba(K.shade(P,'#4c5632'),.3);K.blob(c,gx,gd,gr,gr*.45,rg2,12);c.fill();
+      c.fillStyle=rgba(K.shade(P,'#5a643a'),.2);K.blob(c,gx+3,gd,gr*.6,gr*.3,rg2,9);c.fill();}}
+  // stones half in the dirt
+  {const rst=rng(319);for(const [cx,cd,n,sp] of [[340,-150,5,26],[560,-170,5,22],[700,-60,4,20],[110,-176,4,16],[470,-10,4,22],[260,-30,4,18],[660,-176,5,18]])for(let i=0;i<n;i++){const x=cx+(rst()-.5)*sp*2,d=cd+(rst()-.5)*sp,rx=2.2+rst()*3.4,rd=rx*(.55+rst()*.25);
+      c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(x+.8,d-rd*.5,rx*1.1,rd,0,0,TAU);c.fill();
+      c.fillStyle=K.shade(P,['#5e584e','#4e4840','#6a6458'][(rst()*3)|0]);K.blob(c,x,d,rx,rd,rst,8);c.fill();
+      c.fillStyle=rgba(P.light,.06+.2*P.lightA);c.beginPath();c.ellipse(x-rx*.15,d+rd*.35,rx*.6,rd*.35,0,0,TAU);c.fill();}}
+  c.lineCap='butt';}
+// a block of quarry stone, roughly squared (x, d its near left corner on the floor; w along, dd back, h high)
+function stoneBlock(c,P,x,d,w,dd,h,r,o){o=o||{};const sh=(col,k)=>K.shade(P,col,k),col=o.col||['#3c3833','#34312d','#423e38','#383531'][(r()*4)|0],a=Q(x,0,d),b=Q(x+w,0,d),bt=Q(x+w,h,d),at=Q(x,h,d),ct=Q(x+w,h,d+dd),dt=Q(x,h,d+dd),cb=Q(x+w,0,d+dd),ch=1+r()*2;
+  c.fillStyle=rgba('#000000',.32);K.poly(c,[{x:a.x-1.5,y:a.y+1.4},{x:b.x+3,y:b.y+1.4},{x:cb.x+3,y:cb.y},{x:cb.x,y:cb.y-2}]);c.fill();
+  c.fillStyle=sh(K.jm(col,'#000000',.36),1.1);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.lineTo(bt.x,bt.y+ch*.5);c.lineTo(bt.x-ch,bt.y);c.lineTo(at.x+ch,at.y);c.lineTo(at.x,at.y+ch);c.closePath();c.fill();
+  c.fillStyle=sh(K.jm(col,'#000000',.52),1.2);K.poly(c,[b,cb,ct,bt]);c.fill();
+  c.fillStyle=K.jm(K.topLit(P,col,.5),P.dirt[1],.3);K.poly(c,[at,bt,ct,dt]);c.fill();
+  c.fillStyle=rgba(P.dirt[0],.5);K.blob(c,(at.x+ct.x)/2+(r()-.5)*w*.4,(at.y+ct.y)/2,w*.3,dd*.3,r,8);c.fill();
+  c.fillStyle=rgba(P.light,.03+.1*P.lightA);K.poly(c,[{x:at.x+ch,y:at.y},{x:bt.x-ch,y:bt.y},{x:bt.x-ch,y:bt.y+1.1},{x:at.x+ch,y:at.y+1.1}]);c.fill();
+  // (the quarryman's drill marks down its face, a bedding seam, moss low on it)
+  c.fillStyle=rgba('#000000',.25);for(let k=0,n=1+(r()*3|0);k<n;k++)c.fillRect(a.x+w*(.15+r()*.7),at.y+2,1.5,h*(.4+r()*.4));
+  c.fillRect(a.x+2,a.y-h*(.3+r()*.3),w-4-r()*w*.3,1.2);
+  if(o.moss||r()<.4){c.fillStyle=rgba(sh('#46553a'),.5);K.blob(c,a.x+w*(.2+r()*.6),a.y-1.5,3+r()*5,1.6+r()*1.6,r,7);c.fill();}}
+// the kerb along the yard's foot: a row of them set end to end, none the same, here and there one sunk or gone
+function kerb(c,P){const So=SO(),d0=So.kerb,r=rng(171),x1=So.lip[3][0]-10;
+  for(let x=toeX(d0)+2;x<x1;){const w=Math.min(22+r()*30,x1-x),k=r(),h=k<.12?3+r()*2:8+r()*6,dd=9+r()*5;if(k>.94){x+=w*.7;continue;}stoneBlock(c,P,x,d0-dd*.5+(r()-.5)*3,w,dd,h,r);x+=w+.8+r()*2.6;}}
+// The spoil heap that comes down into the yard's south-west from beyond its edge, gone to weed; the bank it makes across the old
+// floor's foot, low enough that its back shows; and the drain: a headwall of quarry stone let into the bank, the pipe's mouth in it
+// behind a grate that something has bent outward, wing walls either side, an apron of flags, the gully running in.
+// the heap's toe along the forecourt's west side and round its north, by depth (d, x); west of it the heap climbs a hand in a hand
+const HTOE=[[-560,-66],[-480,-40],[-380,-6],[-300,14],[-240,28],[-196,36],[-154,42],[-128,50],[-98,44],[-20,40],[24,30],[50,16],[80,-10],[104,-70],[124,-160],[134,-250],[150,-430]];
+function toeX(d){if(d<=HTOE[0][0])return HTOE[0][1];for(let i=0;i<HTOE.length-1;i++){const a=HTOE[i],b=HTOE[i+1];if(d<=b[0])return lerp(a[1],b[1],(d-a[0])/(b[0]-a[0]));}return-430;}
+const hillH=(x,d)=>Math.max(0,(toeX(d)-x)*.9);
+function hillPts(){const So=SO(),B=So.bank;
+  // the bank's ridge (x, d, h), its front toe and its back toe (x, d)
+  return{ridge:[[262,-56,0],[250,-70,14],[236,-84,30],[214,-88,40],[98,-88,42],[72,-92,48],[44,-98,58]],front:[[262,-56],[256,-112],[236,-118],[214,B.d0],[98,B.d0],[70,B.d0-4],[50,-128]],
+    back:[[262,-56],[252,-24],[232,2],[196,B.d1],[60,B.d1+2],[30,24]]};}
+function hill(c,P){const So=SO(),H=hillPts(),sh=(col,k)=>K.shade(P,col,k),r=rng(331),LA=P.lightA,night=P.key==='night';
+  const earth=K.jm(P.dirt[1],'#1c1612',.4),turf=K.jm(sh('#383a26'),P.dirt[1],.55),q2=(p,h)=>Q(p[0],h||0,p[1]);
+  // the heap's side toward the yard: from its toe up and out of the picture; in the shade, the sun being over it
+  {const toe=HTOE.map(([d,x])=>Q(x,0,d));
+    c.save();c.beginPath();c.moveTo(-270,toe[0].y+20);toe.forEach(p=>c.lineTo(p.x,p.y));c.lineTo(-270,toe[toe.length-1].y);c.closePath();c.clip();
+    c.fillStyle=lin(c,56,0,-170,0,[[0,K.jm(earth,'#000000',.25)],[.16,earth],[.5,turf],[1,K.jm(turf,P.light,.06+.1*LA)]]);c.fillRect(-270,200,360,720);
+    // (patches of weed and of bare tip on it)
+    for(let i=0;i<46;i++){const d=-540+r()*670,dx=8+r()*170,x=toeX(d)-dx,p=Q(x,dx*.9,d),rx=10+r()*22;c.fillStyle=rgba(r()<.55?K.jm(sh('#465030'),P.dirt[1],.3):earth,.3+.3*r());K.blob(c,p.x,p.y,rx,rx*.55,r,11);c.fill();}
+    // (it lies in lifts, each tipped over the last: where one ends its edge shows, broken, dark under and the light on its brow)
+    for(const [hh,d0,d1] of [[30,-560,-190],[26,-130,90],[62,-520,-60],[58,-10,120],[98,-560,-230],[104,-170,60]]){for(const dy of [0,1.8]){c.beginPath();let on=false;
+        for(let d=d0;d<=d1;d+=10){const w=Math.sin(d*.05+hh)*6+Math.sin(d*.13+hh*.3)*3,p=Q(toeX(d)-(hh+w)/.9,hh+w+dy,d);if(p.x<-262||(((d-d0)/10|0)*7+hh)%13===0){on=false;continue;}on?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y);on=true;}
+        c.strokeStyle=dy?rgba(P.light,.03+.08*LA):rgba('#000000',.2);c.lineWidth=dy?1.2:2.6;c.stroke();}}
+    // (rubble in it: stones and lumps of old mortar, more of them low down where they have rolled)
+    for(let i=0;i<190;i++){const d=-540+r()*670,dx=r()*r()*160+2,x=toeX(d)-dx,p=Q(x,dx*.9,d),rx=1.6+r()*3.8,v=r();
+      c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(p.x+.8,p.y+rx*.45,rx*1.1,rx*.5,0,0,TAU);c.fill();
+      c.fillStyle=sh(v<.5?'#4c463e':v<.8?'#3e3932':'#5c564c',1.05);K.blob(c,p.x,p.y,rx,rx*.7,r,8);c.fill();c.fillStyle=rgba(P.light,.04+.12*LA);c.beginPath();c.ellipse(p.x-rx*.2,p.y-rx*.3,rx*.5,rx*.25,0,0,TAU);c.fill();}
+    // (what has been tipped on it: a tyre, a rusted sheet, a length of timber)
+    for(const [x,d,k] of [[-30,-250,0],[-64,-150,1],[-18,-60,2],[-96,-330,1],[-80,30,0],[-120,-210,2]]){const p=Q(x,hillH(x,d),d);c.save();c.translate(p.x,p.y);c.rotate(-.5+(r()-.5)*.3);
+      if(k===0){c.fillStyle=sh('#131113');c.beginPath();c.ellipse(0,0,13,6,0,0,TAU);c.fill();c.fillStyle=sh('#060607');c.beginPath();c.ellipse(0,-1,6.5,2.6,0,0,TAU);c.fill();c.fillStyle=rgba(P.light,.05+.1*LA);c.beginPath();c.ellipse(0,-3.4,9,1.6,0,Math.PI,TAU);c.fill();}
+      else if(k===1){c.fillStyle=sh(K.TINC[(r()*K.TINC.length)|0],1.15);c.fillRect(-17,-5,34,8);c.fillStyle=rgba('#7a3a18',.4);c.fillRect(-9,-5,12,8);c.fillStyle=rgba('#000000',.3);for(let q=-15;q<17;q+=3.4)c.fillRect(q,-5,1.1,8);}
+      else{c.fillStyle=sh('#3a2c1c',1.15);c.fillRect(-15,-2.4,30,4.8);c.fillStyle=rgba('#000000',.3);c.fillRect(-15,1.4,30,1);}
+      c.restore();}
+    // (scrub on it: dark bushes with the light on their heads)
+    for(const [x,d,s2] of [[-58,-222,1.1],[-22,-128,.8],[-110,-286,1.3],[-44,10,.9],[-128,-110,1.2],[-90,84,.8],[-6,-330,.9],[-150,-380,1.3],[-70,-420,1],[-140,-30,1.1]]){const p=Q(x,hillH(x,d),d),rb=rng(Math.round(x*3+d+900));
+      c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(p.x+3*s2,p.y+1,15*s2,3.6*s2,0,0,TAU);c.fill();
+      c.fillStyle=sh('#222c1c',1.05);K.blob(c,p.x,p.y-9*s2,14*s2,10*s2,rb,12);c.fill();c.fillStyle=sh('#324026',1.05);K.blob(c,p.x-3*s2,p.y-12*s2,9*s2,6*s2,rb,10);c.fill();
+      c.fillStyle=rgba(P.light,.04+.12*LA);K.blob(c,p.x-5*s2,p.y-15*s2,5*s2,2.6*s2,rb,8);c.fill();
+      c.strokeStyle=sh('#241c14');c.lineWidth=1.5;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+1,p.y-6*s2);c.moveTo(p.x+1,p.y-4*s2);c.lineTo(p.x+5*s2,p.y-8*s2);c.stroke();}
+    // (its foot dark where it meets the floor)
+    c.strokeStyle=rgba('#000000',.3);c.lineWidth=8;c.lineJoin='round';c.beginPath();toe.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();
+    c.restore();}
+  // the bank across the old floor's foot: its back, which the yard looks down on, and its face
+  {const R=H.ridge.map(p=>Q(p[0],p[2],p[1])),F=H.front.map(p=>q2(p)),Bk=H.back.map(p=>q2(p));
+    c.fillStyle=rgba('#000000',.22);c.beginPath();Bk.forEach((p,i)=>i?c.lineTo(p.x,p.y-2.5):c.moveTo(p.x+4,p.y-2.5));c.lineTo(Bk[5].x,Bk[5].y+4);c.lineTo(Bk[0].x+6,Bk[0].y+4);c.closePath();c.fill();
+    K.poly(c,Bk.concat(R.slice().reverse()));c.fillStyle=lin(c,0,Bk[3].y-2,0,R[4].y,[[0,K.jm(turf,P.dirt[0],.35)],[.5,turf],[1,K.jm(turf,P.light,.08+.16*LA)]]);c.fill();
+    c.save();K.poly(c,Bk.concat(R.slice().reverse()));c.clip();for(let i=0;i<26;i++){const x=20+r()*250,y=Bk[3].y+r()*(R[4].y-Bk[3].y),rx=6+r()*14;c.fillStyle=rgba(r()<.5?K.jm(sh('#465030'),P.dirt[1],.3):earth,.3+.25*r());K.blob(c,x,y,rx,rx*.3,r,9);c.fill();}c.restore();
+    K.poly(c,R.concat(F.slice().reverse()));c.fillStyle=lin(c,0,R[4].y,0,F[4].y,[[0,K.jm(earth,turf,.5)],[.3,earth],[1,K.jm(earth,'#000000',.35)]]);c.fill();
+    c.save();K.poly(c,R.concat(F.slice().reverse()));c.clip();
+    // (the earth of it: layers, stones bedded in them, roots out of its brow)
+    for(let k=0;k<5;k++){c.strokeStyle=rgba('#000000',.16);c.lineWidth=1.75;c.beginPath();for(let x=30;x<=270;x+=12){const y=lerp(R[4].y,F[4].y,.2+k*.17)+Math.sin(x*.07+k*2)*2.4;x===30?c.moveTo(x-23,y):c.lineTo(x-23,y);}c.stroke();}
+    for(let i=0;i<90;i++){const x=20+r()*250,y=R[4].y+4+r()*(F[4].y-R[4].y-6),rx=1.4+r()*3.6,v=r();c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(x+.6,y+rx*.5,rx*1.05,rx*.5,0,0,TAU);c.fill();
+      c.fillStyle=sh(v<.5?'#4c463e':v<.8?'#3e3932':'#5c564c',1.05);K.blob(c,x,y,rx,rx*.72,r,8);c.fill();c.fillStyle=rgba(P.light,.04+.12*LA);c.beginPath();c.ellipse(x-rx*.2,y-rx*.3,rx*.5,rx*.24,0,0,TAU);c.fill();}
+    c.strokeStyle=sh('#2a2018');c.lineWidth=1.5;c.lineCap='round';c.beginPath();for(let i=0;i<16;i++){const x=34+r()*226,y=R[4].y+1+r()*5,l=6+r()*13;c.moveTo(x,y);c.quadraticCurveTo(x+(r()-.5)*5,y+l*.5,x+(r()-.5)*7,y+l);}c.stroke();c.lineCap='butt';
+    c.fillStyle=lin(c,0,F[4].y-22,0,F[4].y+4,[[0,rgba('#000000',0)],[1,rgba('#000000',.36)]]);c.fillRect(0,F[4].y-22,290,30);c.restore();
+    // (the weed along its brow, lit from behind it)
+    c.strokeStyle=rgba(P.light,.06+.2*LA);c.lineWidth=1.2;c.beginPath();R.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();}}
+// the headwall and its wings; the pipe's mouth. The face stands square to us at the drain's depth
+function drain(c,P){const So=SO(),D=So.drain,sh=(col,k)=>K.shade(P,col,k),r=rng(341),LA=P.lightA,d=D.d,x0=D.x-D.r-23,x1=D.x+D.r+23,H=D.r*2+6,cop=6,a=Q(x0,0,d),e=Q(x1,H,d),cx=Q(D.x,0,d).x,cy=a.y-2-D.r,R=D.r;
+  const STN=['#3e3a35','#36322e','#46413c','#322f2b'],night=P.key==='night';
+  // the apron: flags between the wings, sunk and silted, wet where the gully comes in
+  {const p0=Q(x0+2,0,d),p1=Q(x1-2,0,d),p2=Q(x1+20,0,d-D.wing),p3=Q(x0-20,0,d-D.wing),fl=K.jm(K.topLit(P,'#3e3c39',.5),P.dirt[1],.3);
+    c.save();K.poly(c,[p0,p1,p2,p3]);c.clip();c.fillStyle=fl;c.fillRect(p3.x-4,p0.y-2,p2.x-p3.x+8,p3.y-p0.y+6);
+    // (three rows of big flags, their joints running back; each a little off its neighbour's shade)
+    for(let row=0;row<3;row++){const u0=row/3,u1=(row+1)/3,ya=lerp(p0.y,p3.y,u0),yb=lerp(p0.y,p3.y,u1),xa=lerp(p0.x,p3.x,u0)-2,xb=lerp(p1.x,p2.x,u0)+2;
+      for(let x=xa+((row%2)*17),i=0;x<xb+10;i++){const w=30+r()*18,sk=(yb-ya)*-.27;c.fillStyle=rgba(r()<.5?'#000000':P.light,.03+.08*r());c.beginPath();c.moveTo(x+1,ya+1);c.lineTo(x+w-1,ya+1);c.lineTo(x+w-1+sk,yb-.6);c.lineTo(x+1+sk,yb-.6);c.closePath();c.fill();
+        c.fillStyle=rgba('#000000',.36);c.beginPath();c.moveTo(x,ya);c.lineTo(x+1.5,ya);c.lineTo(x+1.5+sk,yb);c.lineTo(x+sk,yb);c.closePath();c.fill();x+=w;}
+      c.fillStyle=rgba('#000000',.36);c.fillRect(p3.x-4,yb-1.5,p2.x-p3.x+8,1.5);}
+    // (silt washed over them, the wet where the gully comes in, a line of the day on it, green along the wall's foot)
+    c.fillStyle=rgba(K.jm(P.dirt[0],'#000000',.3),.4);K.blob(c,cx+30,p0.y+22,40,9,rng(347),12);c.fill();
+    c.fillStyle=rgba('#050403',.4);K.blob(c,cx+4,p0.y+10,36,9,rng(343),12);c.fill();c.fillStyle=rgba(sh('#3c4a2c'),.4);K.blob(c,cx-10,p0.y+4,34,4.5,rng(345),10);c.fill();
+    c.fillStyle=rgba(K.jm(P.air[0],P.light,.3),.08+.14*LA);c.fillRect(cx-12,p0.y+9,26,1.3);
+    c.fillStyle=lin(c,0,p0.y,0,p0.y+12,[[0,rgba('#000000',.45)],[1,rgba('#000000',0)]]);c.fillRect(p3.x-4,p0.y,p2.x-p3.x+8,12);c.restore();}
+  // the wings: stone in courses, stepping down as they come forward; the right one shows us little but its top
+  for(const s of [-1,1]){const xa=s<0?x0:x1,xb=xa+s*22,da=d,db=d-D.wing,ha=H-10,hb=24,A0=Q(xa,0,da),A1=Q(xa,ha,da),B0=Q(xb,0,db),B1=Q(xb,hb,db);
+    c.fillStyle=rgba('#000000',.3);K.poly(c,[A0,B0,{x:B0.x+5,y:B0.y+2},{x:A0.x+6,y:A0.y+1}]);c.fill();
+    c.fillStyle=sh(s<0?'#34302c':'#262320',1.1);K.poly(c,[A0,A1,B1,B0]);c.fill();
+    c.save();K.poly(c,[A0,A1,B1,B0]);c.clip();
+    for(let k=0;k<7;k++){const hh=k*12+6;c.fillStyle=rgba('#000000',.34);K.poly(c,[Q(xa,hh,da),Q(xb,hh,db),Q(xb,hh-1.5,db),Q(xa,hh-1.5,da)]);c.fill();
+      for(let u=(k%2)*.18+.1;u<1;u+=.3+r()*.12){const p=Q(lerp(xa,xb,u),hh,lerp(da,db,u));c.fillStyle=rgba('#000000',.34);c.fillRect(p.x-.75,p.y,1.5,12);}
+      for(let u=0;u<1;u+=.34){if(r()<.5)continue;const pA=Q(lerp(xa,xb,u),hh+10.5,lerp(da,db,u)),pB=Q(lerp(xa,xb,u+.3),hh+10.5,lerp(da,db,u+.3));c.fillStyle=rgba(r()<.5?'#000000':P.light,.05+.05*r());K.poly(c,[pA,pB,{x:pB.x,y:pB.y+10},{x:pA.x,y:pA.y+10}]);c.fill();}}
+    c.fillStyle=lin(c,0,A1.y,0,B0.y,[[0,rgba('#000000',0)],[1,rgba('#000000',.32)]]);c.fillRect(Math.min(A0.x,B0.x)-2,A1.y,Math.abs(A0.x-B0.x)+4,B0.y-A1.y);
+    c.fillStyle=rgba(sh('#46553a'),.34);for(let i=0;i<5;i++){const u=r(),p=Q(lerp(xa,xb,u),r()*12,lerp(da,db,u));K.blob(c,p.x,p.y,3+r()*5,2+r()*3,r,7);c.fill();}
+    c.restore();
+    // (its coping: flat stones down the slope, seen from above)
+    {const t0=Q(xa-s*1,ha,da),t1=Q(xb,hb,db),t2=Q(xb+s*9,hb,db+2),t3=Q(xa+s*8,ha,da+2);c.fillStyle=K.topLit(P,'#4a4640',.75);K.poly(c,[t0,t1,t2,t3]);c.fill();
+      c.fillStyle=rgba('#000000',.3);for(const u of [.24,.5,.76]){const p=Q(lerp(xa,xb,u),lerp(ha,hb,u),lerp(da,db,u)),q=Q(lerp(xa,xb,u)+s*9,lerp(ha,hb,u),lerp(da,db,u)+2);K.poly(c,[p,q,{x:q.x+1.5,y:q.y},{x:p.x+1.5,y:p.y}]);c.fill();}
+      c.fillStyle=sh('#262320',1.1);K.poly(c,[t1,t2,Q(xb+s*9,0,db+2),B0]);c.fill();}}
+  // the face: big stones in courses, a ring of them round the mouth; damp, green low down, lime run from its joints
+  {const w=e.x-a.x,top=e.y;c.fillStyle=sh('#262320',1.1);c.fillRect(a.x,top,w,a.y-top);
+    c.save();c.beginPath();c.rect(a.x,top,w,a.y-top);c.clip();
+    for(let y=a.y-13,row=0;y>top-13;y-=13,row++)for(let x=a.x-(row%2)*11-r()*6;x<e.x;){const sw=18+r()*17;c.fillStyle=sh(STN[(r()*4)|0],1.08);c.fillRect(x+.9,y+.9,sw-1.8,11.4);
+        c.fillStyle=rgba(P.light,.03+.09*LA);c.fillRect(x+1.6,y+.9,sw-3.2,1);if(r()<.3){c.fillStyle=rgba('#000000',.2);c.fillRect(x+sw*(.2+r()*.5),y+3,1.5,6);}x+=sw;}
+    // (the lime, the wet under the mouth, the green)
+    for(let i=0;i<7;i++){const x=a.x+6+r()*(w-12),y=top+6+r()*30,l=14+r()*30;c.fillStyle=lin(c,0,y,0,y+l,[[0,rgba('#b8b4a8',.2)],[1,rgba('#b8b4a8',0)]]);c.fillRect(x,y,1.6+r()*2.6,l);}
+    c.fillStyle=lin(c,0,cy+R-6,0,a.y,[[0,rgba('#050403',.5)],[1,rgba('#050403',.2)]]);c.beginPath();c.moveTo(cx-R*.7,cy+R*.7);c.lineTo(cx+R*.7,cy+R*.7);c.lineTo(cx+R*.5,a.y);c.lineTo(cx-R*.9,a.y);c.closePath();c.fill();
+    for(let i=0;i<18;i++){const x=a.x+r()*w,y=a.y-r()*r()*26;c.fillStyle=rgba(sh('#46553a'),.22+.2*r());K.blob(c,x,y,3+r()*7,2+r()*4,r,7);c.fill();}
+    c.fillStyle=lin(c,0,a.y-30,0,a.y,[[0,rgba('#000000',0)],[1,rgba('#000000',.4)]]);c.fillRect(a.x,a.y-30,w,30);
+    c.fillStyle=lin(c,a.x,0,e.x,0,[[0,rgba(P.light,.02+.05*LA)],[.5,rgba(P.light,0)],[1,rgba('#000000',.14)]]);c.fillRect(a.x,top,w,a.y-top);c.restore();
+    // (the ring: wedges of stone round the mouth, the key at its crown)
+    {const n=15,ri=R+1,ro=R+11;for(let i=0;i<n;i++){const a0=Math.PI+(-.16+i/n*1.32)*Math.PI,a1=Math.PI+(-.16+(i+1)/n*1.32)*Math.PI,g=.02;
+        c.fillStyle=sh(STN[(i*3+1)%4],i===7?1.0:1.08);c.beginPath();c.moveTo(cx+Math.cos(a0+g)*ri,cy+Math.sin(a0+g)*ri);c.lineTo(cx+Math.cos(a0+g)*ro,cy+Math.sin(a0+g)*ro);c.lineTo(cx+Math.cos(a1-g)*ro,cy+Math.sin(a1-g)*ro);c.lineTo(cx+Math.cos(a1-g)*ri,cy+Math.sin(a1-g)*ri);c.closePath();c.fill();
+        c.fillStyle=rgba(P.light,.03+.1*LA);c.beginPath();c.moveTo(cx+Math.cos(a0+g)*ro,cy+Math.sin(a0+g)*ro);c.lineTo(cx+Math.cos(a1-g)*ro,cy+Math.sin(a1-g)*ro);c.lineTo(cx+Math.cos(a1-g)*(ro-1.2),cy+Math.sin(a1-g)*(ro-1.2));c.lineTo(cx+Math.cos(a0+g)*(ro-1.2),cy+Math.sin(a0+g)*(ro-1.2));c.closePath();c.fill();}}
+    // (the coping along its top, seen from above; moss on it)
+    {const t0=Q(x0-4,H,d-2),t1=Q(x1+4,H,d-2),t2=Q(x1+4,H,d+8),t3=Q(x0-4,H,d+8);c.fillStyle=sh('#2e2a27',1.1);c.fillRect(t0.x,t0.y,t1.x-t0.x,cop);c.fillStyle=K.topLit(P,'#4a4640',.8);K.poly(c,[t0,t1,t2,t3]);c.fill();
+      c.fillStyle=rgba('#000000',.32);for(let x=x0+14;x<x1;x+=22+r()*12){const p=Q(x,H,d-2),q=Q(x,H,d+8);K.poly(c,[p,q,{x:q.x+1.5,y:q.y},{x:p.x+1.5,y:p.y}]);c.fill();c.fillRect(p.x,p.y,1.5,cop);}
+      c.fillStyle=rgba(P.light,.08+.22*LA);c.fillRect(t0.x,t0.y,t1.x-t0.x,1.1);
+      for(let i=0;i<6;i++){const p=Q(x0+r()*(x1-x0),H,d+r()*6);c.fillStyle=rgba(sh('#4c5a36'),.6);K.blob(c,p.x,p.y,3+r()*5,1.4+r()*1.4,r,7);c.fill();}}}
+  // the mouth: the pipe's iron rim, the dark going back and down, a little light on its floor, water standing in it
+  {c.fillStyle=sh('#3a241a',1.05);c.beginPath();c.arc(cx,cy,R+1,0,TAU);c.fill();c.fillStyle='#06070a';c.beginPath();c.arc(cx,cy,R-2.5,0,TAU);c.fill();
+    c.save();c.beginPath();c.arc(cx,cy,R-2.5,0,TAU);c.clip();
+    // (the pipe's lengths going away: each joint a ring, smaller and further over as it goes down under the yard)
+    for(const [k,al] of [[.86,.5],[.7,.34],[.54,.2]]){const ox=(1-k)*R*.62,oy=-(1-k)*R*.16;c.strokeStyle=rgba(K.jm('#2a2622',P.air[2],.3),al*(night?.5:1));c.lineWidth=2;c.beginPath();c.arc(cx+ox,cy+oy,(R-3)*k,0,TAU);c.stroke();}
+    c.fillStyle=rad(c,cx-R*.3,cy+R*.75,2,R*1.1,[[0,rgba(K.jm(P.air[1],P.light,.4),night?.07:.2)],[1,rgba(P.air[1],0)]]);c.fillRect(cx-R,cy-R,R*2,R*2);
+    // (the water lying in its floor, a line of the day on it; the scum line along its side)
+    c.fillStyle=rgba('#0a0e12',.9);c.beginPath();c.ellipse(cx+5,cy+R-3,R*.74,R*.2,0,0,TAU);c.fill();c.fillStyle=rgba(K.jm(P.air[0],P.light,.3),night?.1:.3);c.fillRect(cx-R*.3,cy+R-7.2,R*.6,1.1);
+    c.strokeStyle=rgba('#8a8676',.22);c.lineWidth=1.5;c.beginPath();c.arc(cx,cy,R-4.5,.2*Math.PI,.8*Math.PI);c.stroke();c.restore();
+    c.strokeStyle=rgba(P.light,.06+.2*LA);c.lineWidth=1.1;c.beginPath();c.arc(cx,cy,R+.4,1.05*Math.PI,1.75*Math.PI);c.stroke();
+    // (rust run down the stone from the rim)
+    for(const an of [.12,.3,.72,.9]){const px=cx+Math.cos(an*Math.PI)*(R+1),py=cy+Math.sin(an*Math.PI)*(R+1);c.fillStyle=lin(c,0,py,0,py+22,[[0,rgba('#7a3a18',.42)],[1,rgba('#7a3a18',0)]]);c.fillRect(px-1.5,py,3+r()*2,22);}}
+  // a creeper come down over the coping and the mouth's crown
+  {const rc=rng(349);for(const [ox,l] of [[-R-12,30],[-R+2,22],[-12,17],[6,13],[R-6,24],[R+14,34]]){let x=cx+ox,y=e.y+2;c.strokeStyle=sh('#2e2a1c');c.lineWidth=1.5;c.beginPath();c.moveTo(x,y-4);const pts=[];for(let k=0;k<l;k+=4){x+=(rc()-.5)*2.6;y+=4;c.lineTo(x,y);pts.push([x,y]);}c.stroke();
+      for(const [px,py] of pts)for(let q=0;q<2;q++){c.fillStyle=rc()<.3?K.topLit(P,'#48603a',.25):sh(['#26361f','#2e4024'][(rc()*2)|0]);c.beginPath();c.ellipse(px+(rc()-.5)*6,py+(rc()-.5)*3,2.4,1.5,rc()*TAU,0,TAU);c.fill();}}}
+  // what is left of a pitch at the right wing's end: the card to sit on, a blanket folded, the card with its mark, and the cup
+  {const px=x1+34,pd=d-D.wing+6,m0=Q(px,0,pd-14),m1=Q(px+34,0,pd-12),m2=Q(px+36,0,pd+8),m3=Q(px+1,0,pd+7);c.fillStyle=rgba('#000000',.25);K.poly(c,[{x:m0.x-1,y:m0.y+1.5},{x:m1.x+2,y:m1.y+1.5},m2,m3]);c.fill();
+    c.fillStyle=sh('#6e5c44',1.05);K.poly(c,[m0,m1,m2,m3]);c.fill();c.fillStyle=rgba('#000000',.16);K.poly(c,[Q(px+16,0,pd-13),Q(px+18,0,pd-13),Q(px+19,0,pd+8),Q(px+17,0,pd+8)]);c.fill();
+    {const b0=Q(px+17,0,pd+5),bw=17;c.fillStyle=sh('#4a4e58',1.05);c.beginPath();c.moveTo(b0.x,b0.y);c.lineTo(b0.x+bw,b0.y+.6);c.lineTo(b0.x+bw+1.5,b0.y-5.5);c.lineTo(b0.x+1.5,b0.y-6.2);c.closePath();c.fill();c.fillStyle=rgba('#000000',.25);c.fillRect(b0.x+1,b0.y-3.4,bw,1.2);c.fillStyle=rgba(P.light,.06+.16*LA);c.fillRect(b0.x+1.5,b0.y-6.2,bw,1);}
+    // (the card leant on the wing's end)
+    {const s0=Q(x1+24,0,d-D.wing-2);c.fillStyle=rgba('#000000',.25);c.beginPath();c.ellipse(s0.x+8,s0.y+1,11,2.4,0,0,TAU);c.fill();c.fillStyle=sh('#7a6a50',1.05);c.beginPath();c.moveTo(s0.x,s0.y);c.lineTo(s0.x+17,s0.y+1);c.lineTo(s0.x+15,s0.y-14);c.lineTo(s0.x-2,s0.y-15);c.closePath();c.fill();
+      c.fillStyle=rgba('#000000',.14);c.fillRect(s0.x-1,s0.y-8.4,17,1);c.strokeStyle=rgba('#1c1814',.75);c.lineWidth=1.5;c.beginPath();c.arc(s0.x+6.6,s0.y-8,3.4,0,TAU);c.moveTo(s0.x+1.6,s0.y-8.4);c.lineTo(s0.x+12,s0.y-7.4);c.stroke();}
+    // (the cup: tin, dented, on the ground before the card; nothing in it)
+    {const q=Q(px+8,0,pd-18);c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(q.x+1.5,q.y,4.6,1.5,0,0,TAU);c.fill();c.fillStyle=sh('#77766f',1.05);c.beginPath();c.moveTo(q.x-3,q.y-6.5);c.lineTo(q.x+3,q.y-6.5);c.lineTo(q.x+2.5,q.y);c.lineTo(q.x-2.5,q.y);c.closePath();c.fill();
+      c.fillStyle='#16181a';c.beginPath();c.ellipse(q.x,q.y-6.5,3,1,0,0,TAU);c.fill();c.fillStyle=rgba(P.light,.12+.4*LA);c.fillRect(q.x-2.4,q.y-5.6,1,4.6);c.strokeStyle=sh('#77766f');c.lineWidth=1.5;c.beginPath();c.arc(q.x+3.6,q.y-3.4,1.8,-1.2,1.2);c.stroke();}}
+  // chalk on the stone by the mouth: a tally someone kept, and stopped keeping
+  {c.strokeStyle=rgba(K.shade(P,'#ddd6c8',.5),night?.2:.4);c.lineWidth=1.5;const tx=cx+R+15,ty=cy-12;c.beginPath();for(let i=0;i<4;i++){c.moveTo(tx+i*2.8,ty);c.lineTo(tx+i*2.8+.6,ty+7);}c.moveTo(tx-1.5,ty+5);c.lineTo(tx+10,ty+1.5);for(let i=0;i<2;i++){c.moveTo(tx+i*2.8,ty+11);c.lineTo(tx+i*2.8+.6,ty+18);}c.stroke();}}
+// The lip, and the view down past it. The Floor ends here: the quarry's last cut goes down under its edge, and what is in it is far
+// below in its own air (the kit's drop: roofs, a fire or two, the glow coming up). Under the lip the rock's face, drilled and split,
+// a ledge with a walkway and two roofs on it, a ladder down to that, mist lying in the cut. DROPF: the fires, for live().
+const DROPF={fires:[]};let RIM=null;
+// the lip as it is broken: its line on the floor, jagged (x, d), from the right
+function rim(){if(RIM)return RIM;const L2=SO().lip,r=rng(351),out=[];
+  for(let i=0;i<L2.length-1;i++){const a=L2[i],b=L2[i+1],len=Math.hypot(b[0]-a[0],b[1]-a[1]),side=i>2;let u=0,off=0;
+    while(u<1){const run=(16+r()*34)/len,u1=Math.min(1,u+run),o=u===0&&i===0?0:(r()-.38)*8,bite=r()<.22;
+      const at=(uu,oo)=>side?[lerp(a[0],b[0],uu)-oo,lerp(a[1],b[1],uu)]:[lerp(a[0],b[0],uu),lerp(a[1],b[1],uu)+oo];
+      out.push(at(u,o));if(bite){const um=u+(u1-u)*(.3+r()*.4);out.push(at(um-.4*(u1-u)*.3,o));out.push(at(um,o+4+r()*4));out.push(at(um+.4*(u1-u)*.3,o));}
+      out.push(at(u1-.002,o));u=u1;off=o;}}
+  out.push(L2[L2.length-1]);return RIM=out;}
+function dropView(c,P){const So=SO(),R0=rim(),sh=(col,k)=>K.shade(P,col,k),r=rng(353),LA=P.lightA,night=P.key==='night',dark=night||P.key==='dusk',pts=R0.map(p=>Q(p[0],0,p[1])),yT=556,yB=(E.FOOT||875)+12;
+  const air=P.air,hz=(col,k)=>K.jm(col,air[1],k),ledgeY=x=>Q(x,0,lipAt(x)).y+116+Math.sin(x*.011)*6;
+  c.save();c.beginPath();c.moveTo(1260,pts[0].y);pts.forEach(p=>c.lineTo(p.x,p.y));c.lineTo(pts[pts.length-1].x-8,yB);c.lineTo(1260,yB);c.closePath();c.clip();
+  // the cut's own air: dark under the lip, then the smoke that lies in it, lit from the sky and lighter than the rock; warm at its floor
+  const AIR=[[0,K.jm(air[2],'#000000',.3)],[.22,K.jm(air[2],air[1],.5)],[.5,K.jm(air[1],air[0],night?.2:.5)],[.8,K.jm(air[1],air[0],night?.25:.42)],[1,K.jm(K.jm(air[1],air[0],.3),'#ff8a4a',night?.1:.05)]],
+    airAt=y=>{const u=clamp((y-yT)/(yB-yT),0,1);for(let i=0;i<AIR.length-1;i++)if(u<=AIR[i+1][0])return K.jm(AIR[i][1],AIR[i+1][1],(u-AIR[i][0])/(AIR[i+1][0]-AIR[i][0]));return AIR[AIR.length-1][1];};
+  c.fillStyle=lin(c,0,yT,0,yB,AIR);c.fillRect(360,yT,920,yB-yT);
+  DROPF.fires.length=0;
+  // the floor of the cut, far down, seen from over it: roofs more than walls, in rows along its terraces, the nearer lower in the
+  // picture, bigger and darker against its air (the far ones are nearly the air's own colour)
+  {const ROWY=[704,738,776,820,868];
+    for(let k=0;k<5;k++){const s=.5+.15*k,ck=.3+.08*k,h0=.7-.07*k,base=x=>ROWY[k]+Math.sin(x*.009+k*1.7)*7+Math.sin(x*.023+k)*3,hc=airAt(ROWY[k]);
+      c.fillStyle=rgba(K.jm(hc,'#000000',.5),.3);c.beginPath();c.moveTo(360,base(360)+1);for(let x=360;x<=1260;x+=30)c.lineTo(x,base(x)+.5);for(let x=1260;x>=360;x-=30)c.lineTo(x,base(x)+4*s);c.closePath();c.fill();
+      for(let x=372+r()*30;x<1260;){const w=(12+r()*20)*s,wall=(3.4+r()*4)*s*(r()<.12?2:1),dp=(8+r()*8)*s,tc=K.TINC[(r()*K.TINC.length)|0],yy=base(x)+(r()-.5)*9*s;
+        c.fillStyle=K.jm(hc,'#0c0a0a',ck+.2);c.fillRect(x,yy-wall,w,wall);
+        c.fillStyle=K.jm(hc,sh(tc),ck+r()*.12);c.beginPath();c.moveTo(x-s,yy-wall);c.lineTo(x+w+s,yy-wall);c.lineTo(x+w+s+dp*.27,yy-wall-dp);c.lineTo(x-s+dp*.27,yy-wall-dp);c.closePath();c.fill();
+        if(r()<.4){c.fillStyle=rgba('#7a3a18',.12+.06*k);c.beginPath();c.moveTo(x+w*.3,yy-wall);c.lineTo(x+w*.7,yy-wall);c.lineTo(x+w*.7+dp*.27,yy-wall-dp);c.lineTo(x+w*.3+dp*.27,yy-wall-dp);c.closePath();c.fill();}
+        c.fillStyle=rgba(P.light,(.08+.2*LA)*(.5+.1*k));c.beginPath();c.moveTo(x-s+dp*.27,yy-wall-dp);c.lineTo(x+w+s+dp*.27,yy-wall-dp);c.lineTo(x+w+s+dp*.27,yy-wall-dp+.9*s);c.lineTo(x-s+dp*.27,yy-wall-dp+.9*s);c.closePath();c.fill();
+        if(r()<(dark?.5:.24)){c.fillStyle=rgba('#ffb070',(dark?.9:.75));c.fillRect(x+w*.2,yy-wall*.8,2.4*s,Math.max(1.4,wall*.5));}
+        if(r()<.07)DROPF.fires.push({x:x+w+3*s,y:yy-1,s:s*.9,hz:h0});
+        if(r()<.22){c.fillStyle=K.jm(hc,'#0c0a0a',ck+.25);c.fillRect(x+w*.7+dp*.14,yy-wall-dp*.5-5*s,1.5*s,6*s);if(r()<.5)DROPF.fires.push({x:x+w*.7+dp*.14,y:yy-wall-dp*.5-5*s,s,hz:h0,smoke:true});}
+        x+=w+(r()<.26?(8+r()*22)*s:(.6+r()*2.4)*s);}
+      // (the smoke that lies between one terrace and the next)
+      if(k<4){const ym=ROWY[k]+17+k*2,a=(.2-.03*k)*(P.key==='morning'?1.5:1);c.fillStyle=lin(c,0,ym-20,0,ym+20,[[0,rgba(air[0],0)],[.5,rgba(air[0],a)],[1,rgba(air[0],0)]]);
+        c.beginPath();c.moveTo(360,ym-20);for(let x=360;x<=1260;x+=36)c.lineTo(x,ym-20+Math.sin(x*.013+k*2)*8);c.lineTo(1260,ym+20);for(let x=1260;x>=360;x-=36)c.lineTo(x,ym+20+Math.sin(x*.017+k)*7);c.closePath();c.fill();}}}
+  // the fires' glow coming up through it
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,0,yT+90,0,yB,[[0,rgba('#ff8a4a',0)],[1,rgba('#ff8a4a',night?.15:.05)]]);c.fillRect(360,yT+90,920,yB-yT-90);c.restore();
+  // a line strung across the cut from the ledge to its near side, lamps hung on it; another higher and slacker
+  for(const [xa,ya,xb,yb2,sag,n] of [[1010,ledgeY(1010)-26,596,786,34,4],[1180,ledgeY(1180)-30,744,742,22,3]]){c.strokeStyle=hz(sh('#1e1a16'),.45);c.lineWidth=1.5;c.beginPath();c.moveTo(xa,ya);c.quadraticCurveTo((xa+xb)/2,(ya+yb2)/2+sag*2,xb,yb2);c.stroke();
+    for(let i=1;i<=n;i++){const u=i/(n+1),x=(1-u)*(1-u)*xa+2*u*(1-u)*(xa+xb)/2+u*u*xb,y=(1-u)*(1-u)*ya+2*u*(1-u)*((ya+yb2)/2+sag*2)+u*u*yb2;c.fillStyle=hz(sh('#1e1a16'),.4);c.fillRect(x-.75,y,1.5,3.4);
+      c.fillStyle=dark?'#ffb070':hz(sh('#6a5a40'),.4);c.fillRect(x-1.6,y+3.2,3.2,3.4);DROPF.fires.push({x,y:y+5,s:.5,hz:.4,lamp:true});}}
+  // the ledge a long way under the lip: a walkway of planks along the rock, a rope for a rail, roofs on it, a line of washing
+  {c.fillStyle=lin(c,0,ledgeY(900),0,ledgeY(900)+26,[[0,rgba(hz(sh('#2a2725'),.5),1)],[1,rgba(hz(sh('#2a2725'),.7),0)]]);c.beginPath();c.moveTo(600,ledgeY(600)+3);for(let x=600;x<=1260;x+=16)c.lineTo(x,ledgeY(x));for(let x=1260;x>=600;x-=16)c.lineTo(x,ledgeY(x)+30);c.closePath();c.fill();
+    c.fillStyle=hz(K.topLit(P,'#4a4038',.6),.38);c.beginPath();c.moveTo(640,ledgeY(640));for(let x=640;x<=1260;x+=16)c.lineTo(x,ledgeY(x));for(let x=1260;x>=640;x-=16)c.lineTo(x,ledgeY(x)+3.6);c.closePath();c.fill();
+    c.fillStyle=rgba('#000000',.3);for(let x=648;x<1260;x+=7+r()*4)c.fillRect(x,ledgeY(x),1,3.6);
+    for(const [x,w,hh,col,tc] of [[708,56,23,'#3a302a','#5a4a40'],[838,44,20,'#2c2a2c','#4a4644'],[956,68,26,'#33292a','#6a5442'],[1090,50,22,'#3e3430','#4e4a48']]){const y=ledgeY(x+w/2)-1,dp=15;
+      c.fillStyle=rgba('#000000',.3);c.fillRect(x-2,y,w+8,3);
+      c.fillStyle=hz(sh(col,1.1),.36);c.fillRect(x,y-hh,w,hh);c.fillStyle=rgba('#000000',.2);for(let q=x+4;q<x+w;q+=6+r()*3)c.fillRect(q,y-hh,1,hh);
+      c.fillStyle=hz(K.topLit(P,tc,.6),.34);c.beginPath();c.moveTo(x-3,y-hh);c.lineTo(x+w+3,y-hh);c.lineTo(x+w+3+dp*.27,y-hh-dp);c.lineTo(x-3+dp*.27,y-hh-dp);c.closePath();c.fill();
+      c.fillStyle=rgba('#000000',.22);for(let q=x;q<x+w+4;q+=4.6){c.beginPath();c.moveTo(q,y-hh);c.lineTo(q+1.1,y-hh);c.lineTo(q+1.1+dp*.27,y-hh-dp);c.lineTo(q+dp*.27,y-hh-dp);c.closePath();c.fill();}
+      c.fillStyle=rgba('#7a3a18',.28);c.fillRect(x+w*.3,y-hh-dp*.6,w*.3,dp*.6);
+      c.fillStyle=rgba(P.light,.06+.22*LA);c.fillRect(x-3,y-hh,w+6,1);
+      c.fillStyle=hz('#0c0a0a',.3);c.fillRect(x+w*.62,y-hh*.74,9,hh*.74);
+      c.fillStyle=dark||P.win>.3?rgba('#ffb070',.8):hz('#12100f',.3);c.fillRect(x+w*.18,y-hh*.66,8,6);c.fillStyle=rgba('#000000',.4);c.fillRect(x+w*.18+3.6,y-hh*.66,.9,6);
+      c.fillStyle=hz(sh('#1c1814'),.36);c.fillRect(x+w*.82,y-hh-dp-9,2.6,13);c.fillRect(x+w*.82-1,y-hh-dp-10.5,4.6,2);}
+    // (the rope along its edge, on posts)
+    c.strokeStyle=hz(sh('#1e1a16'),.4);c.lineWidth=1.5;c.beginPath();for(let x=652;x<1260;x+=38){c.moveTo(x,ledgeY(x)+2);c.lineTo(x,ledgeY(x)-8);}c.moveTo(652,ledgeY(652)-7);for(let x=652;x<=1260;x+=19)c.lineTo(x,ledgeY(x)-7+((x/19|0)%2)*1.8);c.stroke();
+    {const xa=770,xb=836,ya=ledgeY(xa)-24,yb2=ledgeY(xb)-21;c.strokeStyle=hz(sh('#6a6052'),.42);c.lineWidth=1.5;c.beginPath();c.moveTo(xa,ya);c.quadraticCurveTo((xa+xb)/2,(ya+yb2)/2+7,xb,yb2);c.stroke();
+      for(let u=.16;u<.9;u+=.2){const x=lerp(xa,xb,u),y=lerp(ya,yb2,u)+14*u*(1-u)+.5;c.fillStyle=hz(sh(['#6a5a4a','#4a5260','#7a6a50','#5a4a44','#8a8070'][(r()*5)|0]),.4);c.fillRect(x-2.8,y,5.6,6+r()*3);}}}
+  // the rock's face under the lip: cut square by the quarrymen and split since, dark under the overhang, going down into the air
+  {const FD=74,rock=sh('#221f1e',1.05),dk=K.jm(rock,'#000000',.6);
+    for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);if(len<.6)continue;
+      // (each run of it fades by how far down it is: the fade runs square to the lip's own line)
+      let nx=-dy/len,ny=dx/len;if(ny<0){nx=-nx;ny=-ny;}const D=Math.max(6,FD*Math.abs(dx)/len),k=r(),tone=K.jm(rock,k<.5?'#000000':P.light,.03+.09*r()),g=c.createLinearGradient(a.x,a.y,a.x+nx*D,a.y+ny*D);
+      g.addColorStop(0,dk);g.addColorStop(.2,tone);g.addColorStop(.6,rgba(K.jm(tone,air[1],.25),.92));g.addColorStop(1,rgba(K.jm(tone,air[1],.55),0));
+      c.fillStyle=g;c.beginPath();c.moveTo(a.x-.3,a.y);c.lineTo(b.x+.3,b.y);c.lineTo(b.x+.3,b.y+FD);c.lineTo(a.x-.3,a.y+FD);c.closePath();c.fill();
+      if(Math.abs(dx)>3){c.fillStyle=rgba('#000000',.3);for(let q=0,n=1+(r()*2.4|0);q<n;q++){const u=r(),l=10+r()*42;c.fillRect(lerp(a.x,b.x,u)-.75,lerp(a.y,b.y,u)+1,1.5,l);}}}
+    // (its beds: two broken ledges along it, the light on each)
+    for(const off of [17,40]){for(const dy of [0,-1.5]){c.beginPath();let on=false;pts.forEach((p,i)=>{if(i>pts.length-12||(i*5+off)%7===0){on=false;return;}const y=p.y+off+Math.sin(i*.9+off)*2.2+dy;on?c.lineTo(p.x,y):c.moveTo(p.x,y);on=true;});
+        c.strokeStyle=dy?rgba(P.light,(.03+.1*LA)*(off<30?1:.6)):rgba('#000000',off<30?.34:.2);c.lineWidth=dy?1.2:2;c.stroke();}}
+    // (wet run down it, green under where the water comes over; a fern or two out of the cracks)
+    for(const xs of [690,812,905,1046,1130]){const p=Q(xs,0,lipAt(xs));c.fillStyle=lin(c,0,p.y,0,p.y+60,[[0,rgba('#050403',.4)],[1,rgba('#050403',0)]]);c.fillRect(p.x-4,p.y,7+r()*6,60);c.fillStyle=lin(c,0,p.y,0,p.y+36,[[0,rgba(sh('#3c4a2c'),.45)],[1,rgba(sh('#3c4a2c'),0)]]);c.fillRect(p.x-1,p.y,5,36);}
+    for(const [xs,dy] of [[736,12],[858,22],[980,9],[1100,18],[660,26]]){const p=Q(xs,0,lipAt(xs));c.fillStyle=sh('#34442a',1.05);for(let q=0;q<5;q++){const an=.5+q*.5,l=5+r()*5;c.beginPath();c.moveTo(p.x,p.y+dy);c.quadraticCurveTo(p.x+Math.cos(an)*l*.6,p.y+dy-2,p.x+Math.cos(an)*l,p.y+dy+Math.sin(an)*l*.7);c.quadraticCurveTo(p.x+Math.cos(an)*l*.5,p.y+dy+1.6,p.x,p.y+dy+1.4);c.closePath();c.fill();}}}
+  // the ladder down to the ledge from the ground before the shed, and Tarr's main going down the rock by the corner
+  {const lx=900,p=Q(lx,0,lipAt(lx)),yb2=ledgeY(p.x)+1;c.strokeStyle=hz(sh('#2a2018'),.2);c.lineWidth=2.2;c.beginPath();c.moveTo(p.x-5,p.y-2);c.lineTo(p.x-9,yb2);c.moveTo(p.x+5,p.y-2);c.lineTo(p.x+1,yb2);c.stroke();
+    c.lineWidth=1.6;c.beginPath();for(let y=p.y+6;y<yb2-2;y+=8.5){const u=(y-p.y)/(yb2-p.y);c.moveTo(p.x-5-4*u,y);c.lineTo(p.x+5-4*u,y);}c.stroke();
+    const m=Q(So.lip[3][0]+12,0,So.lip[3][1]+3),ym=ledgeY(m.x+40)-4;c.strokeStyle=hz(sh('#2a201a'),.2);c.lineWidth=4.6;c.lineCap='round';c.lineJoin='round';c.beginPath();c.moveTo(m.x,m.y-3);c.lineTo(m.x+3,ym-20);c.quadraticCurveTo(m.x+4,ym-2,m.x+24,ym-2);c.lineTo(m.x+84,ym+1);c.stroke();c.lineCap='butt';
+    c.strokeStyle=rgba(P.light,.04+.14*LA);c.lineWidth=1.1;c.beginPath();c.moveTo(m.x-1.8,m.y);c.lineTo(m.x+1.2,ym-28);c.stroke();
+    for(const yy of [18,52]){c.fillStyle=sh('#1c1612');c.fillRect(m.x-4+yy*.05,m.y+yy,9,3);c.fillStyle=lin(c,0,m.y+yy+3,0,m.y+yy+26,[[0,rgba('#7a3a18',.36)],[1,rgba('#7a3a18',0)]]);c.fillRect(m.x-1+yy*.05,m.y+yy+3,3,23);}}
+  c.restore();
+  // the lip itself, from the yard: its edge catching the light, the rock split back from it, stones left on it
+  c.strokeStyle=rgba(P.light,.1+.32*LA);c.lineWidth=1.3;c.lineJoin='round';c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y-.6):c.moveTo(p.x,p.y-.6));c.stroke();
+  c.strokeStyle=rgba('#000000',.3);c.lineWidth=1.5;c.beginPath();for(let i=2;i<R0.length-14;i+=2){if(r()<.5)continue;const a=Q(R0[i][0],0,R0[i][1]),l=5+r()*12;c.moveTo(a.x,a.y-1);c.lineTo(a.x+(r()-.5)*5,a.y-1-l);}c.stroke();
+  for(let i=1;i<R0.length-14;i++){if(r()<.7)continue;const p=Q(R0[i][0]+(r()-.5)*8,0,R0[i][1]+3+r()*6),rx=1.8+r()*3;c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(p.x+.8,p.y+rx*.3,rx*1.1,rx*.5,0,0,TAU);c.fill();c.fillStyle=sh(['#5e584e','#4e4840','#6a6458'][(r()*3)|0]);K.blob(c,p.x,p.y-rx*.3,rx,rx*.66,r,8);c.fill();}
+  // where the lane comes to the lip: two posts and a plank across, a rag on it
+  {const a=Q(604,0,-226),b=Q(590,0,-276),h=40;c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(a.x+3,a.y,6,1.8,0,0,TAU);c.ellipse(b.x+3,b.y,6,1.8,0,0,TAU);c.fill();
+    c.fillStyle=sh('#2a1e14',1.1);c.fillRect(a.x-2,a.y-h,4,h);c.fillRect(b.x-2.2,b.y-h-2,4.4,h+2);c.fillStyle=sh('#3e3024',1.1);K.poly(c,[{x:a.x-3,y:a.y-h+6},{x:b.x-3,y:b.y-h+5},{x:b.x-3,y:b.y-h+12},{x:a.x-3,y:a.y-h+12}]);c.fill();
+    c.fillStyle=rgba(P.light,.06+.22*LA);K.poly(c,[{x:a.x-3,y:a.y-h+6},{x:b.x-3,y:b.y-h+5},{x:b.x-3,y:b.y-h+6.2},{x:a.x-3,y:a.y-h+7.2}]);c.fill();
+    c.fillStyle=sh('#7a3e30',1.05);c.beginPath();c.moveTo(a.x-8,a.y-h+12);c.lineTo(a.x-4,a.y-h+12);c.lineTo(a.x-5,a.y-h+24);c.lineTo(a.x-9,a.y-h+21);c.closePath();c.fill();}}
+// The south's own things laid again over the light, as the wall things are (crisp): the heap and the drain stand at the picture's
+// left, where the sun's wash is thickest, and it took their darks: the mouth was a grey hole. Painted on a strip of their own and
+// laid back part way.
+function southOver(c,P){const m=c.getTransform();if(m.b||m.c||!(m.a>0))return;
+  for(const [x0,x1,y0,y1,fn] of [[-152,330,250,(E.FOOT||875)+6,g=>{hill(g,P);drain(g,P);}],[20,670,585,645,g=>kerb(g,P)]]){
+    const cn=document.createElement('canvas');cn.width=Math.ceil((x1-x0)*m.a);cn.height=Math.ceil((y1-y0)*m.d);const g=cn.getContext('2d');g.setTransform(m.a,0,0,m.d,-x0*m.a,-y0*m.d);
+    fn(g);c.save();c.globalAlpha=P.key==='night'?.5:.6;c.drawImage(cn,x0,y0,x1-x0,y1-y0);c.restore();cn.width=cn.height=0;}}
+// The cut is in its own shade: the yard's light is taken off the view down again (the sun's wash and its shafts lie across the whole
+// picture, and the fight's key light is laid over the layer after), most under the lip.
+function dropShade(c,P){const pts=rim().map(p=>Q(p[0],0,p[1])),yB=(E.FOOT||875)+12;c.save();c.beginPath();c.moveTo(1260,pts[0].y);pts.forEach(p=>c.lineTo(p.x,p.y+.6));c.lineTo(pts[pts.length-1].x-8,yB);c.lineTo(1260,yB);c.closePath();c.clip();
+  c.globalCompositeOperation='multiply';const k=P.key==='night'?.5:1;c.fillStyle=lin(c,0,560,0,yB,[[0,rgba('#1c2230',.62*k)],[.26,rgba('#1c2230',.4*k)],[.55,rgba('#1c2230',.16*k)],[1,rgba('#1c2230',.1*k)]]);c.fillRect(360,540,920,yB-540);c.restore();}
+// ---------- the south's pieces: what a man may stand behind ----------
+// a keg lying with its head to us (x, y: the head's middle; rr its radius; len how far it runs back): the far head, the staves
+// between, the near head with its boards, its chime hoop and its bung
+function kegLying(c,P,x,y,rr,len,seed){const sh=(col,k)=>K.shade(P,col,k),r=rng(seed),ox=len*PSX,oy=-len*PSY,LA=P.lightA;
+  c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(x+ox*.5+2,y+rr+.5,rr+len*.2+3,3,0,0,TAU);c.fill();
+  c.fillStyle=sh('#3a2a1a',1.05);c.beginPath();c.arc(x+ox,y+oy,rr,0,TAU);c.fill();
+  c.fillStyle=sh('#46331f',1.05);c.beginPath();c.moveTo(x-rr,y);c.lineTo(x-rr+ox,y+oy);c.arc(x+ox,y+oy,rr,Math.PI,0);c.lineTo(x+rr,y);c.closePath();c.fill();
+  c.fillStyle=rgba(P.light,.05+.16*LA);c.beginPath();c.moveTo(x-rr*.5,y-rr*.86);c.lineTo(x-rr*.5+ox,y-rr*.86+oy);c.lineTo(x+rr*.2+ox,y-rr*.98+oy);c.lineTo(x+rr*.2,y-rr*.98);c.closePath();c.fill();
+  for(const u of [.3,.72]){c.fillStyle=sh('#1c1814',1.05);c.beginPath();c.ellipse(x+ox*u,y+oy*u,rr+.6,rr+.6,0,Math.PI*1.02,Math.PI*1.98);c.lineTo(x+ox*u+rr+.6,y+oy*u+2.2);c.ellipse(x+ox*u,y+oy*u+2.2,rr+.6,rr+.6,0,Math.PI*1.98,Math.PI*1.02,true);c.closePath();c.fill();}
+  c.fillStyle=sh('#1c1814',1.05);c.beginPath();c.arc(x,y,rr,0,TAU);c.fill();c.fillStyle=sh('#4e3a24',1.05);c.beginPath();c.arc(x,y,rr-2.2,0,TAU);c.fill();
+  c.save();c.beginPath();c.arc(x,y,rr-2.2,0,TAU);c.clip();c.fillStyle=rgba('#000000',.28);for(const u of [-.36,.3])c.fillRect(x-rr,y+rr*u,rr*2,1.3);
+    c.fillStyle=lin(c,0,y-rr,0,y+rr,[[0,rgba(P.light,.04+.12*LA)],[.5,rgba(P.light,0)],[1,rgba('#000000',.3)]]);c.fillRect(x-rr,y-rr,rr*2,rr*2);c.restore();
+  c.fillStyle='#0c0a08';c.beginPath();c.arc(x+rr*.28,y+rr*.18+r(),1.6,0,TAU);c.fill();
+  c.strokeStyle=rgba(P.light,.08+.24*LA);c.lineWidth=1.1;c.beginPath();c.arc(x,y,rr-.5,Math.PI*1.1,Math.PI*1.6);c.stroke();}
+// The shed by the lip: boards under a tin roof that falls to the back, its door on the side toward the cut, shut on a hasp; a
+// window, a lantern on its bracket, the score kept in chalk on the door, bills pasted up, kegs under the window. Where its
+// stovepipe ends and where its lantern hangs are kept for live().
+const SHEDS={pipe:{x:0,y:0},lamp:{x:0,y:0}};
+function shedSPiece(){const P=K.pal(),So=SO(),B=So.shed,sh=(col,k)=>K.shade(P,col,k),LA=P.lightA,dark=P.key==='night'||P.key==='dusk';
+  const x0=B.x0,x1=B.x1,d0=B.d0,d1=B.d1,h=B.h,hb=B.hb,f0=Q(x0,0,d0),f1=Q(x1,0,d0),bx=Q(x1,0,d1),X=f0.x-14,Yt=Q(x1,hb+52,d1).y,Wd=bx.x+18-X,Ht=f0.y+14-Yt;
+  const rh=dd=>lerp(h,hb,(dd-d0)/(d1-d0)),pp=Q(x1-24,rh(d0+50),d0+50);SHEDS.pipe.x=pp.x;SHEDS.pipe.y=pp.y-36;SHEDS.lamp.x=f0.x+66;SHEDS.lamp.y=f0.y-112;
+  return K.piece('yardshedS|'+P.key,X,Yt,Wd,Ht,c=>{const r=rng(371),top=f0.y-h,base=f0.y,w=f1.x-f0.x;
+    c.fillStyle=rgba('#000000',.32);K.poly(c,[{x:f0.x-5,y:base+4},{x:f1.x+4,y:base+4},{x:bx.x+7,y:bx.y+2},{x:bx.x,y:bx.y-3}]);c.fill();
+    // its side toward the lane: boards, in the shade
+    {const a=f1,b=Q(x1,h,d0),e=Q(x1,hb,d1);c.fillStyle=sh('#1c1610',1.1);K.poly(c,[a,b,e,bx]);c.fill();c.fillStyle=rgba('#000000',.4);for(let u=.2;u<1;u+=.2){const p=Q(x1,0,lerp(d0,d1,u)),q=Q(x1,rh(lerp(d0,d1,u)),lerp(d0,d1,u));c.fillRect(p.x-.75,q.y,1.5,p.y-q.y);}}
+    // its front: a course of stone under the boards
+    K.boards(c,f0.x,top,f1.x,base-9,{base:sh('#33291f',1.05),bw:9.5,seed:373,foot:14,pal:P,rails:[top+30,base-58]});
+    c.fillStyle=sh('#2a2724',1.1);c.fillRect(f0.x-1,base-9,w+2,9);for(let x=f0.x;x<f1.x;){const sw=13+r()*12;c.fillStyle=sh(['#3e3a35','#36322e','#46413c'][(r()*3)|0],1.08);c.fillRect(x+.8,base-8.4,Math.min(sw,f1.x-x)-1.6,7.6);x+=sw;}
+    K.tin(c,f0.x+74,top+3,w-74,36,{base:sh('#45413e',1.1),seed:377,pal:P,rust:3});
+    c.fillStyle=lin(c,0,top,0,top+14,[[0,rgba('#000000',.5)],[1,rgba('#000000',0)]]);c.fillRect(f0.x,top,w,14);
+    // the door: planks on a Z of battens, strap hinges, the hasp and its padlock; the stone before it
+    {const dx0=f0.x+13,dw=44,dT=base-131;c.fillStyle=sh('#120e0a',1.1);c.fillRect(dx0-2.5,dT-3,dw+5,131-6);
+      K.boards(c,dx0,dT,dx0+dw,base-9,{base:sh('#3d2e1f',1.05),bw:8.8,seed:375,foot:10,pal:P,top:false});
+      c.fillStyle=sh('#2c2015',1.1);c.fillRect(dx0,dT+13,dw,5.5);c.fillRect(dx0,base-34,dw,5.5);K.poly(c,[{x:dx0+1,y:base-34},{x:dx0+7,y:base-34},{x:dx0+dw-1,y:dT+18.5},{x:dx0+dw-7,y:dT+18.5}]);c.fill();
+      c.fillStyle=rgba('#000000',.3);c.fillRect(dx0,dT+18.5,dw,1.2);c.fillRect(dx0,base-28.5,dw,1.2);
+      c.fillStyle=sh('#15120f',1.05);for(const yy of [dT+14,base-33]){c.fillRect(dx0-1,yy,15,3.4);c.beginPath();c.arc(dx0+14,yy+1.7,2.2,0,TAU);c.fill();}
+      c.fillRect(dx0+dw-11,base-74,13,3.6);c.fillStyle=sh('#5a5650',1.05);c.fillRect(dx0+dw-3.4,base-73,5.6,7.4);c.strokeStyle=sh('#5a5650',1.05);c.lineWidth=1.5;c.beginPath();c.arc(dx0+dw-.6,base-73,2.4,Math.PI,0);c.stroke();
+      c.fillStyle=rgba(P.light,.1+.3*LA);c.fillRect(dx0+dw-3,base-72.4,1,5.6);
+      // (the score, kept in chalk on the planks: fives, and a line under them)
+      c.strokeStyle=rgba(K.shade(P,'#ddd6c8',.5),dark?.25:.5);c.lineWidth=1.5;c.beginPath();for(let g=0;g<3;g++){const tx=dx0+8+g*12,ty=dT+34;for(let i=0;i<(g<2?4:3);i++){c.moveTo(tx+i*2.3,ty);c.lineTo(tx+i*2.3+.5,ty+8);}if(g<2){c.moveTo(tx-1.4,ty+6);c.lineTo(tx+8.6,ty+2);}}
+      for(let g=0;g<2;g++){const tx=dx0+8+g*12,ty=dT+48;for(let i=0;i<(g<1?4:2);i++){c.moveTo(tx+i*2.3,ty);c.lineTo(tx+i*2.3+.5,ty+8);}if(g<1){c.moveTo(tx-1.4,ty+6);c.lineTo(tx+8.6,ty+2);}}c.moveTo(dx0+6,dT+45);c.lineTo(dx0+40,dT+44);c.stroke();
+      const s0=Q(x0+9,0,d0-12),s1=Q(x0+63,0,d0-12);c.fillStyle=rgba('#000000',.3);c.fillRect(s0.x-1,s0.y-.5,s1.x-s0.x+4,2.4);c.fillStyle=sh('#2e2b28',1.1);c.fillRect(s0.x,s0.y-5,s1.x-s0.x,5);c.fillStyle=K.topLit(P,'#4a4640',.8);K.poly(c,[{x:s0.x,y:s0.y-5},{x:s1.x,y:s1.y-5},Q(x0+63,5,d0),Q(x0+9,5,d0)]);c.fill();}
+    // the window: four small panes, dark by day with the sky on them, lit after; its sill
+    {const wx=f0.x+74,wy=base-112,ww=30,wh=31;c.fillStyle=sh('#15110d',1.1);c.fillRect(wx-3,wy-3,ww+6,wh+6);c.fillStyle=dark?'#c98a4a':K.jm('#14181e',P.air[0],.12);c.fillRect(wx,wy,ww,wh);
+      if(dark){c.fillStyle=lin(c,0,wy,0,wy+wh,[[0,rgba('#ffd0a0',.3)],[1,rgba('#5a2a10',.35)]]);c.fillRect(wx,wy,ww,wh);c.fillStyle=rgba('#1a1210',.5);c.fillRect(wx+4,wy+15,11,16);c.fillRect(wx+19,wy+20,7,11);}
+      else{c.fillStyle=rgba(P.air[0],.16);K.poly(c,[{x:wx,y:wy+wh*.7},{x:wx+ww*.6,y:wy},{x:wx+ww,y:wy},{x:wx+ww*.25,y:wy+wh}]);c.fill();c.fillStyle=rgba(P.air[0],.07);c.fillRect(wx,wy,ww,wh*.3);}
+      c.fillStyle=sh('#15110d',1.1);c.fillRect(wx+ww/2-1,wy,2,wh);c.fillRect(wx,wy+wh/2-1,ww,2);c.fillStyle=sh('#3a2c1e',1.05);c.fillRect(wx-5,wy+wh+3,ww+10,3.6);c.fillStyle=rgba(P.light,.08+.24*LA);c.fillRect(wx-5,wy+wh+3,ww+10,1);}
+    // bills pasted by the door: the match bill, torn, and a page of the Nightglass gone grey
+    {const bx0=f0.x+61,by=base-62;c.fillStyle=sh('#8c7e62',1.05);K.poly(c,[{x:bx0,y:by},{x:bx0+11,y:by+.6},{x:bx0+11,y:by+13},{x:bx0+6,y:by+17},{x:bx0,y:by+16}]);c.fill();c.fillStyle=rgba('#1c1814',.6);c.fillRect(bx0+1.5,by+2,8,2.4);c.fillRect(bx0+1.5,by+6,6,1.2);c.fillRect(bx0+1.5,by+8.4,7,1.2);c.fillRect(bx0+1.5,by+10.8,5,1.2);
+      c.fillStyle=sh('#77756c',1.05);c.fillRect(bx0+13,by-22,10,14);c.fillStyle=rgba('#1c1814',.5);for(let k=0;k<5;k++)c.fillRect(bx0+14.2,by-20.4+k*2.4,7.6-(k%2)*2,1.1);}
+    // the lantern on its bracket
+    {const lx=SHEDS.lamp.x,ly=SHEDS.lamp.y;c.strokeStyle=sh('#15120f',1.05);c.lineWidth=1.6;c.beginPath();c.moveTo(lx-7,ly-7);c.lineTo(lx,ly-7);c.lineTo(lx,ly-1);c.moveTo(lx-7,ly-1);c.lineTo(lx-1.5,ly-7);c.stroke();K.lantern(c,P,lx,ly-1,.95,dark);}
+    // kegs under the window, one on two; a bucket
+    {const ky=base+5,kx=f0.x+84;kegLying(c,P,kx-13,ky-13,12.5,22,381);kegLying(c,P,kx+13,ky-13,12.5,22,383);kegLying(c,P,kx,ky-34.5,12.5,22,385);}
+    // the roof: tin falling to the back, stones on it against the wind, a tyre; the stovepipe through it
+    {const fl=Q(x0-7,h+2,d0-7),fr=Q(x1+7,h+2,d0-7),br=Q(x1+7,hb,d1+5),bl=Q(x0-7,hb,d1+5);
+      c.fillStyle=K.topLit(P,'#46403a',1);K.poly(c,[fl,fr,br,bl]);c.fill();c.save();K.poly(c,[fl,fr,br,bl]);c.clip();
+      c.fillStyle=rgba('#000000',.28);for(let u=0;u<=1.001;u+=1/30){const a=lerp(fl.x,fr.x,u),b=lerp(bl.x,br.x,u);K.poly(c,[{x:a,y:fl.y},{x:a+1.5,y:fl.y},{x:b+1.5,y:bl.y},{x:b,y:bl.y}]);c.fill();}
+      for(const [u,v,rw] of [[.2,.3,.16],[.62,.1,.2],[.8,.55,.12]]){c.fillStyle=rgba('#7a3a18',.34);const a=lerp(fl.x,fr.x,u)+(lerp(bl.x,fl.x,0)-fl.x),yy=lerp(fl.y,bl.y,v);c.fillRect(lerp(lerp(fl.x,bl.x,v),lerp(fr.x,br.x,v),u),yy,w*rw,(fl.y-bl.y)*(1-v)+2);}
+      c.fillStyle=rgba('#000000',.25);for(const v of [.48]){const a={x:lerp(fl.x,bl.x,v),y:lerp(fl.y,bl.y,v)},b={x:lerp(fr.x,br.x,v),y:lerp(fr.y,br.y,v)};c.fillRect(a.x,a.y,b.x-a.x,1.5);}c.restore();
+      c.fillStyle=sh('#1a1410',1.1);K.poly(c,[fl,fr,{x:fr.x,y:fr.y+5.5},{x:fl.x,y:fl.y+5.5}]);c.fill();c.fillStyle=sh('#120e0b',1.1);K.poly(c,[fr,br,{x:br.x,y:br.y+4.5},{x:fr.x,y:fr.y+5.5}]);c.fill();
+      c.fillStyle=rgba(P.light,.14+.4*LA);c.fillRect(fl.x,fl.y-.4,fr.x-fl.x,1.1);
+      for(const [sx,sd,rr] of [[x0+18,d0+16,5],[x0+52,d0+40,4.2],[x1-40,d0+12,4.6]]){const p=Q(sx,rh(sd)+2,sd);c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(p.x+1.4,p.y+1.6,rr*1.2,rr*.5,0,0,TAU);c.fill();c.fillStyle=sh(['#5e584e','#4e4840','#6a6458'][(r()*3)|0]);K.blob(c,p.x,p.y-rr*.3,rr,rr*.62,r,8);c.fill();c.fillStyle=rgba(P.light,.08+.24*LA);c.beginPath();c.ellipse(p.x-rr*.2,p.y-rr*.6,rr*.5,rr*.22,0,0,TAU);c.fill();}
+      {const p=Q(x0+78,rh(d0+52)+2,d0+52);c.fillStyle=sh('#131113');c.beginPath();c.ellipse(p.x,p.y,13.5,6,0,0,TAU);c.fill();c.fillStyle=K.topLit(P,'#46403a',.8);c.beginPath();c.ellipse(p.x,p.y-1,6.6,2.6,0,0,TAU);c.fill();c.fillStyle=rgba(P.light,.06+.16*LA);c.beginPath();c.ellipse(p.x,p.y-3.6,9.5,1.7,0,Math.PI,TAU);c.fill();}
+      c.fillStyle=sh('#1c1814',1.05);c.fillRect(pp.x-2.8,pp.y-34,5.6,35);c.fillRect(pp.x-4.4,pp.y-37,8.8,3.4);c.fillStyle=rgba(P.light,.1+.3*LA);c.fillRect(pp.x-2.8,pp.y-34,1.1,34);c.fillStyle=sh('#2a2622',1.05);c.beginPath();c.ellipse(pp.x,pp.y+1,5.4,1.8,0,0,TAU);c.fill();}});}
+// Tarr's main along the kerb: iron in flanged lengths on chocks, rusted, a clamp and rag round a leak; a standpipe with its tap, a
+// cup on a chain and the box the chits go in under his blue; a valve by the corner, his rag tied in its wheel, and the bend where
+// the main goes down over the lip. Where the tap drips and the leak runs are kept for live().
+const MAINS={tap:{x:0,y:0},leak:{x:0,y:0,g:0}};
+function mainPiece(){const P=K.pal(),So=SO(),sh=(col,k)=>K.shade(P,col,k),LA=P.lightA,d=So.kerb,xa=toeX(d)+6,xb=So.lip[3][0]+16,hA=20,R=6.5,a=Q(xa,hA,d),b=Q(xb,hA,d),m=Q(So.lip[3][0]+12,0,So.lip[3][1]+3);
+  const X=a.x-10,Yt=a.y-66,Wd=b.x-a.x+34,Ht=66+R+30,blue=K.shade(P,'#2f5c7c',.8),xS=352,xV=452,xL=262,pS=Q(xS,hA,d),pV=Q(xV,hA,d),pL=Q(xL,hA,d);
+  MAINS.tap.x=pS.x-11;MAINS.tap.y=pS.y-R-33;MAINS.tap.g=Q(xS,0,d+8).y;MAINS.leak.x=pL.x+2;MAINS.leak.y=pL.y+R;MAINS.leak.g=Q(xL,0,d-8).y;
+  return K.piece('yardmain|'+P.key,X,Yt,Wd,Ht,c=>{const r=rng(391),y=a.y;
+    // the chocks it lies on
+    for(let x=xa+16;x<xb-12;x+=34+r()*22){const p=Q(x,hA-R,d);c.fillStyle=sh('#2a1e14',1.1);K.poly(c,[{x:p.x-5.5,y:p.y+7},{x:p.x+5.5,y:p.y+7},{x:p.x+3.6,y:p.y-.5},{x:p.x-3.6,y:p.y-.5}]);c.fill();}
+    // the pipe: its belly dark, the light along its back, rust in patches
+    c.fillStyle=sh('#2e231c',1.05);c.fillRect(a.x,y-R,b.x-a.x,R*2);c.fillStyle=rgba('#000000',.36);c.fillRect(a.x,y+R*.3,b.x-a.x,R*.7);
+    for(let i=0;i<30;i++){const x=a.x+r()*(b.x-a.x-24),w=8+r()*24;c.fillStyle=rgba('#7a3a18',.1+.16*r());c.fillRect(x,y-R+r()*4,w,R*2-r()*6);}
+    c.fillStyle=rgba(P.light,.08+.26*LA);c.fillRect(a.x,y-R+1.2,b.x-a.x,1.3);
+    // (where it comes out of the heap: earth fallen round it)
+    c.fillStyle=K.jm(P.dirt[1],'#1c1612',.4);K.blob(c,a.x+1,y+3,8,7,rng(393),9);c.fill();
+    // its joints: a flange at each length's end, bolted; rust run down from them
+    for(let x=xa+52;x<xb-26;x+=88+r()*18){const p=Q(x,hA,d);c.fillStyle=lin(c,0,p.y+R,0,p.y+R+22,[[0,rgba('#7a3a18',.42)],[1,rgba('#7a3a18',0)]]);c.fillRect(p.x-1.8,p.y+R+1.5,3.6,20);
+      c.fillStyle=sh('#1c1612',1.05);c.fillRect(p.x-2.8,p.y-R-2.6,5.6,R*2+5.2);c.fillStyle=rgba(P.light,.1+.3*LA);c.fillRect(p.x-2.8,p.y-R-2.6,5.6,1);c.fillStyle=sh('#4a3628',1.05);for(const yy of [-R+.4,-1.4,R-3.2])c.fillRect(p.x-1.1,p.y+yy,2.2,2.2);}
+    // the leak: a clamp of strap iron over rag; the wet under it
+    {const p=pL;c.fillStyle=lin(c,0,p.y+R,0,p.y+R+26,[[0,rgba('#050403',.5)],[1,rgba('#050403',0)]]);c.fillRect(p.x-3,p.y+R,9,26);c.fillStyle=sh('#6a6052',1.05);c.fillRect(p.x-5,p.y-R-1,12,R*2+2);c.fillStyle=rgba('#000000',.25);c.fillRect(p.x-5,p.y,12,R+1);
+      c.fillStyle=sh('#15120f',1.05);c.fillRect(p.x-3.4,p.y-R-2,2.4,R*2+4);c.fillRect(p.x+3,p.y-R-2,2.4,R*2+4);c.fillRect(p.x-1.6,p.y-R-4.4,4.4,3);}
+    // the standpipe: the riser, the tap and its key, the cup hung by its chain, the box for chits with his rag through its hasp
+    {const p=pS,top=p.y-R-40;c.fillStyle=sh('#2e231c',1.05);c.fillRect(p.x-2.4,top,4.8,40);c.fillStyle=rgba(P.light,.08+.26*LA);c.fillRect(p.x-2.4,top,1.1,40);
+      c.fillStyle=sh('#1c1612',1.05);c.fillRect(p.x-3.6,p.y-R-4,7.2,4.4);c.fillRect(p.x-3.4,top+11,6.8,2.6);
+      c.fillStyle=sh('#4a3a2c',1.05);c.fillRect(p.x-12,top+3,12,4.2);c.fillRect(p.x-13,top+3,3.6,8.4);c.fillRect(p.x-3.6,top-1.5,7.2,5);c.fillRect(p.x-1.2,top-6.5,2.4,5);c.fillRect(p.x-5.6,top-8,11.2,2.4);
+      c.fillStyle=rgba(P.light,.1+.3*LA);c.fillRect(p.x-12,top+3,12,1);c.fillRect(p.x-5.6,top-8,11.2,1);
+      c.strokeStyle=sh('#5a5650',1.05);c.lineWidth=1.5;c.beginPath();c.moveTo(p.x+2.4,top+8);c.quadraticCurveTo(p.x+9,top+12,p.x+9,top+19);c.stroke();
+      c.fillStyle=sh('#77766f',1.05);K.poly(c,[{x:p.x+5.8,y:top+19},{x:p.x+12.2,y:top+19},{x:p.x+11.4,y:top+26.5},{x:p.x+6.6,y:top+26.5}]);c.fill();c.fillStyle=rgba(P.light,.14+.4*LA);c.fillRect(p.x+6.6,top+20,1,5.6);c.fillStyle='#16181a';c.fillRect(p.x+6.2,top+19,5.6,1.2);
+      c.fillStyle=sh('#26221f',1.05);c.fillRect(p.x-7,top+19,9.6,12);c.fillStyle=rgba(P.light,.08+.24*LA);c.fillRect(p.x-7,top+19,9.6,1);c.fillStyle='#08080a';c.fillRect(p.x-5,top+22.4,5.6,1.3);
+      c.fillStyle=blue;K.poly(c,[{x:p.x-6.4,y:top+31},{x:p.x-2.6,y:top+31},{x:p.x-3.4,y:top+43},{x:p.x-5.2,y:top+40.4},{x:p.x-7.4,y:top+44}]);c.fill();c.fillStyle=rgba('#000000',.25);c.fillRect(p.x-6.2,top+34,3.4,1);}
+    // the valve by the corner: its body on the main, the stem, the wheel seen from over it, his rag knotted through
+    {const p=pV,wy=p.y-R-17;c.fillStyle=sh('#1c1612',1.05);K.poly(c,[{x:p.x-8,y:p.y-R-1},{x:p.x-5,y:p.y-R-5},{x:p.x+5,y:p.y-R-5},{x:p.x+8,y:p.y-R-1},{x:p.x+8,y:p.y+R+1},{x:p.x-8,y:p.y+R+1}]);c.fill();
+      c.fillStyle=rgba(P.light,.1+.3*LA);c.fillRect(p.x-5,p.y-R-5,10,1);c.fillStyle=sh('#2e231c',1.05);c.fillRect(p.x-1.6,wy,3.2,13);
+      c.strokeStyle=sh('#5a2418',1.05);c.lineWidth=2.4;c.beginPath();c.ellipse(p.x,wy,10,3.8,0,0,TAU);c.stroke();c.lineWidth=1.6;c.beginPath();c.moveTo(p.x-10,wy);c.lineTo(p.x+10,wy);c.moveTo(p.x-3,wy-3.6);c.lineTo(p.x+3,wy+3.6);c.moveTo(p.x+3,wy-3.6);c.lineTo(p.x-3,wy+3.6);c.stroke();
+      c.strokeStyle=rgba(P.light,.1+.3*LA);c.lineWidth=1;c.beginPath();c.ellipse(p.x,wy-.8,10,3.8,0,Math.PI*1.1,Math.PI*1.9);c.stroke();
+      c.fillStyle=blue;K.poly(c,[{x:p.x+6,y:wy+1},{x:p.x+10.5,y:wy+2},{x:p.x+10,y:wy+17},{x:p.x+7.6,y:wy+13.6},{x:p.x+5.4,y:wy+18}]);c.fill();c.fillStyle=rgba('#000000',.25);c.fillRect(p.x+6.2,wy+4.4,4,1);}
+    // the bend down over the lip
+    c.strokeStyle=sh('#2e231c',1.05);c.lineWidth=R*2;c.lineCap='butt';c.beginPath();c.moveTo(b.x-4,y);c.quadraticCurveTo(b.x+7,y,m.x+.5,m.y+2);c.stroke();
+    c.strokeStyle=rgba(P.light,.08+.26*LA);c.lineWidth=1.3;c.beginPath();c.moveTo(b.x-4,y-R+1.8);c.quadraticCurveTo(b.x+3,y-R+2,m.x-R+1.6,m.y+2);c.stroke();
+    {const p=Q(xb-8,hA,d);c.fillStyle=sh('#1c1612',1.05);c.fillRect(p.x-2.8,p.y-R-2.6,5.6,R*2+5.2);c.fillStyle=rgba(P.light,.1+.3*LA);c.fillRect(p.x-2.8,p.y-R-2.6,5.6,1);}});}
+// The rail along the lip: scaffold poles stood in the cracks and wedged, a pole lashed along their heads, a rope under it; a bay
+// boarded with a pallet; the gap where the ladder comes up. The hoist: a post and its jib out over the cut, a winch at its foot.
+// The bench: a plank on two blocks. The stone where the keeping candles stand, and the rags tied on the rail by it for the ones
+// who are kept. What moves on it (the hoist's fall, the rags, the flames) is drawn by railLive from these.
+const RAILS={pulley:{x:0,y:0},rags:[],cands:[]};
+const RPX=[660,704,750,800,852,886,914,964,1016,1068,1120];
+function railPiece(){const P=K.pal(),So=SO(),sh=(col,k)=>K.shade(P,col,k),LA=P.lightA,hx=718,hd=lipAt(hx)+12,X=Q(RPX[0],0,lipAt(RPX[0])).x-20,Yt=Q(hx,136,hd).y-4,Wd=Q(1130,0,lipAt(1130)).x+16-X,Ht=Q(RPX[0],0,lipAt(RPX[0])).y+10-Yt;
+  const post=i=>{const x=RPX[i],d=lipAt(x)+6,hh=60+hsh(i*7+3)*8,ln=(hsh(i*5+1)-.5)*5;return{f:Q(x,0,d),t:Q(x+ln,hh,d),x,d,hh};},N=RPX.length;
+  const pe=Q(hx+36,122,hd-16);RAILS.pulley.x=pe.x;RAILS.pulley.y=pe.y+5;RAILS.rags.length=0;RAILS.cands.length=0;
+  for(const [i,u,col,len] of [[7,.3,'#7a3e30',13],[7,.62,'#b8b0a0',11],[8,.25,'#55627c',14],[8,.7,'#7a3e30',10],[3,.5,'#b8b0a0',12]]){const a=post(i).t,b=post(i+1).t;RAILS.rags.push({x:lerp(a.x,b.x,u),y:lerp(a.y,b.y,u)+1.5,col,len});}
+  {const cx=940,cd=lipAt(cx)+9;for(const [dx,hh] of [[-8,7],[-3,10],[2,6],[7,8.5],[11,5]]){const p=Q(cx+dx,7+hh,cd+(dx%2?1:-1));RAILS.cands.push({x:p.x,y:p.y});}}
+  return K.piece('yardrail|'+P.key,X,Yt,Wd,Ht,c=>{const r=rng(401),pole='#3a3a3c',wood='#3a2c1c';
+    // the bench: a plank on two blocks of the quarry's stone
+    {const x0=806,x1=872,d0=lipAt(840)+7,sr=rng(403);stoneBlock(c,P,x0+3,d0+1,12,9,29,sr);stoneBlock(c,P,x1-15,d0+1,12,9,29,sr);
+      const a=Q(x0,32,d0),b=Q(x1,32,d0),e=Q(x1,32,d0+13),f=Q(x0,32,d0+13);c.fillStyle=sh('#241a12',1.1);K.poly(c,[a,b,{x:b.x,y:b.y+3.6},{x:a.x,y:a.y+3.6}]);c.fill();c.fillStyle=K.topLit(P,'#4a3a28',.9);K.poly(c,[a,b,e,f]);c.fill();
+      c.fillStyle=rgba('#000000',.25);c.fillRect(lerp(a.x,b.x,.4),e.y,1.5,a.y-e.y);c.fillStyle=rgba(P.light,.1+.3*LA);c.fillRect(a.x,a.y-.3,b.x-a.x,1);}
+    // the candles' stone: stubs in their own wax, burnt to different heights
+    {const cx=940,cd=lipAt(cx)+9,sr=rng(405);stoneBlock(c,P,cx-13,cd-5,28,11,7,sr,{col:'#46423c'});RAILS.cands.forEach((q,i)=>{const hh=[7,10,6,8.5,5][i];c.fillStyle=rgba(sh('#b8b0a0',1.05),.9);K.blob(c,q.x,q.y+hh+.4,3.2,1.2,sr,7);c.fill();
+        c.fillStyle=sh('#b8b0a0',1.05);c.fillRect(q.x-1.3,q.y,2.6,hh);c.fillStyle=rgba('#000000',.2);c.fillRect(q.x+.3,q.y,1,hh);c.fillStyle='#1c1814';c.fillRect(q.x-.5,q.y-1.6,1,1.8);});}
+    // the winch at the hoist's foot: a drum between two cheeks, its crank
+    {const p=Q(hx-2,0,hd-3);c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(p.x+2,p.y+1,15,3.4,0,0,TAU);c.fill();c.fillStyle=sh(wood,1.1);c.fillRect(p.x-12,p.y-30,4.4,30);c.fillRect(p.x+7.6,p.y-30,4.4,30);
+      c.fillStyle=sh('#4a3a28',1.05);c.fillRect(p.x-8,p.y-27,16,10);c.fillStyle=rgba('#000000',.3);for(let q=0;q<5;q++)c.fillRect(p.x-7+q*3.2,p.y-27,1,10);c.fillStyle=rgba(P.light,.1+.3*LA);c.fillRect(p.x-8,p.y-27,16,1);
+      c.strokeStyle=sh('#15120f',1.05);c.lineWidth=1.8;c.beginPath();c.moveTo(p.x+12,p.y-22);c.lineTo(p.x+17,p.y-22);c.lineTo(p.x+17,p.y-13);c.lineTo(p.x+21,p.y-13);c.stroke();}
+    // the hoist: its post, the jib and its strut, the block at the jib's end; the fall from the winch up the post and out along it
+    {const f=Q(hx,0,hd),t=Q(hx,130,hd),j0=Q(hx,124,hd),b0=Q(hx,84,hd);c.fillStyle=sh(wood,1.1);c.fillRect(f.x-3,t.y,6,f.y-t.y);c.fillStyle=rgba(P.light,.08+.26*LA);c.fillRect(f.x-3,t.y,1.2,f.y-t.y);c.fillStyle=rgba('#000000',.3);c.fillRect(f.x+1.6,t.y,1.4,f.y-t.y);
+      c.strokeStyle=sh(wood,1.1);c.lineWidth=4.6;c.lineCap='butt';c.beginPath();c.moveTo(j0.x-4,j0.y+1);c.lineTo(pe.x+3,pe.y);c.stroke();c.lineWidth=3.2;c.beginPath();c.moveTo(b0.x,b0.y);c.lineTo(lerp(j0.x,pe.x,.62),lerp(j0.y,pe.y,.62)+1);c.stroke();
+      c.strokeStyle=rgba(P.light,.08+.26*LA);c.lineWidth=1;c.beginPath();c.moveTo(j0.x-4,j0.y-1);c.lineTo(pe.x+3,pe.y-2);c.stroke();
+      c.strokeStyle=sh('#6a5a44',1.05);c.lineWidth=1.5;c.beginPath();c.moveTo(f.x-3,f.y-22);c.lineTo(t.x-2,t.y+5);c.lineTo(pe.x,pe.y+2);c.stroke();
+      c.fillStyle=sh('#15120f',1.05);c.fillRect(t.x-4.4,t.y-2,8.8,3);c.beginPath();c.arc(pe.x,pe.y+4.4,3.6,0,TAU);c.fill();c.fillStyle=sh('#4a3a2c',1.05);c.beginPath();c.arc(pe.x,pe.y+4.4,1.5,0,TAU);c.fill();}
+    // the posts, wedged with stones; the pole along their heads and the rope under it; the pallet in one bay
+    {const a=post(2),b=post(3);c.fillStyle=sh('#3e3024',1.1);for(let u=.06;u<.98;u+=.135){const p0={x:lerp(a.f.x,b.f.x,u),y:lerp(a.f.y,b.f.y,u)-5},p1={x:lerp(a.t.x,b.t.x,u),y:lerp(a.t.y,b.t.y,u)+16};c.fillRect(p0.x-2.6,p1.y,5.2,p0.y-p1.y);}
+      c.fillStyle=sh('#2a1e14',1.1);for(const v of [.3,.8]){K.poly(c,[{x:a.f.x,y:lerp(a.f.y,a.t.y,v)},{x:b.f.x,y:lerp(b.f.y,b.t.y,v)},{x:b.f.x,y:lerp(b.f.y,b.t.y,v)+4},{x:a.f.x,y:lerp(a.f.y,a.t.y,v)+4}]);c.fill();}
+      c.fillStyle=rgba(P.light,.06+.2*LA);for(let u=.06;u<.98;u+=.135){const p0={x:lerp(a.f.x,b.f.x,u),y:lerp(a.f.y,b.f.y,u)-5},p1={x:lerp(a.t.x,b.t.x,u),y:lerp(a.t.y,b.t.y,u)+16};c.fillRect(p0.x-2.6,p1.y,1,p0.y-p1.y);}}
+    for(let i=0;i<N;i++){const q=post(i),sr=rng(410+i);c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(q.f.x+2,q.f.y+.6,6,1.8,0,0,TAU);c.fill();
+      for(let k=0;k<2;k++){const rx=2.4+sr()*2;c.fillStyle=sh(['#5e584e','#4e4840','#6a6458'][(sr()*3)|0]);K.blob(c,q.f.x+(k?4:-3.4),q.f.y-rx*.3,rx,rx*.7,sr,8);c.fill();}
+      c.strokeStyle=sh(pole,1.05);c.lineWidth=3.4;c.lineCap='butt';c.beginPath();c.moveTo(q.f.x,q.f.y);c.lineTo(q.t.x,q.t.y);c.stroke();c.strokeStyle=rgba(P.light,.1+.3*LA);c.lineWidth=1;c.beginPath();c.moveTo(q.f.x-1.1,q.f.y);c.lineTo(q.t.x-1.1,q.t.y);c.stroke();
+      c.fillStyle=rgba('#7a3a18',.3);c.fillRect(q.t.x-1.7,q.t.y+8+sr()*20,3.4,6+sr()*8);}
+    for(let i=0;i<N-1;i++){if(i===5)continue;const a=post(i),b=post(i+1);c.strokeStyle=sh(pole,1.05);c.lineWidth=3;c.beginPath();c.moveTo(a.t.x-5,a.t.y+3+(i%2));c.lineTo(b.t.x+5,b.t.y+3-(i%2));c.stroke();
+      c.strokeStyle=rgba(P.light,.1+.3*LA);c.lineWidth=1;c.beginPath();c.moveTo(a.t.x-5,a.t.y+2+(i%2));c.lineTo(b.t.x+5,b.t.y+2-(i%2));c.stroke();
+      c.strokeStyle=sh('#6a5a44',1.05);c.lineWidth=1.6;c.beginPath();c.moveTo(a.t.x,lerp(a.t.y,a.f.y,.5));c.quadraticCurveTo((a.t.x+b.t.x)/2,(lerp(a.t.y,a.f.y,.5)+lerp(b.t.y,b.f.y,.5))/2+5,b.t.x,lerp(b.t.y,b.f.y,.5));c.stroke();
+      // (the lashing at each head)
+      for(const q of [a,b]){c.fillStyle=sh('#6a5a44',1.05);c.fillRect(q.t.x-2.6,q.t.y+1,5.2,4.4);c.fillStyle=rgba('#000000',.3);c.fillRect(q.t.x-2.6,q.t.y+2.6,5.2,1);}}
+    // the ladder's head, come up over the lip in the gap
+    {const lx=900,p=Q(lx,0,lipAt(lx));c.strokeStyle=sh('#2a2018',1.05);c.lineWidth=2.4;c.beginPath();c.moveTo(p.x-5,p.y+1);c.lineTo(p.x-4,p.y-20);c.moveTo(p.x+5,p.y+1);c.lineTo(p.x+6,p.y-20);c.stroke();c.lineWidth=1.8;c.beginPath();c.moveTo(p.x-4.4,p.y-8);c.lineTo(p.x+5.6,p.y-8);c.moveTo(p.x-4,p.y-16);c.lineTo(p.x+6,p.y-16);c.stroke();
+      c.strokeStyle=rgba(P.light,.1+.3*LA);c.lineWidth=1;c.beginPath();c.moveTo(p.x-5.8,p.y+1);c.lineTo(p.x-4.8,p.y-20);c.stroke();}
+    // the rags' knots (the rags themselves move)
+    for(const g of RAILS.rags){c.fillStyle=sh(g.col,1.05);c.fillRect(g.x-2,g.y-1.6,4,3.4);}});}
+// The fire ring between the court and the gully: stones round a bed of ash, a kettle hung from three poles over it; a crate turned
+// up to sit on and a log. Its embers are live.
+function firePiece(){const P=K.pal(),So=SO(),F=So.fire,sh=(col,k)=>K.shade(P,col,k),LA=P.lightA,c0=Q(F.x,0,F.d),X=c0.x-76,Yt=c0.y-80,Wd=152,Ht=106;
+  return K.piece('yardfire|'+P.key,X,Yt,Wd,Ht,c=>{const r=rng(421),rr=F.r,ap=Q(F.x-3,66,F.d);
+    // the far stones of the ring, the ash, the burnt ends, the near stones
+    const ring=(front)=>{for(let i=0;i<11;i++){const an=i/11*TAU+.2,sn=Math.sin(an);if((sn<0)!==front)continue;const p=Q(F.x+Math.cos(an)*rr,0,F.d+sn*rr*.9),rx=4.6+hsh(i*3+2)*2.6,sr=rng(430+i);
+        c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(p.x+1.4,p.y+.8,rx*1.2,rx*.42,0,0,TAU);c.fill();c.fillStyle=sh(['#4e4a44','#423e3a','#5a554e'][i%3],1.08);K.blob(c,p.x,p.y-rx*.42,rx,rx*.72,sr,9);c.fill();
+        c.fillStyle=rgba('#0a0806',.4);K.blob(c,p.x+(F.x>p.x?1.6:-1.6)*.6,p.y-rx*.2,rx*.6,rx*.4,sr,7);c.fill();c.fillStyle=rgba(P.light,.06+.2*LA);c.beginPath();c.ellipse(p.x-rx*.2,p.y-rx*.86,rx*.5,rx*.2,0,0,TAU);c.fill();}};
+    ring(false);
+    c.fillStyle=sh('#57534c',1.05);c.beginPath();c.ellipse(c0.x,c0.y,rr-3,(rr-3)*.62,0,0,TAU);c.fill();c.fillStyle='#161210';c.beginPath();c.ellipse(c0.x+1,c0.y+.6,rr-9,(rr-9)*.6,0,0,TAU);c.fill();
+    for(const [dx,dy,l,an] of [[-6,1,22,.3],[5,-2,20,-.5],[0,3,16,1.2]]){c.save();c.translate(c0.x+dx,c0.y+dy);c.rotate(an);c.fillStyle='#0c0a09';c.fillRect(-l/2,-2,l,4);c.fillStyle=rgba('#8a857c',.5);c.fillRect(-l/2,-2,l*.3,1.3);c.restore();}
+    // the three poles and the kettle on its chain
+    for(const [fx,fd] of [[F.x-rr-9,F.d-6],[F.x+rr+8,F.d-8],[F.x+2,F.d+rr+6]]){const f=Q(fx,0,fd);c.strokeStyle=sh('#2a1e14',1.1);c.lineWidth=3;c.lineCap='butt';c.beginPath();c.moveTo(f.x,f.y);c.lineTo(ap.x+(fx>F.x?-1.5:1.5),ap.y-5);c.stroke();
+      c.strokeStyle=rgba(P.light,.08+.26*LA);c.lineWidth=1;c.beginPath();c.moveTo(f.x-1,f.y);c.lineTo(ap.x+(fx>F.x?-2.5:.5),ap.y-5);c.stroke();}
+    c.fillStyle=sh('#6a5a44',1.05);c.fillRect(ap.x-3,ap.y-3,6,5.4);
+    c.strokeStyle=sh('#15120f',1.05);c.lineWidth=1.5;c.beginPath();c.moveTo(ap.x,ap.y+2);c.lineTo(ap.x,ap.y+30);c.stroke();
+    {const kx=ap.x,ky=ap.y+40;c.strokeStyle=sh('#15120f',1.05);c.lineWidth=1.6;c.beginPath();c.arc(kx,ky-4,7.5,Math.PI*1.08,Math.PI*1.92);c.stroke();c.fillStyle=sh('#1a1816',1.05);c.beginPath();c.ellipse(kx,ky+2,9.5,8,0,0,TAU);c.fill();c.fillRect(kx-6,ky-6.5,12,3);
+      c.beginPath();c.moveTo(kx+8,ky-1);c.lineTo(kx+15,ky-6);c.lineTo(kx+15.6,ky-3.6);c.lineTo(kx+9,ky+3);c.closePath();c.fill();c.fillStyle=rgba(P.light,.1+.3*LA);c.beginPath();c.ellipse(kx-3.4,ky-1,2,4.4,.3,0,TAU);c.fill();c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(kx,ky+6.4,8,2.4,0,0,Math.PI);c.fill();}
+    ring(true);
+    // a crate turned up to sit on, a mug on it; a log
+    box(c,P,F.x-rr-38,F.d-12,22,20,19,'#3a2c1c');{const q=Q(F.x-rr-28,19,F.d-4);c.fillStyle=sh('#77766f',1.05);c.fillRect(q.x-2.4,q.y-5.6,4.8,5.6);c.fillStyle='#16181a';c.fillRect(q.x-2.4,q.y-5.6,4.8,1.2);c.fillStyle=rgba(P.light,.14+.4*LA);c.fillRect(q.x-1.8,q.y-4.2,1,3.6);}
+    {const a=Q(F.x+rr+14,0,F.d+2),l=30;c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(a.x+l/2+2,a.y+1,l/2+4,3,0,0,TAU);c.fill();c.fillStyle=sh('#3a2a1c',1.08);c.fillRect(a.x,a.y-13,l,13);c.fillStyle=rgba('#000000',.3);c.fillRect(a.x,a.y-5,l,5);c.fillStyle=rgba(P.light,.08+.24*LA);c.fillRect(a.x,a.y-13,l,1.2);
+      c.fillStyle=sh('#57452e',1.05);c.beginPath();c.ellipse(a.x,a.y-6.5,3.4,6.5,0,0,TAU);c.fill();c.fillStyle=sh('#2a1e14',1.05);c.beginPath();c.ellipse(a.x,a.y-6.5,1.5,3,0,0,TAU);c.fill();c.fillStyle=sh('#2a1e14',1.08);c.beginPath();c.ellipse(a.x+l,a.y-6.5,3.4,6.5,0,-Math.PI/2,Math.PI/2);c.fill();}});}
+// The handcart by the kerb: two wheels, its shafts down on a prop, kegs on it under a cloth roped over.
+function cartPiece(){const P=K.pal(),So=SO(),C0=So.cart,sh=(col,k)=>K.shade(P,col,k),LA=P.lightA,x0=C0.x0+6,x1=C0.x1-26,dN=C0.d-18,dF=C0.d+14,a=Q(x0,0,dN),X=a.x-16,Yt=Q(x0,84,dF).y-4,Wd=Q(C0.x1,0,dN).x+14-X,Ht=a.y+10-Yt;
+  return K.piece('yardcart|'+P.key,X,Yt,Wd,Ht,c=>{const r=rng(441),bh=32,sd=15,wr=23,wx=(x0+x1)/2;
+    const wheel=(d,front)=>{const p=Q(wx,wr,d);c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(p.x+2,p.y+wr+.6,wr*.9,3,0,0,TAU);c.fill();
+      c.strokeStyle=sh('#1c1612',1.05);c.lineWidth=4.4;c.beginPath();c.arc(p.x,p.y,wr-2.2,0,TAU);c.stroke();c.strokeStyle=sh('#3a2a1c',1.05);c.lineWidth=2.4;c.beginPath();for(let i=0;i<8;i++){const an=i/8*TAU+.3;c.moveTo(p.x+Math.cos(an)*4,p.y+Math.sin(an)*4);c.lineTo(p.x+Math.cos(an)*(wr-4),p.y+Math.sin(an)*(wr-4));}c.stroke();
+      c.fillStyle=sh('#2a1e14',1.05);c.beginPath();c.arc(p.x,p.y,5,0,TAU);c.fill();c.fillStyle=sh('#15120f',1.05);c.beginPath();c.arc(p.x,p.y,2,0,TAU);c.fill();
+      if(front){c.strokeStyle=rgba(P.light,.1+.3*LA);c.lineWidth=1.1;c.beginPath();c.arc(p.x,p.y,wr-.6,Math.PI*1.1,Math.PI*1.7);c.stroke();}};
+    c.fillStyle=rgba('#000000',.28);K.poly(c,[Q(x0-4,0,dN-3),Q(x1+6,0,dN-3),Q(x1+6,0,dF+2),Q(x0-4,0,dF+2)]);c.fill();
+    wheel(dF,false);
+    // the bed and its sides; the shafts running out to the prop
+    {const b0=Q(x0,bh,dN),b1=Q(x1,bh,dN),b2=Q(x1,bh,dF),b3=Q(x0,bh,dF),t0=Q(x0,bh+sd,dN),t1=Q(x1,bh+sd,dN),t2=Q(x1,bh+sd,dF),t3=Q(x0,bh+sd,dF);
+      c.fillStyle=sh('#2e2216',1.1);K.poly(c,[t3,t2,b2,b3]);c.fill();c.fillStyle=sh('#241a12',1.15);K.poly(c,[t1,t2,b2,b1]);c.fill();
+      for(const dd of [dN+3,dF-3]){const s0=Q(x1-4,bh+3,dd),s1=Q(C0.x1-3,17,dd);c.strokeStyle=sh('#3a2a1c',1.08);c.lineWidth=4;c.lineCap='butt';c.beginPath();c.moveTo(s0.x,s0.y);c.lineTo(s1.x,s1.y);c.stroke();c.strokeStyle=rgba(P.light,.08+.26*LA);c.lineWidth=1;c.beginPath();c.moveTo(s0.x,s0.y-1.6);c.lineTo(s1.x,s1.y-1.6);c.stroke();}
+      {const p0=Q(C0.x1-6,17,dN+3),g0=Q(C0.x1-9,0,dN+3);c.strokeStyle=sh('#2a1e14',1.1);c.lineWidth=3;c.beginPath();c.moveTo(p0.x,p0.y);c.lineTo(g0.x,g0.y);c.stroke();const p1=Q(C0.x1-5,17,dN+3),p2=Q(C0.x1-5,17,dF-3);c.lineWidth=3.4;c.beginPath();c.moveTo(p1.x,p1.y);c.lineTo(p2.x,p2.y);c.stroke();}
+      // (the kegs: three across with their heads to us, one on top; the cloth over the back ones, roped)
+      const ky=b0.y-1,kr=12.5,kx=b0.x+16;kegLying(c,P,kx,ky-kr,kr,24,443);kegLying(c,P,kx+26,ky-kr,kr,24,445);kegLying(c,P,kx+52,ky-kr,kr,24,447);kegLying(c,P,kx+13,ky-kr-21.5,kr,24,449);
+      {const ox=24*PSX,oy=-24*PSY,e=kx+52;K.oilcloth(c,[{x:e-17,y:ky-kr*2-1},{x:e-9+ox,y:ky-kr*2+oy-3},{x:e+15+ox,y:ky-kr*2+oy+1},{x:e+19+ox,y:ky+oy+3},{x:e+15,y:ky-3},{x:e+10,y:ky-kr*2+4}],{base:sh('#3e3a2a',1.05),seed:451,pal:P,sag:1.5,patches:2});
+        c.strokeStyle=sh('#6a5a44',1.05);c.lineWidth=1.5;c.beginPath();c.moveTo(e-12,ky-kr*2+1);c.quadraticCurveTo(e+4,ky-kr*2-3,e+16+ox*.5,ky-kr*2+oy*.5+2);c.stroke();}
+      c.fillStyle=sh('#3a2c1c',1.05);K.poly(c,[t0,t1,b1,b0]);c.fill();c.fillStyle=rgba('#000000',.3);for(let u=.25;u<1;u+=.25)c.fillRect(lerp(t0.x,t1.x,u)-.75,t0.y,1.5,b0.y-t0.y);c.fillRect(t0.x,t0.y+sd*.5,t1.x-t0.x,1.2);
+      c.fillStyle=rgba(P.light,.1+.3*LA);c.fillRect(t0.x,t0.y,t1.x-t0.x,1.1);c.fillStyle=sh('#15120f',1.05);for(const u of [.06,.94]){c.fillRect(lerp(t0.x,t1.x,u)-1.2,t0.y+2,2.4,2.4);c.fillRect(lerp(t0.x,t1.x,u)-1.2,b0.y-4.4,2.4,2.4);}}
+    wheel(dN-2,true);});}
+// the grate over the mouth: five bars and a rail across, the pipe's own iron; one bar is gone, and one has been pried out at its
+// foot, toward us. A picture of its own, laid by live() over the dark in the pipe.
+function gratePiece(){const P=K.pal(),D=SO().drain,sh=(col,k)=>K.shade(P,col,k),LA=P.lightA,cx=Q(D.x,0,D.d).x,cy=Q(D.x,D.r+2,D.d).y,R=D.r;
+  return K.piece('yardgrate|'+P.key,cx-R-2,cy-R-2,R*2+4,R*2+4,c=>{
+  {const iron=sh('#241a16',1.05),lit=rgba(P.light,.1+.3*LA),way=(pts,ox)=>{c.beginPath();pts.forEach((p,i)=>i?(p.length>2?c.quadraticCurveTo(p[0]+ox,p[1],p[2]+ox,p[3]):c.lineTo(p[0]+ox,p[1])):c.moveTo(p[0]+ox,p[1]));},
+      bar=(pts,w)=>{way(pts,0);c.strokeStyle=iron;c.lineWidth=w;c.stroke();way(pts,-.6);c.strokeStyle=rgba('#a0603a',.3+.3*LA);c.lineWidth=1;c.globalCompositeOperation='lighter';c.stroke();c.globalCompositeOperation='source-over';};
+    c.lineCap='round';const yT=x=>cy-Math.sqrt(Math.max(0,(R-2)*(R-2)-(x-cx)*(x-cx))),yB=x=>cy+Math.sqrt(Math.max(0,(R-2)*(R-2)-(x-cx)*(x-cx)));
+    bar([[cx-Math.sqrt((R-2)*(R-2)-64),cy-8],[cx+Math.sqrt((R-2)*(R-2)-64),cy-8]],2.2);
+    bar([[cx-24,yT(cx-24)],[cx-24,yB(cx-24)]],2.4);bar([[cx-12,yT(cx-12)],[cx-12,yB(cx-12)]],2.4);
+    bar([[cx,yT(cx)],[cx+.5,cy-22]],2.4);bar([[cx+1,yB(cx)],[cx+2.5,yB(cx)-6]],2.4);                    // gone: a stub above, a stub below
+    bar([[cx+12,yT(cx+12)],[cx+12,cy+2],[cx+15,cy+14,cx+26,cy+R-9]],2.4);                              // pried out at its foot, toward us
+    bar([[cx+24,yT(cx+24)],[cx+24,yB(cx+24)]],2.4);c.lineCap='butt';}});}
+// ---------- what moves in the south ----------
+// In the picture (under the people): the water going down the gully, the drain's drips, its breath after dark and in the morning's
+// cold, a pair of eyes back in the pipe now and then, a rat along the bank's foot after dark; down in the cut the fires and lamps,
+// the smoke off its chimneys, birds turning in its air, its mist drifting. With reduced motion nothing of it moves, and the eyes,
+// the rat and the birds are left out.
+function southLive(c,t,P,still){const So=SO(),D=So.drain,T=P.key,dark=T==='night'||T==='dusk',cx=Q(D.x,0,D.d).x,cy=Q(D.x,D.r+2,D.d).y,R=D.r;
+  // (the dark in the pipe: the fight's key light is laid over the layer after it is painted and lifts every dark in it, so the mouth
+  // was a brown hole. Laid again here from a small picture made once: black back in it, clear toward its floor where the day gets in)
+  {const sp=K.spr('yardDrainDark',96,96,(g)=>{g.fillStyle=rad(g,56,30,4,60,[[0,'rgba(3,4,7,.93)'],[.55,'rgba(3,4,7,.8)'],[.86,'rgba(3,4,7,.3)'],[1,'rgba(3,4,7,0)']]);g.beginPath();g.arc(48,48,46,0,TAU);g.fill();});
+    c.globalAlpha=T==='night'?.7:1;c.drawImage(sp,cx-R+3,cy-R+3,R*2-6,R*2-6);c.globalAlpha=1;}
+  K.drawPiece(c,gratePiece());
+  if(!still&&T!=='night'){c.fillStyle=rgba(K.jm(P.air[0],P.light,.5),.2+.28*P.lightA);for(let i=0;i<8;i++){const u=((t*.09+i/8)%1),[x,d]=runAt(GULLY,u),q=Q(x,0,d);c.globalAlpha=Math.sin(u*Math.PI);c.fillRect(q.x-1.4,q.y-.5,2.8,1);}c.globalAlpha=1;}
+  // the drain
+  if(!still){for(const [per,ox,ph] of [[3.7,-9,0],[5.9,12,2.1]]){const u=((t+ph)%per)/per,x=cx+ox,y0=cy-Math.sqrt(R*R-ox*ox)+4,y1=cy+R-6;
+      if(u<.3){c.fillStyle=rgba('#cfe0e8',.5);c.beginPath();c.ellipse(x,y0+u*3,.9,1+u*2,0,0,TAU);c.fill();}
+      else if(u<.4){const k=(u-.3)/.1;c.fillStyle=rgba('#cfe0e8',.5);c.fillRect(x-.5,lerp(y0+2,y1-2,k*k),1,2.4);}
+      else if(u<.9){const k=(u-.4)/.5;c.strokeStyle=rgba('#d8e8f0',.36*(1-k));c.lineWidth=1;c.beginPath();c.ellipse(x,y1,1+k*7,(1+k*7)*.26,0,0,TAU);c.stroke();}}
+    // (the eyes: low in the pipe, a little while, a blink, gone)
+    {const per=23,n=Math.floor(t/per),u=(t-n*per)/2.4;if(u<1&&hsh(n*7+5)<.8){const ex=cx-14+hsh(n*3+2)*24,ey=cy+6+hsh(n*5+1)*10,a=Math.sin(u*Math.PI)*(u>.45&&u<.52?0:1);c.fillStyle=rgba('#ffb070',.85*a);c.fillRect(ex-2.6,ey,1.5,1.2);c.fillRect(ex+1.4,ey,1.5,1.2);}}}
+  {const k=T==='night'?1:T==='dusk'?.8:T==='morning'?.9:.3,sp=K.puffSpr(T==='day'?'#b8b0a6':'#c4d2e2');for(let i=0;i<3;i++){const u=still?.3+i*.2:((t*.05+i/3)%1),rr=12+u*30;c.globalAlpha=.16*k*Math.sin(u*Math.PI);c.drawImage(sp,cx-4+u*26+Math.sin(i*2+u*3)*5-rr,cy+R*.5+u*16-rr*.36,rr*2,rr*.72);}c.globalAlpha=1;}
+  // (a rat: out from under the bank, along its foot, and in again)
+  if(!still&&dark){const per=29,n=Math.floor(t/per),u=(t-n*per)/1.7;if(u<1){const dir=hsh(n*11+3)<.5?1:-1,x0=dir>0?262:340,x=x0+dir*u*84,q=Q(x,0,-100+Math.sin(u*9)*2),hop=Math.abs(Math.sin(u*26))*1.2;
+      c.fillStyle='#120f0e';c.beginPath();c.ellipse(q.x,q.y-2.4-hop,4.4,2.3,0,0,TAU);c.ellipse(q.x+dir*4,q.y-2.8-hop,2,1.6,0,0,TAU);c.fill();c.fillRect(dir>0?q.x-10:q.x+4.4,q.y-2.2-hop,6,1);}}
+  // the cut
+  c.save();c.globalCompositeOperation='lighter';
+  for(let i=0;i<DROPF.fires.length;i++){const f=DROPF.fires[i];if(f.smoke)continue;const fl=still?.85:.72+.28*Math.sin(t*(7+i*.9)+i)*Math.sin(t*2.3+i*1.7);
+    if(f.lamp){if(dark)K.glowAt(c,f.x,f.y,9,'#ffb070',.5*fl);continue;}
+    K.glowAt(c,f.x,f.y,(13+6*fl)*f.s,'#ff8a4a',(.2+.5*P.fire)*fl*(1-f.hz*.5));c.globalAlpha=(.4+.5*P.fire)*(1-f.hz*.4);c.fillStyle='#ffb070';c.fillRect(f.x-1.2*f.s,f.y-2.4*f.s*fl,2.4*f.s,2.4*f.s*fl);}
+  c.restore();c.globalAlpha=1;
+  {const srcs=[];for(const f of DROPF.fires)if(f.smoke)srcs.push({x:f.x,y:f.y,s:2.2*f.s,sp:.07,n:4,h:44*f.s,dx:10,a:.3*(1-f.hz*.4),ph:f.x*.017});K.smoke(c,srcs,still?3:t,P.smoke,T==='night'?.5:.9);}
+  if(!still){// (birds, seen from over them: three, turning slowly, small)
+    c.fillStyle=rgba(K.jm('#1c1814',P.air[1],.35),.8);for(let i=0;i<3;i++){const a=t*(.22+i*.05)+i*2.1,bx=860+i*90+Math.cos(a)*(70+i*20),by=716+i*22+Math.sin(a)*(16+i*5),fl=Math.sin(t*(5+i))*1.6,dx=-Math.sin(a),dy=Math.cos(a)*.3,s=2.6-i*.4;
+      c.beginPath();c.moveTo(bx+dx*s,by+dy*s);c.lineTo(bx-dy*s*3.4,by+dx*s*1.2-fl);c.lineTo(bx-dx*s*.6,by-dy*s*.6);c.lineTo(bx+dy*s*3.4,by-dx*s*1.2-fl);c.closePath();c.fill();}
+    // (the mist in it: two wide wisps going slowly along)
+    const sp=K.puffSpr(T==='night'?'#3a3a48':'#b8a890');for(let i=0;i<3;i++){const x=((i*430+t*(5+i*2))%1100)+420,y=690+i*52;c.globalAlpha=(T==='morning'?.2:.11)*(T==='night'?.6:1);c.drawImage(sp,x-190,y-24,380,48);}c.globalAlpha=1;}}
+// On the pieces (over whoever stands behind them). The rail: the hoist's fall and its basket swinging out over the cut, the rags
+// on the rail, the keeping candles' flames after dark. The main: the tap's drip, the leak's. The fire: its embers and a thread
+// of smoke. The shed: its stovepipe's smoke, its lantern after dark.
+function railLive(c,t,P,still){const sh=(col,k)=>K.shade(P,col,k),dark=P.key==='night'||P.key==='dusk',pu=RAILS.pulley;
+  {const a=still?0:.04*windAt(t*.5+1,700)+.014*Math.sin(t*1.3),L2=96,x1=pu.x+Math.sin(a)*L2,y1=pu.y+Math.cos(a)*L2;c.strokeStyle=sh('#6a5a44',1.05);c.lineWidth=1.5;c.beginPath();c.moveTo(pu.x,pu.y+3);c.lineTo(x1,y1);c.stroke();
+    c.save();c.translate(x1,y1);c.rotate(-a*.6);c.strokeStyle=sh('#6a5a44',1.05);c.beginPath();c.moveTo(0,0);c.lineTo(-7,8);c.moveTo(0,0);c.lineTo(7,8);c.stroke();
+    c.fillStyle=sh('#4a3a28',1.05);c.beginPath();c.moveTo(-8,8);c.lineTo(8,8);c.lineTo(6.4,19);c.lineTo(-6.4,19);c.closePath();c.fill();c.fillStyle=rgba('#000000',.3);for(let q=-6;q<7;q+=3)c.fillRect(q,8,1,11);c.fillRect(-7.6,12.6,15.2,1.2);c.fillStyle=rgba(P.light,.08+.24*P.lightA);c.fillRect(-8,8,16,1);c.restore();}
+  for(let i=0;i<RAILS.rags.length;i++){const g=RAILS.rags[i],w=still?.25:windAt(t+i*1.3,g.x)*.9+.25,l=g.len;c.fillStyle=sh(g.col,1.05);c.beginPath();c.moveTo(g.x-1.6,g.y);c.lineTo(g.x+1.6,g.y);
+    c.quadraticCurveTo(g.x+2+w*l*.5,g.y+l*.5,g.x+1.6+w*l*.9,g.y+l*(1-Math.abs(w)*.18));c.lineTo(g.x-.6+w*l*.8,g.y+l*.8);c.quadraticCurveTo(g.x-2+w*l*.4,g.y+l*.5,g.x-1.6,g.y);c.closePath();c.fill();}
+  if(dark){c.save();c.globalCompositeOperation='lighter';RAILS.cands.forEach((q,i)=>{if(i===3)return;const f=still?1:.8+.2*Math.sin(t*(9+i*1.7)+i*2)*Math.sin(t*3.1+i);K.glowAt(c,q.x,q.y-2,12,'#ffb070',.34*f);c.globalAlpha=.9;c.fillStyle='#ffd9a8';c.beginPath();c.ellipse(q.x+(still?0:Math.sin(t*6+i)*.3),q.y-3.2,1,2.2*f,0,0,TAU);c.fill();});c.restore();c.globalAlpha=1;}}
+function mainLive(c,t,P,still){if(still)return;for(const [m,per,ph] of [[MAINS.tap,2.3,0],[MAINS.leak,1.1,.4]]){const u=((t+ph)%per)/per,x=m.x,y0=m.y,y1=m.g;
+    if(u<.34){c.fillStyle=rgba('#cfe0e8',.55);c.beginPath();c.ellipse(x,y0+1+u*2,1,1+u*1.6,0,0,TAU);c.fill();}
+    else if(u<.5){const k=(u-.34)/.16;c.fillStyle=rgba('#cfe0e8',.55);c.fillRect(x-.5,lerp(y0+2,y1-1,k*k),1,2.4);}
+    else if(u<.95){const k=(u-.5)/.45;c.strokeStyle=rgba('#d8e8f0',.38*(1-k));c.lineWidth=1;c.beginPath();c.ellipse(x,y1,1.5+k*6,(1.5+k*6)*.3,0,0,TAU);c.stroke();}}}
+function fireLive(c,t,P,still){const F=SO().fire,p=Q(F.x,0,F.d),k=P.key==='night'?1:P.key==='dusk'?.8:.25,f=still?.85:.72+.28*Math.sin(t*8.3)*Math.sin(t*2.7);
+  c.save();c.globalCompositeOperation='lighter';K.glowAt(c,p.x,p.y-2,26+6*f,'#ff8a4a',.4*k*f,.6);c.fillStyle='#ff9a50';for(let i=0;i<6;i++){const a=i*1.9+1,e=still?.7:.5+.5*Math.sin(t*(2.1+i*.7)+i*3);c.globalAlpha=(.25+.6*k)*e;c.fillRect(p.x+Math.cos(a)*(4+i*1.5)-1,p.y+Math.sin(a)*3-1,2,1.6);}c.restore();c.globalAlpha=1;
+  K.smoke(c,[{x:p.x+2,y:p.y-6,s:2.6,sp:.11,n:5,h:74,dx:12,a:.26+.2*k}],still?2:t,P.smoke,P.key==='night'?.6:1);}
+function shedLive(c,t,P,still){const dark=P.key==='night'||P.key==='dusk';K.smoke(c,[{x:SHEDS.pipe.x,y:SHEDS.pipe.y-2,s:3.6,sp:.1,n:6,h:110,dx:20,a:.42}],still?2:t,P.smoke,P.key==='night'?.6:1);
+  if(dark){const f=still?1:.9+.1*Math.sin(t*6.7)*Math.sin(t*2.3),lit=P.key==='night'?1:.8;c.save();c.globalCompositeOperation='lighter';K.glowAt(c,SHEDS.lamp.x,SHEDS.lamp.y+7,9,'#fff0c8',.75*lit*f);K.glowAt(c,SHEDS.lamp.x,SHEDS.lamp.y+7,38,'#ffb25e',.32*lit*f);c.restore();c.globalAlpha=1;}}
+// the south's pieces, each at its depth; the rail before everyone (nobody stands beyond it)
+function southPieces(out){const So=SO(),P=K.pal(),still=typeof reduceMotion!=='undefined'&&reduceMotion,t=typeof S!=='undefined'&&S?S.t:0;
+  out.push({d:So.shed.d0,draw:c=>{K.drawPiece(c,shedSPiece());shedLive(c,t,P,still);}});
+  out.push({d:So.fire.d,draw:c=>{K.drawPiece(c,firePiece());fireLive(c,t,P,still);}});
+  out.push({d:So.cart.d-4,draw:c=>K.drawPiece(c,cartPiece())});
+  out.push({d:So.kerb+3,draw:c=>{K.drawPiece(c,mainPiece());mainLive(c,t,P,still);}});
+  out.push({d:-400,draw:c=>{K.drawPiece(c,railPiece());railLive(c,t,P,still);}});}
+// The shadows of the south's pieces on the ground (they stand in the frame, their shadows in the picture): at their feet, and
+// thrown away from the sun where there is one. By day the heap's own lies over the drain.
+function southShadows(c,P){const So=SO(),sd=sunDir(),B=So.shed,F=So.fire,C0=So.cart,D=So.drain,col='#0c121c',ta=thrownA(P);
+  const lay=(x,d,w,len,dd,a)=>{const p0=Q(x,0,d-dd),p1=Q(x,0,d+dd),e=Q(x+sd*len,0,d);c.fillStyle=lin(c,p0.x,0,e.x,0,[[0,rgba(col,a??.26)],[.5,rgba(col,(a??.26)*.45)],[1,rgba(col,0)]]);
+    c.beginPath();c.moveTo(p0.x-sd*w,p0.y);c.lineTo(e.x,e.y+(p0.y-p1.y)*.3);c.lineTo(e.x,e.y-(p0.y-p1.y)*.3);c.lineTo(p1.x-sd*w,p1.y);c.closePath();c.fill();};
+  c.fillStyle=rgba('#000000',.3);{const p=Q(F.x,0,F.d);c.beginPath();c.ellipse(p.x+2,p.y+1,F.r+12,(F.r+8)*.6,0,0,TAU);c.fill();}
+  {const a=Q(So.kerb?toeX(So.kerb)+8:0,0,So.kerb+7),b=Q(So.lip[3][0]+6,0,So.kerb+7);c.fillStyle=rgba('#000000',.22);c.fillRect(a.x,a.y-3,b.x-a.x,4.6);}
+  for(const x of [806,872]){const p=Q(x,0,lipAt(840)+10);c.beginPath();c.ellipse(p.x,p.y,9,2.4,0,0,TAU);c.fill();}
+  if(sd){lay(sd>0?B.x1:B.x0,(B.d0+B.d1)/2,4,B.h*.9,(B.d1-B.d0)/2,.3);lay(F.x,F.d,10,70,7,.2);lay(sd>0?C0.x1-20:C0.x0+8,C0.d,10,64,16,.26);lay(718,lipAt(718)+12,2,110,2.4,.24);
+    for(let i=0;i<RPX.length;i++)lay(RPX[i],lipAt(RPX[i])+6,1,34,1.6,.2);lay(840,lipAt(840)+12,20,30,7,.2);
+    // (the headwall's and the wing's on the apron and the ground beside it; by day the heap's, long over the forecourt)
+    lay(sd>0?D.x+D.r+23:D.x-D.r-23,D.d-8,6,56,10,.24);
+    if(sd>0){c.save();c.beginPath();const T2=HTOE.filter(([d])=>d<=-96&&d>=-420);T2.forEach(([d,x],i)=>{const p=Q(x,0,d);i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y);});for(let i=T2.length-1;i>=0;i--){const [d,x]=T2[i],p=Q(x+150-Math.abs(d+200)*.2,0,d);c.lineTo(p.x,p.y);}c.closePath();c.clip();
+      c.fillStyle=lin(c,10,0,190,0,[[0,rgba(col,ta*.95)],[.6,rgba(col,ta*.5)],[1,rgba(col,0)]]);c.fillRect(-60,500,300,360);c.restore();}}}
 // ---------- the light over it all ----------
 function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
   c.save();c.globalCompositeOperation='lighter';
@@ -950,16 +1590,28 @@ function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
     const gp=Q(FENCE.x-20,0,Yd.gate.d);K.cRad(c,gp.x,gp.y,4,70,'#ffcf86',.1,.45);
     const gf=Q(FENCE.x,46,Yd.gate.d-10);K.cRad(c,gf.x,gf.y,4,50,'#ffb25e',.12,1.4);
     const df=Q(DRUM.x,0,DRUM.d);K.cRad(c,df.x,df.y,6,120,'#ff9a4a',.22,.45);K.cRad(c,df.x-30,df.y-40,6,90,'#ff9a4a',.08,1);}
+  // (the south's lights on its ground, after dark and at dusk: the shed's lantern before its door, the fire ring's embers, the candles)
+  if(T==='night'||T==='dusk'){const So=SO(),k=T==='night'?1:.5,sl=Q(So.shed.x0+38,0,So.shed.d0-24),fr=Q(So.fire.x,0,So.fire.d),cd=Q(940,0,lipAt(940)+14);
+    K.cRad(c,sl.x,sl.y,4,96,'#ffcf86',.13*k,.45);K.cRad(c,fr.x,fr.y,6,84,'#ff9a4a',.16*k,.5);K.cRad(c,cd.x,cd.y,3,44,'#ffb070',.1*k,.5);}
   else{// the daylight falling down the Pit into the yard: the middle of it lighter
     const m=Q(520,0,110);K.cRad(c,m.x,m.y,20,520,P.light,T==='morning'?.1:.08,.36);}
   c.restore();
   // the sun's light down the wall and over the yard, by day and by morning (the kit's: shafts from over the rim, the slate shadows)
   K.sunlight(c,P,-200,1240,-640,GB+30,SUNO);
+  // (the sun's wash and the shade's blue run on down the floor, since V118: the kit's light stops at the old floor's front, where the
+  // picture used to go dark, and left a line across the ground there. Its two veils as they stand at its foot, to the picture's)
+  {const S2=K.sun();if(S2){const left=S2.x<520,x0=-200,x1=1240,y0=GB+30,y1=(E.FOOT||875)+5,kc=S2.cool||1;
+      c.save();c.globalCompositeOperation='lighter';c.fillStyle=lin(c,left?x0:x1,0,left?x1:x0,0,[[0,rgba(S2.col,.15)],[.55,rgba(S2.col,.04)],[1,rgba(S2.col,0)]]);c.fillRect(x0,y0,x1-x0,y1-y0);c.restore();
+      c.fillStyle=lin(c,left?x0:x1,0,left?x1:x0,0,[[0,rgba('#24303e',0)],[1,rgba('#24303e',.14*kc)]]);c.fillRect(x0,y0,x1-x0,y1-y0);
+      c.fillStyle=rgba('#202a36',.14*kc);c.fillRect(x0,y0,x1-x0,y1-y0);}}
   // (the dark at the walls' feet: at each wall's own foot, eased in from above since V118. It began as a hard line a hand over the
   // Sump's foot, right across the yard: it cut through whatever stood at the wall and lay as a band on the yard wall's bricks)
   for(const [xa,xb,dw] of [[-200,SHED.x1+far*PSX,far],[SHED.x1+far*PSX,FENCE.x+Yd.wall.d*PSX+6,Yd.wall.d]]){const yw=Q(0,0,dw).y,yf=Q(0,0,dw-50).y;
     c.fillStyle=lin(c,0,yw-12,0,yf,[[0,rgba('#000000',0)],[12/(yf-yw+12),rgba('#000000',.3)],[1,rgba('#000000',0)]]);c.fillRect(xa,yw-12,xb-xa,yf-yw+12);}
-  E.fallKeep(c,-200,1240,GB-40,[[GB-40,0],[GB+130,T==='night'?.6:.48]],null,.06);
+  // (the light falling off toward us: it began at the old floor's front and was held from there on; since V118 the floor runs on
+  // south, and the fall begins past its foot, over the lane)
+  {const y0=GB-40,y1=E.FOOT||875,nt=T==='night',st=[[y0,0],[GB+150,.07],[GB+215,nt?.3:.2],[GB+320,nt?.62:.5],[y1,nt?.74:.64]];
+    c.fillStyle=lin(c,0,y0,0,y1,st.map(([y,a])=>[(y-y0)/(y1-y0),rgba('#000000',a)]));c.fillRect(-200,y0,1440,y1-y0);}
   if(T==='morning'){// mist lying on the floor of the Pit: over the far shacks' feet, along the yard's walls, low over the yard (blue in
     // the shade, as the sun's shafts cross it warm: since V81, a pale grey that took the colour out of everything)
     c.fillStyle=lin(c,0,110,0,GB,[[0,rgba('#9cb8ec',0)],[.32,rgba('#9cb8ec',.27)],[.5,rgba('#9cb8ec',.18)],[.75,rgba('#9cb8ec',.09)],[1,rgba('#9cb8ec',.04)]]);c.fillRect(-200,110,1400,GB-110);
@@ -973,6 +1625,7 @@ function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
 function paint(c){const P=K.pal(),X0=-170,X1=W+250,T0=-110;
   backdrop(c,P,X0,X1,T0);neighbours(c,P);beyond(c,P);
   ground(c,P);
+  dropView(c,P);kerb(c,P);hill(c,P);drain(c,P);
   sump(c,P);shed(c,P);sideStair(c,P);stairFence(c,P);ladder(c,P);yardWall(c,P);along(c,P);wallThings(c,P);drumFire(c,P);fence(c,P);
   // the contact shadows of the pieces that stand among the people
   {const Yd=Y();c.fillStyle=rgba('#000000',.3);for(const B0 of Yd.barrels){const p=Q(B0.x,0,B0.d);c.beginPath();c.ellipse(p.x+2,p.y,B0.r+5,B0.r*.36,0,0,TAU);c.fill();}
@@ -983,8 +1636,9 @@ function paint(c){const P=K.pal(),X0=-170,X1=W+250,T0=-110;
         c.beginPath();c.moveTo(a.x-sd*w,a.y);c.lineTo(e.x,e.y+(a.y-b.y)*.3);c.lineTo(e.x,e.y-(a.y-b.y)*.3);c.lineTo(b.x-sd*w,b.y);c.closePath();c.fill();};
       for(const B0 of Yd.barrels)lay(B0.x,B0.d,B0.r*.5,B0.r*3.6,B0.r*.5);for(const Cr of Yd.crates)lay(Cr.x,Cr.d,Cr.w*.3,Cr.h*1.5,Cr.w*.45);
       lay(Yd.pump.x,Yd.pump.d,6,92,6);lay(Yd.trough.x1,Yd.trough.d,10,30,10);}}
+  southShadows(c,P);
   lightPass(c,P);
-  crisp(c,P);growth(c,P);}
+  dropShade(c,P);crisp(c,P);southOver(c,P);growth(c,P);}
 // ---------- the pieces that stand among the people: the pump, the trough, the barrels, the crates ----------
 function pumpPiece(){const Yd=Y(),P=K.pal(),Pm=Yd.pump,c0=Q(Pm.x,0,Pm.d),R=Pm.r;
   return K.piece('yardpump|'+P.key,c0.x-48,c0.y-82,92,102,c=>{const sh=(col,k)=>K.shade(P,col,k);
@@ -1064,6 +1718,8 @@ function pieces(){const Yd=Y(),out=[],G=SG(),g=Yd.gate;
   Yd.barrels.forEach((B0,i)=>out.push({d:B0.d,draw:c=>K.drawPiece(c,barrelPiece(B0,i))}));
   // a crate goes down a little before a man at its own depth: Dob perches on the nearer one (its top is ground for him)
   Yd.crates.forEach((Cr,i)=>out.push({d:Cr.d+1,draw:c=>K.drawPiece(c,cratePiece(Cr,i))}));
+  // (the south's, since V118)
+  southPieces(out);
   return out;}
 // ---------- Dob's birds, alive (since V117) ----------
 // The pigeons that live in the yard, the roof scene's own birds at the roof scene's size: on the lofts and along the ridge, down
@@ -1155,6 +1811,7 @@ function feetWet(t){if(typeof FTF==='undefined'||typeof S==='undefined'||!S.F)re
 function yardLive(c,t,P){const Yd=Y(),far=Yd.far,T=P.key,still=typeof reduceMotion!=='undefined'&&reduceMotion,sh=(col,k)=>K.shade(P,col,k),dark=T==='night'||T==='dusk';
   plants(c,P,grow().live,g=>windAt(t+g.ph*.4,g.x)*.2);
   clothsLive(c,t,P);
+  southLive(c,t,P,still);
   // the hoist's fall and its hook
   if(HOIST.x){const a=still?0:.05*windAt(t*.6+2,400)+.018*Math.sin(t*1.7),x1=HOIST.x+Math.sin(a)*43,y1=HOIST.y+Math.cos(a)*43;
     c.strokeStyle=sh('#5a4a38');c.lineWidth=1.6;c.beginPath();c.moveTo(HOIST.x,HOIST.y);c.lineTo(x1,y1);c.quadraticCurveTo(x1+2+a*8,y1+8,x1-4+a*14,y1+12);c.stroke();c.fillStyle=sh('#3a3632');c.beginPath();c.arc(x1-4+a*14,y1+14,2,0,TAU);c.fill();}
@@ -1234,9 +1891,10 @@ const LAYOUT={sump:SUMP,shed:SHED,fence:FENCE,lantern:LANT};
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): by day the Pit's light on the yard's dirt and the
 // Sump's boards, by its hour; at night the back door's light and the window's out over the yard, strong by them and falling away
 // toward the pump, enough that a man in the yard stands out against it
-const SETS={day:{col:'#ffe2bc',soft:1,y:[GB-360,GB-280,GB-60,GB+20]},morning:{col:'#dce6f4',soft:1,y:[GB-360,GB-280,GB-60,GB+20]},
-  dusk:{col:'#ffc49b',soft:1,gain:1.3,air:.04,y:[GB-360,GB-280,GB-60,GB+20]},
-  night:{col:'#ffca94',soft:1,gain:1.8,air:.08,y:[GB-360,GB-280,GB-60,GB+20],base:.36,pools:[[L0.door.x+L0.far*PSX,420,1],[(L0.window.x0+L0.window.x1)/2+L0.far*PSX,220,.8]]}};
-E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT};
+const SETY=[GB-360,GB-280,GB+150,GB+250];
+const SETS={day:{col:'#ffe2bc',soft:1,y:SETY},morning:{col:'#dce6f4',soft:1,y:SETY},
+  dusk:{col:'#ffc49b',soft:1,gain:1.3,air:.04,y:SETY},
+  night:{col:'#ffca94',soft:1,gain:1.8,air:.08,y:SETY,base:.36,pools:[[L0.door.x+L0.far*PSX,420,1],[(L0.window.x0+L0.window.x1)/2+L0.far*PSX,220,.8]]}};
+E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:true};
 })();
 // ===== ENV YARD END =====

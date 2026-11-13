@@ -10,11 +10,12 @@ function envKey(){if(!SCENE_OK||S.classicLook||S.sceneOff||!S.arena)return null;
 let SCENE_LY=null;
 function sceneScale(){return clamp(cv.width/(camCloseW()*.9)*1.12,1,2.4);}
 // How much of RC's height the layer keeps: all of it on an upright screen, where the push-in shows the ground in front of the fight
-// (RC runs on to y 870 for it); 700 units (to y 610) elsewhere, where the dock or the world's foot hides the rest.
-function sceneLayerH(){return camNarrow()&&cssH>cssW?RC.h:Math.min(RC.h,H+200);}
+// (RC runs on to y 870 for it); 700 units (to y 610) elsewhere, where the dock or the world's foot hides the rest. A place whose
+// floor runs on toward us keeps all of it on any screen (deep: the yard, since V118, where the picture goes down the floor with him).
+function sceneLayerH(k){const X=k&&EnvLook.S[k];return(camNarrow()&&cssH>cssW)||(X&&X.deep)?RC.h:Math.min(RC.h,H+200);}
 // A scene whose still parts change with the story (the bistro's doors blown in) gives a key() that changes with them; a new key
 // paints the layer again.
-function sceneLayer(k){const need=sceneScale(),lh=sceneLayerH(),v=EnvLook.S[k].key?EnvLook.S[k].key():'';let L=SCENE_LY;
+function sceneLayer(k){const need=sceneScale(),lh=sceneLayerH(k),v=EnvLook.S[k].key?EnvLook.S[k].key():'';let L=SCENE_LY;
   if(!L||L.k!==k||L.v!==v||L.lh!==lh||Math.abs(need/L.sc-1)>.15){if(L){L.cv.width=L.cv.height=0;SCENE_LY=null;}
     const cn=document.createElement('canvas');cn.width=Math.ceil(RC.w*need);cn.height=Math.ceil(lh*need);
     const c=cn.getContext('2d'),t0=performance.now();c.setTransform(need,0,0,need,-RC.x0*need,-RC.y0*need);EnvLook.S[k].paint(c);if(SCENE_NIGHT[k])sceneNightLift(c,cn);

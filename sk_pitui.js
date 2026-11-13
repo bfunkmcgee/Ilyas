@@ -160,6 +160,10 @@ V11UI.screen.push(()=>{const A=S.act1;if(!A||!A.sear||!act1On())return;const u=S
 // side lost his head over the top landing). Elsewhere nothing changes.
 {const cb=camBand;camBand=function(){const C=S.camCut,A=S.arena;if(!C||!A||!A.climb||!S.F.length)return cb();
   const h=A.climb(C.x);return{top:BAND0.top-h,foot:BAND0.foot-h};};}
+// The yard's walk about with no frame of its own (the night's) goes down the floor with him as the day's does (since V118: the floor
+// runs on south; yardDown, sk_pit2.js).
+{const cb=camBand;camBand=function(){const C=S.camCut,b=cb();if(!C||C.band||C.bandN||S.arenaKey!=='yard'||!S.ex||!S.ex.on||typeof yardDown!=='function')return b;
+  const K=hero(),dy=K?yardDown(K,cssW<640):0;return{top:b.top+dy,foot:b.foot+dy};};}
 
 // ---------- the Pit's sounds ----------
 // the skillet's hiss, the fizzle of the gilt that does not answer, the nine plates in his lap, the pump, Tamm's pin, the purse
