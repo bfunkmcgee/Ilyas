@@ -47,7 +47,9 @@ python3 spike/layers/build_layers.py
 ```
 
 That writes `spike/layers/out/layers-test.html` and `out/index.html`, wrapped for publishing. The page carries the motion test as
-well (spike/motion: the drawn pose and its panel), and opens on its walk across the yard.
+well (spike/motion: the drawn pose and its panel), and opens on its walk across the yard. It is published as a private test page
+of its own, "Ilyas: layers test" (artifact 4d618786-0672-492b-89f5-519c9ad07370: index.html and the sounds the test's scenes
+play), beside the game's page and the motion test's, which it does not touch.
 
 The Test button opens the panel: what a frame costs on this device, the drawing (the motion test's new or old), the scene (the walk,
 the yard as the game plays it, a fight in the restaurant that plays itself), the picture (in layers or flat), the focus (all of it,
