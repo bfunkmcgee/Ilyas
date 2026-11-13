@@ -1251,65 +1251,94 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
     - The look review of yard1 alone (`python3 test.py places yard1`): clean; its frames 13 to 16 ms against the fall's 45.
   - The yard's south, for V118 (in work on the branch claude/v118-south: not published). Asked for: the yard opened out at the
     south of the screen with more floor to walk, a shed and a small view over the edge of the pit at one corner, an ominous
-    drainpipe entrance near the other, the rest filled with scenery and props that belong to the Pit.
+    drainpipe entrance near the other, the rest filled with scenery and props that belong to the Pit. Then: it looked too
+    condensed, so twice as far south again, and the details filled in.
     - Where it is: `ACT1_PLACES.yard.south` (sk_pit.js; the painter keeps a copy in `L0`). The floor runs on toward us from the
-      old front to `z0` (-196), past DEP_MIN, and right as far as `x1` before the shed. Left: a heap of the quarry's spoil
-      comes down into the picture (`HTOE`, `hillH`), and a low bank of it lies across the old floor's foot with the drain in
-      it: a headwall of quarry stone, the pipe's mouth (`drain`: its middle, the face's depth, the radius), two wing walls,
-      an apron of flags. Along the foot a kerb of quarry blocks with Tarr's main on it (`kerb`); the lane beyond. Right: the
-      Floor ends at the lip of the quarry's last cut (`lip`: the hole the Sump is named for), and the shed stands by it.
-      Between: a court chalked for rondel (`COURT`), a fire ring, a handcart of kegs. The yard's water runs on from the big
-      puddle down a gully to the drain (`GULLY`).
+      old front to `z0` (-420; it was -196), past DEP_MIN, and right as far as `x1`; `east` is how far up its right side a
+      man may come (the old fence's end and the junk at it are above that). Left: the quarry's spoil heap down the west
+      side (`HTOE`, `hillH`) and a bank of it out across the floor (`bank`), the drain in its south face: a headwall of
+      quarry stone, the pipe's mouth 108 across (`drain`: its middle, the face's depth, the radius; everything in `drain()`
+      and `gratePiece()` goes by the radius), two wing walls, an apron of flags. Behind the bank, under the old floor, a
+      kitchen garden (`beds`). Along the foot a kerb of quarry blocks with Tarr's main on it (`kerb`); the lane beyond.
+      Right: the Floor ends at the lip of the quarry's last cut (`lip`: the hole the Sump is named for), the shed by it.
+      Between: the yard's water runs on from the big puddle down a gully to the drain (`GULLY`), crossed on planks and on
+      stones; a court chalked for rondel (`COURT`) with a table by it (`table`); a fire ring; the practice ground (`ring`,
+      and the straw man on his `post`); a tree with a tyre on a rope (`tree`); the quarry's tram road in from the hoist
+      (`TRACK`) with a tipping wagon left on it (`wagon`) and its spare sleepers piled by it (`pile`); a handcart of kegs;
+      pails left in a line by the standpipe (`queue`); the quarry's stock of cut stone stacked past the floor's right edge.
     - How high things may stand. A thing h high at depth d hides the floor behind it as far as d + h/.75. Nothing in the
-      south hides the floor a fight uses (DEP_MIN and deeper): at depth d nothing is higher than .75 x (DEP_MIN - d), so the
-      headwall is 80 at -116 and the bank's ridge 42 at -88 (its back shows over it: a bank whose top meets that line is
-      seen edge on, and reads as a step down in the ground). West of the floor's left edge (x 40) anything may be as high as
-      it likes: what it would hide is further left still. The shed (160) stands right of x 866 as drawn, clear of the old
-      floor's right edge and under the gate's foot; it was 40 further left and stood in Dob's close-up.
+      south hides the floor a fight uses (DEP_MIN and deeper): at depth d nothing is higher than .75 x (DEP_MIN - d). The
+      far things stand twice as far off as they did and may be twice as high: the headwall is 114 at -300 (it was 80 at
+      -116), the bank's ridge 84 to 98, the tree some 170 at -356. Near the old floor things are low: the garden's far row
+      is cabbages and onions, the beans and the man of sacking stand in the near row. A tall thing also hides what stands
+      behind it in the picture: the shed (160 at -320) hides the ground north of it as far as -107, and what was first put
+      there (the wagon, the sleepers) was moved out from behind it. West of the floor's left edge (x 40) and right of its
+      right one anything may be as high as it likes, if a man at the floor's edge is not behind it: the stone stack begins
+      at x 1028, where a sight line from x 990 is 140 up.
+    - The picture is higher than the still layers are. RC ends at y 870 and the yard's own foot is `YFOOT` (1110, the depth
+      `YNEAR` on the floor): `EnvLook.S.yard.deep` is the layer's height (a number: from RC's top down; `sceneLayerH(k)`,
+      sk_scene_glue.js; `true` is RC's whole height), and the painter runs its ground, its mottle, the sun's veils and the
+      fall of light to `YFOOT` where the kit's stop at `E.FOOT`. The old floor's grit keeps its dice; the ground past the
+      kit's foot has its own. On a phone the layer is 3072 x 2880.
     - The game's side. A walker's own near limit `f.zMin` (sk_core.js, beside `f.zMax`; set by `exStart` from the bounds,
       cleared when a stage starts and in `initFighter`). The walk about's floor may have a foot that runs aslant:
       `bounds.foot` [[x, z], ...] by x, the nearest he may come at each x; a point past it comes straight back up to it, so
       he goes along it (`exClampTo`): the lip (`yardBounds()`, sk_pit2.js: 18 units back from the lip, the rail between). It
       was first three half planes, one for each run of the lip, which only hold a floor that bulges outward at every corner:
-      the lip turns the other way at one, and the first run's line cut most of the ground before the shed off. Things stand against each other there, so
-      a man sent somewhere is given a way round them once, as he is sent (`exRoute`: the shortest way by the blocks' corners;
-      `E.to.path`), where the step's own way round one thing at a time is kept for the keys; `exOutOf` moves a point out of
-      one thing without leaving it in the next. `YARD_BLOCKS_S`: the bank, the wings, everything right of the old floor's
-      edge down to the ground before the shed, the fire ring, the cart. The night scene has the yard's blocks now too, and
-      its plates are not spilled into them or past the lip.
+      the lip turns the other way at one, and the first run's line cut most of the ground before the shed off. Things stand
+      against each other there, so a man sent somewhere is given a way round them once, as he is sent (`exRoute`: the
+      shortest way by the blocks' corners; `E.to.path`), where the step's own way round one thing at a time is kept for the
+      keys; `exOutOf` moves a point out of one thing without leaving it in the next. `YARD_BLOCKS_S`, 18 of them: the bank
+      in two parts, the wings, everything right of the old floor's edge above `east`, the shed, the fire ring with its
+      seats, the cart, each bed (with a hand's room behind it for what grows in it), the tree, the post, the wagon, the
+      pile, the table and its benches, the pails. The night scene has the yard's blocks too, and its plates are not spilled
+      into them or past the lip. The Act I page suite walks it: to the drain, to the shed, past the lip, along it, and back.
     - The camera. `yardDown(K, narrow)`: nothing moves while he is in the yard's back half (deeper than `YARD_SLIDE.d`);
-      from there to the floor's foot the walk about's band comes down by `dy` (`dyN` on an upright phone), and on the ground
-      before the shed it comes down further and looks out over the lip (`yardLook`, `over`/`overN`). `yardExCam` adds it to
-      its bands; the night's walk about has no band of its own and gets it through `camBand` (sk_pitui.js). The whole yard's
-      shot (`yardShot('yard')`) takes in the south on an upright phone. The yard's layer is kept to RC's whole height on
-      every screen (`EnvLook.S.yard.deep`, `sceneLayerH(k)`): a wide screen's stopped at y 610.
+      from there to the floor's foot the walk about's band comes down by `dy` (`dyN` on an upright phone: 358 and 326, the
+      kerb at the band's foot), and from the shed's front on south it comes down further and looks out over the lip
+      (`yardLook`, `over`/`overN`). `yardExCam` adds it to its bands; the night's walk about has no band of its own and
+      gets it through `camBand` (sk_pitui.js). An upright phone is high enough to hold the Sump's wall and the kerb at once;
+      a wide screen sees about half the yard's depth. The whole yard's shot (`yardShot('yard')`) takes in the south on an
+      upright phone.
     - The picture (env_yard.js, "the yard's south"). In the layer: `southFloor` (in the floor's plane, from `ground`: the
-      ways worn across it, bare rock toward the lip, the lane's ruts, the gully, the wet before the drain, the court, ash,
-      prints, stones), `dropView` (the cut's air, five rows of roofs on its floor as shapes against lit smoke, lines of
-      lamps across it, a ledge with a walkway and four roofs, the rock's face fading down by how far below the lip it is,
-      the ladder, the main going down; then the lip's own edge and the lane's end), `kerb` (`stoneBlock`), `hill` (the heap
-      and the bank), `drain`, `southShadows`. After the light: `dropShade` (the yard's light taken off the view down again)
-      and `southOver` (the heap, the drain and the kerb laid again part way, as `crisp` does the wall things). The light and
-      the mottle stopped at the old floor's front, where the picture used to go dark: the sun's two veils and the fight's key
-      light (`SETY`) run on down the floor now, and the fall toward us begins past its foot.
-    - The pipe's dark and its grate are drawn by `live()` (`southLive`: a small picture made once, and `gratePiece`): the
-      fight's key light is laid over the layer after it is painted and lifts every dark in it, and the mouth was a brown hole.
-    - The pieces (`southPieces`, each at its depth; a man may stand behind them): `shedSPiece` (door, window, lantern, the
-      score in chalk, bills, kegs: `kegLying`), `mainPiece` (the standpipe and its chit box, the valve with Tarr's rag, a
-      clamped leak, the bend over the lip), `railPiece` (poles and rope, a pallet bay, the hoist and its winch, the bench,
-      the keeping candles, the ladder's head; drawn after everyone: nobody stands beyond it), `firePiece`, `cartPiece`.
+      ways worn across it, bare rock toward the lip, the tram road's sleepers and rails, the lane's ruts, the gully, the
+      planks and the stones over it, the wet before the drain and what was dragged across it, the court and a ladder of
+      squares for hopping, the practice ground's round of sawdust in a line of lime, the handcart's ruts, ash, prints,
+      stones), `dropView` (the cut's air, five rows of roofs on its floor as shapes against lit smoke, lines of lamps
+      across it, a ledge with a walkway and four roofs, the rock's face fading down by how far below the lip it is, the
+      ladder, the main going down; then the lip's own edge and the lane's end; its heights are counted from the lip's
+      corner, `yL`), `kerb` (`stoneBlock`), `hill` (the heap and the bank), `drain` (and at its foot keeping candles, a
+      boot on the flags, a board with a cross daubed on it), `southThings` (`stack`, two lengths of rail, the rondel
+      ball), `southShadows`. After the light: `dropShade` (the yard's light taken off the view down again) and `southOver`
+      (the heap, the drain, the kerb and the stack laid again part way, as `crisp` does the wall things). The fight's key
+      light (`SETY`) and the fall toward us go by the kerb.
+    - What the layer's light takes the dark out of is drawn by `live()` from pictures made once (`southLive`): the dark in
+      the pipe, `gratePiece`, `deadPiece` (the dead tree over the drain's left wing: in the layer it stood pale).
+    - The pieces (`southPieces`, each at its depth, a thing that runs back from us at its front; a man may stand behind
+      them): `shedSPiece`, `mainPiece` (the standpipe and its chit box, the valve with Tarr's rag, a clamped leak, the bend
+      over the lip, the pails), `railPiece` (poles and rope, a pallet bay, the hoist and its winch, the bench, the keeping
+      candles, the ladder's head, two lamp poles and a line of lamps from the hoist's head; drawn after everyone: nobody
+      stands beyond it), `firePiece`, `cartPiece`, `gardenPiece(0)` and `(1)` (a row of two beds each: a man in the aisle
+      between is before one and behind the other), `treePiece` (`bareTree`, as the dead tree is), `wagonPiece`,
+      `pilePiece`, `tablePiece`, `postPiece`.
     - What grows there is in `grow()` after everything the old yard grows (the old plants are the same plants). What moves:
-      `southLive` (the gully's glints, the drain's drips and breath, eyes back in the pipe every 23 s, a rat along the bank
-      after dark every 29 s, the cut's fires, lamps, smoke, birds and mist) and on the pieces `railLive` (the hoist's fall
-      and basket, the rags, the candles after dark), `mainLive`, `fireLive`, `shedLive`. With reduced motion nothing of it
-      moves, and the eyes, the rat and the birds are left out.
-    - What is the lore's: Tarr's main and his blue on its valve and chit box; the cup, the card and the sign of a Hushfolk
-      pitch left at the drain (the world bible's silent rows); rondel's court and its score; the keeping candles and the rags
-      tied by them; the bar's own name for the hole it stands by. Nothing is written anywhere in it.
-    - The layers test opens the painter for its bands (spike/layers/build_layers.py, `YARD`): the three patches that name
-      paint's last lines and the E.S.yard line follow these changes; the south is on the near band.
-    - Not done: nothing in the south can be used (no spots: the walk-about's checks count them). The drain and the lip are
-      places to stand at.
+      `southLive` (the gully's glints, the drain's drips and breath, eyes back in the pipe every 23 s, its candles after
+      dark, a rat along the bank's foot after dark every 29 s, the cut's fires, lamps, smoke, birds and mist) and on the
+      pieces `railLive` (the hoist's fall and basket, the rags, the candles and the line of lamps after dark), `mainLive`,
+      `fireLive`, `shedLive`, `treeLive` (the tyre on its rope), `tableLive` (its lantern after dark). With reduced motion
+      nothing of it moves, and the eyes, the rat and the birds are left out.
+    - What is the lore's: Tarr's main and his blue on its valve and chit box, and the pails that keep a place at his
+      standpipe; the cup, the card and the sign of a Hushfolk pitch left at the drain (the world bible's silent rows);
+      rondel's court, its ball and its score; the keeping candles and the rags tied by them, at the lip and at the drain's
+      mouth; the bar's own name for the hole it stands by; a fight house's practice ground. Nothing is written anywhere in
+      it.
+    - The layers test opens the painter for its bands (spike/layers/build_layers.py, `YARD`): the patches that name paint's
+      last lines and the E.S.yard line follow these changes; the south is on the near band.
+    - Checked: the yard's places alone in the look review (`python3 test.py places yard1 list night sh1`: clean, frames 15
+      to 19 ms against the fall's 49), the drawfree and Act I page suites, the quick tier, the layers test's probe on the
+      yard and the walk.
+    - Not done: nothing in the south can be used (no spots: the walk-about's checks count them). The drain, the lip, the
+      table and the practice ground are places to stand at. The publishing checks for a version have not been run on it.
   - Scene 5 opens in the same yard and takes the same frame: the back door's shot for Tamm's list, and the walk about's view,
     camera and blocks (sk_pit5.js). Scene 8, the yard at night, keeps its own wide view: its plates lie where he spills them
     and its buttons stand on the right, neither tried against the closer frame.

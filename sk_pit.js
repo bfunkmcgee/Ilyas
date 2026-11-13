@@ -101,13 +101,14 @@ const ACT1_PLACES={
     // at the lip of the quarry's last cut (lip: its line, x and d, from the right; past the kerb it turns toward us), the shed by
     // it (shed: its box, its height at the front and at the back). On the floor between: a fire ring, a table by the rondel
     // court, a tree, the practice ground (ring: its middle and its half widths; post: the straw man), the quarry's tram road in from the
-    // hoist with a wagon left on it, a handcart by the kerb, pails left in a line at the standpipe (queue). Nothing here stands
+    // hoist with a wagon left on it and its spare sleepers piled by it (pile), a handcart by the kerb, pails left in a line by the
+    // standpipe (queue). Nothing here stands
     // higher than lets a man at DEP_MIN be seen whole behind it)
     south:{z0:-420,x1:990,east:-44,bank:{x1:300,d0:-300,d1:-130,x2:240,d2:-184},drain:{x:168,d:-300,r:54,wing:56},kerb:-430,
       lip:[[1180,-374],[962,-392],[780,-406],[652,-430],[616,-524],[590,-870]],shed:{x0:880,x1:992,d0:-320,d1:-248,h:160,hb:132},
       fire:{x:420,d:-100,r:22},cart:{x0:508,x1:612,d:-400},beds:[[70,150,-60,-28],[166,246,-64,-32],[84,164,-112,-80],[180,256,-116,-84]],
       tree:{x:430,d:-356},ring:{x:470,d:-282,rx:70,rd:46},post:{x:532,d:-262},wagon:{x0:790,x1:834,d0:-222,d1:-170},
-      table:{x0:652,x1:742,d0:-214,d1:-192},queue:{x:352,d0:-422,d1:-384}}},
+      table:{x0:652,x1:742,d0:-214,d1:-192},queue:{x:380,d0:-412,d1:-374},pile:{x0:806,x1:850,d0:-286,d1:-262}}},
   // the stair-streets: two flights up the Pit's wall, each a scene of its own and each rising left to right on this one ground (the
   // steps are the ground; a landing at each end). S.act1.flight says which: 'lane', the Lane stair, from the first landing over the
   // lane (the short flight up from the lane comes in from the left) to the switchback at its top, where Tarr's collectors keep their

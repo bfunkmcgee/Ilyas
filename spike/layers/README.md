@@ -161,13 +161,17 @@ about half of it, or none), the dust and the parallax. The button beside it swit
 
 ## The yard's south (V118, in work)
 
-The test page is built from the working tree, so it shows the yard as the branch has it: the floor run on south to a drain in a
-bank of spoil, a kerb with Tarr's main on it, and the lip of the quarry's last cut with a shed by it (GUIDE.md, "The yard's
-south"). It is the first place to walk about in it. What that means for the layers:
+The test page is built from the working tree, so it shows the yard as the branch has it: the floor run on south, twice as far as
+it first was, to a drain in a bank of spoil, a kerb with Tarr's main on it, and the lip of the quarry's last cut with a shed by
+it; a garden, a practice ground, the quarry's tram road and more between (GUIDE.md, "The yard's south"). It is the first place
+to walk about in it. What that means for the layers:
 
-- The south is on the near band with the rest of the floor: its pieces (the shed, the main, the rail and hoist, the fire, the
-  cart) go on the stage's sheet with the people, and what moves in the picture (the gully, the drain, the cut) on the plate.
-- The yard's painter is opened by the same three patches, which follow its changed lines (`YARD` in build_layers.py: the south's
-  shade and its second painting are with the light and the over pass).
+- The south is on the near band with the rest of the floor: its pieces (the shed, the main, the rail and hoist with their lamps,
+  the fire, the cart, the garden's two rows, the tree, the wagon, the sleepers, the table, the straw man) go on the stage's
+  sheet with the people, and what moves in the picture (the gully, the drain, the cut) on the plate.
+- The yard's layer is higher than the others (1200 world units where they have 960: `EnvLook.S.yard.deep`). The sheets take
+  their size from the game's layer, so nothing here had to change for it; at 2.4 pixels a unit it is 3072 x 2880.
+- The yard's painter is opened by the same patches, which follow its changed lines (`YARD` in build_layers.py: the south's
+  shade and its second painting are with the light and the over pass; the E.S.yard line names the layer's height now).
 - The focus follows him south: the Sump goes soft behind him, and the view down past the lip is soft as the nearest rows are.
-- `probe.js` on the yard: the sums agree, flat and on the sheets, with the walk about begun.
+- `probe.js` on the yard and on the walk: the sums agree, flat and on the sheets, with the walk about begun.

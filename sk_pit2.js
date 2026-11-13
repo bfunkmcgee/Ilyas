@@ -197,12 +197,12 @@ const YARD_BLOCKS=[{x0:506,x1:606,z0:110,z1:137},{x0:234,x1:298,z0:140,z1:180},{
 // (and in the yard's south, since V118: the spoil bank, in two parts as it narrows to its end, and the headwall's two wing walls;
 // everything right of the old floor's edge above the south's own right side; the shed; the fire ring with its seats; the handcart
 // by the kerb; the garden's beds, each with a hand's room behind it for what grows in it; the tree; the straw man's post; the
-// wagon; the table and its benches; the pails at the standpipe)
+// wagon and the sleepers piled by it; the table and its benches; the pails at the standpipe)
 const YARD_BLOCKS_S=(()=>{const Y=ACT1_PLACES.yard,So=Y.south,B=So.bank,D=So.drain,F=So.fire,C=So.cart,Sh=So.shed,Wg=So.wagon,Tb=So.table,Tr=So.tree,Po=So.post,Qu=So.queue,w0=D.x-D.r-18,w1=D.x+D.r+18;
   return[{x0:-400,x1:B.x1,z0:B.d0-4,z1:B.d2},{x0:-400,x1:B.x2,z0:B.d2,z1:B.d1},{x0:-400,x1:w0+2,z0:D.d-D.wing,z1:D.d+2},{x0:w1-2,x1:w1+30,z0:D.d-D.wing,z1:D.d+2},
     {x0:Y.floor.x1,x1:1300,z0:So.east,z1:400},{x0:Sh.x0-6,x1:1300,z0:Sh.d0-4,z1:Sh.d1+8},{x0:F.x-F.r-40,x1:F.x+F.r+46,z0:F.d-16,z1:F.d+16},{x0:C.x0,x1:C.x1,z0:So.z0-20,z1:C.d+14},
     ...So.beds.map(b=>({x0:b[0]-3,x1:b[1]+3,z0:b[2]-3,z1:b[3]+12})),{x0:Tr.x-12,x1:Tr.x+12,z0:Tr.d-7,z1:Tr.d+7},{x0:Po.x-12,x1:Po.x+12,z0:Po.d-7,z1:Po.d+7},
-    {x0:Wg.x0-4,x1:Wg.x1+4,z0:Wg.d0-4,z1:Wg.d1+4},{x0:Tb.x0-4,x1:Tb.x1+4,z0:Tb.d0-16,z1:Tb.d1+16},{x0:Qu.x-14,x1:Qu.x+14,z0:So.z0-20,z1:Qu.d1+12}];})();
+    {x0:Wg.x0-4,x1:Wg.x1+4,z0:Wg.d0-4,z1:Wg.d1+4},{x0:Tb.x0-4,x1:Tb.x1+4,z0:Tb.d0-16,z1:Tb.d1+16},{x0:Qu.x-18,x1:Qu.x+18,z0:So.z0-20,z1:Qu.d1+12},{x0:So.pile.x0-4,x1:So.pile.x1+4,z0:So.pile.d0-4,z1:So.pile.d1+4}];})();
 YARD_BLOCKS.push(...YARD_BLOCKS_S);
 // the yard's floor as he may walk it: the old floor and the south, its foot along the lip at the right (he stands a pace back from
 // it: the rail is between), run on at its left end down to the floor's own foot
