@@ -136,9 +136,11 @@ const YARD_VIEWN=440,YARD_VIEWS=900,YARD_FOOT=492,YARD_HUD=90;
 // (since V118 the floor runs on south, and the picture goes down it with him: nothing moves while he is in the yard's back half, deeper
 // than YARD_SLIDE.d; from there to the floor's foot the band comes down by so much (dy on a wide screen, dyN on an upright phone),
 // so the floor's foot stands clear of the panels when he is on it. On the ground before the shed the picture comes down further
-// (over, overN) and looks out past the lip: yardLook, 0 to 1, by how near the lip he stands)
-const YARD_SLIDE={d:100,dy:190,dyN:158,over:118,overN:150};
-function yardLook(K){return sstep(clamp((K.station-640)/150,0,1))*sstep(clamp((-116-K.dep)/50,0,1));}
+// (over, overN) and looks out past the lip: yardLook, 0 to 1, by how near the lip he stands, from the shed's front on south.
+// The floor runs twice as far as it did when this was written, and the picture comes down so much further: its foot is the
+// kerb's, 33 units under the floor's own)
+const YARD_SLIDE={d:100,dy:358,dyN:326,over:130,overN:160};
+function yardLook(K){const Sh=ACT1_PLACES.yard.south.shed;return sstep(clamp((K.station-640)/150,0,1))*sstep(clamp((Sh.d0+10-K.dep)/44,0,1));}
 function yardDown(K,narrow){const So=ACT1_PLACES.yard.south,y=prjY(GB,K.dep),y0=prjY(GB,YARD_SLIDE.d),y1=prjY(GB,So.z0);
   return sstep(clamp((y-y0)/(y1-y0),0,1))*(narrow?YARD_SLIDE.dyN:YARD_SLIDE.dy)+yardLook(K)*(narrow?YARD_SLIDE.overN:YARD_SLIDE.over);}
 function yardShot(name,k,o){const Sh=YARD_SHOTS[name],rm=typeof reduceMotion!=='undefined'&&reduceMotion;camTo(o&&o.x!=null?o.x:Sh.x,Sh.w,rm?0:k);
@@ -192,11 +194,15 @@ ACT1_PLACES.yard.dobSeat={x:690,d:170,crate:true};ACT1_PLACES.yard.floor.z1=164;
 {const Cr=ACT1_PLACES.yard.crates[1];ARENAS.yard.ground=(x,d)=>d!=null&&d>=Cr.d-4&&d<=Cr.d+6&&Math.abs(x-Cr.x)<=Cr.w/2?GB-Cr.h:GB;}
 // what stands on the yard's floor, that he walks round (the pump and its trough, the two barrels, the crates by Dob)
 const YARD_BLOCKS=[{x0:506,x1:606,z0:110,z1:137},{x0:234,x1:298,z0:140,z1:180},{x0:641,x1:708,z0:146,z1:180}];
-// (and in the yard's south, since V118: the spoil bank and the headwall in it, its two wing walls, everything right of the old
-// floor's edge down to the ground before the shed, the fire ring, the handcart by the kerb)
-const YARD_BLOCKS_S=(()=>{const So=ACT1_PLACES.yard.south,B=So.bank,D=So.drain,F=So.fire,C=So.cart,w0=D.x-D.r-18,w1=D.x+D.r+18;
-  return[{x0:-400,x1:B.x1,z0:B.d0-4,z1:B.d1},{x0:-400,x1:w0+2,z0:D.d-D.wing,z1:D.d+2},{x0:w1-2,x1:w1+30,z0:D.d-D.wing,z1:D.d+2},
-    {x0:ACT1_PLACES.yard.floor.x1,x1:1300,z0:So.shed.d0-4,z1:400},{x0:F.x-F.r-22,x1:F.x+F.r+22,z0:F.d-16,z1:F.d+16},{x0:C.x0,x1:C.x1,z0:So.z0-20,z1:C.d+14}];})();
+// (and in the yard's south, since V118: the spoil bank, in two parts as it narrows to its end, and the headwall's two wing walls;
+// everything right of the old floor's edge above the south's own right side; the shed; the fire ring with its seats; the handcart
+// by the kerb; the garden's beds, each with a hand's room behind it for what grows in it; the tree; the straw man's post; the
+// wagon; the table and its benches; the pails at the standpipe)
+const YARD_BLOCKS_S=(()=>{const Y=ACT1_PLACES.yard,So=Y.south,B=So.bank,D=So.drain,F=So.fire,C=So.cart,Sh=So.shed,Wg=So.wagon,Tb=So.table,Tr=So.tree,Po=So.post,Qu=So.queue,w0=D.x-D.r-18,w1=D.x+D.r+18;
+  return[{x0:-400,x1:B.x1,z0:B.d0-4,z1:B.d2},{x0:-400,x1:B.x2,z0:B.d2,z1:B.d1},{x0:-400,x1:w0+2,z0:D.d-D.wing,z1:D.d+2},{x0:w1-2,x1:w1+30,z0:D.d-D.wing,z1:D.d+2},
+    {x0:Y.floor.x1,x1:1300,z0:So.east,z1:400},{x0:Sh.x0-6,x1:1300,z0:Sh.d0-4,z1:Sh.d1+8},{x0:F.x-F.r-40,x1:F.x+F.r+46,z0:F.d-16,z1:F.d+16},{x0:C.x0,x1:C.x1,z0:So.z0-20,z1:C.d+14},
+    ...So.beds.map(b=>({x0:b[0]-3,x1:b[1]+3,z0:b[2]-3,z1:b[3]+12})),{x0:Tr.x-12,x1:Tr.x+12,z0:Tr.d-7,z1:Tr.d+7},{x0:Po.x-12,x1:Po.x+12,z0:Po.d-7,z1:Po.d+7},
+    {x0:Wg.x0-4,x1:Wg.x1+4,z0:Wg.d0-4,z1:Wg.d1+4},{x0:Tb.x0-4,x1:Tb.x1+4,z0:Tb.d0-16,z1:Tb.d1+16},{x0:Qu.x-14,x1:Qu.x+14,z0:So.z0-20,z1:Qu.d1+12}];})();
 YARD_BLOCKS.push(...YARD_BLOCKS_S);
 // the yard's floor as he may walk it: the old floor and the south, its foot along the lip at the right (he stands a pace back from
 // it: the rail is between), run on at its left end down to the floor's own foot

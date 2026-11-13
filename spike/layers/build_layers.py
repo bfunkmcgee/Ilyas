@@ -48,8 +48,8 @@ YARD = (
      "K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);}\n",
      "  {const srcs=[{x:STOVE.x,y:STOVE.y,s:5,sp:.1,n:8,h:180,dx:24,a:.55}],src2=[];for(const ch of NEARCH)src2.push({x:ch.x,y:ch.y,s:4,sp:.09,n:6,h:120,dx:16,a:.45,ph:ch.x*.013});"
      "K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);\n    ctx.save();if(__L&&__L.mid)__L.mid(ctx);K.smoke(ctx,src2,t,P.smoke,T==='night'?.6:1);ctx.restore();}\n"),
-    ("E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:true};",
-     "E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:true,bands:1};"),
+    ("E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90};",
+     "E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90,bands:1};"),
 )
 
 

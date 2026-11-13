@@ -92,16 +92,22 @@ const ACT1_PLACES={
   yard:{far:232,door:{x:170,d:226,w:46},step:{x:170,d:206,h:16},window:{x0:286,x1:346,y0:150,y1:104},pump:{x:520,d:118,r:22},trough:{x0:540,x1:600,d:126},
     bucket:{x:496,d:104},gate:{x:836,d:120,w:60},ladder:{x:392,d:224,top:150},sidestair:{x0:30,x1:118,d:200},wall:{x0:600,x1:900,d:214,h:64},dobSeat:{x:712,d:214},
     barrels:[{x:250,d:150,r:16},{x:282,d:164,r:15}],crates:[{x:660,d:156,w:34,h:30},{x:690,d:170,w:30,h:26}],floor:{x0:40,x1:800,z0:30,z1:170},
-    // (since V118 the yard runs on toward us, south on the Pit map, past where a fight goes: z0 its foot, x1 how far right its
-    // floor goes before the shed. The spoil bank at its left with the drain's mouth in a headwall (bank: its right end, its face's
-    // depth and its back; drain: the mouth's middle, the face, the pipe's radius, how far each wing wall comes forward). The kerb
-    // along its foot that Tarr's main lies on, the lane beyond. At its right the Floor ends at the lip of the quarry's last cut
-    // (lip: its line, x and d, from the right; past the kerb it turns toward us), the shed by it (shed: its box, its height at the
-    // front and at the back), a fire ring and a handcart on the floor between. Nothing here stands higher than lets a man at
-    // DEP_MIN be seen whole behind it, the shed apart, which stands clear of the floor's right edge)
-    south:{z0:-196,x1:990,bank:{x1:252,d0:-116,d1:8},drain:{x:156,d:-116,r:37,wing:38},kerb:-206,
-      lip:[[1180,-150],[962,-168],[780,-182],[652,-206],[616,-300],[596,-560]],shed:{x0:890,x1:1002,d0:-122,d1:-50,h:160,hb:132},
-      fire:{x:453,d:-118,r:22},cart:{x0:508,x1:612,d:-176}}},
+    // (since V118 the yard runs on toward us, south on the Pit map, past where a fight goes, twice as far again as the old floor is
+    // deep: z0 its foot, x1 how far right its floor goes, east how far up its right side a man may come (the old fence's end and
+    // the junk at it are above that). At its left the quarry's spoil heap, and a bank of it out across the floor with the drain's
+    // mouth in a headwall on its south face (bank: its right end, its face's depth and its back's foot; drain: the mouth's middle,
+    // the face, the pipe's radius, how far each wing wall comes forward). Between the bank and the old floor a kitchen garden
+    // (beds: each x0, x1, d0, d1). The kerb along its foot that Tarr's main lies on, the lane beyond. At its right the Floor ends
+    // at the lip of the quarry's last cut (lip: its line, x and d, from the right; past the kerb it turns toward us), the shed by
+    // it (shed: its box, its height at the front and at the back). On the floor between: a fire ring, a table by the rondel
+    // court, a tree, the practice ground (ring: its middle and its half widths; post: the straw man), the quarry's tram road in from the
+    // hoist with a wagon left on it, a handcart by the kerb, pails left in a line at the standpipe (queue). Nothing here stands
+    // higher than lets a man at DEP_MIN be seen whole behind it)
+    south:{z0:-420,x1:990,east:-44,bank:{x1:300,d0:-300,d1:-130,x2:240,d2:-184},drain:{x:168,d:-300,r:54,wing:56},kerb:-430,
+      lip:[[1180,-374],[962,-392],[780,-406],[652,-430],[616,-524],[590,-870]],shed:{x0:880,x1:992,d0:-320,d1:-248,h:160,hb:132},
+      fire:{x:420,d:-100,r:22},cart:{x0:508,x1:612,d:-400},beds:[[70,150,-60,-28],[166,246,-64,-32],[84,164,-112,-80],[180,256,-116,-84]],
+      tree:{x:430,d:-356},ring:{x:470,d:-282,rx:70,rd:46},post:{x:532,d:-262},wagon:{x0:790,x1:834,d0:-222,d1:-170},
+      table:{x0:652,x1:742,d0:-214,d1:-192},queue:{x:352,d0:-422,d1:-384}}},
   // the stair-streets: two flights up the Pit's wall, each a scene of its own and each rising left to right on this one ground (the
   // steps are the ground; a landing at each end). S.act1.flight says which: 'lane', the Lane stair, from the first landing over the
   // lane (the short flight up from the lane comes in from the left) to the switchback at its top, where Tarr's collectors keep their

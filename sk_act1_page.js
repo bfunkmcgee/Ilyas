@@ -256,8 +256,8 @@ function expect(label,cond,info){rep.push((cond?'ok   ':'FAIL ')+label+(process.
     out.back=go(Y.step.x+46,Y.floor.z1-14);out.hit=hit;out.off=off;out.minDep=Math.round(minDep);storyQuit();out.zMinAfter=hero().zMin??null;return out;});
   expect('the yard\'s south: his own near limit goes with the floor; he is sent to the drain\'s mouth by a way round the bank and its wing, to the ground before the shed, and past the lip only as far as the floor goes; steered at the lip he goes along it; never inside anything that stands there, never off the floor; and back; the limit is gone when the story is left',
     south.zMin===south.want.z0&&south.drain.x===south.want.dx&&south.drain.z===south.want.dz&&south.drain.way>=2&&
-    south.shed.x===south.want.sx&&south.shed.z===south.want.sz&&south.over.x>900&&south.over.z<-140&&south.slid>40&&
-    south.hit===0&&south.off===0&&south.minDep<-150&&south.back.x===south.want.bx&&south.back.z===south.want.bz&&south.zMinAfter===null,JSON.stringify(south));
+    south.shed.x===south.want.sx&&south.shed.z===south.want.sz&&south.over.x>900&&south.over.z<-340&&south.slid>40&&
+    south.hit===0&&south.off===0&&south.minDep<-370&&south.back.x===south.want.bx&&south.back.z===south.want.bz&&south.zMinAfter===null,JSON.stringify(south));
 
   // ---- scene 5: Tamm's list (when the build has it) ----
   const has5=await ev(()=>typeof errand==='function'&&stageIx('list')>=0);
