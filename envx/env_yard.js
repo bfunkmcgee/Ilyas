@@ -348,8 +348,8 @@ const L=()=>typeof ACT1_PLACES!=='undefined'&&ACT1_PLACES.yard?ACT1_PLACES.yard:
 const L0={far:232,door:{x:170,d:226,w:46},step:{x:170,d:206,h:16},window:{x0:286,x1:346,y0:150,y1:104},pump:{x:520,d:118,r:22},trough:{x0:540,x1:600,d:126},
   gate:{x:836,d:120,w:60},ladder:{x:392,d:224,top:150},sidestair:{x0:30,x1:118,d:200},wall:{x0:600,x1:900,d:214,h:64},dobSeat:{x:690,d:170,crate:true},
   barrels:[{x:250,d:150,r:16},{x:282,d:164,r:15}],crates:[{x:660,d:156,w:34,h:30},{x:690,d:170,w:30,h:26}],floor:{x0:40,x1:800,z0:30,z1:170},stairGate:{x:126,d:196,w:34},
-  south:{z0:-196,x1:950,bank:{x1:252,d0:-116,d1:8},drain:{x:156,d:-116,r:37,wing:38},kerb:-206,
-    lip:[[1180,-150],[962,-168],[780,-182],[652,-206],[616,-300],[596,-560]],shed:{x0:850,x1:962,d0:-122,d1:-50,h:160,hb:132},
+  south:{z0:-196,x1:990,bank:{x1:252,d0:-116,d1:8},drain:{x:156,d:-116,r:37,wing:38},kerb:-206,
+    lip:[[1180,-150],[962,-168],[780,-182],[652,-206],[616,-300],[596,-560]],shed:{x0:890,x1:1002,d0:-122,d1:-50,h:160,hb:132},
     fire:{x:453,d:-118,r:22},cart:{x0:508,x1:612,d:-176}}};
 const Y=()=>L()||L0;
 // the yard's south (the game's layout where it has one)
@@ -1080,7 +1080,7 @@ function hill(c,P){const So=SO(),H=hillPts(),sh=(col,k)=>K.shade(P,col,k),r=rng(
     // (it lies in lifts, each tipped over the last: where one ends its edge shows, broken, dark under and the light on its brow)
     for(const [hh,d0,d1] of [[30,-560,-190],[26,-130,90],[62,-520,-60],[58,-10,120],[98,-560,-230],[104,-170,60]]){for(const dy of [0,1.8]){c.beginPath();let on=false;
         for(let d=d0;d<=d1;d+=10){const w=Math.sin(d*.05+hh)*6+Math.sin(d*.13+hh*.3)*3,p=Q(toeX(d)-(hh+w)/.9,hh+w+dy,d);if(p.x<-262||(((d-d0)/10|0)*7+hh)%13===0){on=false;continue;}on?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y);on=true;}
-        c.strokeStyle=dy?rgba(P.light,.03+.08*LA):rgba('#000000',.2);c.lineWidth=dy?1.2:2.6;c.stroke();}}
+        if(dy){c.strokeStyle=rgba(P.light,.03+.08*LA);c.lineWidth=1.2;}else{c.strokeStyle=rgba('#000000',.2);c.lineWidth=2.6;}c.stroke();}}
     // (rubble in it: stones and lumps of old mortar, more of them low down where they have rolled)
     for(let i=0;i<190;i++){const d=-540+r()*670,dx=r()*r()*160+2,x=toeX(d)-dx,p=Q(x,dx*.9,d),rx=1.6+r()*3.8,v=r();
       c.fillStyle=rgba('#000000',.3);c.beginPath();c.ellipse(p.x+.8,p.y+rx*.45,rx*1.1,rx*.5,0,0,TAU);c.fill();
@@ -1264,7 +1264,7 @@ function dropView(c,P){const So=SO(),R0=rim(),sh=(col,k)=>K.shade(P,col,k),r=rng
       if(Math.abs(dx)>3){c.fillStyle=rgba('#000000',.3);for(let q=0,n=1+(r()*2.4|0);q<n;q++){const u=r(),l=10+r()*42;c.fillRect(lerp(a.x,b.x,u)-.75,lerp(a.y,b.y,u)+1,1.5,l);}}}
     // (its beds: two broken ledges along it, the light on each)
     for(const off of [17,40]){for(const dy of [0,-1.5]){c.beginPath();let on=false;pts.forEach((p,i)=>{if(i>pts.length-12||(i*5+off)%7===0){on=false;return;}const y=p.y+off+Math.sin(i*.9+off)*2.2+dy;on?c.lineTo(p.x,y):c.moveTo(p.x,y);on=true;});
-        c.strokeStyle=dy?rgba(P.light,(.03+.1*LA)*(off<30?1:.6)):rgba('#000000',off<30?.34:.2);c.lineWidth=dy?1.2:2;c.stroke();}}
+        if(dy){c.strokeStyle=rgba(P.light,(.03+.1*LA)*(off<30?1:.6));c.lineWidth=1.2;}else{c.strokeStyle=rgba('#000000',off<30?.34:.2);c.lineWidth=2;}c.stroke();}}
     // (wet run down it, green under where the water comes over; a fern or two out of the cracks)
     for(const xs of [690,812,905,1046,1130]){const p=Q(xs,0,lipAt(xs));c.fillStyle=lin(c,0,p.y,0,p.y+60,[[0,rgba('#050403',.4)],[1,rgba('#050403',0)]]);c.fillRect(p.x-4,p.y,7+r()*6,60);c.fillStyle=lin(c,0,p.y,0,p.y+36,[[0,rgba(sh('#3c4a2c'),.45)],[1,rgba(sh('#3c4a2c'),0)]]);c.fillRect(p.x-1,p.y,5,36);}
     for(const [xs,dy] of [[736,12],[858,22],[980,9],[1100,18],[660,26]]){const p=Q(xs,0,lipAt(xs));c.fillStyle=sh('#34442a',1.05);for(let q=0;q<5;q++){const an=.5+q*.5,l=5+r()*5;c.beginPath();c.moveTo(p.x,p.y+dy);c.quadraticCurveTo(p.x+Math.cos(an)*l*.6,p.y+dy-2,p.x+Math.cos(an)*l,p.y+dy+Math.sin(an)*l*.7);c.quadraticCurveTo(p.x+Math.cos(an)*l*.5,p.y+dy+1.6,p.x,p.y+dy+1.4);c.closePath();c.fill();}}}

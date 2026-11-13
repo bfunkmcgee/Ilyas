@@ -99,8 +99,8 @@ const ACT1_PLACES={
     // (lip: its line, x and d, from the right; past the kerb it turns toward us), the shed by it (shed: its box, its height at the
     // front and at the back), a fire ring and a handcart on the floor between. Nothing here stands higher than lets a man at
     // DEP_MIN be seen whole behind it, the shed apart, which stands clear of the floor's right edge)
-    south:{z0:-196,x1:950,bank:{x1:252,d0:-116,d1:8},drain:{x:156,d:-116,r:37,wing:38},kerb:-206,
-      lip:[[1180,-150],[962,-168],[780,-182],[652,-206],[616,-300],[596,-560]],shed:{x0:850,x1:962,d0:-122,d1:-50,h:160,hb:132},
+    south:{z0:-196,x1:990,bank:{x1:252,d0:-116,d1:8},drain:{x:156,d:-116,r:37,wing:38},kerb:-206,
+      lip:[[1180,-150],[962,-168],[780,-182],[652,-206],[616,-300],[596,-560]],shed:{x0:890,x1:1002,d0:-122,d1:-50,h:160,hb:132},
       fire:{x:453,d:-118,r:22},cart:{x0:508,x1:612,d:-176}}},
   // the stair-streets: two flights up the Pit's wall, each a scene of its own and each rising left to right on this one ground (the
   // steps are the ground; a landing at each end). S.act1.flight says which: 'lane', the Lane stair, from the first landing over the
