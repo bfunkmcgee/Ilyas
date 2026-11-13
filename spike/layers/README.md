@@ -63,7 +63,9 @@ python3 spike/layers/build_layers.py
 
 That writes `spike/layers/out/layers-test.html` and `out/index.html`, wrapped for publishing. In that copy of the page the yard's
 painter is opened so that it can paint its bands apart (the `YARD` list in `build_layers.py`: each piece of the painter's text
-must be found once, or the build stops). `envx/env_yard.js` itself is not changed. The page carries the motion test as
+must be found once, or the build stops). The test changes nothing in `envx/env_yard.js`. Since the yard's painter lays some things
+over its own light (the things along the walls a second time, what grows: the V118 work on the yard), the band the yard itself
+is on gets them in that order too: the light, those, then the place's key light. The page carries the motion test as
 well (spike/motion: the drawn pose and its panel), and opens on its walk across the yard. It is published as a private test page
 of its own, "Ilyas: layers test" (artifact 4d618786-0672-492b-89f5-519c9ad07370: index.html and the sounds the test's scenes
 play), beside the game's page and the motion test's, which it does not touch.

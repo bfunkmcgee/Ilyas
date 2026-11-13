@@ -226,8 +226,10 @@ function bandsMake(k,L){
   // picture above the layer goes over that. Here that picture is on the far band's sheet, under the plate: no fill)
   L.lyNear=true;L.row=null;
   plain(c);c.clearRect(0,0,L.cv.width,L.cv.height);world();X.paint(c,'near');
-  const M=mk(L.cv.width,L.cv.height);M.g.drawImage(L.cv,0,0);
-  plain(c);world();bandLight(k,c,RC.x0,RC.w);keepOnly(c,M);world();
+  // (the yard's painter lays some things over its light: the things along the walls again, what grows. As in the whole picture:
+  // the light, then those, then the place's key light over it all; and the band keeps what either painting covered)
+  const M=mk(L.cv.width,L.cv.height);M.g.drawImage(L.cv,0,0);M.g.setTransform(sc,0,0,sc,-RC.x0*sc,-RC.y0*sc);X.paint(M.g,'over');
+  plain(c);world();X.paint(c,'light');X.paint(c,'over');if(!X.setLive){const G0=setOf(k);if(G0)setDraw(c,G0,RC.x0,RC.w);}keepOnly(c,M);world();
   for(const b of PX?[PX.far,PX.mid]:[])if(b)b.cv.width=b.cv.height=0;
   PX={k,L,soft:null,far:null,mid:null,up:false,ms:0};bandsFar();PX.ms=performance.now()-t0;}
 // the two far bands: small where the focus will blur them anyway (a quarter and a half of the layer's scale at full focus, a
