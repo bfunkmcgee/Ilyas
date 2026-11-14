@@ -1252,7 +1252,8 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   - The yard's south, for V118 (in work on the branch claude/v118-south: not published). Asked for: the yard opened out at the
     south of the screen with more floor to walk, a shed and a small view over the edge of the pit at one corner, an ominous
     drainpipe entrance near the other, the rest filled with scenery and props that belong to the Pit. Then: it looked too
-    condensed, so twice as far south again, and the details filled in.
+    condensed, so twice as far south again, and the details filled in. Then: many props and parts of the place looked too
+    small beside the characters ("How big things are", below).
     - Where it is: `ACT1_PLACES.yard.south` (sk_pit.js; the painter keeps a copy in `L0`). The floor runs on toward us from the
       old front to `z0` (-420; it was -196), past DEP_MIN, and right as far as `x1`; `east` is how far up its right side a
       man may come (the old fence's end and the junk at it are above that). Left: the quarry's spoil heap down the west
@@ -1264,17 +1265,63 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
       Between: the yard's water runs on from the big puddle down a gully to the drain (`GULLY`), crossed on planks and on
       stones; a court chalked for rondel (`COURT`) with a table by it (`table`); a fire ring; the practice ground (`ring`,
       and the straw man on his `post`); a tree with a tyre on a rope (`tree`); the quarry's tram road in from the hoist
-      (`TRACK`) with a tipping wagon left on it (`wagon`) and its spare sleepers piled by it (`pile`); a handcart of kegs;
+      (`TRACK`: its end, a baulk across it) with a tipping wagon left on it (`wagon`); a handcart of kegs;
       pails left in a line by the standpipe (`queue`); the quarry's stock of cut stone stacked past the floor's right edge.
     - How high things may stand. A thing h high at depth d hides the floor behind it as far as d + h/.75. Nothing in the
       south hides the floor a fight uses (DEP_MIN and deeper): at depth d nothing is higher than .75 x (DEP_MIN - d). The
       far things stand twice as far off as they did and may be twice as high: the headwall is 114 at -300 (it was 80 at
-      -116), the bank's ridge 84 to 98, the tree some 170 at -356. Near the old floor things are low: the garden's far row
-      is cabbages and onions, the beans and the man of sacking stand in the near row. A tall thing also hides what stands
-      behind it in the picture: the shed (160 at -320) hides the ground north of it as far as -107, and what was first put
-      there (the wagon, the sleepers) was moved out from behind it. West of the floor's left edge (x 40) and right of its
+      -116), the bank's ridge 84 to 98, the tree some 250 at -374. Near the old floor things are low: the garden's two beds
+      hold nothing higher than a leek, and the man of sacking stands west of the floor's left edge. A tall thing also hides
+      what stands behind it in the picture: the shed (205 at -320) hides the ground north of it as far as -47, and what was
+      first put there (the wagon) was moved out from behind it. West of the floor's left edge (x 40) and right of its
       right one anything may be as high as it likes, if a man at the floor's edge is not behind it: the stone stack begins
       at x 1028, where a sight line from x 990 is 140 up.
+    - How big things are (the third pass). The measure is the man: the hero stands 154 units, so a metre is about 85 and
+      a unit a little over a centimetre. Against that the yard's props had been drawn at 55 to 65% of their size and its
+      buildings at about 80%: barrels to his knee (40), the pump's lever at his thigh (64), a chopping block 18 high, a
+      broom of 72, tyres 30 across, the fence 66 and the stair's gate 50, the lantern at his chest; the Sump's back door
+      142 (shorter than he is) under an eave of 166, the woodshed's doorway 78; in the south a shed of 160 with a door of
+      131, a table 31 high with benches of 17, a standpipe of 40, rail posts of 64, lamps below his head.
+      - How a thing is made bigger. `zoom(c, x, y, k)` scales a context about a point, `grown(x, y, k, X, Y, W, H)` is a
+        picture's box after it, `des(B)` a layout box as it was first drawn. A layout entry with a `k` holds the thing's
+        real box (what the game's blocks and the shadows go by) and how many times its first size that is; the piece keeps
+        the numbers it was drawn with and is made through the zoom, about its near left foot or its middle, so it is as
+        sharp as it was. What moves on a piece is drawn through the same zoom (`zl` in `southPieces`; the anchors are kept
+        in `SHEDS.z`, `TABLES.z`, `TREES.z`). The things along the old yard's walls are wrapped one at a time in
+        `wallThings` (it is painted twice, and `crisp`'s strip must still hold them: nothing on the wall above y 170).
+      - The south: the shed 1.28 (205 high, its door over his head), the table 1.7 (its top at his hip, benches at his
+        knee), the wagon 1.8, the fire 1.5, the cart 1.3, the tree 1.3 (its low boughs bare, so the fire shows through),
+        the straw man 1.3 and his staves 1.85, the standpipe 1.8 with pails of 1.9, the dead tree 1.4, the pitch's things
+        1.5 to 2; the garden made again as two long beds; the rail's posts 84 to 92, the hoist 236, the lamp poles over
+        200 and the lamps above a man's head; the drain 108 across (`drain.r` 54); the stone stack's blocks 54 to 88 long.
+      - The old yard: `barrels` 1.6 (65 high; of paler oak, see below), `pump` 1.5 on its stone base (the lever's grip at 89, the spout at 58; the
+        base keeps its footprint, because the sparring's lane at depth 104 passes its front edge) and `trough` 1.5 (90
+        long, 33 high), the bucket 24 across and 19 high (sk_pit2ui.js); the chopping block 1.9 and moved to
+        the woodshed's door (it stood behind the barrels), the bottle crate 1.5, the broom 1.6, the washtub 1.8, the rain
+        barrel 1.7 with the downpipe's shoe at 68, the tyres 1.65, the drum 2.1, the cartwheel 1.85 (81 across), the
+        woodpile 1.3, the bottles on the wall 1.8, the drum fire past the fence 1.8 (`DRUM.k`), the door's lantern 1.6 at
+        150, the gate's lamp at 108, the fence 92 with posts of 118, the stair's gate 78 (`SGH`), the ladder 26 wide with
+        rungs 22 apart, the washing line at 150 on a longer line with cloths of 22 to 36, the pigeons half as big again.
+      - The Sump. Its wall is up (`SUMP.eave` 166 to 190, `doorH` 142 to 168, the window 64 high) and its ridge is where
+        it was (210 to 208), so the roof is flatter. The ridge cannot go up: on the roof his head is at the top of the
+        still layers (RC.y0, -90), and the fight's frame holds the pigeon lofts with nothing to spare. He stops on the
+        roof a little short of where he did (`YARD_UP.roof`, d 250) and the roof's shot begins at the layers' top. The
+        loft's door is in the wall under the dormer (`ladder.top` 156). The stairs go to 174 in 12 treads with a rail of
+        66 (`STAIR` in the painter). The woodshed is 158 to 184 with a doorway of 142.
+      - The game's numbers that are the painter's (sk_pit2.js): `YARD_ROOF`, `YARD_LAND` 174 and `YARD_STEPS` 12;
+        `pumpGrip` and the bucket's places by `pump.k`, `PUMP_STAND`, the spout's stream (sk_pit2ui.js); `SG_RAIL` 68
+        (his hand on the gate), `LADDER_STAND`; `YARD_BLOCKS`; `YARD_SHOTS.door` and `.roof` (their bands).
+      - The barrels are props of the sparring (sk_pit9.js makes each a fixed prop at its place: a man can be driven into
+        one); `shYardProps` makes the prop `k` times its own size with the painting. Hip high, they took his legs' outline
+        where he stands before them (the look review's `outline`: 65% at the door in scene 5's shot, 56% in the night's
+        walk, where two thirds is asked): their staves are paler than his coat now, and they stand 20 east of where they
+        did, one behind the other (270 at depth 150, 300 at 190), clear of him at the door and of where the night has him.
+      - Left as they were: Dob's crates (he sits on them, and one is the floor under him, `ARENAS.yard.ground`), the
+        yard wall (64: a low wall), the neighbours' shacks and the rows behind (far things), the step, the floor itself.
+        Bigger things on the same floor stand closer: the south is fuller than it was, and it could be taken further.
+      - The tops of the south's nearest things come into the last 20 units of a fight's frame (the fire's tripod, the
+        garden's edge, the staves): under the fighters' feet, by the height rule above. The man of sacking is 147 high
+        and was moved west of the frame for it; the straw man's post was moved 20 south.
     - The picture is higher than the still layers are. RC ends at y 870 and the yard's own foot is `YFOOT` (1110, the depth
       `YNEAR` on the floor): `EnvLook.S.yard.deep` is the layer's height (a number: from RC's top down; `sceneLayerH(k)`,
       sk_scene_glue.js; `true` is RC's whole height), and the painter runs its ground, its mottle, the sun's veils and the
@@ -1288,10 +1335,10 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
       the lip turns the other way at one, and the first run's line cut most of the ground before the shed off. Things stand
       against each other there, so a man sent somewhere is given a way round them once, as he is sent (`exRoute`: the
       shortest way by the blocks' corners; `E.to.path`), where the step's own way round one thing at a time is kept for the
-      keys; `exOutOf` moves a point out of one thing without leaving it in the next. `YARD_BLOCKS_S`, 18 of them: the bank
+      keys; `exOutOf` moves a point out of one thing without leaving it in the next. `YARD_BLOCKS_S`, 19 of them: the bank
       in two parts, the wings, everything right of the old floor's edge above `east`, the shed, the fire ring with its
-      seats, the cart, each bed (with a hand's room behind it for what grows in it), the tree, the post, the wagon, the
-      pile, the table and its benches, the pails. The night scene has the yard's blocks too, and its plates are not spilled
+      seats, the cart, each bed (with a hand's room behind it for what grows in it), the tree, the post and the rack of
+      staves by it, the wagon, the table and its benches, the pails. The night scene has the yard's blocks too, and its plates are not spilled
       into them or past the lip. The Act I page suite walks it: to the drain, to the shed, past the lip, along it, and back.
     - The camera. `yardDown(K, narrow)`: nothing moves while he is in the yard's back half (deeper than `YARD_SLIDE.d`);
       from there to the floor's foot the walk about's band comes down by `dy` (`dyN` on an upright phone: 358 and 326, the
@@ -1318,9 +1365,9 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
       them): `shedSPiece`, `mainPiece` (the standpipe and its chit box, the valve with Tarr's rag, a clamped leak, the bend
       over the lip, the pails), `railPiece` (poles and rope, a pallet bay, the hoist and its winch, the bench, the keeping
       candles, the ladder's head, two lamp poles and a line of lamps from the hoist's head; drawn after everyone: nobody
-      stands beyond it), `firePiece`, `cartPiece`, `gardenPiece(0)` and `(1)` (a row of two beds each: a man in the aisle
-      between is before one and behind the other), `treePiece` (`bareTree`, as the dead tree is), `wagonPiece`,
-      `pilePiece`, `tablePiece`, `postPiece`.
+      stands beyond it), `firePiece`, `cartPiece`, `gardenPiece(0)` and `(1)` (a long bed each: a man in the aisle
+      between is before one and behind the other; the man of sacking is drawn with the second), `treePiece` (`bareTree`,
+      as the dead tree is), `wagonPiece`, `tablePiece`, `postPiece` (the straw man, the rack of staves, a lifting stone).
     - What grows there is in `grow()` after everything the old yard grows (the old plants are the same plants). What moves:
       `southLive` (the gully's glints, the drain's drips and breath, eyes back in the pipe every 23 s, its candles after
       dark, a rat along the bank's foot after dark every 29 s, the cut's fires, lamps, smoke, birds and mist) and on the

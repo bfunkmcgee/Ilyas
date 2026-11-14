@@ -178,7 +178,9 @@ function shToBout(){const L=shLesson(),R=shRec(),K=S.F[0],T=shTamm();const g=S.g
 // ---------- the stages ----------
 // the yard's barrels and crates are fixed props: a man can be driven into one or go over it backwards (the painter draws them)
 function shYardProps(){const Y=ACT1_PLACES.yard;S.props=S.props.filter(p=>!p.painted);
-  for(const B of Y.barrels){const P=addProp('barrel',B.x,B.d,1,{painted:true,fixed:true});P.hp=99;}
+  // (a barrel is painted B.k times the prop's own size since V118: the prop's points, its sticks, its box and its depth go with it)
+  for(const B of Y.barrels){const P=addProp('barrel',B.x,B.d,1,{painted:true,fixed:true}),k=B.k||1,g=S.arena.ground(B.x,B.d);P.hp=99;
+    if(k!==1){for(const q of P.pts){q.x=q.px=B.x+(q.x-B.x)*k;q.y=q.py=g+(q.y-g)*k;}P.dz*=k;rigid(P);propBox(P);}}
   for(const C of Y.crates){const P=addProp('crate',C.x,C.d,1,{painted:true,fixed:true});P.hp=99;}}
 function shStage(L,i){const next=SH_LESSONS[i+1];
   return{key:L.key,act:1,num:L.num||'',title:L.title,sub:L.sub||'The Sump’s yard',arena:'yard',next:next?next.key:null,weapon:'dagger',wear:'kit',spare:true,sh:true,

@@ -113,7 +113,7 @@ function a1Bucket(){const A=S.act1,B=A.bucket,E=S.ex,K=hero(),Y=ACT1_PLACES.yard
   if(held){const h=K.p[HAF];return{hand:true,x:h.x,y:h.y,d:K.dep,full:E.hand.id==='water',fill:E.hand.id==='water'?1:0};}
   const fl=E&&E.spots.find(s=>s.floor&&!s.gone&&s.take&&(s.take.id==='bucket'||s.take.id==='water'));
   if(fl)return{x:fl.x,y:S.arena.ground(fl.x,fl.z),d:fl.z,full:fl.take.id==='water',fill:fl.take.id==='water'?1:0};
-  if(B.where==='spout')return{x:Y.pump.x+12,y:GB,d:Y.pump.d-8,spout:true,fill:B.fill||0};
+  if(B.where==='spout')return{x:Y.pump.x+27,y:GB,d:Y.pump.d-12,spout:true,fill:B.fill||0};
   if(B.where==='floor')return{x:B.x,y:GB,d:B.d,fill:0};
   // (set down on the roof by the birds' boxes, full: where the scene's close leaves it)
   if(B.where==='roof')return{x:B.x,y:GB-(B.h||0),d:B.d,full:true,fill:1};
@@ -136,13 +136,13 @@ const A1_DRAW={
   // the bucket: wood staves and iron hoops, the bail over it; the water in it, and running from the spout while he pumps
   bucket(it){const b=it.at,q=P(b.x,b.y,b.d),A=S.act1;let x=q.x,y=q.y;
     // (in the hand it hangs from the bail under the fist)
-    if(b.hand)y+=14;
-    const w=9,h=11;ctx.fillStyle='#3d2e22';ctx.beginPath();ctx.moveTo(x-w,y-h);ctx.lineTo(x+w,y-h);ctx.lineTo(x+w*.8,y);ctx.lineTo(x-w*.8,y);ctx.closePath();ctx.fill();
+    if(b.hand)y+=22;
+    const w=12,h=19;ctx.fillStyle='#3d2e22';ctx.beginPath();ctx.moveTo(x-w,y-h);ctx.lineTo(x+w,y-h);ctx.lineTo(x+w*.8,y);ctx.lineTo(x-w*.8,y);ctx.closePath();ctx.fill();
     ctx.strokeStyle='#5c5650';ctx.lineWidth=1.51;for(const t of [.25,.75]){const yy=y-h*(1-t),ww=w*(1-.2*t);ctx.beginPath();ctx.moveTo(x-ww,yy);ctx.lineTo(x+ww,yy);ctx.stroke();}
     ctx.fillStyle='#2a2018';ctx.beginPath();ctx.ellipse(x,y-h,w,2.4,0,0,Math.PI*2);ctx.fill();
     if(b.fill>0){ctx.fillStyle='rgba(120,150,160,.85)';const yy=y-h+1+(1-b.fill)*6,sl=b.hand?Math.sin(S.t*7)*.8:0;ctx.beginPath();ctx.ellipse(x,yy+sl,w*.86,1.9,0,0,Math.PI*2);ctx.fill();
       ctx.fillStyle='rgba(230,240,245,.35)';ctx.beginPath();ctx.ellipse(x-2,yy-.4+sl,w*.4,.7,0,0,Math.PI*2);ctx.fill();}
     ctx.strokeStyle='#6a645c';ctx.lineWidth=1.5;ctx.beginPath();if(b.hand){ctx.moveTo(x-w,y-h);ctx.quadraticCurveTo(x,y-h-12,x+w,y-h);}else{ctx.moveTo(x-w,y-h);ctx.quadraticCurveTo(x-w-3,y-h-8,x-w+2,y-h-9);}ctx.stroke();
-    if(b.spout&&A.pumping){const Y=ACT1_PLACES.yard,s0=P(Y.pump.x+12,GB-36,Y.pump.d-8),k=.6+.4*Math.abs(Math.sin((S.t-A.pumping.t0)*4.5));
+    if(b.spout&&A.pumping){const Y=ACT1_PLACES.yard,s0=P(Y.pump.x+28,GB-49,Y.pump.d-12),k=.6+.4*Math.abs(Math.sin((S.t-A.pumping.t0)*4.5));
       ctx.strokeStyle=`rgba(170,195,205,${(.7*k).toFixed(2)})`;ctx.lineWidth=2.2*k;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(s0.x,s0.y);ctx.lineTo(x,y-h);ctx.stroke();}}};
 // ===== ACT I, SCENES 3 AND 4 UI END =====
