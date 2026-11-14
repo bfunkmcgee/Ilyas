@@ -52,12 +52,21 @@ Phaser shows the three sheets one over the other, and between them:
 
 - **The lamps, in the yard.** The yard's lamps are Phaser's own lights (its lights manager, with the air left white): the
   door's lantern and the gate's lamp, the window, the open door at night, the fire ring, the drum fire in the lane, the shed's
-  lantern, the table's, and the lamps strung along the lip in three groups. The stage takes them, so the people and the pieces
-  near a lamp are lit by it, warmer and brighter the nearer they stand, and the light moves as its flame does. Where each lamp
-  is, how far it reaches and how strong it is by the hour is said by the yard's painter (`lampsAt`, added to this page's copy by
-  `build_layers.py`: it uses the painter's own places for its lamps and its own measures of flicker). By day only the two
-  fires give any, and little. The Test panel has two rows for it: Lamps (on, off) and Hour (day, dusk, night: Act I's own hours,
-  set on this page for looking).
+  lantern, the table's, and the lamps strung along the lip in three groups. Three things take them:
+  - **the stage**: the people and the pieces near a lamp are lit by it, warmer and brighter the nearer they stand;
+  - **the ground and the walls**: while a lamp is lit the yard's still picture is painted without its own pools of lamplight
+    (the candles keep theirs), and a map of which way each surface faces goes with the plate: the ground leaning up, the
+    walls facing us, the roofs leaning back, the lit door and window turned away so that no lamp adds to them. A lamp on a
+    wall then shows close round itself on the wall and as a pool on the ground before it, and the pool moves as the flame does;
+  - **the pieces' shapes**: each piece the painter keeps as a small picture (a barrel, the pump, the cart, the table, the
+    straw man) gets a map worked out once from its outline, flat in the middle and turned outward at the edges. A lamp to one
+    side lights the near edge and leaves the far one, so a barrel reads as round.
+
+  Where each lamp is, how far it reaches, how far it stands out of the picture and how strong it is by the hour is said by the
+  yard's painter (`lampsAt`, added to this page's copy by `build_layers.py`: it uses the painter's own places for its lamps
+  and its own measures of flicker), and so is the map of the ground and the walls (`normals`). By day no lamp is lit and the
+  page is as it was. The Test panel has four rows for it: Lamps (on, off), Ground (lit, or painted as the game paints it),
+  Shape (on, off) and Hour (day, dusk, night: Act I's own hours, set on this page for looking).
 
 A frame is painted flat, as published, wherever the sheets cannot be used: Phaser's view off, a place that finishes its own picture
 (the fall) or streaks its light (the road at sundown), the old look, a screen that has just changed size. `LayerTest.why` says
@@ -85,9 +94,9 @@ about half of it, or none), the dust, the parallax, the lamps and the hour. The 
 
 | File | What it holds |
 |---|---|
-| `layers.js` | the sheets and their seams, the focus's masks, the footfalls, the bloom, the far bands and their views, the lamps, and Phaser's side of it all |
+| `layers.js` | the sheets and their seams, the focus's masks, the footfalls, the bloom, the far bands and their views, the lamps with the sheets of facings and the pieces' shapes, and Phaser's side of it all |
 | `panel.js` | its rows in the motion test's panel, and the meter |
-| `build_layers.py` | the built game with the motion test and these two added after its script, and the yard's painter opened in that copy |
+| `build_layers.py` | the built game with the motion test and these two added after its script, and the yard's painter (with one line of the light module) opened in that copy |
 | `probe.js` | the check that the game computes the same on the sheets as flat |
 | `shots.js` | pictures of the page through Phaser: one moment drawn several ways, or a strip of frames |
 
@@ -146,28 +155,45 @@ about half of it, or none), the dust, the parallax, the lamps and the hour. The 
 
 ### The lamps
 
-- **Tried first on the plate as well, and taken off it.** A light in Phaser multiplies what it falls on. The yard's still
-  picture has its lamplight painted on it already, so by the back door at night the lit wall and the step went to white under
-  a light strong enough to show on the dark ground beside them. With the painter's own pools laid on at three tenths it was
-  the same: the wall by the door is bright from the door itself. So the plate keeps its painted light and only the stage is
-  lit. To light the ground and the walls this way the place would have to be painted a second time with none of its own
-  lamplight on it, and the lights would then have to give all of it.
-- **No normal maps.** The stage's sheet has none, so Phaser's flat one stands in: a lamp is a round of light falling off from
-  where it hangs, the same on every face of a thing. Its height off the sheet (a part of its reach) sets how wide and soft
-  the round is.
-- **A lamp is where it is in the picture, not in the yard.** A man who stands well in front of a lamp but under it on the
-  screen is lit by it. The lamps' reaches are kept short on the walls for that; the door's light at night is let fall across
-  the yard, as it would.
-- **What the stage already paints bright goes brighter**: the shed's window and the glass of the lamps on the line glow hot
-  under their own lights.
+- **A light in Phaser multiplies what it falls on.** It brightens what is painted there, by the colour that is there, and
+  adds nothing of its own. The first try lit the stage alone, because the yard's still picture had its lamplight painted on
+  it already: by the back door the lit wall and the step went to white. Now the picture under the lamps is painted without
+  that light and the lights give all of it. What follows from multiplying stays: a pool on dark ground is modest however
+  strong the lamp (the south at night), and a pale thing in a pool goes bright (the step by the door, the cloth on the table).
+- **The plate's map is flat fields**, painted once for an hour at half the layer's scale and laid under the camera each
+  frame at a quarter of the canvas's size. What is painted into the still picture away from a wall (the drum, the woodpile,
+  the fence) takes the ground's facing, which leans up nearly as a standing thing's does here. The two blurred copies of
+  the plate take the same map and the same lamps, and come out lit as the sharp plate is (measured: the same to within
+  2 of 255 over any patch of the picture).
+- **What is lit from within is turned away** (the open door, the window): no lamp adds to it. The open door's own painted
+  glow is kept, inside the doorway only: left on the wall round the door as well, it went to a bright patch under the lamps.
+- **A glow the place paints is painted fainter under the lamps** (`glowK`): by as much as the lamps are about to multiply
+  it, so a lamp's own halo comes out as bright as its painter meant. Before that the glass of the lamps on the line went
+  to white under their own light.
+- **A lamp is where it is in the picture, not in the yard.** How far it stands out of the sheet is a number chosen for it
+  (z, a part of its reach). A small one lights the ground before the lamp more than what stands near it, and shows tight on a
+  wall; a large one lights all alike. The lamps on walls and on the line have small ones, the fires larger. The door's light
+  and the window's fall only downward (Phaser's cone), as light out of an opening does.
+- **A piece's shape comes from its outline alone**: the outline blurred is taken for a height and the slope of that height
+  turns the surface (4 to 14 units in from the edge, a fifth of the piece's width). A barrel or a post reads as round; a
+  wide flat thing gets a lit edge and no more; what is drawn inside the outline (boards, hoops) has no relief; a piece's
+  cast shadow, painted in the same small picture, counts in the outline at its own faintness. The maps are made a few a
+  frame as the pieces first come into view (about 50 ms for the yard's eighteen, in all).
+- **The people have no shape.** Each man's own picture (the light module's, with the effects at Full) is stamped on the
+  stage's sheet of facings as a flat standing thing, so a piece behind him does not show through him, and he is lit evenly.
+  With the effects at Lite there is no such picture and no stamp.
+- **The far bands take no lamps.** They keep the painter's light. So do the other places: only the yard's painter is open.
 - **Ten lights at once** is Phaser's own limit as the page is set up; the yard has eleven after dark. Lights outside the view
   are not counted, and a view that holds all eleven loses the one furthest from its middle.
 - **A name.** Another place keeps its own list under `lamps`, so the painter's word here is `lampsAt`; calling the list as a
   function stopped the sheets on the title screen until it was renamed.
-- **Checked**: the page by its own rows at 412x714 (the walk and the yard: the hour to night, the lamps off and on, dusk, day:
-  eleven lamps, none, eleven, ten, two; no errors); stills through Phaser with the lamps on and off by the door at night and
-  at dusk, by the fire and by the shed; `probe.js` on the yard and the walk (the game computes the same). What the lights cost
-  on a phone is not known here, as with the rest: one more pass of the stage through a shader that reads up to ten lights.
+- **Checked**: the page by its own rows at 412x714 in the yard (the hour to night, Shape off and on, Ground painted and lit,
+  the lamps off and on, dusk, day, night again: eleven lamps, ten at dusk, none by day; no errors); stills through Phaser
+  by the door, the barrels, the fire, the table, the shed and the gate at night and at dusk, each beside the painted light,
+  with the sheets of facings saved beside them (`DUMP` in `shots.js`); the focus on and off under the lamps; `probe.js` on
+  the yard, the yard at night and the walk (the game computes the same). The game's own painting of a frame took the same
+  here with the lamps on as off (the maps are a handful of small blits). What the lights cost on a phone is not known here,
+  as with the rest: the plate, its two soft copies and the stage each go through a shader that reads up to ten lights.
 
 ## What it does not tell, and where it falls short
 

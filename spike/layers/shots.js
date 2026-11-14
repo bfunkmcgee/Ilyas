@@ -8,9 +8,11 @@
 //       are the same each time, so the same frames are the same moments of the same game.
 // Stage '-' starts no story (PRE can start the lab). PRE: js run once the stage is up. WARM: frames painted before the first picture
 // (4; more for dust, which a footfall has to raise). BOX: x,y,w,h of the screen to cut out, in points.
+// DUMP: sheets to save beside each still as <out prefix>_<name>_<sheet>.png (LayerTest.sheets(): plate, stage, plateN, stageN...).
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const A=process.argv,KIND=A[2],OUT=A[3],FR=+(A[4]||200),STAGE=A[5]||'motion',VARS=(A[6]||'').split(';;').filter(Boolean).map(v=>{const i=v.indexOf('=');return[v.slice(0,i),v.slice(i+1)];});
 const EVERY=KIND==='strip'?+(A[7]||3):0,COUNT=KIND==='strip'?+(A[8]||10):0,Wd=+(A[KIND==='strip'?9:7]||412),Ht=+(A[KIND==='strip'?10:8]||714);
+const DUMP=(process.env.DUMP||'').split(',').filter(Boolean);
 const PAGE=process.env.PAGE||'spike/layers/out/layers-test.html',WARM=Math.max(4,+(process.env.WARM||4)),BOX=process.env.BOX?process.env.BOX.split(',').map(Number):null;
 (async()=>{const b=await chromium.launch({executablePath:process.env.SK_CHROMIUM||(fs.existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined),
     args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
@@ -37,5 +39,7 @@ const PAGE=process.env.PAGE||'spike/layers/out/layers-test.html',WARM=Math.max(4
       if(i<COUNT-1){if(EVERY>1){await p.evaluate(()=>{window.__all=false;});await steps(EVERY-1);await p.evaluate(()=>{window.__all=true;});}await steps(1);}}
     console.log(name,COUNT,'pictures',JSON.stringify(await p.evaluate(()=>window.LayerTest&&LayerTest.info())));}
   else for(const [name,js] of VARS){await p.evaluate(s=>{new Function(s)();again(3);},js);await shot(OUT+'_'+name+'.png');
+    for(const k of DUMP){const u=await p.evaluate(k=>{const c=window.LayerTest&&LayerTest.sheets()[k];return c&&c.width>4?c.toDataURL('image/png'):null;},k);
+      if(u)fs.writeFileSync(OUT+'_'+name+'_'+k+'.png',Buffer.from(u.split(',')[1],'base64'));}
     console.log(name,JSON.stringify(await p.evaluate(()=>window.LayerTest&&LayerTest.info())));}
   console.log('t',await p.evaluate(()=>+S.t.toFixed(2)),'step errors',JSON.stringify(await p.evaluate(()=>[window.__err||0,window.__errm||''])),'errors',JSON.stringify(errs.slice(0,4)));await b.close();})();

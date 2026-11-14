@@ -27,6 +27,11 @@ PARTS = (('spike', 'motion', 'motion.js'), ('spike', 'motion', 'panel.js'), ('sp
 #     dark) is drawn on the far band's own sheet when layers.js hands one over (__lyp.far), with no need of the skyline's clip
 #     there, since the nearer bands lie over it; the neighbours' chimneys smoke where the middle band has gone (__lyp.mid);
 #   - bands: 1 says the painter is open;
+#   - lightPass leaves its pools of lamplight out while the page asks (__lyp.unlit: Phaser's lamps then give that light);
+#   - normals(c): which way the yard's surfaces face, as a normal map's flat colours, for the plate under the lamps;
+#   - drawPiece tells the page each piece it sets down (__lyp.piece), and glowAt asks it how much of a glow to paint
+#     (__lyp.glowK), both for the lamps (layers.js, "the pieces' shapes"). One line of the light module (sk_lightui.js, put)
+#     is opened with them: it tells the page each man's picture it sets down (__lyp.fig);
 #   - lampsAt(t, still): the yard's lamps for Phaser's lights (layers.js, "the lamps"): where each is in the picture, how far it
 #     reaches, its colour and its strength by the hour, flickering by the painter's own measures.
 SLID = "globalThis.__lyp"
@@ -50,21 +55,59 @@ YARD = (
      "K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);}\n",
      "  {const srcs=[{x:STOVE.x,y:STOVE.y,s:5,sp:.1,n:8,h:180,dx:24,a:.55}],src2=[];for(const ch of NEARCH)src2.push({x:ch.x,y:ch.y,s:4,sp:.09,n:6,h:120,dx:16,a:.45,ph:ch.x*.013});"
      "K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);\n    ctx.save();if(__L&&__L.mid)__L.mid(ctx);K.smoke(ctx,src2,t,P.smoke,T==='night'?.6:1);ctx.restore();}\n"),
+    ("ctx.drawImage(R.cv,0,0,R.w,R.h,R.x,R.y,R.w,R.h);ctx.restore();return true;}\n// where his floor is under him, in canvas pixels",
+     "ctx.drawImage(R.cv,0,0,R.w,R.h,R.x,R.y,R.w,R.h);ctx.restore();{const f=(" + SLID + "||0).fig;if(f)f(R);}return true;}\n// where his floor is under him, in canvas pixels"),
+    ("function drawPiece(c,T){c.drawImage(T.cv,T.x,T.y,T.w,T.h);}",
+     "function drawPiece(c,T){c.drawImage(T.cv,T.x,T.y,T.w,T.h);const f=(" + SLID + "||0).piece;if(f)f(c,T);}"),
+    ("function glowAt(c,x,y,r,col,a,sq){if(!(a>0.003))return;",
+     "function glowAt(c,x,y,r,col,a,sq){{const f=(" + SLID + "||0).glowK;if(f)a*=f(c,x,y);}if(!(a>0.003))return;"),
+    ("function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;\n  c.save();c.globalCompositeOperation='lighter';\n  if(T==='night'){// the back door's light",
+     "function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far,__ul=!!(" + SLID + "||0).unlit;\n  c.save();c.globalCompositeOperation='lighter';\n  if(T==='night'){// the back door's light"),
+    # (the glow of the open door itself stays painted, inside the doorway only: the door is lit from within and takes no lamp,
+    # and the wall round it has the lamps now)
+    ("K.cRad(c,dp.x,dp.y,6,170,'#ffa850',.34,.42);\n    const dg=Q(D.x,70,far);K.cRad(c,dg.x,dg.y,4,110,'#ff9a4a',.14,1);\n",
+     "if(!__ul)K.cRad(c,dp.x,dp.y,6,170,'#ffa850',.34,.42);\n    const dg=Q(D.x,70,far);if(__ul){const a=Q(D.x-D.w/2,SUMP.doorH,far),b=Q(D.x+D.w/2,0,far);c.save();c.beginPath();c.rect(a.x,a.y,b.x-a.x,b.y-a.y);c.clip();}\n"
+     "    K.cRad(c,dg.x,dg.y,4,110,'#ff9a4a',.14,1);if(__ul)c.restore();\n    if(!__ul){\n"),
+    ("K.cRad(c,df.x-30,df.y-40,6,90,'#ff9a4a',.08,1);}", "K.cRad(c,df.x-30,df.y-40,6,90,'#ff9a4a',.08,1);}}"),
+    # (the candles at the lip and at the drain have no light of Phaser's: their small pools stay painted)
+    ("K.cRad(c,sl.x,sl.y,4,96,'#ffcf86',.13*k,.45);K.cRad(c,fr.x,fr.y,6,84,'#ff9a4a',.16*k,.5);K.cRad(c,cd.x,cd.y,3,44,'#ffb070',.1*k,.5);",
+     "if(!__ul){K.cRad(c,sl.x,sl.y,4,96,'#ffcf86',.13*k,.45);K.cRad(c,fr.x,fr.y,6,84,'#ff9a4a',.16*k,.5);}K.cRad(c,cd.x,cd.y,3,44,'#ffb070',.1*k,.5);"),
+    ("K.cRad(c,tl.x,tl.y,4,90,'#ffcf86',.14*k,.5);K.cRad(c,ls.x,ls.y,10,170,'#ffcf86',.09*k,.36);",
+     "if(!__ul){K.cRad(c,tl.x,tl.y,4,90,'#ffcf86',.14*k,.5);K.cRad(c,ls.x,ls.y,10,170,'#ffcf86',.09*k,.36);}"),
     ("E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90};",
-     "function yardLamps(t,st){const P=K.pal(),T=P.key,Yd=Y(),So=SO(),far=Yd.far,L=[],lit=T==='night'?1:T==='dusk'?.8:0,dk=T==='night'?1:T==='dusk'?.8:.12,\n"
-     "    fl=(a,b,p)=>st?1:.86+.14*Math.sin(t*a+p)*Math.sin(t*b+p*1.7),add=(q,r,col,k,z)=>{if(q&&k>.01)L.push({x:q.x,y:q.y,r,col,k,z});};\n"
-     "  if(lit>0){add(Q(LANT.x,LANT.h-10,LANT.d),150,0xffc480,2.2*lit*fl(7.3,2.9,0));\n"
-     "    add(Q(FENCE.x+GLAMP.dx,GLAMP.h-8,Yd.gate.d-Yd.gate.w/2+GLAMP.dd),130,0xffc480,2.6*lit*fl(7.3,2.9,1));\n"
-     "    if(SHEDS.lamp.x)add({x:SHEDS.lamp.x-10,y:SHEDS.lamp.y+30},150,0xffc480,2.2*lit*fl(6.7,2.3,2));\n"
-     "    if(TABLES.lamp.x)add({x:TABLES.lamp.x,y:TABLES.lamp.y+4},140,0xffc480,2.8*lit*fl(6.1,2.7,3));\n"
-     "    const R=RAILS.lamps;for(const [a,b] of [[0,1],[2,4],[5,7]]){let x=0,y=0,n=0;for(let i=a;i<=b&&i<R.length;i++){x+=R[i].x;y+=R[i].y+20;n++;}\n"
-     "      if(n)add({x:x/n,y:y/n},150+16*n,0xffc480,(1.1+.25*n)*lit*fl(5.3+a*.7,2.1,4+a));}}\n"
-     "  {const W0=Yd.window,k=T==='night'?1.8:T==='dusk'?1:0;add(Q((W0.x0+W0.x1)/2,(W0.y0+W0.y1)/2,far),150,0xff9a4a,k*fl(2.3,1.1,7));}\n"
-     "  if(T==='night'){const D=Yd.door;add(Q(D.x,SUMP.doorH*.5,far),210,0xffa860,2.3*fl(5.1,1.3,8));}\n"
-     "  {const F=So.fire;add(Q(F.x,20,F.d),190,0xff8a4a,3.6*dk*(st?.85:.72+.28*Math.sin(t*8.3)*Math.sin(t*2.7)));}\n"
-     "  add(Q(DRUM.x,34*DRUM.k,DRUM.d),170,0xff8a3c,3*P.fire*dk*(st?.8:.75+.25*Math.sin(t*11)*Math.sin(t*3.7)));\n"
+     "function yardLamps(t,st){const P=K.pal(),T=P.key,Yd=Y(),So=SO(),far=Yd.far,L=[],lit=T==='night'?1:T==='dusk'?.45:0,dk=T==='night'?1:T==='dusk'?.5:.1,\n"
+     "    fl=(a,b,p)=>st?1:.86+.14*Math.sin(t*a+p)*Math.sin(t*b+p*1.7),DOWN=[Math.PI/2,2.2,3.1],\n"
+     "    // (k: a lamp's strength by the hour, and a lamp under a fifth is not lit at all; f: its flicker on top of that)\n"
+     "    add=(q,r,col,k,f,z,cone)=>{if(q&&k>.2)L.push({x:q.x,y:q.y,r,col,k:k*f,z,cone});},\n"
+     "    zp=(z,p)=>z&&p.x?{x:z[0]+(p.x-z[0])*z[2],y:z[1]+(p.y-z[1])*z[2]}:null;\n"
+     "  // (z is how far a lamp stands out of the picture, as a part of its reach: small for a lamp on a wall or on a line, which then\n"
+     "  // shows tight on the wall and as a pool on the ground before it, and lights a man less than the ground; larger for a fire in\n"
+     "  // the open, which lights what stands round it)\n"
+     "  add(Q(LANT.x,LANT.h-6,LANT.d),280,0xffd29a,LK.wall*lit,fl(7.3,2.9,0),.12);\n"
+     "  add(Q(FENCE.x+GLAMP.dx,GLAMP.h-3,Yd.gate.d-Yd.gate.w/2+GLAMP.dd),250,0xffd29a,LK.wall*lit,fl(7.3,2.9,1),.12);\n"
+     "  {const q=zp(SHEDS.z,SHEDS.lamp);if(q)add({x:q.x,y:q.y+6},250,0xffd29a,LK.wall*lit,fl(6.7,2.3,2),.12);}\n"
+     "  {const q=zp(TABLES.z,TABLES.lamp);add(q,210,0xffd29a,LK.free*lit,fl(6.1,2.7,3),.2);}\n"
+     "  {const R=RAILS.lamps;for(const [a,b] of [[0,1],[2,4],[5,7]]){let x=0,y=0,n=0;for(let i=a;i<=b&&i<R.length;i++){x+=R[i].x;y+=R[i].y;n++;}\n"
+     "    if(n)add({x:x/n,y:y/n+8},270,0xffd29a,LK.rail*(.7+.15*n)*lit,fl(5.3+a*.7,2.1,4+a),.1);}}\n"
+     "  {const W0=Yd.window;add(Q((W0.x0+W0.x1)/2,(W0.y0+W0.y1)/2,far),250,0xffb070,T==='night'?LK.win:T==='dusk'?LK.win*.5:0,fl(2.3,1.1,7),.2,DOWN);}\n"
+     "  if(T==='night'){const D=Yd.door;add(Q(D.x,SUMP.doorH*.5,far),340,0xffbe84,LK.door,fl(5.1,1.3,8),.2,DOWN);}\n"
+     "  {const F=So.fire;add(Q(F.x,34,F.d),230,0xff9a58,LK.fire*dk,st?.85:.72+.28*Math.sin(t*8.3)*Math.sin(t*2.7),.35);}\n"
+     "  add(Q(DRUM.x,34*DRUM.k,DRUM.d),240,0xff9650,LK.drum*P.fire*dk,st?.8:.75+.25*Math.sin(t*11)*Math.sin(t*3.7),.3);\n"
      "  return L;}\n"
-     "E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90,bands:1,lampsAt:yardLamps};"),
+     "const LK={wall:.9,free:2,rail:2.2,win:.5,door:.95,fire:1.7,drum:1.7};\n"
+     "function yardNormals(c){const Yd=Y(),So=SO(),far=Yd.far,T=K.pal().key,G='rgb(127,191,238)',W='rgb(127,127,255)',R='rgb(127,230,203)',E='rgb(127,127,0)',\n"
+     "    box=(col,x0,x1,h0,h1,d,d1)=>{const a=Q(x0,h1,d1==null?d:d1),b=Q(x1,h0,d);c.fillStyle=col;c.fillRect(a.x,a.y,b.x-a.x,b.y-a.y);};\n"
+     "  c.fillStyle=G;c.fillRect(-900,-600,3200,3200);\n"
+     "  {const f=Q(0,0,far).y,w=Q(0,Yd.wall.h,Yd.wall.d).y,x1=Q(SHED.x1,0,far).x,top=Q(0,SUMP.ridge,far+SUMP.rd).y;\n"
+     "    c.fillStyle=W;c.fillRect(-900,-600,3200,f+600);box(W,Yd.wall.x0,Yd.wall.x1+400,0,Yd.wall.h,Yd.wall.d);\n"
+     "    c.fillStyle=E;c.fillRect(-900,-600,3200,top+600-26);c.fillRect(x1,-600,2400,w+600);}\n"
+     "  box(R,SUMP.x0-6,SUMP.x1+4,SUMP.eave,SUMP.ridge,far,far+SUMP.rd);box(R,SUMP.x1+4,SHED.x1+2,SHED.h,SHED.back,far,far+40);\n"
+     "  if(T==='night'||T==='dusk'){const W0=Yd.window;box(E,W0.x0,W0.x1,W0.y1,W0.y0,far);}\n"
+     "  if(T==='night'){const D=Yd.door;box(E,D.x-D.w/2,D.x+D.w/2,0,SUMP.doorH,far);}\n"
+     "  {const D=So.drain;box(W,D.x-D.r-24,D.x+D.r+24,0,D.r*2+30,D.d);box(E,D.x-D.r+8,D.x+D.r-8,6,D.r*2-10,D.d);\n"
+     "    const L=So.lip,p0=Q(L[0][0],0,L[0][1]);c.fillStyle=E;c.beginPath();c.moveTo(2400,p0.y);for(const [x,d] of L){const p=Q(x,0,d);c.lineTo(p.x,p.y);}\n"
+     "    {const p=Q(L[L.length-1][0],0,L[L.length-1][1]);c.lineTo(p.x,2600);}c.lineTo(2400,2600);c.closePath();c.fill();}}\n"
+     "E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90,bands:1,lampsAt:yardLamps,normals:yardNormals,LK};"),
 )
 
 

@@ -13,6 +13,8 @@ P.row('Dust',[['On',true],['Off',false]],()=>LY.dust,v=>{LY.dust=v;});
 P.row('Parallax',[['On',true],['Off',false]],()=>LY.parallax,v=>{LY.parallax=v;});
 // the place's lamps as Phaser's lights, and the hour to see them by (the yard's own hours: Act I keeps them)
 P.row('Lamps',[['On',true],['Off',false]],()=>LY.lamps,v=>{LY.lamps=v;});
+P.row('Ground',[['Lit',true],['Painted',false]],()=>LY.lampGround,v=>{LY.lampGround=v;});
+P.row('Shape',[['On',true],['Off',false]],()=>LY.shape,v=>{LY.shape=v;});
 P.row('Hour',[['Day','day'],['Dusk','dusk'],['Night','night']],()=>{const a=typeof S!=='undefined'&&S?S.act1:null;return a&&a.night?'night':a&&a.dusk?'dusk':'day';},
   v=>{if(typeof S==='undefined'||!S)return;const a=typeof act1State==='function'?act1State():S.act1;if(!a)return;a.night=v==='night';a.dusk=v==='dusk';a.morning=false;});
 // The walk's camera goes along with him on an upright phone, as the yard's own does while he walks about, so that the far bands
