@@ -166,10 +166,11 @@ about half of it, or none), the dust, the parallax, the lamps and the hour. The 
   the plate take the same map and the same lamps, and come out lit as the sharp plate is (measured: the same to within
   2 of 255 over any patch of the picture).
 - **What is lit from within is turned away** (the open door, the window): no lamp adds to it. The open door's own painted
-  glow is kept, inside the doorway only: left on the wall round the door as well, it went to a bright patch under the lamps.
+  light is kept, inside the doorway only. Left on the wall round the door as well, it went to a bright patch under the
+  lamps; left out altogether, the doorway went dull beside the wall the lamps now light.
 - **A glow the place paints is painted fainter under the lamps** (`glowK`): by as much as the lamps are about to multiply
   it, so a lamp's own halo comes out as bright as its painter meant. Before that the glass of the lamps on the line went
-  to white under their own light.
+  to white under their own light. The window's glow and the open door's are painted whole: nothing multiplies them.
 - **A lamp is where it is in the picture, not in the yard.** How far it stands out of the sheet is a number chosen for it
   (z, a part of its reach). A small one lights the ground before the lamp more than what stands near it, and shows tight on a
   wall; a large one lights all alike. The lamps on walls and on the line have small ones, the fires larger. The door's light

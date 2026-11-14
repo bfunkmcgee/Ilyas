@@ -30,7 +30,8 @@ PARTS = (('spike', 'motion', 'motion.js'), ('spike', 'motion', 'panel.js'), ('sp
 #   - lightPass leaves its pools of lamplight out while the page asks (__lyp.unlit: Phaser's lamps then give that light);
 #   - normals(c): which way the yard's surfaces face, as a normal map's flat colours, for the plate under the lamps;
 #   - drawPiece tells the page each piece it sets down (__lyp.piece), and glowAt asks it how much of a glow to paint
-#     (__lyp.glowK), both for the lamps (layers.js, "the pieces' shapes"). One line of the light module (sk_lightui.js, put)
+#     (__lyp.glowK; the window's and the open door's own glows are marked __lyp.own and painted whole), both for the lamps
+#     (layers.js, "the pieces' shapes"). One line of the light module (sk_lightui.js, put)
 #     is opened with them: it tells the page each man's picture it sets down (__lyp.fig);
 #   - lampsAt(t, still): the yard's lamps for Phaser's lights (layers.js, "the lamps"): where each is in the picture, how far it
 #     reaches, its colour and its strength by the hour, flickering by the painter's own measures.
@@ -61,13 +62,17 @@ YARD = (
      "function drawPiece(c,T){c.drawImage(T.cv,T.x,T.y,T.w,T.h);const f=(" + SLID + "||0).piece;if(f)f(c,T);}"),
     ("function glowAt(c,x,y,r,col,a,sq){if(!(a>0.003))return;",
      "function glowAt(c,x,y,r,col,a,sq){{const f=(" + SLID + "||0).glowK;if(f)a*=f(c,x,y);}if(!(a>0.003))return;"),
+    ("K.glowAt(ctx,wp.x,wp.y,40,'#ff9a4a',(T==='night'?.16:.06)*(.9+.1*Math.sin(t*2.3)));",
+     "{const o=" + SLID + "||{};o.own=1;K.glowAt(ctx,wp.x,wp.y,40,'#ff9a4a',(T==='night'?.16:.06)*(.9+.1*Math.sin(t*2.3)));o.own=0;}"),
+    ("K.glowAt(ctx,dp.x,dp.y,46,'#ff9a4a',.1*(.9+.1*Math.sin(t*5.1)*Math.sin(t*1.3)));",
+     "{const o=" + SLID + "||{};o.own=1;K.glowAt(ctx,dp.x,dp.y,46,'#ff9a4a',.1*(.9+.1*Math.sin(t*5.1)*Math.sin(t*1.3)));o.own=0;}"),
     ("function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;\n  c.save();c.globalCompositeOperation='lighter';\n  if(T==='night'){// the back door's light",
      "function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far,__ul=!!(" + SLID + "||0).unlit;\n  c.save();c.globalCompositeOperation='lighter';\n  if(T==='night'){// the back door's light"),
-    # (the glow of the open door itself stays painted, inside the doorway only: the door is lit from within and takes no lamp,
-    # and the wall round it has the lamps now)
+    # (the open door's own light stays painted, inside the doorway only: the door is lit from within and takes no lamp, and the
+    # step and the wall round it have the lamps now)
     ("K.cRad(c,dp.x,dp.y,6,170,'#ffa850',.34,.42);\n    const dg=Q(D.x,70,far);K.cRad(c,dg.x,dg.y,4,110,'#ff9a4a',.14,1);\n",
-     "if(!__ul)K.cRad(c,dp.x,dp.y,6,170,'#ffa850',.34,.42);\n    const dg=Q(D.x,70,far);if(__ul){const a=Q(D.x-D.w/2,SUMP.doorH,far),b=Q(D.x+D.w/2,0,far);c.save();c.beginPath();c.rect(a.x,a.y,b.x-a.x,b.y-a.y);c.clip();}\n"
-     "    K.cRad(c,dg.x,dg.y,4,110,'#ff9a4a',.14,1);if(__ul)c.restore();\n    if(!__ul){\n"),
+     "{const a=Q(D.x-D.w/2,SUMP.doorH,far),b=Q(D.x+D.w/2,0,far);if(__ul){c.save();c.beginPath();c.rect(a.x,a.y,b.x-a.x,b.y-a.y);c.clip();}}K.cRad(c,dp.x,dp.y,6,170,'#ffa850',.34,.42);\n"
+     "    const dg=Q(D.x,70,far);K.cRad(c,dg.x,dg.y,4,110,'#ff9a4a',.14,1);if(__ul)c.restore();\n    if(!__ul){\n"),
     ("K.cRad(c,df.x-30,df.y-40,6,90,'#ff9a4a',.08,1);}", "K.cRad(c,df.x-30,df.y-40,6,90,'#ff9a4a',.08,1);}}"),
     # (the candles at the lip and at the drain have no light of Phaser's: their small pools stay painted)
     ("K.cRad(c,sl.x,sl.y,4,96,'#ffcf86',.13*k,.45);K.cRad(c,fr.x,fr.y,6,84,'#ff9a4a',.16*k,.5);K.cRad(c,cd.x,cd.y,3,44,'#ffb070',.1*k,.5);",

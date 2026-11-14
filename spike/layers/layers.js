@@ -187,7 +187,7 @@ const BANDS={yard:{x0:470,y0:262,w0:820,top:-470,far:[.2,.65],mid:[.72,.88]}};
 // (the far bands' rectangle in the world: as wide as the yard's backdrop is painted, and from just over the layer's top to 342,
 // where the backdrop's own haze ends, well under the lowest roof)
 const RECT={x0:-170,y0:-110,w:W+420,h:452};
-const SLID=globalThis.__lyp={far:null,mid:null,end:null,ext:true,unlit:false};
+const SLID=globalThis.__lyp={far:null,mid:null,end:null,ext:true,unlit:false,own:0};
 let planes=false,PX=null,farT=null;
 const FAR=mk(4,4),BT={n:-1,far:{r:1,tx:0,ty:0},mid:{r:1,tx:0,ty:0}};
 const bandsHere=()=>{const k=envKey(),X=k&&EnvLook.S[k];return!!(X&&X.bands&&BANDS[k]&&typeof X.paint==='function');};
@@ -259,7 +259,8 @@ SLID.fig=function(R){
   g.globalCompositeOperation='source-in';g.fillStyle=UPC;g.fillRect(0,0,w,h);
   const n=NB.g;n.setTransform(1,0,0,1,0,0);n.drawImage(FG.cv,0,0,w,h,R.x*qx,R.y*qy,w,h);};
 SLID.glowK=function(c,x,y){
-  const L=LAMPS;if(!L||!L.length||!LY.lamps||!(phase===1?c===B.g:phase===0&&c===A.g&&SLID.unlit))return 1;
+  // (own: the painter is at the glow of something lit from within, which is turned away from every lamp)
+  const L=LAMPS;if(!L||!L.length||!LY.lamps||SLID.own||!(phase===1?c===B.g:phase===0&&c===A.g&&SLID.unlit))return 1;
   const m=c.getTransform(),wx=(m.a*x+m.c*y+m.e-TR.tx)/TR.s,wy=(m.b*x+m.d*y+m.f-TR.ty)/TR.s;let C=0;
   for(const q of L){const dx=q.x-wx,up=wy-q.y,z=(q.z||.55)*q.r,d2=dx*dx+up*up+z*z,at=1-d2/(q.r*q.r);if(at>0)C+=q.k*at*Math.max(0,UPT*.9*up+.9*z)/Math.sqrt(d2);}
   return 1/(1+.8*C*LY.lampK);};
