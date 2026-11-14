@@ -29,10 +29,14 @@ PARTS = (('spike', 'motion', 'motion.js'), ('spike', 'motion', 'panel.js'), ('sp
 #   - bands: 1 says the painter is open;
 #   - lightPass leaves its pools of lamplight out while the page asks (__lyp.unlit: Phaser's lamps then give that light);
 #   - normals(c): which way the yard's surfaces face, as a normal map's flat colours, for the plate under the lamps;
-#   - drawPiece tells the page each piece it sets down (__lyp.piece), and glowAt asks it how much of a glow to paint
+#   - drawPiece tells the page each piece it sets down (__lyp.piece; the page may set it down itself, from a small copy:
+#     __lyp.pieceDraw), and glowAt asks it how much of a glow to paint
 #     (__lyp.glowK; the window's and the open door's own glows are marked __lyp.own and painted whole), both for the lamps
 #     (layers.js, "the pieces' shapes"). One line of the light module (sk_lightui.js, put)
-#     is opened with them: it tells the page each man's picture it sets down (__lyp.fig);
+#     is opened with them: it tells the page each man's picture it sets down (__lyp.fig), and lets the page set it down
+#     itself (__lyp.put);
+#   - glowAt, smoke, gateLeaf and pigeon tell the page where they are about to draw (__lyp.glowK, __lyp.box), so that a thing
+#     drawn soft can be set down from its own part of the small sheet (layers.js, "the stage in focus");
 #   - lampsAt(t, still): the yard's lamps for Phaser's lights (layers.js, "the lamps"): where each is in the picture, how far it
 #     reaches, its colour and its strength by the hour, flickering by the painter's own measures.
 SLID = "globalThis.__lyp"
@@ -57,11 +61,23 @@ YARD = (
      "  {const srcs=[{x:STOVE.x,y:STOVE.y,s:5,sp:.1,n:8,h:180,dx:24,a:.55}],src2=[];for(const ch of NEARCH)src2.push({x:ch.x,y:ch.y,s:4,sp:.09,n:6,h:120,dx:16,a:.45,ph:ch.x*.013});"
      "K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);\n    ctx.save();if(__L&&__L.mid)__L.mid(ctx);K.smoke(ctx,src2,t,P.smoke,T==='night'?.6:1);ctx.restore();}\n"),
     ("ctx.drawImage(R.cv,0,0,R.w,R.h,R.x,R.y,R.w,R.h);ctx.restore();return true;}\n// where his floor is under him, in canvas pixels",
-     "ctx.drawImage(R.cv,0,0,R.w,R.h,R.x,R.y,R.w,R.h);ctx.restore();{const f=(" + SLID + "||0).fig;if(f)f(R);}return true;}\n// where his floor is under him, in canvas pixels"),
+     "{const h=(" + SLID + "||0).put;if(!(h&&h(f,R)))ctx.drawImage(R.cv,0,0,R.w,R.h,R.x,R.y,R.w,R.h);}ctx.restore();{const h=(" + SLID + "||0).fig;if(h)h(R);}return true;}\n// where his floor is under him, in canvas pixels"),
     ("function drawPiece(c,T){c.drawImage(T.cv,T.x,T.y,T.w,T.h);}",
-     "function drawPiece(c,T){c.drawImage(T.cv,T.x,T.y,T.w,T.h);const f=(" + SLID + "||0).piece;if(f)f(c,T);}"),
+     "function drawPiece(c,T){const o=" + SLID + "||0,d=o.pieceDraw;if(!(d&&d(c,T)))c.drawImage(T.cv,T.x,T.y,T.w,T.h);const f=o.piece;if(f)f(c,T);}"),
     ("function glowAt(c,x,y,r,col,a,sq){if(!(a>0.003))return;",
-     "function glowAt(c,x,y,r,col,a,sq){{const f=(" + SLID + "||0).glowK;if(f)a*=f(c,x,y);}if(!(a>0.003))return;"),
+     "function glowAt(c,x,y,r,col,a,sq){{const f=(" + SLID + "||0).glowK;if(f)a*=f(c,x,y,r,sq);}if(!(a>0.003))return;"),
+    # (where on the sheet smoke, a gate's leaf and a bird are about to be drawn: __lyp.box, for the stage in focus)
+    ("function smoke(c,srcs,t,col,a){const pf=puffSpr(col);for(const s of srcs){const n=s.n||6;",
+     "function smoke(c,srcs,t,col,a){const pf=puffSpr(col);for(const s of srcs){const n=s.n||6;"
+     "{const f=(" + SLID + "||0).box;if(f){const R=(s.s||8)*4.2,dx=s.dx??18;f(c,s.x-6-R+Math.min(0,dx),s.y-(s.h||150)-R,s.x+6+R+Math.max(0,dx),s.y+R);}}"),
+    ("function gateLeaf(c,P,hx,hd,len,h,th,ux,ud,vx,vd,pts,base){const sh=",
+     "function gateLeaf(c,P,hx,hd,len,h,th,ux,ud,vx,vd,pts,base){{const f=(" + SLID + "||0).box;if(f){const q=Q(hx,0,hd);f(c,q.x-len*1.2-8,q.y-h-len*.75-10,q.x+len*1.2+8,q.y+len*.75+8);}}const sh="),
+    # (the rail along the lip is set down in front of everything, by a depth that is not its own: it runs from near to far, with
+    # the lamps' lines over the table, so it is never drawn soft)
+    ("out.push({d:So.z0-600,draw:c=>{K.drawPiece(c,railPiece());railLive(c,t,P,still);}});}",
+     "out.push({d:So.z0-600,sharp:1,draw:c=>{K.drawPiece(c,railPiece());railLive(c,t,P,still);}});}"),
+    ("function pigeon(c,x,y,fa,s,col,o){c.save();c.translate(x,y);c.scale(fa*s,s);c.fillStyle=col;",
+     "function pigeon(c,x,y,fa,s,col,o){{const f=(" + SLID + "||0).box;if(f)f(c,x-8*s,y-9*s,x+8*s,y+3*s);}c.save();c.translate(x,y);c.scale(fa*s,s);c.fillStyle=col;"),
     ("K.glowAt(ctx,wp.x,wp.y,40,'#ff9a4a',(T==='night'?.16:.06)*(.9+.1*Math.sin(t*2.3)));",
      "{const o=" + SLID + "||{};o.own=1;K.glowAt(ctx,wp.x,wp.y,40,'#ff9a4a',(T==='night'?.16:.06)*(.9+.1*Math.sin(t*2.3)));o.own=0;}"),
     ("K.glowAt(ctx,dp.x,dp.y,46,'#ff9a4a',.1*(.9+.1*Math.sin(t*5.1)*Math.sin(t*1.3)));",

@@ -8,6 +8,7 @@
 //       are the same each time, so the same frames are the same moments of the same game.
 // Stage '-' starts no story (PRE can start the lab). PRE: js run once the stage is up. WARM: frames painted before the first picture
 // (4; more for dust, which a footfall has to raise). BOX: x,y,w,h of the screen to cut out, in points.
+// DSF: the screen's pixels to a point (2).
 // DUMP: sheets to save beside each still as <out prefix>_<name>_<sheet>.png (LayerTest.sheets(): plate, stage, plateN, stageN...).
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const A=process.argv,KIND=A[2],OUT=A[3],FR=+(A[4]||200),STAGE=A[5]||'motion',VARS=(A[6]||'').split(';;').filter(Boolean).map(v=>{const i=v.indexOf('=');return[v.slice(0,i),v.slice(i+1)];});
@@ -16,7 +17,7 @@ const DUMP=(process.env.DUMP||'').split(',').filter(Boolean);
 const PAGE=process.env.PAGE||'spike/layers/out/layers-test.html',WARM=Math.max(4,+(process.env.WARM||4)),BOX=process.env.BOX?process.env.BOX.split(',').map(Number):null;
 (async()=>{const b=await chromium.launch({executablePath:process.env.SK_CHROMIUM||(fs.existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined),
     args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
-  const p=await (await b.newContext({viewport:{width:Wd,height:Ht},deviceScaleFactor:2,isMobile:Wd<700||Ht<500,hasTouch:true})).newPage(),errs=[];
+  const p=await (await b.newContext({viewport:{width:Wd,height:Ht},deviceScaleFactor:+(process.env.DSF||2),isMobile:Wd<700||Ht<500,hasTouch:true})).newPage(),errs=[];
   p.on('pageerror',e=>errs.push(e.message.slice(0,300)));p.on('console',m=>{if(m.type()==='error')errs.push('console: '+m.text().slice(0,200));});
   await p.addInitScript(()=>{window.__rafs=[];window.requestAnimationFrame=cb=>{window.__rafs.push(cb);return window.__rafs.length;};
     let a=0x2F6E2B1;Math.random=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};

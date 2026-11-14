@@ -28,6 +28,9 @@ Phaser shows the three sheets one over the other, and between them:
   deep a row is), the wall at the far edge of the floor as soft as the floor at its foot, and what rises beyond the wall softest.
   The focus follows him over half a second when he walks deeper or nearer. The copies are a half and a quarter the size, so the
   blurring is cheap. Set for the yard and the restaurant; other places go onto the sheets and stay sharp.
+  What stands on the stage takes the focus as well, each thing by its own depth: a piece of the place (with what moves on it)
+  or a man where he is walked about, far from the depth Ilyas stands at, is drawn small on a sheet of its own and set down
+  enlarged, as soft as the floor at its foot. In a fight every man stays sharp.
 - **Dust.** Motes in the air behind the stage and in front of it, the near ones larger and faster past the camera, and a puff where
   a foot comes down on the yard's dirt. Only in the yard. They are Phaser sprites placed by the test from a hash of each one's
   number. Phaser's own particle emitter is not used: it draws on the page's `Math.random`, which is the game's dice.
@@ -90,7 +93,7 @@ play), beside the game's page and the motion test's, which it does not touch.
 
 The Test button opens the panel: what a frame costs on this device, the drawing (the motion test's new or old), the scene (the walk,
 the yard as the game plays it, a fight in the restaurant that plays itself), the picture (in layers or flat), the focus (all of it,
-about half of it, or none), the dust, the parallax, the lamps and the hour. The button beside it switches between layers and flat.
+about half of it, or none), the props (soft with the focus, or sharp), the dust, the parallax, the lamps and the hour. The button beside it switches between layers and flat.
 
 | File | What it holds |
 |---|---|
@@ -196,6 +199,33 @@ about half of it, or none), the dust, the parallax, the lamps and the hour. The 
   here with the lamps on as off (the maps are a handful of small blits). What the lights cost on a phone is not known here,
   as with the rest: the plate, its two soft copies and the stage each go through a shader that reads up to ten lights.
 
+### The stage in focus
+
+- **What was wrong.** The plate went soft by rows and the stage did not: from the south of the yard the pump, the barrels and the
+  man on the crate stood crisp against a wall gone to a blur. And that blur was more than the picture wanted: the softness
+  rose to nine tenths over 340 units of depth, with a heavy blur of 3.6 points.
+- **The plate's softness is less.** It rises to seven tenths over 480 units, and the heavy blur reaches 3 points. From the
+  table the Sump's wall is about a third less soft than it was.
+- **A thing on the stage is soft by its own depth.** It is drawn at one part in F of its size and set down enlarged F times;
+  F follows the floor's softness at the thing's depth, so it changes as smoothly as he walks and nothing snaps from sharp to
+  soft. The whole thing has one softness, where the plate behind it goes softer row by row: a tall thing is a little
+  sharper at its top than the wall there.
+- **Tried first with one small sheet for all of them, and it cost.** A canvas that is drawn on and then drawn from is copied
+  whole each time, so twelve soft things were twelve copies of a sheet nearly the screen's size: the game's painting of a
+  frame went from 10 ms to over 40 here. Now each soft thing has a small sheet of its own, kept from frame to frame and
+  drawn on once a frame, and a piece drawn at under half its size comes from a small copy of it made once: 10 ms to
+  about 11.5 with twelve things soft.
+- **Where a thing falls is told by the painter's own calls** (the piece set down, a glow, smoke, a gate's leaf, a bird), with
+  room round a piece for what moves on it. A part that reached past that room would be cut off while the thing is soft;
+  none was found in the yard.
+- **The rail along the lip is left sharp.** It is set down in front of everything by a depth that is not its own, and runs
+  from near to far with the lamps' lines over the table: soft by that depth, the lines by the table were gone.
+- **The yard's bucket goes soft with the pump it stands by**: its place is known, so it needs no call from the painter.
+- **Men go soft only where he is walked about.** In a fight the depths are close and every man has to be read.
+- **Checked**: stills at phone size from the table, the fire, the middle of the yard, the pump, the gate and the kerb, by day
+  and at night, each beside the props sharp and beside the picture as it was; the same views for anything cut off; `probe.js`
+  on the yard, the yard at night and the walk (the game computes the same); the panel's rows.
+
 ## What it does not tell, and where it falls short
 
 - **What it costs on a phone.** The published page sends one picture to the graphics chip each frame. This sends three, and two
@@ -204,8 +234,9 @@ about half of it, or none), the dust, the parallax, the lamps and the hour. The 
 - **The focus goes by rows.** One softness for each row of the screen, so a low shed and a tall house at the far wall share theirs,
   and what shows beside the shed is no softer than the house. The cure is a depth of its own for each part of the plate, painted
   by the scene.
-- **The pieces are never soft.** The stage is one sheet, so a barrel well in front of him is as sharp as he is. It cannot go soft
-  alone, and blurring the whole sheet would blur him. That needs each piece, and each figure, to be an object of its own in Phaser.
+- **What on the stage stays sharp.** The pieces and the men walked about go soft by their depth now ("The stage in focus",
+  above). Still sharp far off: the rail along the lip (it runs from near to far), a weapon lying on the floor, a man with
+  the effects at Lite (he has no picture of his own to set down), and the marks over things.
 - **A glow drawn among the figures** (a lamp's halo in the restaurant) falls on a clear sheet and is laid over the plate plainly,
   where on the one picture it was added to it. The difference measured small and is not seen at the game's size.
 - **The dust takes no light.** It is not in the bloom, and a lamp does not light it.
@@ -215,7 +246,7 @@ about half of it, or none), the dust, the parallax, the lamps and the hour. The 
 - **The neighbour's shack past the Sump's corner goes with the middle band.** With the camera at the yard's far left it slides
   out of view and the alley beside the stair widens onto the far wall. The row over the yard wall is painted on behind the
   woodshed for the other end; nothing is painted on behind the Sump on this side.
-- **The far side is less soft with the bands apart** (2.4 points at full focus, against 3.6 on the plate), so that its rows of
+- **The far side is less soft with the bands apart** (2.4 points at full focus, against 3 on the plate), so that its rows of
   shacks can be seen to slide. Turning the parallax off at full focus makes it softer again.
 - **The yard is painted twice over the first time it is shown**: whole, for the game's own measuring, then band by band.
 - Nothing is in the game. The published page is as it was.

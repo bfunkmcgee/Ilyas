@@ -35,7 +35,11 @@ const LY=window.LayerTest={
   // units up, where the place does not say: BEYOND, below). fEase: the seconds the focus takes to follow him to another depth. The
   // two blurs' reach, in points of the screen; fMid: the softness at which the light one is all there and the heavy one begins.
   // focusK (above) is how much of all this softness is laid on: 1 for all of it.
-  f0:30,f1:340,fMax:.9,fTop:260,fRoom:.2,fEase:.5,blur1:1.2,blur2:3.6,fMid:.45,
+  f0:30,f1:480,fMax:.7,fTop:260,fRoom:.2,fEase:.5,blur1:1.2,blur2:3,fMid:.45,
+  // soft: what stands on the stage takes the focus too. A piece of the place, or a man where he is walked about, that stands far
+  // from the depth the eye is at is drawn small and set down enlarged, so it is as soft as the floor at its foot (softK: how much
+  // of that softness it gets; under softMin of enlarging it is left sharp; softN: things so drawn in the last frame)
+  soft:true,softK:1,softMin:1.08,softN:0,softUp:'high',
   // the far bands' softness where they are on sheets of their own, in points of the screen (at focusK 1: the far side less soft
   // than the heavy blur makes it on the plate, so that its rows of shacks can still be seen to slide); slide, push: how much
   // of their sliding and of their growing less is shown (1: all of it; both 0: the bands apart but standing as they were painted,
@@ -71,6 +75,7 @@ const NA=mk();let NL=null;
 // NB: which way the stage's things face, this frame: UPC everywhere (standing, leaning a little up, so that a lamp overhead lights a
 // man about as it lights the ground he is on), and each piece's own map where the piece was set down. LAMPS: this frame's lamps
 const NB=mk(),NMQ=[],UPT=.45,UPC='rgb(127,180,243)';let nbUsed=false,nbNew=true,shapeOn=false,LAMPS=null;
+
 // what one context hands the next, so that the three behave as the one the painters think they have
 const KEEP=['globalAlpha','globalCompositeOperation','fillStyle','strokeStyle','lineWidth','lineCap','lineJoin','miterLimit','lineDashOffset','font','textAlign','textBaseline',
   'imageSmoothingEnabled','shadowBlur','shadowColor','shadowOffsetX','shadowOffsetY'];
@@ -108,7 +113,7 @@ function toStage(){
   const a=A.g,m=a.getTransform();TR={s:m.a,tx:m.e,ty:m.f,planes:planes&&!!PX&&!!PX.far};
   wipe(B);carry(a,B.g);ctx=B.g;phase=1;LY.plateUnlit=!!SLID.unlit;
   try{shapeFrame();if(LY.plateUnlit)normalsFrame();if(TR.planes){if(BT.n!==LY.n)bandsT(m);if(PX.soft!==softNow())bandsFar();}
-    focusNow();feet();
+    focusNow();feet();softFrame();
     // (the plate is whole now: its two small copies for the blurs)
     if(LY.focus&&focusHere()){SH.g.globalCompositeOperation='copy';SH.g.drawImage(A.cv,0,0,SH.cv.width,SH.cv.height);SQ.g.globalCompositeOperation='copy';SQ.g.drawImage(SH.cv,0,0,SQ.cv.width,SQ.cv.height);}}
   catch(e){LY.err=String(e&&e.message||e);}}
@@ -211,6 +216,76 @@ function normalsFrame(){
   if(!NL||NL.key!==key){const ns=.5,w=Math.ceil(RC.w*ns),h=Math.ceil(L.lh*ns);if(!NL)NL=mk(w,h);if(NL.cv.width!==w||NL.cv.height!==h){NL.cv.width=w;NL.cv.height=h;}
     NL.key=key;NL.lh=L.lh;const c=NL.g;c.setTransform(ns,0,0,ns,-RC.x0*ns,-RC.y0*ns);X.normals(c);}
   g.setTransform(TR.s*q,0,0,TR.s*q,TR.tx*q,TR.ty*q);g.imageSmoothingEnabled=true;g.drawImage(NL.cv,RC.x0,RC.y0,RC.w,NL.lh);}
+// ---------- the stage in focus ----------
+// The plate goes soft by rows. What stands on the stage is one sheet and stayed sharp: a barrel by the far wall was crisp against a
+// wall gone soft behind it. So a thing that stands far from the eye's depth is drawn on a small sheet of its own, at one part in F
+// of its size, and set down on the stage enlarged F times: the enlarging is its softness, and F follows the floor's softness at
+// the thing's own depth (the light blur's reach up to fMid, the heavy one's from there), so it changes as smoothly as he walks.
+// This is done for the place's pieces (each with what moves on it: the pump's handle, a fire's smoke) and for a man's own
+// picture where he is walked about; in a fight every man stays sharp.
+// Each soft thing keeps its small sheet from frame to frame, no bigger than the thing: a sheet shared by them all had to be
+// copied whole each time one was set down from it. Where a thing falls on the stage is told by the painter's own calls (the
+// piece set down, a glow, smoke, a gate, a bird: build_layers.py), with room round a piece for what moves on it. It is noted
+// the first time the thing is drawn, sharp, and kept in the place's own units; a thing that tells nothing stays sharp. A piece
+// drawn at under half its size is taken from a copy of it made that small once (T.mp), so nothing has to be shrunk far.
+const softAt=d=>cl((Math.abs(d-LY.focusAt)-LY.f0)/LY.f1,0,1)*LY.fMax*cl(+LY.focusK||0,0,1);
+function softF(d){const m=softAt(d),mid=cl(LY.fMid,.05,.95),r=m<mid?LY.blur1*m/mid:LY.blur1+(LY.blur2-LY.blur1)*(m-mid)/(1-mid),F=1+r*DPR*(+LY.softK||0);
+  return F>=LY.softMin?Math.min(F,16):0;}
+// SCS: the pieces' small sheets, by the piece's place in the painter's list; SCF: the men's, by their turn in the frame. PB: each
+// piece's box in the place's units (0: it tells none). While a thing is drawn: SCg its context, scQ its scale there, (scX, scY)
+// the stage's pixel at the sheet's corner, BX its box on the stage as told so far
+const SCS=[],SCF=[],PB=[];let scF=0,scQ=1,scX=0,scY=0,SCg=null,BX=null,softOn=false;
+function softFrame(){softOn=!!(LY.soft&&LY.focus&&focusHere());LY.softN=0;scF=0;}
+const cls=n=>Math.max(64,Math.ceil((n+4)/64)*64);
+function sheet(A0,i,w,h){let o=A0[i];if(!o)o=A0[i]=mk(64,64);const W=cls(w),H=cls(h);
+  if(o.cv.width<W||o.cv.width>W*3)o.cv.width=W;if(o.cv.height<H||o.cv.height>H*3)o.cv.height=H;
+  o.g.setTransform(1,0,0,1,0,0);o.g.globalAlpha=1;o.g.globalCompositeOperation='source-over';o.g.clearRect(0,0,o.cv.width,o.cv.height);return o;}
+const grow=(x0,y0,x1,y1)=>{const b=BX;if(x0>x1){const t=x0;x0=x1;x1=t;}if(y0>y1){const t=y0;y0=y1;y1=t;}if(x0<b[0])b[0]=x0;if(y0<b[1])b[1]=y0;if(x1>b[2])b[2]=x1;if(y1>b[3])b[3]=y1;};
+// (a box in the units the painter is drawing in, to the stage's pixels)
+function growC(c,x0,y0,x1,y1){const m=c.getTransform(),k=1/scQ;grow((m.a*x0+m.e)*k+scX,(m.d*y0+m.f)*k+scY,(m.a*x1+m.e)*k+scX,(m.d*y1+m.f)*k+scY);}
+// (i: the thing's sheet and its place in PB; box: where it falls, in the place's units, where that is known without asking)
+function softDraw(i,d,run,box){
+  const st=B.g,p=box||PB[i];if(i==null||p===0)return false;
+  const m=st.getTransform(),told=()=>{const b=BX;BX=null;SCg=null;scQ=1;scX=scY=0;if(!box)PB[i]=b[2]>b[0]&&b[3]>b[1]?[(b[0]-m.e)/m.a,(b[1]-m.f)/m.d,(b[2]-m.e)/m.a,(b[3]-m.f)/m.d]:p||0;};
+  // (the first time: as ever, with its box noted)
+  if(!p){BX=[1e9,1e9,-1e9,-1e9];SCg=st;try{run();}finally{told();}return true;}
+  const F=softF(d);if(!F)return false;
+  const pad=F+3,x0=Math.max(0,Math.floor(p[0]*m.a+m.e-pad)),y0=Math.max(0,Math.floor(p[1]*m.d+m.f-pad)),x1=Math.min(cv.width,Math.ceil(p[2]*m.a+m.e+pad)),y1=Math.min(cv.height,Math.ceil(p[3]*m.d+m.f+pad));
+  if(x1<=x0||y1<=y0)return false;
+  const q=1/F,sw=Math.ceil((x1-x0)*q),sh=Math.ceil((y1-y0)*q),o=sheet(SCS,i,sw,sh),g=o.g;
+  carry(st,g);g.setTransform(m.a*q,m.b*q,m.c*q,m.d*q,(m.e-x0)*q,(m.f-y0)*q);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='low';
+  scQ=q;scX=x0;scY=y0;SCg=g;BX=[1e9,1e9,-1e9,-1e9];ctx=g;
+  try{run();}finally{ctx=st;told();}
+  st.save();st.setTransform(1,0,0,1,0,0);st.globalAlpha=1;st.globalCompositeOperation='source-over';st.imageSmoothingEnabled=true;st.imageSmoothingQuality=LY.softUp;
+  st.drawImage(o.cv,0,0,sw,sh,x0,y0,sw*F,sh*F);st.restore();LY.softN++;return true;}
+{const f=drawEnvItem;drawEnvItem=function(it){
+  if(phase!==1||ctx!==B.g||!softOn||!it)return f.apply(this,arguments);
+  let r;const run=()=>{r=f.call(this,it);};
+  if(it.pitPiece){if(!it.pitPiece.sharp&&softDraw(it.lyI,it.d,run))return r;}
+  // (the yard's bucket where it stands on the floor, with the pump's stream over it: sk_pit2ui.js)
+  else if(it.act1b==='bucket'&&it.at&&!it.at.hand){const a=it.at,x=a.x+a.d*PSX,y=a.y-a.d*PSY;if(softDraw(63,a.d,run,[x-18,y-(a.spout?60:30),x+18,y+8]))return r;}
+  return f.apply(this,arguments);};}
+// (each piece's place in the painter's list, which does not change as the list is sorted by depth)
+{const f=envItems;envItems=function(items){const r=f.apply(this,arguments);if(items&&items.length){let k=0;for(const it of items)if(it&&it.pitPiece)it.lyI=k++;}return r;};}
+// What the painter and the light module call (build_layers.py). box(c, x0, y0, x1, y1): the painter is about to draw within
+// this box of c. pieceDraw(c, T): a piece is about to be set down on c; true says it was set down here, from its small copy.
+// put(f, R): the light module is about to set a man's own picture down; true says it was set down here, soft
+SLID.box=function(c,x0,y0,x1,y1){if(BX&&c===SCg)growC(c,x0,y0,x1,y1);};
+SLID.pieceDraw=function(c,T){
+  if(!BX||c!==SCg||scQ>=1)return false;
+  const m=c.getTransform(),r=Math.abs(m.a)*T.w/T.cv.width;if(!(r<.5))return false;
+  let k=Math.min(4,Math.floor(Math.log2(1/r)));const M=T.mp||(T.mp=[]);
+  for(let j=M.length;j<k;j++){const s0=j?M[j-1]:T.cv,w=Math.ceil(s0.width/2),h=Math.ceil(s0.height/2);if(w<6||h<6){k=j;break;}const o=mk(w,h);o.g.imageSmoothingEnabled=true;o.g.drawImage(s0,0,0,w,h);M.push(o.cv);}
+  if(k<1)return false;c.drawImage(M[k-1],T.x,T.y,T.w,T.h);return true;};
+SLID.put=function(f,R){
+  if(phase!==1||ctx!==B.g||!softOn||!R||!R.cv||!(R.w>0)||!(R.h>0)||!(typeof exOn==='function'&&exOn()))return false;
+  const F=softF(f.dep);if(!F)return false;
+  const q=1/F,x0=Math.max(0,Math.floor(R.x)),y0=Math.max(0,Math.floor(R.y)),x1=Math.min(cv.width,Math.ceil(R.x+R.w)),y1=Math.min(cv.height,Math.ceil(R.y+R.h));
+  if(x1<=x0||y1<=y0)return false;
+  const sw=Math.ceil((x1-x0)*q)+1,sh=Math.ceil((y1-y0)*q)+1,o=sheet(SCF,scF++,sw,sh),g=o.g;g.imageSmoothingEnabled=true;g.imageSmoothingQuality='medium';
+  g.drawImage(R.cv,0,0,R.w,R.h,(R.x-x0)*q,(R.y-y0)*q,R.w*q,R.h*q);
+  const st=B.g;st.imageSmoothingEnabled=true;st.imageSmoothingQuality=LY.softUp;st.drawImage(o.cv,0,0,sw,sh,x0,y0,sw*F,sh*F);LY.softN++;return true;};
+
 // ---------- the pieces' shapes ----------
 // A piece is a small picture the place's painter keeps and sets down among the people (K.piece, K.drawPiece). Its map: the outline
 // blurred is taken for a height (the middle high, the edge falling away over a fifth of the piece's width, 4 to 14 units), and the
@@ -244,9 +319,11 @@ function shapeFrame(){
 // down on the sheet of facings at the same place. glowK(c, x, y): how much of a painted glow at (x, y) to paint, where the lamps
 // are about to multiply it: a lamp's own halo is then as bright as its painter meant, not brighter by the lamp's own light
 SLID.piece=function(c,T){
-  if(phase!==1||c!==B.g||!shapeOn)return;
+  // (on the small sheet: the piece's box, with room round it for what moves on it, and above it most)
+  const sm=BX&&c===SCg;if(sm)growC(c,T.x-.25*T.w-20,T.y-.35*T.h-24,T.x+T.w+.25*T.w+20,T.y+T.h+.1*T.h+10);
+  if(phase!==1||!(sm||c===B.g)||!shapeOn)return;
   const N=T.nm;if(N===undefined){T.nm=null;NMQ.push(T);return;}if(!N)return;
-  const m=c.getTransform(),qx=NB.cv.width/cv.width,qy=NB.cv.height/cv.height,g=NB.g;
+  const k=sm?1/scQ:1,m0=c.getTransform(),m={a:m0.a*k,b:m0.b*k,c:m0.c*k,d:m0.d*k,e:m0.e*k+(sm?scX:0),f:m0.f*k+(sm?scY:0)},qx=NB.cv.width/cv.width,qy=NB.cv.height/cv.height,g=NB.g;
   g.setTransform(m.a*qx,m.b*qy,m.c*qx,m.d*qy,m.e*qx,m.f*qy);g.drawImage(N,T.x,T.y,T.w,T.h);LY.shapeN++;};
 // fig(R): the light module has just set a man's own picture down on the stage (R.cv, at R.x, R.y on the canvas, R.w by R.h): his
 // outline goes down on the sheet of facings in the standing colour, so that a piece behind him does not show through him there
@@ -258,10 +335,11 @@ SLID.fig=function(R){
   g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='copy';g.drawImage(R.cv,0,0,R.w,R.h,0,0,w,h);
   g.globalCompositeOperation='source-in';g.fillStyle=UPC;g.fillRect(0,0,w,h);
   const n=NB.g;n.setTransform(1,0,0,1,0,0);n.drawImage(FG.cv,0,0,w,h,R.x*qx,R.y*qy,w,h);};
-SLID.glowK=function(c,x,y){
+SLID.glowK=function(c,x,y,r,sq){
+  const sm=BX&&c===SCg;if(sm&&r>0)growC(c,x-r,y-r*(sq||1),x+r,y+r*(sq||1));
   // (own: the painter is at the glow of something lit from within, which is turned away from every lamp)
-  const L=LAMPS;if(!L||!L.length||!LY.lamps||SLID.own||!(phase===1?c===B.g:phase===0&&c===A.g&&SLID.unlit))return 1;
-  const m=c.getTransform(),wx=(m.a*x+m.c*y+m.e-TR.tx)/TR.s,wy=(m.b*x+m.d*y+m.f-TR.ty)/TR.s;let C=0;
+  const L=LAMPS;if(!L||!L.length||!LY.lamps||SLID.own||!(phase===1?sm||c===B.g:phase===0&&c===A.g&&SLID.unlit))return 1;
+  const m=c.getTransform(),k=sm?1/scQ:1,wx=((m.a*x+m.c*y+m.e)*k+(sm?scX:0)-TR.tx)/TR.s,wy=((m.b*x+m.d*y+m.f)*k+(sm?scY:0)-TR.ty)/TR.s;let C=0;
   for(const q of L){const dx=q.x-wx,up=wy-q.y,z=(q.z||.55)*q.r,d2=dx*dx+up*up+z*z,at=1-d2/(q.r*q.r);if(at>0)C+=q.k*at*Math.max(0,UPT*.9*up+.9*z)/Math.sqrt(d2);}
   return 1/(1+.8*C*LY.lampK);};
 // a band's view this frame. m is the frame's own (world to canvas: the camera's place, its width of view, its shake). A point
@@ -464,7 +542,7 @@ function sync(){
   dust();}
 PHOST.game.events.on('prestep',()=>{try{sync();}catch(e){LY.err=String(e&&e.message||e);}});
 LY.info=()=>({live:LY.live,why:LY.why,focus:LY.focus&&focusHere(),dust:LY.dust&&dusty(),parallax:LY.live&&TR.planes,bands:TR.planes?['far','mid'].map(b=>[+BT[b].r.toFixed(3),+BT[b].tx.toFixed(1),+BT[b].ty.toFixed(1)]):null,bandsMs:PX?Math.round(PX.ms):0,far:[FAR.cv.width,FAR.cv.height],n:LY.n,ms:+LY.ms.toFixed(2),host:+(PHOST.hostMs||0).toFixed(2),focusAt:+LY.focusAt.toFixed(1),puffs:PUFFS.length,err:LY.err,
-  size:G?[G.w,G.h]:null,light:lightOn,lamps:LY.lampsN,ground:LY.plateUnlit,shapes:LY.shapeN,shapeMs:Math.round(LY.shapeMs),lampErr:LY.lampErr});
+  size:G?[G.w,G.h]:null,light:lightOn,soft:LY.softN,lamps:LY.lampsN,ground:LY.plateUnlit,shapes:LY.shapeN,shapeMs:Math.round(LY.shapeMs),lampErr:LY.lampErr});
 // (for the checks: the sheets themselves)
 LY.puffs=()=>PUFFS.map(p=>({x:+p.x.toFixed(1),y:+p.y.toFixed(1),a:+p.a.toFixed(2),r:+p.r.toFixed(1),age:+(S.t-p.t0).toFixed(2),life:+p.life.toFixed(2)}));
 LY.sheets=()=>({far:FAR.cv,farStill:PX&&PX.far&&PX.far.cv,mid:PX&&PX.mid&&PX.mid.cv,plate:A.cv,stage:B.cv,plateN:NA.cv,stageN:NB.cv,top:cv,half:SH.cv,quarter:SQ.cv,mask1:M1.cv,mask2:M2.cv,bloom:BM.cv});

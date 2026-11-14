@@ -9,6 +9,7 @@ const el=P.el;
 document.head.appendChild(el('style',{textContent:'@media (max-height:480px){#moSheet{max-height:calc(66vh - 6px)}}'}));
 P.row('Picture',[['In layers',true],['Flat',false]],()=>LY.on,v=>{LY.on=v;});
 P.row('Focus',[['Full',1],['Light',.55],['Off',0]],()=>LY.focus?LY.focusK:0,v=>{LY.focus=v>0;if(v>0)LY.focusK=v;});
+P.row('Props',[['Soft',true],['Sharp',false]],()=>LY.soft,v=>{LY.soft=v;});
 P.row('Dust',[['On',true],['Off',false]],()=>LY.dust,v=>{LY.dust=v;});
 P.row('Parallax',[['On',true],['Off',false]],()=>LY.parallax,v=>{LY.parallax=v;});
 // the place's lamps as Phaser's lights, and the hour to see them by (the yard's own hours: Act I keeps them)
