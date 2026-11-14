@@ -786,6 +786,13 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   draw here against the 1.2 ms the timing check allows a painted one, the skins are side view only (a spin shows the painted
   figure), and no phone's frame time has been read. The folder keeps its name for now.
   The fall filmed again, a fifth switch there for a morning, is the game's own scene since V116: sk_fallcut.js, below.
+  **The look tests (Nov 13, on the branch claude/ink-dither-test; not published).** Three more switches in the same panel, under
+  "Look tests", each off until it is switched on (`sk_looktest`; `?look=dither,grain,ink`): a blue-noise dither laid into the
+  picture round the finish, a film grain coarse enough for a phone, and a weapon's trail drawn as one tapered brush stroke
+  (perfect-freehand 1.2.3, MIT, vendor/perfect-freehand.min.js). `build.py` adds them after the rest (`LOOK_TESTS`: the brush
+  library, spike/look/bluenoise.js, spike/look/look_test.js); test_page.html has none of it, and with all three off the page draws
+  the same pixels as main's. spike/look/README.md says what each does, what was measured and what is still to judge on a phone;
+  `node spike/look/check_look.js` (after `python3 build.py --qa`) checks them; `python3 tools/bluenoise.py` makes the tile again.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
 **Animation (since V64).** A move is `f.action={t0,end,body:[keys],arm:[keys]}`: keyframes `{t,v,e}` of body poses (px, pz, crouch,

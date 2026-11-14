@@ -102,9 +102,13 @@ def assemble():
 # shows the picture through Phaser with its glow and grade; each has a switch in the Options panel). test_page.html has none of it:
 # the browser checks run the game as it was, and the parts are checked in their own pages.
 LOOK_PARTS = ('skin_kit.js', 'skin_art_body.js', 'skin_art_head.js', 'skin_art_pit.js', 'skin.js', 'cast_skin.js', 'host.js')
+# The look tests (on the branch claude/ink-dither-test, spike/look: a dither, a grain and brushed trails, each a switch in the Options
+# panel and each off until it is switched on), after the rest: the brush library, the blue-noise tile, then the tests themselves.
+LOOK_TESTS = (('vendor', 'perfect-freehand.min.js'), ('spike', 'look', 'bluenoise.js'), ('spike', 'look', 'look_test.js'))
 def game_page(html):
     i = html.rfind('<script>')
     extra = [read(os.path.join('vendor', 'phaser.min.js'))] + [read(os.path.join('spike', 'phaser', n)) for n in LOOK_PARTS]
+    extra += [read(os.path.join(*n)) for n in LOOK_TESTS]
     for s in extra:
         if '</script' in s: sys.exit('a script for the published page holds a closing script tag')
     return html[:i] + '<script>var FLOW_GAME=1;</script>\n' + html[i:] + ''.join('<script>\n' + s + '\n</script>\n' for s in extra)
