@@ -1942,6 +1942,23 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
    .56, the closest two .85 to .81; the three policemen .77 to .85 before and .70 to .81 after, the lobby's three guards .78 to
    .85 and .62 to .77: one stand and one uniform still hold a crew close) and the goblins three kinds (the same seven, in their
    guard: mean .69 to .47, the closest two .82 to .75).
+10. (Added Nov 14, asked for, from the yard's work for V117 and V118; judged from stills, not measured by the review.) Walking
+   about: a place walked about names its shots (the yard's `YARD_SHOTS`, each with a width for an upright phone, a wide screen and
+   a phone on its side); a line cuts to its speaker, and a thing named in a line is shown as it is named; the walk is framed 440
+   units across on an upright phone with the place's foot at the screen's foot (`band` low); and his hand meets what he uses: he
+   stoops for what he takes, stands at the grip the painter's number gives, is refused at the thing he cannot use, walks round each
+   thing's real box (`YARD_BLOCKS`) and stands on no one's mark. Reduced motion cuts.
+11. (Added Nov 14, the same way.) Lamps: each shows its source, a glow close round it and a pool on the ground before it (.36 to .5
+   as deep as wide; the yard's reaches 44 to 170 units and strengths .09 to .34 are the style guide's table), in sodium's hues and
+   never gold's; what is lit from within (an open door, a window) takes no lamp; none is lit by day, the pools are at half at dusk
+   and full at night; a lamp flickers by a tenth and a fire by a quarter, from the clock. One list for a place is the aim: the yard
+   still keeps its pools (`lightPass`), its glows (`live`) and the layers test's `lampsAt` apart.
+12. (Added Nov 14: the layers test's settings, not in the game.) In layers: sharp within 30 units of his depth, softness to seven
+   tenths over 480, blurs of 1.2 and 3 points (`LayerTest` f0, f1, fMax, blur1, blur2); a piece or a man far off as soft as the
+   floor at its foot, every man sharp in a fight, the marks and the words always; the far side slides (a fifth of the pan) and
+   the floor never; under Phaser's lights the place is painted without its lamp pools, a surface takes a lamp by how it faces and a
+   piece by its outline, ten lights at most; reduced motion stills the bands and the flicker. spike/layers/README.md has the
+   findings behind each number.
 
 **The drawing's rules (the drawing guide, approved Nov 2).** How things are drawn; the guide has the tables and the examples.
 1. Detail follows depth in five tiers: far (shapes and lit specks, within .15 of the sky behind), the set (the most detail, above
@@ -1960,6 +1977,29 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
    pieces vary by up to a quarter in size, 6 degrees in lean and two fifths in spacing; every choice comes from a seed.
 7. People who are not fighting are drawn with the figure kit's planes and rim, busy and in overlapping groups; world text is
    Alegreya SC or hand-drawn, never the HUD's Barlow; props tell the place's story or serve the fight.
+8. (Added Nov 14, asked for, from the yard's rounds; judged from stills, not measured by the review.) The man is the measure:
+   Ilyas stands 154 units (knee 45, hip 78, shoulder 126), so a metre is about 85. A thing's size is its size in life, and he is
+   shown standing beside each new thing before it is detailed. A thing is made bigger about its foot (`zoom`, a layout entry's
+   `k`: the entry holds the real box), and what the game touches (a grip's height, a stair's rise, a block, a shadow) reads the
+   same entry.
+9. (Added Nov 14.) Room on the floor: about a quarter of a walked floor under things, three tenths at most (the yard's south read
+   as crowded at 32% and 41% and right at 25% and 29%: the share of the floor's rectangle its blocks cover), with the sizes
+   settled before the floor's extent. A thing h high at depth d hides the floor back to d + h/.75: in front of a fight's floor
+   nothing stands over .75 x (DEP_MIN - d), height goes far off or past the floor's sides, and nothing stands where a taller thing
+   hides it.
+10. (Added Nov 14.) Pieces and the still picture: what a man can walk behind is a piece at its foot's depth, with its shadow and
+   what moves on it; a thing that runs from near to far says it has no depth of its own. The place's light lifts every dark: what
+   stands along a wall is painted again over the light (`crisp`: .62, .5 at night) and throws its shape on the wall (`thrown`), a
+   dark that must stay is drawn after the light, and a thing near the still picture's sides is a piece. A thing steps from its
+   ground by about .08, and nothing dark stands hip high behind his marks.
+11. (Added Nov 14.) Small things that move: from the game's clock and a hash of the thing's number, never the dice, and what they
+   keep is the painter's own; one wind for a place; by the hour; tall growth only where no one can get behind it; a thin thing a
+   filled shape (a blade wide at its foot; a stroke in the floor's plane 1.75 units); only the still ones under reduced motion;
+   all inside the place's cost.
+12. (Added Nov 14.) A new place, in order: the layout as data with the floor's cover counted; the block-out with Ilyas among the
+   things, shown before any detail; heights and sight lines; the pieces; values under the light at each hour and at his marks;
+   each thing in the eight steps, with `python3 test.py places` run alone as it grows; the lamps; the small things; shots and
+   hands; the place's review and stills at both sizes by each hour.
 
 **The look review (since V88, phase 4).** `python3 test.py look` holds every place to the two guides' measured rules, frame by
 frame, on an upright phone and a wide screen (uiwork/look/review.py, under Screenshots), and a frame that breaks one fails. A fail
@@ -2304,3 +2344,13 @@ was checked, and anything that did not work, plainly.
   among them. Not put right in V117: the fall's end wants holding face up by the scene, not by where the hay leaves him.
   Since V117 the pages job prints the checks that failed in its log ("What failed"): the kept outputs' download is refused
   from this workspace.
+- A canvas that is drawn on and then drawn from is copied whole each time (the layers test's soft props, Nov 14: one small sheet
+  shared by twelve things made twelve copies of a sheet nearly the screen's size, and the game's painting of a frame went from 10
+  ms to over 40 here). A thing drawn that way keeps a small canvas of its own, written once a frame; a still picture drawn
+  smaller than half its size comes from a small copy made once.
+- A place's light is added over its whole still picture and lifts every dark in it (the yard, Nov 13: a black tyre on the wall
+  came out at the wall's own value, and a barrel against the shed could not be seen). What must keep its darks is laid again over
+  the light, drawn after it, or made a piece (the drawing's rule 10).
+- A light in Phaser multiplies what it falls on: it cannot make a pool on black ground, and a pale thing in a pool goes to white
+  (the layers test's lamps, Nov 14). The picture under such lights is painted without its own lamplight, what is lit from within
+  is turned away from them, and a lamp's own halo is painted fainter by what the lamp will multiply it (the look's rule 12).
