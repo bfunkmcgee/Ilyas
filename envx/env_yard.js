@@ -1642,10 +1642,10 @@ function gardenPiece(i){const P=K.pal(),So=SO(),sh=(col,k)=>K.shade(P,col,k),LA=
 // The tree by the practice ground: stunted, a few leaves left it, a limb out to one side with a tyre hung from it on a rope (the swing is
 // live). Where the rope is tied is kept for it.
 const TREES={sw:{x:0,y:0},z:[0,0,1]};
-function treePiece(){const P=K.pal(),T0=SO().tree,sh=(col,k)=>K.shade(P,col,k),LA=P.lightA,p=Q(T0.x,0,T0.d),X=p.x-100,Yt=p.y-196,Wd=206,Ht=204,tk=T0.k||1;TREES.sw.x=p.x+50;TREES.sw.y=p.y-99;TREES.z=[p.x,p.y,tk];
+function treePiece(){const P=K.pal(),T0=SO().tree,sh=(col,k)=>K.shade(P,col,k),LA=P.lightA,p=Q(T0.x,0,T0.d),X=p.x-100,Yt=p.y-196,Wd=206,Ht=204,tk=T0.k||1;TREES.sw.x=p.x-52;TREES.sw.y=p.y-99;TREES.z=[p.x,p.y,tk];
   return K.piece('yardtree|'+P.key,...grown(p.x,p.y,tk,X,Yt,Wd,Ht),c=>{zoom(c,p.x,p.y,tk);const tr=rng(463),tips=[];c.fillStyle=rgba('#000000',.28);c.beginPath();c.ellipse(p.x+8,p.y+1,26,4.6,0,0,TAU);c.fill();
     bareTree(c,P,p,1.5,tr,-.12,tips);
-    c.strokeStyle=sh('#2a211a',1.05);c.lineWidth=5;c.lineCap='round';c.beginPath();c.moveTo(p.x-2,p.y-66);c.quadraticCurveTo(p.x+22,p.y-94,p.x+54,p.y-101);c.stroke();c.lineCap='butt';
+    c.strokeStyle=sh('#2a211a',1.05);c.lineWidth=5;c.lineCap='round';c.beginPath();c.moveTo(p.x-5,p.y-66);c.quadraticCurveTo(p.x-26,p.y-94,p.x-56,p.y-101);c.stroke();c.lineCap='butt';
     c.fillStyle=sh('#2a211a',1.05);c.beginPath();c.moveTo(p.x-10,p.y+1);c.quadraticCurveTo(p.x-5,p.y-3,p.x-5,p.y-14);c.lineTo(p.x+5,p.y-14);c.quadraticCurveTo(p.x+5,p.y-3,p.x+12,p.y+1);c.closePath();c.fill();
     for(const [x,y] of tips){if(tr()<.2||y>p.y-112)continue;const rx=7+tr()*7;c.fillStyle=sh('#26321e',1.05);K.blob(c,x,y-2,rx,rx*.62,tr,10);c.fill();c.fillStyle=sh('#34442a',1.05);K.blob(c,x-2,y-4,rx*.62,rx*.4,tr,9);c.fill();c.fillStyle=rgba(P.light,.05+.14*LA);K.blob(c,x-3,y-6,rx*.4,rx*.2,tr,8);c.fill();}
     c.fillStyle=sh('#6a5a44',1.05);c.fillRect(TREES.sw.x-2.4,TREES.sw.y-3,4.8,4.6);});}
