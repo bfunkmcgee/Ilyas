@@ -11,6 +11,10 @@ P.row('Picture',[['In layers',true],['Flat',false]],()=>LY.on,v=>{LY.on=v;});
 P.row('Focus',[['Full',1],['Light',.55],['Off',0]],()=>LY.focus?LY.focusK:0,v=>{LY.focus=v>0;if(v>0)LY.focusK=v;});
 P.row('Dust',[['On',true],['Off',false]],()=>LY.dust,v=>{LY.dust=v;});
 P.row('Parallax',[['On',true],['Off',false]],()=>LY.parallax,v=>{LY.parallax=v;});
+// the place's lamps as Phaser's lights, and the hour to see them by (the yard's own hours: Act I keeps them)
+P.row('Lamps',[['On',true],['Off',false]],()=>LY.lamps,v=>{LY.lamps=v;});
+P.row('Hour',[['Day','day'],['Dusk','dusk'],['Night','night']],()=>{const a=typeof S!=='undefined'&&S?S.act1:null;return a&&a.night?'night':a&&a.dusk?'dusk':'day';},
+  v=>{if(typeof S==='undefined'||!S)return;const a=typeof act1State==='function'?act1State():S.act1;if(!a)return;a.night=v==='night';a.dusk=v==='dusk';a.morning=false;});
 // The walk's camera goes along with him on an upright phone, as the yard's own does while he walks about, so that the far bands
 // have a camera to slide past. On the motion test's own page it stands still.
 if(typeof V11!=='undefined'&&V11.step)V11.step.push(()=>{const sv=S.story,C=S.camCut;if(!sv||sv.key!=='motion'||!C)return;const K=hero();if(!K||!K.p)return;
@@ -28,7 +32,7 @@ P.onPaint(()=>{quick.textContent=LY.on?'Layers':'Flat';quick.classList.toggle('o
 const N=120,gaps=new Float32Array(N);let k=0,n=0,last=0,shown=0;
 function tick(t){if(last){gaps[k]=t-last;k=(k+1)%N;if(n<N)n++;}last=t;
   if(t-shown>500&&n>10){shown=t;let sum=0,worst=0;for(let i=0;i<n;i++){sum+=gaps[i];if(gaps[i]>worst)worst=gaps[i];}
-    const I=LY.info();line.textContent=(I.live?'in layers'+(I.parallax?', far bands apart':'')+(LY.focus&&!I.focus?' (no focus set for this place)':''):'flat'+(LY.on&&I.why?' ('+I.why+')':''))+'\nframes '+(sum/n).toFixed(1)+' ms, worst '+worst.toFixed(0)+
+    const I=LY.info();line.textContent=(I.live?'in layers'+(I.parallax?', far bands apart':'')+(I.lamps?', '+I.lamps+' lamps':'')+(LY.focus&&!I.focus?' (no focus set for this place)':''):'flat'+(LY.on&&I.why?' ('+I.why+')':''))+'\nframes '+(sum/n).toFixed(1)+' ms, worst '+worst.toFixed(0)+
       '\npaint '+I.ms.toFixed(1)+' ms, Phaser '+I.host.toFixed(1)+' ms';}
   requestAnimationFrame(tick);}
 requestAnimationFrame(tick);

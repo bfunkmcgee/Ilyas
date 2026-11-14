@@ -41,6 +41,9 @@ const LY=window.LayerTest={
   blurFar:2.4,blurMid:1.3,slide:1,push:1,ext:true,
   // dust: how many motes behind the stage and in front of it, how bright they are and how thick a footfall's puff is (0: none)
   motesBack:40,motesFront:9,moteA:1,puffA:1,dustAll:false,
+  // lamps: the place's lamps as Phaser's own lights on the sheets (lampK: how much of their strength; lampsN: how many the last
+  // frame had)
+  lamps:true,lampK:1,lampsN:0,lampErr:null,
   // read by the page: whether the last frame went onto the sheets, why not if not, frames so painted, what render() took (ms)
   live:false,why:'',n:0,ms:0,focusAt:92,err:null};
 const cl=(x,a,b)=>x<a?a:x>b?b:x;
@@ -279,7 +282,8 @@ function scn(){const g=PHOST.game,s=g&&g.scene&&g.scene.getScene('host');return 
 function tex(sc,key,c){if(sc.textures.exists(key))sc.textures.remove(key);sc.textures.create(key,c,c.width,c.height).add('__BASE',0,0,0,c.width,c.height);}
 function dot(){const L=mk(60,60),g=L.g,r=g.createRadialGradient(30,30,0,30,30,29);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.5,'rgba(255,255,255,.5)');r.addColorStop(1,'rgba(255,255,255,0)');
   g.fillStyle=r;g.fillRect(0,0,60,60);return L.cv;}
-function drop(){if(!G)return;for(const o of [G.plate,G.soft1,G.soft2,G.stage,G.bloom,G.back,G.front,G.far,G.mid])try{if(o)o.destroy();}catch(e){/* gone with its scene */}G=null;}
+function drop(){if(!G)return;for(const o of G.lamps||[])try{G.sc.lights.removeLight(o);}catch(e){/* gone with its scene */}
+  for(const o of [G.plate,G.soft1,G.soft2,G.stage,G.bloom,G.back,G.front,G.far,G.mid])try{if(o)o.destroy();}catch(e){/* gone with its scene */}G=null;}
 // the far band's sheet under everything, the size of the screen; over it the middle band, where its own view of the world puts
 // it. Each is blurred by its own small amount where the focus is on (the textures are small, so the blurs are nearly free)
 function bandsSync(sc,live,dpr){
@@ -309,7 +313,7 @@ function build(sc){
   const soft1=softOf('lyH',SH.cv,'lyM1',-58),soft2=softOf('lyQ',SQ.cv,'lyM2',-57);
   const back=sc.add.container(0,0).setDepth(-55),stage=sc.add.image(0,0,'ly1').setOrigin(0,0).setDepth(-50),front=sc.add.container(0,0).setDepth(-45);
   const bloom=sc.add.image(0,0,'lyBloom').setOrigin(0,0).setDisplaySize(w,h).setBlendMode(Phaser.BlendModes.SCREEN).setDepth(-40);
-  G={w,h,sc,plate,soft1,soft2,back,stage,front,bloom,motes:[],puffs:[],seen:-1};maskKey='';
+  G={w,h,sc,plate,soft1,soft2,back,stage,front,bloom,motes:[],puffs:[],lamps:[],lit:false,seen:-1};maskKey='';
   const mote=(i,fr)=>{const im=sc.add.image(0,0,'lyDot').setBlendMode(Phaser.BlendModes.ADD).setVisible(false);(fr?front:back).add(im);
     return{im,fr,x:hs(i*7+1),y:hs(i*7+2),ph:hs(i*7+3)*6.283,v:.5+hs(i*7+6),r:fr?4+hs(i*7+4)*5:.9+hs(i*7+4)*1,a:fr?.07+hs(i*7+5)*.08:.22+hs(i*7+5)*.28,p:fr?1.35+hs(i*7+4)*.5:.82+hs(i*7+4)*.14};};
   for(let i=0;i<LY.motesBack;i++)G.motes.push(mote(i,false));for(let i=0;i<LY.motesFront;i++)G.motes.push(mote(1000+i,true));}
@@ -328,6 +332,25 @@ function dust(){
     const R=p.r*(1+1.6*u)*s/30;
     im.setVisible(true).setPosition((p.x+p.vx*age*(1-.35*u))*s+TR.tx,(p.y+p.vy*age*(1-.5*u))*s+TR.ty).setScale(R*1.5,R*.72).setTint(K.dust).setAlpha(cl(p.a*(1-u)*(1-u)*LY.puffA*(.6+.4*K.k),0,1));}
   for(let i=n;i<G.puffs.length;i++)G.puffs[i].setVisible(false);}
+// ---------- the lamps ----------
+// A place's lamps as Phaser's own lights, on the stage: the people and the pieces near a lamp take its light, and the light moves
+// as its flame does. The place's painter says where its lamps are in the picture, how far each reaches and how strong it is
+// (EnvLook.S[k].lampsAt(t, still): the yard's, opened in this page's copy by build_layers.py). The air is left white, so whatever
+// no lamp reaches is as it was painted. The plate is not lit this way: its lamplight is painted on it already, and a light
+// multiplies what it falls on, so the lit wall by the door went to white (README, "The lamps"). The stage carries no normal map:
+// Phaser's flat one stands in, so a lamp is a round of light falling off from where it hangs (z: how far it stands off the
+// sheet, as a part of its reach; more is wider and softer). A lamp's flicker is the game's clock's, never the dice, and with
+// motion reduced it burns steady.
+function lampsNow(){const k=envKey(),X=k&&EnvLook.S[k];try{return LY.lamps&&X&&typeof X.lampsAt==='function'?X.lampsAt(S.t,still()):null;}catch(e){LY.lampErr=String(e&&e.message||e);return null;}}
+function lamps(sc,live){
+  const L=live?lampsNow():null,on=!!(L&&L.length),s=TR.s;
+  if(on&&!G.lit){sc.lights.enable();sc.lights.setAmbientColor(0xffffff);G.lit=true;}
+  if(!!G.stage.lighting!==on)G.stage.setLighting(on);
+  let n=0;
+  if(on)for(const q of L){let o=G.lamps[n];if(!o){o=sc.lights.addLight(0,0,100,0xffffff,0);G.lamps.push(o);}n++;
+    const r=q.r*s;o.setPosition(q.x*s+TR.tx,q.y*s+TR.ty);o.setRadius(r).setColor(q.col).setIntensity(q.k*LY.lampK).setZ((q.z||.55)*r);}
+  for(let i=n;i<G.lamps.length;i++)G.lamps[i].setIntensity(0).setRadius(1);
+  LY.lampsN=n;}
 function sync(){
   const sc=scn();if(!sc)return;
   if(LY.need||(G&&G.sc!==sc)){LY.need=false;build(sc);}
@@ -336,7 +359,7 @@ function sync(){
   G.plate.setVisible(live);G.stage.setVisible(live);G.back.setVisible(live);G.front.setVisible(live);const foc=live&&LY.focus&&focusHere();G.soft1.setVisible(foc);G.soft2.setVisible(foc);
   G.bloom.setVisible(live&&lightOn);
   const r=cv.getBoundingClientRect(),dpr=r.width>0?cv.width/r.width:1;DPR=dpr;
-  bandsSync(sc,live,dpr);
+  bandsSync(sc,live,dpr);lamps(sc,live);
   if(!live)return;
   if(G.seen!==LY.n){G.seen=LY.n;const T=sc.textures,up=k=>T.get(k).source[0].update();up('ly0');up('ly1');if(lightOn)up('lyBloom');
     if(foc){up('lyH');up('lyQ');if(maskNew){maskNew=false;up('lyM1');up('lyM2');}}}
@@ -346,7 +369,7 @@ function sync(){
   dust();}
 PHOST.game.events.on('prestep',()=>{try{sync();}catch(e){LY.err=String(e&&e.message||e);}});
 LY.info=()=>({live:LY.live,why:LY.why,focus:LY.focus&&focusHere(),dust:LY.dust&&dusty(),parallax:LY.live&&TR.planes,bands:TR.planes?['far','mid'].map(b=>[+BT[b].r.toFixed(3),+BT[b].tx.toFixed(1),+BT[b].ty.toFixed(1)]):null,bandsMs:PX?Math.round(PX.ms):0,far:[FAR.cv.width,FAR.cv.height],n:LY.n,ms:+LY.ms.toFixed(2),host:+(PHOST.hostMs||0).toFixed(2),focusAt:+LY.focusAt.toFixed(1),puffs:PUFFS.length,err:LY.err,
-  size:G?[G.w,G.h]:null,light:lightOn});
+  size:G?[G.w,G.h]:null,light:lightOn,lamps:LY.lampsN});
 // (for the checks: the sheets themselves)
 LY.puffs=()=>PUFFS.map(p=>({x:+p.x.toFixed(1),y:+p.y.toFixed(1),a:+p.a.toFixed(2),r:+p.r.toFixed(1),age:+(S.t-p.t0).toFixed(2),life:+p.life.toFixed(2)}));
 LY.sheets=()=>({far:FAR.cv,farStill:PX&&PX.far&&PX.far.cv,mid:PX&&PX.mid&&PX.mid.cv,plate:A.cv,stage:B.cv,top:cv,half:SH.cv,quarter:SQ.cv,mask1:M1.cv,mask2:M2.cv,bloom:BM.cv});

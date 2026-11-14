@@ -26,7 +26,9 @@ PARTS = (('spike', 'motion', 'motion.js'), ('spike', 'motion', 'panel.js'), ('sp
 #   - what moves on the far wall (the picture above the layer, the tram, the far chimneys' smoke, the fires, the windows going
 #     dark) is drawn on the far band's own sheet when layers.js hands one over (__lyp.far), with no need of the skyline's clip
 #     there, since the nearer bands lie over it; the neighbours' chimneys smoke where the middle band has gone (__lyp.mid);
-#   - bands: 1 says the painter is open.
+#   - bands: 1 says the painter is open;
+#   - lampsAt(t, still): the yard's lamps for Phaser's lights (layers.js, "the lamps"): where each is in the picture, how far it
+#     reaches, its colour and its strength by the hour, flickering by the painter's own measures.
 SLID = "globalThis.__lyp"
 YARD = (
     ("function paint(c){const P=K.pal(),X0=-170,X1=W+250,T0=-110;\n  backdrop(c,P,X0,X1,T0);neighbours(c,P);beyond(c,P);\n  ground(c,P);\n",
@@ -49,7 +51,20 @@ YARD = (
      "  {const srcs=[{x:STOVE.x,y:STOVE.y,s:5,sp:.1,n:8,h:180,dx:24,a:.55}],src2=[];for(const ch of NEARCH)src2.push({x:ch.x,y:ch.y,s:4,sp:.09,n:6,h:120,dx:16,a:.45,ph:ch.x*.013});"
      "K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);\n    ctx.save();if(__L&&__L.mid)__L.mid(ctx);K.smoke(ctx,src2,t,P.smoke,T==='night'?.6:1);ctx.restore();}\n"),
     ("E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90};",
-     "E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90,bands:1};"),
+     "function yardLamps(t,st){const P=K.pal(),T=P.key,Yd=Y(),So=SO(),far=Yd.far,L=[],lit=T==='night'?1:T==='dusk'?.8:0,dk=T==='night'?1:T==='dusk'?.8:.12,\n"
+     "    fl=(a,b,p)=>st?1:.86+.14*Math.sin(t*a+p)*Math.sin(t*b+p*1.7),add=(q,r,col,k,z)=>{if(q&&k>.01)L.push({x:q.x,y:q.y,r,col,k,z});};\n"
+     "  if(lit>0){add(Q(LANT.x,LANT.h-10,LANT.d),150,0xffc480,2.2*lit*fl(7.3,2.9,0));\n"
+     "    add(Q(FENCE.x+GLAMP.dx,GLAMP.h-8,Yd.gate.d-Yd.gate.w/2+GLAMP.dd),130,0xffc480,2.6*lit*fl(7.3,2.9,1));\n"
+     "    if(SHEDS.lamp.x)add({x:SHEDS.lamp.x-10,y:SHEDS.lamp.y+30},150,0xffc480,2.2*lit*fl(6.7,2.3,2));\n"
+     "    if(TABLES.lamp.x)add({x:TABLES.lamp.x,y:TABLES.lamp.y+4},140,0xffc480,2.8*lit*fl(6.1,2.7,3));\n"
+     "    const R=RAILS.lamps;for(const [a,b] of [[0,1],[2,4],[5,7]]){let x=0,y=0,n=0;for(let i=a;i<=b&&i<R.length;i++){x+=R[i].x;y+=R[i].y+20;n++;}\n"
+     "      if(n)add({x:x/n,y:y/n},150+16*n,0xffc480,(1.1+.25*n)*lit*fl(5.3+a*.7,2.1,4+a));}}\n"
+     "  {const W0=Yd.window,k=T==='night'?1.8:T==='dusk'?1:0;add(Q((W0.x0+W0.x1)/2,(W0.y0+W0.y1)/2,far),150,0xff9a4a,k*fl(2.3,1.1,7));}\n"
+     "  if(T==='night'){const D=Yd.door;add(Q(D.x,SUMP.doorH*.5,far),210,0xffa860,2.3*fl(5.1,1.3,8));}\n"
+     "  {const F=So.fire;add(Q(F.x,20,F.d),190,0xff8a4a,3.6*dk*(st?.85:.72+.28*Math.sin(t*8.3)*Math.sin(t*2.7)));}\n"
+     "  add(Q(DRUM.x,34*DRUM.k,DRUM.d),170,0xff8a3c,3*P.fire*dk*(st?.8:.75+.25*Math.sin(t*11)*Math.sin(t*3.7)));\n"
+     "  return L;}\n"
+     "E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90,bands:1,lampsAt:yardLamps};"),
 )
 
 

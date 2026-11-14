@@ -50,6 +50,15 @@ Phaser shows the three sheets one over the other, and between them:
   band's sheet, so it slides and softens with it. Each band has its own softness with the focus on. Where motion is reduced
   the bands stand still, as painted.
 
+- **The lamps, in the yard.** The yard's lamps are Phaser's own lights (its lights manager, with the air left white): the
+  door's lantern and the gate's lamp, the window, the open door at night, the fire ring, the drum fire in the lane, the shed's
+  lantern, the table's, and the lamps strung along the lip in three groups. The stage takes them, so the people and the pieces
+  near a lamp are lit by it, warmer and brighter the nearer they stand, and the light moves as its flame does. Where each lamp
+  is, how far it reaches and how strong it is by the hour is said by the yard's painter (`lampsAt`, added to this page's copy by
+  `build_layers.py`: it uses the painter's own places for its lamps and its own measures of flicker). By day only the two
+  fires give any, and little. The Test panel has two rows for it: Lamps (on, off) and Hour (day, dusk, night: Act I's own hours,
+  set on this page for looking).
+
 A frame is painted flat, as published, wherever the sheets cannot be used: Phaser's view off, a place that finishes its own picture
 (the fall) or streaks its light (the road at sundown), the old look, a screen that has just changed size. `LayerTest.why` says
 which. Everything the test adds sits under the game's own canvas in Phaser's scene, so a fault leaves the published picture.
@@ -72,11 +81,11 @@ play), beside the game's page and the motion test's, which it does not touch.
 
 The Test button opens the panel: what a frame costs on this device, the drawing (the motion test's new or old), the scene (the walk,
 the yard as the game plays it, a fight in the restaurant that plays itself), the picture (in layers or flat), the focus (all of it,
-about half of it, or none), the dust and the parallax. The button beside it switches between layers and flat.
+about half of it, or none), the dust, the parallax, the lamps and the hour. The button beside it switches between layers and flat.
 
 | File | What it holds |
 |---|---|
-| `layers.js` | the sheets and their seams, the focus's masks, the footfalls, the bloom, the far bands and their views, and Phaser's side of it all |
+| `layers.js` | the sheets and their seams, the focus's masks, the footfalls, the bloom, the far bands and their views, the lamps, and Phaser's side of it all |
 | `panel.js` | its rows in the motion test's panel, and the meter |
 | `build_layers.py` | the built game with the motion test and these two added after its script, and the yard's painter opened in that copy |
 | `probe.js` | the check that the game computes the same on the sheets as flat |
@@ -134,6 +143,31 @@ about half of it, or none), the dust and the parallax. The button beside it swit
 - **A filter runs at its picture's own size**, not the screen's. A copy a quarter the size is blurred at a sixteenth of the cost
   and then drawn out to the screen.
 - **Phaser's particle emitter draws on `Math.random`.** So does the game, for its dice. The dust is sprites the test places itself.
+
+### The lamps
+
+- **Tried first on the plate as well, and taken off it.** A light in Phaser multiplies what it falls on. The yard's still
+  picture has its lamplight painted on it already, so by the back door at night the lit wall and the step went to white under
+  a light strong enough to show on the dark ground beside them. With the painter's own pools laid on at three tenths it was
+  the same: the wall by the door is bright from the door itself. So the plate keeps its painted light and only the stage is
+  lit. To light the ground and the walls this way the place would have to be painted a second time with none of its own
+  lamplight on it, and the lights would then have to give all of it.
+- **No normal maps.** The stage's sheet has none, so Phaser's flat one stands in: a lamp is a round of light falling off from
+  where it hangs, the same on every face of a thing. Its height off the sheet (a part of its reach) sets how wide and soft
+  the round is.
+- **A lamp is where it is in the picture, not in the yard.** A man who stands well in front of a lamp but under it on the
+  screen is lit by it. The lamps' reaches are kept short on the walls for that; the door's light at night is let fall across
+  the yard, as it would.
+- **What the stage already paints bright goes brighter**: the shed's window and the glass of the lamps on the line glow hot
+  under their own lights.
+- **Ten lights at once** is Phaser's own limit as the page is set up; the yard has eleven after dark. Lights outside the view
+  are not counted, and a view that holds all eleven loses the one furthest from its middle.
+- **A name.** Another place keeps its own list under `lamps`, so the painter's word here is `lampsAt`; calling the list as a
+  function stopped the sheets on the title screen until it was renamed.
+- **Checked**: the page by its own rows at 412x714 (the walk and the yard: the hour to night, the lamps off and on, dusk, day:
+  eleven lamps, none, eleven, ten, two; no errors); stills through Phaser with the lamps on and off by the door at night and
+  at dusk, by the fire and by the shed; `probe.js` on the yard and the walk (the game computes the same). What the lights cost
+  on a phone is not known here, as with the rest: one more pass of the stage through a shader that reads up to ten lights.
 
 ## What it does not tell, and where it falls short
 
