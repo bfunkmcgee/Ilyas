@@ -139,7 +139,7 @@ const YARD_VIEWN=440,YARD_VIEWS=900,YARD_FOOT=492,YARD_HUD=90;
 // (over, overN) and looks out past the lip: yardLook, 0 to 1, by how near the lip he stands, from the shed's front on south.
 // The floor runs twice as far as it did when this was written, and the picture comes down so much further: its foot is the
 // kerb's, 33 units under the floor's own)
-const YARD_SLIDE={d:100,dy:358,dyN:326,over:130,overN:160};
+const YARD_SLIDE={d:100,dy:493,dyN:461,over:130,overN:160};
 function yardLook(K){const Sh=ACT1_PLACES.yard.south.shed;return sstep(clamp((K.station-640)/150,0,1))*sstep(clamp((Sh.d0+10-K.dep)/44,0,1));}
 function yardDown(K,narrow){const So=ACT1_PLACES.yard.south,y=prjY(GB,K.dep),y0=prjY(GB,YARD_SLIDE.d),y1=prjY(GB,So.z0);
   return sstep(clamp((y-y0)/(y1-y0),0,1))*(narrow?YARD_SLIDE.dyN:YARD_SLIDE.dy)+yardLook(K)*(narrow?YARD_SLIDE.overN:YARD_SLIDE.over);}

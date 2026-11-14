@@ -105,11 +105,11 @@ const ACT1_PLACES={
     // sacking at the garden's side (crow). A thing with a k stands k times the size it was first drawn at, about its near left
     // foot (or its middle): the first sizes were small beside a man, a table to his shin. Nothing here stands higher than lets a
     // man at DEP_MIN be seen whole behind it)
-    south:{z0:-420,x1:990,east:-44,bank:{x1:300,d0:-300,d1:-130,x2:240,d2:-184},drain:{x:168,d:-300,r:54,wing:56},kerb:-430,
-      lip:[[1180,-374],[962,-392],[780,-406],[652,-430],[616,-524],[590,-870]],shed:{x0:880,x1:1024,d0:-320,d1:-228,h:205,hb:169,k:1.28},
-      fire:{x:366,d:-156,r:33,k:1.5},cart:{x0:470,x1:605,d:-400,k:1.3},beds:[[64,264,-70,-34],[64,264,-122,-86]],crow:{x:-22,d:-98},
-      tree:{x:458,d:-374,k:1.3},ring:{x:492,d:-296,r:80},post:{x:548,d:-246},wagon:{x0:740,x1:819,d0:-348,d1:-254,k:1.8},
-      table:{x0:600,x1:753,d0:-219,d1:-181.6,k:1.7},queue:{x:384,d0:-414,d1:-362}}},
+    south:{z0:-600,x1:990,east:-44,bank:{x1:300,d0:-300,d1:-130,x2:240,d2:-184},drain:{x:168,d:-300,r:54,wing:56},kerb:-610,cut:-430,
+      lip:[[1180,-374],[962,-392],[700,-420],[626,-610],[604,-780],[584,-1070]],shed:{x0:880,x1:1024,d0:-320,d1:-228,h:205,hb:169,k:1.28},
+      fire:{x:366,d:-156,r:33,k:1.5},cart:{x0:470,x1:605,d:-580,k:1.3},beds:[[64,264,-70,-34],[64,264,-122,-86]],crow:{x:-22,d:-98},
+      tree:{x:430,d:-545,k:1.3},ring:{x:534,d:-400,r:80},post:{x:590,d:-350},wagon:{x0:740,x1:819,d0:-348,d1:-254,k:1.8},
+      table:{x0:600,x1:753,d0:-219,d1:-181.6,k:1.7},queue:{x:234,d0:-594,d1:-542}}},
   // the stair-streets: two flights up the Pit's wall, each a scene of its own and each rising left to right on this one ground (the
   // steps are the ground; a landing at each end). S.act1.flight says which: 'lane', the Lane stair, from the first landing over the
   // lane (the short flight up from the lane comes in from the left) to the switchback at its top, where Tarr's collectors keep their

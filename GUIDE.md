@@ -1255,13 +1255,14 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
     condensed, so twice as far south again, and the details filled in. Then: many props and parts of the place looked too
     small beside the characters ("How big things are", below).
     - Where it is: `ACT1_PLACES.yard.south` (sk_pit.js; the painter keeps a copy in `L0`). The floor runs on toward us from the
-      old front to `z0` (-420; it was -196), past DEP_MIN, and right as far as `x1`; `east` is how far up its right side a
+      old front to `z0` (-600; it was -420, and -196 at first), past DEP_MIN, and right as far as `x1`; `east` is how far up its right side a
       man may come (the old fence's end and the junk at it are above that). Left: the quarry's spoil heap down the west
       side (`HTOE`, `hillH`) and a bank of it out across the floor (`bank`), the drain in its south face: a headwall of
       quarry stone, the pipe's mouth 108 across (`drain`: its middle, the face's depth, the radius; everything in `drain()`
       and `gratePiece()` goes by the radius), two wing walls, an apron of flags. Behind the bank, under the old floor, a
       kitchen garden (`beds`). Along the foot a kerb of quarry blocks with Tarr's main on it (`kerb`); the lane beyond.
-      Right: the Floor ends at the lip of the quarry's last cut (`lip`: the hole the Sump is named for), the shed by it.
+      Right: the Floor ends at the lip of the quarry's last cut (`lip`: the hole the Sump is named for; its fourth point is
+      the kerb's end, and the run before that one goes steeply down to it), the shed by it.
       Between: the yard's water runs on from the big puddle down a gully to the drain (`GULLY`), crossed on planks and on
       stones; a court chalked for rondel (`COURT`) with a table by it (`table`); a fire ring; the practice ground (`ring`,
       and the straw man on his `post`); a tree with a tyre on a rope (`tree`); the quarry's tram road in from the hoist
@@ -1270,7 +1271,7 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
     - How high things may stand. A thing h high at depth d hides the floor behind it as far as d + h/.75. Nothing in the
       south hides the floor a fight uses (DEP_MIN and deeper): at depth d nothing is higher than .75 x (DEP_MIN - d). The
       far things stand twice as far off as they did and may be twice as high: the headwall is 114 at -300 (it was 80 at
-      -116), the bank's ridge 84 to 98, the tree some 250 at -374. Near the old floor things are low: the garden's two beds
+      -116), the bank's ridge 84 to 98, the tree some 250 at -545. Near the old floor things are low: the garden's two beds
       hold nothing higher than a leek, and the man of sacking stands west of the floor's left edge. A tall thing also hides
       what stands behind it in the picture: the shed (205 at -320) hides the ground north of it as far as -47, and what was
       first put there (the wagon) was moved out from behind it. West of the floor's left edge (x 40) and right of its
@@ -1322,11 +1323,28 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
       - The tops of the south's nearest things come into the last 20 units of a fight's frame (the fire's tripod, the
         garden's edge, the staves): under the fighters' feet, by the height rule above. The man of sacking is 147 high
         and was moved west of the frame for it; the straw man's post was moved 20 south.
-    - The picture is higher than the still layers are. RC ends at y 870 and the yard's own foot is `YFOOT` (1110, the depth
+    - The further floor (the fourth pass: bigger things on the same floor stood too close, and he said yes to more of it).
+      The kerb and Tarr's main are 180 further south (`kerb` -610, `z0` -600) and the picture 140 higher (`YFOOT` 1250).
+      - The lip. Its east run is as it was (one stretch now from 962 to 700), then it turns and goes steeply down to the
+        kerb's end (626, -610) and on south as the lane's end. `lip[3]` is still the kerb's end for everything that asks
+        (`kerb`, `mainPiece`, the rim's side run, the bounds' foot). The view down is counted from `cut` (-430, where the
+        corner was), so the cut's rows of roofs, its ledge and its lamps are where they were and the look over the edge
+        by the shed is the same picture. The rail has five more posts down the steep run (`RPS`, with `RPX`: a post's
+        number below 0 is one of them), the lane's end its two posts where the side run now is.
+      - What moved into the new ground: the standpipe, its pails and the valve (150 west along the main: `xS`, `xV`, `xL`
+        in `mainPiece`, `queue`), the handcart (at the kerb again), the tree (430, -545: its crown is over bare ground
+        now, and the fire and the drain are clear of it), the practice ground (ring 534, -400; the straw man and the rack
+        with it). The fire, the table, the wagon, the shed, the garden, the bank and the drain are where they were.
+      - On the new ground (`southFloor`, last block; `grow()`, the end of the south's list): the scuffed round under the
+        tyre, two puddles, green, stones, prints, a way from the bank's end to the standpipe and one from the practice
+        ground to the kerb; the handcart's ruts go up the inside of the steep run.
+      - The camera: `YARD_SLIDE.dy` and `dyN` are 135 more, so the kerb is at the band's foot as before, and the slide
+        per step of his is what it was.
+    - The picture is higher than the still layers are. RC ends at y 870 and the yard's own foot is `YFOOT` (1250, the depth
       `YNEAR` on the floor): `EnvLook.S.yard.deep` is the layer's height (a number: from RC's top down; `sceneLayerH(k)`,
       sk_scene_glue.js; `true` is RC's whole height), and the painter runs its ground, its mottle, the sun's veils and the
       fall of light to `YFOOT` where the kit's stop at `E.FOOT`. The old floor's grit keeps its dice; the ground past the
-      kit's foot has its own. On a phone the layer is 3072 x 2880.
+      kit's foot has its own. On a phone the layer is 3072 x 3216.
     - The game's side. A walker's own near limit `f.zMin` (sk_core.js, beside `f.zMax`; set by `exStart` from the bounds,
       cleared when a stage starts and in `initFighter`). The walk about's floor may have a foot that runs aslant:
       `bounds.foot` [[x, z], ...] by x, the nearest he may come at each x; a point past it comes straight back up to it, so
@@ -1341,11 +1359,11 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
       staves by it, the wagon, the table and its benches, the pails. The night scene has the yard's blocks too, and its plates are not spilled
       into them or past the lip. The Act I page suite walks it: to the drain, to the shed, past the lip, along it, and back.
     - The camera. `yardDown(K, narrow)`: nothing moves while he is in the yard's back half (deeper than `YARD_SLIDE.d`);
-      from there to the floor's foot the walk about's band comes down by `dy` (`dyN` on an upright phone: 358 and 326, the
+      from there to the floor's foot the walk about's band comes down by `dy` (`dyN` on an upright phone: 493 and 461, the
       kerb at the band's foot), and from the shed's front on south it comes down further and looks out over the lip
       (`yardLook`, `over`/`overN`). `yardExCam` adds it to its bands; the night's walk about has no band of its own and
-      gets it through `camBand` (sk_pitui.js). An upright phone is high enough to hold the Sump's wall and the kerb at once;
-      a wide screen sees about half the yard's depth. The whole yard's shot (`yardShot('yard')`) takes in the south on an
+      gets it through `camBand` (sk_pitui.js). An upright phone sees about two thirds of the yard's depth at once, a wide
+      screen under half. The whole yard's shot (`yardShot('yard')`) takes in the south on an
       upright phone.
     - The picture (env_yard.js, "the yard's south"). In the layer: `southFloor` (in the floor's plane, from `ground`: the
       ways worn across it, bare rock toward the lip, the tram road's sleepers and rails, the lane's ruts, the gully, the
