@@ -1792,6 +1792,15 @@ Build a copy first (`python3 build.py --qa`) and point the tools at it with `PAG
   pixels a unit, black again at the two sizes an upright phone draws them, and as the game draws them, named (lineup.png, the
   cards, lineup.json). It prints how alike each two named figures are at the push-in's size (the share of their two outlines
   they have in common, feet together) and the closest pairs. `arms` 1 leaves the weapons in their hands. About a minute.
+- `node uiwork/look/detail.js <out> [w h dpr] [day|dusk|night]`, then `python3 uiwork/look/detail.py <out>` (since Nov 14): the levels
+  of detail, read in the yard (the drawing's rule 13). Stills of its walk about with Ilyas at one mark and the view at three widths
+  (an upright phone: 640, 440 and 280 units across; a wide screen: 900, 600 and 420), each with its pixels a unit, the scale the
+  place was painted at (`sceneScale`) and the boxes of every figure, the barrels, the rain barrel, the woodpile's log ends, the
+  pump, a wall, the roof, the floor and the Pit's far wall (`BOXES`, in the picture's own units; a box holds some of what is
+  behind its thing, and a walk-about marker inside one reads as a loud mark: the woodpile's and the pump's are set clear of each
+  other and of the markers). detail.py prints, for each still, the level the figure kit draws people at, how far the place is
+  enlarged, and each box's `busy` (the mean step in lightness between neighbouring pixels, times 100) and `loud` (the 95th
+  percentile of those steps), loudest first. Nothing fails; about half a minute an hour.
 - `node uiwork/look/figsheet.js <out> [K] [easy|guard] [cast|pit|all]` (since Nov 10): everyone the cast's painter draws (the
   line-up's people and the Pit's, three each of its beggars, townsfolk and children) and Ilyas, each on a card as the game draws
   him and again with the finer figures on (`FigKit.fine`), one above the other on sheets of five (sheet-N.png; cards/<id>.0.png
@@ -1947,7 +1956,8 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
    a phone on its side); a line cuts to its speaker, and a thing named in a line is shown as it is named; the walk is framed 440
    units across on an upright phone with the place's foot at the screen's foot (`band` low); and his hand meets what he uses: he
    stoops for what he takes, stands at the grip the painter's number gives, is refused at the thing he cannot use, walks round each
-   thing's real box (`YARD_BLOCKS`) and stands on no one's mark. Reduced motion cuts.
+   thing's real box (`YARD_BLOCKS`) and stands on no one's mark. Reduced motion cuts. A shot comes no closer than the place is
+   painted (the drawing's rule 13: 343 units across on a phone; the yard's close shots are closer today).
 11. (Added Nov 14, the same way.) Lamps: each shows its source, a glow close round it and a pool on the ground before it (.36 to .5
    as deep as wide; the yard's reaches 44 to 170 units and strengths .09 to .34 are the style guide's table), in sodium's hues and
    never gold's; what is lit from within (an open door, a window) takes no lamp; none is lit by day, the pools are at half at dusk
@@ -2000,6 +2010,29 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
    things, shown before any detail; heights and sight lines; the pieces; values under the light at each hour and at his marks;
    each thing in the eight steps, with `python3 test.py places` run alone as it grows; the lamps; the small things; shots and
    hands; the place's review and stills at both sizes by each hour.
+13. (Added Nov 14, asked for: rules for the detail of characters, props and places. Read with `uiwork/look/detail.js` and
+   `detail.py` and judged from stills, not measured by the review.) Levels of detail. Pixels a unit set them: an upright phone
+   shows .9 (the widest fight) to 2.0 (the push-in) and 2.7 to 2.9 in the yard's close shots (280 to 300 units across); a wide
+   screen 1.4, and 3.0 in a close shot (420 across). People are drawn each frame at the view's own pixels, at the figure kit's
+   levels (game size under 2.4, close to 5, portrait over; the beasts' steps are .9 and 3.4): a new mark goes into the level whose
+   lowest scale shows it at 1.4 pixels (1.5 units, .6, .3), what tells a person apart is drawn at game size, and detail asked for
+   on a person goes into the close level (a cast figure may cost 1.2 ms at game size, Ilyas 1.5). A thing is blocked, lined, built
+   or lived in, and nothing shown stops at lined (the ramp in V110 and the barrels in V118 came back from there, and what went on
+   was how the thing is built, not finer marks): a seam is the edge between two parts, each with its own tone; three to seven
+   parts a side, each 4 to 40 units; a mark grows with its thing (`zoom`: the yard's stand at 1.3 to 2.1 times their drawn size,
+   a 1.5 unit seam at 2 to 3.2) and a thing made over twice its drawn size is drawn again; what he uses, what a line names and
+   what a shot closes on is lived in, things side by side carry one level, and detail goes into the pieces and the still picture
+   before anything drawn each frame. The order of loudness (`loud`; the yard at the walk's view on a phone by day): Ilyas 12.4,
+   Tamm 10.8, the woodpile's log ends 11.6, the other things 8.8 to 9.5, roof and wall 4.4 to 6.1, the Pit's far wall 5.4, the
+   floor 1.1. No thing is louder than he
+   is, walls and roofs are at half of him or less, the far no louder than the walls before it, a walked floor at a sixth of him
+   or less and under half as busy as the walls, and each hour keeps the order. A place is painted for its closest shot: the still
+   picture and the pieces are painted at 2.4 pixels a unit at most (`sceneScale`, for the push-in; 1.8 on a 1280 wide screen), and
+   until that changes no new shot comes closer than the painting (343 units across on a phone, 723 on a wide screen). Open: the
+   yard's close shots enlarge the place 1.2 times on a phone and 1.7 on a wide screen under people drawn sharp (every shot of
+   the yard on a wide screen but the whole yard's is closer than its painting); the woodpile's log ends are louder than Ilyas at
+   dusk (13.0 against 11.3) and busier than he is at every hour; and the calm floor the drawing guide planned as a check (the
+   floor no busier than half the set) was never built into the review.
 
 **The look review (since V88, phase 4).** `python3 test.py look` holds every place to the two guides' measured rules, frame by
 frame, on an upright phone and a wide screen (uiwork/look/review.py, under Screenshots), and a frame that breaks one fails. A fail
