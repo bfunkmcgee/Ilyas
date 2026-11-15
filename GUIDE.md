@@ -820,6 +820,18 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   two parts' probes (motion's six scenes, the layers' seven) and `check_skin.js` on the page (27, no error); and the page opened
   as a phone opens it, with no parameter but the scene: the three switches on, the yard in layers, a device made slow stepped
   down 0 to 3, nothing kept.
+  **In work for V119, on the layers test page, not in the game yet: depth that reads** (said of V118: "Its hard to make out any
+  improvements beyond the lighting"; measured, the place changed by 1 of 255 between flat and layers, only the people by the
+  lamps). spike/layers/README.md, "Depth that reads", has it whole. In short: the focus tightens as the camera comes close
+  (`LY.pull`: a phone's camera is 560 units across on his turn, 404 at the push-in, 250 to 330 in a close shot); the road at
+  sundown, the field and the roof have far bands that slide, and the office's and the lobby's night cities slide behind their
+  glass (each painter takes `only` as the yard's does; these bands are set into the plate each frame, `bandsBake`); a room's own
+  lamps light the people (`roomLamps`) and its furniture goes soft by depth. Three faults of V118's layers were found on the way
+  and put right in layers.js: the dark at the frame's edges lay over the bloom (`edgesMake`), the plate was wiped each frame
+  where the game's canvas never is (the office's cove line at 100 of 255 for 240: `plateAt`, `under`), and a band cut to its own
+  picture lost its part-clear pixels (`keepOnly`, full). A painter opened this way must paint the same whole picture as before:
+  shot with the layers off against the last version's pictures, pixel for pixel, at the same run of moments (a moment reached by
+  another run of drawn frames differs by a handful of pixels on its own).
   The fall filmed again, a fifth switch there for a morning, is the game's own scene since V116: sk_fallcut.js, below.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 

@@ -29,9 +29,24 @@ function city(){if(CITY)return CITY;const ox=OXf(),yb=yB(),gx0=OFW.glass+ox,gy0=
   for(const [dx,w,top] of [[64,30,104],[210,26,128],[380,34,92],[520,26,118]]){T.push({l:2,x:gx0+dx,w,top,lm:true});beacons.push({x:gx0+dx+w/2,y:top-26,p:r()*6});}
   for(let x=gx0-40;x<gx0+600;x+=40+r()*40)T.push({l:3,x,w:36+r()*40,top:gy1-34-(10+r()*24)});
   return CITY={T,beacons,gx0,gy0,gy1};}
+// THE LAYERS (since V119: the page that shows the picture in layers, spike/layers/layers.js, asks for it band by band, as it does
+// the yard's). only: 'far' the night through the glass alone, painted on past the glass's edges (WINM: so many units to the left,
+// up and down) for the band to show as it slides behind the mullions; 'near' the room, the glass cut clear through its wall with
+// its sheen left on it; 'mid', 'light' and 'over' nothing. Without only the picture is painted whole, as ever.
+const WINM={l:150,t:84,b:26};
+// (more of the city off the glass's left edge, for the band alone: its own dice, so the city in the room's own picture is as it was)
+let CITY2=null;
+function cityMore(){if(CITY2)return CITY2;const Cy=city(),r=rng(5151),T=[],x0=Cy.gx0-WINM.l-10,x1=Cy.gx0-30;
+  for(let x=x0;x<x1;x+=12+r()*16)T.push({l:0,x,w:14+r()*16,top:Cy.gy1-36-(30+r()*44),ext:1});
+  for(let x=x0;x<x1;x+=16+r()*22)T.push({l:1,x,w:16+r()*22,top:Cy.gy1-34-(44+r()*70),ext:1});
+  for(let x=x0;x<x1;x+=40+r()*40)T.push({l:3,x,w:36+r()*40,top:Cy.gy1-34-(10+r()*24),ext:1});
+  return CITY2=T;}
 // ---------- the room, painted once ----------
-function paint(c){
+function paint(c,only){
+  if(only==='light'||only==='over'||only==='mid')return;
   const X0=-150,X1=W+230,T0=-90,yb=yB(),ox=OXf(),GX=OFW.glass+ox,rail=yb-86,r=rng(7);
+  // (the night alone: all that is painted before the glass is kept inside the band's own rectangle, and the night covers it)
+  if(only==='far'){const Cy=city();c.save();c.beginPath();c.rect(GX-WINM.l,Cy.gy0-WINM.t,X1+40-GX+WINM.l,Cy.gy1-Cy.gy0+WINM.t+WINM.b);c.clip();}
   // ---- the ceiling: walnut coffers in shadow, rows of 50 from the beam over the walls up (joined at y 10, -40 and -90, so the row at
   // the layer's top goes on up the picture as it is: upTile), a brass bead in each holding a little of the lamps' warmth
   c.fillStyle='#060408';c.fillRect(X0,T0,X1-X0,24-T0);
@@ -210,19 +225,20 @@ function paint(c){
     c.fillStyle=lin(c,0,y-22,0,y-5,[[0,'#fff8e8'],[1,'#f2dcae']]);c.beginPath();c.moveTo(x-7.4,y-5);c.lineTo(x-4.6,y-22);c.lineTo(x+4.6,y-22);c.lineTo(x+7.4,y-5);c.closePath();c.fill();
     c.strokeStyle=rgba('#a0784a',.3);c.lineWidth=.35;c.beginPath();for(let k=-3;k<=3;k++){c.moveTo(x+k*1.3,y-22);c.lineTo(x+k*2.1,y-5);}c.stroke();c.fillStyle=BRASS;c.fillRect(x-7.4,y-5.6,14.8,1.2);c.fillRect(x-4.6,y-22.4,9.2,1);}
   // ---- the glass wall: the night far below
-  {const Cy=city(),gx0=GX,gx1=X1+40,gy0=Cy.gy0,gy1=Cy.gy1,r4=rng(404);
-    c.save();c.beginPath();c.rect(gx0,gy0,gx1-gx0,gy1-gy0);c.clip();
-    c.fillStyle=lin(c,0,gy0,0,gy1,[[0,'#03050c'],[.28,'#0a1030'],[.52,'#1a2050'],[.7,'#382c5c'],[.86,'#7a4a62'],[1,'#c88660']]);c.fillRect(gx0,gy0,gx1-gx0,gy1-gy0);
+  {const Cy=city(),gx0=GX,gx1=X1+40,gy0=Cy.gy0,gy1=Cy.gy1,r4=rng(404),FARB=only==='far',ex0=FARB?gx0-WINM.l:gx0,ey0=FARB?gy0-WINM.t:gy0,ey1=FARB?gy1+WINM.b:gy1,r9=rng(909),TT=FARB?Cy.T.concat(cityMore()):Cy.T;
+    c.save();c.beginPath();c.rect(ex0,ey0,gx1-ex0,ey1-ey0);c.clip();
+    if(only==='near')c.clearRect(gx0,gy0,gx1-gx0,gy1-gy0);else{
+    c.fillStyle=lin(c,0,gy0,0,gy1,[[0,'#03050c'],[.28,'#0a1030'],[.52,'#1a2050'],[.7,'#382c5c'],[.86,'#7a4a62'],[1,'#c88660']]);c.fillRect(ex0,ey0,gx1-ex0,ey1-ey0);
     {const r5=rng(99);for(let i=0;i<110;i++){c.fillStyle=rgba('#e6ecff',.2+r5()*.55);const s=r5()<.12?1.5:.9;c.fillRect(gx0+r5()*(gx1-gx0),gy0+4+r5()*(gy1-gy0)*.5,s,s);}}
     {const mx=gx0+232,my=gy0+44;gl(c,mx,my,48,48,'#a8c0ff',.2);c.fillStyle='#e8eefa';c.beginPath();c.arc(mx,my,6.2,0,TAU);c.fill();c.fillStyle='#0c1434';c.beginPath();c.arc(mx+3.2,my-1.4,5.6,0,TAU);c.fill();}
     const LAY=[{col:'#242a58',p:.14,sz:1.3,cols:['rgba(205,220,255,.5)','rgba(255,225,170,.45)','rgba(200,210,240,.4)']},{col:'#161a3e',p:.24,sz:1.5,cols:['rgba(255,225,170,.6)','rgba(205,220,255,.55)','rgba(255,170,120,.5)']},
       {col:'#0e1230',p:.34,sz:1.7,cols:['rgba(255,226,170,.75)','rgba(200,220,255,.65)','rgba(255,180,120,.6)']},{col:'#080a1e',p:.5,sz:2.2,cols:['rgba(255,214,140,.85)','rgba(255,236,190,.8)','rgba(255,170,100,.7)']}];
     for(let l=0;l<4;l++){const A=LAY[l];
-      for(const t of Cy.T){if(t.l!==l)continue;c.fillStyle=A.col;c.fillRect(t.x,t.top,t.w,gy1-t.top+6);
+      for(const t of TT){if(t.l!==l)continue;const rr=t.ext?r9:r4;c.fillStyle=A.col;c.fillRect(t.x,t.top,t.w,gy1-t.top+6);
         if(t.lm){c.fillRect(t.x+t.w*.2,t.top-10,t.w*.6,10);c.fillRect(t.x+t.w*.38,t.top-14,t.w*.24,5);c.fillRect(t.x+t.w/2-.6,t.top-26,1.2,16);c.fillStyle=rgba('#96b4ff',.1);c.fillRect(t.x+t.w*.3,t.top,1.2,gy1-t.top);c.fillRect(t.x+t.w*.7,t.top,1.2,gy1-t.top);}
         c.fillStyle=rgba('#a0b0ff',.06);c.fillRect(t.x,t.top,1,gy1-t.top);
-        for(let yy=t.top+4;yy<gy1-3;yy+=A.sz*3.4)for(let xx=t.x+2.5;xx<t.x+t.w-3;xx+=A.sz*3){if(r4()<A.p){c.fillStyle=A.cols[r4()<.62?0:r4()<.8?1:2];c.fillRect(xx,yy,A.sz,A.sz*1.3);}}}
-      if(l<2){c.fillStyle=lin(c,0,gy0+90,0,gy1,[[0,rgba('#96648c',0)],[1,rgba('#aa6e8c',l?.3:.42)]]);c.fillRect(gx0,gy0+90,gx1-gx0,gy1-gy0-90);}
+        for(let yy=t.top+4;yy<gy1-3;yy+=A.sz*3.4)for(let xx=t.x+2.5;xx<t.x+t.w-3;xx+=A.sz*3){if(rr()<A.p){c.fillStyle=A.cols[rr()<.62?0:rr()<.8?1:2];c.fillRect(xx,yy,A.sz,A.sz*1.3);}}}
+      if(l<2){c.fillStyle=lin(c,0,gy0+90,0,gy1,[[0,rgba('#96648c',0)],[1,rgba('#aa6e8c',l?.3:.42)]]);c.fillRect(ex0,gy0+90,gx1-ex0,gy1-gy0-90);}
       // past the middle of the city, the old elven town on its hill: dark slopes, two spires, a few cold cyan lights where the old work still burns
       if(l===1){const hx0=gx0+60,hb=gy1-34,r6=rng(77);c.fillStyle='#14142e';c.beginPath();c.moveTo(hx0-40,hb);c.quadraticCurveTo(hx0+40,hb-58,hx0+120,hb-66);c.quadraticCurveTo(hx0+200,hb-60,hx0+260,hb-30);c.quadraticCurveTo(hx0+300,hb-16,hx0+340,hb);c.closePath();c.fill();
         c.fillStyle=lin(c,0,hb-66,0,hb,[[0,rgba('#2a2a50',.6)],[1,rgba('#14142e',0)]]);c.fill();
@@ -230,11 +246,18 @@ function paint(c){
           c.fillStyle=rgba('#7ff3e3',.8);c.fillRect(sx-.5,by-sh*.45,1,1.6);gl(c,sx,by-sh*.45,7,7,'#7ff3e3',.22);}
         for(let i=0;i<14;i++){const x=hx0+30+r6()*220,y=hb-40-r6()*20+Math.abs(x-hx0-120)*.18;c.fillStyle=rgba('#7ff3e3',.5+r6()*.35);c.fillRect(x,y,1.1,1);gl(c,x,y,4,4,'#7ff3e3',.12);}}}
     // the river far below, the city's light lying broken on it, and the lamps along the embankment
-    {const ry0=gy1-22,ry1=gy1-8;c.fillStyle=lin(c,0,ry0,0,ry1,[[0,'#0a0c1c'],[1,'#141428']]);c.fillRect(gx0,ry0,gx1-gx0,ry1-ry0);
+    {const ry0=gy1-22,ry1=gy1-8;c.fillStyle=lin(c,0,ry0,0,ry1,[[0,'#0a0c1c'],[1,'#141428']]);c.fillRect(ex0,ry0,gx1-ex0,ry1-ry0);
+      // (the band alone: the river's lights and the embankment's lamps on off the glass's left edge too)
+      if(FARB){c.save();c.globalCompositeOperation='lighter';for(let i=0;i<16;i++){const x=ex0+r9()*(gx0-ex0),y=ry0+1+r9()*(ry1-ry0-2),w2=2+r9()*7;c.fillStyle=rgba(r9()<.75?'#ffc078':'#c8d8ff',.18+r9()*.3);c.fillRect(x,y,w2,.6);}c.restore();
+        for(let x=ex0+r9()*8;x<gx0-6;x+=7+r9()*6){c.fillStyle=rgba('#ffd08a',.85);c.fillRect(x,ry0-1.4,1.3,1.1);}
+        for(let row=0;row<2;row++){const y=gy1-4-row*3;for(let x=ex0+r9()*20;x<gx0-10;x+=6+row*3+r9()*10){c.fillStyle=r9()<.8?rgba('#ffcc82',.8):rgba('#fff0d2',.8);c.fillRect(x,y,1.4,1.1);}}}
       c.save();c.globalCompositeOperation='lighter';for(let i=0;i<70;i++){const x=gx0+r4()*(gx1-gx0),y=ry0+1+r4()*(ry1-ry0-2),w2=2+r4()*7;c.fillStyle=rgba(r4()<.75?'#ffc078':'#c8d8ff',.18+r4()*.3);c.fillRect(x,y,w2,.6);}c.restore();
       for(let x=gx0-6+r4()*8;x<gx1;x+=7+r4()*6){c.fillStyle=rgba('#ffd08a',.85);c.fillRect(x,ry0-1.4,1.3,1.1);}
       gl(c,gx0+260,gy1,320,40,'#ffaa64',.26);
       for(let row=0;row<2;row++){const y=gy1-4-row*3;for(let x=gx0-10+r4()*20;x<gx1;x+=6+row*3+r4()*10){c.fillStyle=r4()<.8?rgba('#ffcc82',.8):rgba('#fff0d2',.8);c.fillRect(x,y,1.4,1.1);}}}
+    }
+    // (the night alone ends here: the glass, its mullions and the room go on the room's own picture)
+    if(FARB){c.restore();c.restore();return;}
     // the glass: a pale sheen, the room's warm lamps caught in it, and at its head the cyan of the tower's own ring overhead
     c.fillStyle=rgba('#bed2ff',.045);for(const x of [gx0+30,gx0+210,gx0+400]){c.beginPath();c.moveTo(x,gy0);c.lineTo(x+60,gy0);c.lineTo(x-30,gy1);c.lineTo(x-90,gy1);c.closePath();c.fill();}
     for(const [x,y] of [[gx0+40,gy0+118],[gx0+150,gy0+124],[gx0+290,gy0+132]])gl(c,x,y,46,8,'#ffd57a',.1);
@@ -290,8 +313,13 @@ function smokeSprites(){if(SMOKE)return SMOKE;SMOKE=[0,1,2].map(k=>{const cv=doc
   g.globalCompositeOperation='source-atop';const lt=g.createLinearGradient(0,128,0,0);lt.addColorStop(0,'rgba(255,190,120,.45)');lt.addColorStop(1,'rgba(150,140,150,.1)');g.fillStyle=lt;g.fillRect(0,0,128,128);return cv;});return SMOKE;}
 function live(){const yb=yB(),ox=OXf(),t=S.t,Cy=city();ctx.save();ctx.globalCompositeOperation='lighter';
   const dot=(x,y,r,col,a)=>{ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();};
+  // (THE LAYERS: where the page has the night's band in the picture at its own view, __lyp.banded, its lights are drawn under that
+  // view, inside the glass)
+  const __L=globalThis.__lyp,__b=!!(__L&&__L.banded&&__L.banded());
+  if(__b){ctx.save();ctx.beginPath();ctx.rect(Cy.gx0,Cy.gy0,W+270-Cy.gx0,Cy.gy1-Cy.gy0);ctx.clip();__L.farOn(ctx);}
   for(const b of Cy.beacons){const k=Math.max(0,Math.sin(t*3.6+b.p)),a=k*k;if(a>.02){ctx.globalAlpha=.9*a;const g=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,8);g.addColorStop(0,'rgba(255,90,70,.9)');g.addColorStop(1,'rgba(255,60,40,0)');ctx.fillStyle=g;ctx.fillRect(b.x-8,b.y-8,16,16);}dot(b.x,b.y,.9,'#ff6a5a',.35+.5*a);}
   {const span=640,x=Cy.gx0-30+((t*8+210)%span),y=Cy.gy0+46+Math.sin(x*.01)*3;dot(x,y,1.1,'#ffffff',(t*1.1)%1<.12?1:0);dot(x-5,y+.6,1,'#ff4a3a',.6);dot(x+5,y+.6,1,'#4aff8a',.5);}
+  if(__b)ctx.restore();
   // the doorway: the lobby's light wavering, embers drifting out
   {const dx0=OFFICE_ENTRY.x-42+ox,fl=.5+.25*Math.sin(t*3.1)+.15*Math.sin(t*11.3)+.1*Math.sin(t*23);
     ctx.globalAlpha=.07*fl;ctx.fillStyle='#ffb060';ctx.fillRect(dx0,yb-164,84,164);
@@ -496,7 +524,7 @@ function lamp(L){if(L.kind!=='linear'&&L.kind!=='pendant')return false;
     ctx.strokeStyle=BRASS;ctx.lineWidth=.99;ctx.beginPath();ctx.arc(0,3,10.4,0,TAU);ctx.moveTo(0,-7.4);ctx.quadraticCurveTo(-9,3,0,13.4);ctx.moveTo(0,-7.4);ctx.quadraticCurveTo(9,3,0,13.4);ctx.moveTo(-10.4,3);ctx.lineTo(10.4,3);ctx.stroke();
     ctx.fillStyle=BRASS;ctx.beginPath();ctx.arc(0,13.6,1.4,0,TAU);ctx.fill();}
   ctx.restore();return true;}
-E.S.office={paint,live,light,prop,lamp,desk,upTile:50};
+E.S.office={bands:1,win:()=>{const Cy=city();return{x0:Cy.gx0,y0:Cy.gy0,x1:W+270,y1:Cy.gy1,m:WINM};},paint,live,light,prop,lamp,desk,upTile:50};
 // the desk is drawn by its own routine as two floor items: the scene takes it over when the office is on show
 if(typeof drawDesk==='function'&&!window.__officeDesk){window.__officeDesk=true;const dd0=drawDesk;window.drawDesk=function(Pp,back){const k=typeof envKey==='function'?envKey():null;if(k==='office'&&E.S.office.desk(Pp,back))return;return dd0(Pp,back);};}
 })();

@@ -3,7 +3,8 @@
 // and once on the sheets (every seam crossed, every foot read, the focus followed, the bloom made). Every so many frames the game's
 // state is summed up, as the motion test's probe sums it (spike/motion/probe.js): every figure's joints, scarf, strength, footing
 // and place, the clock, the turn, the story's step and the dice. The sums must agree.
-//   NODE_PATH=node_modules node spike/layers/probe.js [frames] [scene ...]      (scenes: motion yard night lab story act1 toll)
+//   NODE_PATH=node_modules node spike/layers/probe.js [frames] [scene ...]      (scenes: motion yard night lab story act1 toll, and
+//   since V119 field kitchen lobby office roof)
 // Phaser has to be up for the sheets to be used, and here it draws in software, slowly: it is stepped once in every EVERY frames
 // (20), which is as often as its side of the test needs to run for its part to be covered.
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
@@ -16,7 +17,13 @@ const SCENES={
   lab:"S.arenaKey='restaurant';S.cfg.n=3;S.cfg.ally.on=true;S.divOn=true;S.tableOn=true;S.auto=true;S.F=[];rosterBuild();restart();",
   story:"S.auto=true;storyGo(null,{auto:true});",
   act1:"S.auto=true;storyGo('roof1',{auto:true});",
-  toll:"S.auto=true;storyGo('toll',{auto:true});"};
+  toll:"S.auto=true;storyGo('toll',{auto:true});",
+  // (since V119: the prologue's places with bands of their own or a window's, and a room with its lamps and its furniture soft)
+  field:"S.auto=true;S.storyAuto=true;storyGo('field',{auto:true});",
+  kitchen:"S.auto=true;S.storyAuto=true;storyGo('kitchen',{auto:true});",
+  lobby:"S.auto=true;S.storyAuto=true;storyGo('lobby',{auto:true});",
+  office:"S.auto=true;S.storyAuto=true;storyGo('office',{auto:true});",
+  roof:"S.auto=true;S.storyAuto=true;storyGo('roof',{auto:true});"};
 (async()=>{const b=await chromium.launch({executablePath:process.env.SK_CHROMIUM||(fs.existsSync('/opt/pw-browsers/chromium')?'/opt/pw-browsers/chromium':undefined),
     args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
   const play=async(scene,on)=>{const p=await (await b.newContext({viewport:{width:412,height:714}})).newPage(),errs=[];

@@ -9,11 +9,15 @@ const el=P.el;
 document.head.appendChild(el('style',{textContent:'@media (max-height:480px){#moSheet{max-height:calc(66vh - 6px)}}'}));
 P.row('Picture',[['In layers',true],['Flat',false]],()=>LY.on,v=>{LY.on=v;});
 P.row('Focus',[['Full',1],['Light',.55],['Off',0]],()=>LY.focus?LY.focusK:0,v=>{LY.focus=v>0;if(v>0)LY.focusK=v;});
+// (since V119: the focus tightening as the camera comes close. Strong is half as much again)
+P.row('Pull',[['On',.75],['Strong',1],['Off',0]],()=>LY.pull?LY.pullK:0,v=>{LY.pull=v>0;if(v>0)LY.pullK=v;});
 P.row('Props',[['Soft',true],['Sharp',false]],()=>LY.soft,v=>{LY.soft=v;});
 P.row('Dust',[['On',true],['Off',false]],()=>LY.dust,v=>{LY.dust=v;});
 P.row('Parallax',[['On',true],['Off',false]],()=>LY.parallax,v=>{LY.parallax=v;});
 // the place's lamps as Phaser's lights, and the hour to see them by (the yard's own hours: Act I keeps them)
 P.row('Lamps',[['On',true],['Off',false]],()=>LY.lamps,v=>{LY.lamps=v;});
+// (since V119: a room's own hanging lamps on the people under them)
+P.row('Room lamps',[['On',true],['Off',false]],()=>LY.lampRoom,v=>{LY.lampRoom=v;});
 P.row('Ground',[['Lit',true],['Painted',false]],()=>LY.lampGround,v=>{LY.lampGround=v;});
 P.row('Shape',[['On',true],['Off',false]],()=>LY.shape,v=>{LY.shape=v;});
 P.row('Hour',[['Day','day'],['Dusk','dusk'],['Night','night']],()=>{const a=typeof S!=='undefined'&&S?S.act1:null;return a&&a.night?'night':a&&a.dusk?'dusk':'day';},

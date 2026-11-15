@@ -41,7 +41,15 @@ function ceiling(c,X0,X1,T0,wt){
     c.fillStyle='#07060a';c.fillRect(X0,y1-6,X1-X0,6);c.fillStyle=rgba(GL,low?.2:.12);c.fillRect(X0,y1-1.2,X1-X0,1.2);}
   // the beams from the wall toward us, a gold edge on each
   for(let x=COF.x0;x<X1;x+=COF.w){c.fillStyle='#050406';c.fillRect(x,T0,8,wt-T0-6);c.fillStyle=rgba(GL,.12);c.fillRect(x+7,T0,1,wt-T0-6);}}
-function paint(c){
+// THE LAYERS (since V119: the page that shows the picture in layers, spike/layers/layers.js, asks for it band by band, as it does
+// the yard's). only: 'far' the night city in the two windows alone, each painted on past its own frame (WINM: so many units to
+// either side, up and down, the horizon kept where it is) for the band to show as it slides behind the mullions; 'near' the room,
+// each window cut clear through the wall inside its reveal, its sheen left on the glass; 'mid', 'light' and 'over' nothing. Without
+// only the picture is painted whole, as ever.
+const WINM={x:130,t:30,b:20};
+function paint(c,only){
+  if(only==='light'||only==='over'||only==='mid')return;
+  if(only==='far'){for(const [w,seed] of [[LG.winA,11],[LG.winB,29]])cityWindow(c,w,seed,'far');return;}
   const X0=-160,X1=W+250,T0=-100,yb=yB(),ox=OX(),wt=46,bt=yb-34,G=LG,r=rng(5);
   // ---- the ceiling: black lacquer in coffers, a gilt bead round each and a gilt rosette at its heart, lit from the cove below them;
   // the row nearest the cove takes its light, the rows over it the same lacquer in one tone, so the top row (RC's top, y -90 to -24)
@@ -63,7 +71,7 @@ function paint(c){
   // ---- the floor
   floor(c,X0,X1,yb,ox);
   // ---- the windows: the city far below
-  for(const [w,seed] of [[G.winA,11],[G.winB,29]])cityWindow(c,w,seed);
+  for(const [w,seed] of [[G.winA,11],[G.winB,29]])cityWindow(c,w,seed,only);
   // ---- the feature wall behind the desk: a field of Portoro in a brass frame, the HALLOWELL ring lit from above
   featureWall(c,300,588,96,bt);
   // ---- the reception desk
@@ -113,10 +121,12 @@ function floor(c,X0,X1,yb,ox){const SX=110,SD=66,gs=LT().greyStone(11,512,512,{b
   streak(LG.liftX,40,60,'#ffd986',.08);
   c.restore();c.restore();}
 // ---------- a window on the city far below: night, a moon, towers in the haze, the lights of the streets, and the room's lamps in the glass
-function cityWindow(c,w,seed){const {x0,x1,y0,y1}=w,ww=x1-x0,hh=y1-y0,r=rng(seed);
+function cityWindow(c,w0,seed,only){const far=only==='far',w=far?{x0:w0.x0-WINM.x,x1:w0.x1+WINM.x,y0:w0.y0-WINM.t,y1:w0.y1+WINM.b,cols:w0.cols}:w0;
+  const {x0,x1,y0,y1}=w,ww=x1-x0,hh=y1-y0,r=rng(seed);
   // a deep reveal of black stone round it, brass at its edge
-  c.fillStyle='#050406';c.fillRect(x0-7,y0-7,ww+14,hh+14);brassV(c,x0-7,y0-7,2,hh+14);brassV(c,x1+5,y0-7,2,hh+14);brassH(c,x0-7,y0-7,ww+14,2);
+  if(!far){c.fillStyle='#050406';c.fillRect(x0-7,y0-7,ww+14,hh+14);brassV(c,x0-7,y0-7,2,hh+14);brassV(c,x1+5,y0-7,2,hh+14);brassH(c,x0-7,y0-7,ww+14,2);}
   c.save();c.beginPath();c.rect(x0,y0,ww,hh);c.clip();
+  if(only==='near')c.clearRect(x0,y0,ww,hh);else{
   c.fillStyle=lin(c,0,y0,0,y1,[[0,'#03040a'],[.35,'#0a0f22'],[.62,'#1a1a34'],[.8,'#3a2632'],[1,'#5a3428']]);c.fillRect(x0,y0,ww,hh);
   stars(c,x0,x1,y0,y0+hh*.45,Math.round(ww*.5),seed,.6);
   if(seed===11)moon(c,x0+ww*.68,y0+hh*.16,6,{phase:.6});
@@ -128,6 +138,8 @@ function cityWindow(c,w,seed){const {x0,x1,y0,y1}=w,ww=x1-x0,hh=y1-y0,r=rng(seed
     // the streets: strings of amber running off toward the horizon
     c.strokeStyle=rgba('#ffb060',.28);c.lineWidth=1.01;for(let i=0;i<5;i++){const sx=x0+r()*ww,sy=y1;c.beginPath();c.moveTo(sx,sy);c.lineTo(sx+(r()-.5)*ww*.6,top+2);c.stroke();}
     c.fillStyle=rgba('#05040a',.85);c.beginPath();c.moveTo(x0,top+hh*.12);c.quadraticCurveTo(x0+ww*.5,top+hh*.08,x1,top+hh*.16);c.lineTo(x1,top+hh*.19);c.quadraticCurveTo(x0+ww*.5,top+hh*.12,x0,top+hh*.15);c.closePath();c.fill();}
+  }
+  if(far){c.restore();return;}
   // the glass holds the room: a lamp's ring, the cove's line, a sheen
   c.save();c.globalCompositeOperation='lighter';c.strokeStyle=rgba('#ffe1a0',.12);c.lineWidth=1.4;c.beginPath();c.ellipse(x0+ww*.35,y0+hh*.3,12,3,0,0,TAU);c.stroke();
   c.fillStyle=rgba('#ffe8d0',.035);c.beginPath();c.moveTo(x0+ww*.15,y0);c.lineTo(x0+ww*.32,y0);c.lineTo(x0+ww*.02,y1);c.lineTo(x0-ww*.15,y1);c.closePath();c.fill();c.restore();
@@ -254,7 +266,9 @@ function live(){const G=LG,t=S.t;ctx.save();ctx.globalCompositeOperation='lighte
   const on=t%2.2<.5?1:.2;ctx.fillStyle=`rgba(255,50,40,${(.9*on).toFixed(2)})`;ctx.fillRect(G.cam.x-12,G.cam.y+.2,1.8,1.8);
   if(on>.5){const g=ctx.createRadialGradient(G.cam.x-11,G.cam.y+1,0,G.cam.x-11,G.cam.y+1,9);g.addColorStop(0,'rgba(255,60,40,.5)');g.addColorStop(1,'rgba(255,60,40,0)');ctx.fillStyle=g;ctx.fillRect(G.cam.x-20,G.cam.y-8,18,18);}
   if(!(S.breach&&S.breach.blown)){ctx.fillStyle=`rgba(255,60,50,${((.5+.4*Math.sin(t*2.6))*.9).toFixed(2)})`;ctx.fillRect(G.kp.x-1.2,G.kp.y-3.6,2.4,1.8);}
-  const b=G.winA;ctx.fillStyle=`rgba(255,70,60,${(t%1.7<.3?.95:.15).toFixed(2)})`;ctx.fillRect(b.x0+(b.x1-b.x0)*.3,b.y0+(b.y1-b.y0)*.36,1.6,1.6);
+  // (the beacon on a tower in the left window: not where the page has the city on a band of its own, sliding, __lyp.banded: the
+  // band's city is painted wider and the tower is not where it was)
+  if(!((globalThis.__lyp||0).banded&&globalThis.__lyp.banded())){const b=G.winA;ctx.fillStyle=`rgba(255,70,60,${(t%1.7<.3?.95:.15).toFixed(2)})`;ctx.fillRect(b.x0+(b.x1-b.x0)*.3,b.y0+(b.y1-b.y0)*.36,1.6,1.6);}
   ctx.restore();
   // the lift opens live in the game: the game's own car and its light, and the brass leaves sliding back into their jambs
   if(typeof lobbyLiftOpen==='function'){const o=lobbyLiftOpen(),A=LOBBY_LIFT;if(o>.004){liftCabin(ctx,G.liftX,G.yB,A.w,A.h);leaves(o);liftSpill(ctx,A.x,G.far,A.w,o*.85,176);}}}
@@ -401,6 +415,6 @@ function below(c,x0,x1,y0,y1){const SX=110,SD=66,d0=(GB-y1)/PSY,d1=(GB-y0)/PSY+1
   c.fillStyle=lin(c,0,y0,0,y1,[[0,rgba('#000000',.1)],[1,rgba('#000000',.45)]]);c.fillRect(x0,y0,x1-x0,y1-y0);}
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the chandeliers' light on the marble behind the fight
 const SET={col:'#ffe8be',soft:.4,y:[GB-360,GB-280,GB-60,GB+20]};
-E.S.lobby={set:SET,paint,live,light,prop,table,lamp,div,ware,upTile:COF.h,below};
+E.S.lobby={bands:1,wins:()=>({a:LG.winA,b:LG.winB,m:WINM}),set:SET,paint,live,light,prop,table,lamp,div,ware,upTile:COF.h,below};
 })();
 // ===== ENV LOBBY END =====

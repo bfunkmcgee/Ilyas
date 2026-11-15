@@ -258,9 +258,15 @@ function plant(c){for(const [x0,x1,d0,d1,h] of [[118,196,196,228,44],[214,250,20
   // a fan's round housing on the big box
   const f=g2(157,212);c.fillStyle='#050508';c.beginPath();c.ellipse(f.x,f.y-44,16,6,0,0,TAU);c.fill();c.strokeStyle=rgba('#c8d4ff',.2);c.lineWidth=1.01;c.beginPath();c.ellipse(f.x,f.y-44,16,6,0,Math.PI,TAU);c.stroke();}
 // ---------- the scene ----------
-function paint(c){
-  const X0=-160,X1=W+240,T0=-110;giltNew();
-  sky(c,X0,X1,T0);farCity(c,X0,X1);
+// THE LAYERS (since V119: the page that shows the picture in layers, spike/layers/layers.js, asks for it band by band, as it does
+// the yard's). only: 'far' the sky and the city at the horizon; 'near' the roof itself, from its crown and mast to the deck; 'mid',
+// 'light' and 'over' nothing. Without only the picture is painted whole, as ever.
+function paint(c,only){
+  if(only==='light'||only==='over'||only==='mid')return;
+  const X0=-160,X1=W+240,T0=-110;
+  if(!only||only==='far'){sky(c,X0,X1,T0);farCity(c,X0,X1);}
+  if(only==='far')return;
+  giltNew();
   crown(c);mast(c);
   parapet(c,X0-40);
   // the stuff of the roof at the back: the stair head, the plant, the floodlights, the windsock's pole
@@ -344,6 +350,6 @@ function light(f){const F=drain().f;if(!(F>.02))return{light:{x:MOON.x-f.dep*PSX
 const LAYOUT={edge:EDGE,parapet:PAR_D,pad:PAD,door:{x:(KIOSK.door[0]+KIOSK.door[1])/2,dep:KIOSK.d0},crown:CROWN,mast:MAST,horizon:HOR};
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the moon on the roof's deck and the parapet behind the fight
 const SET={col:'#d6e0ff',soft:1,y:[GB-340,GB-260,GB-60,GB+20]};
-E.S.roof={set:SET,paint,live,fore,light,LAYOUT};
+E.S.roof={bands:1,set:SET,paint,live,fore,light,LAYOUT};
 })();
 // ===== ENV ROOF END =====

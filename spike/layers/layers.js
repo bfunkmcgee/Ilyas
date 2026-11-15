@@ -36,6 +36,12 @@ const LY=window.LayerTest={
   // two blurs' reach, in points of the screen; fMid: the softness at which the light one is all there and the heavy one begins.
   // focusK (above) is how much of all this softness is laid on: 1 for all of it.
   f0:30,f1:480,fMax:.7,fTop:260,fRoom:.2,fEase:.5,blur1:1.2,blur2:3,fMid:.45,
+  // pull (since V119): the focus tightens as the camera comes close, as a lens does. The view's width in units against pullRef
+  // says how close: nothing at 1 + pull0 times closer than pullRef across, all of it at 1 + pull1 (a phone's view of his turn is
+  // 560 units or more across: none; its push-in for an exchange, about 404: a third; a scene's close shot at 250: all). Then what
+  // lies pullSpan units or more from the depth the eye is at, nearer or further, and the wall behind, is pullK softer. pullAt: how
+  // much of the pull the last frame had. A place can turn it down or off (PLACES: pull)
+  pull:true,pullRef:600,pull0:.15,pull1:1.15,pullK:.75,pullSpan:110,pullAt:0,
   // soft: what stands on the stage takes the focus too. A piece of the place, or a man where he is walked about, that stands far
   // from the depth the eye is at is drawn small and set down enlarged, so it is as soft as the floor at its foot (softK: how much
   // of that softness it gets; under softMin of enlarging it is left sharp; softN: things so drawn in the last frame)
@@ -55,6 +61,10 @@ const LY=window.LayerTest={
   // lampSee: a place that lists no lamps has them read off its picture (seeLamps, below): seeEvery frames apart, seeMax of them at
   // most, each reaching seeR units at seeK of a lamp's strength (seeNow: at once, for a tool's still: they are eased in otherwise)
   lampSee:true,seeEvery:4,seeMax:4,seeR:200,seeK:.2,seeNow:false,
+  // lampRoom (since V119): a room's own hanging lamps (S.lamps: the dining room's, the kitchen's, the lobby's, the office's) light
+  // the people and the things under them, each where it swings, flickering as it flickers and gone when it is put out (roomK: a
+  // lit lamp's strength; roomR: its reach in units)
+  lampRoom:true,roomK:.24,roomR:160,
   // lampGround: the plate takes the lamps too (the place is then painted without its own lamplight, and a map of which way each
   // of its surfaces faces goes with the plate). plateUnlit: the last frame's plate was painted so
   lampGround:true,plateUnlit:false,
@@ -110,22 +120,30 @@ function why(){
   const o=finishOf();if(o==='post')return'this place finishes its own picture';
   if(S.story&&FIRE[S.story.key]||fireArea()>LY.fireMax)return'this scene is lit by its fire';
   return'';}
+// THE PLATE IS NOT WIPED WHERE NOTHING LIES UNDER IT (since V119). The game never clears its canvas: each frame is painted over the
+// last. A place's picture is not solid everywhere (under the office's cornice a strip holds only the cove's added light, a third
+// there; the dining room has the like), and painted over itself frame after frame such a strip comes up to its full colour: the
+// bright line of the cove is that. On a plate wiped each frame it stayed a third there over nothing, 240 of 255 down to 100. So the
+// plate keeps the last frame, as the canvas does, wherever it is the whole picture; under bands, which show through it or go into
+// it, it is wiped as before. (plateAt: the frame and the place the plate was last painted in)
+let frameN=0,plateAt={f:-9,k:''};
 const _render=render;
 render=function(){
   if(phase>=0)return _render.apply(this,arguments);
+  frameN++;
   const t0=performance.now(),w=why();LY.why=w;
   const lay=!w&&!!G&&G.w===cv.width&&G.h===cv.height;
   LAMPS=lay?lampsNow():null;bandsFrame(lay);
   if(!lay){
     if(!w){LY.need=true;LY.why='making the sheets';}LY.live=false;
     try{return _render.apply(this,arguments);}finally{LY.ms+=(performance.now()-t0-LY.ms)*.05;}}
-  phase=0;wipe(A);carry(MAIN,A.g);ctx=A.g;
+  phase=0;evOn=false;{const k=envKey()||'';if(planes||plateAt.k!==k||plateAt.f!==frameN-1)wipe(A);plateAt={f:frameN,k};}carry(MAIN,A.g);ctx=A.g;
   try{return _render.apply(this,arguments);}
   finally{LY.live=phase===2;ctx=MAIN;phase=-1;farT=null;LY.n++;LY.ms+=(performance.now()-t0-LY.ms)*.05;}};
 function toStage(){
-  const a=A.g,m=a.getTransform();TR={s:m.a,tx:m.e,ty:m.f,planes:planes&&!!PX&&!!PX.far};
+  const a=A.g,m=a.getTransform();TR={s:m.a,tx:m.e,ty:m.f,planes:planes&&!bake&&!!PX&&!!PX.far};
   wipe(B);carry(a,B.g);ctx=B.g;phase=1;LY.plateUnlit=!!SLID.unlit;
-  try{shapeFrame();if(LY.plateUnlit)normalsFrame();if(TR.planes){if(BT.n!==LY.n)bandsT(m);if(PX.soft!==softNow())bandsFar();}
+  try{keepPlate();shapeFrame();if(LY.plateUnlit)normalsFrame();if(TR.planes){if(farN!==LY.n){farDraw(m);farT=null;}else if(BT.n!==LY.n)bandsT(m);if(PX.soft!==softNow())bandsFar();}
     focusNow();feet();softFrame();
     // (the plate is whole now: its two small copies for the blurs)
     if(LY.focus&&focusHere()){SH.g.globalCompositeOperation='copy';SH.g.drawImage(A.cv,0,0,SH.cv.width,SH.cv.height);SQ.g.globalCompositeOperation='copy';SQ.g.drawImage(SH.cv,0,0,SQ.cv.width,SQ.cv.height);}}
@@ -141,7 +159,25 @@ for(const k of ['front','grade']){const f=FXL[k];FXL[k]=function(){if(phase===1)
 // (the game's finish then runs on the top sheet, which is clear but for the sparks and the words. Its streaks cannot be made there:
 // it colours them by multiplying, and over a clear sheet that lays the colour itself over the whole frame, a veil a quarter thick.
 // The streaks of the plate and the stage are made in light(), below; the top's own finish goes without.)
-if(typeof EnvLook.finish==='function'){const f=EnvLook.finish;EnvLook.finish=function(o){return f.call(this,phase===2&&o&&o.streak>0?Object.assign({},o,{streak:0}):o);};}}
+// (Nor its dark at the edges, since V119. The game lays that under its bloom, so that a lamp or the sun at the frame's edge keeps
+// its glow (env_look.js, finish); on the top sheet it lay over Phaser's bloom and took the glow down: at the foot of the title's
+// frame the low sun's light was 20 to 30 of 255 short. The dark is made here the game's way and shown under the bloom: edgesMake.)
+if(typeof EnvLook.finish==='function'){const f=EnvLook.finish;EnvLook.finish=function(o){
+  if(phase===2&&o){try{edgesMake(o);}catch(e){LY.err=String(e&&e.message||e);}return f.call(this,Object.assign({},o,{streak:0,edges:0}));}
+  return f.call(this,o);};}}
+// the dark at the frame's edges (env_look.js, fnEdges: left, right and foot, a sixth of the way in, between the scene's bars), at
+// half the size, painted again only when its numbers change
+const EV=mk();let evKey='',evOn=false,evNew=false;
+function edgesMake(o){
+  const a=+o.edges,col=o.edgeCol||'#04030a';if(!(a>0)||FXL.q==='off')return;
+  const W2=cv.width,H2=cv.height,lb=typeof ST_LB==='number'?cl(ST_LB,0,1):0,bar=Math.floor(H2*.105*lb),ih=H2-2*bar;if(ih<8)return;
+  const w=Math.ceil(W2/2),h=Math.ceil(H2/2),y0h=Math.floor(bar/2),ihh=Math.max(1,h-2*y0h),vw=Math.ceil(w*.16),vh=Math.ceil(ihh*.16),key=[w,h,y0h,a.toFixed(3),col].join('|');
+  evOn=true;if(key===evKey)return;evKey=key;evNew=true;
+  if(EV.cv.width!==w||EV.cv.height!==h){EV.cv.width=w;EV.cv.height=h;}
+  const g=EV.g,R=EnvLook.rgba;g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='source-over';g.globalAlpha=1;g.clearRect(0,0,w,h);
+  const band=(x0,y0g,x1,y1g)=>{const gr=g.createLinearGradient(x0,y0g,x1,y1g);gr.addColorStop(0,R(col,a));gr.addColorStop(.4,R(col,a*.38));gr.addColorStop(1,R(col,0));return gr;};
+  g.fillStyle=band(0,0,vw,0);g.fillRect(0,y0h,vw,ihh);g.fillStyle=band(w,0,w-vw,0);g.fillRect(w-vw,y0h,vw,ihh);
+  g.fillStyle=band(0,y0h+ihh,0,y0h+ihh-vh);g.fillRect(0,y0h+ihh-vh,w,vh);}
 function light(){
   const o=finishOf();lightOn=false;if(!o||o==='post'||!(o.glow>0)||FXL.q!=='full')return;
   const bw=BL.cv.width,bh=BL.cv.height,g=BL.g;g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.imageSmoothingEnabled=true;
@@ -169,24 +205,34 @@ function light(){
 // The places the focus has been set for and looked at (the rest go onto the sheets all the same, and stay sharp). Where something
 // rises behind a place's far wall: the wall's height (units over the far edge of the floor), and how much further up the softness
 // is all there. Over the yard's roofs it is the far side of the Pit; the restaurant has its wall and no more.
-const PLACES={yard:{wall:175,top:110},dining:{room:0},
+const PLACES={yard:{wall:175,top:110,pull:0},dining:{room:0},
   // (since V118: the prologue's places. A fight's wall is its set, the richest part of the picture: it stays as sharp as the floor
   // at its foot (room: 0), and only what rises beyond it goes soft, to cap of the full softness by top units over the wall's
   // height (a skyline keeps its landmarks: the tower's H is read from every street). Out of doors
   // the wall is the house fronts, the maize, the parapet; a room has its wall and no more)
-  outskirts:{wall:20,top:100,room:0,cap:.5},crops:{wall:90,top:120,room:0,cap:.5},chase:{wall:260,top:120,room:0,cap:.5},
+  // (since V119 the road at sundown, the field and the roof have their far bands apart, each soft by its own size, BANDS: no
+  // softness by rows over their walls, which blurred the roof's crown and the field's maize with the sky behind them)
+  outskirts:{room:0},crops:{room:0},chase:{wall:260,top:120,room:0,cap:.5},
   highway:{wall:60,top:160,room:0,cap:.5},roadblock:{wall:20,top:160,room:0,cap:.5},street:{wall:330,top:120,room:0,cap:.5},
-  kitchen:{room:0},shaft:{room:0},station:{room:0},tunnel:{room:0},lobby:{room:0},office:{room:0},gondola:{room:0},roof:{wall:40,top:140,room:0,cap:.5}};
+  kitchen:{room:0},shaft:{room:0},station:{room:0},tunnel:{room:0},lobby:{room:0},office:{room:0},gondola:{room:0},roof:{room:0}};
 const focusHere=()=>Object.prototype.hasOwnProperty.call(PLACES,envKey()||'');
+// the pull this frame, 0 to pullK: by how close the camera has come (LY.pull, above)
+let PK=0;
+function pullNow(){
+  const P0=PLACES[envKey()||''],k=!LY.pull||!P0?0:P0.pull!=null?+P0.pull:1,c=(+LY.pullRef||600)/Math.max(60,cam.viewW)-1;
+  LY.pullAt=k>0?cl((c-LY.pull0)/Math.max(.01,LY.pull1-LY.pull0),0,1)*k:0;PK=LY.pullAt*cl(+LY.pullK||0,0,1);}
+// how soft a thing at depth x is, 0 to 1, before focusK: by its distance from the eye's depth, and by the pull
+const softD=(x,dF)=>{const a=Math.abs(x-dF)-LY.f0;return a<=0?0:cl(cl(a/LY.f1,0,1)*LY.fMax+PK*cl(a/Math.max(1,LY.pullSpan),0,1),0,1);};
 function focusNow(){
   let f=null;for(const g of S.F||[])if(g&&!g.gone&&!g.hidden&&g.p){f=g;break;}
   const want=f?f.dep:LY.focusAt,dt=tPrev==null?1e3:S.t-tPrev;tPrev=S.t;
   LY.focusAt=dt<0||dt>1?want:LY.focusAt+(want-LY.focusAt)*(1-Math.exp(-dt/Math.max(.01,LY.fEase)));
+  pullNow();
   const s=TR.s,ty=TR.ty,H=cv.height,far=(S.arena&&S.arena.far)||DEP_MAX+40,dF=LY.focusAt;
   const ek=envKey(),P0=PLACES[ek]||null,by=!TR.planes&&P0&&P0.wall?P0:null;
   const K=cl(+LY.focusK||0,0,1);
-  const key=[ek,s.toFixed(3),ty.toFixed(1),H,far,dF.toFixed(1),LY.f0,LY.f1,LY.fMax,LY.fTop,LY.fRoom,LY.fMid,K,TR.planes].join('|');if(key===maskKey)return;maskKey=key;
-  const i1=M1.g.createImageData(3,255),i2=M2.g.createImageData(3,255),soft=x=>cl((Math.abs(x-dF)-LY.f0)/LY.f1,0,1)*LY.fMax,yFar=(GB-PSY*far)*s+ty,mFar=soft(far),mid=cl(LY.fMid,.05,.95);
+  const key=[ek,s.toFixed(3),ty.toFixed(1),H,far,dF.toFixed(1),LY.f0,LY.f1,LY.fMax,LY.fTop,LY.fRoom,LY.fMid,K,TR.planes,PK.toFixed(3),LY.pullSpan].join('|');if(key===maskKey)return;maskKey=key;
+  const i1=M1.g.createImageData(3,255),i2=M2.g.createImageData(3,255),soft=x=>softD(x,dF),yFar=(GB-PSY*far)*s+ty,mFar=soft(far),mid=cl(LY.fMid,.05,.95);
   for(let i=0;i<255;i++){const y=(i+.5)/255*H;let m;
     if(y>=yFar)m=soft((GB-(y-ty)/s)/PSY);
     else{const hgt=(yFar-y)/s,up=Math.min(P0&&P0.room!=null?P0.room:LY.fRoom,1-mFar);
@@ -220,18 +266,40 @@ function focusNow(){
 // of the screen's canvas or a part of it, which Phaser shows under everything. The middle band: its still picture, placed by
 // Phaser; its chimneys' smoke is drawn on the plate where the band has gone. The middle band's row of shacks is painted on to the
 // left, behind the woodshed and the Sump (envx/env_yard.js): the whole picture hides that, and the band shows it as it slides out.
+// (since V119: the prologue's places out of doors, each painter opened the same way. rect: the bands' rectangle where it is not the
+// yard's; up: the far band's top row is drawn on up over a view that looks above it, as the game does with its whole picture.
+// bake: the two bands are set into the plate itself each frame, under the place's own picture, each where its own view of the world
+// puts it (bandsBake): the plate is then whole, as the game's own picture is, and whatever the place lays over its picture as it
+// moves (a searchlight's beam, cloud lit from below, the sun's own glow) is added to a painted sky and not to a clear sheet. Their
+// softness is then the plate's own, by rows (PLACES). The yard's bands stay on sheets of their own under the plate, as built.)
 const BANDS={yard:{x0:470,y0:262,w0:820,top:-470,far:[.2,.65],mid:[.72,.88]}};
+// The road at sundown (envx/env_outskirts.js): the sky with its hills and the Sprawl, then the valley, then the rise. The painter
+// says how much of the camera's going each band follows (bandK) and paints each drawn in by as much; the bands stand on the horizon
+{const X=EnvLook.S.outskirts,K=X&&X.bandK;if(K&&X.bands)BANDS.outskirts={x0:K.x0,y0:X.HOR+2,w0:346,top:-4000,far:[K.far,.8],mid:[K.mid,.93],rect:{x0:-160,y0:-100,w:W+410,h:530},up:true,bake:true};}
+// The field (envx/env_crops.js): the night sky with the city and its tower, the land before the city, then the clearing and the crop
+// along its back. The camera here follows a fight: the bands stand as painted where it most often is
+{const X=EnvLook.S.crops;if(X&&X.bands)BANDS.crops={x0:560,y0:X.HOR+5,w0:696,top:-4000,far:[.6,.65],mid:[.82,.85],rect:{x0:-160,y0:-110,w:W+400,h:X.cropY()+50+110},up:true,bake:true};}
+// The roof (envx/env_roof.js): the night sky and the city at the horizon, then the roof. No middle band
+{const X=EnvLook.S.roof;if(X&&X.bands&&X.LAYOUT)BANDS.roof={x0:560,y0:X.LAYOUT.horizon,w0:700,top:-4000,far:[.55,.6],mid:[1,1],rect:{x0:-160,y0:-110,w:W+400,h:X.LAYOUT.horizon+62+110},up:true,bake:true};}
+// The office (envx/env_office.js): the night city through its wall of glass, far below and far off: it hardly follows the camera,
+// so it slides behind the mullions as the fight goes along the room. Its rectangle is the glass and the room the painter gives round it
+{const X=EnvLook.S.office,Wn=X&&X.bands&&X.win&&X.win();if(Wn)BANDS.office={x0:520,y0:Wn.y1-30,w0:700,top:-4000,far:[.4,.72],mid:[1,1],
+  rect:{x0:Wn.x0-Wn.m.l,y0:Wn.y0-Wn.m.t,w:Wn.x1-Wn.x0+Wn.m.l,h:Wn.y1-Wn.y0+Wn.m.t+Wn.m.b},clip:[Wn.x0,Wn.y0,Wn.x1,Wn.y1],bake:true,size:[.7,.5]};}
+// The lobby (envx/env_lobby.js): the night city in its two windows, the same way
+{const X=EnvLook.S.lobby,Wn=X&&X.bands&&X.wins&&X.wins();if(Wn){const A0=Wn.a,B1=Wn.b,M=Wn.m;BANDS.lobby={x0:500,y0:A0.y0+(A0.y1-A0.y0)*.6,w0:700,top:-4000,far:[.4,.72],mid:[1,1],
+  rect:{x0:A0.x0-M.x,y0:A0.y0-M.t,w:B1.x1-A0.x0+2*M.x,h:A0.y1-A0.y0+M.t+M.b},clip:[[A0.x0,A0.y0,A0.x1,A0.y1],[B1.x0,B1.y0,B1.x1,B1.y1]],bake:true,size:[.7,.5]};}}
 // (the far bands' rectangle in the world: as wide as the yard's backdrop is painted, and from just over the layer's top to 342,
 // where the backdrop's own haze ends, well under the lowest roof)
-const RECT={x0:-170,y0:-110,w:W+420,h:452};
+const RECT_YARD={x0:-170,y0:-110,w:W+420,h:452};let RECT=RECT_YARD;
+const bandBlur=i=>{const B0=PX&&BANDS[PX.k],b=B0&&B0.blur;return b?b[i]:i?LY.blurMid:LY.blurFar;};
 const SLID=globalThis.__lyp={far:null,mid:null,end:null,ext:true,unlit:false,own:0};
-let planes=false,PX=null,farT=null;
+let planes=false,bake=false,PX=null,farT=null;
 const FAR=mk(4,4),BT={n:-1,far:{r:1,tx:0,ty:0},mid:{r:1,tx:0,ty:0}};
 const bandsHere=()=>{const k=envKey(),X=k&&EnvLook.S[k];return!!(X&&X.bands&&BANDS[k]&&typeof X.paint==='function');};
 const layerDrop=()=>{if(typeof SCENE_LY!=='undefined'&&SCENE_LY&&SCENE_LY.lyNear){SCENE_LY.cv.width=SCENE_LY.cv.height=0;SCENE_LY=null;}};
 // before each frame: are the bands used in it
 function bandsFrame(lay){
-  planes=lay&&LY.parallax&&bandsHere();
+  planes=lay&&LY.parallax&&bandsHere();bake=false;if(planes){const B0=BANDS[envKey()];RECT=B0.rect||RECT_YARD;bake=!!B0.bake;}
   if(!planes||SLID.ext!==(LY.ext!==false))layerDrop();
   SLID.ext=LY.ext!==false;
   // (the lamps on the plate: the painter then leaves its own pools of lamplight out of the still picture, which is painted again)
@@ -260,7 +328,7 @@ function normalsFrame(){
 // piece set down, a glow, smoke, a gate, a bird: envx/env_yard.js), with room round a piece for what moves on it. It is noted
 // the first time the thing is drawn, sharp, and kept in the place's own units; a thing that tells nothing stays sharp. A piece
 // drawn at under half its size is taken from a copy of it made that small once (T.mp), so nothing has to be shrunk far.
-const softAt=d=>cl((Math.abs(d-LY.focusAt)-LY.f0)/LY.f1,0,1)*LY.fMax*cl(+LY.focusK||0,0,1);
+const softAt=d=>softD(d,LY.focusAt)*cl(+LY.focusK||0,0,1);
 function softF(d){const m=softAt(d),mid=cl(LY.fMid,.05,.95),r=m<mid?LY.blur1*m/mid:LY.blur1+(LY.blur2-LY.blur1)*(m-mid)/(1-mid),F=1+r*DPR*(+LY.softK||0);
   return F>=LY.softMin?Math.min(F,16):0;}
 // SCS: the pieces' small sheets, by the piece's place in the painter's list; SCF: the men's, by their turn in the frame. PB: each
@@ -296,6 +364,9 @@ function softDraw(i,d,run,box){
   if(it.pitPiece){if(!it.pitPiece.sharp&&softDraw(it.lyI,it.d,run))return r;}
   // (the yard's bucket where it stands on the floor, with the pump's stream over it: sk_pit2ui.js)
   else if(it.act1b==='bucket'&&it.at&&!it.at.hand){const a=it.at,x=a.x+a.d*PSX,y=a.y-a.d*PSY;if(softDraw(63,a.d,run,[x-18,y-(a.spout?60:30),x+18,y+8]))return r;}
+  // (since V119: a room's furniture, by the box the game keeps for it, with room round that for its shadow and what stands on it)
+  else if(it.prop&&it.prop.box&&!it.prop.broken){const P0=it.prop,b=P0.box,d=it.d,ox=d*PSX,oy=d*PSY,i=S.props?S.props.indexOf(P0):-1;
+    if(i>=0&&i<60&&b.r>b.l&&softDraw(100+i,d,run,[b.l+ox-16,Math.min(b.t,b.b)-oy-22,b.r+ox+16,Math.max(b.t,b.b)-oy+10]))return r;}
   return f.apply(this,arguments);};}
 // (each piece's place in the painter's list, which does not change as the list is sorted by depth)
 {const f=envItems;envItems=function(items){const r=f.apply(this,arguments);if(items&&items.length){let k=0;for(const it of items)if(it&&it.pitPiece)it.lyI=k++;}return r;};}
@@ -388,22 +459,68 @@ function bandsT(m){
 // then draws them on the plate as ever, inside its skyline). While it does, the camera's top is the band's own, so that the
 // picture above the layer and the tram are drawn as far up as this band's view reaches. end(): those are down. mid(c): the middle
 // band's view, laid on a context that holds the frame's own.
+let farN=-1;
 SLID.far=function(c0){
-  if(!planes||phase!==0||!PX||!PX.far)return null;
+  if(!planes||bake||phase!==0||!PX||!PX.far)return null;
   const m=c0.getTransform();if(m.b||m.c||!(m.a>0))return null;
-  bandsT(m);
+  return farDraw(m);};
+function farDraw(m){
+  bandsT(m);farN=LY.n;
   // (blurred, a part of the canvas is plenty: small enough that the blur costs little, and no smaller than the blur's reach can
   // hide; sharp, all of it, or half where the screen is dense enough to carry that)
-  const reach=PX.soft?LY.blurFar*cl(+LY.focusK||0,0,1):0,need=reach>0?1.8/(reach*DPR):9,f=!PX.soft?(DPR>=2.5?.5:1):need<=.26?.25:need<=.34?1/3:need<=.51?.5:1;
+  const reach=PX.soft?bandBlur(0)*cl(+LY.focusK||0,0,1):0,need=reach>0?1.8/(reach*DPR):9,f=!PX.soft?(DPR>=2.5?.5:1):need<=.26?.25:need<=.34?1/3:need<=.51?.5:1;
   const w=Math.max(8,Math.ceil(cv.width*f)),h=Math.max(8,Math.ceil(cv.height*f));
   if(FAR.cv.width!==w||FAR.cv.height!==h){FAR.cv.width=w;FAR.cv.height=h;}
   const g=FAR.g,o=BT.far,kx=w/cv.width,ky=h/cv.height;
   g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.clearRect(0,0,w,h);
   g.setTransform(kx*m.a*o.r,0,0,ky*m.d*o.r,kx*(m.a*o.tx+m.e),ky*(m.d*o.ty+m.f));g.imageSmoothingEnabled=true;
   g.drawImage(PX.far.cv,RECT.x0,RECT.y0,RECT.w,RECT.h);
-  farT=(cam.T-o.ty)/o.r;return g;};
+  upFill(g,m,o);
+  farT=(cam.T-o.ty)/o.r;return g;}
 SLID.end=function(){farT=null;};
+// a view that looks above the far band: its top row drawn on up, as the game fills the sky over its whole picture (sceneTopFill),
+// from the top of the game's own layer, RC: what the band holds above that is not in the game's picture. g holds the band's view
+// (the band's row there, taken as 32 means across it, as the game takes a layer's top (sceneTopOf): one star in that row drawn on
+// up as it is would run up the frame as a line)
+function upRow(){const F=PX.far;if(F.up)return F.up;
+  const y1=Math.max(RECT.y0,RC.y0),w=F.cv.width,h=Math.max(1,Math.round(2*F.q)),t=mk(w,h),u=mk(32,1);
+  t.g.drawImage(F.cv,0,Math.min(F.cv.height-h,Math.max(0,Math.round((y1-RECT.y0)*F.q))),w,h,0,0,w,h);
+  const d=t.g.getImageData(0,0,w,h).data,o=u.g.createImageData(32,1);
+  for(let i=0;i<32;i++){const x0=Math.floor(i*w/32),x1=Math.max(x0+1,Math.floor((i+1)*w/32));let r=0,g=0,b=0,al=0;
+    for(let y=0;y<h;y++)for(let x=x0;x<x1;x++){const j=(y*w+x)*4,q=d[j+3];r+=d[j]*q;g+=d[j+1]*q;b+=d[j+2]*q;al+=q;}
+    o.data[i*4]=al?r/al:0;o.data[i*4+1]=al?g/al:0;o.data[i*4+2]=al?b/al:0;o.data[i*4+3]=al/((x1-x0)*h);}
+  u.g.putImageData(o,0,0);t.cv.width=t.cv.height=0;return F.up=u.cv;}
+function upFill(g,m,o){if(!BANDS[PX.k].up)return;const yT=-(m.d*o.ty+m.f)/(m.d*o.r)-2,y1=Math.max(RECT.y0,RC.y0);
+  if(yT<y1){const sm=g.imageSmoothingEnabled;g.imageSmoothingEnabled=true;g.drawImage(upRow(),0,0,32,1,RECT.x0,yT,RECT.w,y1-yT+.6);g.imageSmoothingEnabled=sm;}}
+// THE BANDS SET INTO THE PLATE (bake). Once the game has laid the place's own picture on the plate (sceneDraw: here that picture is
+// the place without its far bands, clear where they show), the middle band and then the far one go in under it, each under its own
+// view. From there on the frame is painted as the game paints it: what moves in the place is drawn over a whole picture.
+function bandsBake(){
+  const a=A.g,m=a.getTransform();if(m.b||m.c||!(m.a>0)||!PX||!PX.far)return;
+  bandsT(m);a.save();a.globalAlpha=1;a.globalCompositeOperation='destination-over';a.imageSmoothingEnabled=true;
+  // (clip: a room's bands show through its glass alone, not through whatever else of its wall is not solid)
+  {const C=BANDS[PX.k].clip;if(C){a.beginPath();for(const q of (typeof C[0]==='number'?[C]:C))a.rect(q[0],q[1],q[2]-q[0],q[3]-q[1]);a.clip();}}
+  for(const b of ['mid','far']){const o=BT[b],I=PX[b];if(!I||!I.cv.width)continue;
+    a.setTransform(m.a*o.r,0,0,m.d*o.r,m.a*o.tx+m.e,m.d*o.ty+m.f);a.drawImage(I.cv,RECT.x0,RECT.y0,RECT.w,RECT.h);if(b==='far')upFill(a,m,o);}
+  a.restore();}
+{const f=sceneDraw;sceneDraw=function(){const r=f.apply(this,arguments);if(phase===0&&planes&&bake&&ctx===A.g){try{bandsBake();under();}catch(e){LY.err='bake: '+String(e&&e.message||e);}}return r;};}
+// (a baked place whose picture is not solid: the last frame's plate goes in under this frame's, so that a strip of added light
+// comes up to its full colour over the frames as it does on the game's own canvas. P0: that plate, kept at toStage)
+const P0=mk();let p0At=-9;
+function under(){
+  const L=PX&&PX.L;if(!L||!L.leak||p0At!==frameN-1||P0.cv.width!==A.cv.width||P0.cv.height!==A.cv.height)return;
+  const a=A.g;a.save();a.setTransform(1,0,0,1,0,0);a.globalAlpha=1;a.globalCompositeOperation='destination-over';a.drawImage(P0.cv,0,0);a.restore();}
+function keepPlate(){
+  const L=PX&&PX.L;if(!planes||!bake||!L||!L.leak)return;
+  if(P0.cv.width!==A.cv.width||P0.cv.height!==A.cv.height){P0.cv.width=A.cv.width;P0.cv.height=A.cv.height;}
+  P0.g.globalCompositeOperation='copy';P0.g.drawImage(A.cv,0,0);p0At=frameN;}
+// what a painter whose bands are baked asks (envx/env_outskirts.js, env_crops.js): banded(): are the bands in the plate at their own
+// views this frame; farOn(c), mid(c): the far band's view, the middle band's, laid on a context that holds the frame's own
+SLID.banded=function(){return!!(planes&&bake&&phase===0&&PX&&BT.n===LY.n);};
+SLID.farOn=function(c){if(SLID.banded()){const o=BT.far;c.translate(o.tx,o.ty);c.scale(o.r,o.r);return true;}return false;};
 SLID.mid=function(c){if(planes&&phase===0&&PX&&BT.n===LY.n){const o=BT.mid;c.translate(o.tx,o.ty);c.scale(o.r,o.r);}};
+// (where a point of the middle band stands on the plate this frame)
+SLID.midAt=function(x,y){if(planes&&PX&&BT.n===LY.n){const o=BT.mid;return[o.r*x+o.tx,o.r*y+o.ty];}return[x,y];};
 {const f=camTop;camTop=function(){return farT!=null?farT:f.apply(this,arguments);};}
 {const f=sceneLayer;sceneLayer=function(k){const L=f.apply(this,arguments);
   if(planes&&phase===0&&L&&!L.lyNear&&k===envKey()){try{bandsMake(k,L);}catch(e){LY.err='bands: '+String(e&&e.message||e);}}
@@ -414,31 +531,55 @@ function bandLight(k,c,x0,w){const X=EnvLook.S[k];X.paint(c,'light');if(!X.setLi
 const plain=c=>{c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.globalAlpha=1;};
 // (the light is laid over the whole canvas and then kept only where the band itself is painted: what it does to a pixel depends on
 // that pixel alone, so each band comes out lit as it was in the whole picture)
-function keepOnly(c,M){plain(c);c.globalCompositeOperation='destination-in';c.drawImage(M.cv,0,0);c.globalCompositeOperation='source-over';M.cv.width=M.cv.height=0;}
+// (full: the baked places, since V119. Keeping a band by its own picture takes a part-clear pixel down again by as much as it is
+// clear: an edge thins, and a strip that holds a third of a light is left with a ninth. So the picture it is kept by is first laid
+// over itself four times, which brings whatever is there at all up toward solid, and leaves clear what is clear)
+function keepOnly(c,M,full){if(full){plain(M.g);for(let i=0;i<4;i++)M.g.drawImage(M.cv,0,0);}
+  plain(c);c.globalCompositeOperation='destination-in';c.drawImage(M.cv,0,0);c.globalCompositeOperation='source-over';M.cv.width=M.cv.height=0;}
 function bandsMake(k,L){
   const X=EnvLook.S[k],sc=L.sc,c=L.cv.getContext('2d'),t0=performance.now(),world=()=>c.setTransform(sc,0,0,sc,-RC.x0*sc,-RC.y0*sc);
   // (above its top the game fills a tall view with the top row's colours as it measured them on the whole picture, and the
   // picture above the layer goes over that. Here that picture is on the far band's sheet, under the plate: no fill)
+  // (is the game's whole picture solid everywhere? Where it is not, a room with a strip that holds only added light, the plate
+  // has to keep the last frame under it as the game's canvas does: leak, and under() below)
+  if(BANDS[k].bake&&L.leak==null){L.leak=false;try{const n=512,m=mk(n,n);m.g.imageSmoothingEnabled=false;m.g.drawImage(L.cv,0,0,n,n);const d=m.g.getImageData(0,0,n,n).data;let q=0;for(let i=3;i<d.length;i+=4)if(d[i]>10&&d[i]<235)q++;L.leak=q>n*n*.0004;m.cv.width=m.cv.height=0;}catch(e){/* unread: taken for solid */}}
   L.lyNear=true;L.row=null;
+  // (a place whose bands go into the plate: nothing is filled over a view that looks above the layer. The layer's top rows hold
+  // only what of the place itself reaches that high, the roof's crown and its mast, and run on up they are streaks; the far band's
+  // own top row is run on up there instead, upFill)
+  if(BANDS[k].bake)L.row={even:true,col:'rgba(0,0,0,0)'};
   plain(c);c.clearRect(0,0,L.cv.width,L.cv.height);world();X.paint(c,'near');
   // (the yard's painter lays some things over its light: the things along the walls again, what grows. As in the whole picture:
   // the light, then those, then the place's key light over it all; and the band keeps what either painting covered)
   const M=mk(L.cv.width,L.cv.height);M.g.drawImage(L.cv,0,0);M.g.setTransform(sc,0,0,sc,-RC.x0*sc,-RC.y0*sc);X.paint(M.g,'over');
-  plain(c);world();X.paint(c,'light');X.paint(c,'over');if(!X.setLive){const G0=setOf(k);if(G0)setDraw(c,G0,RC.x0,RC.w);}keepOnly(c,M);world();
+  plain(c);world();X.paint(c,'light');X.paint(c,'over');if(!X.setLive){const G0=setOf(k);if(G0)setDraw(c,G0,RC.x0,RC.w);}keepOnly(c,M,!!BANDS[k].bake);world();
   for(const b of PX?[PX.far,PX.mid]:[])if(b)b.cv.width=b.cv.height=0;
   PX={k,L,soft:null,far:null,mid:null,up:false,ms:0};bandsFar();PX.ms=performance.now()-t0;}
+// (a night sky that goes to black at its top is lifted toward a deep blue there: sceneNightLift, sk_scene_glue.js, which does it to
+// the game's whole picture from the top of its layer; here to the far band alone, which holds that sky)
+function nightLift(c,cn,q){try{const yr=Math.max(0,Math.round((RC.y0-RECT.y0)*q)),d=c.getImageData(0,yr,cn.width,Math.max(1,Math.round(3*q))).data;let R=0,G=0,B=0,n=0;
+    for(let i=0;i<d.length;i+=36){R+=d[i];G+=d[i+1];B+=d[i+2];n++;}if(!n)return;
+    const a=[[10,R],[13,G],[28,B]].map(([t,v])=>Math.max(0,Math.round(t-v/n)));if(a[0]+a[1]+a[2]<4)return;
+    c.save();c.globalCompositeOperation='lighter';const g=c.createLinearGradient(0,RC.y0,0,RC.y0+240);g.addColorStop(0,`rgba(${a.join(',')},1)`);g.addColorStop(1,`rgba(${a.join(',')},0)`);
+    c.fillStyle=g;c.fillRect(RECT.x0,RECT.y0,RECT.w,RC.y0+240-RECT.y0);c.restore();}catch(e){/* a canvas that cannot be read: no lift */}}
 // the two far bands: small where the focus will blur them anyway (a quarter and a half of the layer's scale at full focus, a
 // third and a half at a lighter one: smaller than that and the blur no longer hides the sheet's own grain), near the layer's
 // own scale where it is off and they must be as sharp as the whole picture was. softNow: 0 sharp, 1 lightly blurred, 2 fully.
 const softNow=()=>LY.focus&&focusHere()?(cl(+LY.focusK||0,0,1)>.75?2:1):0;
 function bandsFar(){
-  const k=PX.k,X=EnvLook.S[k],soft=softNow(),sc=PX.L.sc,R=RECT;
+  const k=PX.k,X=EnvLook.S[k],soft=BANDS[PX.k].bake?0:softNow(),sc=PX.L.sc,R=RECT;
   const one=(which,q,cut)=>{const cn=mk(Math.ceil(R.w*q),Math.ceil(R.h*q)),c=cn.g,world=()=>c.setTransform(q,0,0,q,-R.x0*q,-R.y0*q);
     world();X.paint(c,which);let M=null;if(cut){M=mk(cn.cv.width,cn.cv.height);M.g.drawImage(cn.cv,0,0);}
     // (the far bands keep the painter's own lamplight: Phaser's lamps do not reach them)
-    plain(c);world();{const u=SLID.unlit;SLID.unlit=false;try{bandLight(k,c,R.x0,R.w);}finally{SLID.unlit=u;}}if(M)keepOnly(c,M);return{cv:cn.cv,q};};
+    plain(c);world();{const u=SLID.unlit;SLID.unlit=false;try{bandLight(k,c,R.x0,R.w);}finally{SLID.unlit=u;}}if(M)keepOnly(c,M,!!BANDS[k].bake);
+    if(which==='far'&&BANDS[k].up&&typeof SCENE_NIGHT!=='undefined'&&SCENE_NIGHT[k]){plain(c);world();nightLift(c,cn.cv,q);}return{cv:cn.cv,q};};
   for(const b of [PX.far,PX.mid])if(b)b.cv.width=b.cv.height=0;
-  PX.far=one('far',sc*[.75,1/3,1/4][soft],false);PX.mid=one('mid',sc*[.75,1/2,1/2][soft],true);PX.soft=soft;PX.up=true;}
+  // (a place whose bands are less soft than the yard's keeps them larger: a band a point soft at half the layer's scale)
+  const B0=BANDS[k],own=!!B0.blur,qf=!soft?.75:!own?[.75,1/3,1/4][soft]:B0.blur[0]>=2?1/4:B0.blur[0]>=1.2?1/3:B0.blur[0]>=.6?1/2:.75,qm=!soft||(own&&B0.blur[1]<.6)?.75:1/2;
+  // (a band that goes into the plate is soft by its size: painted small and set down enlarged, the far one more than the middle
+  // one. B0.size: their sizes as parts of the layer's own scale)
+  const zs=B0.bake?(B0.size||[.55,.7]):[qf,qm];
+  PX.far=one('far',sc*zs[0],false);PX.mid=one('mid',sc*zs[1],true);PX.soft=soft;PX.up=true;}
 
 // ---------- dust ----------
 // Where the air has something in it: the yard, by the Pit's hour (AIR), and the places listed in AIRS (since V118), each with
@@ -485,7 +626,7 @@ function tex(sc,key,c){if(sc.textures.exists(key))sc.textures.remove(key);sc.tex
 function dot(){const L=mk(60,60),g=L.g,r=g.createRadialGradient(30,30,0,30,30,29);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.5,'rgba(255,255,255,.5)');r.addColorStop(1,'rgba(255,255,255,0)');
   g.fillStyle=r;g.fillRect(0,0,60,60);return L.cv;}
 function drop(){if(!G)return;for(const o of G.lamps||[])try{G.sc.lights.removeLight(o);}catch(e){/* gone with its scene */}
-  for(const o of [G.plate,G.soft1,G.soft2,G.stage,G.bloom,G.back,G.front,G.far,G.mid])try{if(o)o.destroy();}catch(e){/* gone with its scene */}G=null;}
+  for(const o of [G.plate,G.soft1,G.soft2,G.stage,G.bloom,G.back,G.front,G.far,G.mid,G.edges])try{if(o)o.destroy();}catch(e){/* gone with its scene */}G=null;}
 // the far band's sheet under everything, the size of the screen; over it the middle band, where its own view of the world puts
 // it. Each is blurred by its own small amount where the focus is on (the textures are small, so the blurs are nearly free)
 function bandsSync(sc,live,dpr){
@@ -497,8 +638,8 @@ function bandsSync(sc,live,dpr){
   else if(G.farSeen!==LY.n){G.farSeen=LY.n;sc.textures.get('lyFar').source[0].update();}
   if(PX.up||!G.mid||G.px!==PX){PX.up=false;G.px=PX;if(G.mid)G.mid.destroy();tex(sc,'lyMid',PX.mid.cv);G.mid=im('lyMid',-62);}
   const s=TR.s,K=cl(+LY.focusK||0,0,1);
-  {const up=G.w/FAR.cv.width,r=PX.soft?LY.blurFar*K*dpr/(1.9*up):0;G.far.setScale(up,G.h/FAR.cv.height);G.far.bl.setActive(r>.02);G.far.bl.x=G.far.bl.y=r;}
-  {const o=BT.mid,b=PX.mid,up=s*o.r/b.q,r=PX.soft?LY.blurMid*K*dpr/(1.9*up):0;
+  {const up=G.w/FAR.cv.width,r=PX.soft?bandBlur(0)*K*dpr/(1.9*up):0;G.far.setScale(up,G.h/FAR.cv.height);G.far.bl.setActive(r>.02);G.far.bl.x=G.far.bl.y=r;}
+  {const o=BT.mid,b=PX.mid,up=s*o.r/b.q,r=PX.soft?bandBlur(1)*K*dpr/(1.9*up):0;
     G.mid.setPosition((o.r*RECT.x0+o.tx)*s+TR.tx,(o.r*RECT.y0+o.ty)*s+TR.ty).setScale(up);G.mid.bl.setActive(r>.02);G.mid.bl.x=G.mid.bl.y=r;}}
 function build(sc){
   drop();const w=cv.width,h=cv.height,bw=Math.max(24,Math.round(w/8)),bh=Math.max(24,Math.round(h/8));
@@ -520,7 +661,7 @@ function build(sc){
   const soft1=softOf('lyH',SH.cv,'lyM1',-58),soft2=softOf('lyQ',SQ.cv,'lyM2',-57);
   const back=sc.add.container(0,0).setDepth(-55),stage=sc.add.image(0,0,'ly1').setOrigin(0,0).setDepth(-50),front=sc.add.container(0,0).setDepth(-45);
   const bloom=sc.add.image(0,0,'lyBloom').setOrigin(0,0).setDisplaySize(w,h).setBlendMode(Phaser.BlendModes.SCREEN).setDepth(-40);
-  G={w,h,sc,plate,soft1,soft2,back,stage,front,bloom,motes:[],puffs:[],lamps:[],lit:false,seen:-1};maskKey='';
+  G={w,h,sc,plate,soft1,soft2,back,stage,front,bloom,edges:null,edgesWH:'',motes:[],puffs:[],lamps:[],lit:false,seen:-1};maskKey='';evKey='';
   const mote=(i,fr)=>{const im=sc.add.image(0,0,'lyDot').setBlendMode(Phaser.BlendModes.ADD).setVisible(false);(fr?front:back).add(im);
     return{im,fr,x:hs(i*7+1),y:hs(i*7+2),ph:hs(i*7+3)*6.283,v:.5+hs(i*7+6),r:fr?4+hs(i*7+4)*5:.9+hs(i*7+4)*1,a:fr?.07+hs(i*7+5)*.08:.22+hs(i*7+5)*.28,p:fr?1.35+hs(i*7+4)*.5:.82+hs(i*7+4)*.14};};
   for(let i=0;i<LY.motesBack;i++)G.motes.push(mote(i,false));for(let i=0;i<LY.motesFront;i++)G.motes.push(mote(1000+i,true));}
@@ -588,7 +729,14 @@ function seenLamps(){
   for(let i=SEEN.length-1;i>=0;i--){const q=SEEN[i];q.a+=((q.want||0)-q.a)*e;if(!q.want&&q.a<.02){SEEN.splice(i,1);continue;}
     if(q.a>.03)L.push({x:q.x,y:q.y,r:LY.seeR,col:q.col,k:LY.seeK*(.45+.55*q.v)*q.a,z:.22});}
   return L.length?L:null;}
-function lampsNow(){const k=envKey(),X=k&&EnvLook.S[k];try{return!LY.lamps||!X?null:typeof X.lampsAt==='function'?X.lampsAt(S.t,still()):LY.lampSee?seenLamps():null;}catch(e){LY.lampErr=String(e&&e.message||e);return null;}}
+// a room's own lamps (S.lamps, sk_env.js: each hangs from its anchor and swings; lampGlow, sk_envui.js, is how brightly it burns:
+// 1 lit, wavering where it has been knocked, a last flicker as it goes out). Where the lamp's bulb is in the picture, warm
+function roomLamps(){
+  const L=[],A0=S.lamps;if(!LY.lampRoom||!A0||!A0.length||typeof lampGlow!=='function'||!focusHere())return L;
+  for(const q of A0){if(!q||!q.p)continue;const k=lampGlow(q);if(!(k>0))continue;L.push({x:q.p.x+q.dep*PSX,y:q.p.y-q.dep*PSY,r:LY.roomR,col:0xffdcaa,k:LY.roomK*Math.min(1,k),z:.3});if(L.length>=6)break;}
+  return L;}
+function lampsNow(){const k=envKey(),X=k&&EnvLook.S[k];try{if(!LY.lamps||!X)return null;if(typeof X.lampsAt==='function')return X.lampsAt(S.t,still());
+    const a=roomLamps(),b=LY.lampSee?seenLamps():null,r=b?a.concat(b).slice(0,8):a;return r.length?r:null;}catch(e){LY.lampErr=String(e&&e.message||e);return null;}}
 function lamps(sc,live){
   const L=live?LAMPS:null,on=!!(L&&L.length),s=TR.s;
   if(on&&!G.lit){sc.lights.enable();sc.lights.setAmbientColor(0xffffff);G.lit=true;}
@@ -609,6 +757,11 @@ function sync(){
   const live=LY.live&&PHOST.mode>0&&!PHOST.err;
   G.plate.setVisible(live);G.stage.setVisible(live);G.back.setVisible(live);G.front.setVisible(live);const foc=live&&LY.focus&&focusHere();G.soft1.setVisible(foc);G.soft2.setVisible(foc);
   G.bloom.setVisible(live&&lightOn);
+  // (the dark at the edges, under the bloom: its picture is made again when the screen, the bars or the place's finish change)
+  {const on=live&&evOn&&EV.cv.width>4,wh=EV.cv.width+'x'+EV.cv.height;
+    if(on&&(!G.edges||G.edgesWH!==wh)){if(G.edges)G.edges.destroy();tex(sc,'lyEdges',EV.cv);G.edges=sc.add.image(0,0,'lyEdges').setOrigin(0,0).setDisplaySize(G.w,G.h).setDepth(-42);G.edgesWH=wh;evNew=false;}
+    else if(on&&evNew){evNew=false;sc.textures.get('lyEdges').source[0].update();}
+    if(G.edges)G.edges.setVisible(on);}
   const r=cv.getBoundingClientRect(),dpr=r.width>0?cv.width/r.width:1;DPR=dpr;
   bandsSync(sc,live,dpr);lamps(sc,live);
   if(!live)return;
@@ -621,7 +774,7 @@ function sync(){
   G.soft1.bl.x=G.soft1.bl.y=LY.blur1*dpr/(1.9*G.soft1.scaleX);G.soft2.bl.x=G.soft2.bl.y=LY.blur2*dpr/(1.9*G.soft2.scaleX);
   dust();}
 PHOST.game.events.on('prestep',()=>{try{sync();}catch(e){LY.err=String(e&&e.message||e);}});
-LY.info=()=>({live:LY.live,why:LY.why,focus:LY.focus&&focusHere(),dust:LY.dust&&dusty(),parallax:LY.live&&TR.planes,bands:TR.planes?['far','mid'].map(b=>[+BT[b].r.toFixed(3),+BT[b].tx.toFixed(1),+BT[b].ty.toFixed(1)]):null,bandsMs:PX?Math.round(PX.ms):0,far:[FAR.cv.width,FAR.cv.height],n:LY.n,ms:+LY.ms.toFixed(2),host:+(PHOST.hostMs||0).toFixed(2),focusAt:+LY.focusAt.toFixed(1),puffs:PUFFS.length,err:LY.err,
+LY.info=()=>({live:LY.live,why:LY.why,focus:LY.focus&&focusHere(),dust:LY.dust&&dusty(),parallax:LY.live&&(TR.planes||planes&&bake),baked:LY.live&&planes&&bake,leak:!!(PX&&PX.L&&PX.L.leak)&&p0At-frameN,pull:+LY.pullAt.toFixed(2),bands:TR.planes?['far','mid'].map(b=>[+BT[b].r.toFixed(3),+BT[b].tx.toFixed(1),+BT[b].ty.toFixed(1)]):null,bandsMs:PX?Math.round(PX.ms):0,far:[FAR.cv.width,FAR.cv.height],n:LY.n,ms:+LY.ms.toFixed(2),host:+(PHOST.hostMs||0).toFixed(2),focusAt:+LY.focusAt.toFixed(1),puffs:PUFFS.length,err:LY.err,
   size:G?[G.w,G.h]:null,light:lightOn,soft:LY.softN,lamps:LY.lampsN,ground:LY.plateUnlit,shapes:LY.shapeN,shapeMs:Math.round(LY.shapeMs),lampErr:LY.lampErr});
 // (for the checks: the sheets themselves)
 LY.puffs=()=>PUFFS.map(p=>({x:+p.x.toFixed(1),y:+p.y.toFixed(1),a:+p.a.toFixed(2),r:+p.r.toFixed(1),age:+(S.t-p.t0).toFixed(2),life:+p.life.toFixed(2)}));
