@@ -1,9 +1,11 @@
 # Motion test
 
-A test, not part of the game. It answers one question: can the figures move like drawn people, not like ragdolls, while the
+Built as a test; since V118 a part of the game's published page, with its switch under Options (Drawn movement;
+`spike/layers/options.js`). It answers one question: can the figures move like drawn people, not like ragdolls, while the
 ragdoll stays the game's mechanism for fights, clothes, weapons and armour?
 
-Nothing under `sk_*.js`, `envx/` or the build is touched. The test goes into a copy of the built page, after the game's script.
+Nothing under `sk_*.js` or `envx/` is touched. Since V118 `build.py` puts `motion.js` in the published page after the game's script;
+this test's page is that page with `panel.js` (the test's scene and its switches) after it.
 
 ## Build and open
 
@@ -91,8 +93,9 @@ start, the toll, the yard, the test's own scene.
 
 ## What it does not do
 
-- The game is not changed. Taking this into the game is a version of its own: the drawing would move into the UI files, and the
-  fault above would be mended in the game itself.
+- The game's own files are not changed. Since V118 `motion.js` is in the published page as it stands (build.py `game_page`), on,
+  with a switch; test_page.html and every check of the game run without it. The fault above is still in the game: the drawing
+  covers it, and mending it is a change to the game's own springs.
 - His hips are the game's, so a walk is at full pace on its first frame and stopped dead on its last. The lean and the slower
   first step make that read as a start and a stop; they do not make it one. A real one needs the game to bring him up to pace.
 - The feet in a fight are the game's: where it plants a foot, and when, is part of how a blow lands.

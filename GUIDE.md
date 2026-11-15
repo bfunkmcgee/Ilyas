@@ -785,6 +785,41 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   and give its name as SK_PAGE), and by play. Known and shipped at the user's word: a skinned cast figure costs about 1.9 ms to
   draw here against the 1.2 ms the timing check allows a painted one, the skins are side view only (a spin shows the painted
   figure), and no phone's frame time has been read. The folder keeps its name for now.
+  **Since V118 the page also carries the drawn movement and the layers** (asked for: "commit all the visual and animation work we
+  have done", then "go through the whole prolog scene by scene and implement all the visual effects"). `game_page` adds three more
+  parts after host.js (`MOVE_PARTS`): spike/motion/motion.js (the figures drawn in the pose itself, `MotionTest`), spike/layers/
+  layers.js (the picture handed to Phaser on three sheets, with focus, dust, far walls that slide, the finish's bloom and the
+  lamps as lights, `LayerTest`) and spike/layers/options.js: their three rows under "Look" in the panel (Drawn movement, Depth,
+  Lamplight; `LOOK2`, kept as `sk_look2`; `?motion=`, `?layers=`, `?lamps=` 0 or 1 for the tools) and the easing for a slow device
+  (while the picture is in layers and three readings two seconds apart show most of the last 120 frames over 20 ms and their
+  average over 26 ms, `PHOST.slow` and `PHOST.avg`, the layers are stepped down once, for the rest of the visit: the lamps and
+  the soft things, then the focus and the sliding walls, then flat; a box ticked by hand ends it, and the next visit starts whole). The yard's painter is open
+  for the layers in its own source since then (envx/env_yard.js, "THE LAYERS", and sk_lightui.js `put`: the 21 patches
+  build_layers.py made on the page; without the page's `globalThis.__lyp` every line paints as before), and the two test pages
+  are the published page with their panels after it. **test_page.html still has none of it.**
+  Across the prologue (`node spike/layers/scenes.js`, `python3 spike/layers/scenes.py`: every stage at the look review's moments
+  through Phaser, flat, on the sheets with every effect off, and in layers): 17 of its 21 scenes are in layers. The fire on the
+  lift, the Lantern going up and the shaft alight stay flat (`FIRE`: a light drawn among the figures falls on a clear sheet and is
+  laid over the plate plainly, and those three are all fire: 2.5 to 6 of 255 off on average), and the fall finishes its own
+  picture (`post`). What the pass changed in layers.js: a set piece's streaks are made in `light()` (the road at sundown fell back
+  to flat for them), and the game's own finish on the top sheet goes without them (`EnvLook.finish` wrapped: it colours the
+  streaks by multiplying, and over a clear sheet that laid the colour itself over the whole frame, a veil a quarter thick); every
+  place has its focus (`PLACES`: a fight's wall is its set and stays as sharp as the floor at its foot, `room` 0, and what rises
+  beyond it goes soft to `cap` .5 of the full softness, so the tower's H is still read); dust is the yard's and, as a foot's puff,
+  the road's at sundown and the field's (`AIRS`: the game's light module, sk_lightui.js `SC`, has its own motes, mist, rain and
+  fireflies everywhere else); and a place that lists no lamps has them read off its own picture (`seeLamps`: the plate at a
+  sixteenth the size every fourth frame, its small bright spots, four at most, kept by their place in the world and eased in over
+  half a second, each at a fifth of a lamp's strength on the stage alone; none where an eighth of the picture is light, a day or a
+  sunset). The far walls slide, the ground takes the lamps and the things go soft by their depth in the yard only: a place gets
+  those by its painter being opened as the yard's is. Known: a lamp's glow among the figures is a little dimmer in layers (the
+  office: 1 to 1.8 of 255 on average, up to 31 at a halo's heart); the chase's street moves between two paintings of one moment,
+  so its frames cannot be compared; no phone's frame time has been read (the Options panel's line shows it).
+  Checked at its publishing (Nov 14): the look review clean (15.7 min); `test.py full` with every suite run here (20 run, 13 passes
+  standing: lookbook.json was edited after the candidate's push, so GitHub's passes were not taken) and the timing check alone;
+  GitHub's own run of the candidate passed 31 of 32 (lookpage's check of the fall fails there, as on Nov 12, and passes here); the
+  two parts' probes (motion's six scenes, the layers' seven) and `check_skin.js` on the page (27, no error); and the page opened
+  as a phone opens it, with no parameter but the scene: the three switches on, the yard in layers, a device made slow stepped
+  down 0 to 3, nothing kept.
   The fall filmed again, a fifth switch there for a morning, is the game's own scene since V116: sk_fallcut.js, below.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
@@ -1220,7 +1255,7 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
   - The picture. The roof's tin is painted sheet by sheet (each its own pitch and start, a dark lap between); the floor has a finer
     mottle in its own plane, scuffs and stones (both from the look review, below: at a third of the old distance the tin read as
     one ruled field and the ground before the door as one flat fill).
-  - The picture again, for V118 (in work on the branch claude/v118-yard: not published). Asked for: the barrels' detail, the
+  - The picture again, for V118. Asked for: the barrels' detail, the
     barrel and the firewood against the shed that could not be seen, more growth and ground detail, more small things that move.
     - Why the things along the walls were lost. The day's haze is light added over the whole picture (`lightPass`: the kit's
       sunlight and its shafts), and it lifts every dark in it: a black tyre came out the wall's own grey-brown, luma 74 against the
@@ -1249,7 +1284,7 @@ scene's card reads ACT I · SCENE n (`S.card.kick`); the Chapters menu groups th
       from the clock and each thing's own number (`hsh`), no dice; under reduced motion the wind is nothing and only the still
       ones are drawn.
     - The look review of yard1 alone (`python3 test.py places yard1`): clean; its frames 13 to 16 ms against the fall's 45.
-  - The yard's south, for V118 (in work on the branch claude/v118-south: not published). Asked for: the yard opened out at the
+  - The yard's south, for V118. Asked for: the yard opened out at the
     south of the screen with more floor to walk, a shed and a small view over the edge of the pit at one corner, an ominous
     drainpipe entrance near the other, the rest filled with scenery and props that belong to the Pit. Then: it looked too
     condensed, so twice as far south again, and the details filled in. Then: many props and parts of the place looked too
@@ -1792,6 +1827,20 @@ Build a copy first (`python3 build.py --qa`) and point the tools at it with `PAG
   pixels a unit, black again at the two sizes an upright phone draws them, and as the game draws them, named (lineup.png, the
   cards, lineup.json). It prints how alike each two named figures are at the push-in's size (the share of their two outlines
   they have in common, feet together) and the closest pairs. `arms` 1 leaves the weapons in their hands. About a minute.
+- `NODE_PATH=node_modules node spike/layers/scenes.js <out> [w h dsf] [id ...]`, then `python3 spike/layers/scenes.py <out>
+  [--sheets]` (since V118): the layers across the story. Every stage the look review visits (default: the prologue's 21), at its
+  moments, in the published page through Phaser (in software here: about 25 minutes for the prologue at 412 x 714 x 2), pictured
+  four ways: flat, flat again, on the sheets with every effect off (`plain`) and in layers as the page is by default; with the
+  two sheets as painted (`_plate.png`, `_stage.png`) and scenes.json (the place's key, the view, the floor's rows, every figure's
+  box, what was on). scenes.py says where `plain` is further from `flat` than two flat paintings are from each other (mean over 1
+  of 255, or the 99th percentile over 12), and with `--sheets` lays flat and layers side by side (pairs-N.jpg). `FIRST=1` shoots
+  each stage's first moment, `ONLY=flat,layers` those ways alone.
+- `node uiwork/look/levels.js <out> [w h dpr] [id ...]`, then `python3 uiwork/look/levels.py <folder> [--sheets]` (since V118): the
+  levels of detail across the story (the drawing's rule 13). levels.py reads a scenes.js folder by its two sheets (the people and
+  the things where the stage is painted, the set, the floor and the top on the place alone) or a levels.js folder by its whole
+  pictures (the game's own, Phaser's view off: quick, and right for a wide screen's sizes; the fight's words and bars are in
+  those). For each frame: pixels a unit, the people's level, how far the place is enlarged, `busy` and `loud` for each part, and
+  marks where rule 13's shares do not hold (soft, things, set, floor, calm, top); levels.csv beside the stills. Nothing fails.
 - `node uiwork/look/detail.js <out> [w h dpr] [day|dusk|night]`, then `python3 uiwork/look/detail.py <out>` (since Nov 14): the levels
   of detail, read in the yard (the drawing's rule 13). Stills of its walk about with Ilyas at one mark and the view at three widths
   (an upright phone: 640, 440 and 280 units across; a wide screen: 900, 600 and 420), each with its pixels a unit, the scale the
@@ -1963,12 +2012,15 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
    never gold's; what is lit from within (an open door, a window) takes no lamp; none is lit by day, the pools are at half at dusk
    and full at night; a lamp flickers by a tenth and a fire by a quarter, from the clock. One list for a place is the aim: the yard
    still keeps its pools (`lightPass`), its glows (`live`) and the layers test's `lampsAt` apart.
-12. (Added Nov 14: the layers test's settings, not in the game.) In layers: sharp within 30 units of his depth, softness to seven
+12. (Added Nov 14: the layers test's settings; in the game's page since V118, with a switch.) In layers: sharp within 30 units of his depth, softness to seven
    tenths over 480, blurs of 1.2 and 3 points (`LayerTest` f0, f1, fMax, blur1, blur2); a piece or a man far off as soft as the
    floor at its foot, every man sharp in a fight, the marks and the words always; the far side slides (a fifth of the pan) and
    the floor never; under Phaser's lights the place is painted without its lamp pools, a surface takes a lamp by how it faces and a
    piece by its outline, ten lights at most; reduced motion stills the bands and the flicker. spike/layers/README.md has the
-   findings behind each number.
+   findings behind each number. In a fight (since V118) the wall behind it is the set and stays as sharp as the floor at its
+   foot; only what rises beyond it goes soft, to half the full softness (`PLACES` room, cap). A place that lists no lamps has them
+   read off its picture, four at most, at a fifth of a lamp's strength, on the people alone, and none by day or at sundown. A scene
+   that is all fire stays flat.
 
 **The drawing's rules (the drawing guide, approved Nov 2).** How things are drawn; the guide has the tables and the examples.
 1. Detail follows depth in five tiers: far (shapes and lit specks, within .15 of the sky behind), the set (the most detail, above
@@ -2033,6 +2085,16 @@ Qadir fight onto the bistro's flags; V76 (Nov 3) finished the push-in's rows (P5
    the yard on a wide screen but the whole yard's is closer than its painting); the woodpile's log ends are louder than Ilyas at
    dusk (13.0 against 11.3) and busier than he is at every hour; and the calm floor the drawing guide planned as a check (the
    floor no busier than half the set) was never built into the review.
+   Since V118, read across the prologue (`uiwork/look/levels.py` on the layers' two sheets, the place and its people apart; the
+   review, https://claude.ai/artifact/CKH5Ki5KBeLV89pCFqFMHc, has every scene). In the published page people are skins
+   (spike/phaser: each painted once at six pixels a unit at the closest detail), so they are sharp to 6 pixels a unit in every
+   view, and the kit's levels are what a figure is where its skin does not cover it. Read on the sheets the yard holds its set
+   at 21 to 27% of the lead's loudness and its floor at 9 to 16%; the prologue's places lit by lamps hold the set at 50 to 92% and
+   the floor at 15 to 62%, most of it light and its reflections on wet ground. The shares above are the Pit's by day: a place lit
+   by lamps is not judged by them yet. Open across the prologue: the close cuts that enlarge the place (on a phone the roof 1.22,
+   the kitchen 1.18, the line 1.12, the fall 1.49; on a wide screen 1.5 to 2.0), the underground's mosaic floor (as busy as its
+   wall or busier, at 54 to 62% of the lead), the gilt lift door behind the lobby's fight (the set at 77 to 86%), the
+   checkpoint's people at 1.0 to 1.2 pixels a unit against its set at 90%.
 
 **The look review (since V88, phase 4).** `python3 test.py look` holds every place to the two guides' measured rules, frame by
 frame, on an upright phone and a wide screen (uiwork/look/review.py, under Screenshots), and a frame that breaks one fails. A fail
@@ -2073,9 +2135,13 @@ lookbook too: `python3 uiwork/look/lookbook.py` after the look review, its verdi
 test_out/lookbook's files (index.html and every img/ file) to https://claude.ai/artifact/UGQyH4NAZm5wik41FkMVqs with the artifacts
 server's `publish_files` (slug dccdac2e-9c8b-4fce-913b-3e3954155312, its live version as `base_version`; a frame no longer shot
 goes in `remove`). lookbook.py does not empty img/, so a frame an older build shot can still lie there: publish only the pictures of
-the frames index.html names (V107 found platform_t8's three left from a build before).
+the frames index.html names (V107 found platform_t8's three left from a build before). To send only what changed, compare each
+picture's sha256 with the artifact's own list (`list_files`), not with the folder as the last build left it: at V118 one wide
+picture (roof_t16_w) differed from the published one though the rebuild had left it as it was. index.html writes out 125 of the 273
+file names (the page makes the rest from each frame's id), so the frames are what to count: every frame has three pictures
+(`<frame>.jpg`, `_s.jpg`, `_w.jpg`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V118 ..." (V117 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
+short label "V119 ..." (V118 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
 the skins and the Phaser view built in (build.py `game_page`: above, under the flow test); test_page.html is not. (V115's work went onto main the night before it was
 published, at the user's word, as a merge of its branch: the commit under V115's own.) Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a

@@ -11,7 +11,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-PARTS = ('motion.js', 'panel.js')
+# (since V118 motion.js is in the published page itself: this page adds the test's panel and its walk)
+PARTS = ('panel.js',)
 
 
 def main():

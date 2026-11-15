@@ -1,5 +1,6 @@
 // ===== MOTION TEST: THE DRAWN POSE =====
-// A test, not part of the game (README.md). It goes into a copy of the built page after the game's own script (build_motion.py) and
+// Built as a test (README.md); since V118 a part of the game's published page, after its script (build.py game_page; its switch:
+// spike/layers/options.js, "Drawn movement"). It
 // changes only what is drawn: the game's clock, its rules, its ragdolls and every number they hold are left as they are.
 //
 // The game poses a figure in two steps. Each step of its clock it reads the pose he is meant to be in (the keys of the action he is

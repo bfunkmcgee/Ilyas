@@ -72,9 +72,9 @@ function spr(key,w,h,fn){if(SPR[key])return SPR[key];const cv=document.createEle
 const glowSpr=col=>spr('g'+col,64,64,(g)=>{g.fillStyle=rad(g,32,32,0,32,[[0,rgba(col,1)],[.22,rgba(col,.5)],[.55,rgba(col,.14)],[1,rgba(col,0)]]);g.fillRect(0,0,64,64);});
 const puffSpr=col=>spr('p'+col,64,64,(g)=>{g.fillStyle=rad(g,32,32,0,32,[[0,rgba(col,.55)],[.5,rgba(col,.24)],[1,rgba(col,0)]]);g.fillRect(0,0,64,64);});
 // a soft light added at (x, y), r across, squashed by sq (the caller sets 'lighter')
-function glowAt(c,x,y,r,col,a,sq){if(!(a>0.003))return;c.globalAlpha=Math.min(1,a);const s=sq||1;c.drawImage(glowSpr(col),x-r,y-r*s,r*2,r*2*s);}
+function glowAt(c,x,y,r,col,a,sq){{const f=(globalThis.__lyp||0).glowK;if(f)a*=f(c,x,y,r,sq);}if(!(a>0.003))return;c.globalAlpha=Math.min(1,a);const s=sq||1;c.drawImage(glowSpr(col),x-r,y-r*s,r*2,r*2*s);}
 // smoke going up from each source {x, y, s (size), sp (how fast), n (puffs), dx (drift), h (how high it goes), a, ph}
-function smoke(c,srcs,t,col,a){const pf=puffSpr(col);for(const s of srcs){const n=s.n||6;
+function smoke(c,srcs,t,col,a){const pf=puffSpr(col);for(const s of srcs){const n=s.n||6;{const f=(globalThis.__lyp||0).box;if(f){const R=(s.s||8)*4.2,dx=s.dx??18;f(c,s.x-6-R+Math.min(0,dx),s.y-(s.h||150)-R,s.x+6+R+Math.max(0,dx),s.y+R);}}
   for(let q=0;q<n;q++){const u=((t*(s.sp||.12)+q/n+(s.ph||0))%1),R=(s.s||8)*(1+u*3.2),x=s.x+Math.sin(u*4+q*1.7+(s.ph||0)*9)*6*u+u*(s.dx??18),y=s.y-u*(s.h||150);
     c.globalAlpha=(a??1)*(s.a??.5)*(1-u)*Math.min(1,u*5);c.drawImage(pf,x-R,y-R,R*2,R*2);}}
   c.globalAlpha=1;}
@@ -278,7 +278,7 @@ function piece(key,x,y,w,h,fn){const sc=sprScale(),k=key+'@'+sc.toFixed(2);let T
   if(!T){const base=key.split('|')[0];for(const kk in PC)if(kk.split('|')[0]===base&&kk!==k){const o=PC[kk];if(o.cv)o.cv.width=o.cv.height=0;delete PC[kk];}
     const cv=document.createElement('canvas');cv.width=Math.max(1,Math.ceil(w*sc));cv.height=Math.max(1,Math.ceil(h*sc));const g=cv.getContext('2d');g.setTransform(sc,0,0,sc,-x*sc,-y*sc);fn(g);T=PC[k]={cv,x,y,w,h};}
   return T;}
-function drawPiece(c,T){c.drawImage(T.cv,T.x,T.y,T.w,T.h);}
+function drawPiece(c,T){const o=globalThis.__lyp||0,d=o.pieceDraw;if(!(d&&d(c,T)))c.drawImage(T.cv,T.x,T.y,T.w,T.h);const f=o.piece;if(f)f(c,T);}
 if(typeof envItems==='function'&&typeof drawEnvItem==='function'){const ei=envItems,de=drawEnvItem;
   envItems=function(items){ei(items);const k=typeof envKey==='function'?envKey():null,sc=k&&E.S[k];if(!sc||!sc.pieces)return;for(const p of sc.pieces())items.push({d:p.d,pitPiece:p});};
   drawEnvItem=function(it){if(!it.pitPiece)return de(it);ctx.save();try{it.pitPiece.draw(ctx);}catch(e){}ctx.restore();return true;};}
@@ -1813,7 +1813,7 @@ function southPieces(out){const So=SO(),P=K.pal(),still=typeof reduceMotion!=='u
   out.push({d:So.table.d0-16*(So.table.k||1),draw:c=>{K.drawPiece(c,tablePiece());zl(c,TABLES.z,()=>tableLive(c,t,P,still));}});
   out.push({d:So.post.d,draw:c=>K.drawPiece(c,postPiece())});
   out.push({d:So.kerb+3,draw:c=>{K.drawPiece(c,mainPiece());mainLive(c,t,P,still);}});
-  out.push({d:So.z0-600,draw:c=>{K.drawPiece(c,railPiece());railLive(c,t,P,still);}});}
+  out.push({d:So.z0-600,sharp:1,draw:c=>{K.drawPiece(c,railPiece());railLive(c,t,P,still);}});}
 // The shadows of the south's pieces on the ground (they stand in the frame, their shadows in the picture): at their feet, and
 // thrown away from the sun where there is one. By day the heap's own lies over the drain.
 function southShadows(c,P){const So=SO(),sd=sunDir(),B=So.shed,F=So.fire,C0=So.cart,D=So.drain,col='#0c121c',ta=thrownA(P);
@@ -1834,22 +1834,23 @@ function southShadows(c,P){const So=SO(),sd=sunDir(),B=So.shed,F=So.fire,C0=So.c
     if(sd>0){c.save();c.beginPath();const T2=HTOE.filter(([d])=>d<=D.d&&d>=-760);T2.forEach(([d,x],i)=>{const p=Q(x,0,d);i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y);});for(let i=T2.length-1;i>=0;i--){const [d,x]=T2[i],p=Q(x+170-Math.abs(d+440)*.2,0,d);c.lineTo(p.x,p.y);}c.closePath();c.clip();
       c.fillStyle=lin(c,-70,0,130,0,[[0,rgba(col,ta*.95)],[.6,rgba(col,ta*.5)],[1,rgba(col,0)]]);c.fillRect(-200,660,400,YFOOT-650);c.restore();}}}
 // ---------- the light over it all ----------
-function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
+function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far,__ul=!!(globalThis.__lyp||0).unlit;
   c.save();c.globalCompositeOperation='lighter';
   if(T==='night'){// the back door's light out over the step and the yard; the window's patch; the lantern's pool, the gate's lamp
-    const D=Yd.door,dp=Q(D.x,0,far-30);K.cRad(c,dp.x,dp.y,6,170,'#ffa850',.34,.42);
-    const dg=Q(D.x,70,far);K.cRad(c,dg.x,dg.y,4,110,'#ff9a4a',.14,1);
+    const D=Yd.door,dp=Q(D.x,0,far-30);{const a=Q(D.x-D.w/2,SUMP.doorH,far),b=Q(D.x+D.w/2,0,far);if(__ul){c.save();c.beginPath();c.rect(a.x,a.y,b.x-a.x,b.y-a.y);c.clip();}}K.cRad(c,dp.x,dp.y,6,170,'#ffa850',.34,.42);
+    const dg=Q(D.x,70,far);K.cRad(c,dg.x,dg.y,4,110,'#ff9a4a',.14,1);if(__ul)c.restore();
+    if(!__ul){
     const W0=Yd.window,wp=Q((W0.x0+W0.x1)/2-20,0,far-60);K.cRad(c,wp.x,wp.y,4,90,'#ffb25e',.14,.4);
     const lp=Q(LANT.x,0,LANT.d-30);K.cRad(c,lp.x,lp.y,4,80,'#ffcf86',.1,.45);
     const gp=Q(FENCE.x-20,0,Yd.gate.d);K.cRad(c,gp.x,gp.y,4,70,'#ffcf86',.1,.45);
     const gf=Q(FENCE.x,46,Yd.gate.d-10);K.cRad(c,gf.x,gf.y,4,50,'#ffb25e',.12,1.4);
-    const df=Q(DRUM.x,0,DRUM.d);K.cRad(c,df.x,df.y,6,120,'#ff9a4a',.22,.45);K.cRad(c,df.x-30,df.y-40,6,90,'#ff9a4a',.08,1);}
+    const df=Q(DRUM.x,0,DRUM.d);K.cRad(c,df.x,df.y,6,120,'#ff9a4a',.22,.45);K.cRad(c,df.x-30,df.y-40,6,90,'#ff9a4a',.08,1);}}
   // (the south's lights on its ground, after dark and at dusk: the shed's lantern before its door, the fire ring's embers, the candles)
   if(T==='night'||T==='dusk'){const So=SO(),k=T==='night'?1:.5,sl=Q(So.shed.x0+38*(So.shed.k||1),0,So.shed.d0-30),fr=Q(So.fire.x,0,So.fire.d),cd=Q(940,0,lipAt(940)+14);
-    K.cRad(c,sl.x,sl.y,4,96,'#ffcf86',.13*k,.45);K.cRad(c,fr.x,fr.y,6,84,'#ff9a4a',.16*k,.5);K.cRad(c,cd.x,cd.y,3,44,'#ffb070',.1*k,.5);
+    if(!__ul){K.cRad(c,sl.x,sl.y,4,96,'#ffcf86',.13*k,.45);K.cRad(c,fr.x,fr.y,6,84,'#ff9a4a',.16*k,.5);}K.cRad(c,cd.x,cd.y,3,44,'#ffb070',.1*k,.5);
     // (the table's lantern, the lamps strung along the lip, the candles at the drain)
     {const Tb=So.table,D=So.drain,tl=Q(lerp(Tb.x0,Tb.x1,.62),0,(Tb.d0+Tb.d1)/2),ls=Q(880,0,lipAt(880)+24),dc=Q(D.x-D.r-12,0,D.d-12);
-      K.cRad(c,tl.x,tl.y,4,90,'#ffcf86',.14*k,.5);K.cRad(c,ls.x,ls.y,10,170,'#ffcf86',.09*k,.36);K.cRad(c,dc.x,dc.y,3,44,'#ffb070',.1*k,.5);}}
+      if(!__ul){K.cRad(c,tl.x,tl.y,4,90,'#ffcf86',.14*k,.5);K.cRad(c,ls.x,ls.y,10,170,'#ffcf86',.09*k,.36);}K.cRad(c,dc.x,dc.y,3,44,'#ffb070',.1*k,.5);}}
   else{// the daylight falling down the Pit into the yard: the middle of it lighter
     const m=Q(520,0,110);K.cRad(c,m.x,m.y,20,520,P.light,T==='morning'?.1:.08,.36);}
   c.restore();
@@ -1879,8 +1880,32 @@ function lightPass(c,P){const Yd=Y(),T=P.key,far=Yd.far;
     // (lying in wisps, not one even veil: the kit's mottle over it)
     K.mottle(c,-200,110,1240,GB+40,.26,{sc:1.4,sy:.5});}}
 // ---------- the scene ----------
-function paint(c){const P=K.pal(),X0=-170,X1=W+250,T0=-110;
-  backdrop(c,P,X0,X1,T0);neighbours(c,P);beyond(c,P);
+function behindRow(c,P){
+  for(const f of [{x0:424,x1:512,top:200,base:262,seed:31,col:'#342b2c',wins:[[24,16,13,11]]},{x0:512,x1:584,top:212,base:262,seed:37,col:'#3d3330',wins:[[28,13,12,10]],kind:'tin'},
+    {x0:584,x1:640,top:192,base:262,seed:41,col:'#30282a',wins:[[16,16,12,10]]}]){f.hz=.12;K.facade(c,P,f);}
+  c.strokeStyle=rgba('#0a0808',.65);c.lineWidth=1.51;c.beginPath();c.moveTo(700,126);c.lineTo(424,108);c.moveTo(640,156);c.lineTo(424,152);c.stroke();}
+// THE LAYERS (since V118; spike/layers/layers.js, in the published page): the painter is open for a page that shows the picture in
+// layers. Such a page sets globalThis.__lyp; without it (the test page, the checks, Phaser's view off) every line here paints as it
+// always did.
+//   - paint(c, only): 'far' the Pit's far side, 'mid' the shacks round the yard and the lane beyond the fence, 'light' the light over
+//     it all, 'over' what is laid over that light, anything else the yard itself under its light; with nothing, the whole picture;
+//   - behindRow: the middle band's row of shacks run on behind the woodshed and the Sump, for when the band slides out from behind;
+//   - what moves on the far wall is drawn on the far band's own sheet when the page hands one over (__lyp.far), the neighbours'
+//     chimneys where the middle band has gone (__lyp.mid); bands: 1 says the painter is open;
+//   - lightPass leaves its pools of lamplight out while the page asks (__lyp.unlit: Phaser's lamps then give that light);
+//   - normals(c): which way the yard's surfaces face, as a normal map's flat colours; lampsAt(t, still): the yard's lamps for
+//     Phaser's lights (where, how far, colour, strength by the hour); LK: their strengths;
+//   - drawPiece tells the page each piece it sets down (__lyp.piece; __lyp.pieceDraw may set it down itself, from a small copy),
+//     glowAt asks how much of a glow to paint (__lyp.glowK; the window's and the open door's own glows are marked __lyp.own), and
+//     glowAt, smoke, gateLeaf and pigeon say where they are about to draw (__lyp.box). sk_lightui.js's put does the same for a
+//     man's picture (__lyp.fig, __lyp.put).
+function paint(c,only){const P=K.pal(),X0=-170,X1=W+250,T0=-110;
+  if(only==='light'){lightPass(c,P);dropShade(c,P);return;}
+  if(only==='over'){crisp(c,P);southOver(c,P);growth(c,P);return;}
+  if(!only||only==='far')backdrop(c,P,X0,X1,T0);
+  if(only==='mid'&&(globalThis.__lyp||0).ext!==false)behindRow(c,P);
+  if(!only||only==='mid'){neighbours(c,P);beyond(c,P);}
+  if(only==='far'||only==='mid')return;
   ground(c,P);
   dropView(c,P);kerb(c,P);hill(c,P);drain(c,P);southThings(c,P);
   sump(c,P);shed(c,P);sideStair(c,P);stairFence(c,P);ladder(c,P);yardWall(c,P);along(c,P);wallThings(c,P);drumFire(c,P);fence(c,P);
@@ -1894,8 +1919,7 @@ function paint(c){const P=K.pal(),X0=-170,X1=W+250,T0=-110;
       for(const B0 of Yd.barrels)lay(B0.x,B0.d,B0.r*.5,B0.r*3.6,B0.r*.5);for(const Cr of Yd.crates)lay(Cr.x,Cr.d,Cr.w*.3,Cr.h*1.5,Cr.w*.45);
       lay(Yd.pump.x,Yd.pump.d,9,138,9);lay(Yd.trough.x1,Yd.trough.d,14,44,14);}}
   southShadows(c,P);
-  lightPass(c,P);
-  dropShade(c,P);crisp(c,P);southOver(c,P);growth(c,P);}
+  if(!only){lightPass(c,P);dropShade(c,P);crisp(c,P);southOver(c,P);growth(c,P);}}
 // ---------- the pieces that stand among the people: the pump, the trough, the barrels, the crates ----------
 function pumpPiece(){const Yd=Y(),P=K.pal(),Pm=Yd.pump,c0=Q(Pm.x,0,Pm.d),pk=Pm.k||1,R=Pm.r;
   return K.piece('yardpump|'+P.key,...grown(c0.x,c0.y-14,pk,c0.x-48,c0.y-82,92,102),c=>{const sh=(col,k)=>K.shade(P,col,k);
@@ -1940,7 +1964,7 @@ function cratePiece(Cr,i){const P=K.pal(),x=Cr.x-Cr.w/2,d=Cr.d-Cr.w/2,a=Q(x,Cr.h
   return K.piece('yardcrate'+i+'|'+P.key,Q(x,Cr.h,d).x-3,a.y-2,b.x-Q(x,0,d).x+Cr.w*.2+8,b.y-a.y+5,c=>{box(c,P,x,d,Cr.w,Cr.w,Cr.h,i?'#3a2c1c':'#42321f');});}
 // a gate's leaf of planks, hinged at (hx, hd), len long and h high, turned th from shut: its shut way along (ux, ud), opening toward
 // (vx, vd). Rails, a brace, pointed tops (pts), the latch at the free end, its edge lit; darker as it turns edge-on to the eye
-function gateLeaf(c,P,hx,hd,len,h,th,ux,ud,vx,vd,pts,base){const sh=(col,k)=>K.shade(P,col,k),cs=Math.cos(th),sn=Math.sin(th),dx=ux*cs+vx*sn,dd=ud*cs+vd*sn,at=(u,hh)=>Q(hx+dx*len*u,hh,hd+dd*len*u);
+function gateLeaf(c,P,hx,hd,len,h,th,ux,ud,vx,vd,pts,base){{const f=(globalThis.__lyp||0).box;if(f){const q=Q(hx,0,hd);f(c,q.x-len*1.2-8,q.y-h-len*.75-10,q.x+len*1.2+8,q.y+len*.75+8);}}const sh=(col,k)=>K.shade(P,col,k),cs=Math.cos(th),sn=Math.sin(th),dx=ux*cs+vx*sn,dd=ud*cs+vd*sn,at=(u,hh)=>Q(hx+dx*len*u,hh,hd+dd*len*u);
   const side=clamp(Math.abs(dd)*1.2,0,1),col=jm2(sh(base,1.1),'#000000',.25*side);
   c.fillStyle=col;K.poly(c,[at(0,0),at(1,0),at(1,h),at(0,h)]);c.fill();
   if(pts){c.beginPath();const n=Math.max(1,Math.round(len/6));for(let k=0;k<n;k++){const a=at(k/n,h),m=at((k+.5)/n,h+5),e=at((k+1)/n,h);c.moveTo(a.x,a.y);c.lineTo(m.x,m.y);c.lineTo(e.x,e.y);}c.fill();}
@@ -1984,7 +2008,7 @@ function pieces(){const Yd=Y(),out=[],G=SG(),g=Yd.gate;
 // yard wall when a man walks at them, all of them up off the roof when he comes along it with their water (S.act1.birdsUp). What
 // they do reads the game; nothing in the game reads them. At night they sit.
 // one bird at (x, y), facing fa, size s: sitting (o.pk: how far its head is down to peck, 0 to 1) or flying (o.fl; o.w: the wing's beat)
-function pigeon(c,x,y,fa,s,col,o){c.save();c.translate(x,y);c.scale(fa*s,s);c.fillStyle=col;
+function pigeon(c,x,y,fa,s,col,o){{const f=(globalThis.__lyp||0).box;if(f)f(c,x-8*s,y-9*s,x+8*s,y+3*s);}c.save();c.translate(x,y);c.scale(fa*s,s);c.fillStyle=col;
   if(o.fl){const w=5*(o.w||0);c.beginPath();c.ellipse(0,0,3.4,1.5,0,0,TAU);c.fill();c.beginPath();c.arc(3.3,-.5,1.3,0,TAU);c.fill();
     c.beginPath();c.moveTo(-3,0);c.lineTo(-5.8,-.8);c.lineTo(-5.4,1);c.closePath();c.fill();
     c.beginPath();c.moveTo(.6,-.4);c.quadraticCurveTo(1.2,-w*.9,-1.6,-w-.6);c.lineTo(-1.4,-.2);c.closePath();c.fill();
@@ -2102,6 +2126,7 @@ function yardLive(c,t,P){const Yd=Y(),far=Yd.far,T=P.key,still=typeof reduceMoti
 // on the ridge, the morning's mist; on an upright phone, the walls going on up to the sky
 const MIST=(()=>{const r=rng(5),a=[];for(let i=0;i<10;i++)a.push({d:10+r()*220,w:180+r()*260,sp:4+r()*7,ph:r()*1400,a:.08+r()*.08});return a;})();
 function live(){const t=S.t,P=K.pal(),T=P.key,Yd=Y();ctx.save();
+  const __L=globalThis.__lyp,__c0=ctx,__fc=__L&&__L.far?__L.far(ctx):null;if(__fc)ctx=__fc;
   K.upper('yard:'+T,-1000,(c,x0,x1,y0,y1)=>{c.fillStyle=P.air[0];c.fillRect(x0,y0,x1-x0,y1-y0);
     K.shackRows(c,Object.assign({pal:P,x0:-170,x1:W+250,yTop:-650,clip:[-650,y1]},ROWS));
     c.fillStyle=lin(c,0,-640,0,-480,[[0,rgba(P.sky[1],.8)],[1,rgba(P.air[0],0)]]);c.fillRect(x0,-640,x1-x0,160);
@@ -2109,20 +2134,22 @@ function live(){const t=S.t,P=K.pal(),T=P.key,Yd=Y();ctx.save();
   K.tram(ctx,t,P,-760);
   // the far wall's chimneys smoking, its fires, a few of its windows going dark a moment (a lamp moved, someone passing): only where
   // the far wall shows
-  ctx.save();ctx.clip(skyPath());
+  ctx.save();if(!__fc)ctx.clip(skyPath());
   {const fs=[];for(const ch of OUT.chims.slice(0,12))fs.push({x:ch.x,y:ch.y,s:2.6*(ch.s||1),sp:.08,n:5,h:60+50*(ch.s||1),dx:12,a:.42*(1-ch.hz*.6),ph:ch.x*.013});K.smoke(ctx,fs,t,P.smoke,T==='night'?.6:1);}
   ctx.globalCompositeOperation='lighter';
   for(const f of OUT.fires){const a=(.6+.4*Math.sin(t*9+f.x)*Math.sin(t*3.3+f.y))*P.fire*(1-f.hz*.6);K.glowAt(ctx,f.x,f.y-4*f.s,14*f.s,'#ff8a3c',.55*a);K.glowAt(ctx,f.x,f.y-3*f.s,4*f.s,'#ffd28a',.8*a);}
   {const L2=OUT.lit;ctx.globalCompositeOperation='source-over';ctx.fillStyle='#000000';for(let i=0;i<L2.length;i+=7){const w=L2[i],k=Math.sin(t*1.7+i*3.1)*Math.sin(t*.9+i);if(k>.6){ctx.globalAlpha=(k-.6)*.6*P.winA;ctx.fillRect(w[0],w[1],w[2],w[3]);}}}
   ctx.restore();
+  if(__fc){ctx=__c0;__L.end();}
   // the Sump's stovepipe and the chimneys round the yard
-  {const srcs=[{x:STOVE.x,y:STOVE.y,s:5,sp:.1,n:8,h:180,dx:24,a:.55}];for(const ch of NEARCH)srcs.push({x:ch.x,y:ch.y,s:4,sp:.09,n:6,h:120,dx:16,a:.45,ph:ch.x*.013});K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);}
+  {const srcs=[{x:STOVE.x,y:STOVE.y,s:5,sp:.1,n:8,h:180,dx:24,a:.55}],src2=[];for(const ch of NEARCH)src2.push({x:ch.x,y:ch.y,s:4,sp:.09,n:6,h:120,dx:16,a:.45,ph:ch.x*.013});K.smoke(ctx,srcs,t,P.smoke,T==='night'?.6:1);
+    ctx.save();if(__L&&__L.mid)__L.mid(ctx);K.smoke(ctx,src2,t,P.smoke,T==='night'?.6:1);ctx.restore();}
   ctx.globalCompositeOperation='lighter';
   {const lit=T==='night'?1:T==='dusk'?.8:0,f=.9+.1*Math.sin(t*7.3)*Math.sin(t*2.9);
     if(lit>0){const p=Q(LANT.x,LANT.h-6,LANT.d);K.glowAt(ctx,p.x,p.y,10,'#fff0c8',.8*lit*f);K.glowAt(ctx,p.x,p.y,40,'#ffb25e',.35*lit*f);
       const g=Q(FENCE.x+GLAMP.dx,GLAMP.h-3,Yd.gate.d-Yd.gate.w/2+GLAMP.dd);K.glowAt(ctx,g.x,g.y,8,'#fff0c8',.7*lit*f);K.glowAt(ctx,g.x,g.y,32,'#ffb25e',.3*lit*f);}
-    const W0=Yd.window,wp=Q((W0.x0+W0.x1)/2,(W0.y0+W0.y1)/2,Yd.far);K.glowAt(ctx,wp.x,wp.y,40,'#ff9a4a',(T==='night'?.16:.06)*(.9+.1*Math.sin(t*2.3)));
-    if(T==='night'){const D=Yd.door,dp=Q(D.x,SUMP.doorH*.5,Yd.far);K.glowAt(ctx,dp.x,dp.y,46,'#ff9a4a',.1*(.9+.1*Math.sin(t*5.1)*Math.sin(t*1.3)));}}
+    const W0=Yd.window,wp=Q((W0.x0+W0.x1)/2,(W0.y0+W0.y1)/2,Yd.far);{const o=globalThis.__lyp||{};o.own=1;K.glowAt(ctx,wp.x,wp.y,40,'#ff9a4a',(T==='night'?.16:.06)*(.9+.1*Math.sin(t*2.3)));o.own=0;}
+    if(T==='night'){const D=Yd.door,dp=Q(D.x,SUMP.doorH*.5,Yd.far);{const o=globalThis.__lyp||{};o.own=1;K.glowAt(ctx,dp.x,dp.y,46,'#ff9a4a',.1*(.9+.1*Math.sin(t*5.1)*Math.sin(t*1.3)));o.own=0;}}}
   {const p=Q(DRUM.x,28*DRUM.k,DRUM.d),f=.75+.25*Math.sin(t*11)*Math.sin(t*3.7);K.glowAt(ctx,p.x,p.y-8,40,'#ff8a3c',.35*f*P.fire);
     ctx.fillStyle='#ffb25e';for(let q=0;q<5;q++){const fx=p.x-7+q*3.5,fh=6+7*Math.abs(Math.sin(t*9+q*1.7));ctx.globalAlpha=.75*P.fire;ctx.beginPath();ctx.moveTo(fx-2,p.y);ctx.lineTo(fx,p.y-fh);ctx.lineTo(fx+2,p.y);ctx.fill();}}
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
@@ -2153,6 +2180,38 @@ const SETS={day:{col:'#ffe2bc',soft:1,y:SETY},morning:{col:'#dce6f4',soft:1,y:SE
   dusk:{col:'#ffc49b',soft:1,gain:1.3,air:.04,y:SETY},
   night:{col:'#ffca94',soft:1,gain:1.8,air:.08,y:SETY,base:.36,pools:[[L0.door.x+L0.far*PSX,420,1],[(L0.window.x0+L0.window.x1)/2+L0.far*PSX,220,.8]]}};
 // (deep: the layer's height, from the still layers' top (RC.y0, -90) down to the yard's own foot)
-E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90};
+function yardLamps(t,st){const P=K.pal(),T=P.key,Yd=Y(),So=SO(),far=Yd.far,L=[],lit=T==='night'?1:T==='dusk'?.45:0,dk=T==='night'?1:T==='dusk'?.5:.1,
+    fl=(a,b,p)=>st?1:.86+.14*Math.sin(t*a+p)*Math.sin(t*b+p*1.7),DOWN=[Math.PI/2,2.2,3.1],
+    // (k: a lamp's strength by the hour, and a lamp under a fifth is not lit at all; f: its flicker on top of that)
+    add=(q,r,col,k,f,z,cone)=>{if(q&&k>.2)L.push({x:q.x,y:q.y,r,col,k:k*f,z,cone});},
+    zp=(z,p)=>z&&p.x?{x:z[0]+(p.x-z[0])*z[2],y:z[1]+(p.y-z[1])*z[2]}:null;
+  // (z is how far a lamp stands out of the picture, as a part of its reach: small for a lamp on a wall or on a line, which then
+  // shows tight on the wall and as a pool on the ground before it, and lights a man less than the ground; larger for a fire in
+  // the open, which lights what stands round it)
+  add(Q(LANT.x,LANT.h-6,LANT.d),280,0xffd29a,LK.wall*lit,fl(7.3,2.9,0),.12);
+  add(Q(FENCE.x+GLAMP.dx,GLAMP.h-3,Yd.gate.d-Yd.gate.w/2+GLAMP.dd),250,0xffd29a,LK.wall*lit,fl(7.3,2.9,1),.12);
+  {const q=zp(SHEDS.z,SHEDS.lamp);if(q)add({x:q.x,y:q.y+6},250,0xffd29a,LK.wall*lit,fl(6.7,2.3,2),.12);}
+  {const q=zp(TABLES.z,TABLES.lamp);add(q,210,0xffd29a,LK.free*lit,fl(6.1,2.7,3),.2);}
+  {const R=RAILS.lamps;for(const [a,b] of [[0,1],[2,4],[5,7]]){let x=0,y=0,n=0;for(let i=a;i<=b&&i<R.length;i++){x+=R[i].x;y+=R[i].y;n++;}
+    if(n)add({x:x/n,y:y/n+8},270,0xffd29a,LK.rail*(.7+.15*n)*lit,fl(5.3+a*.7,2.1,4+a),.1);}}
+  {const W0=Yd.window;add(Q((W0.x0+W0.x1)/2,(W0.y0+W0.y1)/2,far),250,0xffb070,T==='night'?LK.win:T==='dusk'?LK.win*.5:0,fl(2.3,1.1,7),.2,DOWN);}
+  if(T==='night'){const D=Yd.door;add(Q(D.x,SUMP.doorH*.5,far),340,0xffbe84,LK.door,fl(5.1,1.3,8),.2,DOWN);}
+  {const F=So.fire;add(Q(F.x,34,F.d),230,0xff9a58,LK.fire*dk,st?.85:.72+.28*Math.sin(t*8.3)*Math.sin(t*2.7),.35);}
+  add(Q(DRUM.x,34*DRUM.k,DRUM.d),240,0xff9650,LK.drum*P.fire*dk,st?.8:.75+.25*Math.sin(t*11)*Math.sin(t*3.7),.3);
+  return L;}
+const LK={wall:.9,free:2,rail:2.2,win:.5,door:.95,fire:1.7,drum:1.7};
+function yardNormals(c){const Yd=Y(),So=SO(),far=Yd.far,T=K.pal().key,G='rgb(127,191,238)',W='rgb(127,127,255)',R='rgb(127,230,203)',E='rgb(127,127,0)',
+    box=(col,x0,x1,h0,h1,d,d1)=>{const a=Q(x0,h1,d1==null?d:d1),b=Q(x1,h0,d);c.fillStyle=col;c.fillRect(a.x,a.y,b.x-a.x,b.y-a.y);};
+  c.fillStyle=G;c.fillRect(-900,-600,3200,3200);
+  {const f=Q(0,0,far).y,w=Q(0,Yd.wall.h,Yd.wall.d).y,x1=Q(SHED.x1,0,far).x,top=Q(0,SUMP.ridge,far+SUMP.rd).y;
+    c.fillStyle=W;c.fillRect(-900,-600,3200,f+600);box(W,Yd.wall.x0,Yd.wall.x1+400,0,Yd.wall.h,Yd.wall.d);
+    c.fillStyle=E;c.fillRect(-900,-600,3200,top+600-26);c.fillRect(x1,-600,2400,w+600);}
+  box(R,SUMP.x0-6,SUMP.x1+4,SUMP.eave,SUMP.ridge,far,far+SUMP.rd);box(R,SUMP.x1+4,SHED.x1+2,SHED.h,SHED.back,far,far+40);
+  if(T==='night'||T==='dusk'){const W0=Yd.window;box(E,W0.x0,W0.x1,W0.y1,W0.y0,far);}
+  if(T==='night'){const D=Yd.door;box(E,D.x-D.w/2,D.x+D.w/2,0,SUMP.doorH,far);}
+  {const D=So.drain;box(W,D.x-D.r-24,D.x+D.r+24,0,D.r*2+30,D.d);box(E,D.x-D.r+8,D.x+D.r-8,6,D.r*2-10,D.d);
+    const L=So.lip,p0=Q(L[0][0],0,L[0][1]);c.fillStyle=E;c.beginPath();c.moveTo(2400,p0.y);for(const [x,d] of L){const p=Q(x,0,d);c.lineTo(p.x,p.y);}
+    {const p=Q(L[L.length-1][0],0,L[L.length-1][1]);c.lineTo(p.x,2600);}c.lineTo(2400,2600);c.closePath();c.fill();}}
+E.S.yard={set:()=>SETS[K.tod()]||SETS.day,paint,live,light,key,pieces,LAYOUT,deep:YFOOT+90,bands:1,lampsAt:yardLamps,normals:yardNormals,LK};
 })();
 // ===== ENV YARD END =====

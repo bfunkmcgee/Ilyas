@@ -203,7 +203,7 @@ function lightSprite(R){
 // set him down where he stands (with the weapon's trail first, as the draw list always had it)
 function put(f){const R=REC.get(f);if(!R)return false;
   if(R.tr){ctx.save();ctx.translate(f.dep*PSX,-f.dep*PSY);drawTrail(S.trails[f.idx]);if(f.offTrail)drawTrail(f.offTrail);ctx.restore();}
-  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.drawImage(R.cv,0,0,R.w,R.h,R.x,R.y,R.w,R.h);ctx.restore();return true;}
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';{const h=(globalThis.__lyp||0).put;if(!(h&&h(f,R)))ctx.drawImage(R.cv,0,0,R.w,R.h,R.x,R.y,R.w,R.h);}ctx.restore();{const h=(globalThis.__lyp||0).fig;if(h)h(R);}return true;}
 // where his floor is under him, in canvas pixels
 function groundY(f){const fx=(f.p[FTF].x+f.p[FTB].x)/2;return dY(prjY(f.gr(fx),f.dep));}
 

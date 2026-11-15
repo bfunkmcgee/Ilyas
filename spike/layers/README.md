@@ -1,6 +1,7 @@
 # Layers test
 
-A test, not part of the game. It answers one question: what does Phaser add once the game hands it the picture in layers, and not
+Built as a test; since V118 a part of the game's published page, with its switches under Options (Depth, Lamplight;
+`options.js`). It answers one question: what does Phaser add once the game hands it the picture in layers, and not
 as one finished picture?
 
 The published page (since V116) paints the whole frame on the game's 2D canvas and Phaser shows that canvas with a glow and a grade
@@ -66,7 +67,7 @@ Phaser shows the three sheets one over the other, and between them:
     side lights the near edge and leaves the far one, so a barrel reads as round.
 
   Where each lamp is, how far it reaches, how far it stands out of the picture and how strong it is by the hour is said by the
-  yard's painter (`lampsAt`, added to this page's copy by `build_layers.py`: it uses the painter's own places for its lamps
+  yard's painter (`lampsAt`, in envx/env_yard.js since V118: it uses the painter's own places for its lamps
   and its own measures of flicker), and so is the map of the ground and the walls (`normals`). By day no lamp is lit and the
   page is as it was. The Test panel has four rows for it: Lamps (on, off), Ground (lit, or painted as the game paints it),
   Shape (on, off) and Hour (day, dusk, night: Act I's own hours, set on this page for looking).
@@ -82,9 +83,10 @@ python3 build.py
 python3 spike/layers/build_layers.py
 ```
 
-That writes `spike/layers/out/layers-test.html` and `out/index.html`, wrapped for publishing. In that copy of the page the yard's
-painter is opened so that it can paint its bands apart (the `YARD` list in `build_layers.py`: each piece of the painter's text
-must be found once, or the build stops). The test changes nothing in `envx/env_yard.js`. Since the yard's painter lays some things
+That writes `spike/layers/out/layers-test.html` and `out/index.html`, wrapped for publishing: the published page with the two
+tests' panels after it (every switch, the hour, what a frame costs). Until V118 this build opened the yard's painter in its copy
+of the page by 21 patches of its text; they are in the sources now (envx/env_yard.js, "THE LAYERS"; sk_lightui.js `put`), where
+without the page's `globalThis.__lyp` every line paints as it did. Since the yard's painter lays some things
 over its own light (the things along the walls a second time, what grows: the V118 work on the yard), the band the yard itself
 is on gets them in that order too: the light, those, then the place's key light. The page carries the motion test as
 well (spike/motion: the drawn pose and its panel), and opens on its walk across the yard. It is published as a private test page
@@ -99,7 +101,9 @@ about half of it, or none), the props (soft with the focus, or sharp), the dust,
 |---|---|
 | `layers.js` | the sheets and their seams, the focus's masks, the footfalls, the bloom, the far bands and their views, the lamps with the sheets of facings and the pieces' shapes, and Phaser's side of it all |
 | `panel.js` | its rows in the motion test's panel, and the meter |
-| `build_layers.py` | the built game with the motion test and these two added after its script, and the yard's painter (with one line of the light module) opened in that copy |
+| `build_layers.py` | the published page with the two tests' panels added after it |
+| `options.js` | in the published page: the rows under Options (Drawn movement, Depth, Lamplight), what is kept, the step-down for a slow device |
+| `scenes.js`, `scenes.py` | every stage of the story through Phaser, flat, on the sheets plain and in layers; the two sheets as painted; where the sheets alone change the picture |
 | `probe.js` | the check that the game computes the same on the sheets as flat |
 | `shots.js` | pictures of the page through Phaser: one moment drawn several ways, or a strip of frames |
 
@@ -226,6 +230,34 @@ about half of it, or none), the props (soft with the focus, or sharp), the dust,
   and at night, each beside the props sharp and beside the picture as it was; the same views for anything cut off; `probe.js`
   on the yard, the yard at night and the walk (the game computes the same); the panel's rows.
 
+## Across the prologue (V118)
+
+Asked for: every scene of the prologue with the effects. `scenes.js` plays each of the look review's 21 stages to its moments (56
+frames) in the published page and pictures it flat, flat again, on the sheets with every effect off, and in layers.
+
+| | |
+|---|---|
+| In layers | 17 of 21: the road at sundown, the field, the chase, the highway, the checkpoint, the street, the dining room, the kitchen, the platform, the line, the deep station, the lobby, the office (three stages), the gondola, the roof |
+| Flat, and why | the fire on the lift, the Lantern going up, the shaft alight (`FIRE`: all fire, added light); the fall (it finishes its own picture) |
+| Focus | every place in layers (`PLACES`). A fight's wall is its set: it stays as sharp as the floor at its foot (`room` 0). What rises beyond it goes soft, to half the full softness (`cap` .5) |
+| Lamps | the yard lists its own. Every other place has them read off its picture (`seeLamps`): four at most, a fifth of a lamp's strength, on the stage alone. None where an eighth of the picture is light |
+| Dust | the yard's motes and puffs; a foot's puff on the road at sundown and in the field (`AIRS`). Elsewhere the game's own light module has motes, mist, rain or fireflies already |
+| Far walls that slide, the ground under the lamps, things soft by their depth | the yard only: a place gets these by its painter being opened |
+
+Found on the way:
+
+- **The road at sundown fell back to flat**: its finish streaks its light, and the sheets' own light had no streaks. `light()`
+  makes them now, the game's way.
+- **A veil over the whole frame there.** The game's own finish still runs on the top sheet. It colours its streaks by multiplying,
+  and over a clear sheet a multiply lays the colour itself: a quarter-thick wash of the streaks' colour over everything, 18 of 255
+  off on average. The top sheet's finish goes without streaks now (`EnvLook.finish` wrapped).
+- **A fight's wall went soft.** With the yard's numbers the Lantern Bistro's sign was blurred behind the man walking past it. The
+  wall is the set, the richest part of a fight's picture, so it keeps the floor's softness and no more.
+- **Seen lamps at their first strength washed the riders out** on the highway, and at sundown lit a man who should stand dark
+  against the sky. They are at a fifth of a lamp now, and a picture that is light over an eighth of itself has none.
+- **What still differs with every effect off**: lamps' glows (the kitchen .6 to .8 of 255 on average, the office 1 to 1.8), the
+  streaks' ends at the frame's sides at sundown (.7), and the chase, whose street moves between two paintings of one moment.
+
 ## What it does not tell, and where it falls short
 
 - **What it costs on a phone.** The published page sends one picture to the graphics chip each frame. This sends three, and two
@@ -249,9 +281,12 @@ about half of it, or none), the props (soft with the focus, or sharp), the dust,
 - **The far side is less soft with the bands apart** (2.4 points at full focus, against 3 on the plate), so that its rows of
   shacks can be seen to slide. Turning the parallax off at full focus makes it softer again.
 - **The yard is painted twice over the first time it is shown**: whole, for the game's own measuring, then band by band.
-- Nothing is in the game. The published page is as it was.
+- **A light drawn among the figures loses a little.** Measured across the prologue (below): a lamp's glow in the office is 1 to
+  1.8 of 255 off on average and up to 31 at a halo's heart; a scene that is all fire is 2.5 to 6 off, and stays flat. The cure is
+  a sheet of its own for what is added, shown by adding.
+- Since V118 the layers are in the published page, on, with a switch and a step-down for a slow device (`options.js`).
 
-## The yard's south (V118, in work)
+## The yard's south (V118)
 
 The test page is built from the working tree, so it shows the yard as the branch has it: the floor run on south, twice as far as
 it first was, to a drain in a bank of spoil, a kerb with Tarr's main on it, and the lip of the quarry's last cut with a shed by
@@ -263,7 +298,7 @@ to walk about in it. What that means for the layers:
   sheet with the people, and what moves in the picture (the gully, the drain, the cut) on the plate.
 - The yard's layer is higher than the others (1200 world units where they have 960: `EnvLook.S.yard.deep`). The sheets take
   their size from the game's layer, so nothing here had to change for it; at 2.4 pixels a unit it is 3072 x 2880.
-- The yard's painter is opened by the same patches, which follow its changed lines (`YARD` in build_layers.py: the south's
-  shade and its second painting are with the light and the over pass; the E.S.yard line names the layer's height now).
+- The yard's painter is open in its own source (envx/env_yard.js, "THE LAYERS": the south's shade and its second painting are
+  with the light and the over pass; the E.S.yard line names the layer's height).
 - The focus follows him south: the Sump goes soft behind him, and the view down past the lip is soft as the nearest rows are.
 - `probe.js` on the yard and on the walk: the sums agree, flat and on the sheets, with the walk about begun.

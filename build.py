@@ -102,9 +102,14 @@ def assemble():
 # shows the picture through Phaser with its glow and grade; each has a switch in the Options panel). test_page.html has none of it:
 # the browser checks run the game as it was, and the parts are checked in their own pages.
 LOOK_PARTS = ('skin_kit.js', 'skin_art_body.js', 'skin_art_head.js', 'skin_art_pit.js', 'skin.js', 'cast_skin.js', 'host.js')
+# Since V118 the page carries two more parts after those: the figures drawn in the pose itself (spike/motion/motion.js) and the picture
+# handed to Phaser in layers (spike/layers/layers.js: focus, dust, far walls that slide, the lamps as lights), with their rows in the
+# Options panel and the easing for a slow device (spike/layers/options.js). The yard's painter is open for the layers in its own
+# source (envx/env_yard.js, "THE LAYERS"; one line of sk_lightui.js): without the page's globalThis.__lyp it paints as before.
+MOVE_PARTS = (('spike', 'motion', 'motion.js'), ('spike', 'layers', 'layers.js'), ('spike', 'layers', 'options.js'))
 def game_page(html):
     i = html.rfind('<script>')
-    extra = [read(os.path.join('vendor', 'phaser.min.js'))] + [read(os.path.join('spike', 'phaser', n)) for n in LOOK_PARTS]
+    extra = [read(os.path.join('vendor', 'phaser.min.js'))] + [read(os.path.join('spike', 'phaser', n)) for n in LOOK_PARTS] + [read(os.path.join(*n)) for n in MOVE_PARTS]
     for s in extra:
         if '</script' in s: sys.exit('a script for the published page holds a closing script tag')
     return html[:i] + '<script>var FLOW_GAME=1;</script>\n' + html[i:] + ''.join('<script>\n' + s + '\n</script>\n' for s in extra)

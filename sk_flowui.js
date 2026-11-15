@@ -70,7 +70,7 @@ function flowBuild(){
   const b=document.createElement('button');b.type='button';b.id='flowBtn';b.className='fw-btn';b.textContent=FLOW.game?'Options':'Test';b.setAttribute('aria-label',FLOW.game?'Options':'Test options');W.appendChild(b);FLOW.btn=b;
   const p=document.createElement('div');p.id='flowPanel';p.className='fw-panel';p.hidden=true;
   p.innerHTML=`<div class="fw-in" role="dialog" aria-label="${FLOW.game?'Options':'Test options'}"><p class="fw-k">${FLOW.game?'Options':'Flow test'}</p>
-    <p class="fw-t">${FLOW.game?'New in V116. Switch a part off to play as before.':'A trial build. Switch a part off to feel the game as it is now.'}</p>
+    <p class="fw-t">${FLOW.game?'Switch a part off to play as before.':'A trial build. Switch a part off to feel the game as it is now.'}</p>
     <div class="fw-parts">${FLOW.parts.map(([k,n,d])=>`<label class="fw-part"><input type="checkbox" data-k="${k}"><span><b>${n}</b><small>${d}</small></span></label>`).join('')}</div>
     ${FLOW.game?'':`<p class="fw-h">Fight</p><div class="fw-ros">${FLOW.rosters.map(([n,d],i)=>`<button type="button" data-r="${i}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`}
     <p class="fw-stat"${FLOW.game?' hidden':''}></p><div class="fw-foot">${FLOW.game?'':'<button type="button" class="fw-go" data-a="restart">Restart fight</button>'}<button type="button" class="fw-go" data-a="close">${FLOW.game?'Back to the game':'Back to the fight'}</button></div></div>`;

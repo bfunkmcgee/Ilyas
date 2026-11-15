@@ -1,6 +1,6 @@
 // ===== LAYERS TEST: THE PICTURE HANDED TO PHASER IN LAYERS =====
-// A test, not part of the game (README.md). It goes into a copy of the built page after the game's script and the Phaser host
-// (build_layers.py) and changes only where the picture is painted and how it is put together: the game's clock, its rules and
+// Built as a test (README.md); since V118 a part of the game's published page, after its script and the Phaser host (build.py
+// game_page; its switches: options.js). It changes only where the picture is painted and how it is put together: the game's clock, its rules and
 // every number it keeps are left as they are.
 //
 // The game paints one picture, and Phaser shows it. Here the same painters, in the same order, paint it onto three sheets:
@@ -50,6 +50,11 @@ const LY=window.LayerTest={
   // lamps: the place's lamps as Phaser's own lights on the sheets (lampK: how much of their strength; lampsN: how many the last
   // frame had)
   lamps:true,lampK:1,lampsN:0,lampErr:null,
+  // fireMax: with more fire than this in play (square units) the frame is painted flat (why(), FIRE)
+  fireMax:32000,
+  // lampSee: a place that lists no lamps has them read off its picture (seeLamps, below): seeEvery frames apart, seeMax of them at
+  // most, each reaching seeR units at seeK of a lamp's strength (seeNow: at once, for a tool's still: they are eased in otherwise)
+  lampSee:true,seeEvery:4,seeMax:4,seeR:200,seeK:.2,seeNow:false,
   // lampGround: the plate takes the lamps too (the place is then painted without its own lamplight, and a map of which way each
   // of its surfaces faces goes with the plate). plateUnlit: the last frame's plate was painted so
   lampGround:true,plateUnlit:false,
@@ -68,7 +73,7 @@ const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w||2;c.height=
 // MAIN: the game's canvas (the top). A: the plate. B: the stage. BL, BM: the bloom's light at an eighth the size, and that light at
 // the finish's strength. SH, SQ: the plate at a half and at a quarter the size, for the two blurs. M1, M2: their masks, a column of
 // 255 rows each (not a power of two: Phaser would wrap its ends round).
-const MAIN=cv.getContext('2d'),A=mk(),B=mk(),BL=mk(),BM=mk(),SH=mk(),SQ=mk(),M1=mk(3,255),M2=mk(3,255);
+const MAIN=cv.getContext('2d'),A=mk(),B=mk(),BL=mk(),BM=mk(),BS=mk(),SH=mk(),SQ=mk(),M1=mk(3,255),M2=mk(3,255);
 // NA: which way the plate's surfaces face, this frame (a quarter the size: it is all flat fields). NL: the same for the place's
 // whole still picture, painted once for an hour by the place's painter
 const NA=mk();let NL=null;
@@ -88,6 +93,13 @@ function wipe(L){const g=L.g||L,c=g.canvas;g.setTransform(1,0,0,1,0,0);g.clearRe
 let phase=-1,G=null,TR={s:1,tx:0,ty:0,planes:false},tPrev=null,maskKey='',maskNew=false,lightOn=false,DPR=1;
 function finishOf(){const k=envKey(),X=k&&EnvLook.S[k];if(!X)return null;if(X.post)return'post';
   return X.finish?(typeof X.finish==='function'?X.finish():X.finish):SCENE_FINISH[SCENE_WORLD[k]]||null;}
+// Three short scenes of the prologue are all fire (the fire on the lift in its shaft, the Lantern going up, the shaft alight): what
+// is lit by adding light to the one picture. A light drawn among the figures falls on a clear sheet here and is laid over the plate
+// plainly (README, "where it falls short"): a lamp's glow loses little by that, a wall of flame loses its heat. They stay flat.
+const FIRE={shaft:1,lanternup:1,shaftfire:1};
+// (and any moment with as much fire as that: the game's fires, S.fires, by their sizes. The checkpoint's burning truck is 16,000
+// square units and loses under 1 of 255; fireMax is twice that)
+const fireArea=()=>{let a=0;for(const f of S.fires||[])if(f)a+=(f.w||0)*(f.h||0)*(f.k==null?1:f.k);return a;};
 function why(){
   if(!LY.on)return'off';
   if(LY.err)return'stopped: '+LY.err;
@@ -95,7 +107,8 @@ function why(){
   if(ctx!==MAIN)return'drawn elsewhere';
   if(!cv.width||!cv.height)return'no canvas';
   const k=envKey();if(!k)return'no scene here';
-  const o=finishOf();if(o==='post')return'this place finishes its own picture';if(o&&o.streak>0)return'this place streaks its light';
+  const o=finishOf();if(o==='post')return'this place finishes its own picture';
+  if(S.story&&FIRE[S.story.key]||fireArea()>LY.fireMax)return'this scene is lit by its fire';
   return'';}
 const _render=render;
 render=function(){
@@ -124,7 +137,11 @@ for(const k of ['front','grade']){const f=FXL[k];FXL[k]=function(){if(phase===1)
 // the finish (sceneFinish, sk_scene_glue.js) comes once the world and its sparks are down. On the top sheet it finds only what the
 // top holds, so it darkens the edges as ever and blooms the sparks; the bloom of the plate and the stage is made here, the game's
 // way (env_look.js: the frame an eighth the size, multiplied by itself twice, at the place's strength), and Phaser lays it on.
-{const f=sceneFinish;sceneFinish=function(){if(phase===2){try{light();}catch(e){LY.err=String(e&&e.message||e);}}return f.apply(this,arguments);};}
+{const f=sceneFinish;sceneFinish=function(){if(phase===2){try{light();seeLamps();}catch(e){LY.err=String(e&&e.message||e);}}return f.apply(this,arguments);};
+// (the game's finish then runs on the top sheet, which is clear but for the sparks and the words. Its streaks cannot be made there:
+// it colours them by multiplying, and over a clear sheet that lays the colour itself over the whole frame, a veil a quarter thick.
+// The streaks of the plate and the stage are made in light(), below; the top's own finish goes without.)
+if(typeof EnvLook.finish==='function'){const f=EnvLook.finish;EnvLook.finish=function(o){return f.call(this,phase===2&&o&&o.streak>0?Object.assign({},o,{streak:0}):o);};}}
 function light(){
   const o=finishOf();lightOn=false;if(!o||o==='post'||!(o.glow>0)||FXL.q!=='full')return;
   const bw=BL.cv.width,bh=BL.cv.height,g=BL.g;g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.imageSmoothingEnabled=true;
@@ -135,7 +152,15 @@ function light(){
   else{g.globalCompositeOperation='copy';g.drawImage(A.cv,0,0,bw,bh);g.globalCompositeOperation='source-over';}
   g.drawImage(B.cv,0,0,bw,bh);
   g.globalCompositeOperation='multiply';g.drawImage(BL.cv,0,0);g.drawImage(BL.cv,0,0);
-  const h=BM.g;h.setTransform(1,0,0,1,0,0);h.globalCompositeOperation='copy';h.globalAlpha=cl(o.glow,0,1);h.drawImage(BL.cv,0,0);lightOn=true;}
+  const h=BM.g;h.setTransform(1,0,0,1,0,0);h.globalCompositeOperation='copy';
+  if(o.streak>0){
+    // a set piece's streaks, the game's way (env_look.js, finish): the light smeared out sideways and coloured, under the bloom
+    const c=BS.cv,s=BS.g;if(c.width!==bw||c.height!==bh){c.width=bw;c.height=bh;}
+    s.setTransform(1,0,0,1,0,0);s.globalCompositeOperation='copy';s.globalAlpha=1;s.drawImage(BL.cv,0,0);s.globalCompositeOperation='lighter';
+    for(const [f,a] of [[.012,.55],[.028,.36],[.055,.22],[.1,.12],[.17,.06]])for(const sg of [-1,1]){s.globalAlpha=a;s.drawImage(BL.cv,sg*f*bw,0);}
+    s.globalCompositeOperation='multiply';s.globalAlpha=1;s.fillStyle=o.streakCol||'#7fb0ff';s.fillRect(0,0,bw,bh);
+    h.globalAlpha=cl(o.streak,0,1);h.drawImage(c,0,0);h.globalCompositeOperation='lighter';}
+  h.globalAlpha=cl(o.glow,0,1);h.drawImage(BL.cv,0,0);lightOn=true;}
 
 // ---------- focus ----------
 // Where the eye is: the depth Ilyas stands at (the first man on the stage where he is not), followed over fEase seconds of the
@@ -144,7 +169,14 @@ function light(){
 // The places the focus has been set for and looked at (the rest go onto the sheets all the same, and stay sharp). Where something
 // rises behind a place's far wall: the wall's height (units over the far edge of the floor), and how much further up the softness
 // is all there. Over the yard's roofs it is the far side of the Pit; the restaurant has its wall and no more.
-const PLACES={yard:{wall:175,top:110},dining:{}};
+const PLACES={yard:{wall:175,top:110},dining:{room:0},
+  // (since V118: the prologue's places. A fight's wall is its set, the richest part of the picture: it stays as sharp as the floor
+  // at its foot (room: 0), and only what rises beyond it goes soft, to cap of the full softness by top units over the wall's
+  // height (a skyline keeps its landmarks: the tower's H is read from every street). Out of doors
+  // the wall is the house fronts, the maize, the parapet; a room has its wall and no more)
+  outskirts:{wall:20,top:100,room:0,cap:.5},crops:{wall:90,top:120,room:0,cap:.5},chase:{wall:260,top:120,room:0,cap:.5},
+  highway:{wall:60,top:160,room:0,cap:.5},roadblock:{wall:20,top:160,room:0,cap:.5},street:{wall:330,top:120,room:0,cap:.5},
+  kitchen:{room:0},shaft:{room:0},station:{room:0},tunnel:{room:0},lobby:{room:0},office:{room:0},gondola:{room:0},roof:{wall:40,top:140,room:0,cap:.5}};
 const focusHere=()=>Object.prototype.hasOwnProperty.call(PLACES,envKey()||'');
 function focusNow(){
   let f=null;for(const g of S.F||[])if(g&&!g.gone&&!g.hidden&&g.p){f=g;break;}
@@ -157,10 +189,10 @@ function focusNow(){
   const i1=M1.g.createImageData(3,255),i2=M2.g.createImageData(3,255),soft=x=>cl((Math.abs(x-dF)-LY.f0)/LY.f1,0,1)*LY.fMax,yFar=(GB-PSY*far)*s+ty,mFar=soft(far),mid=cl(LY.fMid,.05,.95);
   for(let i=0;i<255;i++){const y=(i+.5)/255*H;let m;
     if(y>=yFar)m=soft((GB-(y-ty)/s)/PSY);
-    else{const hgt=(yFar-y)/s,up=Math.min(LY.fRoom,1-mFar);
+    else{const hgt=(yFar-y)/s,up=Math.min(P0&&P0.room!=null?P0.room:LY.fRoom,1-mFar);
       if(!by)m=mFar+up*cl(hgt/LY.fTop,0,1);
       else if(hgt<=by.wall)m=mFar+up*hgt/by.wall;
-      else{const u=cl((hgt-by.wall)/by.top,0,1);m=mFar+up+(1-mFar-up)*u*u*(3-2*u);}}
+      else{const u=cl((hgt-by.wall)/by.top,0,1),cap=Math.max(mFar+up,by.cap!=null?by.cap:1);m=mFar+up+(cap-mFar-up)*u*u*(3-2*u);}}
     m*=K;
     // (the light blur comes in up to fMid, and the heavy one over it from there)
     const a1=Math.round(cl(m/mid,0,1)*255),a2=Math.round(cl((m-mid)/(1-mid),0,1)*255);
@@ -169,7 +201,7 @@ function focusNow(){
 
 // ---------- PARALLAX ----------
 // A place's far bands on sheets of their own. The game paints a place's still picture whole, back to front, onto one layer
-// (sceneLayer, sk_scene_glue.js). In this page's copy the yard's painter has been opened (build_layers.py) to paint its bands
+// (sceneLayer, sk_scene_glue.js). The yard's painter is open (envx/env_yard.js, "THE LAYERS") to paint its bands
 // apart. The game still paints its layer whole and measures it (where the picture ends, how light the ground is behind a man: the
 // camera and the rim light go by those). Then, the first time the layer is drawn in a frame on the sheets, it is painted over in
 // place with the yard alone, lit as the whole was, and the two far bands are painted small on canvases of their own. A frame that
@@ -187,7 +219,7 @@ function focusNow(){
 // The far band: its still picture and everything that moves on the far wall, put together each frame on one sheet (FAR) the size
 // of the screen's canvas or a part of it, which Phaser shows under everything. The middle band: its still picture, placed by
 // Phaser; its chimneys' smoke is drawn on the plate where the band has gone. The middle band's row of shacks is painted on to the
-// left, behind the woodshed and the Sump (build_layers.py): the whole picture hides that, and the band shows it as it slides out.
+// left, behind the woodshed and the Sump (envx/env_yard.js): the whole picture hides that, and the band shows it as it slides out.
 const BANDS={yard:{x0:470,y0:262,w0:820,top:-470,far:[.2,.65],mid:[.72,.88]}};
 // (the far bands' rectangle in the world: as wide as the yard's backdrop is painted, and from just over the layer's top to 342,
 // where the backdrop's own haze ends, well under the lowest roof)
@@ -225,7 +257,7 @@ function normalsFrame(){
 // picture where he is walked about; in a fight every man stays sharp.
 // Each soft thing keeps its small sheet from frame to frame, no bigger than the thing: a sheet shared by them all had to be
 // copied whole each time one was set down from it. Where a thing falls on the stage is told by the painter's own calls (the
-// piece set down, a glow, smoke, a gate, a bird: build_layers.py), with room round a piece for what moves on it. It is noted
+// piece set down, a glow, smoke, a gate, a bird: envx/env_yard.js), with room round a piece for what moves on it. It is noted
 // the first time the thing is drawn, sharp, and kept in the place's own units; a thing that tells nothing stays sharp. A piece
 // drawn at under half its size is taken from a copy of it made that small once (T.mp), so nothing has to be shrunk far.
 const softAt=d=>cl((Math.abs(d-LY.focusAt)-LY.f0)/LY.f1,0,1)*LY.fMax*cl(+LY.focusK||0,0,1);
@@ -267,7 +299,7 @@ function softDraw(i,d,run,box){
   return f.apply(this,arguments);};}
 // (each piece's place in the painter's list, which does not change as the list is sorted by depth)
 {const f=envItems;envItems=function(items){const r=f.apply(this,arguments);if(items&&items.length){let k=0;for(const it of items)if(it&&it.pitPiece)it.lyI=k++;}return r;};}
-// What the painter and the light module call (build_layers.py). box(c, x0, y0, x1, y1): the painter is about to draw within
+// What the painter and the light module call (envx/env_yard.js, sk_lightui.js). box(c, x0, y0, x1, y1): the painter is about to draw within
 // this box of c. pieceDraw(c, T): a piece is about to be set down on c; true says it was set down here, from its small copy.
 // put(f, R): the light module is about to set a man's own picture down; true says it was set down here, soft
 SLID.box=function(c,x0,y0,x1,y1){if(BX&&c===SCg)growC(c,x0,y0,x1,y1);};
@@ -315,7 +347,7 @@ function shapeFrame(){
   g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.fillStyle=UPC;g.fillRect(0,0,NB.cv.width,NB.cv.height);nbUsed=on;nbNew=true;
   if(on&&NMQ.length){const t0=performance.now();try{do{nmMake(NMQ.shift());}while(NMQ.length&&performance.now()-t0<4);}catch(e){LY.lampErr='shape: '+String(e&&e.message||e);NMQ.length=0;}
     LY.shapeMs+=performance.now()-t0;}}
-// what the yard's painter calls (build_layers.py). piece(c, T): a piece has just been set down on c; on the stage, its map goes
+// what the yard's painter calls (envx/env_yard.js). piece(c, T): a piece has just been set down on c; on the stage, its map goes
 // down on the sheet of facings at the same place. glowK(c, x, y): how much of a painted glow at (x, y) to paint, where the lamps
 // are about to multiply it: a lamp's own halo is then as bright as its painter meant, not brighter by the lamp's own light
 SLID.piece=function(c,T){
@@ -351,7 +383,7 @@ function bandsT(m){
   for(const b of ['far','mid']){const k=1-(1-B0[b][0])*sl,r0=cl(Math.pow(vw/B0.w0,(1-B0[b][1])*pu),.4,1.6),r=r0<1?Math.max(r0,need):r0,o=BT[b];
     o.r=r;o.tx=cx-r*(B0.x0+k*(cx-B0.x0));o.ty=B0.y0*(1-r);}
   BT.n=LY.n;}
-// What the yard's painter asks for (build_layers.py). far(c): the far band's sheet, cleared, with the still far band laid on it
+// What the yard's painter asks for (envx/env_yard.js). far(c): the far band's sheet, cleared, with the still far band laid on it
 // under the band's own view, for the painter to draw the far wall's moving things on (nothing where the bands are not apart: it
 // then draws them on the plate as ever, inside its skyline). While it does, the camera's top is the band's own, so that the
 // picture above the layer and the tram are drawn as far up as this band's view reaches. end(): those are down. mid(c): the middle
@@ -409,19 +441,28 @@ function bandsFar(){
   PX.far=one('far',sc*[.75,1/3,1/4][soft],false);PX.mid=one('mid',sc*[.75,1/2,1/2][soft],true);PX.soft=soft;PX.up=true;}
 
 // ---------- dust ----------
-// Only where the ground is dirt: the yard. Nothing moves where motion is reduced (the motes stand still, no puffs).
-const dusty=()=>LY.dustAll||envKey()==='yard';
+// Where the air has something in it: the yard, by the Pit's hour (AIR), and the places listed in AIRS (since V118), each with
+// its own colours. Nothing moves where motion is reduced (the motes stand still, no puffs).
 const still=()=>typeof reduceMotion!=='undefined'&&reduceMotion;
 // the dust's colour and the motes', and how much of them shows, by the Pit's time of day (S.act1). Soot and dry earth: no gold.
 function tod(){const a=S.act1;return!a?'day':a.night?'night':a.morning?'morning':a.dusk?'dusk':'day';}
 const AIR={day:{dust:0xb7a58b,mote:0xe9dcc4,k:1},morning:{dust:0x9aa3b4,mote:0xd3dbe8,k:.9},dusk:{dust:0xa8846c,mote:0xe2b79a,k:.8},night:{dust:0x55525e,mote:0x8088a8,k:.3}};
+// The air of the other places, where the game's own light module puts none of this (sk_lightui.js, SC: it has motes in the rooms,
+// on the road at sundown and underground, rain and mist in the streets, fireflies in the fields). dust: the colour of what a foot
+// raises (puffs: false where the ground is stone, tile or boards); mote: the motes' colour (motes: false where the game has its
+// own); k: how much shows. A place not listed is left as the game has it.
+const AIRS={
+  outskirts:{dust:0xc7a076,mote:0xffd9a6,k:1,motes:false},   // the road at sundown: a foot or a wheel's dust (its motes are the game's)
+  crops:{dust:0x8a8266,mote:0xc9cfb6,k:.6,motes:false}};     // the field: dry earth between the rows
+const airNow=()=>{const k=envKey()||'';return k==='yard'?AIR[tod()]:AIRS[k]||(LY.dustAll?AIR.day:null);};
+const dusty=()=>!!airNow();
 // a footfall: a foot that was off the floor and is down again. Read inside render(), where the joints are the ones being drawn.
 const FEET=new WeakMap(),PUFFS=[];let puffN=0;
 let puffKey='';
 function feet(){
   // (another place, or another play of this one: its dust does not come along)
   const key=(S.story?S.story.key:'-')+'|'+envKey();if(key!==puffKey){puffKey=key;PUFFS.length=0;}
-  if(!LY.dust||!dusty()||still())return;
+  const AK=airNow();if(!LY.dust||!AK||AK.puffs===false||still())return;
   for(const f of S.F||[]){if(!f||f.gone||f.hidden||f.dead||!f.p||!f.p[FTF]||!f.gr)continue;
     let st=FEET.get(f);if(!st)FEET.set(f,st=[{},{}]);
     for(let k=0;k<2;k++){const q=f.p[k?FTB:FTF],e=st[k],g=f.gr(q.x),h=g-q.y,dt=e.t==null?-1:S.t-e.t;
@@ -484,8 +525,8 @@ function build(sc){
     return{im,fr,x:hs(i*7+1),y:hs(i*7+2),ph:hs(i*7+3)*6.283,v:.5+hs(i*7+6),r:fr?4+hs(i*7+4)*5:.9+hs(i*7+4)*1,a:fr?.07+hs(i*7+5)*.08:.22+hs(i*7+5)*.28,p:fr?1.35+hs(i*7+4)*.5:.82+hs(i*7+4)*.14};};
   for(let i=0;i<LY.motesBack;i++)G.motes.push(mote(i,false));for(let i=0;i<LY.motesFront;i++)G.motes.push(mote(1000+i,true));}
 function dust(){
-  const on=LY.dust&&dusty(),K=AIR[tod()],s=TR.s,t=still()?0:S.t,VW=G.w/s,L=-TR.tx/s,span=VW+120,yG=GB-PSY*LY.focusAt;
-  for(const m of G.motes){if(!on||!(LY.moteA>0)){m.im.setVisible(false);continue;}
+  const K=airNow()||AIR.day,on=LY.dust&&dusty(),s=TR.s,t=still()?0:S.t,VW=G.w/s,L=-TR.tx/s,span=VW+120,yG=GB-PSY*LY.focusAt;
+  for(const m of G.motes){if(!on||!(LY.moteA>0)||K.motes===false){m.im.setVisible(false);continue;}
     // (a mote keeps its place in the air and drifts a little; the camera passing shifts the ones in front faster than the ones behind)
     const X=(((m.x*span+t*(m.fr?5:2.2)*m.v+Math.sin(t*.31*m.v+m.ph)*7-L*m.p)%span)+span)%span-60,
       Y=(m.fr?yG+70-m.y*230:yG-10-m.y*165)+Math.sin(t*.23*m.v+m.ph*1.7)*5;
@@ -502,13 +543,52 @@ function dust(){
 // A place's lamps as Phaser's own lights: the people and the pieces near a lamp take its light, the ground and the walls take it,
 // and the light moves as its flame does. The place's painter says where its lamps are in the picture, how far each reaches, how
 // far it stands out of the sheet (z, as a part of its reach: a small one puts the light on the ground before the lamp and tight on
-// a wall, a large one lights all alike) and how strong it is (EnvLook.S[k].lampsAt(t, still): the yard's, opened in this page's
-// copy by build_layers.py). The air is left white, so whatever no lamp reaches is as it was painted.
+// a wall, a large one lights all alike) and how strong it is (EnvLook.S[k].lampsAt(t, still): the yard's, envx/env_yard.js; a place
+// without one has its lamps read off its picture, seeLamps below). The air is left white, so whatever no lamp reaches is as it was painted.
 // A light multiplies what it falls on. So the plate under the lamps is painted without its own lamplight (__lyp.unlit, above),
 // and both sheets carry a map of which way their surfaces face: the plate's from the place's painter (normalsFrame), the stage's
 // from the pieces' outlines (shapeFrame). A lamp's flicker is the game's clock's, never the dice, and with motion reduced it
 // burns steady. (README, "The lamps".)
-function lampsNow(){const k=envKey(),X=k&&EnvLook.S[k];try{return LY.lamps&&X&&typeof X.lampsAt==='function'?X.lampsAt(S.t,still()):null;}catch(e){LY.lampErr=String(e&&e.message||e);return null;}}
+// THE LAMPS OF A PLACE THAT LISTS NONE (since V118): read off its own picture. Every place but the yard paints its lamplight
+// into its picture and says nothing of where its lamps are. So the plate is looked at, a sixteenth the size, every seeEvery frames:
+// its brightest spots that are small enough to be a lamp, a fire or a low sun, and not a lit sky or a pale wall, are taken for
+// lights, kept by their place in the world (so a lamp is the same lamp as the camera moves) and eased in and out over half a
+// second. They light the stage alone: the plate keeps the light its painter gave it. seeK: their strength; seeR: their reach, in
+// units; seeMax: how many. What is seen is the picture's own, never the dice, and the game reads none of it.
+// (the road at sundown: its one light is the sun behind him, and he stands dark against it. And only the places that have been
+// looked at with their seen lamps on: those with a focus set, PLACES. Act I's rooms and the lab's grounds are not among them yet)
+const NOSEE={outskirts:1};
+const LM={cv:document.createElement('canvas'),g:null},SEEN=[];let seenKey='',seenN=0,seenT=null;
+function seeLamps(){
+  const k=envKey()||'',X=k&&EnvLook.S[k];if(k!==seenKey){seenKey=k;SEEN.length=0;seenN=0;}
+  if(!LY.lamps||!LY.lampSee||!X||typeof X.lampsAt==='function'||NOSEE[k]||!focusHere()){SEEN.length=0;return;}
+  if(seenN++%Math.max(1,LY.seeEvery|0))return;
+  const w=Math.max(16,Math.round(cv.width/16)),h=Math.max(16,Math.round(cv.height/16)),c=LM.cv;if(c.width!==w||c.height!==h||!LM.g){c.width=w;c.height=h;LM.g=c.getContext('2d',{willReadFrequently:true});}
+  const g=LM.g;g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='copy';g.imageSmoothingEnabled=true;g.drawImage(A.cv,0,0,w,h);
+  const d=g.getImageData(0,0,w,h).data,n=w*h,v=new Float32Array(n);let lit=0;
+  // (a cell's light: how far its lightness stands over a middling one; a picture an eighth of which is light, a day or a sunset,
+  // has no lamps to find: its light is the sky's, and the figures already stand against it)
+  for(let i=0;i<n;i++){const r=d[i*4],gg=d[i*4+1],b=d[i*4+2],l=(.2126*r+.7152*gg+.0722*b)/255,x=l-.6;if(x>0){v[i]=x;lit++;}}
+  const found=[];
+  if(lit<n*.12){const R=Math.max(2,Math.round(70*TR.s/16));
+    for(let pick=0;pick<LY.seeMax+3&&found.length<LY.seeMax;pick++){let bi=-1,bv=.05;for(let i=0;i<n;i++)if(v[i]>bv){bv=v[i];bi=i;}if(bi<0)break;
+      const cx=bi%w,cy=(bi/w)|0;let sum=0,cnt=0,tot=0,sr=0,sg=0,sb=0,mx=0,my=0;
+      for(let y=Math.max(0,cy-R);y<=Math.min(h-1,cy+R);y++)for(let x=Math.max(0,cx-R);x<=Math.min(w-1,cx+R);x++){const j=y*w+x,q=v[j];tot++;
+        if(q>0){cnt++;sum+=q;mx+=x*q;my+=y*q;sr+=d[j*4]*q;sg+=d[j*4+1]*q;sb+=d[j*4+2]*q;}v[j]=0;}
+      // (a spot that fills its neighbourhood is a sky or a wall, not a lamp)
+      if(cnt>tot*.45||sum<=0)continue;
+      const m=Math.max(sr,sg,sb)||1,px=(mx/sum+.5)*16,py=(my/sum+.5)*16;
+      found.push({x:(px-TR.tx)/TR.s,y:(py-TR.ty)/TR.s,col:(Math.round(255*sr/m)<<16)|(Math.round(255*sg/m)<<8)|Math.round(255*sb/m),v:cl(bv*2.2+sum/tot*3,0,1)});}}
+  for(const q of SEEN)q.want=0;
+  for(const f of found){let best=null,bd=60*60;for(const q of SEEN){const dx=q.x-f.x,dy=q.y-f.y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;best=q;}}
+    if(best){best.x+=(f.x-best.x)*.35;best.y+=(f.y-best.y)*.35;best.col=f.col;best.v+=(f.v-best.v)*.5;best.want=1;}
+    else if(SEEN.length<LY.seeMax*2)SEEN.push({x:f.x,y:f.y,col:f.col,v:f.v,a:0,want:1});}}
+function seenLamps(){
+  const dt=seenT==null?0:cl(S.t-seenT,0,.2);seenT=S.t;const L=[],e=still()||LY.seeNow?1:1-Math.exp(-dt/.5);
+  for(let i=SEEN.length-1;i>=0;i--){const q=SEEN[i];q.a+=((q.want||0)-q.a)*e;if(!q.want&&q.a<.02){SEEN.splice(i,1);continue;}
+    if(q.a>.03)L.push({x:q.x,y:q.y,r:LY.seeR,col:q.col,k:LY.seeK*(.45+.55*q.v)*q.a,z:.22});}
+  return L.length?L:null;}
+function lampsNow(){const k=envKey(),X=k&&EnvLook.S[k];try{return!LY.lamps||!X?null:typeof X.lampsAt==='function'?X.lampsAt(S.t,still()):LY.lampSee?seenLamps():null;}catch(e){LY.lampErr=String(e&&e.message||e);return null;}}
 function lamps(sc,live){
   const L=live?LAMPS:null,on=!!(L&&L.length),s=TR.s;
   if(on&&!G.lit){sc.lights.enable();sc.lights.setAmbientColor(0xffffff);G.lit=true;}
