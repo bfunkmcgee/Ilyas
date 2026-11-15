@@ -260,6 +260,86 @@ Found on the way:
 - **What still differs with every effect off**: lamps' glows (the kitchen .6 to .8 of 255 on average, the office 1 to 1.8), the
   streaks' ends at the frame's sides at sundown (.7), and the chase, whose street moves between two paintings of one moment.
 
+## Depth that reads (V119)
+
+Said of V118: "Its hard to make out any improvements beyond the lighting". Measured on the survey's 56 frames (flat against in
+layers, the people and the place apart by the stage's own sheet): the place changed by about 1 of 255 on average (0.4 to 2.9), the
+people by 1 to 9 with up to half their pixels moved: the lamps. Outside the yard the focus had been held to nearly nothing in a
+fight, the dust left to the game's own, and no far wall slid. On a phone the camera is never still in a fight: 560 units or more
+across on his turn, about 404 as it pushes in for the exchange, 250 to 330 in a scene's close shots, 400 to 1,800 units of travel
+along the place in one fight; the ride at sundown pans 468 units in 24 seconds. So what follows the camera is what can be seen.
+
+| | |
+|---|---|
+| The pull | The focus tightens as the camera comes close (`LY.pull`: nothing on his turn, a third at the push-in, all of it at a close shot). The wall behind and the floor away from the eye's depth go soft, near as well as far. Every prologue place; the yard is left as it was (`PLACES.yard.pull` 0) |
+| Far bands that slide | The road at sundown (sky, hills and the Sprawl; the valley), the field (sky, city and tower; the land and the farm), the roof (sky and the city at the horizon). Each painter takes `only` as the yard's does. They slide slower than the place and grow less as the camera pushes in |
+| Beyond the glass | The office's night city and the lobby's two windows are bands too: the room's wall is cut clear at the glass, the city is painted on past the frame, and it slides behind the mullions |
+| Baked | These bands go into the plate itself each frame, under the place's own picture (`bandsBake`), so the plate is whole and whatever the place adds as it moves is added to a painted sky. Each is soft by its own size (painted small, set down enlarged). The yard's stay on sheets of their own |
+| Rooms | A room's own hanging lamps (`S.lamps`) light the people under them, swinging and going out with them (`roomLamps`). Its furniture goes soft by its depth, by the box the game keeps for it |
+
+Found on the way, and put right for every place:
+
+- **The dark at the frame's edges lay over the bloom.** The game lays it under, so that a lamp or the sun at the edge keeps its
+  glow. On the top sheet it took the glow down: 20 to 30 of 255 at the foot of the title's frame. It is made here now and shown
+  under the bloom (`edgesMake`). The sheets alone against the flat picture at sundown: 0.2 to 0.3 of 255 on average, from 0.7 to 2.4.
+- **The plate was wiped each frame, and the game's canvas never is.** A place's picture is not solid everywhere: under the office's
+  cornice a strip holds only the cove's added light, a third there. Painted over itself frame after frame it comes up to its full
+  colour, and that is the bright line of the cove. On a wiped plate it stayed a third over nothing: 240 of 255 down to 100, in
+  V118 as published. The plate now keeps the last frame wherever it is the whole picture; a baked room's keeps it under what is
+  not solid (`under`).
+- **A band cut to its own picture lost its part-clear pixels** (an edge taken down by as much again as it was clear). The baked
+  bands are cut by their picture brought up toward solid first (`keepOnly`, full).
+- **A star in a far band's top row ran up the frame.** Above the layer a baked place's sky is the far band's top row drawn on
+  up (`upFill`). Drawn as it is, one star in that row made a line 5 of 255 light from the roof's mast to the top of a phone's
+  wide view. The row is taken as 32 means across it now (`upRow`), as the game takes a layer's top; measured after, 0.3, the
+  flat picture's own.
+- **A band painted drawn in stood wrong where motion is reduced.** There nothing slides (`bandsT`), and the ride's sky,
+  painted drawn in for its sliding, stayed drawn in: at the ride's end the tower stood a third of the view left of its place
+  (7.2 of 255 from the flat picture on average, 19% of the pixels off). `flatBands` is true there now and the bands are painted
+  as the picture has them: 1.1, as the bands held by hand.
+- **What a place's live drawing leaves set on the context is part of the picture.** The game calls a place's `live()` bare
+  (`drawFloor`, sk_scene_glue.js) and what it draws next goes by the line and fill colours left set: the field's windmill leaves
+  a pale thin line set, the tower's light its colour. Wrapped in `save()` and `restore()` for a band's view, they left the
+  context as it was before them instead, with the layers off as well. No picture was off for it (the survey's flat frames
+  were V118's to the pixel either way); it was found by reading the change. Only the view is put back now (`setTransform`),
+  in the field and on the road; the lobby's beacon sets its colour whether or not it is drawn; the roof counts its gilt afresh
+  where it did. A painter opened for the layers keeps every statement of its flat path, in its order.
+- **The ride's far band is painted drawn in.** A band that follows three quarters of the camera's going would leave the tower off
+  to the side at the end of the ride, where the scene means it in the middle. So the sky and the valley are painted drawn in toward
+  the sun's place by as much as they hang back (`BK`, env_outskirts.js); the sun's own light and the tower keep their widths.
+
+Checked: the game's own picture (layers off) at the survey's moments in the five places against V118's, pixel for pixel; each
+band held as painted against the flat picture (0.3 to 0.9 of 255 on average where the band is painted as the picture is; the
+windows' cities are other paintings by design); `probe.js` on twelve scenes, five of them new (field, kitchen, lobby, office, roof),
+and the game-logic suites (`test.py`).
+
+Before it went into the game (V119, Nov 15; the survey and the four states on the day's build before the last two changes,
+reduced motion and the context's state, the costs before the last: those changes touch nothing these measure):
+
+- **The survey again** (`scenes.js`, 56 frames): the sheets alone against the flat picture. Ten frames are marked, twelve were
+  at V118: none newly, and the road at sundown's two no longer (0.23 to 0.24 of 255 on average, from 0.69 to 0.79: the edges).
+  The office 0.84 to 0.85 (0.97 to 1.02: the cove's line). No frame's average is more than 0.06 further from flat than it was
+  (the deep station's fight, the line). What still differs is what differed: the lamps' glows in the kitchen and the office,
+  the chase's moving street, the shot on the roof.
+- **The device's four states in one sitting** (all of it; without lamps and soft things; the sheets alone; flat; and back), in the
+  five places with baked bands: with the bands switched off the picture is whole again (0.26 to 0.89 from flat), and switched
+  back on it is the picture it was (0.00 to 0.03).
+- **The page as a phone opens it**, with no parameter but the scene: the three switches on, the five places in layers with their
+  bands baked, the kitchen in layers, the yard on its own sheets; a device made slow stepped down 0 to 3 in the field, nothing kept.
+- **What a frame costs here.** This machine draws everything in software, a phone does not, so these say only which way it went:
+  the game's drawing with the layers' canvas work, by the page's own clock, V118 and V119 by turns: the field 26 to 27 ms a frame
+  then 40 to 46, the office 37 to 38 then 44, the lobby 43 to 46 then 49 to 53, the road at sundown 21 to 30 then 35 to 44
+  (another job ran beside the road's four). The bands set into the plate are two more pictures laid down a frame, and a room
+  whose layer is not solid keeps a copy of its plate.
+
+Short of it: a glow painted still over the far sky (the roof's crown) is a little dimmer where the sky behind is light, as a glow
+among the figures is. The dining room's street, the gondola's night, the Bistro seen from the street, the checkpoint and the two
+underground places have no bands yet. Nothing here has been timed on a phone.
+
+Not built, and why: lamplight on a room's floor and walls, and people's shadows from the lamps. The rooms' paintings carry
+their lamplight already, and the game's light module throws each person's shadow from the two lamps that light him most
+(`castShadows`, sk_lightui.js, since V79). A second light from the layers would double both.
+
 ## What it does not tell, and where it falls short
 
 - **What it costs on a phone.** The published page sends one picture to the graphics chip each frame. This sends three, and two

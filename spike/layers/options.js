@@ -28,7 +28,7 @@ function fill(){if(!rows)return;
 function panel(){if(rows||typeof FLOW==='undefined'||!FLOW||!FLOW.panel)return;
   const a=FLOW.panel.querySelector('input[data-ph]'),host=a&&a.closest('.fw-parts');if(!host)return;
   const parts=[];if(MO)parts.push(['motion','Drawn movement','Walking, turning and standing drawn from the pose itself']);
-  if(LY){parts.push(['layers','Depth','Focus, dust and far walls that slide. Over Phaser view']);parts.push(['lamps','Lamplight','The lamps light the figures and the ground. Over Depth']);}
+  if(LY){parts.push(['layers','Depth','Focus, dust and far scenery that slides. Over Phaser view']);parts.push(['lamps','Lamplight','The lamps light the figures and the ground. Over Depth']);}
   rows=document.createElement('div');rows.className='fw-parts';
   rows.innerHTML=parts.map(([k,n,d])=>'<label class="fw-part"><input type="checkbox" data-lk="'+k+'"><span><b>'+n+'</b><small>'+d+'</small></span></label>').join('');
   note=document.createElement('p');note.className='fw-t';note.style.margin='6px 0 0';note.hidden=true;

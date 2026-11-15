@@ -820,6 +820,42 @@ player has nothing to press (`HUD.drop`, sk_hudui.js: the exchange, the others' 
   two parts' probes (motion's six scenes, the layers' seven) and `check_skin.js` on the page (27, no error); and the page opened
   as a phone opens it, with no parameter but the scene: the three switches on, the yard in layers, a device made slow stepped
   down 0 to 3, nothing kept.
+  **V119 (Nov 15): depth that reads.** Said of V118: "Its hard to make out any improvements beyond the lighting"; measured, the
+  place changed by 1 of 255 between flat and layers, only the people by the lamps. spike/layers/README.md, "Depth that reads",
+  has it whole. In short: the focus tightens as the camera comes close (`LY.pull`: a phone's camera is 560 units across on his
+  turn, 404 at the push-in, 250 to 330 in a close shot); the road at sundown, the field and the roof have far bands that slide,
+  and the office's and the lobby's night cities slide behind their glass (each painter takes `only` as the yard's does; these
+  bands are set into the plate each frame, `bandsBake`); a room's own lamps light the people (`roomLamps`) and its furniture
+  goes soft by depth. Three faults of V118's layers were found on the way and put right in layers.js: the dark at the frame's
+  edges lay over the bloom (`edgesMake`), the plate was wiped each frame where the game's canvas never is (the office's cove
+  line at 100 of 255 for 240: `plateAt`, `under`), and a band cut to its own picture lost its part-clear pixels (`keepOnly`,
+  full). A painter opened this way must paint the same whole picture as before: shot with the layers off against the last
+  version's pictures, pixel for pixel, at the same run of moments (a moment reached by another run of drawn frames differs by a
+  handful of pixels on its own).
+  For the next place opened, two things the checks before publishing found: a far band's row drawn on up the frame is taken
+  smoothed (`upRow`: one star in it made a line from the roof's mast to the top of a phone's view), and a band painted drawn in
+  for its sliding is painted as the picture has it where motion is reduced (`flatBands`: the tower else stood a third of the
+  view off its place at the ride's end; shoot a new band with Playwright's `reducedMotion: 'reduce'` as well). A third was found
+  by reading the change: a `save()` and `restore()` put round a painter's live far things changed what the game drew next (see
+  the pitfalls). And one thing the layers do not need: lamplight on a room's floor and walls and people's shadows from the lamps
+  are the game's own already (the rooms' paintings; `castShadows`, sk_lightui.js).
+  Checked at its publishing (Nov 15): the look review clean, twice (19.0 min, and 17.7 after the painters' last change);
+  `test.py full` with the nineteen page suites run here and the timing check alone (18.2 min; 13 passes standing; GitHub's
+  page passes are not taken, its Chromium not being this machine's), after a first run in which lookpage alone failed on its
+  count of his tattoos (the pitfalls: the count is not steady); GitHub's own run of the candidate passed 31 of 32, lookpage
+  failing there as at V118; `--status` clean. Of the layers: the survey of the prologue's 56 frames (ten marked for twelve at
+  V118, none newly, none more than 0.06 further from flat), the device's four states in one sitting in the five places with
+  baked bands, the page opened as a phone opens it and a device made slow stepped down 0 to 3 in the field with nothing kept,
+  the ride's end with motion reduced, and what a frame costs here (the README has the numbers); the layers' probe on twelve
+  scenes for the day's first build and on five or six after each later change, the last on the published source; the motion's
+  six scenes and `check_skin.js` (27, no error), before the painters' last change and again on the published page. The survey
+  and the four states were taken on the day's build before the last two changes, the costs before the last; those changes
+  touch nothing these measure.
+  The lookbook went with it: its notes for the five places and its date. 24 of its 91 frames came out other than the published
+  ones (71 pictures, sent): 22 are of the Pit, which V119 did not touch, so they differ from one review to the next (likely
+  by what is alive in them, the crowds and the birds; not run down); the other two are sundown_t16 and roof_t16, and
+  sundown_t16 and a frame of the roof differed at V118's publishing too. Every other frame of the five places whose painters changed came out to the byte as
+  published. So a picture that differs from the published one is not by itself a sign that its place changed.
   The fall filmed again, a fifth switch there for a morning, is the game's own scene since V116: sk_fallcut.js, below.
 - sk_envui.js + envx/ (via sk_sceneui.js): rooms paint their still parts once into a layer and draw what moves each frame.
 
@@ -2141,11 +2177,11 @@ picture (roof_t16_w) differed from the published one though the rebuild had left
 file names (the page makes the rest from each frame's id), so the frames are what to count: every frame has three pictures
 (`<frame>.jpg`, `_s.jpg`, `_w.jpg`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V119 ..." (V118 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
+short label "V120 ..." (V119 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
 the skins and the Phaser view built in (build.py `game_page`: above, under the flow test); test_page.html is not. (V115's work went onto main the night before it was
 published, at the user's word, as a merge of its branch: the commit under V115's own.) Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
-whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The song and the recorded sounds are published beside the page
+whole document, so the page goes as index.html wrapped as the Artifact tool wraps it, `python3 tools/wrap_page.py <out.html>` (V88). The wrapped page is written under the home folder: `publish_files` does not take a file under /tmp (V119). The song and the recorded sounds are published beside the page
 as the artifact's files: `files: {"music/lepers_ascent.mp3": "music/lepers_ascent.mp3", "sfx/swing_mid.mp3": "sfx/swing_mid.mp3",
 ...}`, every file in sfx/ under its own path (153; one publish takes up to 255 files), and every file in vo/ (since V98). An update
 keeps the files it does not name, so pass them only when they change or when publishing to a new url (V68 sent the song, V69 the
@@ -2453,3 +2489,13 @@ was checked, and anything that did not work, plainly.
 - A light in Phaser multiplies what it falls on: it cannot make a pool on black ground, and a pale thing in a pool goes to white
   (the layers test's lamps, Nov 14). The picture under such lights is painted without its own lamplight, what is lit from within
   is turned away from them, and a lamp's own halo is painted fainter by what the lamp will multiply it (the look's rule 12).
+- What a place's `live()` leaves set on the context is part of the picture: the game calls it bare (`drawFloor`,
+  sk_scene_glue.js) and draws on with the line and fill colours it left. A `save()` and `restore()` put round a part of it for
+  some new purpose changes what follows, with no picture needing to be off for it yet (V119's first cut did this in the field
+  and on the road, for a band's view; only the view is put back now, with `setTransform`). The same for the order of a
+  painter's statements. A painter opened for the layers keeps its flat path statement for statement.
+- lookpage's count of his tattoos (the coat off, in the lab's field) reads differently from one run to the next on the same
+  page: 47 to 117 lit and 6 to 12 dark (the suite's `__now` starts from `performance.now()`, which is the likely cause; not
+  run down), and it passes only while the dark count is under 15% of the lit. V119's full run read 79 and 12 and
+  failed; the same page read 79 and 7 minutes later; V118's page read 49 and 6 in one sitting and 53 and 10 in the next. When
+  it fails alone with counts like these, run lookpage again before looking for a cause in the change.

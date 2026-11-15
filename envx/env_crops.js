@@ -89,8 +89,14 @@ function wheat(P,R,x,base,h){const lean=(R()-.35)*3,ex=x+lean,ey=base-h;P.stalk.
   if(R()<.4){P.awn.moveTo(ex,ey);P.awn.lineTo(ex+Math.cos(a-1.2)*5,ey+Math.sin(a-1.2)*5);}}
 // ---------- the scene ----------
 let TOPS=null;   // the crop's tops along the back, for the wind
-function paint(c){
+// THE LAYERS (since V119: the page that shows the picture in layers, spike/layers/layers.js, asks for it band by band, as it does
+// the yard's). only: 'far' the sky, the moon, the city and its tower; 'mid' the land before the city, the farm and its poles; 'near'
+// the clearing and the crop along its back; 'light' and 'over' nothing. Without only the picture is painted whole, as ever.
+function paint(c,only){
+  if(only==='light'||only==='over')return;
+  const far=!only||only==='far',mid=!only||only==='mid',near=!only||only==='near';
   const X0=-160,X1=W+240,T0=-110,ey=EY(),r=rng(19),cb=g2(0,CROP_D).y;
+  if(far){
   // ---- the sky: cold toward the moon on the left, warm low on the right where the city lights the haze
   c.fillStyle=lin(c,0,T0,0,cb,[[0,'#020309'],[.32,'#060915'],[.6,'#0e1226'],[.82,'#181a2c'],[1,'#221e2c']]);c.fillRect(X0,T0,X1-X0,cb-T0+4);
   glow(c,MOON.x,MOON.y,320,'#7c8ed0',.11);
@@ -108,7 +114,8 @@ function paint(c){
   cityRow(c,330,X1,HOR+2,{seed:19,far:.72,h0:10,h1:46,w0:9,w1:22,lit:.3,hazeH:38,hazeA:.42});
   hallTower(c,TOWER.x,TOWER.base,TOWER.top,TOWER.w,{lit:.95});
   cityRow(c,360,X1,HOR+7,{seed:5,far:.5,h0:5,h1:18,w0:12,w1:28,lit:.36,col:'#0e101c',hazeH:16,hazeA:.35});
-  glow(c,760,HOR+4,330,'#ff9a5a',.13,.3);
+  glow(c,760,HOR+4,330,'#ff9a5a',.13,.3);}
+  if(mid){
   // ---- the land before the city: dark fields in long bands, hedges, a farm road with a light or two on it
   c.fillStyle=lin(c,0,HOR+4,0,cb,[[0,'#0d0f18'],[1,'#0b0c10']]);c.fillRect(X0,HOR+5,X1-X0,cb-HOR);
   {const rh=rng(8);c.strokeStyle=rgba('#05060a',.9);c.lineWidth=1.51;for(let k=0;k<7;k++){const y=HOR+8+k*k*1.6;c.beginPath();c.moveTo(X0,y);for(let x=X0;x<=X1;x+=12)c.lineTo(x,y+Math.sin(x*.02+k)*1.2+rh()*.6);c.stroke();}
@@ -117,6 +124,11 @@ function paint(c){
   // the track beyond the gate, running away over the fields toward the city
   {const gq0=g2(GATE.x0,CROP_D),gq1=g2(GATE.x1,CROP_D),vx=436,vy=HOR+5;c.fillStyle=lin(c,0,vy,0,gq0.y,[[0,rgba('#2a2520',.4)],[1,'#2c261e']]);c.beginPath();c.moveTo(gq0.x+6,gq0.y);c.lineTo(vx-2,vy);c.lineTo(vx+2,vy);c.lineTo(gq1.x-4,gq1.y);c.closePath();c.fill();
     c.strokeStyle=rgba('#c8d4ff',.08);c.lineWidth=.5;c.beginPath();c.moveTo(gq0.x+12,gq0.y);c.lineTo(vx-1,vy);c.moveTo(gq1.x-10,gq1.y);c.lineTo(vx+1,vy);c.stroke();}
+  // (the land alone runs on a little under the crop, which covers it: the band is set down a little smaller in a close view)
+  if(only==='mid'){c.fillStyle='#0b0c10';c.fillRect(X0,cb-1,X1-X0,44);}}
+  if(!near)return;
+  // (the poles leave their round line ends set for what follows)
+  if(only==='near')c.lineCap='round';
   // ---- the clearing: harvested stubble and a dirt farm track, dark and calm
   const fv=[g2(X0,CROP_D+20),g2(X1,CROP_D+20),g2(X1+110,E.NEAR),g2(X0,E.NEAR)],TRK=x=>82+Math.sin(x*.012)*5,
     trackPts=(()=>{const pts=[];for(let x=X0-60;x<=270;x+=10)pts.push([x,TRK(x)]);for(let k=1;k<=12;k++){const t=k/12;pts.push([lerp(270,(GATE.x0+GATE.x1)/2,t)+Math.sin(t*3)*6,lerp(TRK(270),CROP_D+16,t)]);}return pts;})(),
@@ -256,10 +268,14 @@ function truck(c){const {x,d}=TRUCK,b=g2(x,d),gy=b.y,K2=1.6,X=u=>b.x+u*K2,Y=h=>g
 const CHAFF=(()=>{const r=rng(66),a=[];for(let i=0;i<40;i++)a.push({x:-60+r()*1000,d:10+r()*220,h:8+r()*90,ph:r()*TAU,sp:6+r()*14,bob:2+r()*5,tw:1+r()*3});return a;})();
 const FLIES=(()=>{const r=rng(91),a=[];for(let i=0;i<14;i++)a.push({x:-40+r()*980,d:CROP_D-14-r()*30,h:6+r()*26,ph:r()*TAU,sp:.6+r()*1.2,dr:6+r()*12,bl:2+r()*3});return a;})();
 function live(){const t=S.t;ctx.save();
+  // (THE LAYERS: the windmill stands in the land's band, the tower's light in the sky's: where the page has those bands in the
+  // picture at their own views, __lyp.banded, each is drawn under its band's view. Only the view is put back after: the line
+  // and fill colours each leaves set are left set, as before V119, for whatever is drawn next goes by them)
+  const __L=globalThis.__lyp,__b=!!(__L&&__L.banded&&__L.banded()),__back=m=>{if(m)ctx.setTransform(m.a,m.b,m.c,m.d,m.e,m.f);};
   // the windmill's wheel turning slowly in the night wind
-  {const a=t*.9,cx=MILL.x,cy=MILL.y;ctx.strokeStyle='#05060a';ctx.lineWidth=1.51;ctx.beginPath();for(let k=0;k<12;k++){const b=a+k*TAU/12;ctx.moveTo(cx+Math.cos(b)*2,cy+Math.sin(b)*2);ctx.lineTo(cx+Math.cos(b)*MILL.r,cy+Math.sin(b)*MILL.r);}ctx.stroke();
+  {const __m=__b?ctx.getTransform():null;if(__b)__L.mid(ctx);const a=t*.9,cx=MILL.x,cy=MILL.y;ctx.strokeStyle='#05060a';ctx.lineWidth=1.51;ctx.beginPath();for(let k=0;k<12;k++){const b=a+k*TAU/12;ctx.moveTo(cx+Math.cos(b)*2,cy+Math.sin(b)*2);ctx.lineTo(cx+Math.cos(b)*MILL.r,cy+Math.sin(b)*MILL.r);}ctx.stroke();
     ctx.beginPath();ctx.arc(cx,cy,MILL.r,0,TAU);ctx.stroke();ctx.fillStyle='#05060a';ctx.beginPath();ctx.arc(cx,cy,1.6,0,TAU);ctx.fill();
-    ctx.strokeStyle=rgba('#c8d4ff',.16);ctx.lineWidth=.4;ctx.beginPath();ctx.arc(cx,cy,MILL.r,Math.PI*1.05,Math.PI*1.6);ctx.stroke();}
+    ctx.strokeStyle=rgba('#c8d4ff',.16);ctx.lineWidth=.4;ctx.beginPath();ctx.arc(cx,cy,MILL.r,Math.PI*1.05,Math.PI*1.6);ctx.stroke();__back(__m);}
   ctx.globalCompositeOperation='lighter';
   // the wind running over the crop: a sheen travelling along the tops, now and again
   if(TOPS&&TOPS.length){const span=1400,cxw=-200+((t*55)%span),half=90;for(const q of TOPS){const k=1-Math.abs(q.x-cxw)/half;if(k<=0)continue;const a=k*k*.28;ctx.fillStyle=rgba('#dfe6ff',a);ctx.fillRect(q.x-2,q.y-1+Math.sin(t*3+q.x*.1)*1.2*k,4,1.1);}}
@@ -269,12 +285,13 @@ function live(){const t=S.t;ctx.save();
   for(const f of FLIES){const x=f.x+Math.sin(t*f.sp*.4+f.ph)*f.dr,d=f.d+Math.cos(t*f.sp*.3+f.ph*1.7)*f.dr*.4,q=pp(x,GB,d),y=q.y-f.h-Math.sin(t*f.sp+f.ph)*3,b=Math.pow(Math.max(0,Math.sin(t*f.bl+f.ph)),3);
     if(b<.02)continue;glow(ctx,q.x,y,7,'#c8ff7a',.5*b);ctx.fillStyle=rgba('#f0ffd0',.9*b);ctx.fillRect(q.x-.5,y-.5,1,1);}
   // the red light on the tower's needle
-  {const h=TOWER.base-TOWER.top,x=TOWER.x,y=TOWER.top-h*.2,on=Math.pow(Math.max(0,Math.sin(t*2.4)),8);if(on>.02){glow(ctx,x,y,9,'#ff3a2a',.8*on);ctx.fillStyle=rgba('#ffd0c0',on);ctx.fillRect(x-.6,y-.6,1.2,1.2);}}
+  {const h=TOWER.base-TOWER.top,x=TOWER.x,y=TOWER.top-h*.2,on=Math.pow(Math.max(0,Math.sin(t*2.4)),8);
+    if(on>.02){const __m=__b?ctx.getTransform():null;if(__b)__L.farOn(ctx);glow(ctx,x,y,9,'#ff3a2a',.8*on);ctx.fillStyle=rgba('#ffd0c0',on);ctx.fillRect(x-.6,y-.6,1.2,1.2);__back(__m);}}
   ctx.restore();}
 // the light that rims a fighter: the moon over the left of the sky
 function light(f){return{light:{x:MOON.x-f.dep*PSX,y:MOON.y+f.dep*PSY},col:'#c8d6ff'};}
 // the light on the fight (the style guide's rule 8, sceneSet in sk_scene_glue.js): the moon on the field and the crop behind the fight
 const SET={col:'#d6e0ff',soft:1,gain:1.15,y:[GB-340,GB-260,GB-60,GB+20]};
-E.S.crops={set:SET,paint,live,light,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false};
+E.S.crops={bands:1,HOR,cropY:()=>g2(0,CROP_D).y,set:SET,paint,live,light,div:it=>it.dv.mat==='plank'&&typeof EnvProps!=='undefined'?EnvProps.plankFence(it,'rustic'):false,table:()=>typeof EnvProps!=='undefined'?EnvProps.fieldTable('rustic'):false};
 })();
 // ===== ENV CROPS END =====

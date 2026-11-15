@@ -98,8 +98,19 @@ function post(c,x,d,h,lean,R){const q=g2(x,d),w=3+R()*1.2;POSTS.push({x0:Math.mi
   return{x:q.x+lean,y:q.y-h};}
 function patAt(c,cv,u){const p=c.createPattern(cv,'repeat');if(p.setTransform)p.setTransform(new DOMMatrix().scale(u));return p;}
 
-function paint(c){
+// THE LAYERS (since V119: the page that shows the picture in layers, spike/layers/layers.js, asks for it band by band, as it does
+// the yard's). only: 'far' the sky, the hills, the Sprawl and its tower; 'mid' the valley; 'near' the rise itself and what stands on
+// it; 'light' and 'over' nothing (this place lays no light over its whole picture). Without only the picture is painted whole, as
+// ever. A band slides slower than the rise as the camera goes along it (BK: how much of the camera's going each follows), so it is
+// painted drawn in by as much toward the sun's place (x0): what the camera is meant to find at the end of its ride, the tower, is
+// then still in the middle of its view there. The sun's own light and the tower keep their widths.
+const BK={x0:SUN.x,far:.75,mid:.9};
+const sq=(c,k)=>{if(k!==1){c.translate(BK.x0*(1-k),0);c.scale(k,1);}};
+function paint(c,only){
+  if(only==='light'||only==='over')return;
+  const flat=!!(globalThis.__lyp||0).flatBands,far=!only||only==='far',mid=!only||only==='mid',near=!only||only==='near',kF=only==='far'&&!flat?BK.far:1,kM=only==='mid'&&!flat?BK.mid:1;
   const X0=-160,X1=W+250,T0=-100,ey=EY(),r=rng(29);
+  if(far){if(kF!==1){c.save();sq(c,kF);}
   // ---- the sky: violet over the top, rose, then the gold low down where the sun goes
   c.fillStyle=lin(c,0,T0,0,HOR+6,[[0,'#100b20'],[.24,'#1e1434'],[.42,'#3a1e44'],[.58,'#6e2a48'],[.7,'#a6403e'],[.8,'#d2683a'],[.89,'#ec9444'],[.96,'#f6b858'],[1,'#f8c870']]);
   c.fillRect(X0,T0,X1-X0,HOR+8-T0);
@@ -110,11 +121,13 @@ function paint(c){
   // a few first stars, high in the east
   stars(c,480,X1,T0,90,16,7,.32);stars(c,X0,X1,T0,10,14,11,.24);
   // the sun's light in the sky: a wide warm bloom round where it goes down, gold close in
+  if(kF!==1){c.save();sq(c,1/kF);}
   glow(c,SUN.x,SUN.y0+12,620,'#ff8a40',.3,.55);glow(c,SUN.x,SUN.y0+8,240,'#ffc070',.38,.8);glow(c,SUN.x,SUN.y0+6,90,'#fff0c0',.3);
   // shafts of the sun's light fanning up through the haze
   // (each the shared soft piece: feathered along its sides, fading as it goes)
   {const R=rng(52),ox=SUN.x,oy=SUN.y0+6,L=430;
     for(let i=0;i<9;i++){const a=-Math.PI/2+(i-4)*.3+(R()-.5)*.12,w=.016+R()*.022;E.softCone(c,ox,oy,2,2*L*Math.tan(w)*1.15,L,'#ffd890',.072,a-Math.PI/2,1.7);}}
+  if(kF!==1)c.restore();
   // clouds: long thin streaks, gold underneath near the sun, violet away from it
   for(const [cx,cy,w,h] of [[60,214,210,7],[300,186,260,6],[520,150,300,8],[-60,150,240,7],[760,212,240,5],[420,252,200,4],[180,120,280,9],[880,96,320,8],[40,268,150,3.5]]){
     const near=clamp(1-Math.hypot(cx-SUN.x,(cy-SUN.y0)*1.6)/520,0,1);streak(c,cx,cy,w,h,near);}
@@ -135,9 +148,11 @@ function paint(c){
   // ---- the Sprawl on the right horizon
   cityRow(c,470,X1,HOR+1,{seed:12,far:.9,h0:10,h1:46,w0:6,w1:14,lit:.1,hazeH:30,hazeA:.45});
   cityRow(c,500,X1,HOR+2,{seed:19,far:.7,h0:8,h1:30,w0:7,w1:16,lit:.16,hazeH:20,hazeA:.35});
-  tower(c);
+  if(kF!==1){c.save();c.translate(TOWER.x,0);c.scale(1/kF,1);c.translate(-TOWER.x,0);tower(c);c.restore();}else tower(c);
   cityRow(c,540,X1,HOR+3,{seed:5,far:.45,h0:4,h1:12,w0:9,w1:20,lit:.2,hazeH:10,hazeA:.3});
   glow(c,820,HOR,300,'#ffb070',.08,.25);
+  if(kF!==1)c.restore();}
+  if(mid){if(only==='mid'){c.save();sq(c,kM);}
   // ---- the valley below the rise: farms in long bands toward the horizon, hedgerows, a farm with a light on, the power line to the city
   {const yA=HOR+2,yB=ey+6;c.fillStyle=lin(c,0,yA,0,yB,[[0,'#6a3e34'],[.35,'#4a2e22'],[1,'#2a1a12']]);c.fillRect(X0,yA,X1-X0,yB-yA);
     const rb=rng(8);for(let k=0;k<9;k++){const t0=Math.pow(k/9,1.5),t1=Math.pow((k+1)/9,1.5),y0=lerp(yA,yB,t0),y1=lerp(yA,yB,t1);
@@ -159,6 +174,11 @@ function paint(c){
       c.strokeStyle=rgba('#1a100c',.7);c.lineWidth=.45;for(let i=0;i<P.length-1;i++){const A=P[i],B=P[i+1];for(const k of [-6,0,6]){const ax=A.x+k*A.s,ay=A.b-A.h+3*A.s,bx=B.x+k*B.s,by=B.b-B.h+3*B.s;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo((ax+bx)/2,(ay+by)/2+2.6*A.s+.6,bx,by);c.stroke();}}
       // and back off the near pole, to the left out over the rise
       for(const k of [-6,0,6]){const A=P[0],ax=A.x+k*A.s,ay=A.b-A.h+3*A.s;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo(ax-90,ay+8,ax-200,ay-4);c.stroke();}}}
+  // (the valley alone runs on a little under the brow, which covers it: the band is set down a little smaller in a close view)
+  if(only==='mid'){c.fillStyle='#2a1a12';c.fillRect(X0,ey+5,X1-X0,60);c.restore();}}
+  if(!near)return;
+  // (the valley's power line leaves its round line ends set for what follows)
+  if(only==='near')c.lineCap='round';
   // ---- the ground: the top of the rise, dry grass gone gold and brown, the road along it
   const fv=[g2(X0,-190),g2(X1,-190),g2(X1,FAR),g2(X0,FAR)];
   c.save();poly(c,fv);c.clip();c.save();c.transform(1,0,PSX,-PSY,0,GB);
@@ -201,10 +221,16 @@ function paint(c){
 // ---------- what moves: the sun going down, a cloud across it, birds, the grass in the wind, the tower's light ----------
 const BIRDS=(()=>{const r=rng(91),a=[];for(let i=0;i<6;i++)a.push({x:520+r()*120+i*14,y:190+r()*30,ph:r()*TAU,sp:16+r()*6,s:.8+r()*.4});return a;})();
 function live(){const t=S.t,sn=sunNow();ctx.save();
+  // (THE LAYERS: where the page has the sky's band and the valley's in the picture at their own views, __lyp.banded, what moves in
+  // the sky is drawn under the sky's view, and the tail light under the valley's; kf, km: how far the two bands are drawn in, bx:
+  // where a thing of the sky then stands)
+  const __L=globalThis.__lyp,__b=!!(__L&&__L.banded&&__L.banded()),__fl=!!(__L&&__L.flatBands),kf=__b&&!__fl?BK.far:1,km=__b&&!__fl?BK.mid:1,bx=x=>BK.x0+kf*(x-BK.x0);
   // the light going as the sun goes: the whole picture a little dimmer, a little more violet, toward the end
   if(sn.u>0){ctx.fillStyle=rgba('#140a22',.24*sn.u*sn.u);ctx.fillRect(-300,-500,W+700,1300);}
+  // (only the view is put back at the end: what the drawing leaves set on the context is left set, as before V119)
+  const __m=__b?ctx.getTransform():null;if(__b)__L.farOn(ctx);
   // the sun, behind the hills as it sinks: its disc reddens and flattens as it goes down into the haze, its glow shrinking
-  ctx.save();ctx.beginPath();ctx.moveTo(sn.x-70,sn.y-80);ctx.lineTo(sn.x+70,sn.y-80);for(let x=sn.x+70;x>=sn.x-70;x-=3)ctx.lineTo(x,skyFoot(x));ctx.closePath();ctx.clip();
+  ctx.save();ctx.beginPath();ctx.moveTo(sn.x-70,sn.y-80);ctx.lineTo(sn.x+70,sn.y-80);for(let x=sn.x+70;x>=sn.x-70;x-=3)ctx.lineTo(x,skyFoot(BK.x0+(x-BK.x0)/kf));ctx.closePath();ctx.clip();
   glow(ctx,sn.x,sn.y,SUN.r*3.4,'#ffd890',.55*(1-.45*sn.u));
   const core=mix('#fff6dc','#ffd8a0',sn.u),edge=mix('#ffb050','#ff7a38',sn.u);ctx.translate(sn.x,sn.y);ctx.scale(1,.94-.04*sn.u);
   ctx.fillStyle=rad(ctx,0,0,0,SUN.r,[[0,core],[.7,mix(core,edge,.5)],[1,edge]]);ctx.beginPath();ctx.arc(0,0,SUN.r,0,TAU);ctx.fill();ctx.restore();
@@ -222,14 +248,19 @@ function live(){const t=S.t,sn=sunNow();ctx.save();
   ctx.strokeStyle='#1a1018';ctx.lineWidth=1.51;ctx.lineCap='round';
   for(const b of BIRDS){const x=b.x-t*b.sp,y=b.y+Math.sin(t*.5+b.ph)*2,f=Math.sin(t*7+b.ph)*1.6*b.s,w=3.2*b.s;if(x<-200)continue;ctx.beginPath();ctx.moveTo(x-w,y-f);ctx.quadraticCurveTo(x-w*.4,y-1.2,x,y);ctx.quadraticCurveTo(x+w*.4,y-1.2,x+w,y-f);ctx.stroke();}
   // at the end, far off, his tail light crossing the valley toward the city (S.story.far, the scene's), his lamp's glow on the road ahead
-  {const F0=S.story&&S.story.far,D=typeof SUNDOWN!=='undefined'?SUNDOWN.far.dur:3.4;if(F0){const u=clamp((t-F0.t0)/D,0,1),e=1-Math.pow(1-u,1.6),x=lerp(935,772,e),y=lerp(357.5,336.5,e),
+  // (in layers the tower's light first, with the rest of the sky; then the tail light, where the valley's band stands this
+  // frame: __lyp.midAt)
+  const tailLight=()=>{const F0=S.story&&S.story.far,D=typeof SUNDOWN!=='undefined'?SUNDOWN.far.dur:3.4;if(F0){const u=clamp((t-F0.t0)/D,0,1),e=1-Math.pow(1-u,1.6),x0=lerp(935,772,e),y0=lerp(357.5,336.5,e),
+      q=__b&&__L.midAt?__L.midAt(BK.x0+km*(x0-BK.x0),y0):null,x=q?q[0]:x0,y=q?q[1]:y0,
       a=clamp(u/.12,0,1)*clamp((1-u)/.25,0,1)*(POSTS.some(P=>x>P.x0&&x<P.x1&&y>P.y0&&y<P.y1)?0:1),k=1-.45*e;
-    glow(ctx,x-7*k,y-1,10*k,'#fff0c8',.22*a);glow(ctx,x,y,6*k,'#ff3a2a',.6*a);ctx.fillStyle=rgba('#ff7058',.95*a);ctx.fillRect(x-.7*k,y-.6*k,1.4*k,1.2*k);}}
+    glow(ctx,x-7*k,y-1,10*k,'#fff0c8',.22*a);glow(ctx,x,y,6*k,'#ff3a2a',.6*a);ctx.fillStyle=rgba('#ff7058',.95*a);ctx.fillRect(x-.7*k,y-.6*k,1.4*k,1.2*k);}};
+  if(!__b)tailLight();
   // the red light on the tower's needle
-  {const h=TOWER.base-TOWER.top,y=TOWER.top-h*.2,on=Math.pow(Math.max(0,Math.sin(t*2.4)),8);if(on>.02){glow(ctx,TOWER.x,y,7,'#ff3a2a',.8*on);ctx.fillStyle=rgba('#ffd0c0',on);ctx.fillRect(TOWER.x-.6,y-.6,1.2,1.2);}}
+  {const h=TOWER.base-TOWER.top,y=TOWER.top-h*.2,on=Math.pow(Math.max(0,Math.sin(t*2.4)),8),tx=bx(TOWER.x);if(on>.02){glow(ctx,tx,y,7,'#ff3a2a',.8*on);ctx.fillStyle=rgba('#ffd0c0',on);ctx.fillRect(tx-.6,y-.6,1.2,1.2);}
+    if(__b){ctx.setTransform(__m.a,__m.b,__m.c,__m.d,__m.e,__m.f);tailLight();if(on>.02)ctx.fillStyle=rgba('#ffd0c0',on);}}
   ctx.restore();}
 // the light that rims him and the bike: the sun, low behind on the left
 function light(f){return{light:{x:SUN.x-f.dep*PSX,y:SUN.y0+8+f.dep*PSY},col:'#ffb070'};}
-E.S.outskirts={paint,live,light,sun:sunNow,road:roadD,SUN,HOR};
+E.S.outskirts={paint,live,light,sun:sunNow,road:roadD,SUN,HOR,bands:1,bandK:BK,brow:EY};
 })();
 // ===== ENV OUTSKIRTS END =====
