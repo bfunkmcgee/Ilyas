@@ -89,7 +89,9 @@ of the page by 21 patches of its text; they are in the sources now (envx/env_yar
 without the page's `globalThis.__lyp` every line paints as it did. Since the yard's painter lays some things
 over its own light (the things along the walls a second time, what grows: the V118 work on the yard), the band the yard itself
 is on gets them in that order too: the light, those, then the place's key light. The page carries the motion test as
-well (spike/motion: the drawn pose and its panel), and opens on its walk across the yard. It is published as a private test page
+well (spike/motion: the drawn pose and its panel), and opens on its walk across the yard. Both test pages hold the game's
+step-down for a slow device (`LOOK2.hold`, set by the motion panel): a test page shows what its switches say, and a slow
+frame is read off the panel. It is published as a private test page
 of its own, "Ilyas: layers test" (artifact 4d618786-0672-492b-89f5-519c9ad07370: index.html and the sounds the test's scenes
 play), beside the game's page and the motion test's, which it does not touch.
 

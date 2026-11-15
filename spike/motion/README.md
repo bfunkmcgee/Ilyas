@@ -16,7 +16,8 @@ python3 spike/motion/build_motion.py
 
 That writes `spike/motion/out/motion-test.html` (and `out/index.html`, wrapped for publishing). The page opens on the test's own
 scene. Two buttons sit at the right edge: `New` / `Old` changes the drawing, `Test` opens the rest (how a blow is drawn, the
-two bodies as lines, the scene). `?scene=none` opens the page on the game's title instead.
+two bodies as lines, the scene). `?scene=none` opens the page on the game's title instead. The page holds the game's step-down
+of the layers for a slow device (`LOOK2.hold`, spike/layers/options.js): here nothing is switched off behind the panel.
 
 | Scene | What it is |
 |---|---|

@@ -6,6 +6,9 @@ const MO=window.MotionTest;
 // The test keeps no night: its scenes are started the way a chapter is picked, and a page that kept the place would leave the title's
 // Continue pointing into a test (sk_saveui.js). Nothing is written.
 if(typeof saveWrite==='function')saveWrite=function(){return false;};
+// A test page shows what its switches say: the game's easing of the layers on a slow device (spike/layers/options.js) is held
+// here, so a slow frame is read off the panel and nothing is switched off behind it.
+if(window.LOOK2)window.LOOK2.hold=true;
 // ---------- the walk ----------
 // Ilyas in the Sump's yard, in front of the pump, going through what the test is about: a walk across and back, a jog across and
 // back, squaring up and standing easy again, round and round, while Tamm crosses the yard behind him the other way. Nothing here is
