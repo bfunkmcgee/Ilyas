@@ -1801,6 +1801,74 @@ the page loads. Its fields:
   each (where it parts, the halves apart, each holding together, at rest on the floor); the gore off. With an outdir it
   leaves a still of each. Until it, nothing checked a goblin's toss or cut but the command list in `rules`.
 
+**The blood as it is drawn (since V120; sk_goreui.js).** Asked for: "a pass improving the visual effects of the blood and gore, as
+part of that make sure when someone is killed with a thrust the blade visibly goes inside / through them". The game's side is
+untouched (sk_brawl.js `bleed`, `stain`, `addMark`; sk_fin.js the finishers, `impaleOn`, `makeStuck`, `sever`): the file reads
+`S.blood`, `S.stains`, `D.impaled`, an item's `stuck`, `f.marks` and `f.severed` and writes none of them. It takes over the drawings
+by name (`drawBlood`, `drawStains`, `drawWeapon`, `drawItem`, `drawMarks`, `drawStump`, and `FXL.fx` for the drops), and where
+`GoreLook.ok()` is false the old drawing is back whole: no document, the classic look, or inside `GoreLook.plain(fn)`, which the
+checks use to set the two side by side.
+- What was wrong, as filmed at V119 (the tools: this section's last bullet). A fighter's weapon is drawn with him, and he is drawn
+  nearer than the man he strikes, so a blade through a body was drawn over the body: in front of it, not in it. The drops were flat
+  discs under the blow's flash, which hid the wound for the slow frames of a kill. A stain was a plain ellipse, a cut one bright
+  line, the neck a bright disc. And under the painted cast a head cut off was not drawn at all: a beheading had no head in it.
+- A blade in a body. `victimOf(f)`: whose `impaled.A` he is, once `impaleSolve` has set its `u0`; kept after the game frees the body
+  for as long as the blade still crosses the trunk (`INB`: the body is freed while the blade is still on its way out, and the
+  blade popped in front of it). `trunk(D)`: a capsule from the hips to a little past the chest, `KR` .6 of `torsoW` each side, in
+  the drawer's own frame. `inBody`: the stretch of the weapon inside it. The weapon is drawn apart on a scratch canvas (`apart`:
+  the same transform, the context's state carried in and back out), the capsule is cut out of it (`destination-out`), the stretch
+  past the body is coated (`coat`, `source-atop`: on the weapon's own pixels only) and the result is set down where the weapon
+  would have been. A weapon left in a body (`item`, the game's `stuck`) the same in the picture's frame. With the blood off the
+  blade is still cut out and nothing is coated. How much of the point shows goes by how he hangs: the game holds him at .62 of the
+  blade, and a body folded along a sword can keep its point in it; a spear's always comes out.
+- The wounds (`wound`, `wounds`): where the blade went in and where it came out, kept on the body in the trunk's frame (`WND`, eight
+  at most) and moved with the blade while he is on it (made at the first frame they sat off the blade: the body had not settled).
+  Drawn with the marks: a slit, three runs down him, and in his own sprite a soak laid on him alone (`soaks`, `source-atop`: a
+  cloud with no edge; with an edge it read as a badge). sk_lightui.js marks a fighter's sprite `ownFigure` for this; drawn
+  straight into a picture the wound is the slit and one run.
+- A wet blade (`WET`: nine seconds from an edged blow that landed, heard on the `rip` hook and passed on as it came): patches on
+  the steel with steel between them, drops flung off the point while the swing goes on, then drips from the point (`drip`,
+  `dripsNow`: the drawing's own, 56 at most, each leaving a small stain, `DSTAIN`; none where the arena scrolls).
+- The drops: a bead with a tail along the path it has flown (the tail .011 to .031 s long and 8.5 at most: longer made needles),
+  three tones, a haze for a burst's first tenth of a second, a wet light on the big ones. They are drawn after `FXL.fx`, over the
+  flash.
+- The stains (`blots`): six thrown blots and three pools, painted once for each setting from a seeded die of their own. A new one
+  spreads to its size in a quarter second and throws up three beads (`BORN`). A pool (`grow`) is drawn half as wide again as the
+  game's measure of it (at that measure the body lying on it hid it) with a wet light on it.
+- The marks: a cut is a dark line with a wet thread in it and a run from its lower end, a bruise a dark bloom; the tears the looks
+  draw are left to them. The stump (`drawStump`, new in sk_ui.js: the three places that drew the neck's disc call it): the cut seen
+  from the side, the collar soaked under it, the head's own cut, drops behind the head while it flies. sk_castui.js draws a severed
+  head where it has flown, as Kael's look always did.
+- Kept: what each old drawing left set on the context (`GoreLook.left`: the new ones draw inside save and restore and then set the
+  same things under the same conditions; see the pitfalls). No die is rolled: what varies comes from a drop's size, a stain's
+  turn, a count by the game's clock. `S.gore` 'off' draws no blood, 'ink' has its own colours (`PAL`).
+- Suite: `gorepage` (sk_gore_page.js, about 30 s): each drawing on a clear sheet of the world's size, beside the old one. A
+  spear's thrust that kills (nothing of the blade drawn inside him where the old drawing drew it, the point out his back and red,
+  the blade cut out with the blood off too, the two wounds kept, the blade wet when pulled out and dry ten seconds on); the stains,
+  the drops and a body's marks red, violet in ink and absent with the blood off, each leaving the context as the old one did; a
+  sword left in him; the stump and the drops behind the head.
+- Filming a kill (kept in uiwork/gore/): `node uiwork/gore/kill.js <outdir> <scenario> <secs> <every> [run=js]` sets a lab fight in
+  the street, forces the blow (thrust, spear, dagger, behead, cutdown, cleave, throat, cut, foethrust) and writes a frame every
+  `every` sim frames (`DSF`, `CLIP`, `PAGE` in the environment; `PAGE` a kept build for the "before"); `sheet.py` lays frames out.
+  Keep `N` at 1 (two foes stop at an opening's prompt) and the frames few at `DSF` 2 (a second and a half each).
+- What it costs (`node uiwork/gore/cost.js`, alone: each drawing beside the old one on a sheet at three times the world's scale,
+  this machine's software canvas, ms a frame): a weapon in a body .77 for .46; a wet weapon 1.03 for .60 (it is drawn apart for
+  the nine seconds; a spear, the longest); 28 drops .36 for .08 and a burst of 120 .91 for .40; the marks with two wounds .03; a
+  floor at the game's cap of 360 stains 3.4 for 1.5 (each blot is kept mirrored and at three eighths the size, so no stain needs
+  a transform or a big picture drawn small; a blot still covers about five times the pixels the ellipse did). The perf suite
+  times none of this, and no phone's frame time has been read.
+- The widths are the drawing guide's: a cut is a 3.1 line with a 1.9 thread and a 1.9 run (a line on a fighter lands on a phone at
+  about .83 of its width, and the first look review failed three of this file's strokes at .68 to .88 units). The light on a
+  pool's far edge is a filled sliver, not a stroke: a pool is drawn at many sizes.
+  Checked at its publishing (Nov 15): the look review clean on its second run (19.5 min; the first failed on those three strokes
+  and nothing else); `test.py full` with the twenty page suites run here, all passing (20.4 min; 13 passes standing), and
+  then the timing checks, on which that run ended failed: the arc-blade's check at game size read .205 for a limit of .2, and
+  .131 when the timing checks were run again alone a minute later, which passed (Publishing has this check's two readings); GitHub's own run of the candidate passed 32 of 33, lookpage failing there on
+  the fall as at V118 and V119, the new gorepage passing in its Chromium; `--status` clean; the page as published filmed through
+  a thrust kill with no error. Filmed and read frame by frame on the way: the thrust with sword, spear and dagger, a sword left
+  in the body, the beheading, the cut-down, the cleave, the throat cut, an ordinary cut, Kael run through, ink, the blood off, the
+  plain page without the Phaser view. Not looked at: wide screens, a goblin on a blade, the story's own kills, a phone.
+
 ## Rules
 1. **The drawing never changes the game.** render() and everything it calls may not change anything the game or the page reads. Work
    that must happen every frame goes in `V11UI.tick`. Game-time code in UI files (hooks the game calls, like the suit-tear hook
@@ -2177,7 +2245,7 @@ picture (roof_t16_w) differed from the published one though the rebuild had left
 file names (the page makes the rest from each frame's id), so the frames are what to count: every frame has three pictures
 (`<frame>.jpg`, `_s.jpg`, `_w.jpg`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V120 ..." (V119 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
+short label "V121 ..." (V120 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
 the skins and the Phaser view built in (build.py `game_page`: above, under the flow test); test_page.html is not. (V115's work went onto main the night before it was
 published, at the user's word, as a merge of its branch: the commit under V115's own.) Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a
@@ -2499,3 +2567,11 @@ was checked, and anything that did not work, plainly.
   run down), and it passes only while the dark count is under 15% of the lit. V119's full run read 79 and 12 and
   failed; the same page read 79 and 7 minutes later; V118's page read 49 and 6 in one sitting and 53 and 10 in the next. When
   it fails alone with counts like these, run lookpage again before looking for a cause in the change.
+- sk_dom.js's stub page has a `document` and its canvas a context, and that context answers `undefined` to everything it is asked.
+  A drawing that reads its context (`getTransform()`, `getImageData()`) or works on a canvas of its own asks once whether the canvas
+  is real and leaves the old drawing in place where it is not (`real()`, sk_goreui.js): V120's first run of the dom suite ended
+  with 37,704 errors, every one `getTransform()` of a stub, and the quick run does not include that suite.
+- What a kill looks like is not what its name says: film it before changing its blood (uiwork/gore/kill.js). V120's films found a
+  beheading with no head in it (the cast's look skipped a severed head; Kael's drew it) and a blade through a body drawn in front
+  of the body. Keep the films of the last version under a name of their own: a second round of filming under the same name
+  wrote over V119's.

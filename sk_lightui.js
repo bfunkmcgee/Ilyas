@@ -129,7 +129,7 @@ function gather(){
 // ---------- the fighters' sprites ----------
 const POOL=[],REC=new Map(),ORDER=[];
 function slot(i,w,h){let P0=POOL[i];const W2=Math.ceil(w/64)*64,H2=Math.ceil(h/64)*64;
-  if(!P0){const c=mk(W2,H2);P0=POOL[i]={cv:c,g:c.getContext('2d')};}
+  if(!P0){const c=mk(W2,H2);c.ownFigure=true;P0=POOL[i]={cv:c,g:c.getContext('2d')};}   // (ownFigure: one fighter alone is drawn on it; the wounds are laid on him by it, sk_goreui.js)
   else if(P0.cv.width<w||P0.cv.height<h){P0.cv.width=Math.max(W2,P0.cv.width);P0.cv.height=Math.max(H2,P0.cv.height);P0.g=P0.cv.getContext('2d');}
   return P0;}
 // struck: the blow's flash lights the man for a moment from where it landed (by the game's clock, and never longer than a quarter of

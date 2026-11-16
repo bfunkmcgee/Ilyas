@@ -337,6 +337,8 @@ function drawBlood(){
     if(sp>140){ctx.lineWidth=b.r*1.3;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(q.x-b.vx*.012,q.y-b.vy*.012);ctx.stroke();}else circ(q,b.r*.9);}
   ctx.globalAlpha=1;
 }
+// where a head has come off (asked for by every way a fighter is drawn, with the blood on)
+function drawStump(f){ctx.fillStyle=GORE_COL[S.gore].mark;circ(f.p[CHE],f.body.torsoW*.34);}
 // cuts and bruises stay on the silhouette for the rest of the fight
 function drawMarks(f){
   if(S.gore==='off'||!f.marks.length)return;const c=GORE_COL[S.gore];ctx.strokeStyle=c.mark;ctx.fillStyle=c.mark;ctx.lineCap='round';
@@ -360,7 +362,7 @@ function drawFighter(f){
   if(f.sidearm)drawSheath(f);
   if(f.scab&&!f.dead)drawScabbard(f);
   if(!f.severed)seg(p[CHE],p[HEAD],b.limbW*.85,SIL);
-  else if(S.gore!=='off'){ctx.fillStyle=GORE_COL[S.gore].mark;circ(p[CHE],b.torsoW*.34);}
+  else if(S.gore!=='off')drawStump(f);
   ctx.fillStyle=SIL;circ(p[HEAD],b.headR);
   const op=S.opening&&S.opening.f===f;
   ctx.globalAlpha=f.dead?.28:1;ctx.fillStyle=op?'#ffc163':col;circ(tacEye(f),(op?2.4:1.7)*b.h);ctx.globalAlpha=1;

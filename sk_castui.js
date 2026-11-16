@@ -468,7 +468,8 @@ function draw(c,F,spec,o={}){FigKit.useKey(o);
     if(SN&&SN.torso(c,'torso1',P0,u0,n0))lightOver(c,torsoBs(),base.mat,env,SN.pa);else torsoA();
     if(spec.trail&&spec.trail.kind==='braid'&&F.scarf&&F.scarf.length>2&&!F.severed)across(0,()=>trail(c,F,spec,env,now,sz));
     if(!(SN&&SN.torso(c,'torso2',P0,u0,n0)))torsoB();};
-  const head=()=>{if(!F.severed){env.snH=SN?SN.head:null;drawHead(c,F,spec,env,lod,o,sz,TN?{h:p[HEAD],C0:p[CHE],fa,hy:o.headYaw??FigKit.headYaw(yaw)}:null);env.snH=null;}};
+  // (a head cut off is drawn where it has flown, as Kael's is: until V120 it was not drawn at all, and a beheading had no head in it)
+  const head=()=>{env.snH=SN?SN.head:null;drawHead(c,F,spec,env,lod,o,sz,TN?{h:p[HEAD],C0:p[CHE],fa,hy:o.headYaw??FigKit.headYaw(yaw)}:null);env.snH=null;};
   // (a bake, for the skin: where the parts lie on this figure, and the one part painted alone)
   if(BK){const AFg=armParts(p[ELF],p[HAF],SH[0]),ABg=armParts(p[ELB],p[HAB],SH[1]);
     if(SKIN.geo)SKIN.geo({armN:[AFg.S,AFg.E,AFg.Wr],armF:[ABg.S,ABg.E,ABg.Wr],legN:[HIP[0],p[KNF],p[FTF]],legF:[HIP[1],p[KNB],p[FTB]],P0,u0,n0,T,sz});
@@ -919,6 +920,6 @@ function drawCast(f){
   const L=kaelLight(f),sp=castSpec(f);
   CastLook.draw(ctx,f,sp,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,yaw:f._yaw||0,headYaw:f._headYaw,latArm:f._latArm,latElbow:f._latElbow,latKnee:f._latKnee,latFoot:f._latFoot,apart:f._apart,spin:f._spinU,opening:!!(S.opening&&S.opening.f===f),lookBack:!!(f.look&&typeof tacLook==='function'&&tacLook(f)<-.4),
     drawOther:drawWeapon,afterFarArm:f.sidearm==='offhand'?drawOffDagger:null,afterTorso:f.sidearm==='sheathed'?drawSheath:f.scab&&!f.dead?drawScabbard:null});
-  if(f.severed&&S.gore!=='off'){ctx.fillStyle=GORE_COL[S.gore].mark;circ(f.p[CHE],f.body.torsoW*.34);}
+  if(f.severed&&S.gore!=='off')drawStump(f);
   drawMarks(f);}
 // ===== CAST UI END =====
