@@ -1835,10 +1835,19 @@ checks use to set the two side by side.
 - The stains (`blots`): six thrown blots and three pools, painted once for each setting from a seeded die of their own. A new one
   spreads to its size in a quarter second and throws up three beads (`BORN`). A pool (`grow`) is drawn half as wide again as the
   game's measure of it (at that measure the body lying on it hid it) with a wet light on it.
-- The marks: a cut is a dark line with a wet thread in it and a run from its lower end, a bruise a dark bloom; the tears the looks
-  draw are left to them. The stump (`drawStump`, new in sk_ui.js: the three places that drew the neck's disc call it): the cut seen
-  from the side, the collar soaked under it, the head's own cut, drops behind the head while it flies. sk_castui.js draws a severed
-  head where it has flown, as Kael's look always did.
+- The marks: a cut is a dark line with the blood's red down its middle and a run from its lower end, a bruise a dark bloom. The
+  stump (`drawStump`, new in sk_ui.js: the three places that drew the neck's disc call it): the cut seen from the side, the collar
+  soaked under it, the head's own cut, drops behind the head while it flies. sk_castui.js draws a severed head where it has flown,
+  as Kael's look always did.
+- One red for a wound (V121, `PAL.cut`: red's is the spatter colour, ink's a step lighter than its spatter, which is lost on a dark
+  coat). Kael alone has tears in his clothes (sk_lookui.js `ripShape`: a hole showing the lining, the wound a lens inside it, the
+  torn edge in the rim light; a cut on him is moved into the tear, `m.rip`), and everyone else's cuts are the marks above. The
+  looks ask `woundInk()` (sk_ui.js) for the colour of the wound in a tear and at a torn limb's end, and this file answers with
+  `PAL.cut`. Until V121 that was the game's mark colour, #d22a43, brighter than any blood drawn here, and V120's cut had a 1.9
+  thread of the light tone down it: on a dark coat it read as a pink bar (195,61,83 on screen; 155,25,46 now). V120's report
+  called both "the tears that cuts leave in clothes" and said they had been left alone: the bar on a foe was V120's own mark.
+  A cut on a foe and on Kael can be filmed close with the scenarios `cut` and
+  `'{"hero":"sword","foe":"sword","kind":"slash","rev":1,"hp":99}'` (uiwork/gore/kill.js takes a scenario as JSON).
 - Kept: what each old drawing left set on the context (`GoreLook.left`: the new ones draw inside save and restore and then set the
   same things under the same conditions; see the pitfalls). No die is rolled: what varies comes from a drop's size, a stain's
   turn, a count by the game's clock. `S.gore` 'off' draws no blood, 'ink' has its own colours (`PAL`).
@@ -1846,7 +1855,8 @@ checks use to set the two side by side.
   spear's thrust that kills (nothing of the blade drawn inside him where the old drawing drew it, the point out his back and red,
   the blade cut out with the blood off too, the two wounds kept, the blade wet when pulled out and dry ten seconds on); the stains,
   the drops and a body's marks red, violet in ink and absent with the blood off, each leaving the context as the old one did; a
-  sword left in him; the stump and the drops behind the head.
+  cut no brighter than the blood that flies, and `woundInk()` that red; a sword left in him; the stump and the drops behind the
+  head.
 - Filming a kill (kept in uiwork/gore/): `node uiwork/gore/kill.js <outdir> <scenario> <secs> <every> [run=js]` sets a lab fight in
   the street, forces the blow (thrust, spear, dagger, behead, cutdown, cleave, throat, cut, foethrust) and writes a frame every
   `every` sim frames (`DSF`, `CLIP`, `PAGE` in the environment; `PAGE` a kept build for the "before"); `sheet.py` lays frames out.
@@ -1857,7 +1867,7 @@ checks use to set the two side by side.
   floor at the game's cap of 360 stains 3.4 for 1.5 (each blot is kept mirrored and at three eighths the size, so no stain needs
   a transform or a big picture drawn small; a blot still covers about five times the pixels the ellipse did). The perf suite
   times none of this, and no phone's frame time has been read.
-- The widths are the drawing guide's: a cut is a 3.1 line with a 1.9 thread and a 1.9 run (a line on a fighter lands on a phone at
+- The widths are the drawing guide's: a cut is a 3.1 line with a 1.9 middle and a 1.9 run (a line on a fighter lands on a phone at
   about .83 of its width, and the first look review failed three of this file's strokes at .68 to .88 units). The light on a
   pool's far edge is a filled sliver, not a stroke: a pool is drawn at many sizes.
   Checked at its publishing (Nov 15): the look review clean on its second run (19.5 min; the first failed on those three strokes
@@ -2245,7 +2255,7 @@ picture (roof_t16_w) differed from the published one though the rebuild had left
 file names (the page makes the rest from each frame's id), so the frames are what to count: every frame has three pictures
 (`<frame>.jpg`, `_s.jpg`, `_w.jpg`).
 Publish ragdoll-skirmish-lab.html with the Artifact tool to the same url (https://claude.ai/artifact/61wMNijJeCxJvsa3vWMbxJ) with a
-short label "V121 ..." (V120 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
+short label "V122 ..." (V121 was the last published; count on from it). Since V116 that page is the game with the flow test's parts,
 the skins and the Phaser view built in (build.py `game_page`: above, under the flow test); test_page.html is not. (V115's work went onto main the night before it was
 published, at the user's word, as a merge of its branch: the commit under V115's own.) Where the Artifact tool is not offered, the artifacts
 server's `publish_files` publishes it (slug 289f303f-7e57-4646-ab76-3e919649925f, the live version as `base_version`): it wants a

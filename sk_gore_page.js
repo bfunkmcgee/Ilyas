@@ -1,7 +1,7 @@
 // The blood as it is drawn (sk_goreui.js, since V120), at a phone held upright, in the lab's street. A spear's thrust that kills: the part of
 // the blade inside the body is not drawn (the old drawing drew it there), the point is out the far side and red, the body keeps the
 // wound, and the blade comes away wet and dries. The drops, the stains and a body's marks draw in the setting's colours and not at
-// all with the blood off, when a blade in a body is still out of sight inside it. A weapon left in a body, the same. A head cut
+// all with the blood off, when a blade in a body is still out of sight inside it. A cut is no brighter than the blood that flies. A weapon left in a body, the same. A head cut
 // off leaves a stump. And what the old drawings left set on the context, the new ones leave set.
 // Every picture here is drawn by the page's own functions on a clear sheet of the world's size and read from it.
 // usage: node sk_gore_page.js [outdir]   (the sheets go to outdir as PNGs when one is named)
@@ -36,10 +36,10 @@ const OUT=process.argv[2]||null;if(OUT)fs.mkdirSync(OUT,{recursive:true});
       return{c,d:g.getImageData(0,0,900,600).data,left:{fillStyle:g.fillStyle,strokeStyle:g.strokeStyle,lineCap:g.lineCap,lineWidth:g.lineWidth,globalAlpha:g.globalAlpha,comp:g.globalCompositeOperation}};};
     // its drawn pixels: how many, their mean colour, how many are blood (red or, in ink, violet: far from any grey), how many are
     // reddened (blood thin over steel), how many pass `inside`
-    window.read=(sh,inside)=>{const d=sh.d;let n=0,r=0,g=0,b=0,red=0,ink=0,warm=0,inT=0;
-      for(let y=0;y<600;y++)for(let x=0;x<900;x++){const i=(y*900+x)*4;if(d[i+3]<48)continue;n++;r+=d[i];g+=d[i+1];b+=d[i+2];
+    window.read=(sh,inside)=>{const d=sh.d;let n=0,r=0,g=0,b=0,red=0,ink=0,warm=0,inT=0,maxr=0;
+      for(let y=0;y<600;y++)for(let x=0;x<900;x++){const i=(y*900+x)*4;if(d[i+3]<48)continue;n++;r+=d[i];g+=d[i+1];b+=d[i+2];if(d[i]>maxr)maxr=d[i];
         if(d[i]>d[i+1]*2.2&&d[i]>d[i+2]*1.5&&d[i]>70)red++;if(d[i+2]>d[i+1]*1.5&&d[i+2]>d[i]*1.15&&d[i+2]>70)ink++;if(d[i]>d[i+1]*1.3&&d[i]>d[i+2]*1.15)warm++;if(inside&&inside(x+.5,y+.5))inT++;}
-      return{n,r:n?Math.round(r/n):0,g:n?Math.round(g/n):0,b:n?Math.round(b/n):0,red,ink,warm,inT};};
+      return{n,r:n?Math.round(r/n):0,g:n?Math.round(g/n):0,b:n?Math.round(b/n):0,red,ink,warm,inT,maxr};};
     window.inCap=(T,m)=>(x,y)=>{const vx=T.C.x-T.P.x,vy=T.C.y-T.P.y,l2=vx*vx+vy*vy||1,u=Math.max(0,Math.min(1,((x-T.P.x)*vx+(y-T.P.y)*vy)/l2));return Math.hypot(x-T.P.x-vx*u,y-T.P.y-vy*u)<T.R-(m||0);};
     window.png=sh=>sh.c.toDataURL('image/png');
   });
@@ -94,9 +94,13 @@ const OUT=process.argv[2]||null;if(OUT)fs.mkdirSync(OUT,{recursive:true});
   // ---------- a body's marks: a cut and a bruise put on him by hand, at a pose that is set ----------
   r=await p.evaluate(()=>{const V=S.F[1];until(()=>S.game.phase==='input',600);V.marks.length=0;V.marks.push({a:PEL,b:CHE,u:.55,ang:.7,len:7,edge:true,off:1},{a:PEL,b:CHE,u:.3,ang:0,len:0,edge:false,off:-1});
     const o={};for(const g of ['red','ink','off']){S.gore=g;const sh=sheet(()=>drawMarks(V));o[g]=read(sh);o[g].left=sh.left;}
-    GoreLook.plain(()=>{for(const g of ['red','off']){S.gore=g;o['old_'+g]=sheet(()=>drawMarks(V)).left;}});S.gore='red';V.marks.length=0;return o;});
+    GoreLook.plain(()=>{for(const g of ['red','off']){S.gore=g;const sh=sheet(()=>drawMarks(V));o['old_'+g]=sh.left;if(g==='red')o.oldMax=read(sh).maxr;}});
+    // the wound seen in a tear of Kael's clothes takes the same red (the looks ask woundInk() for it)
+    o.wi={};for(const g of ['red','ink','off']){S.gore=g;o.wi[g]=woundInk();}S.gore='red';o.wi.old=GoreLook.plain(()=>woundInk());o.spat=GORE_COL.red.spat;V.marks.length=0;return o;});
   expect('a cut and a bruise are drawn on him',r.red.n>20&&r.red.red>8,JSON.stringify({px:r.red.n,red:r.red.red}));
   expect('in ink they are violet, with the blood off there are none',r.ink.ink>8&&r.ink.red===0&&r.off.n===0,JSON.stringify({ink:r.ink.ink,red:r.ink.red,off:r.off.n}));
+  expect('a cut is no brighter than the blood that flies (the old one was), and the wound in a tear of Kael\'s clothes is that red too',
+    r.red.maxr<=170&&r.oldMax>200&&r.wi.red===r.spat&&r.wi.old!==r.spat&&r.wi.off===null&&!!r.wi.ink&&r.wi.ink!==r.wi.red,JSON.stringify({max:r.red.maxr,old:r.oldMax,wound:r.wi,spat:r.spat}));
   expect('the marks leave the context as the old ones did',JSON.stringify(r.red.left)===JSON.stringify(r.old_red)&&JSON.stringify(r.off.left)===JSON.stringify(r.old_off),JSON.stringify([r.red.left,r.old_red]));
   await save('marks','(()=>{const V=S.F[1];V.marks.push({a:PEL,b:CHE,u:.55,ang:.7,len:7,edge:true,off:1},{a:PEL,b:CHE,u:.3,ang:0,len:0,edge:false,off:-1});const u=png(sheet(()=>drawMarks(V)));V.marks.length=0;return u;})()');
 

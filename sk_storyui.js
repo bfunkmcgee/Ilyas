@@ -221,7 +221,7 @@ function pitArmDrain(A){return 1-sstep(clamp((S.t-A.t0-.3)/1.6,0,1));}
   // (only inside the Pit's own picture, as its walls are: a phone held upright sees past the picture's ends)
   ctx.save();ctx.beginPath();ctx.rect(-1e4,-110,2e4,H+230);ctx.clip();try{
     if(K&&lookOn(K)){const L=kaelLight(K),lt=L.light?{x:L.light.x+PIT_DEP*PSX,y:L.light.y-PIT_DEP*PSY}:null;
-      KaelLook.armPiece(ctx,{S:Q[0],E:Q[1],H:Q[2]},{light:lt,key:L.col,rimK:L.rk,gore:S.gore!=='off'?GORE_COL[S.gore].mark:null,coatOff:A.coatOff,sz:K.body.h*(.93+.07*K.body.bulk),fa:A.fa,drain:pitArmDrain(A)});
+      KaelLook.armPiece(ctx,{S:Q[0],E:Q[1],H:Q[2]},{light:lt,key:L.col,rimK:L.rk,gore:woundInk(),coatOff:A.coatOff,sz:K.body.h*(.93+.07*K.body.bulk),fa:A.fa,drain:pitArmDrain(A)});
       // its light on the wall round it, the only light left of him
       const lit=1-pitArmDrain(A);if(lit>.02){const cx=(Q[0].x+Q[1].x+Q[2].x)/3,cy=(Q[0].y+Q[1].y+Q[2].y)/3,r=42,g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
         g.addColorStop(0,`rgba(127,243,227,${(.17*lit).toFixed(3)})`);g.addColorStop(1,'rgba(127,243,227,0)');ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.fillRect(cx-r,cy-r,r*2,r*2);ctx.globalCompositeOperation='source-over';}}
