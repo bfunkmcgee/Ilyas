@@ -11,9 +11,11 @@
 const GoreLook=(()=>{
 const fr=x=>x-Math.floor(x),ez=t=>t<=0?0:t>=1?1:t*t*(3-2*t);
 const mkc=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
-// mid is the game's own spatter colour (GORE_COL, sk_ui.js); the stain is a little lighter than its flat one was, with a dark middle
-const PAL={red:{deep:'#5c0916',mid:'#a5132b',lite:'#cc3a53',wet:'#ffb9c2',stain:'110,9,24',core:'60,5,13'},
-  ink:{deep:'#2c1b55',mid:'#4b3184',lite:'#8571c4',wet:'#dcd2ff',stain:'76,50,132',core:'42,26,82'}};
+// mid is the game's own spatter colour (GORE_COL, sk_ui.js); the stain is a little lighter than its flat one was, with a dark middle.
+// cut is the middle of a cut on a body and the wound seen in a tear of Kael's clothes (V121: both were the game's bright mark colour,
+// brighter than any blood here; red's is the spatter colour, ink's a step up from its spatter, which is lost on a dark coat)
+const PAL={red:{deep:'#5c0916',mid:'#a5132b',lite:'#cc3a53',wet:'#ffb9c2',cut:'#a5132b',stain:'110,9,24',core:'60,5,13'},
+  ink:{deep:'#2c1b55',mid:'#4b3184',lite:'#8571c4',wet:'#dcd2ff',cut:'#6a54ab',stain:'76,50,132',core:'42,26,82'}};
 const pal=()=>PAL[S.gore]||null;
 // the old drawing stays where there is no real canvas to work on (the headless checks: sk_dom.js's stub has a document, and its
 // context answers nothing; asked once) and with the classic look; `plain` runs a drawing as it was before this file (the checks
@@ -210,7 +212,7 @@ function wounds(f){const list=WND.get(f),p=pal();if(!list||!p)return;const a=f.p
     ctx.globalAlpha=.95;ctx.fillStyle=p.deep;ctx.beginPath();ctx.ellipse(x,y,.7*sz,1.8*sz,ba+Math.PI/2,0,TAU);ctx.fill();
     ctx.fillStyle=p.lite;ctx.globalAlpha=.6;ctx.beginPath();ctx.ellipse(x,y,.17*sz,1.05*sz,ba+Math.PI/2,0,TAU);ctx.fill();}
   ctx.restore();}
-// the cuts and bruises the game keeps on a body (f.marks): a cut dark and open with a wet thread in it and a run from its lower end,
+// the cuts and bruises the game keeps on a body (f.marks): a cut dark and open with the blood's red down its middle and a run from its lower end,
 // a bruise a dark bloom. (They were one bright line and one dot.) The tears the looks draw themselves are left to them, as before.
 function marks(base,f){if(!ok())return base(f);const p=pal();
   if(p&&f.marks.length){const look=typeof lookOn==='function'&&lookOn(f);ctx.save();ctx.lineCap='round';
@@ -220,7 +222,7 @@ function marks(base,f){if(!ok())return base(f);const p=pal();
         // (the widths are the drawing guide's: a line lands on a phone at about .83 of its width here, and 1.5 is the least)
         ctx.strokeStyle=p.deep;ctx.globalAlpha=.92;ctx.lineWidth=3.1;ln(x-cx,y-cy,x+cx,y+cy);
         ctx.strokeStyle=p.mid;ctx.globalAlpha=.85;ctx.lineWidth=1.9;ln(lx,ly,lx+.3,ly+run);
-        ctx.strokeStyle=p.lite;ctx.globalAlpha=.95;ctx.lineWidth=1.9;ln(x-cx*.78,y-cy*.78,x+cx*.78,y+cy*.78);}
+        ctx.strokeStyle=p.cut;ctx.globalAlpha=.95;ctx.lineWidth=1.9;ln(x-cx*.78,y-cy*.78,x+cx*.78,y+cy*.78);}
       else{ctx.globalAlpha=.55;ctx.fillStyle=p.deep;ctx.beginPath();ctx.arc(x,y,2.5,0,TAU);ctx.fill();ctx.globalAlpha=.5;ctx.fillStyle=p.mid;ctx.beginPath();ctx.arc(x,y,1.25,0,TAU);ctx.fill();}}
     ctx.restore();}
   wounds(f);}
@@ -288,4 +290,5 @@ if(typeof FXL!=='undefined'&&FXL.fx){const fx=FXL.fx;FXL.fx=function(){const r=f
 {const b=drawItem;drawItem=function(it){return GoreLook.item(b,it);};}
 {const b=drawMarks;drawMarks=function(f){if(!GoreLook.ok())return b(f);GoreLook.marks(b,f);GoreLook.left.marks(f);};}
 {const b=drawStump;drawStump=function(f){if(!GoreLook.ok())return b(f);GoreLook.stump(f);if(GORE_COL[S.gore])ctx.fillStyle=GORE_COL[S.gore].mark;};}
+{const b=woundInk;woundInk=function(){const c=b();return c&&GoreLook.ok()&&GoreLook.PAL[S.gore]?GoreLook.PAL[S.gore].cut:c;};}
 // ===== GORE UI END =====

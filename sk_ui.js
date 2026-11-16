@@ -337,6 +337,8 @@ function drawBlood(){
     if(sp>140){ctx.lineWidth=b.r*1.3;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(q.x-b.vx*.012,q.y-b.vy*.012);ctx.stroke();}else circ(q,b.r*.9);}
   ctx.globalAlpha=1;
 }
+// the colour of a wound seen in a tear of Kael's clothes or at the end of a torn limb (null with the blood off)
+function woundInk(){return S.gore!=='off'?GORE_COL[S.gore].mark:null;}
 // where a head has come off (asked for by every way a fighter is drawn, with the blood on)
 function drawStump(f){ctx.fillStyle=GORE_COL[S.gore].mark;circ(f.p[CHE],f.body.torsoW*.34);}
 // cuts and bruises stay on the silhouette for the rest of the fight

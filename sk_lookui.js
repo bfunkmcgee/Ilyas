@@ -1504,7 +1504,7 @@ function kaelWind(f){const sc=S.arena&&S.arena.scroll?(S.scrollV||0):0;
   return 0;}
 function drawKael(f){
   const L=kaelLight(f),drawing=f.sheath&&S.t<f.sheath.t0+f.sheath.out&&f.scab===f.weaponKey;
-  KaelLook.draw(ctx,f,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,wind:kaelWind(f),yaw:f._yaw||0,spin:f._spinU,headYaw:f._headYaw??(f.headTurn||undefined),latArm:f._latArm,latElbow:f._latElbow,apart:f._apart,latLeg:f._latLeg,latKnee:f._latKnee,latFoot:f._latFoot,phys:f._phys,opening:!!(S.opening&&S.opening.f===f),arcSt:f.weaponKey==='elven'?arcState(f):null,gore:S.gore!=='off'?GORE_COL[S.gore].mark:null,
+  KaelLook.draw(ctx,f,{light:L.light,dir:L.dir,key:L.col,rimK:L.rk,now:S.t,wind:kaelWind(f),yaw:f._yaw||0,spin:f._spinU,headYaw:f._headYaw??(f.headTurn||undefined),latArm:f._latArm,latElbow:f._latElbow,apart:f._apart,latLeg:f._latLeg,latKnee:f._latKnee,latFoot:f._latFoot,phys:f._phys,opening:!!(S.opening&&S.opening.f===f),arcSt:f.weaponKey==='elven'?arcState(f):null,gore:woundInk(),
     lookBack:!!(f.look&&tacLook(f)<-.4),bladeOK:!drawing,drawOther:drawWeapon,afterFarArm:f.sidearm==='offhand'?drawOffDagger:null,afterTorso:f.scab&&!f.dead?drawScabbard:null});
   if(f.severed&&S.gore!=='off')drawStump(f);
   drawMarks(f);}
